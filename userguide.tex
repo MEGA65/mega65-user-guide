@@ -69,7 +69,8 @@
 \usepackage{tikzpagenodes}
 \usepackage{imakeidx}
 \usepackage{titlesec}
-\usepackage{minitoc}
+%\usepackage{minitoc}
+\usepackage{aeb-minitoc}
 
 % Don't number sections
 \setcounter{secnumdepth}{0}
@@ -95,6 +96,12 @@
 \makeatletter\chardef\pdf@shellescape=\@ne\makeatother
 
 \setcounter{tocdepth}{5}
+
+\TOPLevel{chapter}
+\BTMLevel{section}
+\begin{minitocfmt}{\bluemtoc}
+\declaretocfmt{section*}{\@F{\Large\bfseries\hspace{4cm}\textbullet\hspace{1em}}\@B{1.5em}\@P{\mtocgobble}}
+\end{minitocfmt}
 
 \makeatletter
 \def\cleardoublepage{\clearpage\if@twoside
@@ -182,6 +189,11 @@
 
 \tableofcontents
 
+\newcommand*{\justifyheading}{\raggedleft}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\justifyheading}{\chaptertitlename\ \thechapter}
+  {20pt}{\Huge}
+
 \include{chapter0introduction}
 \include{chapter1setup}
 \include{chapter2gettingstarted}
@@ -194,8 +206,17 @@
 
 \begin{appendices}
 
+\newcommand*{\justifyheading}{\raggedleft}
 \titleformat{\chapter}[display]
-{\normalfont\huge\bfseries}{\filcenter\underline{\MakeUppercase{{\chaptertitlename}}\ \thechapter}}{20pt}{\Huge}
+            {\emptypage\thispagestyle{plain}\pagecolor{blue}\textcolor{white}\normalfont\huge\bfseries\justifyheading}
+            {\chaptertitlename\ \thechapter}
+            {20pt}
+            {\Huge}[\bluemtoc\insertminitoc
+              \newpage\pagecolor{white}\textcolor{white}\emptypage
+            ]
+  
+%\titleformat{\chapter}[display]
+%{\normalfont\huge\bfseries}{\filcenter\underline{\MakeUppercase{{\chaptertitlename}}\ \thechapter}}{20pt}{\Huge}
   
   \include{appendix-accessories}
   \include{appendix-basic2}

@@ -68,6 +68,11 @@
 \usepackage{graphicx}
 \usepackage{tikzpagenodes}
 \usepackage{imakeidx}
+\usepackage{titlesec}
+\usepackage{minitoc}
+
+% Don't number sections
+\setcounter{secnumdepth}{0}
 
 \renewcommand{\indexname}{INDEX}
 \renewcommand{\appendixtocname}{APPENDICES}
@@ -89,11 +94,23 @@
 
 \makeatletter\chardef\pdf@shellescape=\@ne\makeatother
 
+\setcounter{tocdepth}{5}
+
 \makeatletter
 \def\cleardoublepage{\clearpage\if@twoside
 \ifodd\c@page
 \else\hbox{}\thispagestyle{empty}\newpage
 \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+
+\renewcommand*{\l@section}[1]{%
+  \@dottedtocline{1}{1.0em}{1em}{%
+    \numberline{\textbullet}%
+    % \numberline{$\cdot$}%
+    \gobble@numberline
+    #1%
+  }%
+}
+
 \makeatother
 
 \input{fonts}
@@ -174,7 +191,24 @@
 \include{chapter6sprites}
 \include{chapter7sound}
 \include{chapter8data}
+
 \begin{appendices}
+
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{\filcenter\underline{\MakeUppercase{{\chaptertitlename}}\ \thechapter}}{20pt}{\Huge}
+  
+  \include{appendix-accessories}
+  \include{appendix-basic2}
+  \include{appendix-basic10}
+  \include{appendix-basicabbreviations}
+  \include{appendix-screencodes}
+  \include{appendix-asciicodes}
+  \include{appendix-screenmaps}
+  \include{appendix-mathfunctions}
+  \include{appendix-pinouts}
+  \include{appendix-error-messages}
+  \include{appendix-sprite-registers}
+  \include{appendix-sound-registers}
 \end{appendices}
 
 

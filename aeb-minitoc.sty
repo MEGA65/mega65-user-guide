@@ -1,0 +1,257 @@
+%%
+%% This is file `aeb-minitoc.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% aeb-minitoc.dtx  (with options: `copyright,package')
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% aeb-minitoc.sty package,                              %%
+%% Copyright (C) 2012--2018  D. P. Story                 %%
+%%   dpstory@uakron.edu  dpstory@acrotex.net             %%
+%%                                                       %%
+%% This program can redistributed and/or modified under  %%
+%% the terms of the LaTeX Project Public License         %%
+%% Distributed from CTAN archives in directory           %%
+%% macros/latex/base/lppl.txt; either version 1.2 of the %%
+%% License, or (at your option) any later version.       %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{aeb-minitoc}
+ [2018/09/29 v1.7 Creates a simple mini-toc]
+\newif\ifMiniTocListings \MiniTocListingstrue
+\DeclareOption{nominitocs}{\AtEndOfPackage{\MiniTocListingsfalse
+  \let\insertminitoc\insertminitocNOT}}
+\DeclareOption{!nominitocs}{\MiniTocListingstrue}
+\ProcessOptions
+\let\mtoc@contentsline\contentsline
+\let\mtoc@starttoc\@starttoc
+\let\mtoc@tableofcontents\tableofcontents
+\newcount\@minitocCnt \@minitocCnt=0\relax
+\def\csarg#1#2{\expandafter#1\csname#2\endcsname}
+\let\mtoc@One=1 \let\mtoc@Zero=0
+\let\mtocgobble\@gobble
+\def\TOPLevel#1{\def\x{#1}\ifx\x\@empty\else
+  \def\mtoc@TOPLevel{#1}\edef\TOPLevelNum{\@nameuse{sl@#1}}\fi}
+\def\BTMLevel#1{\def\x{#1}\ifx\x\@empty\else
+  \def\mtoc@BTMLevel{#1}\edef\BTMLevelNum{\@nameuse{sl@#1}}\fi}
+\def\TOCLevels#1#2{\TOPLevel{#1}\BTMLevel{#2}}
+\@ifclassloaded{book}{%
+  \TOCLevels{chapter}{subsection}
+  \def\sl@part{-1}\def\sl@chapter{0}
+  \csarg{\edef}{sl@part*}{\sl@part}
+  \csarg{\edef}{sl@chapter*}{\sl@chapter}
+}{%
+  \@ifclassloaded{report}{%
+    \TOCLevels{chapter}{subsection}
+    \def\sl@part{-1}\def\sl@chapter{0}
+    \csarg{\edef}{sl@part*}{\sl@part}
+    \csarg{\edef}{sl@chapter*}{\sl@chapter}
+  }{%
+   \TOCLevels{section}{subsubsection}
+    \def\sl@part{0}\csarg{\edef}{sl@part*}{\sl@part}
+  }%
+}
+\def\sl@section{1}\def\sl@subsection{2}\def\sl@subsubsection{3}
+\def\sl@paragraph{4}\def\sl@subparagraph{5}%\def\sl@all{17}
+\csarg{\edef}{sl@section*}{\sl@section}
+\csarg{\edef}{sl@subsection*}{\sl@subsection}
+\csarg{\edef}{sl@subsubsection*}{\sl@subsubsection}
+\csarg{\edef}{sl@paragraph*}{\sl@paragraph}
+\csarg{\edef}{sl@subparagraph*}{\sl@subparagraph}
+\newif\if@foundTOPLevel \@foundTOPLevelfalse
+\def\mtoc@@contentsline#1#2#3#4#5{\def\mtoc@PgNum{#3}%
+  \def\mtoc@HY@anchor{#4}\def\TOCEntryNum{#5}%
+  \mtoc@contentsline{#1}{#2}{#3}{#4}}
+\long\def\cl@LOOKFORSEC@LX#1#2#3#4{%
+  \cl@LOOKFORSEC@HY{#1}{#2}{#3}{\@empty}{#4}}
+\long\def\cl@LOOKFORSEC@HY#1#2#3#4#5{\def\mt@rgi{#1}% dps
+  \if@foundTOPLevel\ifx\mtocCL\@gobbletwo\else
+      \edef\NUMLevel{\@nameuse{sl@#1}}%
+      \ifnum\NUMLevel > \TOPLevelNum\relax\else
+        \let\mtocCL\@gobbletwo
+      \fi
+  \fi\fi
+  \@chkForNl#2\@nil % is it a * section
+  \ifx\mtocCL\@gobbletwo\else
+    \edef\mtoc@tmp{\the\mtocs@toks@}%
+      \ifx\mt@rgi\mtoc@TOPLevel
+        \def\SECNUM{MTOC.#5}%
+        \set@display@protect
+        \edef\mtoc@sec{\mtoc@sec}%
+        \ifx\SECNUM\mtoc@sec
+            \@foundTOPLeveltrue
+        \else
+          \@foundTOPLevelfalse\fi
+        \set@typeset@protect
+      \else
+        \if@foundTOPLevel
+          \ifnum\NUMLevel > \BTMLevelNum\relax\else
+            \ifx\@nlrtn\relax
+              \mtocs@toks@=\expandafter{\mtoc@tmp
+              \mtoc@@contentsline{#1}{#2}{#3}{#4}{#5}}\else
+              \mtocs@toks@=\expandafter{\mtoc@tmp
+              \mtoc@@contentsline{#1*}{#2}{#3}{#4}{#5}}\fi
+        \fi
+      \fi
+    \fi
+  \fi
+}
+\@ifpackageloaded{hyperref}{\let\cl@LOOKFORSEC\cl@LOOKFORSEC@HY}
+  {\let\cl@LOOKFORSEC\cl@LOOKFORSEC@LX}
+\def\@chkForNl#1#2\@nil{% check for number line
+  \ifx#1\numberline\let\@nlrtn\relax\else
+  \def\@nlrtn{\numberline{\hfill}}\fi}
+\def\mtoc@st@rttoc#1{\begingroup
+    \if@filesw \expandafter\newwrite\csname tf@#1\endcsname
+    \immediate\openout \csname tf@#1\endcsname \jobname.#1\relax
+    \fi\global\@nobreakfalse\endgroup}
+\let\mtoc@@starttoc\mtoc@One
+\def\mtoc@start@toc{\let\mtoc@start@next\relax
+  \@ifundefined{aebLastPage}
+  {%
+    \ifx\mtoc@@starttoc\mtoc@One
+      \global\let\mtoc@@starttoc\mtoc@Zero
+      \def\mtoc@start@next{\mtoc@st@rttoc{toc}}\fi
+    \mtoc@start@next
+  }{%
+    \ifnum\aebLastPage<\thepage\relax
+      \def\mtoc@start@next{\mtoc@st@rttoc{toc}}\fi
+    \mtoc@start@next
+  }%
+}
+\AtEndDocument{\mtoc@start@toc}
+\def\mtoc@TOC{toc}
+\def\mtocCL#1#2{#1}
+\newcommand\addtocontents@mtoc[2]{%
+    \def\mt@rgi{#1}\ifx\mt@rgi\mtoc@TOC
+    \global\advance\@minitocCnt\@ne
+    \mtoc@addtocontents{#1}{\protect\mtocCL{#2}{\the\@minitocCnt}}\else
+    \mtoc@addtocontents{#1}{#2}\fi}
+\AtBeginDocument{\let\mtoc@addtocontents\addtocontents
+  \let\addtocontents\addtocontents@mtoc}
+\def\tableofcontents{%
+    \def\@starttoc##1{\makeatletter
+    \@input{\jobname.##1}\makeatother}%
+    \NoFmtTOCEntry
+    \mtoc@tableofcontents
+    \global\let\@starttoc\mtoc@starttoc}
+\newcommand{\mtoc@CL@mtoc}[1]{\mtoc@parse#1\@nil}
+\def\mtoc@parse#1#2\@nil{\ifx#1\contentsline
+  \def\mtoc@next##1{#1#2{##1}}\else
+  \let\mtoc@next\@gobble\fi\mtoc@next}
+\let\@startsection@mtoc@SAVE\@startsection
+\def\@startsection#1{\def\@currentsecname{#1}%
+  \@startsection@mtoc@SAVE{#1}}
+\def\mtoclabel#1{\label{#1}\@bsphack
+    \protected@write\@auxout{}{\string
+    \csarg{\string\gdef}{mtoclbl#1}{\the\@minitocCnt}
+  }%
+  \@esphack
+}
+\def\mtocref#1{\@nameuse{mtoclbl#1}}
+\newif\if@minitoc \@minitocfalse
+\newif\if@MiniTocListings \@MiniTocListingstrue
+\def\NoFmtTOCEntry{\@minitocfalse}
+\def\FmtTOCEntry{\@minitoctrue}
+\def\miniorfulltoc#1#2{\if@minitoc
+  {{#1{#2}}}\else{#2}\fi}
+\newcommand{\insertminitoc}[1][]{%
+  \def\mtoc@rgi{#1}\ifx\mtoc@rgi\@empty
+    \edef\mtoc@rgi{MTOC.\the\@minitocCnt}\else
+    \edef\mtoc@rgi{MTOC.\mtocref{#1}}\fi
+  \ifnum\TOPLevelNum > \BTMLevelNum
+    \PackageError{aeb-minitoc}{%
+      The top level (\mtoc@TOPLevel) must be\MessageBreak
+      must be higher on the hierarchy then at bottom level}
+      {Try switching the two}\fi
+  \begingroup
+  \edef\mtoc@sec{\mtoc@rgi}\mtocs@toks@={}%
+  \let\contentsline\cl@LOOKFORSEC
+  \let\mtocCL\mtoc@CL@mtoc
+  \@foundTOPLevelfalse
+  \let\mtoc@numberline\numberline
+  \def\numberline##1{\makebox[\mtoc@numBoxWidth][l]%
+    {\sl@@sNumFmt{##1}}\sl@@EntryFmt}%
+  \makeatletter\InputIfFileExists{\jobname.toc}%
+  {\PackageInfo{aeb-minitoc}{TOC file read}}
+  {\PackageInfo{aeb-minitoc}{TOC file not available}}%
+  \edef\x{\the\mtocs@toks@}\ifx\x\@empty
+    \global\@MiniTocListingsfalse\else
+    \global\@MiniTocListingstrue\fi
+  \the\mtocs@toks@\par\makeatother
+  \if@MiniTocListings\else
+  \PackageWarning{aeb-mintoc}{No mini-toc built here}\fi
+  \endgroup
+}
+\newcommand{\insertminitocNOT}[1][]{}
+\def\numBoxWidth#1{\def\mtoc@numBoxWidth{#1}}
+\numBoxWidth{2.5em}
+\newtoks\mtoc@toks
+\newtoks\mtocs@toks@
+\def\sl@dots#1{\def\sl@@dots{%
+  \@dottedtocline{\sl@current}{#1}{\mtoc@numBoxWidth}}}
+\let\sl@@dots\@gobble
+\def\sl@nodots#1{\def\sl@@dots{%
+  \no@dottedtocline{\sl@current}{#1}{\mtoc@numBoxWidth}}}
+\let\sl@@nodots\@gobble
+\def\sl@EntryFmt#1{\def\sl@@EntryFmt{#1}} % dps
+\let\sl@@EntryFmt\relax % dps
+\def\sl@sNumFmt#1{\def\sl@@sNumFmt{#1}}
+\let\sl@@sNumFmt\relax
+\def\sl@pNumFmt#1{\def\sl@@pNumFmt{#1}}
+\let\sl@@pNumFmt\relax
+\def\sl@tocrmarg#1{\def\@tocrmarg{#1}}
+\def\sl@dotsep#1{\def\@dotsep{#1}}
+\def\mtoc@star#1*#2\@nil{\def\@rgii{#2}\ifx\@rgii\@empty
+  \let\mtoc@@star\mtoc@Zero\else\let\mtoc@@star\mtoc@One\fi}
+\long\def\declaretocfmt#1#2{%
+  \xdef\sl@current{\@nameuse{sl@#1}}%
+  \global\@namedef{\mtoc@CmdName @l@#1}##1##2{%
+    \normalfont\normalcolor\let\@E\TOCEntryNum
+    \let\@L\mtoc@HY@anchor\let\@Pg\mtoc@PgNum
+    \let\sl@@dots\@empty\let\sl@@sNumFmt\relax
+    \let\sl@@pNumFmt\relax\let\sl@@EntryFmt\relax
+    \let\@W\numBoxWidth\let\@R\sl@tocrmarg\let\@D\sl@dots
+    \let\@B\sl@nodots\let\@F\sl@EntryFmt\let\@N\sl@sNumFmt
+    \let\@P\sl@pNumFmt
+    #2\ifx\sl@@dots\@empty\let\sl@next\relax\else
+      \mtoc@star#1*\@nil % dps
+      \ifx\mtoc@@star\mtoc@Zero
+        \def\sl@next{\sl@@dots{##1}{\sl@@pNumFmt{##2}}}\else
+        \def\sl@next{\sl@@dots{\sl@@EntryFmt##1}{\sl@@pNumFmt{##2}}}\fi
+    \fi\sl@next}%
+  \edef\x{\expandafter\noexpand\csname l@#1\endcsname}%
+  \edef\y{\expandafter\noexpand\csname\mtoc@CmdName @l@#1\endcsname}%
+  \edef\mtoc@@tmp{\the\mtoc@toks\let\expandafter\noexpand\x=
+  \expandafter\noexpand\y}
+  \global\mtoc@toks=\expandafter{\mtoc@@tmp}}
+\def\mtoc@getCmdName#1{\edef\mtoc@CmdName{\expandafter
+  \@gobble\string#1}}
+\newenvironment{minitocfmt}[1]{\makeatletter
+  \gdef\@mtoc@cmd@@{#1}\let\@A\mtoc@addto
+  \mtoc@getCmdName{#1}\mtoc@toks={\let\@PW\mtoc@PW\let\@DS\sl@dotsep
+    \let\@R\sl@tocrmarg}%
+}{\expandafter\xdef\@mtoc@cmd@@{\the\mtoc@toks}}
+\def\mtoc@addto#1{\edef\mtoc@@tmp{\the\mtoc@toks}%
+  \global\mtoc@toks=\expandafter{\mtoc@@tmp #1}}
+\def\mtoc@PW#1{\def\@pnumwidth{#1}}
+\def\no@dottedtocline#1#2#3#4#5{%
+  \ifnum #1>\c@tocdepth \else
+    \vskip \z@ \@plus.2\p@
+    {\leftskip #2\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+     \parindent #2\relax\@afterindenttrue
+     \interlinepenalty\@M
+     \leavevmode
+     \@tempdima #3\relax
+     \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
+     {#4}\nobreak
+     \hfill
+     \nobreak
+     \hb@xt@\@pnumwidth{\hfil\normalfont \normalcolor #5}%
+     \par}%
+  \fi}
+\endinput
+%%
+%% End of file `aeb-minitoc.sty'.

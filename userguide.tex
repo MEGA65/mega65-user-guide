@@ -97,12 +97,19 @@
 
 \setcounter{tocdepth}{5}
 
-%\TOPLevel{chapter}
-%\BTMLevel{section}
-\begin{minitocfmt}{\bluemtoc}
+\begin{minitocfmt}{\chapmtoc}
 \declaretocfmt{section*}{\@F{\Large\bfseries\hspace{5cm}\color{white}\textbullet\hspace{1em}}\@B{1.5em}\@P{\mtocgobble}}
 \declaretocfmt{section}{\@F{\Large\bfseries\hspace{5cm}\color{white}\textbullet\hspace{1em}}\@B{1.5em}\@P{\mtocgobble}}
 \end{minitocfmt}
+
+% The following doesn't work, but the idea was to have a list of chapters on the part title pages
+\begin{minitocfmt}{\partmtoc}
+\declaretocfmt{chapter*}{\@F{\Large\bfseries\hspace{5cm}\color{white}\textbullet\hspace{1em}}\@B{1.5em}\@P{\mtocgobble}}
+\declaretocfmt{chapter}{\@F{\Large\bfseries\hspace{5cm}\color{white}\textbullet\hspace{1em}}\@B{1.5em}\@P{\mtocgobble}}
+\declaretocfmt{section}{}
+\declaretocfmt{section*}{}
+\end{minitocfmt}
+
 
 \makeatletter
 \def\cleardoublepage{\clearpage\if@twoside
@@ -199,12 +206,12 @@
             {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
             {\textcolor{white}{\uppercase\chaptertitlename\  {\fontsize{100}{130}\selectfont \bf\thechapter}}}
             {20pt}
-            {\Huge\textcolor{white}}[\textcolor{white}{\bluemtoc\insertminitoc}\newpage\newpage\pagecolor{white}\textcolor{black}]
+            {\Huge\textcolor{white}}[\textcolor{white}{\chapmtoc\insertminitoc}\newpage\newpage\pagecolor{white}\textcolor{black}]
 \titleformat{\part}[display]
             {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
-            {\textcolor{white}{\uppercase\  {\fontsize{100}{130}\selectfont \bf{PART \thepart}}}}
+            {\textcolor{white}{\uppercase{\fontsize{50}{65}\selectfont \bf{PART\ }}{\fontsize{100}{130}\selectfont \bf{\serifed\thepart}}}}
             {20pt}
-            {\Huge\textcolor{white}}[\textcolor{white}{\bluemtoc\insertminitoc}\newpage\newpage\pagecolor{white}\textcolor{black}]
+            {\Huge\textcolor{white}}[\textcolor{white}{\partmtoc\insertparttoc}\newpage\newpage\pagecolor{white}\textcolor{black}]
 \titlecontents{\chapter}
   
 \include{introduction}

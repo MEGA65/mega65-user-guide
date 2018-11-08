@@ -51,7 +51,7 @@
 % The testflow support page is at:
 % http://www.michaelshell.org/tex/testflow/
 
-\documentclass[twoside]{book}
+\documentclass{book}
 % \def\nolinkurl{\url}
 %\usepackage{nohyperref}
 % \def\UrlBreaks{\do\/\do-}
@@ -133,8 +133,8 @@
 
 \input{fonts}
 
-% For some reason the first page has the wrong margin. Try to fix.
-\usepackage[a5paper,bottom=2cm,top=1cm,left=1cm,right=0.5cm, footskip = 1cm]{geometry}
+% Set margins for inner and outer pages in A5 book format
+\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1cm,outer=0.5cm, footskip = 1cm]{geometry}
 
 % Some Computer Society conferences also require the compsoc mode option,
 % but others use the standard conference format.
@@ -153,6 +153,9 @@
 \pagenumbering{none}
 
 \begin{document}
+
+% relax word wrapping with sloppy for when headings and text can't be calculated properly
+\sloppy
 
 \include{frontcover}
 \include{regulatory}
@@ -208,7 +211,7 @@
 %% XXX - big numbers are not in bold, because latex gets confused
 \newcommand*{\justifyheading}{\raggedleft}
 \definecolor{headingblue}{rgb}{0.5,0.5,1}
-\titleformat{\section}[display]{}{\thesection}{20pt}{\huge\bf\color{headingblue}\uppercase}[\color{black}]
+\titleformat{\section}[display]{\raggedright}{\thesection}{20pt}{\huge\bf\color{headingblue}\uppercase}[\color{black}]
 \titleformat{\chapter}[display]
             {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
             {\textcolor{white}{\uppercase\chaptertitlename\  {\fontsize{100}{130}\selectfont \bf\thechapter}}}

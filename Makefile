@@ -2,7 +2,7 @@
 
 all:	userguide.pdf
 
-userguide.pdf: userguide.tex *.tex Makefile references.bib
+userguide.pdf: *.tex Makefile references.bib
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make userguide.tex
 
 clean:

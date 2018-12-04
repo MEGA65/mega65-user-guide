@@ -1,0 +1,207 @@
+% This is an element for displaying a sprite in a grid, just like page 70 of the
+% commodore manual. This version can be easily expanded. For now it will suffice.
+% In order to display a hi-res mono sprite grid use:
+%
+%	\spritegrid{
+%	\hline
+%	\spritecells{---------ooooooo--------}
+%	\spritecells{-------ooooooooooo------}
+%	\spritecells{------ooooooooooooo-----}
+%	\spritecells{------ooooo--oooooo-----}
+%	\spritecells{-----ooooo-oo--ooooo----}
+%	\spritecells{-----ooooo-ooooooooo----}
+%	\spritecells{-----ooooo-oo--ooooo----}
+%	\spritecells{------ooooo--oooooo-----}
+%	\spritecells{------ooooooooooooo-----}
+%	\spritecells{------ooooooooooooo-----}
+%	\spritecells{------o-ooooooooo-o-----}
+%	\spritecells{-------o-ooooooo-o------}
+%	\spritecells{-------o--ooooo--o------}
+%	\spritecells{--------o--ooo--o-------}
+%	\spritecells{--------o--ooo--o-------}
+%	\spritecells{---------o--o--o--------}
+%	\spritecells{---------o--o--o--------}
+%	\spritecells{----------ooooo---------}
+%	\spritecells{----------ooooo---------}
+%	\spritecells{----------ooooo---------}
+%	\spritecells{-----------ooo----------}
+%	}
+%
+% For a multicolour sprite:
+%
+%	\spritegrid{
+%	\hline
+%	\spritecells{------------------------}
+%	\spritecells{------------------------}
+%	\spritecells{------------------------}
+%	\spritecells{------------------------}
+%	\spritecells{--------llllll----------}
+%	\spritecells{------llllllggll--------}
+%	\spritecells{------llllllllgg--------}
+%	\spritecells{----llllllgggggggg------}
+%	\spritecells{----llllggeeeellll------}
+%	\spritecells{----lloollllllggee------}
+%	\spritecells{----llooggggooggee------}
+%	\spritecells{----llooggggooggee------}
+%	\spritecells{----eeeeggggooeeee------}
+%	\spritecells{----ggeeeeeeeeoo--------}
+%	\spritecells{------ggooooooee--------}
+%	\spritecells{------eeggeeeeee--------}
+%	\spritecells{--------eeeeee----------}
+%	\spritecells{------------------------}
+%	\spritecells{------------------------}
+%	\spritecells{------------------------}
+%	\spritecells{------------------------}
+%	}
+
+\usepackage{tabulary} %Removes spacing from tabulars
+\usepackage{xstring} % for string substitution
+\usepackage{xparse} % used for unpacking the sprite characters
+% \renewcommand{\familydefault}{\sfdefault} % default sans font
+
+%\usepackage{graphicx} % for resizing the tabular used by spritegrid
+\usepackage{subcaption} % used for the left hand subtable of row numbers
+\usepackage{multirow} % used for the ``Row'' column
+\usepackage{rotating} % used by the rotating ``Row'' word
+
+\newcommand{\spritebytecolumn}[1]{
+   %\framebox[4mm]{#1}
+   \makebox[4mm]{#1}
+}
+
+\setlength\tabcolsep{0.3mm} % the indivdual cell width and height
+
+% The byte numbers at the top of the grid in two jaged rows. 
+\newcommand{\spritetopcolumnbytenumbers}{
+  \spritebytecolumn{128} & 
+  \spritebytecolumn{ } & 
+  \spritebytecolumn{32} & 
+  \spritebytecolumn{ } &
+
+  \spritebytecolumn{8} & 
+  \spritebytecolumn{ } & 
+  \spritebytecolumn{2} & 
+  \spritebytecolumn{} %\\[-2pt]
+}
+
+\newcommand{\spritebottomcolumnbytenumbers}{
+  \spritebytecolumn{ } & 
+  \spritebytecolumn{64} & 
+  \spritebytecolumn{ } & 
+  \spritebytecolumn{16} &
+  
+  \spritebytecolumn{ } & 
+  \spritebytecolumn{4} & 
+  \spritebytecolumn{ } & 
+  \spritebytecolumn{1} 
+}
+
+
+% Cell colour list. Can be expanded for other colours in the sprite grid
+\def\blk{\cellcolor{black}}
+\def\wht{\cellcolor{white}}
+\def\grn{\cellcolor{ForestGreen}}
+\def\lgrn{\cellcolor{YellowGreen}}
+\def\gry{\cellcolor{Gray}}
+
+\newcounter{lettercounter} % counter for detecting the last cell
+
+% Collect the spritecell list and send it to \ProcessSpriteCell for turning into cells
+\NewDocumentCommand{\spritecells}{%
+>{\SplitList{}} m }{%
+  \ProcessList{#1}{\ProcessSpriteCell}%
+}
+
+\NewDocumentCommand{\ProcessSpriteCell}{m}{%
+  \stepcounter{lettercounter}% 
+    \IfStrEqCase{#1}{
+	{o}{\blk}
+	{-}{\wht}
+	{g}{\grn}
+	{l}{\lgrn}
+	{e}{\gry}
+   }%
+   \IfStrEq{\thelettercounter}{24}{\setcounter{lettercounter}{0} \\ \hline}{&}%
+}
+
+% Start of the actual spritegrid definition
+\newcommand{\spritegrid}[1]{
+\begin{table}[h!]
+\centering
+\begin{subtable}{28mm}
+\vspace{8mm}
+\scalebox{0.76}{
+\begin{tabular}{p{25mm} p{4mm} c}
+\multirow{21}{*}{ } &
+\multirow{21}{*}{%
+\begin{turn}{90}%
+\bfseries\uppercase{Row}%
+\end{turn}} &
+ 1\\
+& & 2\\
+& & 3\\
+& & 4\\
+& & 5\\
+& & 6\\
+& & 7\\
+& & 8\\
+& & 9\\
+& & 10\\
+& & 11\\
+& & 12\\
+& & 13\\
+& & 14\\
+& & 15\\
+& & 16\\
+& & 17\\
+& & 18\\
+& & 19\\
+& & 20\\
+& & 21
+\end{tabular}
+}
+\end{subtable}%
+\begin{subtable}{.8\textwidth}
+
+\setlength{\arrayrulewidth}{1pt}
+\scalebox{0.7}{%
+\begin{tabular}{  *{3}{p{30mm} }  }
+  \center\uppercase{Series\\1} &
+  \center\uppercase{Series\\2} &
+  \center\uppercase{Series\\3}  
+\end{tabular}%
+}
+
+\scalebox{0.7}{
+\begin{tabular}{  *{24}{p{3.35mm} }  }
+	\spritetopcolumnbytenumbers & 
+	\spritetopcolumnbytenumbers & 
+	\spritetopcolumnbytenumbers \\
+	\spritebottomcolumnbytenumbers &
+	\spritebottomcolumnbytenumbers &
+	\spritebottomcolumnbytenumbers
+\end{tabular} 
+}
+
+\scalebox{0.7}{
+\begin{tabular}{ | *{24}{p{3mm} |}  }
+#1
+\end{tabular}
+}
+
+\scalebox{0.7}{
+\begin{tabular}{ *{24}{p{3.35mm}}  }
+	\spritebytecolumn{1} & & & & 
+	\spritebytecolumn{5} & & & & & 
+	\spritebytecolumn{10} & & & & & 
+	\spritebytecolumn{15} & & & & & 
+	\spritebytecolumn{20} & & & & 
+	\spritebytecolumn{24} \\
+	\multicolumn{24}{c}{\bfseries\uppercase{Column}}
+\end{tabular}
+}
+\end{subtable}
+\end{table}
+}
+
+% End of the actual spritegrid definition

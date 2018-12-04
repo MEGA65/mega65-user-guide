@@ -55,12 +55,11 @@
 %	}
 
 \usepackage{tabulary} %Removes spacing from tabulars
-\usepackage[table,dvipsnames]{xcolor}
 \usepackage{xstring} % for string substitution
 \usepackage{xparse} % used for unpacking the sprite characters
 % \renewcommand{\familydefault}{\sfdefault} % default sans font
 
-\usepackage{graphicx} % for resizing the tabular used by spritegrid
+%\usepackage{graphicx} % for resizing the tabular used by spritegrid
 \usepackage{subcaption} % used for the left hand subtable of row numbers
 \usepackage{multirow} % used for the ``Row'' column
 \usepackage{rotating} % used by the rotating ``Row'' word
@@ -126,38 +125,39 @@
 }
 
 % Start of the actual spritegrid definition
-\newenvironment{spritegrid}[1]{
-\begin{table}[h]
+\newcommand{\spritegrid}[1]{
+\begin{table}[h!]
 \centering
-\begin{subtable}{8mm}
+\begin{subtable}{28mm}
 \vspace{8mm}
 \scalebox{0.76}{
-\begin{tabular}{c}
-\multirow{24}{12mm}{%
+\begin{tabular}{p{25mm} p{4mm} c}
+\multirow{21}{*}{ } &
+\multirow{21}{*}{%
 \begin{turn}{90}%
 \bfseries\uppercase{Row}%
-\end{turn}}\\
+\end{turn}} &
  1\\
- 2\\
- 3\\
- 4\\
- 5\\
- 6\\
- 7\\
- 8\\
- 9\\
- 10\\
- 11\\
- 12\\
- 13\\
- 14\\
- 15\\
- 16\\
- 17\\
- 18\\
- 19\\
- 20\\
- 21
+& & 2\\
+& & 3\\
+& & 4\\
+& & 5\\
+& & 6\\
+& & 7\\
+& & 8\\
+& & 9\\
+& & 10\\
+& & 11\\
+& & 12\\
+& & 13\\
+& & 14\\
+& & 15\\
+& & 16\\
+& & 17\\
+& & 18\\
+& & 19\\
+& & 20\\
+& & 21
 \end{tabular}
 }
 \end{subtable}%
@@ -191,11 +191,17 @@
 
 \scalebox{0.7}{
 \begin{tabular}{ *{24}{p{3.35mm}}  }
-	1 & & & & 5 & & & & & 10 & & & & & 15 & & & & & 20 & & & & 24 \\
+	\spritebytecolumn{1} & & & & 
+	\spritebytecolumn{5} & & & & & 
+	\spritebytecolumn{10} & & & & & 
+	\spritebytecolumn{15} & & & & & 
+	\spritebytecolumn{20} & & & & 
+	\spritebytecolumn{24} \\
 	\multicolumn{24}{c}{\bfseries\uppercase{Column}}
 \end{tabular}
 }
 \end{subtable}
 \end{table}
 }
+
 % End of the actual spritegrid definition

@@ -78,7 +78,7 @@ Some can be used only on strings, while others can only be used on numbers.
 
 \subsection{ABS - Absolute value function}
 
-ABS(expression)
+{\bf ABS(expression)}
 
 This function returns the absolute value of the numeric expression.
 That is, it ignores the sign.  That is, if the value of the expression is positive,
@@ -114,4 +114,52 @@ The expression must be numeric. If you give it a string, the computer will indic
   PRINT ABS("12")
 
   ?TYPE MISMATCH ERROR
+\end{screenoutput}
+
+\section{Operators}
+
+Operators are very much like functions, except that instead of having their arguments inside round brackets,
+the keyword goes in between the arguments, or in the case of the few operators, like \screentext{NOT}, that take only one argument,
+the keyword goes before the argument like in a function, but there are no round brackets.
+
+\subsection{AND - Logical AND operator}
+
+{\bf <numeric expression> AND <numeric expression>}
+
+The AND operator calculates the logical and of the two arguments.
+The calculation is performed after converting the arguments to 16-bit binary values.
+If either expression is outside of the range of -32768 to +32767, then an \screentext{?ILLEGAL QUANTITY ERROR} will be generated.
+
+\begin{screenoutput}
+  PRINT 1 AND 3
+  1
+  PRINT 15 AND 23
+  7
+  PRINT 128 AND 64
+  0
+  PRINT -1 AND -7
+  -7
+  PRINT 2348734 AND 7
+
+  ?ILLEGAL QUANTITY ERROR
+\end{screenoutput}
+
+The AND operator can also be used to test boolean conditions, because the {\bf =}, {\bf <}, {\bf <=}, {\bf <>}, {\bf >=} and {\bf >} inequality operators return a numeric value, as can be seen by printing the result of such an expression:
+
+\begin{screenoutput}
+  PRINT \"ABC\"=\"ABC\"
+  -1
+  PRINT \"ABC\"=\"DEF\"
+  0
+  PRINT 3 < 9
+  -1
+\end{screenoutput}
+
+Thus, constructions like the following can be constructed:
+
+\begin{screenoutput}
+  PRINT (\"ABC\" < \"FOO\") AND (7 <> 9)
+  -1
+  PRINT (\"ABC\" = \"FOO\") AND (23 > 8)
+  0
 \end{screenoutput}

@@ -153,8 +153,18 @@ void emit_table_output(FILE *f)
 {
   if (table_uses_bits) {
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
+    fprintf(f,
+	    "\\begin{tabular}{l|l|c|c|c|c|c|c|c|c}\n"
+	    "\\hline\n"
+	    );
+
   } else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
+    fprintf(f,
+	    "\\begin{tabular}{l|l|c||l}\n"
+	    "\\hline\n"
+	    );
+
   }
 
   for(int row=table_len-1;row>=0;row--)
@@ -471,20 +481,6 @@ int main(int argc,char **argv)
       if (0) fprintf(f,"\\section{%s (%s)}\n",
 		     reg_tables[t]->name,
 		     describe_mode(reg_tables[t]->mode));
-      fprintf(f,
-	      "\\begin{tabular}{l|c|c|c|c|c|c|c|c|l}\n"
-	      "\\hline\n"
-	      );
-
-      // XXX - Sort them!
-      // XXX - Collate them into bytes!
-      // XXX - Output info blocks as well
-      for(int reg=0;reg<reg_tables[t]->reg_count;reg++)
-	{
-	}
-      
-      fprintf(f,"\\hline\n"
-	      "\\end{tabular\n");
       fclose(f);
     }
 

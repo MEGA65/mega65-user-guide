@@ -209,11 +209,11 @@ void emit_table_output(FILE *f)
   for(int row=table_len-1;row>=0;row--)
     {
       if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
-	fprintf(f,"| \\$%04x -- \\$%04x | %d -- %d | ",
+	fprintf(f,"| \\$%04X -- \\$%04X | %d -- %d | ",
 		table_stuff[row].low_addr,table_stuff[row].high_addr,
 		table_stuff[row].low_addr,table_stuff[row].high_addr);
       else
-	fprintf(f,"| \\$%04x | %d | ",
+	fprintf(f,"| \\$%04X | %d | ",
 		table_stuff[row].low_addr,table_stuff[row].high_addr);
       
       if (table_uses_bits) {

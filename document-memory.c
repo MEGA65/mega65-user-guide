@@ -53,15 +53,13 @@
 #include <string.h>
 #include <strings.h>
 
-struct reg_line {
-#define MODE_64 1
-#define MODE_65 2
-#define MODE_66 3
+#define MODE_C64 1
+#define MODE_C65 2
+#define MODE_MEGA65 3
 
-  int mode;
+struct reg_line {
   unsigned int low_address,high_address;
   unsigned int low_bit,high_bit;
-  char *table;
   char *signal;
   char *description;
 
@@ -77,6 +75,7 @@ struct info_block {
 
 struct reg_table {
   char *name;
+  int mode;
   #define MAX_ENTRIES 1024
   struct reg_line regs[MAX_ENTRIES];
   int reg_count;
@@ -90,17 +89,38 @@ int table_count=0;
 
 int parse_io_line(char *line)
 {
+  int low_addr=0,high_addr=0,low_bit=0,high_bit=7;
   char mode[8192];
   char table[8192];
   char signal[8192];
   char *description;
   int n;
+  int mode_num;
 
   // Get fields
-  if (sscanf(line,"@IO:%[^ ] %[^:]:%[^ ] %n",mode,table,signal,&n)<3) {
+  int ok=0;
+
+  if (sscanf(line,"-- @IO:%[^ ] $%x.%d-%d %[^:]:%[^ ] %n",mode,&low_addr,&low_bit,&high_bit,table,signal,&n)==6) {
+    ok=1; high_addr=low_addr;
+  }
+  else if (sscanf(line,"-- @IO:%[^ ] $%x.%d %[^:]:%[^ ] %n",mode,&low_addr,&low_bit,table,signal,&n)==5) {
+    ok=1; high_addr=low_addr; high_bit=low_bit;
+  }
+  else if (sscanf(line,"-- @IO:%[^ ] $%x-$%x %[^:]:%[^ ] %n",mode,&low_addr,&high_addr,table,signal,&n)==5) {
+    ok=1;
+  }
+  else if (sscanf(line,"-- @IO:%[^ ] $%x - $%x %[^:]:%[^ ] %n",mode,&low_addr,&high_addr,table,signal,&n)==5) {
+    ok=1;
+  }
+  else if (sscanf(line,"-- @IO:%[^ ] $%x %[^:]:%[^ ] %n",mode,&low_addr,table,signal,&n)==4) {
+    ok=1; high_addr=low_addr;
+  }
+  
+  if (!ok) {
     fprintf(stderr,"ERROR: @IO line missing TABLE:SIGNAL descriptor or otherwise mal-formed\n");
     return -1;
   }
+  
   description=&line[n];
 
   // Make sure TABLE has no spaces, which would indicate a mal-formed entry
@@ -109,6 +129,54 @@ int parse_io_line(char *line)
       fprintf(stderr,"ERROR: @IO line missing TABLE:SIGNAL descriptor\n");
       return -1;
     }
+
+  mode_num=-1;
+  if (!strcmp(mode,"C64")) mode_num=MODE_C64;
+  if (!strcmp(mode,"C65")) mode_num=MODE_C65;
+  if (!strcmp(mode,"GS")) mode_num=MODE_MEGA65;
+  if (mode_num==-1) {
+    fprintf(stderr,"ERROR: Could not parse machine mode '%s'\n",mode);
+    return -1;
+  }
+
+  // Search for existing table
+  int table_num=0;
+  for(;table_num<table_count;table_num++)
+    {
+      if ((!strcmp(reg_tables[table_num]->name,table))
+	  &&(mode_num==reg_tables[table_num]->mode)) {
+	break;
+      }
+    }
+  if (table_num>=table_count) {
+    if (table_num>=MAX_TABLES) {
+      fprintf(stderr,"ERROR: Too many tables. Fix or increase MAX_TABLES.\n");
+      return -1;
+    }
+    reg_tables[table_num]=calloc(sizeof(struct reg_table),1);
+    if (!reg_tables[table_num]) {
+      fprintf(stderr,"ERROR: Could not allocate new register table.\n");
+      return -1;
+    } 
+    reg_tables[table_num]->name=strdup(table);
+    reg_tables[table_num]->mode=mode_num;
+    table_count++;
+  }
+
+  // Add entry to table
+  if (reg_tables[table_num]->reg_count>=MAX_ENTRIES) {
+    fprintf(stderr,"ERROR: Too many entries in register table '%s' for mode '%s'\n",
+	    table,mode);
+    return -1;
+  }
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_address=low_addr;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_address=high_addr;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_bit=low_addr;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_bit=high_bit;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal=strdup(signal);
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description=strdup(description);
+
+  reg_tables[table_num]->reg_count++;    
   
   return 0;
 }
@@ -116,7 +184,8 @@ int parse_io_line(char *line)
 int scan_vhdl_file(char *file)
 {
   int retVal=0;
-
+  int error_count=0;
+  
   struct info_block *current_info_block=NULL;
   
   do {
@@ -152,7 +221,7 @@ int scan_vhdl_file(char *file)
 	    if (parse_io_line(&line[offset])) {
 	      fprintf(stderr,"%s:%d: ",file,line_num);
 	      fprintf(stderr,"Error parsing @IO comment: '%s'\n",&line[offset]);
-	      retVal=-1; break;
+	      error_count++;
 	    }
 	  } else if (!strncmp(&line[offset],"-- @INFO:",9))  {
 	    // Beginning of an info block
@@ -243,8 +312,13 @@ int scan_vhdl_file(char *file)
     }
 
     fclose(f);
+
   } while(0);
 
+  if (error_count) {
+    fprintf(stderr,"WARNING: Encountered %d errors while parsing '%s'\n",error_count,file);
+  }    
+  
   return retVal;  
 }
 

@@ -97,10 +97,15 @@ struct table_output_line table_stuff[MAX_ENTRIES];
 int table_len=0;
 int table_uses_bits=0;
 
+char *table_signals[MAX_ENTRIES];
+char *table_descriptions[MAX_ENTRIES];
+int table_sigcount=0;
+
 void clear_table_output(void)
 {
   table_len=0;
   table_uses_bits=0;
+  table_sigcount=0;
 }
 
 void table_output_add_reg(struct reg_line *r)
@@ -146,7 +151,37 @@ void table_output_add_reg(struct reg_line *r)
     // Register table uses bits
     table_uses_bits=1;
   }
-  
+
+  // Now do the same for the signal list, for those tables that are bit-addressed
+  int signum=0;
+  insert_point=-1;
+  for(signum=0;signum<table_sigcount;signum++) {
+    if (!strcmp(table_signals[signum],r->signal)) break;
+    else if (strcmp(table_signals[signum],r->signal)<0) {
+      if (insert_point<0) {
+	insert_point=signum;
+      }
+    }
+  }
+  if (insert_point<0) insert_point=0;
+  if (signum==table_sigcount) {
+    // New signal.
+
+    if (table_sigcount>=MAX_ENTRIES) {
+      fprintf(stderr,"ERROR: Too many unique signal names in table. Fix or increase MAX_ENTRIES.\n");
+      return;
+    }
+    
+    // Shuffle to make space
+    for(int m=table_sigcount;m>insert_point;m--) {
+      table_signals[m]=table_signals[m-1];
+      table_descriptions[m]=table_descriptions[m-1];
+    }
+    table_signals[insert_point]=r->signal;
+    table_descriptions[insert_point]=r->description;
+    table_sigcount++;
+  }
+
 }
 
 void emit_table_output(FILE *f)
@@ -156,12 +191,16 @@ void emit_table_output(FILE *f)
     fprintf(f,
 	    "\\begin{tabular}{l|l|c|c|c|c|c|c|c|c}\n"
 	    "\\hline\n"
+	    "| {\\bf{HEX}} | {\\bf{DEC}} | 7 | 6 | 5 | 4 | 3 | 2 | 1 | \\\\\n"
+	    "\\hline\n"
 	    );
 
   } else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
     fprintf(f,
 	    "\\begin{tabular}{l|l|c||l}\n"
+	    "\\hline\n"
+	    "| {\\bf{HEX}} | {\\bf{DEC}} | {\\bf{Signal}} | {\\bf{Description}} \\\\\n"
 	    "\\hline\n"
 	    );
 
@@ -210,8 +249,16 @@ void emit_table_output(FILE *f)
   
   fprintf(f,"\\hline\n\\end{tabular}\n");
 
-  // XXX - If table uses bits, then we need to produce the table of signal descriptions
-  
+  // If table uses bits, then we need to produce the table of signal descriptions
+  if (table_uses_bits) {
+    fprintf(f,"\\begin{itemize}\n");
+    for(int s=table_sigcount-1;s>=0;s--) {
+      // XXX - Replace with contents of appropriate info block if one exists!
+      fprintf(f,"\\item{%s} %s\n",table_signals[s],table_descriptions[s]);
+    }
+    fprintf(f,"\\end{itemize}\n");
+      
+  }
 }
 
 char *describe_mode(int m)

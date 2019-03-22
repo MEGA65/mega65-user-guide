@@ -200,11 +200,17 @@ void emit_table_output(FILE *f)
 	
       } else {
 	// Table is address + signal name + description
+	fprintf(f," %s | %s | \\\\\n",
+		table_stuff[row].bit_signals[0],
+		table_stuff[row].descriptions[0]
+		);
       }
       
     }
   
   fprintf(f,"\\hline\n\\end{tabular}\n");
+
+  // XXX - If table uses bits, then we need to produce the table of signal descriptions
   
 }
 

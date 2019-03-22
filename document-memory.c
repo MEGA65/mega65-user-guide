@@ -24,7 +24,10 @@
 
   The new format is:
 
-  @IO:XX TABLE SIGNAL Description
+  @IO:XX <address spec> TABLE:SIGNAL Description
+
+  <address spec> can be $NNNN or $NNNN-$NNNN or $NNNN.B or $NNNN.B-B
+  (or $NNNNNNN in place of $NNNN)
 
   All signals with the same TABLE will appear in the same table file, called
   reginfo_TABLE.tex
@@ -68,7 +71,7 @@ struct info_block {
   char *signal;
   char *description;
   int line_count;
-#define MAX_LINES
+#define MAX_LINES 1024
   char *lines[MAX_LINES];
 };
 
@@ -84,6 +87,31 @@ struct reg_table {
 #define MAX_TABLES 1024
 struct reg_table *reg_tables[MAX_TABLES];
 int table_count=0;
+
+int parse_io_line(char *line)
+{
+  char mode[8192];
+  char table[8192];
+  char signal[8192];
+  char *description;
+  int n;
+
+  // Get fields
+  if (sscanf(line,"@IO:%[^ ] %[^:]:%[^ ] %n",mode,table,signal,&n)<3) {
+    fprintf(stderr,"ERROR: @IO line missing TABLE:SIGNAL descriptor or otherwise mal-formed\n");
+    return -1;
+  }
+  description=&line[n];
+
+  // Make sure TABLE has no spaces, which would indicate a mal-formed entry
+  for(int i=0;table[i];i++)
+    if (table[i]==' ') {
+      fprintf(stderr,"ERROR: @IO line missing TABLE:SIGNAL descriptor\n");
+      return -1;
+    }
+  
+  return 0;
+}
 
 int scan_vhdl_file(char *file)
 {
@@ -117,10 +145,15 @@ int scan_vhdl_file(char *file)
       for (;line[offset]&&line[offset+1];offset++) {
 	if (line[offset]=='-'&&line[offset+1]=='-') {
 	  // It's a comment, so do something!
+	  
 	  is_comment=1;
 	  if (!strncmp(&line[offset],"-- @IO:",7))  {
 	    // Register short description
-	    parse_io_line(&line[offset]);
+	    if (parse_io_line(&line[offset])) {
+	      fprintf(stderr,"%s:%d: ",file,line_num);
+	      fprintf(stderr,"Error parsing @IO comment: '%s'\n",&line[offset]);
+	      retVal=-1; break;
+	    }
 	  } else if (!strncmp(&line[offset],"-- @INFO:",9))  {
 	    // Beginning of an info block
 	    char table[8192],signal[8192];
@@ -186,7 +219,13 @@ int scan_vhdl_file(char *file)
 	    // NOT an @IO: comment block
 	    if (current_info_block) {
 	      // Append comment line to info block
-	      info_block_append(current_info_block,&line[offset]+3);
+	      if (current_info_block->line_count>=MAX_LINES) {
+		fprintf(stderr,"%s:%d: ",file,line_num);
+		fprintf(stderr,"Too many lines in info block '%s'.  Fix or increase MAX_LINES.\n",
+			current_info_block->signal);
+		retVal=-1; break;
+	      }
+	      current_info_block->lines[current_info_block->line_count++]=strdup(&line[offset+3]);
 	    }
 	  }
 	  break;
@@ -213,6 +252,7 @@ int main(int argc,char **argv)
 {
   for(int i=1;i<argc;i++)
     scan_vhdl_file(argv[i]);
-  
+
+  printf("%d tables defined.\n",table_count);
 }
   

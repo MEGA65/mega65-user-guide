@@ -30,7 +30,7 @@
   (or $NNNNNNN in place of $NNNN)
 
   All signals with the same TABLE will appear in the same table file, called
-  reginfo_TABLE.tex
+  reginfo_TABLE.MODE.tex
   The SIGNAL tags will be used for populating the relevant bits in the table
   rows.
   The description will then appear in a column on the right side of the tables.
@@ -86,6 +86,14 @@ struct reg_table {
 #define MAX_TABLES 1024
 struct reg_table *reg_tables[MAX_TABLES];
 int table_count=0;
+
+char *describe_mode(int m)
+{
+  if (m==MODE_C64) return "C64";
+  if (m==MODE_C65) return "C65";
+  if (m==MODE_MEGA65) return "MEGA65";
+  return "???";
+}
 
 int parse_io_line(char *line)
 {
@@ -327,6 +335,40 @@ int main(int argc,char **argv)
   for(int i=1;i<argc;i++)
     scan_vhdl_file(argv[i]);
 
-  printf("%d tables defined.\n",table_count);
+  fprintf(stderr,"%d tables defined.\n",table_count);
+
+  // Now emit the tables
+  for(int t=0;t<table_count;t++)
+    {
+      char filename[1024];
+      snprintf(filename,1024,"regtable_%s.%s.tex",
+	       reg_tables[t]->name,describe_mode(reg_tables[t]->mode));
+      FILE *f=fopen(filename,"w");
+      if (!f) {
+	fprintf(stderr,"ERROR: Could not write to latex file '%s'\n",filename);
+	continue;
+      }
+
+      if (0) fprintf(f,"\\section{%s (%s)}\n",
+		     reg_tables[t]->name,
+		     describe_mode(reg_tables[t]->mode));
+      fprintf(f,
+	      "\\begin{tabular}{l|c|c|c|c|c|c|c|c|l}\n"
+	      "\\hline\n"
+	      );
+
+      // XXX - Sort them!
+      // XXX - Collate them into bytes!
+      // XXX - Output info blocks as well
+      for(int reg=0;reg<reg_tables[t]->reg_count;reg++)
+	{
+	}
+      
+      fprintf(f,"\\hline\n"
+	      "\\end{tabular\n");
+      fclose(f);
+    }
+
+  return 0;
 }
   

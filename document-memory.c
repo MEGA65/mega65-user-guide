@@ -87,6 +87,71 @@ struct reg_table {
 struct reg_table *reg_tables[MAX_TABLES];
 int table_count=0;
 
+struct table_output_line {
+  int low_addr,high_addr;
+  char *bit_signals[8];
+  char *description;
+};
+
+struct table_output_line table_stuff[MAX_ENTRIES];
+int table_len=0;
+int table_uses_bits=0;
+
+void clear_table_output(void)
+{
+  table_len=0;
+  table_uses_bits=0;
+}
+
+void table_output_add_reg(struct reg_line *r)
+{
+  int l=0;
+  int insert_point=0;
+  // Have we already seen this register?
+  for(l=0;l<table_len;l++) {
+    if ((table_stuff[l].low_addr==r->low_address)
+	&&(table_stuff[l].high_addr==r->high_address)) {
+      // It is this register
+      break;
+    }
+    // Remember where we should insert the register, if required
+    if (table_stuff[l].low_addr>r->low_address) insert_point=l;
+  }
+  // Is a new table entry required?
+  if (l==table_len) {
+    // Too many?
+    if (l>=MAX_ENTRIES) {
+      fprintf(stderr,"ERROR: Too many register lines when building table output.  This probably indicates a bug.\n");
+      return;
+    }
+    // Not too many, so setup the next one
+    // First, shuffle space
+    for(int m=table_len;m>insert_point;m--) table_stuff[m]=table_stuff[m-1];
+    // Now setup entry
+    l=insert_point;
+    bzero(&table_stuff[l],sizeof(struct table_output_line));
+    table_stuff[l].low_addr=r->low_address;
+    table_stuff[l].low_addr=r->high_address;
+    table_len++;
+  }
+
+  // Update entry
+  for(int bit=r->low_bit;bit<=r->high_bit;bit++)
+    table_stuff[l].bit_signals[bit]=r->signal;
+  table_stuff[l].description=r->description;
+
+  // Note if this table addresses signals by bit, so we can format it appropriately
+  if (r->low_bit||(r->high_bit<7)) {
+    // Register table uses bits
+    table_uses_bits=1;
+  }
+  
+}
+
+void emit_table_output(FILE *f)
+{
+}
+
 char *describe_mode(int m)
 {
   if (m==MODE_C64) return "C64";
@@ -349,6 +414,14 @@ int main(int argc,char **argv)
 	continue;
       }
 
+      clear_table_output();
+      for(int reg=0;reg<reg_tables[t]->reg_count;reg++)
+	{
+	  table_output_add_reg(&reg_tables[t]->regs[reg]);
+	}
+      emit_table_output(f);
+      
+      
       if (0) fprintf(f,"\\section{%s (%s)}\n",
 		     reg_tables[t]->name,
 		     describe_mode(reg_tables[t]->mode));

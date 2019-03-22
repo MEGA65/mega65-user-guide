@@ -132,13 +132,17 @@ void table_output_add_reg(struct reg_line *r)
     bzero(&table_stuff[l],sizeof(struct table_output_line));
     table_stuff[l].low_addr=r->low_address;
     table_stuff[l].low_addr=r->high_address;
+    printf("Setting line %d addr range to $%x -- $%x\n",l,r->low_address,r->high_address);
     table_len++;
   }
 
   // Update entry
+  printf("Bit range = %d -- %d\n",r->low_bit,r->high_bit);
   for(int bit=r->low_bit;bit<=r->high_bit;bit++) {
     table_stuff[l].bit_signals[bit]=r->signal;
     table_stuff[l].descriptions[bit]=r->description;
+    printf("Setting line %d bit %d to '%s' / '%s'\n",
+	   l,bit,r->signal,r->description);
   }
 
   // Note if this table addresses signals by bit, so we can format it appropriately
@@ -290,7 +294,7 @@ int parse_io_line(char *line)
   }
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_address=low_addr;
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_address=high_addr;
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_bit=low_addr;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_bit=low_bit;
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_bit=high_bit;
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal=strdup(signal);
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description=strdup(description);

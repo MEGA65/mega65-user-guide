@@ -90,7 +90,7 @@ int table_count=0;
 struct table_output_line {
   int low_addr,high_addr;
   char *bit_signals[8];
-  char *description;
+  char *descriptions[8];
 };
 
 struct table_output_line table_stuff[MAX_ENTRIES];
@@ -136,9 +136,10 @@ void table_output_add_reg(struct reg_line *r)
   }
 
   // Update entry
-  for(int bit=r->low_bit;bit<=r->high_bit;bit++)
+  for(int bit=r->low_bit;bit<=r->high_bit;bit++) {
     table_stuff[l].bit_signals[bit]=r->signal;
-  table_stuff[l].description=r->description;
+    table_stuff[l].descriptions[bit]=r->description;
+  }
 
   // Note if this table addresses signals by bit, so we can format it appropriately
   if (r->low_bit||(r->high_bit<7)) {
@@ -150,6 +151,51 @@ void table_output_add_reg(struct reg_line *r)
 
 void emit_table_output(FILE *f)
 {
+  if (table_uses_bits) {
+    // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
+  } else {
+    // Table has 4 columns: HEX addr, DEC addr, signal name, description
+  }
+
+  for(int row=table_len-1;row>=0;row--)
+    {
+      if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
+	fprintf(f,"| \\$%04x -- \\$%04x | %d -- %d | ",
+		table_stuff[row].low_addr,table_stuff[row].high_addr,
+		table_stuff[row].low_addr,table_stuff[row].high_addr);
+      else
+	fprintf(f,"| \\$%04x | %d | ",
+		table_stuff[row].low_addr,table_stuff[row].high_addr);
+      
+      if (table_uses_bits) {
+	// Table is address + signal name of each bit,
+	// followed by signal name glossary
+	
+	for(int bit=7;bit>=0;) {
+	  // Check for signals that span multiple bits
+	  int bit_count=1;
+	  for(int b=bit-1;b>=0;b--) {
+	    if (table_stuff[row].bit_signals[bit]==table_stuff[row].bit_signals[b]) bit_count++;
+	    else break;
+	  }
+	  if (bit_count==1) {
+	    fprintf(f," %s |",table_stuff[row].bit_signals[bit]);
+	  } else {
+	    fprintf(f," \\multicolumn{%d}|c|{%s} |",bit_count,table_stuff[row].bit_signals[bit]);
+	  }
+	  
+	  bit-=bit_count;
+	}
+	fprintf(f," \\\\\n");
+	
+      } else {
+	// Table is address + signal name + description
+      }
+      
+    }
+  
+  fprintf(f,"\\hline\n\\end{tabular}\n");
+  
 }
 
 char *describe_mode(int m)

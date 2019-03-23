@@ -190,7 +190,7 @@ void emit_table_output(FILE *f)
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
     fprintf(f,
 	    "\\setlength{\\tabcolsep}{3pt}\n"
-	    "\\begin{longtable}{|l|l|c|c|c|c|c|c|c|c|}\n"
+	    "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|c|c|c|c|c|c|c|c|}\n"
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & {\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
 	    "\\hline\n"
@@ -203,7 +203,7 @@ void emit_table_output(FILE *f)
   } else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
     fprintf(f,
-	    "\\begin{longtable}{|l|l|c||l|}\n"
+	    "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|c||l|}\n"
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
 	    "\\hline\n"

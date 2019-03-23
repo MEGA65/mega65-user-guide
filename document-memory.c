@@ -258,7 +258,7 @@ void emit_table_output(FILE *f)
     fprintf(f,"\\begin{itemize}\n");
     for(int s=table_sigcount-1;s>=0;s--) {
       // XXX - Replace with contents of appropriate info block if one exists!
-      fprintf(f,"\\item{%s} %s\n",table_signals[s],table_descriptions[s]);
+      fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
     }
     fprintf(f,"\\end{itemize}\n");
       

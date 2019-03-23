@@ -225,12 +225,13 @@ void emit_table_output(FILE *f)
   
   for(int row=table_len-1;row>=0;row--)
     {
+      fprintf(f,"\\small ");
       if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
-	fprintf(f," \\$%04X -- \\$%04X & %d -- %d ",
+	fprintf(f," %04X -- %04X & \\small %d -- %d ",
 		table_stuff[row].low_addr,table_stuff[row].high_addr,
 		table_stuff[row].low_addr,table_stuff[row].high_addr);
       else
-	fprintf(f," \\$%04X & %d ",
+	fprintf(f," %04X & \\small %d ",
 		table_stuff[row].low_addr,table_stuff[row].high_addr);
       
       if (table_uses_bits) {
@@ -245,9 +246,9 @@ void emit_table_output(FILE *f)
 	    else break;
 	  }
 	  if (bit_count==1) {
-	    fprintf(f,"& %s ",table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--");
+	    fprintf(f,"& \\small %s ",table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--");
 	  } else {
-	    fprintf(f,"& \\multicolumn{%d}{c|}{%s}",bit_count,
+	    fprintf(f,"& \\multicolumn{%d}{c|}{\\small %s}",bit_count,
 		    table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--"
 		    );
 	  }
@@ -266,6 +267,7 @@ void emit_table_output(FILE *f)
       }
       
     }
+  fprintf(f,"\\normal\n");
   
   fprintf(f,"\\end{longtable}\n");
 

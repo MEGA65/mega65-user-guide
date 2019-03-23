@@ -194,6 +194,10 @@ void emit_table_output(FILE *f)
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Bit 7}} & {\\bf{Bit 6}} & {\\bf{Bit 5}} & {\\bf{Bit 4}} & {\\bf{Bit 3}} & {\\bf{Bit 2}} & {\\bf{Bit 1}} & {\\bf{Bit 0}} \\\\\n"
 	    "\\hline\n"
+	    "\\endfirsthead\n"
+	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\	\\\n"
+	    "\\hline\n"
+	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Bit 7}} & {\\bf{Bit 6}} & {\\bf{Bit 5}} & {\\bf{Bit 4}} & {\\bf{Bit 3}} & {\\bf{Bit 2}} & {\\bf{Bit 1}} & {\\bf{Bit 0}} \\\\\n"
 	    );
 
   } else {
@@ -203,10 +207,22 @@ void emit_table_output(FILE *f)
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
 	    "\\hline\n"
+	    "\\endfirsthead\n"
+	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\	\\\n"
+	    "\\hline\n"
+	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
+	    "\\hline\n"
 	    );
 
   }
 
+  fprintf(f,
+	  "\\endhead\n"
+	  "\\multicolumn{3}{l@{}}{continued \\ldots}\\	\\\n"
+	  "\\endfoot\n"
+	  "\\hline\n"
+	  "\\endlastfoot\n");
+  
   for(int row=table_len-1;row>=0;row--)
     {
       if (table_stuff[row].low_addr!=table_stuff[row].high_addr)

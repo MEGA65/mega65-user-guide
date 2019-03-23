@@ -160,14 +160,17 @@ void table_output_add_reg(struct reg_line *r)
   int signum=0;
   insert_point=-1;
   for(signum=0;signum<table_sigcount;signum++) {
-    if (!strcmp(table_signals[signum],r->signal)) break;
-    else if (strcmp(table_signals[signum],r->signal)<0) {
+    if (!strcmp(table_signals[signum],r->signal)) {
+      insert_point=signum;
+      break;
+    }
+    else if (strcmp(table_signals[signum],r->signal)>0) {
       if (insert_point<0) {
 	insert_point=signum;
       }
     }
   }
-  if (insert_point<0) insert_point=0;
+  if (insert_point<0) insert_point=table_sigcount;
   if (signum==table_sigcount) {
     // New signal.
 
@@ -175,7 +178,7 @@ void table_output_add_reg(struct reg_line *r)
       fprintf(stderr,"ERROR: Too many unique signal names in table. Fix or increase MAX_ENTRIES.\n");
       return;
     }
-    
+
     // Shuffle to make space
     for(int m=table_sigcount;m>insert_point;m--) {
       table_signals[m]=table_signals[m-1];
@@ -278,7 +281,7 @@ void emit_table_output(FILE *f)
   // If table uses bits, then we need to produce the table of signal descriptions
   if (table_uses_bits) {
     fprintf(f,"\\begin{itemize}\n");
-    for(int s=table_sigcount-1;s>=0;s--) {
+    for(int s=0;s<table_sigcount;s++) {
       // XXX - Replace with contents of appropriate info block if one exists!
       fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
     }

@@ -190,7 +190,7 @@ void emit_table_output(FILE *f)
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
     fprintf(f,
 	    "\\setlength{\\tabcolsep}{3pt}\n"
-	    "\\begin{tabular}{|l|l|c|c|c|c|c|c|c|c|}\n"
+	    "\\begin{longtable}{|l|l|c|c|c|c|c|c|c|c|}\n"
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Bit 7}} & {\\bf{Bit 6}} & {\\bf{Bit 5}} & {\\bf{Bit 4}} & {\\bf{Bit 3}} & {\\bf{Bit 2}} & {\\bf{Bit 1}} & {\\bf{Bit 0}} \\\\\n"
 	    "\\hline\n"
@@ -199,7 +199,7 @@ void emit_table_output(FILE *f)
   } else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
     fprintf(f,
-	    "\\begin{tabular}{|l|l|c||l|}\n"
+	    "\\begin{longtable}{|l|l|c||l|}\n"
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
 	    "\\hline\n"
@@ -251,7 +251,7 @@ void emit_table_output(FILE *f)
       
     }
   
-  fprintf(f,"\\end{tabular}\n");
+  fprintf(f,"\\end{longtable}\n");
 
   // If table uses bits, then we need to produce the table of signal descriptions
   if (table_uses_bits) {

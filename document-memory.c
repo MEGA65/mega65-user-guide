@@ -192,12 +192,12 @@ void emit_table_output(FILE *f)
 	    "\\setlength{\\tabcolsep}{3pt}\n"
 	    "\\begin{longtable}{|l|l|c|c|c|c|c|c|c|c|}\n"
 	    "\\hline\n"
-	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Bit 7}} & {\\bf{Bit 6}} & {\\bf{Bit 5}} & {\\bf{Bit 4}} & {\\bf{Bit 3}} & {\\bf{Bit 2}} & {\\bf{Bit 1}} & {\\bf{Bit 0}} \\\\\n"
+	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & {\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
 	    "\\hline\n"
 	    "\\endfirsthead\n"
 	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\	\\\n"
 	    "\\hline\n"
-	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Bit 7}} & {\\bf{Bit 6}} & {\\bf{Bit 5}} & {\\bf{Bit 4}} & {\\bf{Bit 3}} & {\\bf{Bit 2}} & {\\bf{Bit 1}} & {\\bf{Bit 0}} \\\\\n"
+	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & {\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
 	    );
 
   } else {

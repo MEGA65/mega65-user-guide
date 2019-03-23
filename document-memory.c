@@ -112,6 +112,10 @@ void table_output_add_reg(struct reg_line *r)
 {
   int l=0;
   int insert_point=0;
+
+  if (0) printf("Adding $%04X -- $%04X bits %d..%d : %s = %s\n",
+		r->low_address,r->high_address,r->low_bit,r->high_bit,r->signal,r->description);
+  
   // Have we already seen this register?
   for(l=0;l<table_len;l++) {
     if ((table_stuff[l].low_addr==r->low_address)
@@ -318,6 +322,13 @@ int parse_io_line(char *line)
   }
   else if (sscanf(line,"-- @IO:%[^ ] $%x %[^:]:%[^ ] %n",mode,&low_addr,table,signal,&n)==4) {
     ok=1; high_addr=low_addr;
+  }
+
+  // Make sure bit order is ascending, to avoid problems
+  if (high_bit<low_bit) {
+    int temp=low_bit;
+    low_bit=high_bit;
+    high_bit=temp;
   }
   
   if (!ok) {

@@ -111,7 +111,7 @@ void clear_table_output(void)
 void table_output_add_reg(struct reg_line *r)
 {
   int l=0;
-  int insert_point=0;
+  int insert_point=-1;
 
   if (0) printf("Adding $%04X -- $%04X bits %d..%d : %s = %s\n",
 		r->low_address,r->high_address,r->low_bit,r->high_bit,r->signal,r->description);
@@ -124,7 +124,10 @@ void table_output_add_reg(struct reg_line *r)
       break;
     }
     // Remember where we should insert the register, if required
-    if (table_stuff[l].low_addr>r->low_address) insert_point=l;
+    if (table_stuff[l].low_addr<r->low_address) {
+      // printf("  stored $%04X > this $%04X, setting insert_point to here.\n",table_stuff[l].low_addr,r->low_address);
+      insert_point=l;
+    }
   }
   // Is a new table entry required?
   if (l==table_len) {
@@ -138,6 +141,10 @@ void table_output_add_reg(struct reg_line *r)
     for(int m=table_len;m>insert_point;m--) table_stuff[m]=table_stuff[m-1];
     // Now setup entry
     l=insert_point;
+    if (l==-1) l=0;
+    else if (table_stuff[l].low_addr<r->low_address) l++;    
+    // if (l) printf("  inserting after $%04X\n",table_stuff[l-1].low_addr);
+    // if (l<(table_len-1)) printf("  inserting before $%04X\n",table_stuff[l+1].low_addr);
     bzero(&table_stuff[l],sizeof(struct table_output_line));
     table_stuff[l].low_addr=r->low_address;
     table_stuff[l].high_addr=r->high_address;
@@ -230,7 +237,7 @@ void emit_table_output(FILE *f)
 	  "\\hline\n"
 	  "\\endlastfoot\n");
   
-  for(int row=table_len-1;row>=0;row--)
+  for(int row=0;row<table_len;row++)
     {
       fprintf(f,"\\small ");
       if (table_stuff[row].low_addr!=table_stuff[row].high_addr)

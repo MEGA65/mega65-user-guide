@@ -210,7 +210,7 @@ void emit_table_output(FILE *f)
   } else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
     fprintf(f,
-	    "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|c||l|}\n"
+	    "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}\n"
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
 	    "\\hline\n"
@@ -271,6 +271,7 @@ void emit_table_output(FILE *f)
 		table_stuff[row].bit_signals[0],
 		table_stuff[row].descriptions[0]
 		);
+	fprintf(f,"\\hline\n");
       }
       
     }

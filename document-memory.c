@@ -145,7 +145,7 @@ void table_output_add_reg(struct reg_line *r)
     else if (table_stuff[l].low_addr<r->low_address) l++;    
     // if (l) printf("  inserting after $%04X\n",table_stuff[l-1].low_addr);
     // if (l<(table_len-1)) printf("  inserting before $%04X\n",table_stuff[l+1].low_addr);
-    bzero(&table_stuff[l],sizeof(struct table_output_line));
+    memset(&table_stuff[l], 0, sizeof(struct table_output_line));
     table_stuff[l].low_addr=r->low_address;
     table_stuff[l].high_addr=r->high_address;
     table_len++;

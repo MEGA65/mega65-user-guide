@@ -8,9 +8,20 @@
 %
 %    \megakey{Shift}
 % 
+%
+% If you get warnings on special characters, mathematical characters etc, use $, eg:
+%
+%    \megakey{$\leftarrow$}
+%
 % Other sizes are supported, as part of tcolorbox: http://mirror.aarnet.edu.au/pub/CTAN/macros/latex/contrib/tcolorbox/tcolorbox.pdf#subsubsection.4.7.5 however, only `title' and the default: `small' are proposed for use in this manual.
+
+% NOTE:
+% megakey used to be defined as simply:
+%   \newtcbox{\megakey}[1][small]{colback=black, coltext=white, size=#1, fontupper=\bfseries\uppercase, nobeforeafter,box align=bottom,text height=7pt}
+% while this works, the use of \uppercase gave: "! Missing { inserted" errors in the log. Reimplemented as:
 
 \usepackage{tcolorbox}
 \usepackage[utf8]{inputenc}
 
-\newtcbox{\megakey}[1][small]{colback=black, coltext=white, size=#1, fontupper=\bfseries\uppercase,nobeforeafter,box align=bottom,text height=7pt}
+\newtcbox{\megakeyinner}[1][small]{colback=black, coltext=white, size=#1, fontupper=\bfseries, nobeforeafter,box align=bottom,text height=7pt}
+\newcommand{\megakey}[2][small]{\megakeyinner[#1]{\uppercase{#2}}}

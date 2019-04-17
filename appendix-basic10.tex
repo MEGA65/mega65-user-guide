@@ -80,17 +80,82 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
   HELLO
 \end{screenoutput}
 
-\subsection{APPEND - Open disk file for append}
+% =======================================
+% Start of the BASIC 10 command reference
+% =======================================
 
-{\bf APPEND\# logical\_file\_number, "filename" [,Ddrive] [<ON|,>Udevice] }
+\titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
 
-{\bf logical\_file\_number}, {\bf drive} and {\bf device} are all {\bf numeric expressions}.
-{\bf \"filename\"} is a {\bf string expression} that indicates the name of the file to append to.
+\newpage
+\subsection{APPEND}
 
-\screentext{APPEND\#} functions similar to the \screentext{OPEN} command, except that if the file already
-exists, the existing content of the file will be retained, and any \screentext{PRINT\#} commands made to the
-open file will cause the file to grow longer.
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$0E
+\item [Address:] \$FFFF
+\item [Format:]
+  {\bf APPEND\# lfn, "filename" [,D drive] [,U unit] }
+\item [Usage:]
+   The append command opens an existing sequential file of type
+   SEQ or USR for writing and positions the write pointer
+   at the end of the file.
 
+   {\bf lfn} = {\bf l}ogical {\bf f}ile {\bf n}umber \\
+   1 <= lfn <= 127: line terminator is CR \\
+   128 <= lfn <= 255: line terminator is CR LF
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string variable in parentheses, e.g. {\bf (FN\$)}.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   \screentext{APPEND\#} functions similar to the \screentext{DOPEN\#}
+   command, except that if the file already
+   exists, the existing content of the file will be retained, and any
+   \screentext{PRINT\#} commands made to the
+   open file will cause the file to grow longer.
+
+\item [Example:] \screentext{APPEND\#5,"DATA",U9} \\
+
+                 \screentext{APPEND\#130,(\$DD),U(UN\%)} \\
+
+                 \screentext{APPEND\#3,"USER FILE,U"} \\
+
+                 \screentext{APPEND\#2,"DATA BASE"}
+
+\end{description}
+
+
+\newpage
+\subsection{AUTO}
+
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$DC
+\item [Address:] \$FFFF
+\item [Format:]
+  {\bf AUTO [step]}
+\item [Usage:] The AUTO command enables faster typing of BASIC programs.
+  After submitting a new program line to the BASIC editor with
+  the RETURN key, the AUTO function generates a new BASIC line
+  number for the entry of the next line. The new number is
+  computed by adding {\bf step} to the current line number.
+
+  {\bf step} = line number increment
+
+  Typing {\bf AUTO} with no argument switches this fuction off.
+
+\item [Example:] \screentext{AUTO 10} - use AUTO with increment 10 \\
+                 \screentext{AUTO}  - switch AUTO off
+\end{description}
+
+\newpage
 
 \section{Functions}
 

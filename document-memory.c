@@ -3,15 +3,15 @@
 
   The idea is that it scans the VHDL source for the @IO: magic comments that
   we already have everywhere, and generates register tables from those.
-  
+
   To do this in a really nice way, it needs to not only do the C64/C65/M65
   differentiation, but also have some kind of convention for indicating which
-  table each should appear in, names for the signals for showing in the 
+  table each should appear in, names for the signals for showing in the
   compact register table, and then a mechanism for allowing longer blocks
   of documentation to follow, that can be put in the signal explanations
   below the table.
 
-  The overall goal is to produce the sections of the User's Guide that 
+  The overall goal is to produce the sections of the User's Guide that
   mirror the chip information chapters of the C64 Programmer's Reference Guide,
   in a way that pulls directly from the source code, so that it never goes out
   of date, and removes the need to separately maintain the two, which is of
@@ -42,7 +42,7 @@
   And all following lines of the same comment block in the VHDL will produce a
   \subsubsection{SIGNAL - Description}
   following the table, that has more in-depth information about the signal,
-  possibly including examples etc. It will be treated as raw input for the 
+  possibly including examples etc. It will be treated as raw input for the
   latex.
 
 */
@@ -56,6 +56,8 @@
 #define MODE_C64 1
 #define MODE_C65 2
 #define MODE_MEGA65 3
+
+int Warn = 1; // print warnings to stderr if set
 
 struct reg_line {
   unsigned int low_address,high_address;
@@ -115,7 +117,7 @@ void table_output_add_reg(struct reg_line *r)
 
   if (0) printf("Adding $%04X -- $%04X bits %d..%d : %s = %s\n",
 		r->low_address,r->high_address,r->low_bit,r->high_bit,r->signal,r->description);
-  
+
   // Have we already seen this register?
   for(l=0;l<table_len;l++) {
     if ((table_stuff[l].low_addr==r->low_address)
@@ -142,7 +144,7 @@ void table_output_add_reg(struct reg_line *r)
     // Now setup entry
     l=insert_point;
     if (l==-1) l=0;
-    else if (table_stuff[l].low_addr<r->low_address) l++;    
+    else if (table_stuff[l].low_addr<r->low_address) l++;
     // if (l) printf("  inserting after $%04X\n",table_stuff[l-1].low_addr);
     // if (l<(table_len-1)) printf("  inserting before $%04X\n",table_stuff[l+1].low_addr);
     memset(&table_stuff[l], 0, sizeof(struct table_output_line));
@@ -236,7 +238,7 @@ void emit_table_output(FILE *f)
 	  "\\endfoot\n"
 	  "\\hline\n"
 	  "\\endlastfoot\n");
-  
+
   for(int row=0;row<table_len;row++)
     {
       fprintf(f,"\\small ");
@@ -247,11 +249,11 @@ void emit_table_output(FILE *f)
       else
 	fprintf(f," %04X & \\small %d ",
 		table_stuff[row].low_addr,table_stuff[row].high_addr);
-      
+
       if (table_uses_bits) {
 	// Table is address + signal name of each bit,
 	// followed by signal name glossary
-	
+
 	for(int bit=7;bit>=0;) {
 	  // Check for signals that span multiple bits
 	  int bit_count=1;
@@ -266,12 +268,12 @@ void emit_table_output(FILE *f)
 		    table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--"
 		    );
 	  }
-	  
+
 	  bit-=bit_count;
 	}
 	fprintf(f,"\\\\\n");
 	fprintf(f,"\\hline\n");
-	
+
       } else {
 	// Table is address + signal name + description
 	fprintf(f,"& %s & %s \\\\\n",
@@ -280,10 +282,10 @@ void emit_table_output(FILE *f)
 		);
 	fprintf(f,"\\hline\n");
       }
-      
+
     }
   fprintf(f,"\\normal\n");
-  
+
   fprintf(f,"\\end{longtable}\n");
 
   // If table uses bits, then we need to produce the table of signal descriptions
@@ -294,7 +296,7 @@ void emit_table_output(FILE *f)
       fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
     }
     fprintf(f,"\\end{itemize}\n");
-      
+
   }
 }
 
@@ -341,18 +343,20 @@ int parse_io_line(char *line)
     low_bit=high_bit;
     high_bit=temp;
   }
-  
+
   if (!ok) {
-    fprintf(stderr,"ERROR: @IO line missing TABLE:SIGNAL descriptor or otherwise mal-formed\n");
+    if (Warn) fprintf(stderr,
+    "ERROR: @IO line missing TABLE:SIGNAL descriptor or otherwise mal-formed\n");
     return -1;
   }
-  
+
   description=&line[n];
 
   // Make sure TABLE has no spaces, which would indicate a mal-formed entry
   for(int i=0;table[i];i++)
     if (table[i]==' ') {
-      fprintf(stderr,"ERROR: @IO line missing TABLE:SIGNAL descriptor\n");
+      if (Warn) fprintf(stderr,
+      "ERROR: @IO line missing TABLE:SIGNAL descriptor\n");
       return -1;
     }
 
@@ -383,7 +387,7 @@ int parse_io_line(char *line)
     if (!reg_tables[table_num]) {
       fprintf(stderr,"ERROR: Could not allocate new register table.\n");
       return -1;
-    } 
+    }
     reg_tables[table_num]->name=strdup(table);
     reg_tables[table_num]->mode=mode_num;
     table_count++;
@@ -402,8 +406,8 @@ int parse_io_line(char *line)
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal=strdup(signal);
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description=strdup(description);
 
-  reg_tables[table_num]->reg_count++;    
-  
+  reg_tables[table_num]->reg_count++;
+
   return 0;
 }
 
@@ -411,9 +415,9 @@ int scan_vhdl_file(char *file)
 {
   int retVal=0;
   int error_count=0;
-  
+
   struct info_block *current_info_block=NULL;
-  
+
   do {
     char line[8192];
     int line_num=0;
@@ -428,7 +432,7 @@ int scan_vhdl_file(char *file)
       int offset=0;
 
       line_num++;
-      
+
       // Skip over leading white space
       while(line[offset]==' '||line[offset]=='\t') offset++;
       // Trim CRLF
@@ -440,13 +444,15 @@ int scan_vhdl_file(char *file)
       for (;line[offset]&&line[offset+1];offset++) {
 	if (line[offset]=='-'&&line[offset+1]=='-') {
 	  // It's a comment, so do something!
-	  
+
 	  is_comment=1;
 	  if (!strncmp(&line[offset],"-- @IO:",7))  {
 	    // Register short description
 	    if (parse_io_line(&line[offset])) {
-	      fprintf(stderr,"%s:%d: ",file,line_num);
-	      fprintf(stderr,"Error parsing @IO comment: '%s'\n",&line[offset]);
+         if (Warn) {
+	        fprintf(stderr,"%s:%d: ",file,line_num);
+	        fprintf(stderr,"Error parsing @IO comment: '%s'\n",&line[offset]);
+         }
 	      error_count++;
 	    }
 	  } else if (!strncmp(&line[offset],"-- @INFO:",9))  {
@@ -488,7 +494,7 @@ int scan_vhdl_file(char *file)
 		}
 	      }
 	      rt=reg_tables[table_num];
- 
+
 	      for(info_block_num=0;info_block_num<rt->info_count;info_block_num++) {
 		if (!strcmp(signal,rt->info_blocks[info_block_num].signal)) {
 		  // Found the block
@@ -529,11 +535,11 @@ int scan_vhdl_file(char *file)
       if (!is_comment) {
 	// It's not a comment. So do nothing, except for mark the end of
 	// a multi-line info block, if required.
-	current_info_block=NULL;	
+	current_info_block=NULL;
       }
 
       if (retVal) break;
-      
+
       line[0]=0; fgets(line,8192,f);
     }
 
@@ -542,15 +548,21 @@ int scan_vhdl_file(char *file)
   } while(0);
 
   if (error_count) {
-    fprintf(stderr,"WARNING: Encountered %d errors while parsing '%s'\n",error_count,file);
-  }    
-  
-  return retVal;  
+    fprintf(stderr,"WARNING: Encountered %3d errors while parsing '%s'\n",error_count,file);
+  }
+
+  return retVal;
 }
 
 int main(int argc,char **argv)
 {
-  for(int i=1;i<argc;i++)
+  int i = 1;
+  if (!strcmp(argv[1],"-q")) // option -q = quiet
+  {
+    Warn = 0;
+    i    = 2;
+  }
+  for(;i<argc;i++)
     scan_vhdl_file(argv[i]);
 
   fprintf(stderr,"%d tables defined.\n",table_count);
@@ -573,8 +585,8 @@ int main(int argc,char **argv)
 	  table_output_add_reg(&reg_tables[t]->regs[reg]);
 	}
       emit_table_output(f);
-      
-      
+
+
       if (0) fprintf(f,"\\section{%s (%s)}\n",
 		     reg_tables[t]->name,
 		     describe_mode(reg_tables[t]->mode));
@@ -583,4 +595,4 @@ int main(int argc,char **argv)
 
   return 0;
 }
-  
+

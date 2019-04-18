@@ -86,14 +86,44 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
 
 \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
 
+% ***
+% ABS
+% ***
+
+\newpage
+\subsection{ABS}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$B6
+\item [Address:] \$FFFF
+\item [Format:] {\bf ABS(x)}
+\item [Usage:]  The numeric function {\bf ABS(x)} returns
+                the absolute value of the numeric
+                argument {\bf x}. \\
+               {\bf x} = numeric argument (integer or real expression).
+\item [Remarks:] the result is of real type.
+\item [Example:] Using {\bf ABS} \\
+
+\begin{screenoutput}
+  PRINT ABS(-123)
+  123
+  PRINT ABS(4.5)
+  4.5
+  PRINT ABS(-4.5)
+  4.5
+\end{screenoutput}
+\end{description}
+
+% ******
+% APPEND
+% ******
+
 \newpage
 \subsection{APPEND}
-
 \begin{description}[leftmargin=3cm,style=nextline]
 \item [Token:] \$FE \$0E
 \item [Address:] \$FFFF
 \item [Format:]
-  {\bf APPEND\# lfn, "filename" [,D drive] [,U unit] }
+  {\bf APPEND\# lfn, filename [,D drive] [,U unit] }
 \item [Usage:]
    The append command opens an existing sequential file of type
    SEQ or USR for writing and positions the write pointer
@@ -104,7 +134,7 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
    128 <= lfn <= 255: line terminator is CR LF
 
    {\bf filename} is either a quoted string, e.g. {\bf "data"} or
-   a string variable in parentheses, e.g. {\bf (FN\$)}.
+   a string expression in parentheses, e.g. {\bf (FN\$)}.
 
    {\bf drive} = drive \# in dual drive disk units. \\
    The drive \# defaults to 0 and can be omitted on single drive units
@@ -122,20 +152,22 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
    \screentext{PRINT\#} commands made to the
    open file will cause the file to grow longer.
 
-\item [Example:] \screentext{APPEND\#5,"DATA",U9} \\
+\item [Example:] Open file in append mode: \\
 
-                 \screentext{APPEND\#130,(\$DD),U(UN\%)} \\
-
-                 \screentext{APPEND\#3,"USER FILE,U"} \\
-
-                 \screentext{APPEND\#2,"DATA BASE"}
-
+\begin{screenoutput}
+   APPEND#5,"DATA",U9
+   APPEND#130,(\$DD),U(UN%)
+   APPEND#3,"USER FILE,U"
+   APPEND#2,"DATA BASE"
+\end{screenoutput}
 \end{description}
 
+% ****
+% AUTO
+% ****
 
 \newpage
 \subsection{AUTO}
-
 \begin{description}[leftmargin=3cm,style=nextline]
 \item [Token:] \$DC
 \item [Address:] \$FFFF
@@ -155,9 +187,12 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
                  \screentext{AUTO}  - switch AUTO off
 \end{description}
 
+% ******
+% BACKUP
+% ******
+
 \newpage
 \subsection{BACKUP}
-
 \begin{description}[leftmargin=3cm,style=nextline]
 \item [Token:] \$F6
 \item [Address:] \$FFFF
@@ -178,7 +213,6 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
                  \screentext{BACKUP D1 TO D0, U9} - copy disk in drive 1 to
                    drive 0 on unit 9.\\
 \end{description}
-
 \newpage
 
 %\subsection{}
@@ -194,6 +228,7 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
 %
 %\newpage
 
+
 \section{Functions}
 
 Functions are different from commands in that they cannot be used on their own.
@@ -201,45 +236,6 @@ Instead, a function can only be used in an expression.
 There are a variety of functions provided in BASIC 10.
 Some can be used only on strings, while others can only be used on numbers.
 
-\subsection{ABS - Absolute value function}
-
-{\bf ABS(expression)}
-
-This function returns the absolute value of the numeric expression.
-That is, it ignores the sign.  That is, if the value of the expression is positive,
-the result will be the same, but if the value is negative, then the result
-will be the positive number with the same magnitude, as the following examples show.
-
-\begin{screenoutput}
-  PRINT ABS(123)
-  123
-  PRINT ABS(-123)
-  123
-  PRINT ABS(4.5)
-  4.5
-  PRINT ABS(-4.5)
-  4.5
-  PRINT ABS(7-5)
-  2
-  PRINT ABS(5-7)
-  2
-\end{screenoutput}
-
-The expression must be numeric. If you give it a string, the computer will indicate a type mismatch error.
-
-\begin{screenoutput}
-  PRINT ABS("POTATO")
-
-  ?TYPE MISMATCH ERROR
-
-  PRINT ABS("TWENTY")
-
-  ?TYPE MISMATCH ERROR
-
-  PRINT ABS("12")
-
-  ?TYPE MISMATCH ERROR
-\end{screenoutput}
 
 \subsection{ASC - PETSCII Value Function}
 

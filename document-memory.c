@@ -211,7 +211,7 @@ void emit_table_output(FILE *f)
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & {\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
 	    "\\hline\n"
 	    "\\endfirsthead\n"
-	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\	\\\n"
+	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & {\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
 	    );
@@ -224,7 +224,7 @@ void emit_table_output(FILE *f)
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
 	    "\\hline\n"
 	    "\\endfirsthead\n"
-	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\	\\\n"
+	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
 	    "\\hline\n"
 	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
 	    "\\hline\n"
@@ -234,7 +234,7 @@ void emit_table_output(FILE *f)
 
   fprintf(f,
 	  "\\endhead\n"
-	  "\\multicolumn{3}{l@{}}{continued \\ldots}\\	\\\n"
+	  "\\multicolumn{3}{l@{}}{continued \\ldots}\\\\\n"
 	  "\\endfoot\n"
 	  "\\hline\n"
 	  "\\endlastfoot\n");

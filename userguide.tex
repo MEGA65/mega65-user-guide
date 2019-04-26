@@ -59,12 +59,9 @@
 \usepackage[obeyspaces,spaces]{url}
 \usepackage{arydshln}
 \usepackage{booktabs}
-\usepackage[pageanchor=false]{hyperref}
 \usepackage{afterpage}
-%\usepackage{xcolor}
-
-%\usepackage{breakurl}
 \usepackage{flushend}
+\usepackage[pageanchor=false]{hyperref}
 \usepackage{titletoc}
 \usepackage[toc,page]{appendix}
 \usepackage{parskip}
@@ -139,10 +136,10 @@
 
 
 \makeatletter
-\def\cleardoublepage{\clearpage\if@twoside
-\ifodd\c@page
-\else\hbox{}\thispagestyle{empty}\newpage
-\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+%\def\cleardoublepage{\clearpage\if@twoside
+%\ifodd\c@page
+%\else\hbox{}\thispagestyle{empty}\newpage
+%\if@twocolumn\hbox{}\newpage\fi\fi\fi}
 
 \renewcommand*{\l@section}[1]{%
   \@dottedtocline{1}{1.0em}{1em}{%
@@ -152,7 +149,6 @@
     #1%
   }%
 }
-
 \makeatother
 
 \input{fonts}
@@ -227,7 +223,9 @@
 
    \par\today
 
-
+\newpagestyle{onlynumber}{\setfoot[][{\bf\small\thepage}][]
+                                  {} {\bf\small\thepage} {}}
+\pagestyle{onlynumber}
 \pagecolor{white}
 
 \tableofcontents
@@ -247,9 +245,10 @@
 % PART title page
 % ***************
 
+\titleclass{\part}{top}
 \titleformat{\part}[display]
    {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
-   {\textcolor{white}{\uppercase{\fontsize{50}{65}\selectfont \bf{PART\ }}{\fontsize{100}{130}\selectfont \bf{\serifed\thepart}}}}
+   {\textcolor{white}{\fontsize{50}{65}\selectfont\bf{PART}\quad{\fontsize{100}{130}\selectfont \bf{\serifed\thepart}}}}
    {20pt}
    {\Huge\textcolor{white}}
    [\newpage\pagecolor{white}\textcolor{black}]
@@ -280,9 +279,7 @@
 
 \include{introduction}
 
-\newpagestyle{onlynumber}{\setfoot[][{\bf\small\thepage}][]
-                                  {} {\bf\small\thepage} {}}
-\pagestyle{onlynumber}
+\cleardoublepage
 \pagenumbering{arabic}
 
 \part{GETTING TO KNOW YOUR MEGA65}

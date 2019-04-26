@@ -113,6 +113,72 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
 \end{screenoutput}
 \end{description}
 
+% ***
+% AND
+% ***
+
+\newpage
+\subsection{AND}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$AF
+\item [Address:] \$FFFF
+\item [Format:] operand {\bf AND} operand
+\item [Usage:]  The boolean {\bf AND} operator performs a bitwise
+                logical AND operation on two 16 bit values.
+                Integer operands are used as they are.
+                Real operands are converted to a signed 16 bit integer.
+                Logical operands are converted to 16 bit integer
+                using \$FFFF, decimal -1 for TRUE
+                and \$0000, decimal 0, for FALSE.
+
+   \begin{verbatim}
+      0 AND 0  ->  0
+      0 AND 1  ->  0
+      1 AND 0  ->  0
+      1 AND 1  ->  1
+   \end{verbatim}
+
+\item [Remarks:] The result is of integer type.
+                 If the result is used in a logical context,
+                 the value of 0 is regarded as FALSE,
+                 all other, nonzero values are regarded as TRUE.
+\item [Example:] Using {\bf AND} \\
+
+\begin{screenoutput}
+  PRINT 1 AND 3
+  1
+  PRINT 15 AND 23
+  7
+  PRINT 128 AND 64
+  0
+  PRINT -1 AND -7
+  -7
+  PRINT 2348734 AND 7
+
+  ?ILLEGAL QUANTITY ERROR
+\end{screenoutput}
+
+The AND operator can also be used to test boolean conditions, because the {\bf =}, {\bf <}, {\bf <=}, {\bf <>}, {\bf >=} and {\bf >} inequality operators return a numeric value, as can be seen by printing the result of such an expression:
+
+\begin{screenoutput}
+  PRINT \"ABC\"=\"ABC\"
+  -1
+  PRINT \"ABC\"=\"DEF\"
+  0
+  PRINT 3 < 9
+  -1
+\end{screenoutput}
+
+Thus, constructions like the following can be constructed:
+
+\begin{screenoutput}
+  PRINT (\"ABC\" < \"FOO\") AND (7 <> 9)
+  -1
+  PRINT (\"ABC\" = \"FOO\") AND (23 > 8)
+  0
+\end{screenoutput}
+\end{description}
+
 % ******
 % APPEND
 % ******
@@ -213,14 +279,13 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
                  \screentext{BACKUP D1 TO D0, U9} - copy disk in drive 1 to
                    drive 0 on unit 9.\\
 \end{description}
-\newpage
 
 % ****
 % BANK
 % ****
 
+\newpage
 \subsection{BANK}
-
 \begin{description}[leftmargin=3cm,style=nextline]
 \item [Token:] \$FE \$02
 \item [Address:] \$FFFF
@@ -234,8 +299,7 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
 \item [Example:] \screentext{BANK 1} - select memory configuration 1.
 \end{description}
 
-\newpage
-
+%\newpage
 %\subsection{}
 %
 %\begin{description}[leftmargin=3cm,style=nextline]
@@ -246,10 +310,9 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
 %\item [Remarks:]
 %\item [Example:]
 %\end{description}
-%
-%\newpage
 
 
+\newpage
 \section{Functions}
 
 Functions are different from commands in that they cannot be used on their own.
@@ -303,44 +366,3 @@ Operators are very much like functions, except that instead of having their argu
 the keyword goes in between the arguments, or in the case of the few operators, like \screentext{NOT}, that take only one argument,
 the keyword goes before the argument like in a function, but there are no round brackets.
 
-\subsection{AND - Logical AND operator}
-
-{\bf <numeric expression> AND <numeric expression>}
-
-The AND operator calculates the logical and of the two arguments.
-The calculation is performed after converting the arguments to 16-bit binary values.
-If either expression is outside of the range of -32768 to +32767, then an \screentext{?ILLEGAL QUANTITY ERROR} will be generated.
-
-\begin{screenoutput}
-  PRINT 1 AND 3
-  1
-  PRINT 15 AND 23
-  7
-  PRINT 128 AND 64
-  0
-  PRINT -1 AND -7
-  -7
-  PRINT 2348734 AND 7
-
-  ?ILLEGAL QUANTITY ERROR
-\end{screenoutput}
-
-The AND operator can also be used to test boolean conditions, because the {\bf =}, {\bf <}, {\bf <=}, {\bf <>}, {\bf >=} and {\bf >} inequality operators return a numeric value, as can be seen by printing the result of such an expression:
-
-\begin{screenoutput}
-  PRINT \"ABC\"=\"ABC\"
-  -1
-  PRINT \"ABC\"=\"DEF\"
-  0
-  PRINT 3 < 9
-  -1
-\end{screenoutput}
-
-Thus, constructions like the following can be constructed:
-
-\begin{screenoutput}
-  PRINT (\"ABC\" < \"FOO\") AND (7 <> 9)
-  -1
-  PRINT (\"ABC\" = \"FOO\") AND (23 > 8)
-  0
-\end{screenoutput}

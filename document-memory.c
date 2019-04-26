@@ -284,7 +284,7 @@ void emit_table_output(FILE *f)
       }
 
     }
-  fprintf(f,"\\normal\n");
+  // fprintf(f,"\\normal\n");
 
   fprintf(f,"\\end{longtable}\n");
 

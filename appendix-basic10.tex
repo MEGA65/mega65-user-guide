@@ -147,35 +147,14 @@ Commands are statements that you can use directly from the {\bf READY.} prompt, 
 \begin{screenoutput}
   PRINT 1 AND 3
   1
-  PRINT 15 AND 23
-  7
   PRINT 128 AND 64
   0
-  PRINT -1 AND -7
-  -7
-  PRINT 2348734 AND 7
-
-  ?ILLEGAL QUANTITY ERROR
 \end{screenoutput}
 
-The AND operator can also be used to test boolean conditions, because the {\bf =}, {\bf <}, {\bf <=}, {\bf <>}, {\bf >=} and {\bf >} inequality operators return a numeric value, as can be seen by printing the result of such an expression:
+In most cases the {\bf AND} will be used in {\bf IF} statements.
 
 \begin{screenoutput}
-  PRINT \"ABC\"=\"ABC\"
-  -1
-  PRINT \"ABC\"=\"DEF\"
-  0
-  PRINT 3 < 9
-  -1
-\end{screenoutput}
-
-Thus, constructions like the following can be constructed:
-
-\begin{screenoutput}
-  PRINT (\"ABC\" < \"FOO\") AND (7 <> 9)
-  -1
-  PRINT (\"ABC\" = \"FOO\") AND (23 > 8)
-  0
+   IF (C >= 0 AND C < 256) THEN PRINT "BYTE VALUE"
 \end{screenoutput}
 \end{description}
 
@@ -225,6 +204,33 @@ Thus, constructions like the following can be constructed:
    APPEND#130,(\$DD),U(UN%)
    APPEND#3,"USER FILE,U"
    APPEND#2,"DATA BASE"
+\end{screenoutput}
+\end{description}
+
+% ***
+% ASC
+% ***
+
+\newpage
+\subsection{ASC}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$C6
+\item [Address:] \$FFFF
+\item [Format:] {\bf ASC}(string)
+\item [Usage:] The {\bf ASC} function takes the first character of
+               the string argument and returns its numeric code value.
+               The name is apparently chosen to be a mnemonic to ASCII,
+               but the returned value is in fact the so called PETSCII code.
+\item [Remarks:]
+               {\bf ASC} returns a zero for a null string, which behaviour
+               is different to BASIC 2, where ASC("") gave an error.
+               The inverse function to {\bf ASC} is {\bf CHR\$}.
+\item [Example:] Using {\bf ASC} \\
+\begin{screenoutput}
+  PRINT ASC("MEGA")
+  77
+  PRINT ASC("")
+  0
 \end{screenoutput}
 \end{description}
 
@@ -320,22 +326,6 @@ Instead, a function can only be used in an expression.
 There are a variety of functions provided in BASIC 10.
 Some can be used only on strings, while others can only be used on numbers.
 
-
-\subsection{ASC - PETSCII Value Function}
-
-{\bf ASC(<string expression>)}
-
-This function returns the PETSCII value of the first character of the string expression.
-If the string expression is blank, it returns 0.  For example:
-
-\begin{screenoutput}
-  PRINT ASC(\"FOO\")
-  70
-  A$=\"MOO\": PRINT ASC(A$)
-  77
-  PRINT ASC("")
-  0
-\end{screenoutput}
 
 \subsection{ATN - Arc Tangent Function}
 

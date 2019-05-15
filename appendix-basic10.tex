@@ -397,7 +397,6 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
                to be executed after a {\bf THEN} or {\bf ELSE} keyword.
                This overcomes the single line limitation of the
                standard {\bf IF} ... {\bf THEN} ... {\bf ELSE} clause.
-
 \item [Remarks:] Do not jump with {\bf GOTO} or {\bf GOSUB} into a
                  compound statement. It may lead to unexpected
                  results.
@@ -406,9 +405,9 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 10 GET A$
 20 IF A$>="A" AND A$<="Z" THEN BEGIN
 30 PW$=PW$+A$
-40 IF A$=CHR$(13) OR LEN(PW$)>7 THEN 90
+40 IF LEN(PW$)>7 THEN 90
 50 BEND :REM IGNORE ALL EXCEPT (A-Z)
-60 GOTO 10
+60 IF A$<>CHR$(13) GOTO 10
 90 PRINT "PW=";PW$
 \end{screenoutput}
 \end{description}

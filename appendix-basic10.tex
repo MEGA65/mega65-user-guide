@@ -382,6 +382,37 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \item [Example:] \screentext{BANK 1} - select memory configuration 1.
 \end{description}
 
+% *****
+% BEGIN
+% *****
+
+\newpage
+\subsection{BEGIN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$18
+\item [Address:] \$FFFF
+\item [Format:] {\bf BEGIN} ... {\bf BEND}
+\item [Usage:] The {\bf BEGIN} and {\bf BEND} keywords act like
+               a pair of brackets around a compound statement
+               to be executed after a {\bf THEN} or {\bf ELSE} keyword.
+               This overcomes the single line limitation of the
+               standard {\bf IF} ... {\bf THEN} ... {\bf ELSE} clause.
+
+\item [Remarks:] Do not jump with {\bf GOTO} or {\bf GOSUB} into a
+                 compound statement. It may lead to unexpected
+                 results.
+\item [Example:] Using {\bf BEGIN} and {\bf BEND}
+\begin{screenoutput}
+10 GET A$
+20 IF A$>="A" AND A$<="Z" THEN BEGIN
+30 PW$=PW$+A$
+40 IF A$=CHR$(13) OR LEN(PW$)>7 THEN 90
+50 BEND :REM IGNORE ALL EXCEPT (A-Z)
+60 GOTO 10
+90 PRINT "PW=";PW$
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

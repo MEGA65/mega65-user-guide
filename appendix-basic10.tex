@@ -412,6 +412,36 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \end{screenoutput}
 \end{description}
 
+% ****
+% BEND
+% ****
+
+\newpage
+\subsection{BEND}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$19
+\item [Address:] \$FFFF
+\item [Format:] {\bf BEGIN} ... {\bf BEND}
+\item [Usage:] The {\bf BEGIN} and {\bf BEND} keywords act like
+               a pair of brackets around a compound statement
+               to be executed after a {\bf THEN} or {\bf ELSE} keyword.
+               This overcomes the single line limitation of the
+               standard {\bf IF} ... {\bf THEN} ... {\bf ELSE} clause.
+\item [Remarks:] The example below shows a quirk in the implementation
+                 of the compound statement.
+                 If the condition evaluates to {\bf FALSE}, execution
+                 does not resume right after {\bf BEND} as it should,
+                 but at the beginning of next line.
+                 Test this behaviour with the following program:
+\item [Example:] Using {\bf BEGIN} and {\bf BEND}
+\begin{screenoutput}
+10 IF Z > 1 THEN BEGIN:A$="ONE"
+20 B$="TWO"
+30 PRINT A$;" ";B$;:BEND:PRINT " QUIRK"
+40 REM EXECUTION RESUMES HERE FOR Z <= 1
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

@@ -442,6 +442,50 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \end{screenoutput}
 \end{description}
 
+% *****
+% BLOAD
+% *****
+
+\newpage
+\subsection{BLOAD}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$11
+\item [Address:] \$FFFF
+\item [Format:] {\bf BLOAD filename [,B bank]
+                [,P address]  [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf BLOAD} ("Binary LOAD") loads a file of type
+   PRG into RAM at address P and bank B.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}.
+
+   {\bf bank} specifies the RAM bank to be used.
+   If not specified the current bank, as set with the last
+   {\bf BANK} statement, will be used.
+
+   {\bf address} can be used to overrule the load address,
+   that is stored in the first two bytes of the PRG file.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   If the loading process tries to load beyond the adress \$FFFF,
+   an 'OUT OF MEMORY' error occurs.
+
+\item [Example:] Using {\bf BLOAD}
+\begin{screenoutput}
+  BLOAD "ML DATA", B0, U9
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

@@ -110,6 +110,16 @@ void clear_table_output(void)
   table_sigcount=0;
 }
 
+void latex_escape(char *target, char *source)
+{
+   while (*source)
+   {
+      if (*source == '_') *target++ = '\\';
+      *target++ = *source++;
+   }
+   *target = '\0';
+}
+
 void table_output_add_reg(struct reg_line *r)
 {
   int l=0;
@@ -202,6 +212,8 @@ void table_output_add_reg(struct reg_line *r)
 
 void emit_table_output(FILE *f)
 {
+  char buftxt[256]; // used to convert special chars to latex
+
   if (table_uses_bits) {
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
     fprintf(f,
@@ -293,7 +305,9 @@ void emit_table_output(FILE *f)
     fprintf(f,"\\begin{itemize}\n");
     for(int s=0;s<table_sigcount;s++) {
       // XXX - Replace with contents of appropriate info block if one exists!
-      fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
+//    fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
+      latex_escape(buftxt,table_descriptions[s]);
+      fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],buftxt);
     }
     fprintf(f,"\\end{itemize}\n");
 

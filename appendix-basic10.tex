@@ -477,12 +477,73 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
    The unit \# defaults to 8.
 
 \item [Remarks:]
-   If the loading process tries to load beyond the adress \$FFFF,
+   If the loading process tries to load beyond the address \$FFFF,
    an 'OUT OF MEMORY' error occurs.
 
 \item [Example:] Using {\bf BLOAD}
 \begin{screenoutput}
   BLOAD "ML DATA", B0, U9
+  BLOAD "SPRITES"
+  BLOAD "ML ROUTINES", B1, P32768
+  BLOAD (FN$), B(BA%), P(PA), U(UN%)
+\end{screenoutput}
+\end{description}
+
+% ****
+% BOOT
+% ****
+
+\newpage
+\subsection{BOOT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$1B
+\item [Address:] \$FFFF
+\item [Format:] {\bf BOOT filename [,B bank]
+                [,P address]  [,D drive] [,U unit] } \\
+                {\bf BOOT SYS} \\
+                {\bf BOOT} 
+\item [Usage:]
+   The {\bf BOOT filename} loads a file of type
+   PRG into RAM at address P and bank B and starts executing
+   the code at the load address.
+
+   The {\bf BOOT SYS} loads the boot sector from sector 0,
+   track 1 and unit 8 to address \$0400 on bank 0 and
+   performs a JSR \$0400 afterwards (Jump To Subroutine).
+
+   The {\bf BOOT} command with no parameter tries to load
+   and execute a file named AUTOBOOT.C65 from the default unit 8.
+   It's short for {\bf RUN "AUTOBOOT.C65"}.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}.
+
+   {\bf bank} specifies the RAM bank to be used.
+   If not specified the current bank, as set with the last
+   {\bf BANK} statement, will be used.
+
+   {\bf address} can be used to overrule the load address,
+   that is stored in the first two bytes of the PRG file.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   {\bf BOOT SYS} copies the contents of one physical sector
+   (two logical sectors) = 512 bytes from disc to RAM,
+   filling RAM from \$0400 to \$05ff.
+
+\item [Example:] Using {\bf BOOT}
+\begin{screenoutput}
+  BOOT SYS
+  BOOT (FN$), B(BA%), P(PA), U(UN%)
+  BOOT
 \end{screenoutput}
 \end{description}
 

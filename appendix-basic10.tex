@@ -680,7 +680,7 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \item [Usage:]  The {\bf BUMP} function can be used to detect
                sprite-sprite (type=1) or sprite-data (type=2) collisions.
                the return value {\bf b} is a 8 bit mask with
-               1 bit per sprite. The bit position correseponds with the
+               1 bit per sprite. The bit position corresponds with the
                sprite number.
                Eachs bit set in the return value indicates, that the
                sprite for this postion was involved in a collision
@@ -719,6 +719,57 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \hline
 \end{tabular}
 }
+\end{description}
+
+% *******
+% BVERIFY
+% *******
+
+\newpage
+\subsection{BVERIFY}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$28
+\item [Format:] {\bf BVERIFY filename [,P address]
+                [,B bank] [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf BVERIFY} ("Binary VERIFY") compares a memory range to
+   a file of type PRG.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}
+
+   {\bf bank} specifies the RAM bank to be used.
+   If not specified the current bank, as set with the last
+   {\bf BANK} statement, will be used.
+
+   {\bf address} is the address, where the comparison begins.
+   If the parameter P is omitted, it is the load address,
+   that is stored in the first two bytes of the PRG file.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   {\bf BVERIFY} can only test for equality. It gives no information
+   about the number or position of different valued bytes.
+   In direct mode the command exits either with the message {\bf OK}
+   or with {\bf VERIFY ERROR}. In program mode a {\bf VERIFY ERROR}
+   either stops execution or enters the {\bf TRAP} error handler,
+   if active.
+
+\item [Example:] Using {\bf BVERIFY}
+\begin{screenoutput}
+  BVERIFY "ML DATA", P 32768, B0, U9
+  BVERIFY "SPRITES", P 1536
+  BVERIFY "ML ROUTINES", B1, P(DEC("9000"))
+  BVERIFY (FN$), B(BA%), P(PA), U(UN%)
+\end{screenoutput}
 \end{description}
 
 %\newpage

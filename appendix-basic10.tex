@@ -667,6 +667,60 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \end{screenoutput}
 \end{description}
 
+% ****
+% BUMP
+% ****
+
+\newpage
+\subsection{BUMP}
+
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$CE \$03
+\item [Format:] {\bf b = BUMP(type)}
+\item [Usage:]  The {\bf BUMP} function can be used to detect
+               sprite-sprite (type=1) or sprite-data (type=2) collisions.
+               the return value {\bf b} is a 8 bit mask with
+               1 bit per sprite. The bit position correseponds with the
+               sprite number.
+               Eachs bit set in the return value indicates, that the
+               sprite for this postion was involved in a collision
+               since the last call of {\bf BUMP}.
+               Calling {\bf BUMP} resets the collision mask, so you
+               get always a summary of collisions encountered since
+               the last call of {\bf BUMP}.
+
+\item [Remarks:] It is possible to detect multiple collisions,
+               but you need to evaluate sprite coordinates then
+               to detect which sprite collided with which one.
+
+\item [Example:] Using {\bf BUMP}
+\begin{screenoutput}
+  S% = BUMP(1) : REM SPRITE-SPRITE COLLISION
+  IF (S% AND 6) = 6) THEN PRINT "SPRITE 1 & 2 COLLISION"
+
+  S% = BUMP(2) : REM SPRITE-DATA COLLISION
+  IF (S% <> 0) THEN PRINT "SOME SPRITE HIT DATA REGION"
+\end{screenoutput}
+
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|R{12mm}|R{12mm}|l|}
+\hline
+ sprite  & return & mask \\
+\hline
+  0 &    1  & 0000 0001 \\
+  1 &    2  & 0000 0010 \\
+  2 &    4  & 0000 0100 \\
+  3 &    8  & 0000 1000 \\
+  4 &   16  & 0001 0000 \\
+  5 &   32  & 0010 0000 \\
+  6 &   64  & 0100 0000 \\
+  7 &  128  & 1000 0000 \\
+\hline
+\end{tabular}
+}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

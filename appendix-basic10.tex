@@ -251,7 +251,7 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \begin{screenoutput}
   PRINT ATN(0.5)
    .463647609
-  PRINT ATN(0.5) * 180 / π
+  PRINT ATN(0.5) * 180 /π
    26.5650512
 \end{screenoutput}
 \end{description}
@@ -769,6 +769,56 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
   BVERIFY "SPRITES", P 1536
   BVERIFY "ML ROUTINES", B1, P(DEC("9000"))
   BVERIFY (FN$), B(BA%), P(PA), U(UN%)
+\end{screenoutput}
+\end{description}
+
+% *******
+% CATALOG
+% *******
+
+\newpage
+\subsection{CATALOG}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$0C
+\item [Format:] {\bf CATALOG [filepattern] [,R] [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf CATALOG} command prints a full or partial listing
+   of the specified disk.
+
+   {\bf filepattern} is either a quoted string, e.g. {\bf "da*"} or
+   a string expression in parentheses, e.g. {\bf (DI\$)}
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   The command {\bf CATALOG} is a synonym for {\bf DIRECTORY}
+   or {\bf DIR} and produces the same listing.
+   The {\bf filepattern} can be used to restrict the listing.
+   The wildcard characters '*' and '?' may be used.
+
+\item [Example:] Using {\bf CATALOG}
+\begin{screenoutput}
+  CATALOG
+
+  0 "BLACK SMURF     " BS  2A
+508 "STORY PHOBOS"         SEQ
+27  "C8096"                PRG
+25  "C128"                 PRG
+104 BLOCKS FREE.
+
+  CATALOG "C*"
+  0 "BLACK SMURF     " BS  2A
+27  "C8096"                PRG
+25  "C128"                 PRG
+104 BLOCKS FREE.
+
 \end{screenoutput}
 \end{description}
 

@@ -814,11 +814,48 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 104 BLOCKS FREE.
 
   CATALOG "C*"
+
   0 "BLACK SMURF     " BS  2A
 27  "C8096"                PRG
 25  "C128"                 PRG
 104 BLOCKS FREE.
 
+\end{screenoutput}
+\end{description}
+
+% ******
+% CHANGE
+% ******
+
+\newpage
+\subsection{CHANGE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$0C
+\item [Format:] {\bf CHANGE "find" TO "replace" [,from-to]}
+\item [Usage:]  {\bf CHANGE} is an editor command and can be used
+                in direct mode only. It searches the line range
+                if specified or the whole BASIC program else.
+                At each occurence of the "find string" the line is
+                listed and the user prompted for an action: \\
+                'Y' <RETURN> do the change and find next string \\
+                'N' <RETURN> do {\bf not} change and find next string \\
+                '*' <RETURN> change this and all following matches \\
+                    <RETURN> exit command, don't change.
+\item [Remarks:] Instead of the quote (") each other character may be used
+                 as delimiter for the findstring and replacestring.
+                 Using the quote as delimiter finds text strings, that are
+                 not tokenized and therefore not part of a keyword. \\
+                 \screentext{CHANGE "LOOP" TO "OOPS"} will not find
+                 the BASIC keyword \screentext{LOOP}, because the
+                 keyword is stored as token and not as text.
+                 However \screentext{CHANGE \&LOOP\& TO \&OOPS\&} will
+                 find and replace it (probably spoiling the program).
+
+
+\item [Example:] Using {\bf CHANGE}
+\begin{screenoutput}
+CHANGE "XX$" TO "UU$", 2000-2700
+CHANGE &IN& TO &OUT&
 \end{screenoutput}
 \end{description}
 

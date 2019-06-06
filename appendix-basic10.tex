@@ -859,6 +859,64 @@ CHANGE &IN& TO &OUT&
 \end{screenoutput}
 \end{description}
 
+% ****
+% CHAR
+% ****
+
+\newpage
+\subsection{CHAR}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$E0
+\item [Format:] {\bf CHAR column, row, height, width, direction, string
+                [, address of character set]}
+\item [Usage:]  {\bf CHAR} is used to display text on a graphic screen.
+                It can be used for all resolutions.
+
+                {\bf column} is the start position of the output
+                in horizontal direction.
+                One column is 8 pixels wide, so a screen width of 320
+                has a column range 0 -> 39, while a width of 640
+                has a range of 0 -> 79.
+
+                {\bf row} is the start position of the output
+                in vertical direction. Other than column, its unit is
+                pixel with top row having the value 0.
+
+                {\bf height} is a factor applied to the vertical
+                size of the characters. 1 is normal size (8 pixels)
+                2 is double size (16 pixels), etc.
+
+                {\bf widht} is a factor applied to the horizontal
+                size of the characters. 1 is normal size (8 pixels)
+                2 is double size (16 pixels), etc.
+
+                {\bf direction} controls the printing direction: \\
+                1: up     \\
+                2: right  \\
+                4: down   \\
+                8: left
+
+                The optional {\bf address of character set} can be used
+                to select a character set different from the default
+                character set at \$29800, which is the set with
+                upper/lower characters.
+
+                {\bf string} is a string constant or expression
+                which will be printed.
+
+\item [Remarks:]
+                Control characters,
+                e.g. cursor movement codes, will be ignored
+                (neither printed nor interpreted).
+
+
+\item [Example:] Using {\bf CHAR}
+\begin{screenoutput}
+CHAR 304,196, 1,1,2,  "MEGA 65"
+\end{screenoutput}
+will printh the text "MEGA 65" on the centre of a 640 x 400 graphic screen.
+\end{description}
+
 %\newpage
 %\subsection{}
 %

@@ -1075,6 +1075,45 @@ CLOSE 4
 \end{screenoutput}
 \end{description}
 
+% *******
+% COLLECT
+% *******
+
+\newpage
+\subsection{COLLECT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F3
+\item [Format:] {\bf COLLECT [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf COLLECT} command rebuilds the {\bf BAM}
+   (Block Availabilty Map) deleting splat files and marking
+   unused blocks as free.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   While this command is useful for cleaning the disk from
+   splat files (e.g. write files, that weren't properly closed)
+   it is dangerous for disks with boot blocks or random access files.
+   These blocks are not associated with standard disk files
+   and will therefore be marked as free too and may be overwritten
+   by further disk write operations.
+
+\item [Example:] Using {\bf COLLECT}
+\begin{screenoutput}
+  COLLECT
+  COLLECT U9
+  COLLECT D0, U9
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

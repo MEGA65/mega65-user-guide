@@ -1114,6 +1114,62 @@ CLOSE 4
 \end{screenoutput}
 \end{description}
 
+% *********
+% COLLISION
+% *********
+
+\newpage
+\subsection{COLLISION}
+
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$17
+\item [Format:] {\bf COLLISION type [,linenumber]}
+\item [Usage:]  The {\bf COLLISION} statement enables or disables
+                an user programmed interrupt handler.
+                A call without linenumber disables the handler,
+                while a call with linenumber enables it.
+                After the execution of {\bf COLLISION} with
+                linenumber a sprite collision of the same type,
+                as specified in the {\bf COLLISION} call, will
+                interrupt the BASIC program and perform a {\bf GOSUB}
+                to {\bf linenumber} which is expected to contain
+                the user code for handling sprite collisions.
+                This handler must give control back with a {\bf RETURN}.
+
+                {\bf type} specifies the collision type for
+                this interrupt handler: \\
+                1 = sprite - sprite collision \\
+                2 = sprite - data - collision \\
+                3 = light pen
+
+                {\bf linenumber} must point to a subroutine
+                which holds code for handling sprite collision
+                and ends with a {\bf RETURN}.
+
+\item [Remarks:] It is possible to enable interrupt handler for
+               all types, but only one can execute at any time.
+               A interrupt handler cannot be interrupted by another
+               interrupt handler.
+               Functions like {\bf BUMP}, {\bf RSPPOS} and
+               {\bf LPEN} may be used for evaluation of the sprites
+               which are involved and their positions.
+
+\item [Example:] Using {\bf COLLISION}
+\begin{screenoutput}
+10 COLLISION 1,70 : REM ENABLE
+20 SPRITE 1,1 : MOVSPR 1,120,  0 : MOVSPR 1,0#5
+30 SPRITE 2,1 : MOVSPR 2,120,100 : MOVSPR 2,180#5
+40 FOR I=1 TO 50000:NEXT
+50 COLLISION 1 : REM DISABLE
+50 END
+70 REM SPRITE <-> SPRITE INTERRUPT HANDLER
+80 PRINT "BUMP RETURNS";BUMP(1)
+90 RETURN: REM RETURN FROM INTERRUPT
+\end{screenoutput}
+\end{description}
+
+
+
 %\newpage
 %\subsection{}
 %

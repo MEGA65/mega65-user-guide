@@ -1212,7 +1212,7 @@ CLOSE 4
    {\bf appendfile} is either a quoted string, e.g. {\bf "data"} or
    a string expression in parentheses, e.g. {\bf (FN\$)}
 
-   {\bf tragetfile} is either a quoted string, e.g. {\bf "safe"} or
+   {\bf targetfile} is either a quoted string, e.g. {\bf "safe"} or
    a string expression in parentheses, e.g. {\bf (FS\$)}
 
    If the disk unit has dual drives, it is possible to apply
@@ -1273,6 +1273,58 @@ READY.
 PRINT I
  947
 CONT
+\end{screenoutput}
+\end{description}
+
+% ****
+% COPY
+% ****
+
+\newpage
+\subsection{COPY}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$13
+\item [Format:] {\bf COPY source [,D drives] TO
+                target [,D drivet] [,U unit] }
+\item [Usage:]
+   The {\bf COPY} copies the contents of
+   {\bf source} to the {\bf target}.
+   It is used to copy either single files or, by using
+   wildcard characters, multiple files.
+
+   {\bf source} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}.
+
+   {\bf target} is either a quoted string, e.g. {\bf "backup"} or
+   a string expression in parentheses, e.g. {\bf (FS\$)}
+
+   If the disk unit has dual drives, it is possible to copy
+   files from disk to disk.
+   In this case, it is necessary to specify the drive\#
+   for source and target in the command. This is necessary too, if both
+   files are stored on drive\#1.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   The {\bf COPY} commands is executed in the DOS of the disk drive.
+   It can copy all regular file types (PRG, SEQ, USR, REL).
+   The source file must exist, the target file must not exist.
+   if source and target are on the same disk, the target filename
+   must be different fom the source file name.
+
+\item [Example:] Using {\bf COPY}
+\begin{screenoutput}
+  COPY "*",D0 TO D1        :REM COPY ALL FILES
+  COPY "CODES" TO "BACKUP" :REM COPY SINGLE FILE
+  COPY "*.TXT" TO D1       :REM PATTERN COPY
 \end{screenoutput}
 \end{description}
 

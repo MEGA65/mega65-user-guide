@@ -1193,6 +1193,55 @@ CLOSE 4
 
 \end{description}
 
+% ******
+% CONCAT
+% ******
+
+\newpage
+\subsection{CONCAT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$13
+\item [Format:] {\bf CONCAT appendfile [,D drivea] TO
+                targetfile [,D drivet] [,U unit] }
+\item [Usage:]
+   The {\bf CONCAT} (concatenation) appends the contents of
+   {\bf appendfile} to the {\bf targetfile}. Afterwards {\bf targetfile}
+   contains the contents of both files, while {\bf appendfile}
+   remains unchanged.
+
+   {\bf appendfile} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}
+
+   {\bf tragetfile} is either a quoted string, e.g. {\bf "safe"} or
+   a string expression in parentheses, e.g. {\bf (FS\$)}
+
+   If the disk unit has dual drives, it is possible to apply
+   the {\bf CONCAT} command to files, which are stored on different
+   disks. In this case, it is necessary to specify the drive\#
+   for both files in the command. This is necessary too, if both
+   files are stored on drive\#1.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   The {\bf CONCAT} commands is executed in the DOS of the disk drive.
+   Both files must exist and no pattern matching is allowed.
+   Only sequential files of type {\bf SEQ} may be concatenated.
+
+\item [Example:] Using {\bf CONCAT}
+\begin{screenoutput}
+  CONCAT "NEW DATA" TO "ARCHIVE" ,U9
+  CONCAT "ADDRESS",D0 TO "ADDRESS BOOK",D1
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

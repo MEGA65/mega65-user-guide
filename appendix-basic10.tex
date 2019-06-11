@@ -1348,6 +1348,55 @@ CONT
 \end{screenoutput}
 \end{description}
 
+% ****
+% DATA
+% ****
+
+\newpage
+\subsection{DATA}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$83
+\item [Format:] {\bf DATA} [list of constants]
+\item [Usage:] The {\bf DATA} statement is used to define constants
+               which can be read by {\bf READ} statements somewhere
+               in the program. All type of constants (integer, real,
+               strings) are allowed, but no expressions.
+               Items are separated by commas.
+               Strings containing commas, colons or spaces must be put
+               in quotes. \\
+               A {\bf RUN} command initializes the data pointer
+               to the first item of the first {\bf DATA} statement
+               and advances it for every read item. It is in the
+               responsibility of the programmer, that the type of
+               the constant and the variable in the {\bf READ}
+               statement match. Empty items with no constant
+               between commas are allowed and will be interpreted as
+               zero for numeric variables and the null string for
+               string variables. \\
+               The {\bf RESTORE} command may be used to set the
+               data pointer to a specific line for subsequent
+               readings.
+
+\item [Remarks:] It is good programming style to put large amount of
+               {\bf DATA} statements at the end of the program.
+               Otherwise {\bf GOTO} and {\bf GOSUB} statements, with
+               target lines lower than the current one,
+               start their search for linenumber at the beginning of
+               the program and have to skip through {\bf DATA} lines
+               wasting time.
+\item [Example:] Using {\bf DATA}
+\begin{screenoutput}
+10 READ NA$, VE
+20 READ N%:FOR I=2 TO N%:READ GL(I):NEXT I
+30 PRINT "PROGRAM:";NA$;"   VERSION:";VE
+40 PRINT "N-POINT GAUSS-LEGENDRE FACTORS E1":
+50 FOR I=2 TO N%:PRINT I;GL(I):NEXT I
+30 STOP
+80 DATA "MEGA 65",1.1
+90 DATA 5,0.5120,0.3573,0.2760,0.2252
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

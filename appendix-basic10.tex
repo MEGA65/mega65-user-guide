@@ -1496,6 +1496,46 @@ CONT
 \end{screenoutput}
 \end{description}
 
+% ***
+% DEF
+% ***
+
+\newpage
+\subsection{DEF FN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$96
+\item [Format:] {\bf DEF FN name(real variable)}
+\item [Usage:] The {\bf DEF} function defines a single statement
+               user function with one argument of real type
+               returning a real value.
+               The definition must be executed before the function
+               can be used in expressions. The argument is
+               a dummy variable, which will be replaced by the
+               argument in the function usage.
+
+\item [Remarks:] The value of the dummy variable will not be changed
+                 and the variable may be used in other context
+                 without side effects.
+
+\item [Example:] Using {\bf DEF FN}
+\begin{screenoutput}
+10 PD = π / 180
+20 DEF FN CD(X)= COS(X*PD): REM COS FOR DEGREES
+30 DEF FN SD(X)= SIN(X*PD): REM SIN FOR DEGREES
+40 FOR D=0 TO 360 STEP 90
+50 PRINT USING "###";D
+60 PRINT USING " ##.##";FNCD(D);
+70 PRINT USING " ##.##";FNSD(D)
+80 NEXT D
+RUN
+  0  1.00  0.00
+ 90  0.00  1.00
+180 -1.00  0.00
+270  0.00 -1.00
+360  1.00  0.00
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

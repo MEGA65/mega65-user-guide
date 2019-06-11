@@ -1434,6 +1434,41 @@ CONT
 \end{screenoutput}
 \end{description}
 
+% ******
+% DCLOSE
+% ******
+
+\newpage
+\subsection{DCLOSE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$0F
+\item [Format:] {\bf DCLOSE [\#channel] [,U unit] }
+\item [Usage:]
+   The {\bf DCLOSE} command closes a single file or
+   all files for the specified unit.
+
+   {\bf channel} = channel \# assigned with the {\bf DOPEN} statement.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+   The {\bf DCLOSE} command is used either with a channel argument
+   or a unit number, but never both.
+
+\item [Remarks:]
+   It is important to close all open files before the program ends.
+   Otherwise buffers will not be freed and even worse, open write
+   files will be incomplete (splat files) and no more usable.
+
+\item [Example:] Using {\bf DCLOSE}
+\begin{screenoutput}
+  DCLOSE#2 :REM CLOSE FILE ASSIGNED TO CHANNEL 2
+  DCLOSE U9:REM CLOSE ALL FILES OPEN ON UNIT 9
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

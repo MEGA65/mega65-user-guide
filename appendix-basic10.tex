@@ -1397,6 +1397,43 @@ CONT
 \end{screenoutput}
 \end{description}
 
+% ******
+% DCLEAR
+% ******
+
+\newpage
+\subsection{DCLEAR}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$15
+\item [Format:] {\bf DCLEAR [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf DCLEAR} command sends an initialize command to
+   the specified unit and drive.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   The DOS inside the disk unit will close all open files,
+   clear all channels, free buffers and reread the BAM.
+   This command should be used together with a {\bf DCLOSE}
+   to make sure, that the computer and the drive agree
+   on the status, otherwise strange side effects may occur.
+
+\item [Example:] Using {\bf DCLEAR}
+\begin{screenoutput}
+  DCLOSE   :DCLEAR
+  DCLOSE U9:DCLEAR U9
+  DCLOSE U9:DCLEAR D0, U9
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

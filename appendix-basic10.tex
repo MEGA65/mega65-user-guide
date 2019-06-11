@@ -1536,6 +1536,53 @@ RUN
 \end{screenoutput}
 \end{description}
 
+% ******
+% DELETE
+% ******
+
+\newpage
+\subsection{DELETE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F7
+\item [Format:] {\bf DELETE [line range]} \\
+                {\bf DELETE filename [,D drive] [,U unit]}
+\item [Usage:] The {\bf DELETE} command is used either to delete
+               a range of lines from the BASIC program or
+               to delete a disk file.
+
+               {\bf line range} consist of the first and the last
+               line to delete or a single line number.
+               If the first number is omitted, the
+               first BASIC line is assumed.
+               The second number in the range specifier defaults
+               to the last BASIC line.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "safe"} or
+   a string expression in parentheses, e.g. {\bf (FS\$)}
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:] The {\bf DELETE filename} command works like the
+                 {\bf SCRATCH filename} command.
+
+\item [Example:] Using {\bf DELETE}
+\begin{screenoutput}
+  DELETE 100      :REM DELETE LINE 100
+  DELETE 240-350  :REM DELETE ALL LINES FROM 240 TO 350
+  DELETE 500-     :REM DELETE FROM 500 TO END
+  DELETE -70      :REM DELETE FROM START TO 70
+
+  DELETE "DRM",U9 :REM DELETE FILE DRM ON UNIT 9
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

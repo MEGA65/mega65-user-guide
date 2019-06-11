@@ -1583,6 +1583,49 @@ RUN
 \end{screenoutput}
 \end{description}
 
+% ***
+% DIM
+% ***
+
+\newpage
+\subsection{DIM}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$86
+\item [Format:] {\bf DIM name(limits) [,name(limits)]...}
+\item [Usage:] The {\bf DIM} statement declares the shape,
+               the bounds and the type of a BASIC array.
+               As a declaration statement it must be executed
+               only once and before any usage of the declared arrays.
+               An array can have one or more dimensions.
+               One dimensional arrays are often called vectors
+               while two or more dimensions define a matrix.
+               The lower bound of a dimension is always zero,
+               while the upper bound is declared. The rules for
+               variable names apply for array names too.
+               There are integer arrays, real arrays and string arrays.
+               It is legal to use the same identifier for scalar
+               variables and array variables. The left parenthesis
+               after the name identifies array names.
+
+\item [Remarks:] Integer arrays consume 2 bytes per element,
+                 real arrays 5 bytes and string arrays 3 bytes
+                 for the string descriptor plus
+                 the length of the string. \\
+                 If an array identifier is used without previous
+                 declaration, an implicit declaration of an
+                 one dimensional array with limit 10 is performed.
+
+\item [Example:] Using {\bf DIM}
+\begin{screenoutput}
+10 DIM A%(8)   :REM ARRAY OF 9 ELEMENTS
+20 DIM XX(2,3) :REM ARRAY OF 3x4 = 12 ELEMENTS
+30 FOR I=0 TO 8:A%(I)=PEEK(256+I):NEXT
+40 FOR I=0 TO 2:FOR J=0 TO 3:READ XX(I,J):NEXT J,I
+50 END
+60 DATA 1,-2,3,-4,5,-6,7,-8,9,-10,11,-12
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

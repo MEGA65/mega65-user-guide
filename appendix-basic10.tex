@@ -775,8 +775,12 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \item [Token:] \$FE \$0C
 \item [Format:] {\bf CATALOG [filepattern] [,R] [,D drive] [,U unit] }
 \item [Usage:]
-   The {\bf CATALOG} command prints a full or partial listing
+   The {\bf CATALOG} command prints a listing
    of the specified disk.
+
+   The {\bf R} (Recoverable) parameter includes files in the
+   directory, which are flagged as deleted but are still
+   recoverable.
 
    {\bf filepattern} is either a quoted string, e.g. {\bf "da*"} or
    a string expression in parentheses, e.g. {\bf (DI\$)}
@@ -795,24 +799,23 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
    or {\bf DIR} and produces the same listing.
    The {\bf filepattern} can be used to restrict the listing.
    The wildcard characters '*' and '?' may be used.
+   Adding a ",=T" to the pattern string, with T specifying
+   a filetype P,S,U or R (for PRG,SEQ,USR,REL) restricts the
+   output to that filetype.
 
 \item [Example:] Using {\bf CATALOG}
 \begin{screenoutput}
-  CATALOG
-
+CATALOG
   0 "BLACK SMURF     " BS  2A
 508 "STORY PHOBOS"         SEQ
 27  "C8096"                PRG
 25  "C128"                 PRG
 104 BLOCKS FREE.
 
-  CATALOG "C*"
-
+DIRECTORY "*,T=S"
   0 "BLACK SMURF     " BS  2A
-27  "C8096"                PRG
-25  "C128"                 PRG
+508 "STORY PHOBOS"         SEQ
 104 BLOCKS FREE.
-
 \end{screenoutput}
 \end{description}
 
@@ -1623,6 +1626,60 @@ RUN
 40 FOR I=0 TO 2:FOR J=0 TO 3:READ XX(I,J):NEXT J,I
 50 END
 60 DATA 1,-2,3,-4,5,-6,7,-8,9,-10,11,-12
+\end{screenoutput}
+\end{description}
+
+% *********
+% DIRECTORY
+% *********
+
+\newpage
+\subsection{DIRECTORY}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$EE
+\item [Format:] {\bf DIRECTORY [filepattern] [,R] [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf DIRECTORY} command prints a listing
+   of the specified disk and may be abbreviated to {\bf DIR}.
+
+   The {\bf R} (Recoverable) parameter includes files in the
+   directory, which are flagged as deleted but are still
+   recoverable.
+
+   {\bf filepattern} is either a quoted string, e.g. {\bf "da*"} or
+   a string expression in parentheses, e.g. {\bf (DI\$)}
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   The command {\bf DIRECTORY} is a synonym for {\bf CATALOG}
+   or {\bf DIR} and produces the same listing.
+   The {\bf filepattern} can be used to restrict the listing.
+   The wildcard characters '*' and '?' may be used.
+   Adding a ",=T" to the pattern string, with T specifying
+   a filetype P,S,U or R (for PRG,SEQ,USR,REL) restricts the
+   output to that filetype.
+
+\item [Example:] Using {\bf DIRECTORY}
+\begin{screenoutput}
+DIRECTORY
+  0 "BLACK SMURF     " BS  2A
+508 "STORY PHOBOS"         SEQ
+27  "C8096"                PRG
+25  "C128"                 PRG
+104 BLOCKS FREE.
+
+DIR "*,T=S"
+  0 "BLACK SMURF     " BS  2A
+508 "STORY PHOBOS"         SEQ
+104 BLOCKS FREE.
 \end{screenoutput}
 \end{description}
 

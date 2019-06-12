@@ -1715,6 +1715,53 @@ DIR "*,T=S"
 \end{screenoutput}
 \end{description}
 
+% *****
+% DLOAD
+% *****
+
+\newpage
+\subsection{DLOAD}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F0
+\item [Format:] {\bf DLOAD filename [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf DLOAD} ("Disk LOAD") loads a file of type
+   PRG into memory reserved for BASIC program source.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   The load address, which is stored in the first two bytes
+   of the file is ignored. The program is loaded into
+   the BASIC memory. This enables loading of BASIC programs,
+   that were saved on other computers with different memory
+   configurations. After loading the program is relinked
+   and ready to run or edit.
+   It is possible to use DLOAD in a running program
+   (Called overlay or chaining).
+   Then the new loaded program replaces the current one
+   and the execution starts automatically on the first line of the
+   new program. Variables, arrays and strings from the current
+   run are preserved and can be used by the new loaded program.
+
+\item [Example:] Using {\bf DLOAD}
+\begin{screenoutput}
+  DLOAD "APOCALYPSE"
+  DLOAD "MEGA TOOLS",U9
+  DLOAD (FN$),U(UN%)
+\end{screenoutput}
+\end{description}
+
 
 
 %\newpage

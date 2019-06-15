@@ -1762,6 +1762,40 @@ DIR "*,T=S"
 \end{screenoutput}
 \end{description}
 
+% ***
+% DMA
+% ***
+
+\newpage
+\subsection{DMA}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$23
+\item [Format:] {\bf DMA command [,length, source, target, sub]}
+\item [Usage:]
+   The {\bf DMA} ("Direct Memory Access) command is the fastest method
+   to manipulate memory areas using the DMA controller.
+
+   {\bf command} 0 = copy, 1 = mix, 2 = swap, 3 = fill
+
+   {\bf length} = number of bytes
+
+   {\bf source} = 24bit address of read area or fill byte
+
+   {\bf target} = 24bit address of write area
+
+   {\bf sub} = sub command
+
+\item [Remarks:]
+   The {\bf DMA} controller has access to the whole 8 MB address range
+   using 24 bit addresses.
+ The block size is limited to 64K.
+\item [Example:] Using {\bf DMA}
+\begin{screenoutput}
+DMA 3, 2000,   32,0,  2048,0 :REM FILL SCREEN WITH BLANKS
+DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
+\end{screenoutput}
+\end{description}
+
 % *****
 % DMODE
 % *****

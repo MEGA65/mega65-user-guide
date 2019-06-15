@@ -198,7 +198,7 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 
 \begin{screenoutput}
    APPEND#5,"DATA",U9
-   APPEND#130,(\$DD),U(UN%)
+   APPEND#130,(DD$),U(UN%)
    APPEND#3,"USER FILE,U"
    APPEND#2,"DATA BASE"
 \end{screenoutput}
@@ -1861,6 +1861,67 @@ DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
 10 I%=0 : REM INTEGER LOOP 1 -> 100
 20 DO I%=I%+1
 30 LOOP WHILE I% < 101
+\end{screenoutput}
+\end{description}
+
+% *****
+% DOPEN
+% *****
+
+\newpage
+\subsection{DOPEN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$0D
+\item [Format:]
+  {\bf DOPEN\# lfn, filename [,L[reclen]] [,W] [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf DOPEN} command opens a file for reading, writing or
+   modifying.
+
+   {\bf lfn} = {\bf l}ogical {\bf f}ile {\bf n}umber \\
+   1 <= lfn <= 127: line terminator is CR \\
+   128 <= lfn <= 255: line terminator is CR LF
+
+   {\bf L} indicates, that the file is a relative file, which
+   is opened for read/write and random access. The reclength
+   is mandatory for creating realative files. For existing
+   relative files, the reclen is used as a safety check, if given.
+
+   {\bf W} opens a file for write access. The file must not exist.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   \screentext{DOPEN\#} may be used to open all file types.
+   The sequential file type {\bf SEQ} is default.
+   The relative file type {\bf REL} is chosen by using the
+   {\bf L} parameter.  Other file types
+   must be specified in the filename, e.g. by adding ",P" to the
+   filename for program files or ",U" for USR files.
+
+   The usage of the "save-and-replace" character '@' at the
+   beginning of the filename is not recommended, because many
+   Commodore disk drives have a bug, that can cause data loss
+   when using this feature.
+
+\item [Example:] Using {\bf DOPEN}
+
+\begin{screenoutput}
+   DOPEN#5,"DATA",U9
+   DOPEN#130,(DD$),U(UN%)
+   DOPEN#3,"USER FILE,U"
+   DOPEN#2,"DATA BASE",L240
+   OPENN#4,"MYPROG,P" : REM OPEN PRG FILE
 \end{screenoutput}
 \end{description}
 

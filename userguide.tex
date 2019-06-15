@@ -69,7 +69,7 @@
 \usepackage{tikzpagenodes}
 \usepackage{imakeidx}
 \usepackage[pagestyles,raggedright]{titlesec}
-\usepackage[pageanchor=false]{hyperref}
+\usepackage{hyperref}
 \usepackage{aeb-minitoc}
 \usepackage{fix-cm}
 \usepackage{textpos}
@@ -118,6 +118,10 @@
 
 % 3.0 cm is the distance from left of page to bullet point.
 % 2.8 cm is a fudge-factor to make multi-line section names be correctly lined up.
+% \@B{〈length〉} is the amount to indent prior to〈sec-num >
+% \@F{〈fmt〉} is the formatting for the title heading
+% \@P{〈fmt〉} is the formatting for the page number (〈pg-num〉).
+
 \TOCLevels{chapter}{section}
 \begin{minitocfmt}{\chapmtoc}
 \declaretocfmt{section}{\@F{\color{white}\hspace{3.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
@@ -134,22 +138,16 @@
 %\declaretocfmt{section*}{}
 %\end{minitocfmt}
 
-
-\makeatletter
-%\def\cleardoublepage{\clearpage\if@twoside
-%\ifodd\c@page
-%\else\hbox{}\thispagestyle{empty}\newpage
-%\if@twocolumn\hbox{}\newpage\fi\fi\fi}
-
-\renewcommand*{\l@section}[1]{%
-  \@dottedtocline{1}{1.0em}{1em}{%
-    \numberline{\textbullet}%
-    % \numberline{$\cdot$}%
-    \gobble@numberline
-    #1%
-  }%
-}
-\makeatother
+%\makeatletter
+%\renewcommand*{\l@section}[1]{%
+%  \@dottedtocline{1}{1.0em}{1em}{%
+%    \numberline{\textbullet}%
+%    % \numberline{$\cdot$}%
+%    \gobble@numberline
+%    #1%
+%  }%
+%}
+%\makeatother
 
 \input{fonts}
 

@@ -1991,6 +1991,45 @@ DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
 \end{screenoutput}
 \end{description}
 
+% *******
+% DVERIFY
+% *******
+
+\newpage
+\subsection{DVERIFY}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$14
+\item [Format:] {\bf DVERIFY filename [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf DVERIFY} ("Disk VERIFY") compares a BASIC program
+   in memory with a disk file of type PRG.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   {\bf DVERIFY} can only test for equality. It gives no information
+   about the number or position of different valued bytes.
+   The command exits either with the message {\bf OK}
+   or with {\bf VERIFY ERROR}.
+
+\item [Example:] Using {\bf DVERIFY}
+\begin{screenoutput}
+  DVERIFY "ADVENTURE"
+  DVERIFY "ZORK-I",U9
+  DVERIFY "DUNGEON",D1,U10
+\end{screenoutput}
+\end{description}
+
 
 %\newpage
 %\subsection{}

@@ -1948,6 +1948,49 @@ DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
 \end{tabular}
 \end{description}
 
+% *****
+% DSAVE
+% *****
+
+\newpage
+\subsection{DSAVE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$EF
+\item [Format:] {\bf DSAVE filename [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf DSAVE} ("Disk SAVE") saves a BASIC program to
+   a file of type PRG.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}
+   The maximum length of the filename is 16 characters.
+   If the first character of the filename is an at-sign '@' it
+   is interpreted as a "save and replace" operation. It is dangerous
+   to use this replace option on drives 1541 and 1571, because they
+   contain the notorious "save and replace bug" in their DOS.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   The {\bf DVERIFY} can be used after {\bf DSAVE} to check,
+   if the saved program on disk is identical to the program
+   in memory.
+
+\item [Example:] Using {\bf DSAVE}
+\begin{screenoutput}
+  DSAVE "ADVENTURE"
+  DSAVE "ZORK-I",U9
+  DSAVE "DUNGEON",D1,U10
+\end{screenoutput}
+\end{description}
+
 
 %\newpage
 %\subsection{}

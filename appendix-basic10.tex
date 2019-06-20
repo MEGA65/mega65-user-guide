@@ -2097,13 +2097,46 @@ DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
                or {\bf false clause} may be expanded to several lines
                using a compound statement bracketed with the keywords
                {\bf BEGIN} and {\bf BEND}.
-
-
-\item [Example:] Using {\bf ELSE}
+\item [Example:]
+                Using {\bf ELSE}
 \begin{screenoutput}
 10 IF V < 0 THEN PRINT RED$;:ELSE PRINT BLACK$;
 20 PRINT V : REM PRINT NEGATIVE NUMBERS IN RED
-30 GETA$:IF A$="Y" OR A$="y"THEN PRINT "OK":ELSE 30
+30 INPUT "END PROGRAM:(Y/N)";A$
+40 IF A$="Y" THEN END
+50 IF A$="N" THEN 10:ELSE 30
+
+\end{screenoutput}
+\end{description}
+
+
+% ***
+% END
+% ***
+
+\newpage
+\subsection{END}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$80
+\item [Format:] {\bf END}
+\item [Usage:] The {\bf END} statement ends the execution
+               of the BASIC program. The {\bf READY.} prompt
+               appears and the computer goes into direct mode
+               waiting for keyboard input.
+
+\item [Remarks:]
+               {\bf END} does {\bf not} clear channels or close files.
+               Also variable definitions are still valid after {\bf END}.
+               The program may be continued with the {\bf CONT}
+               statement. After executing the very last line of the
+               program {\bf END} is executed automatically.
+
+
+\item [Example:]
+                Using {\bf END}
+\begin{screenoutput}
+10 IF V < 0 THEN END : REM NEGATIVE NUMBERS END THE PROGRAM
+20 PRINT V
 \end{screenoutput}
 \end{description}
 

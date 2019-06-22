@@ -296,7 +296,6 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
 \item [Colours:] {\bf Index and RGB values of colour pallette}
 
 \ttfamily
-{\setlength{\tabcolsep}{1mm}
 \begin{tabular}{*{4}{|R{1.2cm}}|l|}
 \hline
  index  &   red & green & blue & colour \\
@@ -2140,6 +2139,67 @@ DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
 \end{screenoutput}
 \end{description}
 
+% ********
+% ENVELOPE
+% ********
+
+\newpage
+\subsection{ENVELOPE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$0A
+\item [Format:] {\bf ENVELOPE n, [attack,decay,sustain,release,
+                waveform,pw]}
+\item [Usage:] The {\bf ENVELOPE} command is used to define
+               the parameters for the synthesis of a musical
+               instrument.
+
+      {\bf n} = envelope slot (0 -> 9)
+
+      {\bf attack} = attack rate (0 -> 15)
+
+      {\bf decay} = decay rate (0 -> 15)
+
+      {\bf sustain} = sustain rate (0 -> 15)
+
+      {\bf release} = release rate (0 -> 15)
+
+      {\bf waveform} = (0:triangle, 1:sawtooth, 2:square/pulse, 3:noise,
+                       4:ring modulation)
+
+      {\bf pw} = pulse width (0 -> 4095) for waveform = pulse.
+
+               There are 10 slots for storing tunes,
+               preset with following values:
+
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{*{7}{|R{9mm}}|l|}
+\hline
+ n  & A & D & S & R & WF & PW & Instrument \\
+\hline
+  0 & 0 &  9 &  0 &  0 &  2 &  1536  &        piano \\
+  1 & 12&  0 & 12 &  0 &  1 &        &     accordion \\
+  2 & 0 &  0 & 15 &  0 &  0 &        &      calliope \\
+  3 & 0 &  5 &  5 &  0 &  3 &        &      drum \\
+  4 & 9 &  4 &  4 &  0 &  0 &        &      flute \\
+  5 & 0 &  9 &  2 &  1 &  1 &        &      guitar \\
+  6 & 0 &  9 &  0 &  0 &  2 &  512   &        harpsichord \\
+  7 & 0 &  9 &  9 &  0 &  2 &  2048  &        organ \\
+  8 & 8 &  9 &  4 &  1 &  2 &  512   &        trumpet \\
+  9 & 0 &  9 &  0 &  0 &  0 &        &      xylophone \\
+\hline
+\end{tabular}
+
+\item [Example:]
+                Using {\bf ENVELOPE}
+\begin{screenoutput}
+10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
+20 VOL 8
+30 TEMPO 100
+40 PLAY "C D E F G A B"
+50 PLAY "U5 V1 C D E F G A B"
+\end{screenoutput}
+\end{description}
 
 %\newpage
 %\subsection{}

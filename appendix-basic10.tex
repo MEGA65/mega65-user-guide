@@ -2637,6 +2637,8 @@ RUN
                a numerical variable, but this is dangerous,
                because hitting a non numerical key will produce
                an error message and stop the program.
+               The command {\bf GETKEY} is similar, but waits
+               until a key was hit.
 
 \item [Example:] Using {\bf GET}:
 \begin{screenoutput}
@@ -2686,6 +2688,39 @@ RUN
 50 : PRINT S;F$               :REM PRINT FILE ENTRY
 55 LOOP
 60 CLOSE 2
+\end{screenoutput}
+}
+\end{description}
+
+% ******
+% GETKEY
+% ******
+
+\newpage
+\subsection{GETKEY}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$A1 \$F9 (GET token and KEY token)
+\item [Format:] {\bf GETKEY string variable}
+\item [Usage:] The {\bf GETKEY} command gets the next character
+               from the keyboard queue. If the queue is empty
+               the program waits until a key is hit.
+               Then a one character string is created
+               and assigned to the string variable.
+
+\item [Remarks:] It is syntactically OK to use {\bf GETKEY} with
+               a numerical variable, but this is dangerous,
+               because hitting a non numerical key will produce
+               an error message and stop the program.
+
+\item [Example:] Using {\bf GETKEY}:
+\begin{screenoutput}
+10 GETKEY A$ :REM WAIT AND GET CHARACTER
+40 IF A$ = "W" THEN 1000 :REM GO NORTH
+50 IF A$ = "A" THEN 2000 :REM GO WEST
+60 IF A$ = "S" THEN 3000 :REM GO EAST
+70 IF A$ = "Z" THEN 4000 :REM GO SOUTH
+80 IF A$ = CHR$(13) THEN 5000 :REM RETURN
+90 GOTO 10
 \end{screenoutput}
 }
 \end{description}

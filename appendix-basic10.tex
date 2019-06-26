@@ -2647,7 +2647,45 @@ RUN
 70 IF A$ = "Z" THEN 4000 :REM GO SOUTH
 80 IF A$ = CHR$(13) THEN 5000 :REM RETURN
 90 GOTO 10
+\end{screenoutput}
+}
+\end{description}
 
+% ****
+% GET#
+% ****
+
+\newpage
+\subsection{GET\#}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$A1 '\#'
+\item [Format:] {\bf GET\# channel, list of string variables}
+\item [Usage:] The {\bf GET\#} command reads as many bytes
+               as necessary from the channel argument
+               and assigns strings of length one to
+               each variable in the list.
+               This is useful to read characters or bytes from
+               an input stream one by one.
+
+\item [Remarks:] All values from 0 to 255 are valid, so this
+               command can also be used to read binary data.
+               A value of 0 generates a string of length 1
+               containing CHR\$(0) as character value.
+
+\item [Example:] Using {\bf GET\#}:
+\begin{screenoutput}
+10 OPEN 2,8,0,"$0,P"          :REM OPEN CATALOG
+15 IF DS THEN PRINT DS$: STOP :REM CAN'T READ
+20 GET#2,D$,D$                :REM DISCARD LOAD ADDRESS
+25 DO                         :REM LINE LOOP
+30 : GET#2,D$,D$              :REM DISCARD LINE LINK
+35 : IF ST THEN EXIT          :REM END-OF-FILE
+40 : GET#2,L$,H$              :REM FILE SIZE BYTES
+45 : S=ASC(L$) + 256*ASC(H$)  :REM FILE SIZE
+45 : LINE INPUT#2, F$         :REM FILE NAME
+50 : PRINT S;F$               :REM PRINT FILE ENTRY
+55 LOOP
+60 CLOSE 2
 \end{screenoutput}
 }
 \end{description}

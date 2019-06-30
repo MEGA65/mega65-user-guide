@@ -2743,6 +2743,55 @@ ARE YOU SURE?
 \end{screenoutput}
 \end{description}
 
+% *****
+% GOSUB
+% *****
+
+\newpage
+\subsection{GOSUB}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$8D
+\item [Format:] {\bf GOSUB line}
+\item [Usage:] The {\bf GOSUB} (GOto SUBroutine)
+               command continues program
+               execution at the given BASIC line number,
+               saving the current BASIC program counter
+               and line number on the runtime stack.
+               This enables the resume of the execution after
+               the {\bf GOSUB} statement, once a {\bf RETURN}
+               statement in the called subroutine was executed.
+               Calls to subroutines via {\bf GOSUB} may be nested
+               but the end of the subroutine code must always
+               be a {\bf RETURN}. Otherwise a stack overflow
+               may occur.
+
+\item [Remarks:] Unlike other programming languages, this BASIC
+               version does not support arguments or local
+               variables for subroutines. \\
+               Programs can be optimzed by grouping subroutines
+               at the beginning of the program source. The
+               {\bf GOSUB} calls will then have low line numbers
+               with only few digits to decode. Also the subroutines
+               will be found faster, because the search for subroutines
+               starts very often at the start of the program.
+\item [Example:] Using {\bf GOSUB}:
+\begin{screenoutput}
+ 10 GOTO 100 :REM TO MAIN PROGRAM
+ 20 REM *** SUBROUTINE DISK STATUS CHECK ***
+ 30 DD=DS:IF DD THEN PRINT "DISK ERROR";DS$
+ 40 RETURN
+ 50 REM *** SUBROUTINE PROMPT Y/N ***
+ 60 DO:INPUT "CONTINUE (Y/N)";A$
+ 70 LOOP UNTIL A$="Y" OR A$="N"
+ 80 RETURN
+ 90 *** MAIN PROGRAM ***
+100 DOPEN#2,"BIG DATA"
+110 GOSUB 30: IF DD THEN DCLOSE#2:GOSUB 60:REM ASK
+120 IF A$="N" THEN STOP
+130 GOTO 100: REM RETRY
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

@@ -2792,6 +2792,50 @@ ARE YOU SURE?
 \end{screenoutput}
 \end{description}
 
+% ****
+% GOTO
+% ****
+
+\newpage
+\subsection{GOTO}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$89 (GOTO) or \$CB \$A4 (GO TO)
+\item [Format:] {\bf GOTO line} \\
+                {\bf GO TO line}
+\item [Usage:] The {\bf GOTO}
+               command continues program
+               execution at the given BASIC line number.
+               The {\bf GOTO} command written as a single
+               word executes faster than the {\bf GO TO} command.
+
+\item [Remarks:] The new line number will be searched by scanning
+               the BASIC source linearly upwards. If the target
+               line number is higher than the current one, the
+               search starts from the current line upwards.
+               If the target line number is lower, the search starts
+               from the start of the program.
+               Knowing this mechanism it is possible to optimze
+               the runtime by grouping often used targets at the
+               start of the program.
+
+\item [Example:] Using {\bf GOTO}:
+\begin{screenoutput}
+ 10 GOTO 100 :REM TO MAIN PROGRAM
+ 20 REM *** SUBROUTINE DISK STATUS CHECK ***
+ 30 DD=DS:IF DD THEN PRINT "DISK ERROR";DS$
+ 40 RETURN
+ 50 REM *** SUBROUTINE PROMPT Y/N ***
+ 60 DO:INPUT "CONTINUE (Y/N)";A$
+ 70 LOOP UNTIL A$="Y" OR A$="N"
+ 80 RETURN
+ 90 *** MAIN PROGRAM ***
+100 DOPEN#2,"BIG DATA"
+110 GOTO 30: IF DD THEN DCLOSE#2:GOTO 60:REM ASK
+120 IF A$="N" THEN STOP
+130 GOTO 100: REM RETRY
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

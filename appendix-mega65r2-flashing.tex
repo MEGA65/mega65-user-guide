@@ -1,12 +1,38 @@
 \chapter{Flashing the FPGAs and CPLDs in the MEGA65}
 #
-\section{Flashing the Artix 100T main FPGA with VIVADO}
 
-WARNING: Your warranty is now void! Re-programming the MEGA65 FPGA can potentially cause
+The MEGA65 is an open-source and open-hardware computer. This means you are free,
+not only to write programs that run on the MEGA65 as a finished computer, but you can
+use the re-programmable chips in the MEGA65 to turn it into all sorts of other things!
+
+These re-programmable chips are called Field Programmable Gate Arrays (FPGAs) or
+Complex Programmable Logic Devices (CPLDs), and can implement a wide variety of circuits.
+They are normally programmed using a programming language like VHDL or Verilog.  These
+are languages that are not commonly encountered by most people.  They are also quite
+different in some ways to ``normal'' programming languages, and it can take a while to
+understand how they work, but with some effort and perserverence, many people will be
+able to do exiting things with them.
+
+Be prepared to install many gigabytes of software on a Linux or Windows PC, before you will
+be able to write programs for the FPGAs and CPLDs in the MEGA65.  Also, ``compliling'' complex
+designs can take upto several hours, depending on the speed and memory capacity of your computer!
+We recommend a computer with at least 8GB RAM, and preferably 16GB if you want to write
+programs for FPGAs and CPLDs. If on the other hand all you want to do is load programs onto
+your MEGA65's FPGAs and CPLDs that other people have written, then most computers running a recent
+version of Windows or Linux should be able to cope.
+
+\section{Warning}
+
+Before we go any further, we do have to provide a warning about reprogramming the FPGAs and
+CPLDs in the MEGA65.
+Re-programming the MEGA65 FPGA can potentially cause
 damage, or leave your MEGA65 in an unresponsive state from which it is very difficult to
 recover, i.e., ``bricked''.  Therefore if you choose to open your MEGA65 and reprogram
 any of the FPGAs it contains, it is no longer possible to guarantee its correct operation.
 Therefore in this case we can not reasonably honour the warranty of the device as a computer.
+You have been warned!
+
+\section{Flashing the Artix 100T main FPGA with XILINX VIVADO}
 
 If you choose to proceed, you will need a TE0790-03 JTAG programming module, a functioning
 installation of Xilinx's Vivado software.  This can be done on either Windows or Linux, but
@@ -54,7 +80,7 @@ Wait a moment, "Connecting to server..."  should automatically close without dro
   \label{fig:vivado05}
 \end{figure}
 
-Under "Hardware Manager", choose "Add Configuration Memory Device", then "xc7a100t_0".
+Under "Hardware Manager", choose "Add Configuration Memory Device", then "xc7a100t\_0".
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/vivado06.png}
@@ -62,7 +88,7 @@ Under "Hardware Manager", choose "Add Configuration Memory Device", then "xc7a10
   \label{fig:vivado06}
 \end{figure}
 
-In the newly opened dialogue, type "S25fl256s" (without quotes), then select "s25fl256sxxxxxxx0-spi-x1_x2_x4" (the upper one) and click "OK".
+In the newly opened dialogue, type "S25fl256s" (without quotes), then select "s25fl256sxxxxxxx0-spi-x1\_x2\_x4" (the upper one) and click "OK".
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/vivado07.png}
@@ -70,7 +96,7 @@ In the newly opened dialogue, type "S25fl256s" (without quotes), then select "s2
   \label{fig:vivado07}
 \end{figure}
 
-In the next dialogue, choose your local Configuration file, namely a bitstream with file suffix ".mcs". Leave all other parameters as they are (see /ref{fig:vivado07}).
+In the next dialogue, choose your local Configuration file, namely a bitstream with file suffix ".mcs". Leave all other parameters as they are (see \ref{fig:vivado07}).
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/vivado08.png}
@@ -78,7 +104,8 @@ In the next dialogue, choose your local Configuration file, namely a bitstream w
   \label{fig:vivado08}
 \end{figure}
 
-Patiently wait for the programming to finish, fingers crossed.
+Patiently wait for the programming to finish. This can take several minutes as the Vivado software erases and then reprograms
+the flash memory that is used to initialise the FPGA on power-up.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/vivado09.png}
@@ -86,7 +113,7 @@ Patiently wait for the programming to finish, fingers crossed.
   \label{fig:vivado09}
 \end{figure}
 
-If your screen looks like /ref{fig:vivado09}, your new bistream has been successfully flashed into the Artix 100T FPGA!
+If your screen looks like \ref{fig:vivado09}, your new bistream has been successfully flashed into the Artix 100T FPGA!
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/vivado09.png}
@@ -94,20 +121,8 @@ If your screen looks like /ref{fig:vivado09}, your new bistream has been success
   \label{fig:vivado10}
 \end{figure}
 
-If you want to repeat the process, you might find the "Add Configuration Memory Device" option in step 5 greyed out. Instead, select "s25fl256sxxxxxxx0-spi-x1_x2_x4"  in the "Hardware" window, press right mouse button and select "Program Configuration Memory Device" to flash.
+If you want to repeat the process, you might find the "Add Configuration Memory Device" option in step 5 greyed out. Instead, select "s25fl256sxxxxxxx0-spi-x1\_x2\_x4"  in the "Hardware" window, press right mouse button and select "Program Configuration Memory Device" to flash.
 
+\section{Flashing the CPLD in the MEGA65's Keyboard with LATTICE DIAMOND}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\section{Flashing the MAX10 FPGA on the MEGA65's Mainboard with INTEL QUARTUS}

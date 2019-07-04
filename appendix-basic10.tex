@@ -2865,6 +2865,54 @@ ARE YOU SURE?
 \end{screenoutput}
 \end{description}
 
+% ******
+% HEADER
+% ******
+
+\newpage
+\subsection{HEADER}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F1
+\item [Format:] {\bf HEADER diskname [,Iid] [,D drive] [,U unit] }
+\item [Usage:]
+   The {\bf HEADER} command is used to format or clear a diskette
+   or disk.
+
+   {\bf diskname} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (DN\$)}
+   The maximum length of the diskname is 16 characters.
+
+   {\bf drive} = drive \# in dual drive disk units. \\
+   The drive \# defaults to 0 and can be omitted on single drive units
+   like the 1581, 1571 or 1541 series.
+
+   {\bf unit} = device number on the IEC bus.
+   The number is typically in the range 8-11 for disk units.
+   If a variable is used, it must be put in parentheses.
+   The unit \# defaults to 8.
+
+\item [Remarks:]
+   For new diskettes or disks, which are not already formatted
+   it is absolutely necessary to specify the disk ID with the
+   parameter {\bf Iid}. This switches the format command to the
+   full format, which writes sector IDs and erases all contents.
+   This will need some time, because every block on the disk will
+   be written. \\
+   If the {\bf Iid} parameter is omitted, a quick format will
+   be performed. This is only possible, if the disk is formatted
+   already. A quick format writes a new disk name and clears the
+   block allocation map, marking all blocks as free.
+   The disk ID is not changed, the blocks are not overwritten,
+   so contents may be recovered with the {\bf ERASE R} command.
+
+\item [Example:] Using {\bf HEADER}
+\begin{screenoutput}
+  HEADER "ADVENTURE",IBS
+  HEADER "ZORK-I",U9
+  HEADER "DUNGEON",D1,U10
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

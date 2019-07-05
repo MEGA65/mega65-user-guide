@@ -2035,6 +2035,31 @@ DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
 \end{screenoutput}
 \end{description}
 
+% **
+% EL
+% **
+
+\newpage
+\subsection{EL}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Format:] {\bf EL} is a reserved system variable
+\item [Usage:]  {\bf EL} has the value of the line, where
+               the latest BASIC error
+               occured or the value -1 if there was no error.
+
+This variable is typically used in a TRAP routine,
+where the error line is taken from {\bf EL}.
+
+\item [Example:] Using {\bf EL}
+\begin{screenoutput}
+10 TRAP 100
+
+100 IF ER>0 AND ER<42 THEN PRINT ERR$(ER);" ERROR"
+110 PRINT " IN LINE";EL
+120 RESUME
+\end{screenoutput}
+\end{description}
+
 % *******
 % ELLIPSE
 % *******
@@ -2911,6 +2936,41 @@ ARE YOU SURE?
   HEADER "ZORK-I",U9
   HEADER "DUNGEON",D1,U10
 \end{screenoutput}
+\end{description}
+
+% ****
+% HELP
+% ****
+
+\newpage
+\subsection{HELP}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$EA
+\item [Format:] {\bf HELP}
+\item [Usage:]
+   When the BASIC program stops due to an error,
+   the {\bf HELP} command can be used to list the erroneous line
+   and highlight the statement, that caused the error stop.
+
+\item [Remarks:]
+      {\bf HELP} displays BASIC errors. For errors in disk
+      I/O one should print the disk status variable {\bf DS}
+      or the disk status string {\bf DS\$}.
+
+\item [Example:] Using {\bf HELP}
+\begin{screenoutput}
+10 A=1.E20
+20 B=A+A:C=EXP(A):PRINT A,B,C
+RUN
+
+?OVERFLOW ERROR IN 20
+READY.
+HELP
+
+20 B=A+A:C=EXP(A):PRINT A,B,C
+\end{screenoutput}
+The erroneous statement is highlighted or underlined like: \\
+20 B=A+A:\underline{C=EXP(A):PRINT A,B,C}
 \end{description}
 
 %\newpage

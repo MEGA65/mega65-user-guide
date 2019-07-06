@@ -3089,6 +3089,60 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \end{screenoutput}
 \end{description}
 
+% *****
+% INPUT
+% *****
+
+\newpage
+\subsection{INPUT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$85
+\item [Format:] {\bf INPUT [prompt <,|;>] variable list}
+\item [Usage:] The {\bf INPUT} command prints an optional
+               prompt string and question mark to the screen,
+               flashes the cursor and waits for user input
+               from the keyboard.
+
+               {\bf prompt} = string expression to be printed
+               as prompt. It may be omitted. \\
+               If the separator between prompt and variable list
+               is a comma, the cursor is placed directly after
+               the prompt. If the separator is a semicolon,
+               a question mark and a space is added to the prompt.
+
+               {\bf variable list} = list of one or more
+               variables, that receive the input.
+
+               The input will be processed after the user hits RETURN.
+
+\item [Remarks:] The user must take care to enter the correct
+               type of input matching variable types.
+               Also the number of input items must match the number
+               of variables.
+               Entering non numeric charcaters for integer or real
+               variables will produce a TYPE MISMATCH ERROR.
+               Strings for string variables have to be put in quotes
+               if the contain spaces or commas. \\
+               Many programs, that need a safe input routine use
+               {\bf LINE INPUT} and use an own parser, in order
+               to avoid program breaks by wrong user input.
+
+\item [Example:] Using {\bf INPUT}:
+\begin{screenoutput}
+ 10 DIM N$(100),A%(100),S$(100):
+ 20 DO
+ 30 INPUT "NAME, AGE, SEX";NA$,AG%,SE$
+ 40 IF NA$="" THEN 30
+ 50 IF NA$="END" THEN EXIT
+ 60 IF AG% < 18 OR AG% > 100 THEN PRINT "AGE?":GOTO 30
+ 70 IF SE$ <> "M" AND SE$ <> "F" THEN PRINT "SEX?":GOTO 30
+ 80 REM CHECK OK: ENTER INTO ARRAY
+ 90 N$(N)=NA$:A%(N)=AG%:S$(N)=SE$:N=N+1
+100 LOOP UNTIL N=100
+110 PRINT "RECEIVED";N;" NAMES"
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

@@ -3122,7 +3122,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
                Entering non numeric charcaters for integer or real
                variables will produce a TYPE MISMATCH ERROR.
                Strings for string variables have to be put in quotes
-               if the contain spaces or commas. \\
+               if they contain spaces or commas. \\
                Many programs, that need a safe input routine use
                {\bf LINE INPUT} and use an own parser, in order
                to avoid program breaks by wrong user input.
@@ -3140,6 +3140,53 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
  90 N$(N)=NA$:A%(N)=AG%:S$(N)=SE$:N=N+1
 100 LOOP UNTIL N=100
 110 PRINT "RECEIVED";N;" NAMES"
+\end{screenoutput}
+\end{description}
+
+% *******
+% INPUT\#
+% *******
+
+\newpage
+\subsection{INPUT\#}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$84
+\item [Format:] {\bf INPUT\# chnannel, variable list}
+\item [Usage:] The {\bf INPUT\#} command reads a record
+               from an input device, e.g. a disk file
+               or a RS232 device and assigns the read data
+               to the variables in the list.
+
+               {\bf channel} = channel number assigned
+               by a {\bf DOPEN} or {\bf OPEN} command.
+
+               {\bf variable list} = list of one or more
+               variables, that receive the input.
+
+               The input record must be terminated by a
+               RETURN character and must be not longer than
+               the input buffer (160 characters).
+
+\item [Remarks:] The type and number of data in a record must
+               match the variable list.
+               Reading non numeric charcaters for integer or real
+               variables will produce a FILE DATA ERROR.
+               Strings for string variables have to be put in quotes
+               if they contain spaces or commas. \\
+               The command {\bf LINE INPUT\#} may be used to
+               read a whole record into a single string variable.
+
+\item [Example:] Using {\bf INPUT\#}:
+\begin{screenoutput}
+ 10 DIM N$(100),A%(100),S$(100):
+ 20 DOPEN#2,"DATA"
+ 30 FOR I=0 TO 100
+ 40 INPUT#2,N$(I),A%(I),S$(I)
+ 50 IF ST=64 THEN 80:REM END OF FILE
+ 60 IF DS THEN PRINT DS$:GOTO 80:REM DISK ERROR
+ 70 NEXT I
+ 80 DCLOSE#2
+110 PRINT "READ";I;" RECORDS"
 \end{screenoutput}
 \end{description}
 

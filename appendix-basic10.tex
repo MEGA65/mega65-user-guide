@@ -3261,6 +3261,52 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \end{screenoutput}
 \end{description}
 
+%****
+% JOY
+%****
+
+\newpage
+\subsection{JOY}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$CF
+\item [Format:] {\bf JOY(port)}
+\item [Usage:] The {\bf JOY} function returns the state of the
+               joystick for the selected port (1 or 2).
+               Bit 7 contains the state of the fire button.
+               The stick can be moved to 8 directions, which
+               are numbered clockwise starting at the upper position.
+
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|r|c|c|c|}
+\hline
+&  left  & centre & right \\
+\hline
+up     &  8 &    1  & 2 \\
+centre &  7 &    0  & 3 \\
+down   &  6 &    5  & 4 \\
+\hline
+\end{tabular}
+}
+
+\item [Example:] Using {\bf JOY}:
+\begin{screenoutput}
+ 10 N = JOY(1)
+ 20 IF N AND 128 THEN PRINT "FIRE! ";
+ 30 REM                N   NE  E   SE  S   SW  W   NW
+ 40 ON N AND 15 GOSUB 100,200,300,400,500,600,700,800
+ 50 GOTO 10
+100 PRINT "GO NORTH"    :RETURN
+200 PRINT "GO NORTHEAST":RETURN
+300 PRINT "GO EAST"     :RETURN
+400 PRINT "GO SOUTHEAST":RETURN
+500 PRINT "GO SOUTH"    :RETURN
+600 PRINT "GO SOUTHWEST":RETURN
+700 PRINT "GO WEST"     :RETURN
+800 PRINT "GO NORTHWEST":RETURN
+\end{screenoutput}
+\end{description}
+
 %\newpage
 %\subsection{}
 %

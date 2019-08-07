@@ -2516,7 +2516,7 @@ RUN
 \subsection{FOR}
 \begin{description}[leftmargin=3cm,style=nextline]
 \item [Token:] \$81
-\item [Format:] {\bf FOR index=start TO end [STEP step] ... NEXT}
+\item [Format:] {\bf FOR index=start TO end [STEP step] ... NEXT [index]}
 \item [Usage:] The {\bf FOR} statement starts the definition
                of a BASIC loop with an index variable.
 
@@ -3838,8 +3838,57 @@ MEGA+65
 \end{screenoutput}
 \end{description}
 
+% ****
+% NEXT
+% ****
+
 \newpage
-\subsection{}
+\subsection{NEXT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$82
+\item [Format:] {\bf FOR index=start TO end [STEP step] ... NEXT [index]}
+\item [Usage:] The {\bf NEXT} statement terminates the definition
+               of a BASIC loop with an index variable.
+
+               The {\bf index} variable may be incremented or decremented
+               by a constant value {\bf step} on each iteration. The default
+               is to increment the variable by 1.
+               The index variable must be a real variable.
+
+               The {\bf start} value is used to initialize the index.
+
+               The {\bf end} value is used at the end of the loop
+               and controls, wether the next iteration will be started
+               or the loop exited.
+
+               The {\bf step} value defines the change applied to
+               to the index variable at the end of the loop.
+               Positive step values increment it, while negative values
+               decrement it. It defaults to 1.0 if not specified.
+
+\item [Remarks:] The {\bf index} variable after {\bf NEXT} is
+               optional. If no variable is specified, the variable
+               for the current loop is assumed. \\
+               Several consecutive {\bf NEXT} statements may be
+               combined by specifying the indexes in a comma
+               separated list. For
+               \screentext{NEXT I:NEXT J:NEXT K} the statement
+               \screentext{NEXT I,J,K} is equivalent.
+
+\item [Example:] Using {\bf NEXT}
+\begin{screenoutput}
+10 FOR D=0 TO 360 STEP 30
+20 R = D * ~ / 180
+30 PRINT D;R;SIN(R);COS(R);TAN(R)
+40 NEXT D
+
+10 DIM M(20,20)
+20 FOR I=0 TO 20
+30 FOR J=I TO 20
+40 M(I,J) = I + 100 * J
+50 NEXT J,I
+\end{screenoutput}
+\end{description}
 
 %\begin{description}[leftmargin=3cm,style=nextline]
 %\item [Token:]

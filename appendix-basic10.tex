@@ -3957,3 +3957,58 @@ In most cases the {\bf NOT} will be used in {\bf IF} statements.
 \end{screenoutput}
 \end{description}
 
+% **
+% ON
+% **
+
+\newpage
+\subsection{ON}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$91
+\item [Format:] {\bf ON expression GOSUB line list} \\
+                {\bf ON expression GOTO line list}  \\
+                 keyword {\bf ON}
+\item [Usage:]  The {\bf ON} keyword starts
+                either a computed {\bf GOSUB} or {\bf GOTO} statement.
+                Dependent on the value of the expression, the target
+                for the {\bf GOSUB} or {\bf GOTO} is chosen from
+                the table of line addresses at the end of the statemnt.
+
+                As a secondary keyword, {\bf ON} is used in
+                combination with primary keywords like
+                {\bf COLOR, KEY, MOUSE}.
+
+                {\bf expression} is a positive numeric value.
+                Real values are cut to integer.
+
+                {\bf line list} is a comma separated list of valid
+                linenumbers.
+
+\item [Remarks:] Negative values for {\bf expression} will stop
+                 the program with an error message.
+                 The {\bf line list} specifies the targets for values
+                 of 1,2,3,... \\
+                 An expression value of zero or a value, that is greater
+                 than the number of target lines will do nothing and
+                 continue program execution with the next statement.
+
+\item [Example:] Using {\bf ON}
+\begin{screenoutput}
+ 10 COLOR ON :REM ENABLE SCREEN COLOUR
+ 20 KEY   ON :REM ENABLE FUNCTION KEY STRINGS
+ 30 MOUSE ON :REM ENABLE MOUSE DRIVER
+ 40 N = JOY(1):IF N AND 128 THEN PRINT "FIRE! ";
+ 60 REM                N   NE  E   SE  S   SW  W   NW
+ 70 ON N AND 15 GOSUB 100,200,300,400,500,600,700,800
+ 80 GOTO 40
+100 PRINT "GO NORTH"    :RETURN
+200 PRINT "GO NORTHEAST":RETURN
+300 PRINT "GO EAST"     :RETURN
+400 PRINT "GO SOUTHEAST":RETURN
+500 PRINT "GO SOUTH"    :RETURN
+600 PRINT "GO SOUTHWEST":RETURN
+700 PRINT "GO WEST"     :RETURN
+800 PRINT "GO NORTHWEST":RETURN
+\end{screenoutput}
+\end{description}
+

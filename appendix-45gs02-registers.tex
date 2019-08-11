@@ -18,6 +18,31 @@ registers of the 45GS02.
 
 The 45GGS02 has a number of key differences to earlier 6502-class processors:
 
+\subsection{Supervisor/Hypervisor Privileged Mode}
+
+Unlike the earlier 6502 variants, the 45GS02 has a privileged mode of operation.
+This mode is intended for use by an operating system or type-1 hypervisor.  The ambiguity between
+operating system and hypervisor on the MEGA65 stems from the fact that the operating
+system of the MEGA65 is effectively little more than a loader and task-switcher for C64 and C65
+environments, i.e., effectively operating as a hypervisor, but provides only limited virtualisation
+of the hardware.
+
+The key differences between normal and supervisor mode on the MEGA65, are that in
+supervisor mode:
+
+\begin{itemize}
+\item A special 16KiB memory area is mapped to \$8000 - \$BFFF, which is used to contain both
+  the program and data of the hypervisor / supervisor program.  This is normally the Hyppo program.
+  This memory is not mappable by any means when the processor is in the normal mode (the chip-select
+  line to it is inhibited), protecting it from accidental or malicious access.
+\item The 64 SYSCALL trap registers in the MEGA65 IO-mode at \$D640 - \$D67F are replaced by the
+  virtualisation control registers.  These registers allow complete control over the system, and
+  it is their access that truly defines the privilege of the supervisor mode.
+  \item The processor always operates at full speed (40MHz) and in the 4510 processor personality.
+\end{itemize}
+
+See Section \ref{sec:hypervisor-mode} for more information on this mode.
+
 \subsection{6502 Illegal Opcodes}
 
 The 65C02, 65CE02 and CSG4510 processors extended the original 6502 processor
@@ -253,6 +278,249 @@ compared to LDA #\$nn ... LDZ #\$nn, and would be no faster.
 
 \input{regtable_MATH.MEGA65}
 
-\section{MEGA65 Hypervisor Mode Memory Mapped Registers}
+\section{MEGA65 Hypervisor Mode}
+
+\subsection{Reset}
+
+On power-up or reset, the MEGA65 starts up in hypervisor mode, and expects to find a program in the
+16KiB hypervisor memory, and begins executing instructions at address \$8100.  Normally a JMP instruction
+will be located at this address, that will jump into a reset routine. That is, the 45GS02
+does not use the normal 6502 reset vector. It's function is emulated by the Hyppo hypervisor program,
+which fetches the address from the 6502 reset vector in the loaded client operating system when
+exiting hypervisor mode.
+
+The hypervisor memory is automatically mapped on reset to \$8000 - \$BFFF.  This special memory is not
+able to mapped or in anyway accessed, except when in hypervisor mode. This includes from the serial monitor/debugger
+interface.  This is to protect it from accidental or malicious access from a guest operating system.
+
+\subsection{Entering / Exiting Hypervisor Mode}
+
+Entering the Hypervisor occurs whenever any of the following events occurs:
+
+\begin{itemize}
+\item{\bf Power-on} When the MEGA65 is first powered on.
+\item{\bf Reset} If the reset line is lowered, or a watch-dog triggered reset occurs.
+\item{\bf SYSCALL register accessed} The registers \$D640 - \$D67F in the MEGA65 IO context trigger SYSCALLs when accessed.
+  This is intended to be the mechanism by which a client operating system or process requests the attention of the hypervisor or operating system.
+\item{\bf Page Fault} On MEGA65s that feature virtual memory, a page fault will cause a trap to hypervisor mode.
+\item{\bf Certain keyboard events} Pressing the \specialkey{RESTORE} key for >0.5 seconds, or the \specialkey{ALT} + \specialkey{TAB} key combination traps to the hypervisor.  Typically the first is used to launch the freeze menu an the second to toggle the display of debug interface.
+\item{\bf Accessing virtualised IO devices} For example, if the F011 (internal 3.5'' disk drive controller) has been virtualised, then attempting to read or write sectors using this device will cause traps to the hypervisor.
+  \item{\bf Executing an instruction that would lock up the CPU} A number of undocumented opcodes on the 6502 will cause the CPU to lockup.  On the MEGA65, instead of locking up, the computer will trap to the hypervisor.  This could be used to implement alternative instruction behaviours, or simply to tell the user that something bad has happened.
+  \item{\bf Certain special events} Some devices can generate hypervisor-level interrupts. These are implemented as traps to the hypervisor.
+\end{itemize}
+
+The 45GS02 handles all of these in a similar manner internally:
+
+\begin{enmerate}
+\item The SYSCALL or trap address is calculated, based on the event.
+\item The contents of all CPU registers are saved into the virtualisation control registers.
+\item The hypervisor mode memory layout is activated, the CPU decimal flag and special purpose registers are all set to appropriate values.  The contents of the A,X,Y and Z and most other CPU flags are preserved, so that they can be accessed from the hypervisor's SYSCALL/trap handler routine, without having to load them, thus saving a few cycles for each call.
+\item The hypervisor-mode flag is asserted, and the programme counter (PC) register is set to the computed address.
+\end{itemize}
+
+All of the above happens in one CPU cycle, i.e., in 25 nano-seconds.
+Returning from a SYSCALL or trap consists simply of writing to \$D67F, which
+requires 125 nano-seconds, for a total overhead of 150 nano-seconds. 
+This gives the MEGA65 SYSCALL performance rivaling -- even beating -- even the fastest modern computers, where the system call latency is typically hundreds to tens of thousands of cycles \cite{soares2010flexsc}.
+
+\subsection{Hypervisor Memory Layout}
+
+The hypervisor memory is 16KiB in size.  The first 512 bytes are reserved for SYSCALL and system trap entry
+points, with four bytes for each.  For example, the reset entry point is at \$8100 - \$8100 + 3 = \$8100 - \$8103.
+This allows 4 bytes for an instruction, typically a JMP instruction, followed by a NOP to pad it to 4 bytes.
+
+The full list of SYSCALLs and traps is:
+
+\begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Name} & {\bf{Description}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Name} & {\bf{Description}} \\
+\hline
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small  8000 & \small 32768 & SYSCALL00 & Syscall 0 entry point \\
+\hline
+\small  8004 & \small 32772 & SYSCALL01 & Syscall 1 entry point \\
+\hline
+\small  8008 & \small 32776 & SYSCALL02 & Syscall 2 entry point \\
+\hline
+\small  800C & \small 32780 & SYSCALL03 & Syscall 3 entry point \\
+\hline
+\small  8010 & \small 32784 & SYSCALL04 & Syscall 4 entry point \\
+\hline
+\small  8014 & \small 32788 & SYSCALL05 & Syscall 5 entry point \\
+\hline
+\small  8018 & \small 32792 & SYSCALL06 & Syscall 6 entry point \\
+\hline
+\small  801C & \small 32796 & SYSCALL07 & Syscall 7 entry point \\
+\hline
+\small  8020 & \small 32800 & SYSCALL08 & Syscall 8 entry point \\
+\hline
+\small  8024 & \small 32804 & SYSCALL09 & Syscall 9 entry point \\
+\hline
+\small  8028 & \small 32808 & SYSCALL0A & Syscall 10 entry point \\
+\hline
+\small  802C & \small 32812 & SYSCALL0B & Syscall 11 entry point \\
+\hline
+\small  8030 & \small 32816 & SYSCALL0C & Syscall 12 entry point \\
+\hline
+\small  8034 & \small 32820 & SYSCALL0D & Syscall 13 entry point \\
+\hline
+\small  8038 & \small 32824 & SYSCALL0E & Syscall 14 entry point \\
+\hline
+\small  803C & \small 32828 & SYSCALL0F & Syscall 15 entry point \\
+\hline
+\small  8040 & \small 32832 & SYSCALL10 & Syscall 16 entry point \\
+\hline
+\small  8044 & \small 32836 & SECURENTR & Enter secure container trap entry point \\
+\hline
+\small  8048 & \small 32840 & SECUREXIT & Leave secure container trap entry point. \\
+\hline
+\small  804C & \small 32844 & SYSCALL13 & Syscall 19 entry point \\
+\hline
+\small  8050 & \small 32848 & SYSCALL14 & Syscall 20 entry point \\
+\hline
+\small  8054 & \small 32852 & SYSCALL15 & Syscall 21 entry point \\
+\hline
+\small  8058 & \small 32856 & SYSCALL16 & Syscall 22 entry point \\
+\hline
+\small  805C & \small 32860 & SYSCALL17 & Syscall 23 entry point \\
+\hline
+\small  8060 & \small 32864 & SYSCALL18 & Syscall 24 entry point \\
+\hline
+\small  8064 & \small 32868 & SYSCALL19 & Syscall 25 entry point \\
+\hline
+\small  8068 & \small 32872 & SYSCALL1A & Syscall 26 entry point \\
+\hline
+\small  806C & \small 32876 & SYSCALL1B & Syscall 27 entry point \\
+\hline
+\small  8070 & \small 32880 & SYSCALL1C & Syscall 28 entry point \\
+\hline
+\small  8074 & \small 32884 & SYSCALL1D & Syscall 29 entry point \\
+\hline
+\small  8078 & \small 32888 & SYSCALL1E & Syscall 30 entry point \\
+\hline
+\small  807C & \small 32892 & SYSCALL1F & Syscall 31 entry point \\
+\hline
+\small  8080 & \small 32896 & SYSCALL20 & Syscall 32 entry point \\
+\hline
+\small  8084 & \small 32900 & SYSCALL21 & Syscall 33 entry point \\
+\hline
+\small  8088 & \small 32904 & SYSCALL22 & Syscall 34 entry point \\
+\hline
+\small  808C & \small 32908 & SYSCALL23 & Syscall 35 entry point \\
+\hline
+\small  8090 & \small 32912 & SYSCALL24 & Syscall 36 entry point \\
+\hline
+\small  8094 & \small 32916 & SYSCALL25 & Syscall 37 entry point \\
+\hline
+\small  8098 & \small 32920 & SYSCALL26 & Syscall 38 entry point \\
+\hline
+\small  809C & \small 32924 & SYSCALL27 & Syscall 39 entry point \\
+\hline
+\small  80A0 & \small 32928 & SYSCALL28 & Syscall 40 entry point \\
+\hline
+\small  80A4 & \small 32932 & SYSCALL29 & Syscall 41 entry point \\
+\hline
+\small  80A8 & \small 32936 & SYSCALL2A & Syscall 42 entry point \\
+\hline
+\small  80AC & \small 32940 & SYSCALL2B & Syscall 43 entry point \\
+\hline
+\small  80B0 & \small 32944 & SYSCALL2C & Syscall 44 entry point \\
+\hline
+\small  80B4 & \small 32948 & SYSCALL2D & Syscall 45 entry point \\
+\hline
+\small  80B8 & \small 32952 & SYSCALL2E & Syscall 46 entry point \\
+\hline
+\small  80BC & \small 32956 & SYSCALL2F & Syscall 47 entry point \\
+\hline
+\small  80C0 & \small 32960 & SYSCALL30 & Syscall 48 entry point \\
+\hline
+\small  80C4 & \small 32964 & SYSCALL31 & Syscall 49 entry point \\
+\hline
+\small  80C8 & \small 32968 & SYSCALL32 & Syscall 50 entry point \\
+\hline
+\small  80CC & \small 32972 & SYSCALL33 & Syscall 51 entry point \\
+\hline
+\small  80D0 & \small 32976 & SYSCALL34 & Syscall 52 entry point \\
+\hline
+\small  80D4 & \small 32980 & SYSCALL35 & Syscall 53 entry point \\
+\hline
+\small  80D8 & \small 32984 & SYSCALL36 & Syscall 54 entry point \\
+\hline
+\small  80DC & \small 32988 & SYSCALL37 & Syscall 55 entry point \\
+\hline
+\small  80E0 & \small 32992 & SYSCALL38 & Syscall 56 entry point \\
+\hline
+\small  80E4 & \small 32996 & SYSCALL39 & Syscall 57 entry point \\
+\hline
+\small  80E8 & \small 33000 & SYSCALL3A & Syscall 58 entry point \\
+\hline
+\small  80EC & \small 33004 & SYSCALL3B & Syscall 59 entry point \\
+\hline
+\small  80F0 & \small 33008 & SYSCALL3C & Syscall 60 entry point \\
+\hline
+\small  80F4 & \small 33012 & SYSCALL3D & Syscall 61 entry point \\
+\hline
+\small  80F8 & \small 33016 & SYSCALL3E & Syscall 62 entry point \\
+\hline
+\small  80FC & \small 33020 & SYSCALL3F & Syscall 63 entry point \\
+\hline
+\small  8100 & \small 33024 & RESET & Power-on/reset entry point \\
+\hline
+\small  8104 & \small 33028 & PAGFAULT & Page fault entry point (not currently used) \\
+\hline
+\small  8108 & \small 33032 & RESTORKEY & Restore-key long press trap entry point \\
+\hline
+\small  810C & \small 33036 & ALTTABKEY & ALT+TAB trap entry point \\
+\hline
+\small  8110 & \small 33040 & VF011RD & F011 virtualised disk read trap entry point \\
+\hline
+\small  8114 & \small 33044 & VF011WR & F011 virtualised disk write trap entry point \\
+\hline
+\small  8118 -- 81FB & \small 33048 -- 33275 & RESERVED & Reserved traps point entry \\
+\hline
+\small  81FC & \small 33276 & CPUKIL & KIL instruction in 6502-mode trap entry point \\
+\hline
+\end{longtable}
+
+The remainder of the 16KiB hypervisor memory is available for use by the programmer, but
+xwill typically use the last 512 bytes for the stack and zero-page, giving an overall memory map as follows:
+
+\begin{longtable}{|L{1.2cm}|L{1.1cm}|L{8cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Description}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Description}} \\
+\hline
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small  8000 -- 81FF & \small 32768 -- 33279 & SYSCALL and trap entry points \\
+\hline
+\small  8200 -- BDFF & \small 33280 -- 48639 & Available for hypervisor or operating system program \\
+\hline
+\small  8E00 -- BEFF & \small 48640 -- 48895 & Processor stack for hypervisor or operating system \\
+\hline
+\small  8F00 -- BFFF & \small 48896 -- 49151 & Processor zero-page storage for hypervisor or operating system \\
+\hline
+\end{longtable}
+
+The stack is used for holding the return address of function calls.  The zero-page storage is typically used for holding
+variables and other short-term storage, as is customary on the 6502.
+
+\subsection{Hypervisor Virtualisation Control Registers}
 
 \input{regtable_HCPU.MEGA65}

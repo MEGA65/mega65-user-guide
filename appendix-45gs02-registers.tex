@@ -524,3 +524,131 @@ variables and other short-term storage, as is customary on the 6502.
 \subsection{Hypervisor Virtualisation Control Registers}
 
 \input{regtable_HCPU.MEGA65}
+
+\section{Programming for Hypervisor Mode}
+
+The easiest way to write a program for Hypervisor Mode on the MEGA65 is to use KickC, which is a special version of C
+made for writing programs for 6502-class processors.  The following example programs are from KickC's supplied examples.
+KickC produces very efficient code, and directly supports the MEGA65's
+hypervisor mode quite easily through the use of a linker definition file with the following contents:
+
+\begin{screenoutput}
+.file [name="%O.bin", type="bin", segments="XMega65Bin"]
+.segmentdef XMega65Bin [segments="Syscall, Code, Data, Stack, Zeropage"]
+.segmentdef Syscall [start=$8000, max=$81ff]
+.segmentdef Code [start=$8200, min=$8200, max=$bdff]
+.segmentdef Data [startAfter="Code", min=$8200, max=$bdff]
+.segmentdef Stack [min=$be00, max=$beff, fill]
+.segmentdef Zeropage [min=$bf00, max=$bfff, fill]
+\end{screenoutput}
+
+This file instructs KickC's assembler to create a 16KiB file with the 512 byte SYSCALL/trap entry point region at the start,
+followed by code and data areas, and then the stack and zero-page areas. It enforces the size and location of these fields, and
+will give an error during compilation if anything is too big to fit.
+
+With this file in place, you can then create a KickC source file that provides data structures for the SYSCALL/trap table, e.g.:
+
+\begin{screenoutput}
+// XMega65 Kernal Development Template
+// Each function of the kernal is a no-args function
+// The functions are placed in the SYSCALLS table surrounded by JMP and NOP
+
+import "string"
+
+// Use a linker definition file (put the previous listing into that file)
+#pragma link("mega65hyper.ld")
+
+// Some definitions of addresses and special values that this program uses
+const char* RASTER = 0xd012;
+const char* VIC_MEMORY = 0xd018;
+const char* SCREEN = 0x0400;
+const char* BGCOL = 0xd021;
+const char* COLS = 0xd800;
+const char BLACK = 0;
+const char WHITE = 1;
+
+// Some text to display
+char[] MESSAGE = "hello world!";
+
+void main() {
+    // Initialize screen memory, and select correct font
+    *VIC_MEMORY = 0x14;
+    // Fill the screen with spaces
+    memset(SCREEN, ' ', 40*25);
+    // Set the colour of every character on the screen to white
+    memset(COLS, WHITE, 40*25);
+    // Print the "hello world!" message
+    char* sc = SCREEN+40;  // Display it one line down on the screen
+    char* msg = MESSAGE; // The messag to display
+    // A simple copy routine to copy the string
+    while(*msg) {
+        *sc++ = *msg++;
+    }
+    // Loop forever showing two white lines as raster bars
+    while(true) {
+        if(*RASTER==54 || *RASTER==66) {
+            *BGCOL = WHITE;
+        } else {
+            *BGCOL = BLACK;
+        }
+    }
+}
+
+// Here are a couple sample SYSCALL handlers that just display a character on the screen
+void syscall1() {
+    *(SCREEN+79) = '>';
+}
+
+void syscall2() {
+    *(SCREEN+78) = '<';
+}
+
+// Now we select the SYSCALL segment to hold the SYSCALL/trap entry point table.
+#pragma data_seg(Syscall)
+
+// The structure of each entry point is JMP <handler address> + NOP.
+// We have a char (xjmp) to hold the opcode for the JMP instruction,
+// and then put the address of the SYSCALL/trap handler in the next
+// two points as a pointer, and end with the NOP instruction opcode.
+struct SysCall {
+    char xjmp;         // Holds $4C, the JMP $nnnn opcode
+    void()* syscall;   // Holds handler address, will be the target of the JMP
+    char xnop;         // Holds $EA, the NOP opcode
+};
+
+// To save writing 0x4C and 0xEA all the time, we define them as constants
+const char JMP = 0x4c;
+const char NOP = 0xea;
+
+// Now we can have a nice table of up to 64 SYSCALL handlers expressed
+// in a fairly readable and easy format.
+// Each line is an instance of the struct SysCall from above, with the JMP
+// opcode value, the address of the handler routine and the NOP opcode value.
+export struct SysCall[] SYSCALLS = {
+    { JMP, &syscall1, NOP },
+    { JMP, &syscall2, NOP }
+    };
+
+// In this example we had only two SYSCALLs defined, so rather than having
+// another 62 lines, we can just ask KickC to make the TRAP table begin
+// at the next multiple of $100, i.e., at $8100. 
+export align(0x100) struct SysCall[] SYSCALL_RESET = {
+    { JMP, &main, NOP }
+};
+\end{screenoutput}
+
+If you save the first listing into a file called mega65hyper.ld, and the second
+into a file called mega65hyper.kc, you can then compile them using KickC with
+a command like:
+
+\begin{screenoutput}
+  kickc -a mega65hyper
+\end{screenoutput}
+
+It will then produce a file called mega65hyper.bin, which you can then try out
+on your MEGA65, or run in the Xmega65 emulator with a command like:
+
+\begin{screenoutput}
+  xmega65 -kickup mega65hyper.bin
+\end{screenoutput}
+

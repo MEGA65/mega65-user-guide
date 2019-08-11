@@ -1,5 +1,106 @@
 \chapter{45GS02 Microprocessor}
 
+\section{Introduction}
+
+The 45GS02 is an enhanced version of the processor portion of the CSG4510
+and of the F018 ``DMAgic'' DMA controller used in the Commodore 65 computer prototypes.  The 4510 is, in turn,
+an enhanced version of the 65CE02.  
+The reader is referred to
+the considerable documentation available for the 6502 and 65CE02 processors
+for the backwards-compatibile operation of the 45GS02.
+
+This chapter will
+focus on the differences between the 45GS02 and the earlier 6502-class
+processors, and the documentation of the many built-in memory-mapped IO
+registers of the 45GS02.
+
+\section{Differences to Earlier 6502-Class Processors}
+
+The 45GGS02 has a number of key differences to earlier 6502-class processors:
+
+\subssection{6502 Illegal Opcodes}
+
+The 65C02, 65CE02 and CSG4510 processors extended the original 6502 processor
+by using previously unallocated opcodes of the 6502 to provide additional
+instructions.  All software that followed the official documentation of the 6502
+processor will therefore work on these newer processors, possibly with different
+instruction timing.  However, the common practice on the C64 and other home computers
+of using undefined opcodes (often called ``illegal opcodes'', although there is no
+law against using them), means that many existing programs will not work on these
+newer processors.
+
+To alieviate this problem the 45GS02 has the ability to switch processor personalities
+between the 4510 and 6502.  The effect is that in 6502 mode, none of the new opcodes of
+the 65C02, 65CE02, 4510 or 45GS02 are available, and are replaced with the original,
+often strange, behaviour of the undefined opcodes of the 6502.
+
+Status: Incomplete.  Most undocumented 6502 opcodes do not operate correctly when the 6502
+personality is enabled.
+
+\subsection{Read-Modify-Write Instruction Bug Compatibility}
+
+The 65CE02 processor optimised a group of instructions called the Read-Modify-Write (RMW)
+instructions.  For such instructions, such as INC, that increments the contents of a memory
+location, the 6502 would read the original value and then write it back unchanged, before
+writing it back with the new increased value.  For most purposes, this did not cause any
+problems. However, it turned out to be a fast way to acknowledge VIC-II interrupts, because
+writing the original value back (which the instruction doesn't need to do) acknowledges
+the interrupt.  This method is faster and uses fewer bytes than any alternative, and so
+became widely used in C64 software.
+
+The problem came with the C65 with its 65CE02 derived CSG4510 that didn't do this extra write
+during the RMW instructions.  This made the RMW instructions one cycle faster, which made
+software run slightly faster. Unfortunately, it also meant that a lot of existing C64 software
+simply won't run on a C65, unless the interrupt acknowledgement code in each program is patched
+to work around this problem. This is the single most common reason why many C64 games and other
+software titles won't run on a C65.
+
+Because this problem is so common, the MEGA65's 45GS02 includes bug compatibility with this
+commonly used feature of the original 6502.  It does this by checking if the target of an RMW
+instruction is \$D019, i.e., the interrupt status register of the VIC-II.  If it is, then
+the 45GS02 performs the dummy write, allowing many C64 software titles to run unmodified on the
+MEGA65, that do not run on a C65 prototype.  By only performing the dummy write if the address
+is \$D019, the MEGA65 maintains C64 compatibility, without sacrificing the speed improvement
+for all other uses of these instructions.
+
+\subsection{Variable CPU Speed}
+
+The 45GSG02 is able to run at ~1MHz, ~2MHz, ~3.5MHz and 40MHz, to support running software
+designed for the C64, C128 in C64 mode, C65 and MEGA65.  It is also possible to more smoothly
+vary the CPU speed using the {\bf SPEEDBIAS} register located at \$F7FA, when MEGA65 IO mode
+is enabled.
+
+\subsubsection{Slow (1MHz -- 3.5MHz) Operation}
+In these modes, the 45GS02 processor slows down, so that the same number of instructions
+per video frame are executed as on a PAL or NTSC C64, C128 in C64 mode or C65 prototype.
+This is to allow existing software to run on the MEGA65 at the correct speed, and with
+minimal display problems.  The VIC-IV video controller provides cycle indication pulses
+to the 45GS02 that are used to keep time.
+
+In these modes, opcodes take the same number of cycles as an 6502.  However memory accesses within an
+instruction are not guaranteed to occur in the same cycle as on a 1MHz 6502.  Normally
+the effect is that instructions complete faster, and the processor idles until the
+correct number of cycles have passed. This means that timing may be incorrect by upto
+7 micro-seconds.  This is not normally a problem, and even many C64 fast loaders will
+function correctly. For example, the GEOS(tm) Graphical Operating System for the C64
+can be booted and used from a 1541 connected to the MEGA65's serial port.
+
+However, some advanced VIC-II graphics tricks, such as Variable Screen Position (VSP) are
+highly unlikely to work correctly, due to the uncertainty in timing of the memory write
+cycles of instructions.  However, in most cases such problems can be easily solved by using
+the advanced features of the MEGA65's VIC-IV video controller.  For example, VSP is unnecessary
+on the MEGA65, because you can set the screen RAM address to any location in memory.
+
+\subsubsection{Full Speed (40MHz) Instruction Timing}
+
+When the MEGA65's processor is operating at full speed (currently 40MHz), the instruction
+timing no longer exactly mirrors the 6502: Instructions that can be executed in fewer cycles
+will do so. For example, branches are typically require fewer instructions on the 45GS02.
+There are also some instructions that require more cycles on the 45GS02, in particular the
+LDA, LDX, LDY and LDZ instructions. Those instructions typically require one additional cycle.
+However as the processor is running at 40MHz, these instructions still execute much more quickly
+than on even a C65 or C64 with an accelerator.
+
 \section{C64 CPU Memory Mapped Registers}
 
 \input{regtable_CPU.C64}

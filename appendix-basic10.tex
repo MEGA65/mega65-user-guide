@@ -4012,3 +4012,69 @@ In most cases the {\bf NOT} will be used in {\bf IF} statements.
 \end{screenoutput}
 \end{description}
 
+% ****
+% OPEN
+% ****
+
+\newpage
+\subsection{OPEN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$9F
+\item [Format:]
+  {\bf OPEN lfn, first address [,secondary address [,filename]]}
+\item [Usage:]
+   The {\bf OPEN} command opens an input/output channel for
+   a device.
+
+   {\bf lfn} = {\bf l}ogical {\bf f}ile {\bf n}umber \\
+   1 <= lfn <= 127: line terminator is CR \\
+   128 <= lfn <= 255: line terminator is CR LF
+
+   {\bf first address} = device number.
+   For IEC devices the unit number is the primary address.
+   Following primary address values are posible:
+
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|r|l|}
+\hline
+  unit  & device \\
+\hline
+  0 & Keyboard \\
+  1 & System default \\
+  2 & RS232 serial connection \\
+  3 & Screen \\
+  4-7 & IEC printer and plotter \\
+  8-31 & IEC disk drives \\
+\hline
+\end{tabular}
+}
+
+   The {\bf secondary address} has some special values for
+   IEC disk units, 0:load, 1:save, 15:command channel.
+   The values 2 -> 14 may be used for disk files.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   a string expression. The syntax is different to the {\bf DOPEN\#}
+   command. The {\bf filename} for {\bf OPEN} includes all
+   file attributes, e.g.: "0:data,s,w".
+
+\item [Remarks:]
+   For IEC disk units the usage of {\bf DOPEN#} is recommended.
+
+   The usage of the "save-and-replace" character '@' at the
+   beginning of the filename is not recommended, because many
+   Commodore disk drives have a bug, that can cause data loss
+   when using this feature.
+
+\item [Example:] Using {\bf OPEN}
+
+\begin{screenoutput}
+   OPEN 4,4   :REM OPEN PRINTER
+   CMD 4      :REM REDIRECT STANDARD OUTPUT TO 4
+   LIST       :REM PRINT LISTING ON PRINTER DEVICE 4
+   OPEN 3,8,3,"0:USER FILE,U"
+   OPEN 2,9,2,"0:DATA,S,W"
+\end{screenoutput}
+\end{description}
+

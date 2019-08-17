@@ -4205,3 +4205,32 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \end{screenoutput}
 \end{description}
 
+% ****
+% PEEK
+% ****
+
+\newpage
+\subsection{PEEK}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$C2
+\item [Format:] {\bf PEEK(address)}
+\item [Usage:]  The {\bf PEEK} function returns a byte value
+                read from the 16 bit address and the current
+                memory bank (set by {\bf BANK}).
+
+                {\bf address} = a value 0 -> 65535.
+
+\item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
+                 Banks > 127 are used to access I/O and SYSTEM
+                 like VIC, SID, FDC, etc.
+\item [Example:] Using {\bf PEEK}
+
+\begin{screenoutput}
+ 10 BANK 128                :REM SELECT SYSTEM BANK
+ 20 L = PEEK(DEC("03F8"))   :REM USR JUMP TARGET LOW
+ 30 H = PEEK(DEC("03F9"))   :REM USR JUMP TARGET HIGH
+ 40 T = L + 256 * H         :REM 16 BIT JUMP ADDRESS
+ 50 PRINT "USR FUNCTION CALLS ADDRESS";T
+\end{screenoutput}
+\end{description}
+

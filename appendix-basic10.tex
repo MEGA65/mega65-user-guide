@@ -4258,3 +4258,38 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% *******
+% POINTER
+% *******
+
+\newpage
+\subsection{POINTER}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$CE \$0A
+\item [Format:] {\bf POINTER(variable)}
+\item [Usage:]  Returns the current address of a variable
+                or an array element in bank 1.
+                For string variables, it is the address of
+                the string descriptor, not the string itself.
+                The string descriptor consists of the three bytes
+                (length,string address low, string address high).
+
+
+\item [Remarks:] The address values of arrays and their elements
+                 change for every new declaration
+                 (first usage) of scalar variables. \\
+                 The addresses of strings (not their descriptors)
+                 may change at any time due to
+                 "garbage collection" in memory management.
+
+
+\item [Example:] Using {\bf POINTER}
+
+\begin{screenoutput}
+ 10 A$="TEXT": B%=5: DIM C(100) :REM DEFINE SOME VARIABLES
+ 20 PRINT POINTER(A$);POINTER(B%);POINTER(C(20))
+
+ 1026 1033 1145
+\end{screenoutput}
+\end{description}
+

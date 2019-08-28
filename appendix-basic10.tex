@@ -4293,3 +4293,34 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% ****
+% POKE
+% ****
+
+\newpage
+\subsection{POKE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$97
+\item [Format:] {\bf POKE address, byte [,byte ...] }
+\item [Usage:]  Puts on or more bytes into memory
+                or memory mapped I/O, starting at
+                16-bit {\bf address}.
+                The current memory bank as set by {\bf BANK} is used.
+
+                {\bf address} = a value 0 -> 65535.
+
+                {\bf byte} = a value 0 -> 255.
+
+\item [Remarks:] The address is increased by one for each data byte,
+                 so a memory range may be filled with a single command.
+
+                 Banks > 127 are used to access I/O and SYSTEM
+                 like VIC, SID, FDC, etc.
+\item [Example:] Using {\bf POKE}
+
+\begin{screenoutput}
+ 10 BANK 128                :REM SELECT SYSTEM BANK
+ 20 POKE,DEC("03F8")),0,32  :REM SET USR VECTOR TO $2000
+\end{screenoutput}
+\end{description}
+

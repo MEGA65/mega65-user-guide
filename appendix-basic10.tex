@@ -4396,3 +4396,38 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% ***
+% POT
+% ***
+
+\newpage
+\subsection{POT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$CE \$02
+\item [Format:] {\bf POT(paddle)}
+\item [Usage:]  Returns the position of a paddle.
+
+                {\bf paddle} = paddle number 1 -> 4.
+
+                The low byte of the return value is the
+                paddle value
+                with 0 at the clockwise limit and 255 at the
+                counterclockwise limit.
+
+                A value > 255 indicates the simultaneous press
+                of the firebutton.
+
+\item [Remarks:] Analogue paddles are noisy and inexact.
+                 The range may be less than 0 - 255 and there
+                 is some jitter in the data.
+
+
+\item [Example:] Using {\bf POT}
+
+\begin{screenoutput}
+ 10 X = POT(1)       : REM READ PADDLE #1
+ 20 B = X > 255      : REM TRUE (-1) IF FIRE BUTTON IS PRESSED
+ 30 V = X AND 255    : PADDLE #1 VALUE
+\end{screenoutput}
+\end{description}
+

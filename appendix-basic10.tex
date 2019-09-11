@@ -210,7 +210,7 @@ In most cases the {\bf AND} will be used in {\bf IF} statements.
                The name is apparently chosen to be a mnemonic to ASCII,
                but the returned value is in fact the so called PETSCII code.
 \item [Remarks:]
-               {\bf ASC} returns a zero for a null string, which behaviour
+               {\bf ASC} returns a zero for an empty string, which behaviour
                is different to BASIC 2, where ASC("") gave an error.
                The inverse function to {\bf ASC} is {\bf CHR\$}.
 \item [Example:] Using {\bf ASC}
@@ -1330,7 +1330,7 @@ CONT
                the constant and the variable in the {\bf READ}
                statement match. Empty items with no constant
                between commas are allowed and will be interpreted as
-               zero for numeric variables and the null string for
+               zero for numeric variables and an empty string for
                string variables. \\
                The {\bf RESTORE} command may be used to set the
                data pointer to a specific line for subsequent
@@ -2555,7 +2555,7 @@ RUN
 \item [Format:] {\bf GET string variable}
 \item [Usage:] Gets the next character
                from the keyboard queue. If the queue is empty
-               a null string is assigned to the variable,
+               an empty string is assigned to the variable,
                otherwise a one character string is created
                and assigned to the string variable.
                This command does not wait for keyboard
@@ -4699,6 +4699,57 @@ statement. The default setting for the envelopes are:
  20 Y = RDOT(1)
  30 C = RDOT(2)
  40 PRINT "THE COLOUR INDEX AT (";X;"/";Y;") IS:";C
+\end{screenoutput}
+\end{description}
+
+% ****
+% READ
+% ****
+
+\newpage
+\subsection{READ}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$87
+\item [Format:] {\bf READ(variable list)}
+\item [Usage:]  Reads values from program source into variables.
+
+                {\bf variable list} = any legal variables.
+
+               All type of constants (integer, real,
+               strings) can be read, but no expressions.
+               Items are separated by commas.
+               Strings containing commas, colons or spaces must be put
+               in quotes. \\
+               A {\bf RUN} command initializes the data pointer
+               to the first item of the first {\bf DATA} statement
+               and advances it for every read item. It is in the
+               responsibility of the programmer, that the type of
+               the constant and the variable in the {\bf READ}
+               statement match. Empty items with no constant
+               between commas are allowed and will be interpreted as
+               zero for numeric variables and an empty string for
+               string variables. \\
+               The {\bf RESTORE} command may be used to set the
+               data pointer to a specific line for subsequent
+               readings.
+
+\item [Remarks:] It is good programming style to put large amount of
+               {\bf DATA} statements at the end of the program.
+               Otherwise {\bf GOTO} and {\bf GOSUB} statements, with
+               target lines lower than the current one,
+               start their search for linenumber at the beginning of
+               the program and have to skip through {\bf DATA} lines
+               wasting time.
+\item [Example:] Using {\bf READ}
+\begin{screenoutput}
+10 READ NA$, VE
+20 READ N%:FOR I=2 TO N%:READ GL(I):NEXT I
+30 PRINT "PROGRAM:";NA$;"   VERSION:";VE
+40 PRINT "N-POINT GAUSS-LEGENDRE FACTORS E1":
+50 FOR I=2 TO N%:PRINT I;GL(I):NEXT I
+30 STOP
+80 DATA "MEGA 65",1.1
+90 DATA 5,0.5120,0.3573,0.2760,0.2252
 \end{screenoutput}
 \end{description}
 

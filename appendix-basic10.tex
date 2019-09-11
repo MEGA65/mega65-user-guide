@@ -4753,3 +4753,57 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% ******
+% RECORD
+% ******
+
+\newpage
+\subsection{RECORD}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$12
+\item [Format:] {\bf RECORD\#lfn, record, [,byte]}
+\item [Usage:]  Positions the read/write pointer of a relative file.
+
+                {\bf lfn} = {\bf l}ogical {\bf f}ile {\bf n}umber
+
+                {\bf record} = target record ( 1 -> 65535 ).
+
+                {\bf byte} = byte position in record.
+
+                This command can be used only for files of
+                type {\bf REL}, which are relative files capable
+                of direct access.
+
+               The {\bf RECORD} command positions the file pointer
+               to the specified record number. If this record number
+               does not exist and the disk capacity is high enough,
+               the file is expanded to this record count by adding
+               empty records. This is not an error, but the disk
+               status will give the message {\bf RECORD NOT PRESENT}.
+
+               Any INPUT\# or PRINT\# command will then proceed
+               on the selected record position.
+
+\item [Remarks:] The original Commodore disk drives all had a bug
+               in their DOS, which could destroy data by using
+               relative files. A recommended workaround was to
+               issue each {\bf RECORD} command twice, before
+               and after the I/O operation.
+
+\item [Example:] Using {\bf RECORD}
+\begin{screenoutput}
+10 REM *** READ FIRST 10 INDEXED RECORDS FROM DATA BASE
+15 N = 1000: DIM IX(N)
+20 DOPEN#3,"DATA INDX"
+25 FOR I=1 TO N:INPUT#3,IX(I):NEXT
+30 DCLOSE#3
+35 DOPEN#2,"DATA BASE",L240
+40 FOR J=1 TO 10
+45 RECORD#2,IX(J)
+50 INPUT#2,A$
+55 PRINT A$
+60 NEXT J
+65 DCLOSE#2
+\end{screenoutput}
+\end{description}
+

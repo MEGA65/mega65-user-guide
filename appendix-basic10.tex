@@ -4912,3 +4912,37 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% *******
+% RESTORE
+% *******
+
+\newpage
+\subsection{RESTORE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$8C
+\item [Format:] {\bf RESTORE [line]}
+\item [Usage:]  Set or reset the internal pointer for
+                {\bf READ} from {\bf DATA} statements.
+
+                {\bf line} is the new position for the
+                pointer to point at. The default is the
+                first program line.
+
+\item [Remarks:] The new pointer target {\bf line}
+                 needs not to contain {\bf DATA} statements.
+                 Every {\bf READ} will automatically advance
+                 the pointer to the next {\bf DATA} statement.
+\item [Example:] Using {\bf RESTORE}
+
+\begin{screenoutput}
+ 10 DATA 3,1,4,1,5,9,2,6
+ 20 DATA "MEGA 65"
+ 30 DATA 2,7,1,8,2,8,9,5
+ 40 FOR I=1 TO 8:READ P:PRINT P:NEXT
+ 50 RESTORE 30
+ 60 FOR I=1 TO 8:READ P:PRINT P:NEXT
+ 70 RESTORE 20
+ 80 READ A$:PRINT A$
+\end{screenoutput}
+\end{description}
+

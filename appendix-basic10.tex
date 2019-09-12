@@ -4985,3 +4985,38 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% ******
+% RETURN
+% ******
+
+\newpage
+\subsection{RETURN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$8E
+\item [Format:] {\bf RETURN}
+\item [Usage:]  Returns control from a subroutine, which
+                was called with {\bf GOSUB} or an event
+                handler, declared with {\bf COLLISION}.
+
+                The execution continues at the statement
+                following the {\bf GOSUB} call.
+
+                In the case of the {\bf COLLISION} handler,
+                the execution continues at the statement
+                where it left to call the handler.
+
+\item [Example:] Using {\bf RETURN}
+
+\begin{screenoutput}
+ 10 DOPEN#2,"DATA":GOSUB 100
+ 20 FOR I=1 TO 100
+ 30 INPUT#2,A$:GOSUB 100
+ 40 PRINT A$
+ 50 NEXT
+ 60 DCLOSE#2
+ 70 END
+100 IF DS THEN PRINT DS$:STOP  :REM DISK ERROR
+110 RETURN                     :REM OK
+\end{screenoutput}
+\end{description}
+

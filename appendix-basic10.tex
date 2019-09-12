@@ -4946,3 +4946,42 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% ******
+% RESUME
+% ******
+
+\newpage
+\subsection{RESUME}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$D6
+\item [Format:] {\bf RESUME [line | NEXT]}
+\item [Usage:]  is used inside a {\bf TRAP} routine to
+                resume normal program execution after
+                handling the exception.
+
+                {\bf line} : program execution resumes
+                at the given line number.
+
+                {\bf NEXT} : the keyword NEXT resumes
+                execution at the statement following
+                the statement, that caused the error.
+
+                {\bf RESUME} with no parameters tries to
+                re-execute the statement, that caused the error.
+                The {\bf TRAP} routine should have examined
+                and corrected the variables in this case.
+
+\item [Remarks:] {\bf RESUME} cannot be used in direct mode.
+\item [Example:] Using {\bf RESUME}
+
+\begin{screenoutput}
+ 10 TRAP 100
+ 20 FOR I=1 TO 100
+ 30 PRINT EXP(I)
+ 40 NEXT
+ 50 PRINT "STOPPED FOR I =";I
+ 60 END
+100 PRINT ERR$(ER): RESUME 50
+\end{screenoutput}
+\end{description}
+

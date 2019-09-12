@@ -4864,3 +4864,51 @@ statement. The default setting for the envelopes are:
 \end{screenoutput}
 \end{description}
 
+% ********
+% RENUMBER
+% ********
+
+\newpage
+\subsection{RENUMBER}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F8
+\item [Format:] {\bf RENUMBER [new, inc, old]} \\
+\item [Usage:] Used to renumber all or
+               a range of lines of a BASIC program.
+
+               {\bf new } is the new starting line of the
+               line range to renumber.
+               The default value is 10.
+
+               {\bf inc } is the increment to be used.
+               The default value is 10.
+
+               {\bf old } is the old starting line of the
+               line range to renumber.
+               The default value is the first line.
+
+               The {\bf RENUMBER} changes all line numebrs in
+               the chosen range and also changes all references
+               from statements like {\bf GOTO, GOSUB, TRAP,
+               RESTORE, RUN} etc.
+
+               {\bf RENUMBER} can be executed in direct mode only.
+               If it detects a problem, like memory overflow,
+               unresolved references or line number overflow
+               (greater than 64000) it will stop with an error
+               message and leave the program unchanged.
+
+               The command may be called with 0-3 parameters.
+               Unspecified parameters use their default values.
+
+\item [Remarks:] The {\bf RENUMBER} command may need several
+                 minutes to execute for large programs.
+
+\item [Example:] Using {\bf RENUMBER}
+\begin{screenoutput}
+  RENUMBER           :REM NUMBERS WILL BE 10,20,30,...
+  RENUMBER 100,5     :REM NUMBERS WILL BE 100,105,110,115,...
+  RENUMBER 601,1,500 :REM RENUMBER STARTING AT 500 TO 601,602,...
+\end{screenoutput}
+\end{description}
+

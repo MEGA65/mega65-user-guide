@@ -1164,7 +1164,7 @@ CLOSE 4
 \begin{description}[leftmargin=3cm,style=nextline]
 \item [Token:] \$FE \$13
 \item [Format:] {\bf CONCAT appendfile [,D drivea] TO
-                targetfile [,D drivet] [,U unit] }
+                targetfile [,D drive] [,U unit] }
 \item [Usage:]
    The {\bf CONCAT} (concatenation) appends the contents of
    {\bf appendfile} to the {\bf targetfile}. Afterwards {\bf targetfile}
@@ -1242,7 +1242,7 @@ CONT
 \begin{description}[leftmargin=3cm,style=nextline]
 \item [Token:] \$FE \$13
 \item [Format:] {\bf COPY source [,D drives] TO
-                target [,D drivet] [,U unit] }
+                target [,D drive] [,U unit] }
 \item [Usage:]
    Copies the contents of
    {\bf source} to the {\bf target}.
@@ -1266,7 +1266,7 @@ CONT
    \unitdefinition
 
 \item [Remarks:]
-   The {\bf COPY} commands is executed in the DOS of the disk drive.
+   The {\bf COPY} command is executed in the DOS of the disk drive.
    It can copy all regular file types (PRG, SEQ, USR, REL).
    The source file must exist, the target file must not exist.
    if source and target are on the same disk, the target filename
@@ -4827,6 +4827,40 @@ statement. The default setting for the envelopes are:
  10 REM *** PROGRAM TITLE ***
  20 N=1000 :REM NUMBER OF ITEMS
  30 DIM NA$(N)
+\end{screenoutput}
+\end{description}
+
+% ******
+% RENAME
+% ******
+
+\newpage
+\subsection{RENAME}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F5
+\item [Format:] {\bf RENAME old TO new [,D drive] [,U unit] }
+\item [Usage:] Renames a disk file.
+
+   {\bf old} is either a quoted string, e.g. {\bf "data"} or
+   a string expression in parentheses, e.g. {\bf (FN\$)}.
+
+   {\bf new} is either a quoted string, e.g. {\bf "backup"} or
+   a string expression in parentheses, e.g. {\bf (FS\$)}
+
+   \drivedefinition
+
+   \unitdefinition
+
+\item [Remarks:]
+   The {\bf RENAME} command is executed in the DOS of the disk drive.
+   It can rename all regular file types (PRG, SEQ, USR, REL).
+   The old file must exist, the new file must not exist.
+   Only single files can be renamed, wild characters like
+   '*' and '?' are not allowed. The file type cannot be changed.
+
+\item [Example:] Using {\bf RENAME}
+\begin{screenoutput}
+  RENAME "CODES" TO "BACKUP" :REM RENAME SINGLE FILE
 \end{screenoutput}
 \end{description}
 

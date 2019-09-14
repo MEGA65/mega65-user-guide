@@ -1,6 +1,6 @@
 .PHONY: sandbox.pdf userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf all clean
 
-all:	userguide.pdf
+all:	userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf
 
 # Make sure we update the register information files before typesetting
 userguide.pdf: *.tex Makefile references.bib

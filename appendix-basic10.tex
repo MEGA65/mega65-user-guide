@@ -5072,3 +5072,49 @@ PRINT RIGHT$("MEGA-65",2)
 \end{screenoutput}
 \end{description}
 
+% ******
+% RMOUSE
+% ******
+
+\newpage
+\subsection{RMOUSE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$3F
+\item [Format:] {\bf RMOUSE xvar, yvar, butvar}
+\item [Usage:] Reads mouse position and button status.
+
+               {\bf xvar} = numerical variable receiving x-position.
+
+               {\bf yvar} = numerical variable receiving y-position.
+
+               {\bf butvar} = numerical variable receiving button status. \\
+               left button sets bit 7, while right button sets bit 0.
+
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|r|l|}
+\hline
+ value  & status \\
+\hline
+  0 & no button \\
+  1 & right button \\
+128 & left button \\
+129 & both buttons \\
+\hline
+\end{tabular}
+}
+
+                 The command puts a -1 into all variables,
+                 if the mouse is not connected or disabled.
+
+\item [Remarks:] Two active mice on both ports merge the results.
+\item [Example:] Using {\bf RMOUSE}:
+\begin{screenoutput}
+ 10 MOUSE ON, 1, 1        :REM MOUSE ON PORT 1 WITH SPRITE 1
+ 20 RMOUSE XP, YP, BU     :REM READ MOUSE STATUS
+ 30 IF XP < 0 THEN PRINT "NO MOUSE ON PORT 1":STOP
+ 40 PRINT "MOUSE:";XP;YP;BU
+ 50 MOUSE OFF             :REM DISABLE MOUSE
+\end{screenoutput}
+\end{description}
+

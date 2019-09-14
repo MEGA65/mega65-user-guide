@@ -1,10 +1,14 @@
-.PHONY: userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf all clean
+.PHONY: sandbox.pdf userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf all clean
 
 all:	userguide.pdf
 
 # Make sure we update the register information files before typesetting
 userguide.pdf: *.tex Makefile references.bib
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make userguide.tex
+
+sandbox.pdf: *.tex Makefile references.bib
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
+
 
 referenceguide.pdf: *.tex Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl

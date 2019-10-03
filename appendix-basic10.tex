@@ -2169,10 +2169,20 @@ where the error line is taken from {\bf EL}.
 \item [Remarks:] The {\bf ERASE filename} command works like the
                  {\bf SCRATCH filename} command.
 
+                 The success and the number of erased files can
+                 be examined by printing or using the system
+                 variable DS\$. The second last number, which
+                 reports the track number in case of an disk error,
+                 now reports the number of successfully erased files.
+
 \item [Example:] Using {\bf ERASE}
 \begin{screenoutput}
-  ERASE "DRM",U9 :REM ERASE FILE DRM ON UNIT 9
-  ERASE "OLD*"   :REM ERASE ALL FILES BEGINNING WTH "OLD"
+  SCRATCH "DRM",U9 :REM SCRATCH FILE DRM ON UNIT 9
+  PRINT DS$
+  01, FILES SCRATCHED,01,00
+  SCRATCH "OLD*"   :REM SCRATCH ALL FILES BEGINNING WTH "OLD"
+  PRINT DS$
+  01, FILES SCRATCHED,04,00
 \end{screenoutput}
 \end{description}
 
@@ -5391,6 +5401,48 @@ PRINT RIGHT$("MEGA-65",2)
  30 SCREEN SET 1,1      :REM VIEW IT
  40 SCNCLR 0            :REM CLEAR SCREEN
  50 LINE 50,50,590,350  :REM DRAW LINE
+\end{screenoutput}
+\end{description}
+
+% *******
+% SCRATCH
+% *******
+
+\newpage
+\subsection{SCRATCH}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F2
+\item [Format:] {\bf SCRATCH filename [,D drive] [,U unit] [,R]}
+\item [Usage:] Used to erase a disk file.
+
+   \filenamedefinition
+
+   \drivedefinition
+
+   \unitdefinition
+
+   {\bf R} = Recover a previously erased file.
+   This will only work, if there were no write operations
+   between erasion and recovery, which may have altered the
+   contents of the file.
+
+\item [Remarks:] The {\bf SCRATCH filename} command works like the
+                 {\bf ERASE filename} command.
+
+                 The success and the number of erased files can
+                 be examined by printing or using the system
+                 variable DS\$. The second last number, which
+                 reports the track number in case of an disk error,
+                 now reports the number of successfully erased files.
+
+\item [Example:] Using {\bf SCRATCH}
+\begin{screenoutput}
+  SCRATCH "DRM",U9 :REM SCRATCH FILE DRM ON UNIT 9
+  PRINT DS$
+  01, FILES SCRATCHED,01,00
+  SCRATCH "OLD*"   :REM SCRATCH ALL FILES BEGINNING WTH "OLD"
+  PRINT DS$
+  01, FILES SCRATCHED,04,00
 \end{screenoutput}
 \end{description}
 

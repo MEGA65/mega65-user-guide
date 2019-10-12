@@ -255,7 +255,7 @@ NEG NEG NOP before the instruction to allow accessing a 32-bit value anywhere in
 Note that the virtual 32-bit register cannot be used in immediate mode, i.e., to load a constant into the four general
 purpose registers.  This is to
 avoid problems with variable length instructions. Also, it would not save any bytes
-compared to LDA #\$nn ... LDZ #\$nn, and would be no faster.
+compared to LDA \#\$nn ... LDZ \#\$nn, and would be no faster.
 
 
 \section{C64 CPU Memory Mapped Registers}
@@ -311,12 +311,12 @@ Entering the Hypervisor occurs whenever any of the following events occurs:
 
 The 45GS02 handles all of these in a similar manner internally:
 
-\begin{enmerate}
+\begin{enumerate}
 \item The SYSCALL or trap address is calculated, based on the event.
 \item The contents of all CPU registers are saved into the virtualisation control registers.
 \item The hypervisor mode memory layout is activated, the CPU decimal flag and special purpose registers are all set to appropriate values.  The contents of the A,X,Y and Z and most other CPU flags are preserved, so that they can be accessed from the hypervisor's SYSCALL/trap handler routine, without having to load them, thus saving a few cycles for each call.
 \item The hypervisor-mode flag is asserted, and the programme counter (PC) register is set to the computed address.
-\end{itemize}
+\end{enumerate}
 
 All of the above happens in one CPU cycle, i.e., in 25 nano-seconds.
 Returning from a SYSCALL or trap consists simply of writing to \$D67F, which

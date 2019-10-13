@@ -1,11 +1,24 @@
 \chapter{45E100 Fast Ethernet Controller}
 
-\section{Introduction}
+\section{Overview}
 
 The 45E100 is a new and simple Fast Ethernet controller that has been
 designed specially for the MEGA65 and for 8-bit computers generally.
 In addition to supporting 100Mbit Fast Ethernet, it is radically
 different from other ethernet controllers, such as the RR-NET.
+
+The 45E100 includes dual receive buffers, allowing one frame to be
+processed while another is receiving.  It includes automatic CRC32
+checkin on reception, and CRC32 generation for transmit, considerably
+reducing the burden on the processor.  It also supports true
+full-duplex operation at 100Mbit per second, allowing for total bi-directional
+throughput exceeding 100Mbit per second.  The MAC address is software
+configurable, and promiscuous mode is supported, as are individual control
+of the reception of broadcast and multi-cast ethernet frames.  The 45E100 also
+supports both transmit and receive interrupts, allowing greatly improved
+real-world performance. The ability to achieve sub-millisecond round trip latencies
+is of particular value for interactive application, such as multi-player network
+games.
 
 \subsection{Differences to the RR-NET and similar solutions}
 
@@ -30,7 +43,7 @@ by DMA.  Using the MEGA65's integrated DMA controller it is quite possible
 to achieve transfer rates of several mega-bytes per second -- some 100x
 faster than the RR-NET.
 
-\subsection{Theory of Operation}
+\subsection{Theory of Operation: Receiving Frames}
 
 The 45E100 is simple to operate: To begin receiving ethernet frames, the programmer
 needs only to clear the RST bit (bit 0 of register \$D6E0) to release the
@@ -58,6 +71,64 @@ is not recommended with the 45E100, because at the 100Mbit Fast Ethernet speed, 
 as often as every 10 microseconds.  Fortunately, at the MEGA65's 40MHz full speed mode, and using
 the 20MiB per second DMA copy functionality, it is possible to keep up with such high data rates.
 
+\subsection{Theory of Operation: Sending Frames}
+
+Sending frames is similarly simple: The program must simply load the frame to be transmitted into
+the transmit buffer, write its length into TXSZLSB and TXSZMSB registers, and then write \$01 into
+the COMMAND register.  The frame will then begin to transmit, as soon as the transmitter is idle.
+There is no need to calculate and attach an ethernet CRC32 field, as the 45E100 does this automatically.
+
+Unlike for the receiver, there is only one frame buffer for the transmitter (this may be changed in
+a future revision). This means that you cannot prepare the next frame until the previous frame has
+already been sent.  This slightly reduces the maximum data throughput, in return for a very simple
+architecture.
+
+Also, note that the transmit buffer is write-only from the processor bus interface. This means that
+you cannot directly read the contents of the transmit buffer, but must load values ``blind''.
+
+\subsection{Advanced Features}
+
+In addition to operating as a simple and efficient ethernet frame transceiver, the 45E100
+includes a number of advanced features, described here.
+
+\subsubsection{Broadcast and Multicast Traffic and Promiscuous Mode}
+
+The 45E100 supports filtering based on the destination Ethernet address, i.e., MAC address.
+By default, only frames where the destination Ethernet address matches the ethernet address
+programmed into the MACADDR1 -- MACADDR6 registers will be received. However, if the MCST bit
+is set, then multicast ethernet frames will also be received. Similarly, setting the BCST bit
+will allow all broadcast frames, i.e., with MAC address ff:ff:ff:ff:ff:ff, to be received.
+Finally, if the NOPROM bit is cleared, the 45E100 disables the filter entirely, and will
+receive all valid ethernet frames.
+
+\subsubsection{Debugging and Diagnosis Features}
+
+The 45E100 also supports several features to assist in the diagnosis of ethernet problems.
+First, if the NOCRC bit is set, then even ethernet frames that have invalid CRC32 values
+will be received. This can help debug faulty ethernet devices on a network.
+
+If the STRM bit is set, the ethernet transmitter transmits a continuous stream of frames
+supplied via a special high-bandwidth logging interface. By default, the 45E100 emits a
+stream of approximately 2,200 byte ethernet frames that contain compressed video provided
+by a VIC-IV or compatible video controller that supports the MEGA65 video-over-ethernet
+interface.  By writing a custom decoder for this stream of ethernet frames, it is possible
+to create a remote display of the MEGA65 via ethernet. Such a remote display can be used,
+for example, to facilitate digital capture of the display of a MEGA65.
+
+If the STRM bit is set and bit 2 of \$D6E1 is also set, a compressed log of
+a 45gs02 will instead be streamed, if a compatible processor is connected to this interface.
+This mechanism includes back-pressure, and will cause the 45gs02 processor to slowdown,
+so that the instruction data can be emitted.  This typically limits the speed of the connected
+45gs02 processor to around 5MHz, depending on the particular instruction mix.
+
+Note also that
+the status of bit 2 of \$D6E1 cannot currently be read directly. This may be correcteed in a future
+revision.
+
+Finally, if the video streaming functionality is enabled, this also enables reception of synthetic
+keyboard events via ethernet.  These are delivered to the MEGA65's Keyboard Complex Interface Adapter
+(KCIA), allowing full remote interaction with a MEGA65 via its ethernet interface.  This feature is
+primarily intended for development.
 
 \section{Memory Mapped Registers}
 
@@ -74,4 +145,8 @@ The 45E100 Fast Ethernet controller has the following registers
 
 \input{regtable_ETH.MEGA65}
 
-\section{Another section}
+\section{Example Programs}
+
+Example programs for the ethernet controller exist in imperfect for in the MEGA65 Core repository on github in the src/tests and src/examples directories.
+
+XXX - We should produce nicer examples to appear here.

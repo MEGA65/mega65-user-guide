@@ -2,9 +2,66 @@
 
 \section{Introduction}
 
+The 45E100 is a new and simple Fast Ethernet controller that has been
+designed specially for the MEGA65 and for 8-bit computers generally.
+In addition to supporting 100Mbit Fast Ethernet, it is radically
+different from other ethernet controllers, such as the RR-NET.
+
+\subsection{Differences to the RR-NET and similar solutions}
+
+The RR-NET and other ethernet controllers for the Commodore(tm) line
+of 8-bit home computers generally use an ethernet controller that was
+designed for 16-bit PCs, but that also supports a so-called ``8-bit mode,''
+which suffers from a number of disadvantages. The primary disadvantages
+are the lack of working interrupts, and procesor intensive access to
+the ethernet frame buffers.  The lack of interrupts forces programs to
+use polling to check for the arrival of new ethernet frames.  This,
+together with the complexities of accessing the buffers results in an
+ethernet interface that is very slow, and whose real-world throughput
+is considerably less than its theoretical 10Mbits per second.  Even
+a Commodore 64 with REU cannot achieve speeds above several tens of
+kilobytes per second.
+
+In contrast, the 45E100 supports both RX (ethernet frame received) interrupts and TX
+(ready to transmit) interrupts, freeing the processor from having to poll
+the device.  Further, the 45E100 supports direct memory mapping of the
+ethernet frame buffers, allowing for much more efficient access, including
+by DMA.  Using the MEGA65's integrated DMA controller it is quite possible
+to achieve transfer rates of several mega-bytes per second -- some 100x
+faster than the RR-NET.
+
+\subsection{Theory of Operation}
+
+The 45E100 is simple to operate: To begin receiving ethernet frames, the programmer
+needs only to clear the RST bit (bit 0 of register \$D6E0) to release the
+ethernet controller from reset.  It will then auto-negotiate connection at
+the highest available speed, typically 100Mbit, full-duplex.  The RXBLKD bit (bit 6 of \$D6E0)
+should then be checked, and if set, the RXBM (bit 2 of register \$D6E1) bit should be toggled to switch
+the active and mapped receive buffers, so that the 45E100 knows that the
+program no longer needs the contents of the previously mapped buffer, and can
+safely begin receiving an ethernet frame into that buffer.
+
+When the 45E100 receives an ethernet frame, it will assert RXBLKD to indicate that the receive
+buffer has been filled with an ethernet frame.  No further ethernet frames will be received until
+RXBLKD is cleared again, as described above. This is because the 45E100 has only two receive buffers
+for ethernet frames: one of which is mapped visible to the processor, and the other which is visible
+to the 45E100's ethernet engine at any point in time.  Toggling RXBM allows toggling between which
+of the two buffers is mapped and which is ready to receive an ethernet frame.  The buffers are 2KiB
+bytes each.  The first two bytes are used to indicate the length of the received frame, and four
+are consumed by the ethernet CRC32 code, yielding an effective Maximum Transport Unit (MTU) length
+of 2,042 bytes.  The ethernet frame data begins at byte offset 2 in the receive buffer, with the
+frame length written LSB-first in the first two bytes.
+
+Because of the very rapid rate at which Fast Ethernet frames can be received, a programmer should use the
+receive interrupt feature, enabled by setting RXQEN (bit 7 of \$D6E1).  Polling is possible as an alternative, but
+is not recommended with the 45E100, because at the 100Mbit Fast Ethernet speed, packets can arrive
+as often as every 10 microseconds.  Fortunately, at the MEGA65's 40MHz full speed mode, and using
+the 20MiB per second DMA copy functionality, it is possible to keep up with such high data rates.
+
+
 \section{Memory Mapped Registers}
 
-The 45E100 ethernet controller is a MEGA65-specific feature.
+The 45E100 Fast Ethernet controller is a MEGA65-specific feature.
 It is therefore only available in the MEGA65 IO context.
 This is enabled by writing \$53 and then \$47 to VIC-IV register \$D02F.
 If programming in BASIC, this can be done with:
@@ -13,8 +70,8 @@ If programming in BASIC, this can be done with:
 POKE53295,ASC("G"):POKE53295,ASC("S")
 \end{screenoutput}
 
+The 45E100 Fast Ethernet controller has the following registers
+
 \input{regtable_ETH.MEGA65}
 
- Foo
-
- \section{Another section}
+\section{Another section}

@@ -5914,3 +5914,53 @@ THE VALUE OF PI IS 3.14159265
 \end{screenoutput}
 \end{description}
 
+% ***
+% SYS
+% ***
+
+\newpage
+\subsection{SYS}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$9E
+\item [Format:] {\bf SYS address [, areg, xreg, yreg, zreg, sreg]}
+\item [Usage:]  Calls a machine language subroutine.
+                This can be a ROM resident kernel or BASIC subroutine
+                or a routine in RAM, which was loaded or poked
+                to RAM before.
+
+               The CPU registers are loaded with the arguments,
+               if specified. Then a subroutine call {\bf JSR address}
+               is performed. The called routine should exit with
+               a {\bf RTS} instruction. Then the register contents
+               will be saved and the execution of the BASIC program
+               continues.
+
+               {\bf address} = start address of the subroutine.
+
+               {\bf areg} = variable gets accumulator value.
+
+               {\bf xreg} = variable gets X register value.
+
+               {\bf yreg} = variable gets Y register value.
+
+               {\bf zreg} = variable gets Z register value.
+
+               {\bf sreg} = variable gets status register value.
+
+                 The {\bf SYS} command uses the current bank
+                 as set with the {\bf BANK} command.
+
+\item [Remarks:] The register values after a {\bf SYS} call are stored
+                 in system memory. This enables the command
+                 {\bf RREG} to retrieve these values.
+
+\item [Example:] Using {\bf SYS}:
+\begin{screenoutput}
+ 10 BANK 128
+ 20 BLOAD "ML PROG",8192
+ 30 SYS 8192
+ 40 RREG A,X,Y,Z,S
+ 50 PRINT "REGISTER:";A;X;Y;Z;S
+\end{screenoutput}
+\end{description}
+

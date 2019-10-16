@@ -5722,3 +5722,46 @@ RUN
 \end{screenoutput}
 \end{description}
 
+% ******
+% SPRITE
+% ******
+
+\newpage
+\subsection{SPRITE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$07
+\item [Format:] {\bf SPRITE no [switch, colour, prio, expx, expy, mode]}
+\item [Usage:]  Switches a sprite on or off and sets its attributes. \\
+
+                {\bf no} = sprite number
+
+                {\bf switch} = 1:ON, 0:OFF
+
+                {\bf colour} = sprite foreground colour
+
+                {\bf prio} = sprite(1) or screen(0) priority
+
+                {\bf expx} = 1:sprite X expansion
+
+                {\bf expy} = 1:sprite Y expansion
+
+                {\bf mode} = 1:multi colour sprite
+
+\item [Remarks:] The command {\bf SPRCOLOR} must be used to set
+                additional colours
+                for multi colour sprites (mode = 1)
+
+\item [Example:] Using {\bf SPRITE}:
+\begin{screenoutput}
+10 COLLISION 1,70 : REM ENABLE
+20 SPRITE 1,1 : MOVSPR 1,120,  0 : MOVSPR 1,0#5
+30 SPRITE 2,1 : MOVSPR 2,120,100 : MOVSPR 2,180#5
+40 FOR I=1 TO 50000:NEXT
+50 COLLISION 1 : REM DISABLE
+50 END
+70 REM SPRITE <-> SPRITE INTERRUPT HANDLER
+80 PRINT "BUMP RETURNS";BUMP(1)
+90 RETURN: REM RETURN FROM INTERRUPT
+\end{screenoutput}
+\end{description}
+

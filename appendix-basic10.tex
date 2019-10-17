@@ -4558,7 +4558,7 @@ statement. The default setting for the envelopes are:
 \item [Format:] {\bf PRINT [\# channel,] USING, format, arguments}
 \item [Usage:]  Parses the format string and
                 evaluates the argument list.
-                The values are output following the directives
+                The values are printed following the directives
                 of the format string.
 
                 {\bf channel} : must be opened for output by
@@ -6290,6 +6290,68 @@ READY.
 10 I%=0 : REM INTEGER LOOP 1 -> 100
 20 DO I%=I%+1
 30 LOOP WHILE I% < 101
+\end{screenoutput}
+\end{description}
+
+% *****
+% USING
+% *****
+
+\newpage
+\subsection{USING}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FB
+\item [Format:] {\bf PRINT [\# channel,] USING, format, arguments}
+\item [Usage:]  {\bf USING} is a secondary keyword used after
+                {\bf PRINT} or {\bf PRINT\#}.
+
+                It defines the format string for the
+                argument list.
+                The values are printed following the directives
+                of the format string.
+
+                {\bf channel} : must be opened for output by
+                an {\bf OPEN} or {\bf DOPEN} statement.
+                If no channel is specified, the output goes to the screen.
+
+                {\bf format} : A string which defines the rules
+                for formatting.
+
+                {\bf numeric argument} :
+                The '\#' characters set the position and with of the
+                ouput string. \\
+                '+' or '-' set the sign option. \\
+                '.' sets the position of the decimal point. \\
+                ',' can be inserted into large numbers. \\
+                '\$' sets the position of the currency symbol. \\
+                \string^\string^\string^\string^
+                 reserves place for the exponent.
+
+                {\bf string argument} : The string may consist of printable
+                characters and control codes. Printable characters
+                are printed to the cursor position, while control
+                codes are executed.
+                The number of '\#' characters sets the width of the
+                output, a '=' sign centers and a '>' character
+                right justifies the output.
+
+                {\bf ,} : A comma acts like a tabulator.
+                {\bf ;} : A semicolon acts as a separator between
+                arguments of the list. Other than the comma character
+                it does not put in any additinal characters.
+                A semicolon at the end of the argument list suppresses
+                the automatic return character.
+
+\item [Example:] Using {\bf PRINT USING}
+
+\begin{screenoutput}
+ 10 X = 12.34: A$ = "MEGA 65"
+ 30 PRINT USING "###.##"; X      : REM  "12.34"
+ 40 PRINT USING "###"; X         : REM  " 12"
+ 50 PRINT USING "####"; A$       : REM  "MEGA"
+ 60 PRINT USING "#########"; A$  : REM  "MEGA 65  "
+ 70 PRINT USING "=########"; A$  : REM  " MEGA 65 "
+ 80 PRINT USING "#######>#"; A$  : REM  "  MEGA 65"
 \end{screenoutput}
 \end{description}
 

@@ -808,7 +808,8 @@ DIRECTORY "*,T=S"
                 'N' <RETURN> do {\bf not} change and find next string \\
                 '*' <RETURN> change this and all following matches \\
                     <RETURN> exit command, don't change.
-\item [Remarks:] Instead of the quote (\screentext{"}) each other character may be used
+                \item [Remarks:] Instead of the quote (\screentext{"})
+                  each other character may be used
                  as delimiter for the findstring and replacestring.
                  Using the quote as delimiter finds text strings, that are
                  not tokenized and therefore not part of a keyword. \\
@@ -6247,6 +6248,48 @@ READY.
 \begin{screenoutput}
   TYPE "README"
   TYPE "README 1ST",U9
+\end{screenoutput}
+\end{description}
+
+% *****
+% UNTIL
+% *****
+
+\newpage
+\subsection{UNTIL}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FC
+\item [Format:] {\bf DO} ... {\bf LOOP} \\
+                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expr.>] \\
+                . . . statements [{\bf EXIT}] \\
+                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expr.>]
+\item [Usage:] The {\bf DO} and {\bf LOOP} keywords define
+               the start and end of the most versatile BASIC loop.
+               Using {\bf DO} and {\bf LOOP} alone, without any
+               modifiers creates an infinite loop, that can be left
+               by the {\bf EXIT} statement only. The loop can be
+               controlled by adding an {\bf UNTIL} or a {\bf WHILE}
+               statement after the {\bf DO} or {\bf LOOP}.
+
+\item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
+               exits the current loop only.
+\item [Example:] Using {\bf DO} and {\bf LOOP}.
+\begin{screenoutput}
+10 PW$="":DO
+20 GET A$:PW$=PW$+A$
+30 LOOP UNTIL LEN(PW$)>7 OR A$=CHR$(13)
+
+10 DO : REM WAIT FOR USER DECISION
+20 GET A$
+30 LOOP UNTIL A$='Y' OR A$='N' OR A$='y' OR A$='n'
+
+10 DO WHILE ABS(EPS) > 0.001
+20 GOSUB 2000 : REM ITERATION SUBROUTINE
+30 LOOP
+
+10 I%=0 : REM INTEGER LOOP 1 -> 100
+20 DO I%=I%+1
+30 LOOP WHILE I% < 101
 \end{screenoutput}
 \end{description}
 

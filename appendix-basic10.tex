@@ -6125,3 +6125,37 @@ RUN
 \end{screenoutput}
 \end{description}
 
+% ****
+% TRAP
+% ****
+
+\newpage
+\subsection{TRAP}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$D7
+\item [Format:] {\bf TRAP [line number]}
+\item [Usage:]  {\bf TRAP} with a valid line number activates the
+                BASIC error handler with following consequences:
+                In case of an error the BASIC interpreter does not
+                stop with an error message, but saves execution
+                pointer and line number, places the error number into the
+                system variable {\bf ER} and jumps to the line number
+                of the TRAP command. The trapping routine can examine
+                {\bf ER} and decide, whether to {\bf STOP}
+                 or {\bf RESUME} execution.
+
+                {\bf TRAP} with no argument disables the error handler.
+                Errors will be handled by the normal system routines.
+
+\item [Example:] Using {\bf TRAP}
+\begin{screenoutput}
+ 10 TRAP 100
+ 20 FOR I=1 TO 100
+ 30 PRINT EXP(I)
+ 40 NEXT
+ 50 PRINT "STOPPED FOR I =";I
+ 60 END
+100 PRINT ERR$(ER): RESUME 50
+\end{screenoutput}
+\end{description}
+

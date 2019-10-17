@@ -4133,8 +4133,8 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 
 \begin{screenoutput}
  10 BANK 128                :REM SELECT SYSTEM BANK
- 20 L = PEEK(DEC("03F8"))   :REM USR JUMP TARGET LOW
- 30 H = PEEK(DEC("03F9"))   :REM USR JUMP TARGET HIGH
+ 20 L = PEEK(DEC("02F8"))   :REM USR JUMP TARGET LOW
+ 30 H = PEEK(DEC("02F9"))   :REM USR JUMP TARGET HIGH
  40 T = L + 256 * H         :REM 16 BIT JUMP ADDRESS
  50 PRINT "USR FUNCTION CALLS ADDRESS";T
 \end{screenoutput}
@@ -4339,7 +4339,7 @@ statement. The default setting for the envelopes are:
 
 \begin{screenoutput}
  10 BANK 128                :REM SELECT SYSTEM BANK
- 20 POKE,DEC("03F8")),0,32  :REM SET USR VECTOR TO $2000
+ 20 POKE,DEC("02F8")),0,32  :REM SET USR VECTOR TO $2000
 \end{screenoutput}
 \end{description}
 
@@ -6352,6 +6352,39 @@ READY.
  60 PRINT USING "#########"; A$  : REM  "MEGA 65  "
  70 PRINT USING "=########"; A$  : REM  " MEGA 65 "
  80 PRINT USING "#######>#"; A$  : REM  "  MEGA 65"
+\end{screenoutput}
+\end{description}
+
+% ***
+% USR
+% ***
+
+\newpage
+\subsection{USR}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$B7
+\item [Format:] {\bf USR(numeric expression)}
+\item [Usage:]  Using the function {\bf USR(X)} in a numeric
+                expression, puts the argument into the
+                floating point accumulator 1 and jumps to the
+                address \$02F7 expecting the address of the
+                machine language user routine in \$02F8 - \$02F9.
+                After executing the user routine, BASIC returns
+                the contents of the floating point accumulator 1,
+                which should be set by the user routine..
+
+\item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
+                 Banks > 127 are used to access I/O and SYSTEM
+                 like VIC, SID, FDC, etc.
+\item [Example:] Using {\bf USR}
+
+\begin{screenoutput}
+ 10 UX = DEC("7F00")             :REM ADDRESS OF USER ROUTINE
+ 20 BANK 128                     :REM SELECT SYSTEM BANK
+ 30 BLOAD "ML-PROG",P(UX)        :REM LOAD USER ROUTINE
+ 40 POKE (DEC("2F8")),UX AND 255 :REM USR JUMP TARGET LOW
+ 50 POKE (DEC("2F9")),UX / 256   :REM USR JUMP TARGET HIGH
+ 60 PRINT USR(~)                 :REM PRINT RESULT FOR ARGUMENT PI
 \end{screenoutput}
 \end{description}
 

@@ -6486,3 +6486,42 @@ READY.
 \end{screenoutput}
 \end{description}
 
+% ****
+% WAIT
+% ****
+
+\newpage
+\subsection{WAIT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$92
+\item [Format:] {\bf WAIT address, andmask [, xormask]}
+\item [Usage:] Pauses the BASIC program until a requested
+               bit pattern is read from the given address.
+
+               {\bf address} = the address at the current memory
+               bank, which is read.
+
+               {\bf andmask} = and mask applied.
+
+               {\bf xormask} = xor mask applied.
+
+               {\bf WAIT} reads the byte value from {\bf address}
+               and applies the masks: \\
+               result = PEEK(address) AND andmask XOR xormask
+
+               The pause ends if the result is nonzero, otherwise
+               the reading is repeated. This may hang the computer
+               infinitely, if the condition is never met.
+
+\item [Remarks:] This command is typically used to examine hardware
+               registers or system variables
+               and wait for an event, e.g. joystick event,
+               mouse event, keyboard press or a special raster line.
+
+\item [Example:] Using {\bf WAIT}
+\begin{screenoutput}
+10 BANK 128
+20 WAIT 211,1            :REM WAIT FOR SHIFT KEY BEING PRESSED
+\end{screenoutput}
+\end{description}
+

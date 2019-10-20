@@ -808,7 +808,8 @@ DIRECTORY "*,T=S"
                 'N' <RETURN> do {\bf not} change and find next string \\
                 '*' <RETURN> change this and all following matches \\
                     <RETURN> exit command, don't change.
-\item [Remarks:] Instead of the quote (\screentext{"}) each other character may be used
+                \item [Remarks:] Instead of the quote (\screentext{"})
+                  each other character may be used
                  as delimiter for the findstring and replacestring.
                  Using the quote as delimiter finds text strings, that are
                  not tokenized and therefore not part of a keyword. \\
@@ -1726,7 +1727,7 @@ DIR "*,T=S"
 \item [Example:] Using {\bf DMA}
 \begin{screenoutput}
 DMA 3, 2000,   32,0,  2048,0 :REM FILL SCREEN WITH BLANKS
-DMA 0, 2000, 2048,0, 32768,1 :REM COPY SCREEN TO $1800
+DMA 0, 2000, 2048,0, 16384,1 :REM COPY SCREEN TO $14000
 \end{screenoutput}
 \end{description}
 
@@ -2169,10 +2170,20 @@ where the error line is taken from {\bf EL}.
 \item [Remarks:] The {\bf ERASE filename} command works like the
                  {\bf SCRATCH filename} command.
 
+                 The success and the number of erased files can
+                 be examined by printing or using the system
+                 variable DS\$. The second last number, which
+                 reports the track number in case of an disk error,
+                 now reports the number of successfully erased files.
+
 \item [Example:] Using {\bf ERASE}
 \begin{screenoutput}
-  ERASE "DRM",U9 :REM ERASE FILE DRM ON UNIT 9
-  ERASE "OLD*"   :REM ERASE ALL FILES BEGINNING WTH "OLD"
+  SCRATCH "DRM",U9 :REM SCRATCH FILE DRM ON UNIT 9
+  PRINT DS$
+  01, FILES SCRATCHED,01,00
+  SCRATCH "OLD*"   :REM SCRATCH ALL FILES BEGINNING WTH "OLD"
+  PRINT DS$
+  01, FILES SCRATCHED,04,00
 \end{screenoutput}
 \end{description}
 
@@ -4122,8 +4133,8 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 
 \begin{screenoutput}
  10 BANK 128                :REM SELECT SYSTEM BANK
- 20 L = PEEK(DEC("03F8"))   :REM USR JUMP TARGET LOW
- 30 H = PEEK(DEC("03F9"))   :REM USR JUMP TARGET HIGH
+ 20 L = PEEK(DEC("02F8"))   :REM USR JUMP TARGET LOW
+ 30 H = PEEK(DEC("02F9"))   :REM USR JUMP TARGET HIGH
  40 T = L + 256 * H         :REM 16 BIT JUMP ADDRESS
  50 PRINT "USR FUNCTION CALLS ADDRESS";T
 \end{screenoutput}
@@ -4328,7 +4339,7 @@ statement. The default setting for the envelopes are:
 
 \begin{screenoutput}
  10 BANK 128                :REM SELECT SYSTEM BANK
- 20 POKE,DEC("03F8")),0,32  :REM SET USR VECTOR TO $2000
+ 20 POKE,DEC("02F8")),0,32  :REM SET USR VECTOR TO $2000
 \end{screenoutput}
 \end{description}
 
@@ -4547,7 +4558,7 @@ statement. The default setting for the envelopes are:
 \item [Format:] {\bf PRINT [\# channel,] USING, format, arguments}
 \item [Usage:]  Parses the format string and
                 evaluates the argument list.
-                The values are output following the directives
+                The values are printed following the directives
                 of the format string.
 
                 {\bf channel} : must be opened for output by
@@ -5325,6 +5336,1274 @@ PRINT RIGHT$("MEGA-65",2)
   RUN "FLIGHTSIM" :LOAD AND RUN PROGRAM FLIGHTSIM
   RUN 1000        :RUN PROGRAM IN MEMORY, START AT 1000
   RUN             :RUN PROGRAM IN MEMORY
+\end{screenoutput}
+\end{description}
+
+% ****
+% SAVE
+% ****
+
+\newpage
+\subsection{SAVE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$94
+\item [Format:] {\bf SAVE filename [,unit] }
+\item [Usage:]
+   "Saves a BASIC program to a file of type PRG.
+
+   \filenamedefinition
+   The maximum length of the filename is 16 characters,
+   not counting the optional save and replace character '@'
+   and the infile drive definition..
+   If the first character of the filename is an at-sign '@' it
+   is interpreted as a "save and replace" operation. It is dangerous
+   to use this replace option on drives 1541 and 1571, because they
+   contain the notorious "save and replace bug" in their DOS.
+   The filename may be preced by the drive number definition
+   "0:" or "1:" which is only relevant for dual drive disk units.
+
+   \unitdefinition
+
+\item [Remarks:]
+   This is an obsolete command, implemented only for compatibility
+   to older BASIC dialects. The command {\bf DSAVE} should be used
+   instead.
+
+\item [Example:] Using {\bf SAVE}
+\begin{screenoutput}
+  SAVE "ADVENTURE"
+  SAVE "ZORK-I",8
+  SAVE "1:DUNGEON",9
+\end{screenoutput}
+\end{description}
+
+% ******
+% SCNCLR
+% ******
+
+\newpage
+\subsection{SCNCLR}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$E8
+\item [Format:] {\bf SCNCLR [colour]}
+\item [Usage:] Clears a text window or screen.
+
+               {\bf SCNCLR} (with no arguments) clears the
+               current text window. The default window
+               occupies the whole screen.
+
+               {\bf SCNCLR colour} clears the graphic screen by
+               filling it it with the {\bf colour}.
+
+\item [Example:] Using {\bf SCNCLR}:
+\begin{screenoutput}
+ 10 GRAPHIC CLR         :REM INITIALIZE
+ 20 SCREEN DEF 1,1,1,2  :REM 640 X 400 X 2
+ 30 SCREEN SET 1,1      :REM VIEW IT
+ 40 SCNCLR 0            :REM CLEAR SCREEN
+ 50 LINE 50,50,590,350  :REM DRAW LINE
+\end{screenoutput}
+\end{description}
+
+% *******
+% SCRATCH
+% *******
+
+\newpage
+\subsection{SCRATCH}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$F2
+\item [Format:] {\bf SCRATCH filename [,D drive] [,U unit] [,R]}
+\item [Usage:] Used to erase a disk file.
+
+   \filenamedefinition
+
+   \drivedefinition
+
+   \unitdefinition
+
+   {\bf R} = Recover a previously erased file.
+   This will only work, if there were no write operations
+   between erasion and recovery, which may have altered the
+   contents of the file.
+
+\item [Remarks:] The {\bf SCRATCH filename} command works like the
+                 {\bf ERASE filename} command.
+
+                 The success and the number of erased files can
+                 be examined by printing or using the system
+                 variable DS\$. The second last number, which
+                 reports the track number in case of an disk error,
+                 now reports the number of successfully erased files.
+
+\item [Example:] Using {\bf SCRATCH}
+\begin{screenoutput}
+  SCRATCH "DRM",U9 :REM SCRATCH FILE DRM ON UNIT 9
+  PRINT DS$
+  01, FILES SCRATCHED,01,00
+  SCRATCH "OLD*"   :REM SCRATCH ALL FILES BEGINNING WTH "OLD"
+  PRINT DS$
+  01, FILES SCRATCHED,04,00
+\end{screenoutput}
+\end{description}
+
+% ******
+% SCREEN
+% ******
+
+\newpage
+\subsection{SCREEN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$2E
+\item [Format:] {\bf SCREEN CLR} \\
+                {\bf SCREEN DEF} \\
+                {\bf SCREEN SET} \\
+                {\bf SCREEN OPEN} \\
+                {\bf SCREEN CLOSE}
+
+\item [Usage:] {\bf SCREEN} performs one of five actions,
+               selected by the secondary keyword after it.
+
+                {\bf SCREEN CLR colour} clear graphics screen
+                by filling it with {\bf colour}.
+
+                {\bf SCREEN DEF screen, width, height, depth}
+                defines resolution parameters for the chosen
+                screen.
+
+                {\bf SCREEN SET draw view} sets screen numbers
+                ( 0 or 1 ) for the drawing and the viewing screen.
+
+                {\bf SCREEN OPEN screen} allocates resources and
+                initializes the graphic context for the selected
+                screen ( 0 or 1).
+
+                {\bf SCREEN CLOSE screen } closes screen
+                ( 0 or 1 ) and frees ressources.
+
+\item [Remarks:] The {\bf SCREEN} command cannot be used alone.
+               It must always be used together with a secondary keyword.
+
+\item [Example:] Using {\bf SCREEN}:
+\begin{screenoutput}
+ 10 GRAPHIC CLR         :REM INITIALIZE
+ 20 SCREEN DEF 1,1,1,2  :REM SCREEN #1: 640 X 400 X 2
+ 30 SCREEN OPEN         :REM OPEN
+ 40 SCREEN SET 1,1      :REM USE SCREEN 1 FOR RENDERING AND VIEWING
+ 50 SCREEN CLR 0        :REM CLEAR SCREEN
+ 60 LINE 50,50,590,350  :REM DRAW LINE
+ 70 SLEEP 10            :REM WAIT 10 SECONDS
+ 80 SCREEN CLOSE
+\end{screenoutput}
+\end{description}
+
+% ***
+% SET
+% ***
+
+\newpage
+\subsection{SET}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$2D
+\item [Format:] {\bf SET DEF unit} \\
+                {\bf SET DISK old to new}
+\item [Usage:]  {\bf SET DEF unit} redefines the default unit
+                for disk access, which is initialized to 8 by
+                the DOS. Commands, that do not explicitely
+                specify a unit, will use this default unit.
+
+                {\bf SET DISK old to new} is used to change
+                the unit number of a disk drive temporarily.
+
+\item [Remarks:] These settings are valid until a reset
+                 or shutdown.
+
+\item [Example:] Using {\bf SET}:
+\begin{screenoutput}
+ DIR             :REM SHOW DIRECTORY OF UNIT 8
+ SET DEF 11      :REM UNIT 11 BECOMES DEFAULT
+ DIR             :REM SHOW DIRECTORY OF UNIT 11
+ DLOAD "*"       :REM LOAD FIRST FILE FROM UNIT 11
+ SET DISK 8 TO 9 :REM CHANGE UNIT# OF DISK DRIVE 8 TO 9
+ DIR U9          :REM SHOW DIRECTORY OF UNIT 9 (FORMER 8)
+\end{screenoutput}
+\end{description}
+
+% ***
+% SGN
+% ***
+
+\newpage
+\subsection{SGN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$B4
+\item [Format:] {\bf SGN}(numeric expression)
+\item [Usage:] The {\bf SGN} function extracts the sign from
+               the argument and returns it as a number:
+
+               -1 for a negative argument \\
+                0 for a zero              \\
+                1 for a positive, non zero argument
+
+\item [Example:] Using {\bf SGN}
+\begin{screenoutput}
+10 ON SGN(X)+2 GOTO 100,200,300 :REM TARGETS FOR MINUS,ZERO,PLUS
+20 Z = SGN(X) * ABS(Y) : REM COMBINE SIGN OF X WITH VALUE OF Y
+\end{screenoutput}
+\end{description}
+
+% ***
+% SIN
+% ***
+
+\newpage
+\subsection{SIN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$BE
+\item [Format:] {\bf SIN}(numeric expression)
+\item [Usage:] The {\bf SIN} function returns the sine of the
+               argument.
+               The argument is expected in units of {\bf [radians]}.
+               The result is in the range (-1.0 to +1.0)
+
+\item [Remarks:] An argument in units of {\bf [degrees]}
+                 can be converted to {\bf [radians]}
+               by multiplication with $\pi/180$.
+\item [Example:] Using {\bf SIN}
+\begin{screenoutput}
+  PRINT SIN(0.7)
+   .644217687
+
+  X=30:PRINT SIN(X * ~ / 180)
+   .5
+\end{screenoutput}
+\end{description}
+
+% *****
+% SLEEP
+% *****
+
+\newpage
+\subsection{SLEEP}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$0B
+\item [Format:] {\bf SLEEP} seconds
+\item [Usage:] The {\bf SLEEP} commands pauses the execution
+               for the given duration ( 1 - 65535).
+
+\item [Example:] Using {\bf SLEEP}
+\begin{screenoutput}
+50 GOSUB 1000 :REM DISPLAY SPLASH SCREEN
+60 SLEEP 10   :REM WAIT 10 SECONDS
+70 GOTO  2000 :REM START PROGRAM
+\end{screenoutput}
+\end{description}
+
+% ****
+% SLOW
+% ****
+
+\newpage
+\subsection{SLOW}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$26
+\item [Format:] {\bf SLOW}
+\item [Usage:] Slow down system clock to 1 MHz.
+
+\item [Example:] Using {\bf SLOW}
+\begin{screenoutput}
+50 SLOW      :REM SET SPEED TO MINIMUM
+60 GOSUB 100 :REM EXECUTE SUBROUTINE AT 1 MHZ
+70 FAST      :REM BACK TO HIGH SPEED
+\end{screenoutput}
+\end{description}
+
+% *****
+% SOUND
+% *****
+
+\newpage
+\subsection{SOUND}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$DA
+\item [Format:] {\bf SOUND voice, freq, dur
+                [,dir ,min, sweep, wave, pulse]}
+
+\item [Usage:] plays a sound effect.
+
+               {\bf voice} = voice number ( 1 -> 6 ).
+
+               {\bf freq} = frequency ( 0 -> 65535 ).
+
+               {\bf dur} = duration ( 0 -> 32767) .
+
+               {\bf dir} = direction (0:up, 1:down, 2:oscillate).
+
+               {\bf min} = minimum frequency ( 0 -> 65535 ).
+
+               {\bf sweep} = sweep range ( 0 -> 65535 ).
+
+               {\bf wave} = waveform (0:triangle, 1:saw, 2:square,
+               3:noise).
+
+               {\bf pulse} = pulse width ( 0 -> 5095 ).
+
+For details on sound programming, read the {\bf SOUND} chapter.
+
+\item [Remarks:] The {\bf SOUND} command starts playing the sound
+               effect and immediately continues with the execution
+               of the next BASIC statement, while the sound effect
+               is played. This enables showing graphics or text
+               and playing sounds simultaneously.
+
+\item [Example:] Using {\bf SOUND}
+\begin{screenoutput}
+ SOUND 1, 7382, 60   :REM PLAY SQUARE WAVE ON VOICE 1 FOR 1 SECOND
+ SOUND 2,  800, 3600 :REM PLAY SQUARE WAVE ON VOICE 2 FOR 1 MINUTE
+ SOUND 3, 4000, 120, 2, 2000, 400, 1
+ REM PLAY SWEEPING SAWTOOTH WAVE AT VOICE 3
+\end{screenoutput}
+\end{description}
+
+% ***
+% SPC
+% ***
+
+\newpage
+\subsection{SPC}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$A6
+\item [Format:] {\bf SPC(columns)}
+\item [Usage:] The {\bf SPC} function skips {\bf columns}. \\
+               The effect is like printing {\bf column}
+               times a {\bf cursor right character}.
+
+\item [Remarks:] The name of this function is derived from
+                 {\bf SPACES}, which is misleading.
+                 The function prints {\bf cursor right characters}
+                 not {\bf SPACES}. The contents of those character
+                 cells, that are skipped, will not be changed.
+
+\item [Example:] Using {\bf SPC}
+\begin{screenoutput}
+10 FOR I=8 TO 12
+20 PRINT SPC(-(I<10));I :REM TRUE = -1, FALSE = 0
+30 NEXT I
+RUN
+ 8
+ 9
+10
+11
+12
+\end{screenoutput}
+\end{description}
+
+% ********
+% SPRCOLOR
+% ********
+
+\newpage
+\subsection{SPRCOLOR}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$08
+\item [Format:] {\bf SPRCOLOR [mc1] [,mc2]} \\
+\item [Usage:]  Sets multicolour sprite colours. \\
+                The {\bf SPRITE} command, which sets the
+                attributes of a sprite, sets only the foreground
+                colour. For the setting of the  additional two colours,
+                of multicolour sprites, {\bf SPRCOLOR} has
+                to be used.
+
+\item [Remarks:] See also {\bf SPRITE}.
+
+\item [Example:] Using {\bf SPRCOLOR}:
+\begin{screenoutput}
+ 10 SPRITE 1,1,2,,,,1  :REM TURN SPRITE 1 ON (FG = 2)
+ 20 SPRCOLOR 4,5       :REM MC1 = 4, MC2 = 5
+\end{screenoutput}
+\end{description}
+
+% ******
+% SPRITE
+% ******
+
+\newpage
+\subsection{SPRITE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$07
+\item [Format:] {\bf SPRITE no [switch, colour, prio, expx, expy, mode]}
+\item [Usage:]  Switches a sprite on or off and sets its attributes. \\
+
+                {\bf no} = sprite number
+
+                {\bf switch} = 1:ON, 0:OFF
+
+                {\bf colour} = sprite foreground colour
+
+                {\bf prio} = sprite(1) or screen(0) priority
+
+                {\bf expx} = 1:sprite X expansion
+
+                {\bf expy} = 1:sprite Y expansion
+
+                {\bf mode} = 1:multi colour sprite
+
+\item [Remarks:] The command {\bf SPRCOLOR} must be used to set
+                additional colours
+                for multi colour sprites (mode = 1)
+
+\item [Example:] Using {\bf SPRITE}:
+\begin{screenoutput}
+10 COLLISION 1,70 : REM ENABLE
+20 SPRITE 1,1 : MOVSPR 1,120,  0 : MOVSPR 1,0#5
+30 SPRITE 2,1 : MOVSPR 2,120,100 : MOVSPR 2,180#5
+40 FOR I=1 TO 50000:NEXT
+50 COLLISION 1 : REM DISABLE
+50 END
+70 REM SPRITE <-> SPRITE INTERRUPT HANDLER
+80 PRINT "BUMP RETURNS";BUMP(1)
+90 RETURN: REM RETURN FROM INTERRUPT
+\end{screenoutput}
+\end{description}
+
+% ******
+% SPRSAV
+% ******
+
+\newpage
+\subsection{SPRSAV}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$16
+\item [Format:] {\bf SPRSAV source, destination}
+\item [Usage:]  Copies sprite data.
+
+                {\bf source} = sprite number or string variable.
+
+                {\bf destination} = sprite number or string variable.
+
+\item [Remarks:] Both, source and destination can be either
+                a sprite number or a string variable.
+                But they must not be both a string variable.
+                A simple string assignment can be used for such
+                cases.
+
+\item [Example:] Using {\bf SPRSAV}:
+\begin{screenoutput}
+10 BLOAD "SPRITEDATA",P1600    :REM LOAD DATA FOR SPRITE 1
+20 SPRITE 1,1                  :REM TURN SPRITE 1 ON
+30 SPRSAV 1,2                  :REM COPY SPRITE 1 DATA TO 2
+40 SPRITE 2,1                  :REM TURN SPRITE 2 ON
+50 SPRSAV 1,A$                 :REM SAVE SPRITE 1 DATA IN STRING
+\end{screenoutput}
+\end{description}
+
+% ***
+% SQR
+% ***
+
+\newpage
+\subsection{SQR}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$BA
+\item [Format:] {\bf SQR}(numeric expression)
+\item [Usage:] The {\bf SQR} function returns the square root
+               of the argument.
+
+\item [Remarks:] The argument must not be negative.
+\item [Example:] Using {\bf SQR}
+\begin{screenoutput}
+  PRINT SQR(2)
+   1.41421356
+\end{screenoutput}
+\end{description}
+
+% ****
+% STEP
+% ****
+
+\newpage
+\subsection{STEP}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$A9
+\item [Format:] {\bf FOR index=start TO end [STEP step] ... NEXT [index]}
+\item [Usage:] The {\bf STEP} keyword is an optional part of a
+               {\bf FOR} loop.
+
+               The {\bf index} variable may be incremented or decremented
+               by a constant value on each iteration. The default
+               is to increment the variable by 1.
+               The index variable must be a real variable.
+
+               The {\bf start} value is used to initialize the index.
+
+               The {\bf end} value is used at the end of the loop
+               and controls, whether the next iteration will be started
+               or the loop exited.
+
+               The {\bf step} value defines the change applied to
+               to the index variable at the end of the loop.
+               Positive step values increment it, while negative values
+               decrement it. It defaults to 1.0 if not specified.
+
+\item [Remarks:] For positive increments {\bf end} must be greater
+               or equal than {\bf start}, for negative increments
+               {\bf end} must be less or equal than {\bf start}.
+
+               It is bad programming style to change the value
+               of the index variable inside the loop or to
+               jump into or out of the loop body with {\bf GOTO}.
+
+\item [Example:] Using {\bf STEP}
+\begin{screenoutput}
+10 FOR D=0 TO 360 STEP 30
+20 R = D * ~ / 180
+30 PRINT D;R;SIN(R);COS(R);TAN(R)
+40 NEXT D
+\end{screenoutput}
+\end{description}
+
+% ****
+% STOP
+% ****
+
+\newpage
+\subsection{STOP}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$90
+\item [Format:] {\bf STOP}
+\item [Usage:] Stops the execution
+               of the BASIC program.
+               A message tells the line number of the break.
+               The {\bf READY.} prompt
+               appears and the computer goes into direct mode
+               waiting for keyboard input.
+               The program execution can be resumed with the command
+               {\bf CONT}.
+
+\item [Remarks:]
+               All variable definitions are still valid after {\bf STOP}.
+               They may be inspected or altered and the
+               program may be continued with the {\bf CONT}
+               statement. Every editing of the program source
+               makes continuation impossible, however.
+
+\item [Example:] Using {\bf STOP}
+\begin{screenoutput}
+10 IF V < 0 THEN STOP : REM NEGATIVE NUMBERS STOP THE PROGRAM
+20 PRINT SQR(V)       : REM PRINT SQUARE ROOT
+\end{screenoutput}
+\end{description}
+
+% ****
+% STR\$
+% ****
+
+\newpage
+\subsection{STR\$}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$C4
+\item [Format:] {\bf STR\$(numeric expression)}
+\item [Usage:] Returns a string
+               containing the formatted value of the argument,
+               as if it were printed to the string.
+
+\item [Example:] Using {\bf STR\$}:
+\begin{screenoutput}
+A$ = "THE VALUE OF PI IS " + STR$(~)
+PRINT A$
+THE VALUE OF PI IS 3.14159265
+\end{screenoutput}
+\end{description}
+
+% ***
+% SYS
+% ***
+
+\newpage
+\subsection{SYS}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$9E
+\item [Format:] {\bf SYS address [, areg, xreg, yreg, zreg, sreg]}
+\item [Usage:]  Calls a machine language subroutine.
+                This can be a ROM resident kernel or BASIC subroutine
+                or a routine in RAM, which was loaded or poked
+                to RAM before.
+
+               The CPU registers are loaded with the arguments,
+               if specified. Then a subroutine call {\bf JSR address}
+               is performed. The called routine should exit with
+               a {\bf RTS} instruction. Then the register contents
+               will be saved and the execution of the BASIC program
+               continues.
+
+               {\bf address} = start address of the subroutine.
+
+               {\bf areg} = variable gets accumulator value.
+
+               {\bf xreg} = variable gets X register value.
+
+               {\bf yreg} = variable gets Y register value.
+
+               {\bf zreg} = variable gets Z register value.
+
+               {\bf sreg} = variable gets status register value.
+
+                 The {\bf SYS} command uses the current bank
+                 as set with the {\bf BANK} command.
+
+\item [Remarks:] The register values after a {\bf SYS} call are stored
+                 in system memory. This enables the command
+                 {\bf RREG} to retrieve these values.
+
+\item [Example:] Using {\bf SYS}:
+\begin{screenoutput}
+ 10 BANK 128
+ 20 BLOAD "ML PROG",8192
+ 30 SYS 8192
+ 40 RREG A,X,Y,Z,S
+ 50 PRINT "REGISTER:";A;X;Y;Z;S
+\end{screenoutput}
+\end{description}
+
+% ***
+% TAB
+% ***
+
+\newpage
+\subsection{TAB}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$A3
+\item [Format:] {\bf TAB(column)}
+\item [Usage:] Positions the cursor at {\bf column}. \\
+               This is only done, if the target column is right
+               of the current cursor column, otherwise nothing
+               happens. The column count starts with 0 for the
+               left most column.
+
+\item [Remarks:] This function must not be confused with the
+               {\bf TAB} key, which advances the cursor to the next
+               tabstop.
+
+\item [Example:] Using {\bf TAB}
+\begin{screenoutput}
+10 FOR I=1 TO 5
+20 READ A$
+30 PRINT "* " A$ TAB(10) " *"
+40 NEXT I
+50 END
+60 DATA ONE,TWO,THREE,FOUR,FIVE
+
+RUN
+* ONE      *
+* TWO      *
+* THREE    *
+* FOUR     *
+* FIVE     *
+\end{screenoutput}
+\end{description}
+
+% ***
+% TAN
+% ***
+
+\newpage
+\subsection{TAN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$C0
+\item [Format:] {\bf TAN}(numeric expression)
+\item [Usage:] Returns the tangent of the
+               argument.
+               The argument is expected in units of {\bf [radians]}.
+
+\item [Remarks:] An argument in units of {\bf [degrees]}
+                 can be converted to {\bf [radians]}
+               by multiplication with $\pi/180$.
+\item [Example:] Using {\bf TAN}
+\begin{screenoutput}
+  PRINT TAN(0.7)
+   .84228838
+
+  X=45:PRINT TAN(X * ~ / 180)
+   .999999999
+\end{screenoutput}
+\end{description}
+
+% *****
+% TEMPO
+% *****
+
+\newpage
+\subsection{TEMPO}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$05
+\item [Format:] {\bf TEMPO speed}
+\item [Usage:] Sets the playback speed for the {\bf PLAY} command.
+
+               {\bf speed} = 1 -> 255.
+
+               The duration of a whole note is computed with
+               $ duration = 24 / speed $.
+
+\item [Example:] Using {\bf TEMPO}
+\begin{screenoutput}
+10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
+20 VOL 8
+30 TEMPO 24      :REM PLAY EACH NOTE FOR ONE SECOND
+40 PLAY "C D E F G A B"
+50 PLAY "U5 V1 C D E F G A B"
+\end{screenoutput}
+\end{description}
+
+% ****
+% THEN
+% ****
+
+\newpage
+\subsection{THEN}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$A7
+\item [Format:] {\bf IF expression THEN true clause ELSE false clause}
+\item [Usage:] The {\bf THEN} keyword is part of an {\bf IF}
+               statement.
+
+               {\bf expression} is a logical or numeric expression.
+               A numerical expression is evaluated as {\bf FALSE}
+               if the value is zero and {\bf TRUE} for any non zero
+               value.
+
+               {\bf true clause} are one or more statements starting
+               directly after {\bf THEN} on the same line.
+               A linenumber after {\bf THEN} performs a
+               {\bf GOTO} to that line.
+
+               {\bf false clause} are one or more statements starting
+               directly after {\bf ELSE} on the same line.
+               A linenumber after {\bf ELSE} performs a
+               {\bf GOTO} to that line.
+
+\item [Remarks:]
+               The standard {\bf IF ... THEN ... ELSE} structure
+               is restricted to a single line. But the {\bf true clause}
+               or {\bf false clause} may be expanded to several lines
+               using a compound statement bracketed with the keywords
+               {\bf BEGIN} and {\bf BEND}.
+\item [Example:]
+                Using {\bf THEN}
+\begin{screenoutput}
+10 IF V < 0 THEN PRINT RED$;:ELSE PRINT BLACK$;
+20 PRINT V : REM PRINT NEGATIVE NUMBERS IN RED
+30 INPUT "END PROGRAM:(Y/N)";A$
+40 IF A$="Y" THEN END
+50 IF A$="N" THEN 10:ELSE 30
+
+\end{screenoutput}
+\end{description}
+
+% **
+% TO
+% **
+
+\newpage
+\subsection{TO}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$A4
+\item [Format:] keyword {\bf TO}
+\item [Usage:]  {\bf TO} is a secondary keyword used in
+                combination with primary keywords like
+                {\bf GO, FOR, BACKUP, BSAVE, CHANGE, CONCAT, COPY,
+                RENAME and SET DISK}
+
+\item [Remarks:] The keyword {\bf TO} cannot be used on its own.
+
+\item [Example:] Using {\bf TO}
+
+\begin{screenoutput}
+10 GO TO 1000    :REM AS GOTO 1000
+20 GOTO 1000     :REM SHORTER AND FASTER
+30 FOR I=1 TO 10 :REM TO IS PART OF THE LOOP
+40 PRINT I:NEXT  :REM LOOP END
+50 COPY "CODES" TO "BACKUP" :REM COPY SINGLE FILE
+\end{screenoutput}
+\end{description}
+
+% ****
+% TRAP
+% ****
+
+\newpage
+\subsection{TRAP}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$D7
+\item [Format:] {\bf TRAP [line number]}
+\item [Usage:]  {\bf TRAP} with a valid line number activates the
+                BASIC error handler with following consequences:
+                In case of an error the BASIC interpreter does not
+                stop with an error message, but saves execution
+                pointer and line number, places the error number into the
+                system variable {\bf ER} and jumps to the line number
+                of the TRAP command. The trapping routine can examine
+                {\bf ER} and decide, whether to {\bf STOP}
+                 or {\bf RESUME} execution.
+
+                {\bf TRAP} with no argument disables the error handler.
+                Errors will be handled by the normal system routines.
+
+\item [Example:] Using {\bf TRAP}
+\begin{screenoutput}
+ 10 TRAP 100
+ 20 FOR I=1 TO 100
+ 30 PRINT EXP(I)
+ 40 NEXT
+ 50 PRINT "STOPPED FOR I =";I
+ 60 END
+100 PRINT ERR$(ER): RESUME 50
+\end{screenoutput}
+\end{description}
+
+% *****
+% TROFF
+% *****
+
+\newpage
+\subsection{TROFF}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$D9
+\item [Format:] {\bf TROFF}
+\item [Usage:]  Turns off trace mode (switched on by {\bf TRON}).
+
+\item [Example:] Using {\bf TROFF}
+\begin{screenoutput}
+ 10 TRON             :REM ACTIVATE TRACE MODE
+ 20 FOR I=85 TO 100
+ 30 PRINT I;EXP(I)
+ 40 NEXT
+ 50 TROFF            :REM DEACTIVATE TRACE MODE
+
+RUN
+[10][20][30] 85  8.22301268E+36
+[40][30] 86  2.2352466E+37
+[40][30] 87  6.0760302E+37
+[40][30] 88  1.65163625E+38
+[40][30] 89
+?OVERFLOW ERROR IN 30
+READY.
+\end{screenoutput}
+\end{description}
+
+% ****
+% TRON
+% ****
+
+\newpage
+\subsection{TRON}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$D8
+\item [Format:] {\bf TRON}
+\item [Usage:]  Turns on trace mode.
+
+\item [Example:] Using {\bf TRON}
+\begin{screenoutput}
+ 10 TRON             :REM ACTIVATE TRACE MODE
+ 20 FOR I=85 TO 100
+ 30 PRINT I;EXP(I)
+ 40 NEXT
+ 50 TROFF            :REM DEACTIVATE TRACE MODE
+
+RUN
+[10][20][30] 85  8.22301268E+36
+[40][30] 86  2.2352466E+37
+[40][30] 87  6.0760302E+37
+[40][30] 88  1.65163625E+38
+[40][30] 89
+?OVERFLOW ERROR IN 30
+READY.
+\end{screenoutput}
+\end{description}
+
+% ****
+% TYPE
+% ****
+
+\newpage
+\subsection{TYPE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$27
+\item [Format:] {\bf TYPE filename [,D drive] [,U unit] }
+\item [Usage:] types the contents of a file containing
+      text in PETSCII code.
+
+   \filenamedefinition
+
+   \drivedefinition
+
+   \unitdefinition
+
+\item [Remarks:] This command cannot be used to type
+                 BASIC programs. Use {\bf LIST} for programs.
+                 {\bf TYPE} can only process SEQ or USR files
+                 containing records of PETSCII text, delimited
+                 by the {\bf CR} = CHR\$(13) character.
+
+\item [Example:] Using {\bf TYPE}
+\begin{screenoutput}
+  TYPE "README"
+  TYPE "README 1ST",U9
+\end{screenoutput}
+\end{description}
+
+% *****
+% UNTIL
+% *****
+
+\newpage
+\subsection{UNTIL}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FC
+\item [Format:] {\bf DO} ... {\bf LOOP} \\
+                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expr.>] \\
+                . . . statements [{\bf EXIT}] \\
+                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expr.>]
+\item [Usage:] The {\bf DO} and {\bf LOOP} keywords define
+               the start and end of the most versatile BASIC loop.
+               Using {\bf DO} and {\bf LOOP} alone, without any
+               modifiers creates an infinite loop, that can be left
+               by the {\bf EXIT} statement only. The loop can be
+               controlled by adding an {\bf UNTIL} or a {\bf WHILE}
+               statement after the {\bf DO} or {\bf LOOP}.
+
+\item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
+               exits the current loop only.
+\item [Example:] Using {\bf DO} and {\bf LOOP}.
+\begin{screenoutput}
+10 PW$="":DO
+20 GET A$:PW$=PW$+A$
+30 LOOP UNTIL LEN(PW$)>7 OR A$=CHR$(13)
+
+10 DO : REM WAIT FOR USER DECISION
+20 GET A$
+30 LOOP UNTIL A$='Y' OR A$='N' OR A$='y' OR A$='n'
+
+10 DO WHILE ABS(EPS) > 0.001
+20 GOSUB 2000 : REM ITERATION SUBROUTINE
+30 LOOP
+
+10 I%=0 : REM INTEGER LOOP 1 -> 100
+20 DO I%=I%+1
+30 LOOP WHILE I% < 101
+\end{screenoutput}
+\end{description}
+
+% *****
+% USING
+% *****
+
+\newpage
+\subsection{USING}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FB
+\item [Format:] {\bf PRINT [\# channel,] USING, format, arguments}
+\item [Usage:]  {\bf USING} is a secondary keyword used after
+                {\bf PRINT} or {\bf PRINT\#}.
+
+                It defines the format string for the
+                argument list.
+                The values are printed following the directives
+                of the format string.
+
+                {\bf channel} : must be opened for output by
+                an {\bf OPEN} or {\bf DOPEN} statement.
+                If no channel is specified, the output goes to the screen.
+
+                {\bf format} : A string which defines the rules
+                for formatting.
+
+                {\bf numeric argument} :
+                The '\#' characters set the position and with of the
+                ouput string. \\
+                '+' or '-' set the sign option. \\
+                '.' sets the position of the decimal point. \\
+                ',' can be inserted into large numbers. \\
+                '\$' sets the position of the currency symbol. \\
+                \string^\string^\string^\string^
+                 reserves place for the exponent.
+
+                {\bf string argument} : The string may consist of printable
+                characters and control codes. Printable characters
+                are printed to the cursor position, while control
+                codes are executed.
+                The number of '\#' characters sets the width of the
+                output, a '=' sign centers and a '>' character
+                right justifies the output.
+
+                {\bf ,} : A comma acts like a tabulator.
+                {\bf ;} : A semicolon acts as a separator between
+                arguments of the list. Other than the comma character
+                it does not put in any additinal characters.
+                A semicolon at the end of the argument list suppresses
+                the automatic return character.
+
+\item [Example:] Using {\bf PRINT USING}
+
+\begin{screenoutput}
+ 10 X = 12.34: A$ = "MEGA 65"
+ 30 PRINT USING "###.##"; X      : REM  "12.34"
+ 40 PRINT USING "###"; X         : REM  " 12"
+ 50 PRINT USING "####"; A$       : REM  "MEGA"
+ 60 PRINT USING "#########"; A$  : REM  "MEGA 65  "
+ 70 PRINT USING "=########"; A$  : REM  " MEGA 65 "
+ 80 PRINT USING "#######>#"; A$  : REM  "  MEGA 65"
+\end{screenoutput}
+\end{description}
+
+% ***
+% USR
+% ***
+
+\newpage
+\subsection{USR}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$B7
+\item [Format:] {\bf USR(numeric expression)}
+\item [Usage:]  Using the function {\bf USR(X)} in a numeric
+                expression, puts the argument into the
+                floating point accumulator 1 and jumps to the
+                address \$02F7 expecting the address of the
+                machine language user routine in \$02F8 - \$02F9.
+                After executing the user routine, BASIC returns
+                the contents of the floating point accumulator 1,
+                which should be set by the user routine..
+
+\item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
+                 Banks > 127 are used to access I/O and SYSTEM
+                 like VIC, SID, FDC, etc.
+\item [Example:] Using {\bf USR}
+
+\begin{screenoutput}
+ 10 UX = DEC("7F00")             :REM ADDRESS OF USER ROUTINE
+ 20 BANK 128                     :REM SELECT SYSTEM BANK
+ 30 BLOAD "ML-PROG",P(UX)        :REM LOAD USER ROUTINE
+ 40 POKE (DEC("2F8")),UX AND 255 :REM USR JUMP TARGET LOW
+ 50 POKE (DEC("2F9")),UX / 256   :REM USR JUMP TARGET HIGH
+ 60 PRINT USR(~)                 :REM PRINT RESULT FOR ARGUMENT PI
+\end{screenoutput}
+\end{description}
+
+% ***
+% VAL
+% ***
+
+\newpage
+\subsection{VAL}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$C5
+\item [Format:] {\bf VAL}(string expression)
+\item [Usage:] Converts a string to a floating point value.
+
+               This function acts like reading from a string.
+
+\item [Remarks:] A string containing not a valid number
+                 will not produce an error but return 0 as result.
+
+\item [Example:] Using {\bf VAL}
+\begin{screenoutput}
+ PRINT VAL("78E2")
+ 7800
+
+ PRINT VAL("7+5")
+ 7
+
+ PRINT VAL("1.256")
+ 1.256
+
+ PRINT VAL("$FFFF")
+ 0
+\end{screenoutput}
+\end{description}
+
+% ******
+% VERIFY
+% ******
+
+\newpage
+\subsection{VERIFY}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$95
+\item [Format:] {\bf VERIFY filename [,unit [,binflag]] }
+\item [Usage:]
+   This command is obsolete in BASIC-10, where the commands
+   {\bf DVERIFY} and {\bf BVERIFY} are better alternatives.
+
+   {\bf VERIFY} with no {\bf binflag} compares a BASIC program
+   in memory with a disk file of type PRG.
+   It does the same as {\bf DVERIFY}, but with a different syntax.
+
+   {\bf VERIFY} with {\bf binflag} compares a binary file
+   in memory with a disk file of type PRG.
+   It does the same as {\bf BVERIFY}, but with a different syntax.
+
+   {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
+   a string expression.
+
+   \unitdefinition
+
+\item [Remarks:]
+   {\bf VERIFY} can only test for equality. It gives no information
+   about the number or position of different valued bytes.
+   The command exits either with the message {\bf OK}
+   or with {\bf VERIFY ERROR}.
+
+\item [Example:] Using {\bf VERIFY}
+\begin{screenoutput}
+  VERIFY "ADVENTURE"
+  VERIFY "ZORK-I",9
+  VERIFY "1:DUNGEON",10
+\end{screenoutput}
+\end{description}
+
+% ***
+% VOL
+% ***
+
+\newpage
+\subsection{VOL}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$DB
+\item [Format:] {\bf VOL volume}
+\item [Usage:] Sets the volume for sound output with
+               {\bf SOUND} or {\bf PLAY}.
+
+               {\bf volume} = 0 (off) -> 15 (loudest).
+
+\item [Remarks:] This volume setting affects all voices.
+
+\item [Example:] Using {\bf VOL}
+\begin{screenoutput}
+10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
+20 VOL 8
+30 TEMPO 100
+40 PLAY "C D E F G A B"
+50 PLAY "U5 V1 C D E F G A B"
+\end{screenoutput}
+\end{description}
+
+% ****
+% WAIT
+% ****
+
+\newpage
+\subsection{WAIT}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$92
+\item [Format:] {\bf WAIT address, andmask [, xormask]}
+\item [Usage:] Pauses the BASIC program until a requested
+               bit pattern is read from the given address.
+
+               {\bf address} = the address at the current memory
+               bank, which is read.
+
+               {\bf andmask} = and mask applied.
+
+               {\bf xormask} = xor mask applied.
+
+               {\bf WAIT} reads the byte value from {\bf address}
+               and applies the masks: \\
+               result = PEEK(address) AND andmask XOR xormask
+
+               The pause ends if the result is nonzero, otherwise
+               the reading is repeated. This may hang the computer
+               infinitely, if the condition is never met.
+
+\item [Remarks:] This command is typically used to examine hardware
+               registers or system variables
+               and wait for an event, e.g. joystick event,
+               mouse event, keyboard press or a special raster line.
+
+\item [Example:] Using {\bf WAIT}
+\begin{screenoutput}
+10 BANK 128
+20 WAIT 211,1            :REM WAIT FOR SHIFT KEY BEING PRESSED
+\end{screenoutput}
+\end{description}
+
+% *****
+% WHILE
+% *****
+
+\newpage
+\subsection{WHILE}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$ED
+\item [Format:] {\bf DO} ... {\bf LOOP} \\
+                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expr.>] \\
+                . . . statements [{\bf EXIT}] \\
+                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expr.>]
+\item [Usage:] The {\bf DO} and {\bf LOOP} keywords define
+               the start and end of the most versatile BASIC loop.
+               Using {\bf DO} and {\bf LOOP} alone, without any
+               modifiers creates an infinite loop, that can be left
+               by the {\bf EXIT} statement only. The loop can be
+               controlled by adding an {\bf UNTIL} or a {\bf WHILE}
+               statement after the {\bf DO} or {\bf LOOP}.
+
+\item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
+               exits the current loop only.
+\item [Example:] Using {\bf DO} and {\bf LOOP}
+\begin{screenoutput}
+10 PW$="":DO
+20 GET A$:PW$=PW$+A$
+30 LOOP UNTIL LEN(PW$)>7 OR A$=CHR$(13)
+
+10 DO : REM WAIT FOR USER DECISION
+20 GET A$
+30 LOOP UNTIL A$='Y' OR A$='N' OR A$='y' OR A$='n'
+
+10 DO WHILE ABS(EPS) > 0.001
+20 GOSUB 2000 : REM ITERATION SUBROUTINE
+30 LOOP
+
+10 I%=0 : REM INTEGER LOOP 1 -> 100
+20 DO I%=I%+1
+30 LOOP WHILE I% < 101
+\end{screenoutput}
+\end{description}
+
+% ******
+% WINDOW
+% ******
+
+\newpage
+\subsection{WINDOW}
+\begin{description}[leftmargin=3cm,style=nextline]
+\item [Token:] \$FE \$1A
+\item [Format:] {\bf WINDOW left, top, right, bottom [,clear]}
+\item [Usage:] Sets the text screen window.
+
+                 {\bf left} = left column
+
+                 {\bf top} = top row
+
+                 {\bf right} = right column
+
+                 {\bf bottom} = bottom row
+
+                 {\bf clear} = clear text window flag
+
+                 The row values count from 0 to 24.
+
+                 The column values count from 0 to 79 or 39
+                 depending on the screen mode.
+
+\item [Remarks:] There can be only one window on the screen.
+                 Striking the HOME key twice or printing
+                 CHR\$(19)CHR\$(19) will reset the window
+                 to the default full screen.
+
+\item [Example:] Using {\bf WINDOW}
+\begin{screenoutput}
+10 WINDOW 0,1,79,24      :REM SCREEN WITHOUT TOP ROW
+20 WINDOW 0,0,79,24,1    :REM FULL SCREEN WINDOW CLEARED
+30 WINDOW 0,12,79,24     :REM LOWER HALF OF SCREEN
+40 WINDOW 20,5,59,15     :REM SMALL CENTERED WINDOW
 \end{screenoutput}
 \end{description}
 

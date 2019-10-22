@@ -1,5 +1,6 @@
 \chapter{45GS02 Microprocessor}
-
+\label{cha:cpu}
+\label{cha:45gs02}
 \section{Introduction}
 
 The 45GS02 is an enhanced version of the processor portion of the CSG4510
@@ -110,7 +111,7 @@ can be booted and used from a 1541 connected to the MEGA65's serial port.
 
 However, some advanced VIC-II graphics tricks, such as Variable Screen Position (VSP) are
 highly unlikely to work correctly, due to the uncertainty in timing of the memory write
-cycles of instructions.  However, in most cases such problems can be easily solved by using
+ cycles of instructions.  However, in most cases such problems can be easily solved by using
 the advanced features of the MEGA65's VIC-IV video controller.  For example, VSP is unnecessary
 on the MEGA65, because you can set the screen RAM address to any location in memory.
 
@@ -131,7 +132,7 @@ is enabled.  The default value is \$80 (128), which means no bias on the CPU spe
 increase the CPU speed, with \$FF meaning $2\times$ the expected speed. Lower values slow
 the processor down, with \$00 bring the CPU to a complete stand-still.  Thus the speed can be
 varied between $0\times$ and $2\times$ the inteded value.
-
+ 
 This register is provided to allow tweaking the processor speed in games.
 
 Note that this register has no effect when
@@ -162,9 +163,7 @@ The MEGA65's DMA controller provides several important improvements:
   or the source or destination memory region.
 \end{itemize}
 
-The use of the DMA controller and these advanced features will be described elsewhere.
-
-XXX - Add a section to cover this.
+The use of the DMA controller and these advanced features can be found in Appendix \ref{cha:dmagic}
 
 \subsection{Extended Memory Support}
 \label{sec:extended-memory}
@@ -174,7 +173,7 @@ on which it is based. There are several ways of performing this.
 
 \subsubsection{Using the MAP instruction to access >1MiB}
 
-The full address space is available to the MAP instruction for C65-style memory
+The full address space is available to the MAP instruction for legacy C65-style memory
 mapping, although some care is required, as the MAP instruction must be called up to three times.
 The reason for this is that the MAP instruction must be called to first select which mega-byte of
 memory will be used for the lower and upper map regions, before it is again called in the normal
@@ -190,6 +189,61 @@ to perform the mapping will suddenly no longer be mapped.
 Because of the relative complexity of this process, and the other problems with the MAP instruction
 as a means of memory access, we recommend that for accessing data outside of the current memory
 map that you use either DMA or the flat-memory address features of the 45GS02 that are described below.
+Indeed, access to the full address space via the MAP instruction is only provided for completeness.
+
+To give a very simple example of how the MAP instruction can be used to map an area of memory from
+the expanded address space, the following program maps the ethernet frame buffer from its natural location
+at \$FFDE8000 to appear at \$6800.  To keep the example as simple as possible, we assume that the code
+is running from in the bottom 64KB of RAM, and not in the region between \$6000 -- \$8000.
+
+As the MAP instruction normally is only aware of the C65-style 20-bit addresses, the MEGA65 extension to the
+instruction must be used to set the upper 8 bits of the 28-bit MEGA65 addresses, i.e., which mega-byte of address
+space should be used for the address translation.  This is done by setting the X
+register to \$0F when setting the mega-byte number for the lower-32KB of the C64-style 64KB address space.
+This does not create any incompatibility with any sensible use of the MAP instruction on a C65, because this
+value indicates that none of the four 8KB memory blocks will be re-mapped, but at the same time specifies that
+the upper 4 bits of the address offset for re-mapped block is the non-zero value of \$F.  The mega-byte number
+is then specified by setting the A register.
+
+The same approach applie to the upper 32KB, but using the Z and Y
+registers instead of the X and A registers.  However, in this case, we do not need to re-map the upper 32KB of
+memory in this example, we will leave the Z and Y registers set to zero.  We must however set X and A to
+set the mega-byte number for the lower-32KB to \$FF. Therefore A must have the value \$FF.  To set the lower 20-bits
+of the address offset we use the MAP instruction a second time, this time using it in the normal C65 manner.
+As we want to remap \$6800 to \$FFDE800, and have already dealt with the \$FFxxxxx offset via the mega-byte number,
+we need only to apply the offset to make \$6800 point to \$DE800. \$DE800 minus \$6800 = \$D8000.  As the MAP instruction
+operates with a mapping granularity of 256 bytes = \$100, we can drop the last two digits from \$D8000 to obtain the
+MAP offset of \$D80. The lower 8-bits, \$80, must be loaded into the A register. The upper 4-bits, \$D, must be loaded into
+the low-nybl of the X register.  As we wish to apply the mapping to only the fourth of the 8KB blocks that make up the
+lower 32KB half of the C64 memory map, we must set the 4th bit of the upper nybl. That is, the upper nybl must be set
+to \%1000, i.e., \$8.  Therefore the X register must be loaded with \$8D.  Thus we yield the complete example program:
+   
+\begin{screenoutput}
+; Map ethernet registers at $6000 - $7FFF
+ 
+; Ethernet controller really lives $FFDE000 - $FFDEFFF, so select $FF megabyte section for MAP LO
+lda #$ff
+ldx #$0f
+ldy #$00
+ldz #$00
+map
+  
+; now enable mapping of $DE000-$DFFFF at $6000
+; MAPs are offset based, so we need to subtract $6000 from the target address
+; $DE000 - $6000 = $D8000
+lda #$80
+ldx #$8d
+ldy #$00
+ldz #$00
+map
+eom
+ 
+; Ethernet buffer now visible at $6800 - $6FFF
+\end{screenoutput}
+
+Note that the EOM instruction was only supplied after the last MAP instruction, to make sure that no interrupts could occur while
+the memory map contained mixed values with the mega-byte number set, but the lower-bits of the mapping address had not been
+updated.
 
 \subsubsection{Flat-Memory Access}
 

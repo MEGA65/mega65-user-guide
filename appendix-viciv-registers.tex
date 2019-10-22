@@ -1,6 +1,89 @@
-\chapter{VIC-IV Video Controller Registers}
-\lab{cha:viciv}
+\chapter{VIC-IV Video Interface Controller}
+\label{cha:viciv}
 
+\section{Features}
+The VIC-IV is a fourth generation Video Interface Controller developed
+especially for the MEGA65, and featuring very good backwards compatibility
+with the VIC-II that was used in the C64, and the VIC-III that
+was used in the C65.  The VIC-IV can be programmed as though it were either
+of those predecessor systems.  In addition it supports a number of new
+features. It is easy to mix older VIC-II/III features with the new VIC-IV
+features, making it easy to transition from the VIC-II or VIC-III to the VIC-IV,
+just as the VIC-III made it easy to transition from the VIC-II.  Some of the new
+features and enhancements of the VIC-IV include:
+
+\begin{itemize}
+\item {\bf Direct access to 384KB RAM} (up from 16KB/64KB with the VIC-II and 128KB
+  with the VIC-IV).
+\item Support for {\bf 32KB of 8-bit Colour/Attribute RAM} (up from 2KB on the VIC-III), to
+  support very large screens.
+\item {\bf HDTV 720$\times$576 / 800$\times$600 native resolution} at both 50Hz and 60Hz for {\bf PAL and NTSC}, with {\bf VGA and digital video} output.
+\item {\bf 81MHz pixel clock} (up from ~8MHz with the VIC-II/III), which enables a wide range of new features.
+\item New 16-colour (16$\times$8 pixels per character cell) and 256-colour (8$\times$8 pixels per character cell) {\bf full-colour character modes}.
+\item Support for upto {\bf 8,192 unique characters in a character set}.
+\item {\bf Four 256-colour palette banks} (versus the VIC-III's single palette bank), each supporting {\bf 23-bit colour depth} (versus the VIC-III's 12-bit colour depth), and which can be rapidly alternated to create even more colourful graphics than is possible with the VIC-III.
+\item Screen, bitmap, colour and character data can be positioned at any {\bf address with byte-level granularity} (compared with fixed 1KB -- 16KB boundaries with the VIC-II/III)
+\item {\bf Virtual screen dimensioning}, which combined with byte-level data position granularity provides effective {\bf hardware support for scrolling and panning in both X and Y directions}.
+\item {\bf New sprite modes}: Bitplane modification, {\bf full-colour} (15 foreground colours + transparency) and tiled modes, allowing a wide variety of new and exciting sprite-based effects
+  \item The ability to stack sprites in a bit-planar manner to produce {\bf sprites with upto 256 colours}.
+n\item Sprites can use 64 bits of data per raster line, allowing {\bf sprites to be 64 pixels wide} when using VIC-II/III mono/multi-colour mode, or 16 pixels wide when using the new VIC-IV full-colour sprite mode.
+\item {\bf Sprite tile mode}, which allows a sprite to be repeated horizontally across an entire raster line, allowing sprites to be used to create  animated backrounds in a memory-efficient manner.
+  \item Sprites can be configured to use a {\bf separate 256-colour palette} to that used to draw other text and graphics, allowing for a more colourful display.
+  \item {\bf Super-extended attribute mode} which uses two screen RAM bytes and two colour RAM bytes per character mode, which supports a wide variety of new features including {\bf alpha-blending/anti-aliasing}, {\bf hardware kerning/variable-width characters}, hardware horizontal/vertical flipping, alternate palette selection and other powerful features that make it easy to create highly dynamic and colourful displays.
+  \item {\bf Raster-Rewrite Buffer} which allows {\bf hardware-generated pseuso-sprites}, similar to ``bobs'' on Amiga(tm) computers, but with the advantage that they are rended in the display pipeline, and thus do not need to be undrawn and redrawn to animate them.
+    \item {\bf Multiple 8-bit colour playfields} are also possible using the Raster-Rewrite Buffer. 
+
+      In short, the VIC-IV is a powerful evolution of the VIC-II/III, while retaining the character and disctinctiveness of the VIC-series of
+      video controllers.
+\end{itemize}
+
+\section{VIC-II/III/IV Mode Selection}
+Because the new features of the VIC-IV are all extensions to the existing VIC-II/III designs, there is no concept of having to select which mode in which the VIC-IV will operate: It is always in VIC-IV mode. However, for backwards compatibility with softwre, the many additional registers of the VIC-IV can be hidden, so that it appears to be either a VIC-II or VIC-III. This is done in the same manner that the VIC-III uses to hide its new features from legacy VIC-II software.
+
+ The mechanism is the VIC-III write-only KEY register (\$D02F, 53295 decimal).  The VIC-III by default conceals its new features until a ``knock'' sequence is performed.  This consists of writing two special values one after the other to \$D02F.  The following table summarises the kock sequences supported by the VIC-IV, and indicates which are VIC-IV specific, and which are supported by the VIC-III:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{2.4cm}|L{3.5cm}|L{2cm}|}
+\hline  
+{\bf{First Value Hex (Decimal)}} & {\bf{Second Value Hex (Decimal)}} & {\bf{Effect}} & {\bf{VIC-IV Specific? }} \\
+\hline  
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{First Value Hex (Decimal)}} & {\bf{Second Value Hex (Decimal)}} & {\bf{Effect}} & {\bf{VIC-IV Specific? }} \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$00 (0) & \small \$00 (0) & Only VIC-II registers visibiel (all VIC-III and VIC-IV new registers are hidden) & No \\
+ \hline 
+\small \$A5 (165) & \small \$96 (150) & VIC-III new registers visible & No \\
+ \hline  
+\small \$47 (71) & \small \$53 (83) & Both VIC-III and VIC-IV new registers visible & Yes \\
+ \hline  
+\small \$45 (69)  & \small \$54 (84) & No VIC-II/III/IV registers visible. 45E100 ethernet controller buffers are visible instead & Yes \\
+ \hline 
+   \end{longtable}
+
+
+ \subsection{Detecting VIC-II/III/IV}
+  
+ Detecting which generation of the VIC-II/III/IV a machine is fitted with can be important for programs that support only particular generations, or that wish to vary their graphical display based on the capabilities of the machine.  While there are many possibilities for this, the following is a simple and effective method.  It relies on the fact that the VIC-III and VIC-IV do not repeat the VIC-II registers throughout the IO address space.  Thus while \$D000 and \$D100 are synonymous when a VIC-II is present (or a VIC-III/IV is hiding their additional registers), this is not the case when a VIC-III or VIC-IV is making all of its registers visible.  Therefore presence of a VIC-III/IV can be determined by testing whether these two locations are aliases for the same register, or represent separate registers.
+ The detection sequence consists of using the KEY register to attempt to make either VIC-IV or VIC-III additional registers visible. If either succeeds, then we can assume that the corresponding generation of VIC is installed. As the VIC-IV supports the VIC-III KEY knocks, we must firt test for the presence of a VIC-IV.  Thus the test can be done in BASIC from either C64 or C65 mode as follows:
+
+\begin{screenoutput}
+10 POKE53248,1:POKE53295,71:POKE53295,83
+20 POKE53248+256,0:IFPEEK(54248)=1THENPRINT"VIC-IV PRESENT":END
+30 POKE53248,1:POKE53295,165:POKE53295,150
+40 POKE53248+256,0:IFPEEK(54248)=1THENPRINT"VIC-III PRESENT":END
+50 PRINT "VIC-II PRESENT"
+\end{screenoutput}
+   
+As the MEGA65 is the only C64-class computer that is fitted with a VIC-IV, this can be used as a {\em de facto} test for the presence
+of a MEGA65 computer. Detection of a VIC-III can be similarily be reasonably assumed to indicate the presence of a C65.
+      
+      
 \section{VIC-II / C64 Registers}
 
 \input{regtable_VIC-II.C64}

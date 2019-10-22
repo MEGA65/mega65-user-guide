@@ -168,7 +168,8 @@ The use of the DMA controller and these advanced features can be found in Append
 \subsection{Accessing memory between the 64KB and 1MB points}
 
 The C65 included four ways to access memory beyond the 64KB point: three methods
-that are limited, specialised or both, and two general purpose methods.
+that are limited, specialised or both, and two general-purpose methods. We will first
+consider the limited methods, before documenting the general-purpose methods.
  
 \subsubsection{C64-Style Memory Banking}
 
@@ -232,7 +233,35 @@ C64-style memory banking.
 
 \subsubsection{VIC-III Display Address Translator}
 
+The third specialised manner to access to memory abover the 64KB point is to use
+the VIC-III's Display Address Translator.  Use of this mechanism is documented
+in Appendix \ref{cha:viciv}.
+
 \subsubsection{The MAP instruction}
+
+The first general-purpose means of access to memory is the MAP instruction of the
+4510 processor. The MEGA65's 45GS02 processor also supports this mechanism.
+This instruction divides the 64KB address of the 6502 into eight blocks of 8KB each.
+For each of these blocks, the block may either be accessed normally, i.e., accessing
+an 8KB region of the first 64KB of RAM of the system.  Alternatively, each block
+may instead be re-mapped (hence the name of the MAP instruction) to somewhere else
+in the address space, by adding an offset to the address. Mapped addresses in the
+first 32KB use one offset, the lower offset, and the second 32KB uses another, the
+upper offset.  Re-mapping of memory using the MAP instruction takes precedence over
+the C64-style memory banking, but not the C65's ROM banking mechanism.
+
+The offsets must be a multiple of 256 bytes, and thus consist of 12 bits
+in order to allow an arbitrary offset in the 1MB address space of the C65.  As each 8KB
+block in a 32KB half of memory can be either mapped or not, this requires one bit per
+8KB block.  Thus the processor requires 16 bits of information for each half of memory, for
+a total of 32 bits of information.  This is achieved by setting the A and X registers for
+the lower half of memory and the Y and Z registers for the upper half of memory, before executing
+the MAP instruction.  The MAP instruction copies the contents of these registers into the
+processors internal registers that hold the mapping information.  Note that there is no way to
+use the MAP instruction to determine the current memory mapping configuration, which somewhat
+limits its effectiveness.
+
+See under ``Using the MAP instruction to access >1MB'' for further explanation and an example.
 
 \subsubsection{Direct Memory Access (DMA) Controller}
 
@@ -244,7 +273,7 @@ C64-style memory banking.
 The MEGA65 can support up to 256MiB of memory. This is more than the 1MiB address space of the CSG4510
 on which it is based. There are several ways of performing this.
 
-\subsubsection{Using the MAP instruction to access >1MiB}
+\subsubsection{Using the MAP instruction to access >1MB}
    
 The full address space is available to the MAP instruction for legacy C65-style memory
 mapping, although some care is required, as the MAP instruction must be called up to three times.

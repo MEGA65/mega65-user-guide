@@ -150,29 +150,102 @@ The MEGA65's DMA controller provides several important improvements:
 \item{\bf Speed} The MEGA65 performs DMA operations at 40MHz, allowing filling 40MiB or copying 20MiB
   per second.  For example, it is possible to copy a complete 8KiB C64-style bitmap display in
   about 200 micro-seconds, equivalent to less than four raster lines!
-\item{\bf Large Memory Access} The MEGEA65's DMA controller allows access to all 256MiB of address space.
+ \item{\bf Large Memory Access} The MEGEA65's DMA controller allows access to all 256MiB of address space.
 \item{\bf Texture Copying Support} The MEGA65's DMA controller can do fractional address calculations
   to support hardware texture scaling, as well as address striding, to make it possible in principle
   to simultaneously scale-and-draw a texture from memory to the screen. This would be useful, should
   anyone be crazy enough to try to implementa Wolfenstein or Doom style-game on the MEGA65.
 \item{\bf Transparency/Mask Value Support} The MEGA65's DMA controller can be told to ignore a special value
-  when copying memory, leaving the destination memory contents unchanged. This allows masking of transparent
-  regions when performing a DMA copy, which considerably simplifies blitting of graphics shapes.
-\item{\bf Per-Job Option List} A number of options can be configured for each job in a chained list of DMA
+   when copying memory, leaving the destination memory contents unchanged. This allows masking of transparent
+   regions when performing a DMA copy, which considerably simplifies blitting of graphics shapes.
+\i tem{\bf Per-Job Option List} A number of options can be configured for each job in a chained list of DMA
   jobs, for example, selecting F018 or F018B mode, changing the transparency value, fractional address stepping
   or the source or destination memory region.
 \end{itemize}
 
 The use of the DMA controller and these advanced features can be found in Appendix \ref{cha:dmagic}
 
-\subsection{Extended Memory Support}
-\label{sec:extended-memory}
+\subsection{Accessing memory between the 64KB and 1MB points}
 
+The C65 included four ways to access memory beyond the 64KB point: three methods
+that are limited, specialised or both, and two general purpose methods.
+ 
+\subsubsection{C64-Style Memory Banking}
+
+The first method, is to use the C64-style \$00/\$01 ROM/RAM banking.
+This method is very limited, however, as it allows only the banking in
+and out of the two 8KB regions that correspond to the C64 BASIC and
+KERNAL ROMs.  These are located at \$2A000 and \$2E000 in the 20-bit
+C65 address space, i.e., \$002A000 and \$002E000 in the 28-bit address
+space of the MEGA65.  It can also provide access to the C64 character ROM
+data at \$D000, which is located at \$2D000 in the C65 memory map, and thus \$002D0000 in
+the MEGA65 address space.  In addition to being limited to which regions this
+method can access, it also only provides read-only access
+to these memory regions, i.e., it cannot be used to modify these memory regions.
+ 
+\subsubsection{VIC-III ``ROM'' Banking}
+
+Similar to the C64-style memory banking, the C65 included the facility
+to bank several other regions of the C65's 128KB ROM.  These are banked
+in and out using various bits of the VIC-III's \$D030 register:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{1.5cm}|L{1.5cm}|L{1.8cm}|L{1.5cm}|L{2cm}|}
+\hline  
+{\bf{\$D030 Bit}} & {\bf{Signal Name}} & {\bf{20-bit Address}} & {\bf{16-bit Address}} & {\bf{Read-Write Access?}} \\
+\hline  
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{\$D030 Bit}} & {\bf{Signal Name}} & {\bf{20-bit Address}} & {\bf{16-bit Address}} & {\bf{Read-Write Access?}} \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small 0 & \small CRAM2K & \$1F800 -- \$1FFFF, \$FF80000 -- \$FF807FF & \$D800 -- \$DFFF & Y \\
+ \hline
+\small 3 & \small ROM8 & \$38000 -- \$39FFF & \$8000 -- \$9FFF & N \\
+ \hline 
+\small 4 & \small ROMA & \$3A000 -- \$3BFFF & \$A000 -- \$BFFF & N \\
+ \hline 
+\small 5 & \small ROMC & \$2C000 -- \$2CFFF & \$C000 -- \$CFFF & N \\
+ \hline
+\small 6 & \small CROM9 & \$29000 -- \$29FFF & \$D000 -- \$DFFF & N \\
+ \hline  
+\small 7 & \small ROME & \$3E000 -- \$3FFFF & \$E000 -- \$FFFF & N \\
+  \hline
+   \end{longtable}
+
+The CRAM2K signal causes the normal 1KB of colour RAM, which is located
+at \$1F800 -- \$1FBFF and is visible at \$D800 -- \$DBFF, to instead
+be visible from \$D800 -- \$DFFF. That is, the entire range \$1F800 -- \$1FFFF
+is visible, and can be both read from and written to.  Unlike on the C64,
+the colour RAM on the MEGA65 is always visible as 8-bit bytes.  Also, on
+the MEGA65, the colour RAM is 32KB in size, and exists at \$FF80000 -- \$FF87FFF.
+The visibility of the colour RAM at \$1F800 -- \$1FFFF is achieved by mirroring
+writes to both regions when accessing the colour RAM via this mechanism.
+
+
+Note that these VIC-III memory banking signals take precedence over the
+C64-style memory banking.
+
+\subsubsection{VIC-III Display Address Translator}
+
+\subsubsection{The MAP instruction}
+
+\subsubsection{Direct Memory Access (DMA) Controller}
+
+\subsubsection{Flat Memory Access}
+   
+\subsection{Accessing memory beyond the 1MB point}
+\label{sec:exte nded-memory}
+ 
 The MEGA65 can support up to 256MiB of memory. This is more than the 1MiB address space of the CSG4510
 on which it is based. There are several ways of performing this.
 
 \subsubsection{Using the MAP instruction to access >1MiB}
-
+   
 The full address space is available to the MAP instruction for legacy C65-style memory
 mapping, although some care is required, as the MAP instruction must be called up to three times.
 The reason for this is that the MAP instruction must be called to first select which mega-byte of
@@ -181,7 +254,7 @@ way to set the memory mapping.  Because between these two calls the memory mappi
 a mix of the old and new addresses, all mapping should be first disabled via the MAP instruction.
 This means that the code to re-map memory should live in the bottom 64KB of RAM or in one of the
 ROM-bankable regions, so that it can remain visible during the mapping process.
-
+   
 Failure to handle this situation properly will result in the processor executing instructions
 from somewhere unexpected half-way through the process, because the routine it is executing
 to perform the mapping will suddenly no longer be mapped.
@@ -241,10 +314,12 @@ eom
 ; Ethernet buffer now visible at $6800 - $6FFF
 \end{screenoutput}
 
-Note that the EOM instruction was only supplied after the last MAP instruction, to make sure that no interrupts could occur while
+Note that the EOM (End Of Mapping) instruction (which is the same as NOP on a 6502, i.e., opcode \$EA) was only supplied after the last MAP instruction, to make sure that no interrupts could occur while
 the memory map contained mixed values with the mega-byte number set, but the lower-bits of the mapping address had not been
 updated.
 
+No example in BASIC for the MAP instruction is possible, because the MAP is an machine code instruction of the 4510 / 45GS02 processors.
+  
 \subsubsection{Flat-Memory Access}
 
 The 45GS02 makes it easy to read or write a byte from anywhere in memory by allowing the Zero-Page Indirect

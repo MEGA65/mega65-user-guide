@@ -35,6 +35,8 @@ n\item Sprites can use 64 bits of data per raster line, allowing {\bf sprites to
 
       In short, the VIC-IV is a powerful evolution of the VIC-II/III, while retaining the character and disctinctiveness of the VIC-series of
       video controllers.
+
+      For a full description of the additional registers that the VIC-IV provides, as well as documentation of the legacy VIC-II and VIC-III registers, refer to the corresponding sections of this appendix. The remainder of the appendix will focus on describing the capabilitie and use of many of the VIC-IV's new features.
 \end{itemize}
 
 \section{VIC-II/III/IV Mode Selection}
@@ -82,7 +84,24 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
    
 As the MEGA65 is the only C64-class computer that is fitted with a VIC-IV, this can be used as a {\em de facto} test for the presence
 of a MEGA65 computer. Detection of a VIC-III can be similarily be reasonably assumed to indicate the presence of a C65.
-      
+
+\section{Video Output Formats, Timing and Compatability}
+
+The VIC-IV was designed for use in the MEGA65 and related systems, including the MEGAphone family of portable devices.
+The VIC-IV supports both VGA and digital video output, using a connector for the digital video that accepts most cables intended
+for connecting HDMI(tm) compatible devices.  It also supports parallel digital video output suitable for driving LCD display
+panels.  Considerable care has been taken to create a common video front-end that supports these three output modes.
+
+For simplicity and accuracy of frame timing for legacy software, the video format is normally based on the HDTV PAL and NTSC 720$\times$576/480 (576p and 480p) modes using a 27MHz output pixel clock.  This is ideal for digital video and LCD display panels. However not all VGA displays support
+these modes, especially 720$\times$576 at 50Hz.
+
+In terms of VIC-II and VIC-III backwards compatability, this display format has several effects that do not cause problems for most programs, but can cause some differences in behaviour:
+
+\begin{enumerate}
+\item Because VIC-IV display is progressive rather than interlaced, two physical raster lines are produced for each logical VIC-II or VIC-III raster line.  This can cause some minor visual artefacts, when programs make assumptions about where on a horizontal line the VIC is drawing when, for example, the border or screen colour is changed.
+\item The VIC-IV does not follow the behaviour of the VIC-III, which allowed changes in video modes, e.g., between text and bitmap mode, on characters.  Nor does it follow the VIC-II's policy of having such changes take effect immediately.  Instead, the VIC-IV applies changes at the start of each raster line.  This can cause some minor artefacts.
+\item The VIC-IV uses a single-raster rendering buffer which is populated using the VIC-IV's internal 81MHz pixel clock, before being displayed using the 27MHz output pixel clock.  This means that a raster lines display content tends to be rendered much earlier in a raster line than on either the VIC-II or VIC-III.  This can cause some artefacts with displays, particularly in demos that rely on specific behaviour of the VIC-II at particular cycles in a raster line, for example for effects such as VSP or FLI.  At present, such effects are unlikely to display correctly on the current revision of the VIC-IV.  Improved support for these features is planned for a future revision of the VIC-IV.
+\end{enumerate}
       
 \section{VIC-II / C64 Registers}
 

@@ -98,11 +98,36 @@ these modes, especially 720$\times$576 at 50Hz.
 In terms of VIC-II and VIC-III backwards compatability, this display format has several effects that do not cause problems for most programs, but can cause some differences in behaviour:
 
 \begin{enumerate}
-\item Because VIC-IV display is progressive rather than interlaced, two physical raster lines are produced for each logical VIC-II or VIC-III raster line.  This can cause some minor visual artefacts, when programs make assumptions about where on a horizontal line the VIC is drawing when, for example, the border or screen colour is changed.
+\item Because VIC-IV display is progressive rather than interlaced, two physical raster lines are produced for each logical VIC-II or VIC-III raster line.  This means that there are either 63 or 65 cycles per logical double raster, rather than per physical 576p/480p physical raster. This can cause some minor visual artefacts, when programs make assumptions about where on a horizontal line the VIC is drawing when, for example, the border or screen colour is changed.
 \item The VIC-IV does not follow the behaviour of the VIC-III, which allowed changes in video modes, e.g., between text and bitmap mode, on characters.  Nor does it follow the VIC-II's policy of having such changes take effect immediately.  Instead, the VIC-IV applies changes at the start of each raster line.  This can cause some minor artefacts.
 \item The VIC-IV uses a single-raster rendering buffer which is populated using the VIC-IV's internal 81MHz pixel clock, before being displayed using the 27MHz output pixel clock.  This means that a raster lines display content tends to be rendered much earlier in a raster line than on either the VIC-II or VIC-III.  This can cause some artefacts with displays, particularly in demos that rely on specific behaviour of the VIC-II at particular cycles in a raster line, for example for effects such as VSP or FLI.  At present, such effects are unlikely to display correctly on the current revision of the VIC-IV.  Improved support for these features is planned for a future revision of the VIC-IV.
   \item The 1280$\times$200 and 1280$\times$400 display modes of the VIC-III are not currently supported, as they cannot be meaningfully displayed on any modern monitor, and no software is known to support or use this feature.
 \end{enumerate}
+
+\subsection{Frame Timing}
+
+Frame timing is designed to match that of the 6502 + VIC-II combination of the C64.  Both PAL and NTSC timing is supported, and the number of cycles per logical raster line, the number of raster lines per frame, and the number of cycles per frame are all adjusted accordingly.  To achieve this, the VIC-IV ordinarily uses HDTV 576p 50Hz (PAL) and 480p 60Hz (NTSC) video modes, with timing tweaked to be as close as possible to double-scan PAL and NTSC composite TV modes as used by the VIC-II.
+
+The VIC-IV produces ~1MHz timing impulses which are used by the 45GS02 processor, so that the correct effective frequency is provided when operating at the ~1MHz, ~2MHz and ~3.5MHz C64, C128 and C65 compatibility modes.  This allows the single machine to switch between accurate PAL and NTSC CPU timing, as well as video modes.
+
+XXX - Diagrams showing VIC-IV PAL / NTSC mode frame timings
+
+As these HDTV video modes are not supported by all VGA monitors, a compatibility mode is included that provides a 640$\times$480 VGA-style mode. However, as the pixel clock of the MEGA65 is fixed at 27MHz, this mode runs at 63Hz.  Nonetheless, this should work on the vast majority of VGA monitors.  There should be no problem with the PAL / NTSC modes when using the digital video output of the MEGA65.
+
+To determine whether the MEGA65 is operating in PAL or NTSC, check the PALNTSC signal (bit 7 of \$D06F, 53359 decimal). If this bit is set, then the machine is operating in NTSC mode, and clear if operating in PAL mode. This bit can be modified to change between the modes, e.g.:
+
+\begin{screenoutput}
+10 POKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
+20 NTSC=PEEK(53359)AND128
+30 IFNTSCTHENPRINT"MEGA65 IS IN NTSC MODE"
+40 IFNTSC=0THENPRINT"MEGA65 IS IN PAL MODE"
+50 INPUT"SWITCH MODES (Y/N)? ",A$
+60 IFA$="Y"THENPOKE53359,PEEK(53359)+128-NTSC
+70 NTSC=PEEK(53359)AND128
+80 IFNTSCTHENPRINT"MEGA65 IS NOW IN NTSC MODE"
+90 IFNTSC=0THENPRINT"MEGA65 IS NOW IN PAL MODE"
+\end{screenoutput}
+  
 
 \section{Memory Interface}
 
@@ -127,7 +152,6 @@ eight sprite pointers to be moved from the end of screen RAM to an arbitary loca
 to be located anywhere in the first 4MB of RAM, the SPRPTR16 bit in \$D06E must be set. In this mode, two bytes are used to indicate the
 location of each sprite, instead of one.  The location remains a multiple of 64 bytes, thus allowing for upto 65,536 unique sprite images
 to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location $49,152\divide64 = 768$.  As 768 = 256$\times$3, this would require the two sprite pointer bytes to be 0 and 3.
-
 
 \section{VIC-II / C64 Registers}
 

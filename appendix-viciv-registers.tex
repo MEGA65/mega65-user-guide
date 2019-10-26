@@ -153,6 +153,69 @@ to be located anywhere in the first 4MB of RAM, the SPRPTR16 bit in \$D06E must 
 location of each sprite, instead of one.  The location remains a multiple of 64 bytes, thus allowing for upto 65,536 unique sprite images
 to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location $49,152\divide64 = 768$.  As 768 = 256$\times$3, this would require the two sprite pointer bytes to be 0 and 3.
 
+\section{Sprites}
+
+\subsection{VIC-II/III Sprite Control}
+
+The control of sprites for C64 / VIC-II/III compatibility is unchanged from the C64.  The only practical differences are very minor.
+In particular the VIC-IV uses ring-buffer for each sprites data when rendering a raster. This means that a sprite can be displayed multiple times per raster line, thus potentially allowing for horizontal multiplexing.
+
+\subsection{Variable Sprite Size}
+
+Sprites can be one of three widths with the VIC-IV:
+
+\begin{enumerate}
+\item Normal VIC-II width (24 pixels wide).
+\item Extra Wide, where 64 bits (8 bytes) of data are used per raster line, instead of the VIC-II's 24.
+  This results in sprites that are 64 pixels wide, unless Full-Colour Sprite Mode is selected for a sprite,
+  in which case the sprite will be $64 \divide 8 = 16$ pixels wide.
+\item Tiled mode, where the sprite is drawn repeatedly until the end of the raster line.
+\end{enumerate}
+
+To enable a sprite to be 64 pixels (or 16 pixels if in Full-Colour Sprite Mode), set the corresponding bit for the sprite in the SPRX64EN register at (\$D057, 53335 decimal).
+
+Similarly, sprites can be various heights:  Sprites will be either the 21 pixels high of the VIC-II, or if the corresponding bit for the sprite is enabled in the SPRHGTEN signal (\$D055, 53333 decimal), then that sprite will be the number of pixels tall that is set in the SPRHGT
+register (\$D056, 53334 decimal).  
+
+\subsection{Variable Sprite Resolution}
+
+By default, sprites are the same resolution as on the VIC-II, i.e., each sprite pixel is two physical pixels wide and high.
+However, sprites can be made to use the native resolution, where sprite pixels are one phsyical pixel wide and/or high.
+This is achieved by setting the relevant bit for the sprite in the SPRENV400 (\$D076, 53366 decimal) registers to increase the
+vertical resolution on a sprite-by-sprite basis.  The horizontal resolution for all sprites is either the normal VIC-II resolution, or if the SPR640 signal
+is set (bit 4 of \$D054, 53332 decimal), then sprites will have the same horizontal resolution as the physical pixels of the display.
+
+\subsection{Sprite Palette Bank}
+
+The VIC-IV has four palette banks, compared with the single palette bank of the VIC-III.
+The VIC-IV allows the selection of separate palette banks for bitmap/text graphics and for sprites.  This makes it easy to have
+very colourful displays, where the sprites have different colours to the rest of the display, or to use palette animation to achieve
+interesting visual effects in sprites, without disturbing the palette used by other elements of the display.
+
+The sprite palette bank is selected by setting the SPRPALSEL signal in bits 2 and 3 of the register \$D070 (53360 decimal).
+It is possible to set this to the same bank as the bitmap/text display, or to select a different palette bank.
+Palette bank selection takes effect immediately.  Don't forget that to be able to modify a palette, you have to also bank it
+to be the palette accessible via the palette bank registers at \$D100 -- \$D3FF by setting the MAPEDPAL signal in bits 6 and 7 of
+\$D070.
+
+\subsection{Full-Colour Sprite Mode}
+
+In addition to monochrome and multi-colour modes, the VIC-IV supports a new full-colour sprite mode.  In this mode, four bits are used to
+encode each sprite pixel.  However, unlike multi-colour mode where pairs of bits encode pairs of pixels, in full-colour mode the pixels
+remain at their normal horizontal resolution.  The colour zero is considered transparent. If you wish to use black in a full-colour sprite, you must configure the palette bank that is selected for sprites so that one of the 15 colours for the specific sprite encodes black.
+
+Full-colour sprite mode is selectable for each sprite by setting the approprate bit in the SPR16EN register (\$D06B, 53355 decimal).
+
+To enable the eight sprites to have 15 unique colours each, the sprite colour is drawn using the palette entry corresponding to:
+$sprite number \times 16 + nybl value$, where $sprite number$ is the number of the sprite (from 0 to 7), and $nybl value$ is the value
+of the half-byte that contains the sprite data for the pixel.  In addition, if bitplane mode is enabled for this sprite, then 128 is
+added to the colour value, which makes it easy to switch between two colour schemes for a given sprite by changing only one bit in the
+SPRBPMEN register.  
+
+Because Full-Colour Sprite Mode requires four bits per pixel, sprites will be only six pixels wide, unless Extra Wide Sprite Mode is enabled
+for a sprite, in which case the sprite will be 16 pixels wide.  Tiled Mode also works with Full-Colour Sprite Mode, and will result in the
+16 full-colour pixels of the sprite being repeated until the end of the raster line.
+
 \section{VIC-II / C64 Registers}
 
 \input{regtable_VIC-II.C64}

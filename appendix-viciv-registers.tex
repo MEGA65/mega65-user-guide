@@ -160,6 +160,23 @@ to be used at any point in time, if the system is equipped with sufficient RAM (
 The control of sprites for C64 / VIC-II/III compatibility is unchanged from the C64.  The only practical differences are very minor.
 In particular the VIC-IV uses ring-buffer for each sprites data when rendering a raster. This means that a sprite can be displayed multiple times per raster line, thus potentially allowing for horizontal multiplexing.
 
+\subsection{Extended Sprite Image Sets}
+
+On the VIC-II and VIC-III, all sprites must draw their image data from a single 16KB region of memory at any point in time.
+This limits the number of different sprite images to 256, because each sprite image occupies 64 bytes.  In practice, the same
+16KB region must also contain either bitmap, text or bitplane data, considerably reducing the number of sprite images that
+can be used at the same time.
+
+The VIC-IV removes this limitation, by allowing sprite data to be placed anywhere in memory, although still on 64-byte
+boundaries. This is done by setting the SPRPTR16 signal (bit 7, \$D06E, decimal 53358), which tells the VIC-IV to expect
+two bytes per sprite pointer instead of one.  These addresses are then absolute addresses, and ignore the 16KB VIC-II
+bank selection logic.  Thus 16 bytes are required instead of 8 bytes.  The list of pointers can also be placed anywhere
+in memory by setting the SPRPTRADR (\$D06C -- \$D06D, 53356 -- 53357 decimal) and SPRPTRBNK signals (bits 0 -- 6, \$D06E, 53358 decimal).
+This allows for sprite data to be located anywhere in the first 4MB of RAM, and the sprite pointer list to be located anywhere
+in the first 8MB of RAM.  Note that typical installations of the VIC-IV have only 384KB of connected RAM, so these limitations are
+of no practical effect. However, the upper bits of the SPRPTRBNK signal should be set to zero to avoid forward-compatibility
+problems.
+
 \subsection{Variable Sprite Size}
 
 Sprites can be one of three widths with the VIC-IV:

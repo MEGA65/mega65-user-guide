@@ -39,7 +39,7 @@ n\item Sprites can use 64 bits of data per raster line, allowing {\bf sprites to
       For a full description of the additional registers that the VIC-IV provides, as well as documentation of the legacy VIC-II and VIC-III registers, refer to the corresponding sections of this appendix. The remainder of the appendix will focus on describing the capabilitie and use of many of the VIC-IV's new features.
 \end{itemize}
 
-\section{VIC-II/III/IV Mode Selection}
+\section{VIC-II/III/IV Register Access Control}
 Because the new features of the VIC-IV are all extensions to the existing VIC-II/III designs, there is no concept of having to select which mode in which the VIC-IV will operate: It is always in VIC-IV mode. However, for backwards compatibility with softwre, the many additional registers of the VIC-IV can be hidden, so that it appears to be either a VIC-II or VIC-III. This is done in the same manner that the VIC-III uses to hide its new features from legacy VIC-II software.
 
  The mechanism is the VIC-III write-only KEY register (\$D02F, 53295 decimal).  The VIC-III by default conceals its new features until a ``knock'' sequence is performed.  This consists of writing two special values one after the other to \$D02F.  The following table summarises the kock sequences supported by the VIC-IV, and indicates which are VIC-IV specific, and which are supported by the VIC-III:
@@ -136,27 +136,66 @@ The VIC-IV supports upto 64KB of colour RAM and, in principle, 16MB of direct ac
 
 The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM, including the VIC-II's use of 16KB banks, and the VIC-III's Display Address Translator (DAT).  This additional memory can be used for character and bitmap displays, as well as for sprites.  However, the VIC-III bitplane modes remain limited to using only the first 128KB of RAM, as the VIC-IV does not enhance the bitplane mode.
 
-To use the additional memory for screen RAM, the screen RAM start address can be adjusted to any location in memory with byte-level granularity by setting the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal).  For example, to set the screen memory to address $12345:
+\subsection{Relocating Screen Memory}
+
+To use the additional memory for screen RAM, the screen RAM start address can be adjusted to any location in memory with byte-level granularity by setting the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal).  For example, to set the screen memory to address 12345:
 
 \begin{screenoutput}
-  POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
-  POKE53344+0,69:POKE53344+1,35:POKE53344+2,1
+POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+POKE53344+0,69:POKE53344+1,35:POKE53344+2,1
 \end{screenoutput}
 
-The location of the character generator data can also be set with byte-level precision via the CHARPTR registers.
-The area of colour RAM being used can be similarly set using the COLPTR registers. That is, the value is an offset from the start of the colour RAM.
+\subsection{Relocating Character Generator Data}
+
+The location of the character generator data can also be set with byte-level precision via the CHARPTR registers at \$D068 -- \$D06A (53352 -- 53354 decimal). As usual, the first of these registers holds the lowest-order byte, and the last the highest-order byte. The three bytes allow for placement of character data anywhere in the first 16MB of RAM. For systems with less than 16MB of RAM accessable by the VIC-IV, the upper address bits should be zero.
+
+For example, to indicate that character generator data should be sourced beginning at \$41200 (266752 decimal), the following
+could be used.  Note that the AND binary operator only works with arguments between 0 and 65,535. Therefore we first
+subtract 4$\times$65,536 = 262,144 from the address (the 4 is determined by calculating INT(266752/65536) ), before we use the AND operator to compute the lower part of the address: 
+
+\begin{screenoutput}
+POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+POKE53352,(266752-INT(266752/65536)*65536)AND255
+POKE53353,INT((266752-INT(266752/65536)*65536)/256)
+POKE53354,INT(266752/65536)
+\end{screenoutput}
+
+
+\subsection{Relocating Colour / Attribute RAM}
+
+The area of colour RAM being used can be similarly set using the COLPTR registers (\$D064 -- \$D065, 53348 -- 53349 decimal). That is, the value is an offset from the start of the colour / attribute RAM.  This is because, like on the C64, the colour / attribute RAM of the MEGA65 is a separate memory component, with its own dedicated connection to the VIC-IV.  By default, the COLPTRs are set to zero, which replicates the behaviour of the VIC-II/III.  To set the display to use the colour / attribute RAM beginning at offset 4000, one could use something like:
+
+\begin{screenoutput}
+POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+POKE53348,4000 AND 255
+POKE53349,INT(4000/256)
+\end{screenoutput}
+
+\subsection{Relocating Sprite Pointers and Images}
 
 The location of the sprite pointers can also be moved, and sprites can be made to have there data anywhere in first 4MB of memory.
-This is accomplished by first setting the location of the sprite pointers by setting the SPRPTRADR registers.  This allows the list of
+This is accomplished by first setting the location of the sprite pointers by setting the SPRPTRADR registers (\$D06C -- \$D06E, 53356 -- 53358 decimal, but note that only the bottom 7 bits of \$D06E are used, as the highest bit is used for the SPRPTR16 signal).  This allows the list of
 eight sprite pointers to be moved from the end of screen RAM to an arbitary location in the first 8MB of RAM.  To allow sprites themselves
 to be located anywhere in the first 4MB of RAM, the SPRPTR16 bit in \$D06E must be set. In this mode, two bytes are used to indicate the
-location of each sprite, instead of one.  The location remains a multiple of 64 bytes, thus allowing for upto 65,536 unique sprite images
-to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location $49,152\divide64 = 768$.  As 768 = 256$\times$3, this would require the two sprite pointer bytes to be 0 and 3.
+location of each sprite, instead of one. That is, the list of sprite pointers will be 16 byts long, instead of 8 bytes long as on the VIC-II/III.  When SPRPTR16 is enabled, the location of the sprite pointers should always be set explcitly via the SPRPTRADR registers.
+For example, to position the sprite pointers at location 800 -- 815, you could use something like the following. Note that a little gymnastics is required to keep the SPRPTR16 bit unchanged, and also to work around the AND binary operator not working with values greater than 65535:
+
+\begin{screenoutput}
+POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+POKE53356,(800-INT(800/65536)*65536) AND 255
+POKE53357,INT(800/256)AND255
+POKE53358,(PEEK(53358)AND128)+INT(800/65536)
+\end{screenoutput}
+
+The location of each sprite image remains a multiple of 64 bytes, thus allowing for upto 65,536 unique sprite images
+to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location 768, because 49152 divided by 64 = 768.  We then need to split 768 into high and low bytes, to set the two pointer byes: 768 = 256$\times$3, with remainder 0, so this would require the two sprite pointer bytes to be 0 (low byte, which comes first) and 3 (high byte).  Thus if the sprite pointers were located at \$7F8 (2040 decimal), setting the first sprite to sprite image 768 could be done with something like:
+
+\begin{screenoutput}
+POKE2040,INT(768/256)
+POKE2041,768-256*INT(768/256)
+\end{screenoutput}
 
 \section{Hot Registers}
-
-Legacy mode emulation
----------------------
 
 Because of the availability of precise vernier registers to set a wide
 range of video parameters directly, \$D011 (53265 decimal), \$D016 (53272 decimal) and other VIC-II and
@@ -219,7 +258,7 @@ The primary innovation is the addition of Super-Extended Attribute Mode Mode. Th
 Super-Extended Attribute Mode is enabled by setting bit 0 in \$D054 (53332 decimal) (remember to first enable VIC-IV mode, to make this register accessible). When this bit is set, two bytes are used for each of the screen memory and colour RAM for each character shown on the display. Thus, in contrast to the 12 bits of information that the C64 uses per character, and the 16 bits that the VIC-III uses, the VIC-IV has 32 bits of information.  How those 32 bits are used varies slightly among the particular modes.  The default is as follows:
 
 \setlength{\tabcolsep}{3pt}
-\begin{longtable}{|L{3cm}|L{5cm}|}
+\begin{longtable}{|L{3cm}|L{8cm}|}
 \hline
 {\bf{Bit(s)}} & {\bf{Function}}  \\
 \hline
@@ -232,36 +271,35 @@ Super-Extended Attribute Mode is enabled by setting bit 0 in \$D054 (53332 decim
 \endfoot
 \hline
 \endlastfoot
-\small Screen RAM byte 0 \multicolumn{1}{l|}{\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
-\small Screen RAM byte 1, bits 0 - 4 \multicolumn{1}{l|}{\small Upper 5 bits of character number, allowing addressing of 8,192 unique characters }\\
-\small Screen RAM byte 1, bits 5 - 7 \multicolumn{1}{l|}{\small Trim pixels from right side of character (bits 0 - 2) }\\
-\small Colour RAM byte 0, bit 7 \multicolumn{1}{l|}{\small Vertically flip the character }\\
-\small Colour RAM byte 0, bit 6 \multicolumn{1}{l|}{\small Horizontally flip the character }\\
-\small Colour RAM byte 0, bit 5 \multicolumn{1}{l|}{\small Alpha blend mode (leave 0, discussed later) }\\
-\small Colour RAM byte 0, bit 4 \multicolumn{1}{l|}{\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later) }\\
-\small Colour RAM byte 0, bits 3 \multicolumn{1}{l|}{\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less right side trim bits), instead of using 8 bits per pixel, and being the usual 8 pixels wide  }\\
-\small Colour RAM byte 0, bits 2 \multicolumn{1}{l|}{\small Trim pixels from right side of character (bit 3) }\\
-\small Colour RAM byte 0, bits 0 - 1 \multicolumn{1}{l|}{\small Number of pixels to trim from top or bottom of character }\\
-\small Colour RAM byte 1, bits 0 - 3 \multicolumn{1}{l|}{\small Low 4 bits of colour of character }\\
-\small Colour RAM byte 1, bit 4 \multicolumn{1}{l|}{\small Hardware blink of character (if VIC-III extended attributes are enabled) }\\
-\small Colour RAM byte 1, bit 5 \multicolumn{1}{l|}{\small Hardware reverse video enable of character (if VIC-III extended attributes are enabled)* }\\
-\small Colour RAM byte 1, bit 6 \multicolumn{1}{l|}{\small Hardware bold attribute of character (if VIC-III extended attributes are enabled)* }\\
-\small Colour RAM byte 1, bit 7 \multicolumn{1}{l|}{\small Hardware underlining of character (if VIC-III extended attributes are enabled) }\\
+\small Screen RAM byte 0 & {\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
+\small Screen RAM byte 1, bits 0 - 4 & {\small Upper 5 bits of character number, allowing addressing of 8,192 unique characters }\\
+\small Screen RAM byte 1, bits 5 - 7 & {\small Trim pixels from right side of character (bits 0 - 2) }\\
+\small Colour RAM byte 0, bit 7 & {\small Vertically flip the character }\\
+\small Colour RAM byte 0, bit 6 & {\small Horizontally flip the character }\\
+\small Colour RAM byte 0, bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
+\small Colour RAM byte 0, bit 4 & {\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later) }\\
+\small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less right side trim bits), instead of using 8 bits per pixel, and being the usual 8 pixels wide  }\\
+\small Colour RAM byte 0, bits 2 & {\small Trim pixels from right side of character (bit 3) }\\
+\small Colour RAM byte 0, bits 0 - 1 & {\small Number of pixels to trim from top or bottom of character }\\
+\small Colour RAM byte 1, bits 0 - 3 & {\small Low 4 bits of colour of character }\\
+\small Colour RAM byte 1, bit 4 & {\small Hardware blink of character (if VIC-III extended attributes are enabled) }\\
+\small Colour RAM byte 1, bit 5 & {\small Hardware reverse video enable of character (if VIC-III extended attributes are enabled)* }\\
+\small Colour RAM byte 1, bit 6 & {\small Hardware bold attribute of character (if VIC-III extended attributes are enabled)* }\\
+\small Colour RAM byte 1, bit 7 & {\small Hardware underlining of character (if VIC-III extended attributes are enabled) }\\
 \end{longtable}
 
 
 * Enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
 
-We can see that we still have the C64 style bottom 8 bits of the character number in the first screen byte. The second byte of screen memory gets five extra bits for that, allowing $2^{13}$ = 8,192 different characters to be used on a single screen. That's enough for unique characters covering an 80$\times$50 screen (which is possible to create).  The remaining bits allow for trimming of the character.  This allows for variable width characters, which can be used to do things that would not normally be possible, such as using text mode for free horizontal placement of characters (or parts thereof). This was originally added to provide hardware support for proportional width fonts.
+We can see that we still have the C64 style bottom 8 bits of the character number in the first screen byte. The second byte of screen memory gets five extra bits for that, allowing 2$^{13}$ = 8,192 different characters to be used on a single screen. That's more than enough for unique characters covering an 80$\times$50 screen (which is possible to create with the VIC-IV).  The remaining bits allow for trimming of the character.  This allows for variable width characters, which can be used to do things that would not normally be possible, such as using text mode for free horizontal placement of characters (or parts thereof). This was originally added to provide hardware support for proportional width fonts.
 
 For the colour RAM, the second byte (byte 1) is the same as the C65, i.e., the lower half providing four bits of foreground colour, as on the C64, plus the optional VIC-III extended attributes. The C65 specifications document describes the behaviour when more than one of these are used together, most of which are logical, but there are a few combinations that behave differently than one might expect. For example, combining bold with blink causes the character to toggle between bold and normal mode. Bold mode itself is implemented by effectively acting as bit 4 of the foreground colour value, causing the colour to be drawn from different palette entries than usual.
 
-The C65 / VIC-III attributes (and the use of 256 colour 8-bit values for various VIC-II colour registers is enabled by setting bit 5 of $D031.  Therefore this is highly recommended when using the VIC-IV mode, as otherwise certain functions will not behave as expected.)  Note that BOLD+REVERSE together has the meaning of selecting an alternate palette on the MEGA65, which differs from the C65.
+The C65 / VIC-III attributes (and the use of 256 colour 8-bit values for various VIC-II colour registers is enabled by setting bit 5 of \$D031 (53297 decimal).  Therefore this is highly recommended when using the VIC-IV mode, as otherwise certain functions will not behave as expected.)  Note that BOLD+REVERSE together has the meaning of selecting an alternate palette on the MEGA65, which differs from the C65.
 
 XXX Example program
 
 \subsection{Raster-Rewrite Buffer}
--------
 
 If the GOTO bit is set for a character in Super-Extended Attribute Mode, instead of painting a character, the position on the raster is back-tracked (or advanced forward to) the
 pixel position specified in the low 10 bits of the screen memory bytes.  If the vertical flip bit is set, then this has the alternate

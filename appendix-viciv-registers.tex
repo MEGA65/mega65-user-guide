@@ -153,6 +153,128 @@ to be located anywhere in the first 4MB of RAM, the SPRPTR16 bit in \$D06E must 
 location of each sprite, instead of one.  The location remains a multiple of 64 bytes, thus allowing for upto 65,536 unique sprite images
 to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location $49,152\divide64 = 768$.  As 768 = 256$\times$3, this would require the two sprite pointer bytes to be 0 and 3.
 
+\section{Hot Registers}
+
+Legacy mode emulation
+---------------------
+
+Because of the availability of precise vernier registers to set a wide
+range of video parameters directly, \$D011 (53265 decimal), \$D016 (53272 decimal) and other VIC-II and
+VIC-III video mode registers are implemented as virtual registers:
+by default, writing to any of these results in computed consistent values being
+applied to all of the relevant vernier registers.  This means that
+writing to any of these virtual registers will reset the video mode.
+Thus some care has to be taken when using new VIC-IV features to not
+touch any of the ``hot'' VIC-II and VIC-III registers.
+
+The ``hot'' registers to be careful with are:
+
+\$D011, \$D016, \$D018, \$D031 (53265, 53272, 53274 and 53287 decimal) and the VIC-II bank bits of \$DD00 (56576 decimal).
+
+If you write to any of those, various VIC-IV registers will need to be re-written
+with the values you wish to maintain.
+
+This ``hot'' register behaviour is intended primarily for legacy software.
+It can be disabled by clearing the HOTREG signal (bit 7 of \$D05D, 53341 decimal).
+
+\section{New Modes}
+
+\subsection{Why the new VIC-IV modes are Character and Bitmap modes, not Bitplane modes}
+
+The new VIC-IV video modes are derived from the VIC-II character and bitmap modes, rather than the VIC-III
+bitplaner modes. This decision was based on several realities of programming a memory-constrained 8-bit home computer:
+
+\begin{enumerate}
+\item Bitplanes require that the same amount of memory is given to each area on screen, regardless of whether it
+is showing empty space, or complex graphics. There is no way with bitplanes to reuse content from within an image in
+another part of the image.  However, most C64 games use highly repetitive displays, with common elements appearing in various
+places on the screen, of which Boulder Dash and Super Giana Sisters would be good examples.
+
+\item Bitplanes also make it difficult to update a display, because every pixel is unique, in that there is no way to make a change,
+for example to the animation in an onscreen element, and have it take effect in all places at the same time. The diamond
+animations in Boulder Dash are a good example of this problem.  The requirement to modify multiple separate bytes in each
+bitplane create an increased computational burden, which is why there were calls for the Amiga AAA chipset to include so-called
+``chunky'' modes, rather than just bitplanar modes.  While the Display Address Translator (DAT) and DMAgic of the C65 provide some
+relief to this problem, the relief is only partial.
+
+\item Scrolling using the C65 bitplanes requires copying the entire bitplane, as the hardware support for smooth scrolling does not
+extend to changing the bitplane source address in a fine manner.  Even using the DMAgic to assist, scrolling a 320$\times$200 256-colour
+display requires 128,000 clock cycles in the best case (reading and writing 320$\times$200 = 64000 bytes). At 3.5MHz on the C65 this
+would require about 36 milli-seconds, or about 2 complete video frames.  Thus for smooth scrolling of such a display, a double
+buffered arrangement would be required, which would consume 128,000 of the 131,072 bytes of memory.
+
+In contrast, the well known character modes of the VIC-II are widely used in games, due to their ability to allow a small amount
+of screen memory to select which 8$\times$8 block of pixels to display, allowing very rapid scrolling, reduced memory consumption, and
+effective hardware acceleration of animation of common elements.  Thus the focus of improvements in the VIC-IV has been on
+character mode.  As bitmap mode on the VIC-II is effectively a special case of character mode, with implied character numbers, it
+comes along free for the ride on the VIC-IV, and will only be mentioned in the context of a very few bitmap-mode specific
+improvements that were trivial to make, and it thus seemed foolish to not implement, in case they find use.
+
+\end{enumerate}
+
+\subsection{Displaying more than 256 unique characters via ``Super-Extended Attribute Mode''}
+
+The primary innovation is the addition of Super-Extended Attribute Mode Mode. The VIC-II already uses 12 bits per character: Each 8$\times$8 cell is defined by 12 bits of data: 8 bits of screen RAM data, by default from \$0400 -- \$07E7 (1024 -- 2023 decimal), indicating which characters to show, and 4 bits of colour data from the 1K nybl colour RAM at \$D800 -- \$DBFF (55296 -- 56319 decimal). The VIC-III of the C65 uses 16 bits, as the colour RAM is now 8 bits, instead of 4, with the extra 4 bits of colour RAM being used to support attributes (blink, bold, underline and reverse video).  It is recommended to revise how this works, before reading the following. A good introduction to the VIC-II text mode can be found in many places, for example, \ref{vicii-cheaper-by-the-dozen}. Super-Extended Attribute mode doubles the number of bits per used to describe each character from the VIC-III's 16, to 32: Two bytes of screen RAM and two bytes of colour/attribute RAM.
+
+Super-Extended Attribute Mode is enabled by setting bit 0 in \$D054 (53332 decimal) (remember to first enable VIC-IV mode, to make this register accessible). When this bit is set, two bytes are used for each of the screen memory and colour RAM for each character shown on the display. Thus, in contrast to the 12 bits of information that the C64 uses per character, and the 16 bits that the VIC-III uses, the VIC-IV has 32 bits of information.  How those 32 bits are used varies slightly among the particular modes.  The default is as follows:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{3cm}|L{5cm}|}
+\hline
+{\bf{Bit(s)}} & {\bf{Function}}  \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Bit(s)}} & {\bf{Function}}  \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small Screen RAM byte 0 \multicolumn{1}{l|}{\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
+\small Screen RAM byte 1, bits 0 - 4 \multicolumn{1}{l|}{\small Upper 5 bits of character number, allowing addressing of 8,192 unique characters }\\
+\small Screen RAM byte 1, bits 5 - 7 \multicolumn{1}{l|}{\small Trim pixels from right side of character (bits 0 - 2) }\\
+\small Colour RAM byte 0, bit 7 \multicolumn{1}{l|}{\small Vertically flip the character }\\
+\small Colour RAM byte 0, bit 6 \multicolumn{1}{l|}{\small Horizontally flip the character }\\
+\small Colour RAM byte 0, bit 5 \multicolumn{1}{l|}{\small Alpha blend mode (leave 0, discussed later) }\\
+\small Colour RAM byte 0, bit 4 \multicolumn{1}{l|}{\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later) }\\
+\small Colour RAM byte 0, bits 3 \multicolumn{1}{l|}{\small 4-bits per pixel for 16 pixel wide characters (less right side trim bits) }\\
+\small Colour RAM byte 0, bits 2 \multicolumn{1}{l|}{\small Trim pixels from right side of character (bit 3) }\\
+\small Colour RAM byte 0, bits 0 - 1 \multicolumn{1}{l|}{\small Number of pixels to trim from top or bottom of character }\\
+\small Colour RAM byte 1, bits 0 - 3 \multicolumn{1}{l|}{\small Low 4 bits of colour of character }\\
+\small Colour RAM byte 1, bit 4 \multicolumn{1}{l|}{\small Hardware blink of character (if VIC-III extended attributes are enabled) }\\
+\small Colour RAM byte 1, bit 5 \multicolumn{1}{l|}{\small Hardware reverse video enable of character (if VIC-III extended attributes are enabled)* }\\
+\small Colour RAM byte 1, bit 6 \multicolumn{1}{l|}{\small Hardware bold attribute of character (if VIC-III extended attributes are enabled)* }\\
+\small Colour RAM byte 1, bit 7 \multicolumn{1}{l|}{\small Hardware underlining of character (if VIC-III extended attributes are enabled) }\\
+\end{longtable}
+
+
+* Enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
+
+We can see that we still have the C64 style bottom 8 bits of the character number in the first screen byte. The second byte of screen memory gets five extra bits for that, allowing $2^{13}$ = 8,192 different characters to be used on a single screen. That's enough for unique characters covering an 80$\times$50 screen (which is possible to create).  The remaining bits allow for trimming of the character.  This allows for variable width characters, which can be used to do things that would not normally be possible, such as using text mode for free horizontal placement of characters (or parts thereof). This was originally added to provide hardware support for proportional width fonts.
+
+For the colour RAM, the second byte (byte 1) is the same as the C65, i.e., the lower half providing four bits of foreground colour, as on the C64, plus the optional VIC-III extended attributes. The C65 specifications document describes the behaviour when more than one of these are used together, most of which are logical, but there are a few combinations that behave differently than one might expect. For example, combining bold with blink causes the character to toggle between bold and normal mode. Bold mode itself is implemented by effectively acting as bit 4 of the foreground colour value, causing the colour to be drawn from different palette entries than usual.
+
+The C65 / VIC-III attributes (and the use of 256 colour 8-bit values for various VIC-II colour registers is enabled by setting bit 5 of $D031.  Therefore this is highly recommended when using the VIC-IV mode, as otherwise certain functions will not behave as expected.)  Note that BOLD+REVERSE together has the meaning of selecting an alternate palette on the MEGA65, which differs from the C65.
+
+XXX Example program
+
+\subsection{Raster-Rewrite Buffer}
+-------
+
+If the GOTO bit is set for a character in Super-Extended Attribute Mode, instead of painting a character, the position on the raster is back-tracked (or advanced forward to) the
+pixel position specified in the low 10 bits of the screen memory bytes.  If the vertical flip bit is set, then this has the alternate
+meaning of preventing the background colour from being painted.  This combination can be used to print text material over the top of
+other text material, providing a crude supplement to the 8 hardware sprites.  The amount of material is limted only by the raster
+time of the VIC-IV. Some experimentation will be required to determine how much can be achieved in PAL and NTSC modes.  
+
+This ability to draw multiple layers of text and graphics is highly powerful. For example, it can be used to provide multiple overlapping
+layers of separately scrollable graphics.  This gives many of the advantages of bitplane-based playfields on other computers, such as the
+Amiga, but without the disadvantagese of bitplanes.
+
+XXX Example program
+
 \section{Sprites}
 
 \subsection{VIC-II/III Sprite Control}

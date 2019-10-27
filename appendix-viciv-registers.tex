@@ -297,6 +297,17 @@ For the colour RAM, the second byte (byte 1) is the same as the C65, i.e., the l
 
 The C65 / VIC-III attributes (and the use of 256 colour 8-bit values for various VIC-II colour registers is enabled by setting bit 5 of \$D031 (53297 decimal).  Therefore this is highly recommended when using the VIC-IV mode, as otherwise certain functions will not behave as expected.)  Note that BOLD+REVERSE together has the meaning of selecting an alternate palette on the MEGA65, which differs from the C65.
 
+Many effects are possible due to Super-Extended Attribute Mode.  A few possibilities are explained in the following sub-sections
+
+\subsection{Variable Width Fonts}
+
+There are 4 bits that allow trimming pixels from the right edge of characters when they are displayed. This has the effect of making
+characters narrower. This can be useful for making more attractive text displays, where narrow characters, such as ``i'' take less space than wider characters, such as ``m'', without having to use a bitmap display. This feature can be used to make it very efficient to display
+such variable-width text displays -- both in terms of memory usage and processing time.
+
+This feature can be combined with full-colour text mode, alpha blending mode and 4-bits per pixel mode to allow characters that consist of
+15 levels of intensity between the background and foreground colour, and that are upto 16 pixels wide.  Further, the GOTO bit can be used to implement negative kerning, so that character pairs like A and T do not have excessive white space between them when printed adjacently. The prudent use of these features can result in highly impressive text display, similar to that on modern systems, but that are still efficient enough to be implemented on a relatively constrained system such as the MEGA65. The ``MegaWAT!?'' presentation software for the MEGA65 uses several of these features to produce its attractive anti-aliased proportional text display on slides.
+
 XXX Example program
 
 \subsection{Raster-Rewrite Buffer}

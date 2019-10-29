@@ -72,14 +72,22 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
  \subsection{Detecting VIC-II/III/IV}
   
  Detecting which generation of the VIC-II/III/IV a machine is fitted with can be important for programs that support only particular generations, or that wish to vary their graphical display based on the capabilities of the machine.  While there are many possibilities for this, the following is a simple and effective method.  It relies on the fact that the VIC-III and VIC-IV do not repeat the VIC-II registers throughout the IO address space.  Thus while \$D000 and \$D100 are synonymous when a VIC-II is present (or a VIC-III/IV is hiding their additional registers), this is not the case when a VIC-III or VIC-IV is making all of its registers visible.  Therefore presence of a VIC-III/IV can be determined by testing whether these two locations are aliases for the same register, or represent separate registers.
- The detection sequence consists of using the KEY register to attempt to make either VIC-IV or VIC-III additional registers visible. If either succeeds, then we can assume that the corresponding generation of VIC is installed. As the VIC-IV supports the VIC-III KEY knocks, we must firt test for the presence of a VIC-IV.  Thus the test can be done in BASIC from either C64 or C65 mode as follows:
+ The detection sequence consists of using the KEY register to attempt to make either VIC-IV or VIC-III additional registers visible. If either succeeds, then we can assume that the corresponding generation of VIC is installed. As the VIC-IV supports the VIC-III KEY knocks, we must first test for the presence of a VIC-IV.  Also, we assume that the MEGA65 starts in VIC-IV mode, even when running C65 BASIC.  Thus the test can be done in BASIC from either C64 or C65 mode as follows:
 
 \begin{screenoutput}
-10 POKE53248,1:POKE53295,71:POKE53295,83
-20 POKE53248+256,0:IFPEEK(54248)=1THENPRINT"VIC-IV PRESENT":END
-30 POKE53248,1:POKE53295,165:POKE53295,150
-40 POKE53248+256,0:IFPEEK(54248)=1THENPRINT"VIC-III PRESENT":END
-50 PRINT "VIC-II PRESENT"
+0 REM IN C65 MODE WE CANNOT SAFELY WRITE TO 53295, SO WE TEST A DIFFERENT WAY
+10 IF PEEK(53272) AND 32 THEN GOTO 65  
+20 POKE53248,1:POKE53295,71:POKE53295,83
+30 POKE53248+256,0:IFPEEK(54248)=1THENPRINT"VIC-IV PRESENT":END
+40 POKE53248,1:POKE53295,165:POKE53295,150
+50 POKE53248+256,0:IFPEEK(54248)=1THENPRINT"VIC-III PRESENT":END
+60 PRINT "VIC-II PRESENT": END
+
+65 REM WE ASSUME WE HAVE A C65 HERE
+70 V1=PEEK(53248+80):V2=PEEK(53248+80):V3=PEEK(53248+80)
+80 IF V1<>V2 OR V1<>V3 OR V2<>V3 THEN PRINT "VIC-IV PRESENT":END
+90 GOTO 40
+
 \end{screenoutput}
    
 As the MEGA65 is the only C64-class computer that is fitted with a VIC-IV, this can be used as a {\em de facto} test for the presence

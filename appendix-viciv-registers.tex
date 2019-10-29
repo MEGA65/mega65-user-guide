@@ -125,7 +125,7 @@ As these HDTV video modes are not supported by all VGA monitors, a compatibility
 To determine whether the MEGA65 is operating in PAL or NTSC, check the PALNTSC signal (bit 7 of \$D06F, 53359 decimal). If this bit is set, then the machine is operating in NTSC mode, and clear if operating in PAL mode. This bit can be modified to change between the modes, e.g.:
 
 \begin{screenoutput}
-10 POKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
+10 IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 20 NTSC=PEEK(53359)AND128
 30 IFNTSCTHENPRINT"MEGA65 IS IN NTSC MODE"
 40 IFNTSC=0THENPRINT"MEGA65 IS IN PAL MODE"
@@ -149,7 +149,7 @@ The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM
 To use the additional memory for screen RAM, the screen RAM start address can be adjusted to any location in memory with byte-level granularity by setting the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal).  For example, to set the screen memory to address 12345:
 
 \begin{screenoutput}
-POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53344+0,69:POKE53344+1,35:POKE53344+2,1
 \end{screenoutput}
 
@@ -162,7 +162,7 @@ could be used.  Note that the AND binary operator only works with arguments betw
 subtract 4$\times$65,536 = 262,144 from the address (the 4 is determined by calculating INT(266752/65536) ), before we use the AND operator to compute the lower part of the address: 
 
 \begin{screenoutput}
-POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53352,(266752-INT(266752/65536)*65536)AND255
 POKE53353,INT((266752-INT(266752/65536)*65536)/256)
 POKE53354,INT(266752/65536)
@@ -174,7 +174,7 @@ POKE53354,INT(266752/65536)
 The area of colour RAM being used can be similarly set using the COLPTR registers (\$D064 -- \$D065, 53348 -- 53349 decimal). That is, the value is an offset from the start of the colour / attribute RAM.  This is because, like on the C64, the colour / attribute RAM of the MEGA65 is a separate memory component, with its own dedicated connection to the VIC-IV.  By default, the COLPTRs are set to zero, which replicates the behaviour of the VIC-II/III.  To set the display to use the colour / attribute RAM beginning at offset 4000, one could use something like:
 
 \begin{screenoutput}
-POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53348,4000 AND 255
 POKE53349,INT(4000/256)
 \end{screenoutput}
@@ -189,7 +189,7 @@ location of each sprite, instead of one. That is, the list of sprite pointers wi
 For example, to position the sprite pointers at location 800 -- 815, you could use something like the following. Note that a little gymnastics is required to keep the SPRPTR16 bit unchanged, and also to work around the AND binary operator not working with values greater than 65535:
 
 \begin{screenoutput}
-POKE53295,71:POKE53295,83: REM MAKE VIC-IV REGISTERS VISIBLE
+IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53356,(800-INT(800/65536)*65536) AND 255
 POKE53357,INT(800/256)AND255
 POKE53358,(PEEK(53358)AND128)+INT(800/65536)

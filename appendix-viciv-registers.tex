@@ -416,6 +416,64 @@ Because Full-Colour Sprite Mode requires four bits per pixel, sprites will be on
 for a sprite, in which case the sprite will be 16 pixels wide.  Tiled Mode also works with Full-Colour Sprite Mode, and will result in the
 16 full-colour pixels of the sprite being repeated until the end of the raster line.
 
+The following BASIC program draws a Full-Colour Sprite in either C64 or C65 mode:
+
+\begin{screenoutput}
+0 AD=56*64:IF PEEK(53272) AND 32 THEN GOTO 30: REM C65/C64 MODE DETECT
+10 POKE 53295,ASC("G"):POKE 53295,ASC("S"): REM ENABLE MEGA65 VIC-IV FEATURES
+20 AD=768+64: REM $0340 HEX FOR SPRITE
+30 FOR I=AD TO AD+168:POKEI,0:NEXT I
+40 POKE 2040,AD/64: REM SET SPRITE NUMBER
+50 POKE 53269,1: REM ENABLE SPRITE 0
+60 POKE 53248,100:POKE 53249,100: REM PUT SPRITE ON SCREEN
+70 POKE 53355,1: REM MAKE SPRITE 0 16-COLOUR
+80 POKE 53335,1: REM MAKE SPRITE 0 USE 64 BITS OF DATA = 16 X 4-BIT PIXELS
+90 POKE 53287,10: REM MAKE PINK THE TRANSPARENT COLOUR
+100 GOSUB 900: REM READ MULTI-COLOUR SPRITE
+
+899 END
+
+900 REM LOAD SPRITE
+910 READN$:IFN$="END"THEN RETURN
+920 GOSUB 1000
+930 GOTO 910
+
+1000 REM DECODE STRING OF NYBLS IN N$ AT ADDRESS AD
+1010 L=LEN(N$)
+1020 FOR I=1 TO (L/2+1):POKE AD+I,0
+1030 FOR I= 1 TO L:N=ASC(MID$(N$,I,1))-ASC("@")
+1040 A=AD+INT((I-1)/2):IF (I AND 1)=1 THEN N=N*16
+1050 V=PEEK(A):POKE A,V OR N:NEXTI
+1060 AD=AD+INT(I/2)
+1070 IF (L AND 1) THEN AD=AD+1
+1080 RETURN
+
+1998 REM SPRITE DATA FOLLOWS
+1999 REM @ = TRANSPARENT, A-O = COLOURS 1 TO 15
+2000 DATA "@ABCDEFGHIJKLMNO"
+2010 DATA "AA@@@@@@@@@@@@@@"
+2020 DATA "A@A@@@@@@@@@@@@@"
+2030 DATA "A@@A@@@@@@@@@@@@"
+2040 DATA "A@@@A@@@@@@@@@@@"
+2050 DATA "A@@@@A@@@@@@@@@@"
+2060 DATA "A@@@@@A@@@@@@@@@"
+2070 DATA "A@@@@@@A@@@@@@@@"
+2080 DATA "A@@@@@@@A@@@@@@@"
+2090 DATA "A@@@@@@@@A@@@@@@"
+2100 DATA "A@@@@@@@@@A@@@@@"
+2110 DATA "A@@@@@@@@@@A@@@@"
+2120 DATA "A@@@@@@@@@@@A@@@"
+2130 DATA "A@@@@@@@@@@@@A@@"
+2140 DATA "A@@@@@@@@@@@@@A@"
+2150 DATA "A@@@@@@@@@@@@@@A"
+2160 DATA "A@@@@@@@@@@@@@@@"
+2170 DATA "A@@@@@@@@@@@@@@@"
+2180 DATA "A@@@@@@@@@@@@@@@"
+2190 DATA "A@@@@@@@@@@@@@@@"
+2200 DATA "A@@@@@@@@@@@@@@@"
+2210 DATA "END"  
+\end{screenoutput}
+
 \section{VIC-II / C64 Registers}
 
 \input{regtable_VIC-II.C64}

@@ -4,22 +4,25 @@
 %%
 %% The original source files were:
 %%
-%% aeb-minitoc.dtx  (with options: `copyright,package')
+%% aeb-minitoc.dtx  (with options: `package')
 %% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% aeb-minitoc.sty package,                              %%
-%% Copyright (C) 2012--2018  D. P. Story                 %%
-%%   dpstory@uakron.edu  dpstory@acrotex.net             %%
-%%                                                       %%
-%% This program can redistributed and/or modified under  %%
-%% the terms of the LaTeX Project Public License         %%
-%% Distributed from CTAN archives in directory           %%
-%% macros/latex/base/lppl.txt; either version 1.2 of the %%
-%% License, or (at your option) any later version.       %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from aeb-minitoc.sty.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file aeb-minitoc.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{aeb-minitoc}
- [2018/09/29 v1.7 Creates a simple mini-toc]
+ [2019/10/06 v1.9 Creates a simple mini-toc]
 \newif\ifMiniTocListings \MiniTocListingstrue
 \DeclareOption{nominitocs}{\AtEndOfPackage{\MiniTocListingsfalse
   \let\insertminitoc\insertminitocNOT}}
@@ -124,11 +127,17 @@
 \AtEndDocument{\mtoc@start@toc}
 \def\mtoc@TOC{toc}
 \def\mtocCL#1#2{#1}
-\newcommand\addtocontents@mtoc[2]{%
-    \def\mt@rgi{#1}\ifx\mt@rgi\mtoc@TOC
-    \global\advance\@minitocCnt\@ne
-    \mtoc@addtocontents{#1}{\protect\mtocCL{#2}{\the\@minitocCnt}}\else
-    \mtoc@addtocontents{#1}{#2}\fi}
+\@ifundefined{add@percent@to@temptokena}
+  {\let\protected@file@percent\@empty\def\mtoc@protect{}}
+  {\def\mtoc@protect{\protect}}
+\newcommand\addtocontents@mtoc[2]{\bgroup
+  \let\protected@file@percent\@empty
+  \def\mt@rgi{#1}\ifx\mt@rgi\mtoc@TOC
+  \global\advance\@minitocCnt\@ne
+  \mtoc@addtocontents{#1}{\protect
+    \mtocCL{#2}{\the\@minitocCnt}\mtoc@protect
+    \protected@file@percent}\else
+  \mtoc@addtocontents{#1}{#2}\fi\egroup}
 \AtBeginDocument{\let\mtoc@addtocontents\addtocontents
   \let\addtocontents\addtocontents@mtoc}
 \def\tableofcontents{%

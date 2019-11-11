@@ -5458,8 +5458,8 @@ if the mouse is not connected or disabled.
 \item [Format:] {\bf SCREEN CLR} \\
                 {\bf SCREEN DEF} \\
                 {\bf SCREEN SET} \\
-                {\bf SCREEN OPEN} \\
-                {\bf SCREEN CLOSE}
+                {\bf SCREEN OPEN screen [,errvar]} \\
+                {\bf SCREEN CLOSE screen}
 
 \item [Usage:] {\bf SCREEN} performs one of five actions,
                selected by the secondary keyword after it.
@@ -5476,10 +5476,12 @@ if the mouse is not connected or disabled.
 
                 {\bf SCREEN OPEN screen} allocates resources and
                 initializes the graphic context for the selected
-                screen ( 0 or 1).
+                screen ( 0 or 1). An optional variable name as
+                a further argument, gets the result of the
+                command and can be tested afterwards for success.
 
                 {\bf SCREEN CLOSE screen } closes screen
-                ( 0 or 1 ) and frees ressources.
+                ( 0 or 1 ) and frees resources.
 
 \item [Remarks:] The {\bf SCREEN} command cannot be used alone.
                It must always be used together with a secondary keyword.
@@ -5487,13 +5489,13 @@ if the mouse is not connected or disabled.
 \item [Example:] Using {\bf SCREEN}:
 \begin{screenoutput}
  10 GRAPHIC CLR         :REM INITIALIZE
- 20 SCREEN DEF 1,1,1,2  :REM SCREEN #1: 640 X 400 X 2
- 30 SCREEN OPEN         :REM OPEN
+ 20 SCREEN DEF 1,0,0,2  :REM SCREEN #1: 320 X 200 X 2
+ 30 SCREEN OPEN 1       :REM OPEN SCREEN 1
  40 SCREEN SET 1,1      :REM USE SCREEN 1 FOR RENDERING AND VIEWING
  50 SCREEN CLR 0        :REM CLEAR SCREEN
- 60 LINE 50,50,590,350  :REM DRAW LINE
+ 60 LINE 25,25,295,175  :REM DRAW LINE
  70 SLEEP 10            :REM WAIT 10 SECONDS
- 80 SCREEN CLOSE
+ 80 SCREEN CLOSE 1      :REM CLOSE SCREEN 1
 \end{screenoutput}
 \end{description}
 

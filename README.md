@@ -22,4 +22,30 @@ There is also a `sandbox.pdf` for experimenting with typesetting or components f
 
 The sandbox is faster to build and test changes more quickly. You can then transfer your work directly to the userguide.
 
-For Mac OS X and Linux users, the instructions are the same, but use `make` in the main folder instead.
+# MAC OSX
+It is recommended to install MacPorts, which gives easy access to a huge base of Linux/UNIX software.
+With MacPorts install following LaTeX packages:
+
+sudo port install texlive-latex
+
+sudo port install texlive-latex-extra
+
+sudo port install texlive-latex-recommended
+
+sudo port install latexmk
+
+sudo port install latexdiff
+  
+Then creating the complete MEGA65 documentation is done in the local repository work directory with:
+
+make clean
+
+make mega65-book.pdf
+
+make mega65-book.pdf
+
+Calling "make" with the target twice is intentional and needed for getting all references resolved.
+Of course, you can create a shell script for these three lines.
+
+# Linux
+For Linux users, the instructions are the similar, but use your favourite package manager to install a LaTeX package of your choice.

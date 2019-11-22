@@ -135,12 +135,50 @@ To determine whether the MEGA65 is operating in PAL or NTSC, check the PALNTSC s
 80 IFNTSCTHENPRINT"MEGA65 IS NOW IN NTSC MODE"
 90 IFNTSC=0THENPRINT"MEGA65 IS NOW IN PAL MODE"
 \end{screenoutput}
-  
+
+\subsubsection{Physical and Logical Rasters}
+
+Physical rasters per frame refers to the number of actual raster lines in the PAL or
+NTSC Enhanced Definition TV (EDTV) video modes used by the MEGA65.  Logical Rasters refers to the number of VIC-II-style rasters per frame.
+Each logical raster consists of two physical rasters per line, since EDTV modes are double-scan modes compared with the original PAL and NTSC
+Standard Defition TV modes used by the C64. The frame parameters of the VIC-IV for PAL and NTSC are as follows:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2cm}|L{2.5cm}|L{2.5cm}|L{2.5cm}|}
+\hline
+{\bf{Standard}} & {\bf{Cycles per Raster}} & {\bf{Physical Rasters per Frame}} & {\bf{Logical Rasters per Frame}}  \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Standard}} & {\bf{Cycles per Raster}} & {\bf{Physical Rasters per Frame}} & {\bf{Logical Rasters per Frame}}  \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small PAL & 63 & 312 & 626 \\
+\small NTSC & 65 & 263 & 526 \\
+\end{longtable}
+
+The result is that the frames on the VIC-IV consist of exactly the same number of ~1MHz CPU cycles as on the VIC-II exactly.
+
+\subsubsection{Bad Lines}
+
+To improve compatibility, the VIC-IV also signals when a ``bad line'' would have occurred on the VIC-II.  The 45GS02 processor
+of the MEGA65 accepts these bad line strobes and pauses the CPU for 40 ~1MHz clock cycles, except if the processor is running
+at full speed, in which case they are ignored.  This improves the timing compatibility with the VIC-II considerably.  However,
+the timing is not exact, because the current revision of the 45GS02 pauses for exactly 40 cycles, instead of 40 -- 43 cycles,
+depending on the insstruction being executed at the time.
+
+The bad line emulation is controlled by bit 0 of \$D710: Setting this bit enables bad line emulation, and clearing it prevents
+any bad line from stealing time from the processor.
+
 
 \section{Memory Interface}
 
 The VIC-IV supports upto 64KB of colour RAM and, in principle, 16MB of direct access RAM for video data.  However in typical installations
-32KB of colour RAM and either 384KB of addressable RAM is present. In MEGA65 systems, the second 128KB of RAM is typically used to hold a C65-compatible ROM, leaving 256KB available, unless software is written to avoid the need to use C65 ROM routines, in which case all 384KB can be used.
+32KB of colour RAM and 384KB of addressable RAM is present. In MEGA65 systems, the second 128KB of RAM is typically used to hold a C65-compatible ROM, leaving 256KB available, unless software is written to avoid the need to use C65 ROM routines, in which case all 384KB can be used.
 
 The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM, including the VIC-II's use of 16KB banks, and the VIC-III's Display Address Translator (DAT).  This additional memory can be used for character and bitmap displays, as well as for sprites.  However, the VIC-III bitplane modes remain limited to using only the first 128KB of RAM, as the VIC-IV does not enhance the bitplane mode.
 

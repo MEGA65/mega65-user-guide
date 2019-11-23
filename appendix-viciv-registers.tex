@@ -165,11 +165,16 @@ The result is that the frames on the VIC-IV consist of exactly the same number o
 
 \subsubsection{Bad Lines}
 
-To improve compatibility, the VIC-IV also signals when a ``bad line'' would have occurred on the VIC-II.  The 45GS02 processor
-of the MEGA65 accepts these bad line strobes and pauses the CPU for 40 ~1MHz clock cycles, except if the processor is running
+The VIC-IV does not nativelly incurr any ``bad lines,'' because the VIC-IV has its own dedicated memory busses to the main memory
+and colour RAM of the MEGA65.  This means that both the processor and VIC-IV can access the memory at the same time, unlike on the
+C64 or C65, where they are alternated.
+
+However, to improve compatibility, the VIC-IV signals when a ``bad line'' would have occurred on the VIC-II.  The 45GS02 processor
+of the MEGA65 accepts these bad line signals, and pauses the CPU for 40 ~1MHz clock cycles, except if the processor is running
 at full speed, in which case they are ignored.  This improves the timing compatibility with the VIC-II considerably.  However,
 the timing is not exact, because the current revision of the 45GS02 pauses for exactly 40 cycles, instead of 40 -- 43 cycles,
-depending on the insstruction being executed at the time.
+depending on the insstruction being executed at the time. Also, the VIC-IV and 45GS02 do not currently pause for sprite fetches.
+
 
 The bad line emulation is controlled by bit 0 of \$D710: Setting this bit enables bad line emulation, and clearing it prevents
 any bad line from stealing time from the processor.

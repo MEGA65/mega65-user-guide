@@ -19,7 +19,7 @@ features and enhancements of the VIC-IV include:
   support very large screens.
 \item {\bf HDTV 720$\times$576 / 800$\times$600 native resolution} at both 50Hz and 60Hz for {\bf PAL and NTSC}, with {\bf VGA and digital video} output.
 \item {\bf 81MHz pixel clock} (up from ~8MHz with the VIC-II/III), which enables a wide range of new features.
-\item New 16-colour (16$\times$8 pixels per character cell) and 256-colour (8$\times$8 pixels per character cell) {\bf full-colour character modes}.
+\item New 16-colour (16$\times$8 pixels per character cell) and 256-colour (8$\times$8 pixels per character cell) {\bf full-colour text modes}.
 \item Support for upto {\bf 8,192 unique characters in a character set}.
 \item {\bf Four 256-colour palette banks} (versus the VIC-III's single palette bank), each supporting {\bf 23-bit colour depth} (versus the VIC-III's 12-bit colour depth), and which can be rapidly alternated to create even more colourful graphics than is possible with the VIC-III.
 \item Screen, bitmap, colour and character data can be positioned at any {\bf address with byte-level granularity} (compared with fixed 1KB -- 16KB boundaries with the VIC-II/III)
@@ -176,10 +176,10 @@ and colour RAM of the MEGA65.  This means that both the processor and VIC-IV can
 C64 or C65, where they are alternated.
 
 However, to improve compatibility, the VIC-IV signals when a ``bad line'' would have occurred on the VIC-II.  The 45GS02 processor
-of the MEGA65 accepts these bad line signals, and pauses the CPU for 40 ~1MHz clock cycles, except if the processor is running
+of the MEGA65 accepts these bad line signals, and pauses the CPU for 40 clock cycles, except if the processor is running
 at full speed, in which case they are ignored.  This improves the timing compatibility with the VIC-II considerably.  However,
 the timing is not exact, because the current revision of the 45GS02 pauses for exactly 40 cycles, instead of 40 -- 43 cycles,
-depending on the insstruction being executed at the time. Also, the VIC-IV and 45GS02 do not currently pause for sprite fetches.
+depending on the instruction being executed at the time. Also, the VIC-IV and 45GS02 do not currently pause for sprite fetches.
 
 
 The bad line emulation is controlled by bit 0 of \$D710: Setting this bit enables bad line emulation, and clearing it prevents
@@ -335,7 +335,7 @@ Super-Extended Attribute Mode is enabled by setting bit 0 in \$D054 (53332 decim
 \small Colour RAM byte 0, bit 6 & {\small Horizontally flip the character }\\
 \small Colour RAM byte 0, bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
 \small Colour RAM byte 0, bit 4 & {\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later) }\\
-\small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less right side trim bits), instead of using 8 bits per pixel, and being the usual 8 pixels wide  }\\
+\small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
 \small Colour RAM byte 0, bits 2 & {\small Trim pixels from right side of character (bit 3) }\\
 \small Colour RAM byte 0, bits 0 - 1 & {\small Number of pixels to trim from top or bottom of character }\\
 \small Colour RAM byte 1, bits 0 - 3 & {\small Low 4 bits of colour of character }\\
@@ -356,6 +356,14 @@ The C65 / VIC-III attributes (and the use of 256 colour 8-bit values for various
 
 Many effects are possible due to Super-Extended Attribute Mode.  A few possibilities are explained in the following sub-sections
 
+\subsection{Full-Colour (256 colours per character) Text Mode}
+
+XXX
+
+\subsection{Many-colour (16 colours per character) Text Mode)
+
+XXX
+  
 \subsection{Variable Width Fonts}
 
 There are 4 bits that allow trimming pixels from the right edge of characters when they are displayed. This has the effect of making

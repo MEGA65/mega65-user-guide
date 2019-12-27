@@ -361,13 +361,31 @@ Many effects are possible due to Super-Extended Attribute Mode.  A few possibili
 Super-Extended Attribute Mode requires double the screen RAM and colour RAM as the VIC-II/III text modes. This is because two bytes of each are
 required to define each character, instead of one.  The screen RAM can be located anywhere in the 384KiB of main memory using registers \$D060 -- \$D062 (53344 -- 53346 decimal).  The colour RAM can be located anywhere in the 32KiB colour RAM.  Only the first 1 or 2 KiB of the colour RAM is visible at \$D800 -- \$DBFF or \$D800 -- \$DFFF (if the {\em CRAM2K} signal is set in bit 0 of \$D030, 53296 decimal). Thus if using a screen larger than 40$\times$25 characters use of the DMA controller or some other means may be required to access the full amount of colour RAM.  Thus we will initially discuss using Super-Extender Attribute Mode with a 40x25 character display.
 
-The easiest way to use Super-Extended Attribute Mode is from C65 mode, with the screen set to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM.  The user need only to treat each character pair as a single Super-Extended Attribute character.  The first step is to enable the Super-Extended Attribute Mode by asserting the {\em FCLRHI} and {\em CHR16} signals, by setting bits 0 and 1 of \$D054 (53332 decimal).  As this is a VIC-IV register, we must first enable the VIC-IV IO mode.  The VIC-IV must also be configured to 40 column mode, by clearing the {\em H640} signal by clearing bit 7 of \$D031 (53297 decimal).
+The easiest way to use Super-Extended Attribute Mode is from C65 mode, with the screen set to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM.  The user need only to treat each character pair as a single Super-Extended Attribute character.
+
+The first step is to enable the Super-Extended Attribute Mode by asserting the {\em FCLRHI} and {\em CHR16} signals, by setting bits 2 and 0 of \$D054 (53332 decimal).  As this is a VIC-IV register, we must first enable the VIC-IV IO mode.  The VIC-IV must also be configured to 40 column mode, by clearing the {\em H640} signal by clearing bit 7 of \$D031 (53297 decimal).  This is because each pair of characters will be used to form a single character on screen, thus 80 bytes are required to display 40 characters.
+
+Because pairs of colour RAM and screen RAM bytes are used to define each character, care must be taken to initialise and manipulate the screen.
+A good approach is to set the text colour to black, because this is colour code 0, and then to fill the screen with @ characters, because that is
+character code 0.  You can then have several ways to manipulate the screen.  You can use the normal PRINT command and carefully construct
+strings to print that will put the correct values into each screen and colour byte pair. Another approach is to use the BANK and POKE commands to directly set the contents of the screen and colour RAM.
+
+
 XXX Finish above description
 
 XXX Example program
 
+The following descriptions assume that you have implemented one of the methods described above to set the screen and colour RAM.
+
 \subsection{Full-Colour (256 colours per character) Text Mode}
 
+In normal VIC-II/III text mode, one byte is used for each row of pixels in a character.  As a reminder for how those modes work, in
+hi-res mode, each pixel is either the background or foreground colour, based on the state of one bit in the byte.  Multi-colour mode
+uses two bits to select between four possible colours, but as there are still only 8 bits to describe each row of 8 pixels, each pair
+of pixels has the same colour.
+
+The VIC-IV's full-colour text mode removes these limitations, and allows each pixel of a character to be chosen from the 256 colour of
+either the primary or alternate palette bank.  To do this, each character now requires 64 bytes of data.  Also,
 XXX
 
 \subsection{Many-colour (16 colours per character) Text Mode}

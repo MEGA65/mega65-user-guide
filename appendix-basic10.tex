@@ -2,36 +2,53 @@
 
 \section{Format of Commands, Functions and Operators}
 
-This appendix describes each of the commands, functions and other callable elements of BASIC 10.
-Some of these can take one or more arguments, that is, pieces of input that you provide as part of the command or function call.
+This appendix describes each of the commands, functions and other
+callable elements of BASIC 10.
+Some of these can take one or more arguments, that is, pieces of input
+that you provide as part of the command or function call.
 Some also require that you use special keywords.
-Here is an example of how commands, functions and operators will be described
-in this appendix:
+Here is an example of how commands, functions and operators will be
+described in this appendix:
 
 {\bf KEY <numeric expression>,<string expression> }
 
-In this case, KEY is what we call a \textbf{keyword}. That just means a special word that BASIC
-understands.  Keywords are always written in CAPITALS, so that you can easily recognise them.
+In this case, KEY is what we call a \textbf{keyword}. That just means
+a special word that BASIC understands.
+Keywords are always written in CAPITALS, so that you can easily
+recognise them.
 
-The {\bf <} and {\bf >} signs mean that whatever is between them must be there for the command, function or operator to work.
-In this case, it tells us that we need to have a {\bf numeric expression} in one place, and a {\bf string expression} in another place.
+The {\bf <} and {\bf >} signs mean that whatever is between them must
+be there for the command, function or operator to work.
+In this case, it tells us that we need to have a
+{\bf numeric expression} in one place, and a {\bf string expression}
+in another place.
 We'll explain what there are a bit more in a few moments.
 
-You might also see square brackets around something, for example, {\bf [,numeric expression]}.
-This means that whatever appears between the square brackets is optional, that is, you can include it if you need to, but
-that the command, function or operator will work just fine without it.  For example, the \screentext{CIRCLE} command has
-an optional numeric argument to indicate if the circle should be filled when being drawn.
+You might also see square brackets around something, for example,
+{\bf [,numeric expression]}.
+This means that whatever appears between the square brackets is
+optional, that is, you can include it if you need to, but
+that the command, function or operator will work just fine without it.
+For example, the \screentext{CIRCLE} command has
+an optional numeric argument to indicate if the circle should be filled
+when being drawn.
 
 The comma, and some other symbols and punctuation marks just represent themselves.
-In this case, it means that there must be a comma between the {\bf numeric expression} and the {\bf string expression}.
-This is what we call syntax: If you miss something out, or put the wrong thing in the wrong place, it is called a
-syntax error, and the computer will tell you if you have a syntax error by giving a \screentext{?SYNTAX ERROR} message.
+In this case, it means that there must be a comma between the
+{\bf numeric expression} and the {\bf string expression}.
+This is what we call syntax: If you miss something out, or put the
+wrong thing in the wrong place, it is called a
+syntax error, and the computer will tell you if you have a syntax error
+by giving a \screentext{?SYNTAX ERROR} message.
 
 There is nothing to worry about getting an error from the computer.
-Instead, it is just the computer's way of telling you that something isn't quite right, so that you can more easily
+Instead, it is just the computer's way of telling you that something
+isn't quite right, so that you can more easily
 find and fix the problem.
-Error messages like this can't hurt the computer or damage your program, so there is nothing to worry about.
-For example, if we accidentally left the comma out, or replaced it with a full-stop, the computer will respond with
+Error messages like this can't hurt the computer or damage your program,
+so there is nothing to worry about.
+For example, if we accidentally left the comma out, or replaced it with
+a full-stop, the computer will respond with
 a syntax error, like this:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -409,7 +426,9 @@ AUTO     : SWITCH AUTO OFF
                  compound statement. It may lead to unexpected
                  results.
 \item [Example:] Using {\bf BEGIN} and {\bf BEND}
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 10 GET A$
 20 IF A$>="A" AND A$<="Z" THEN BEGIN
 30 PW$=PW$+A$
@@ -417,7 +436,8 @@ AUTO     : SWITCH AUTO OFF
 50 BEND :REM IGNORE ALL EXCEPT (A-Z)
 60 IF A$<>CHR$(13) GOTO 10
 90 PRINT "PW=";PW$
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 \end{description}
 
 % ****
@@ -867,7 +887,7 @@ CATALOG "*,T=S"
 \newpage
 \subsection{CHANGE}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$FE \$0C
+\item [Token:] \$FE \$2C
 \item [Format:] {\bf CHANGE "find" TO "replace" [,from-to]}
 \item [Usage:]  Used
                 in direct mode only. It searches the line range
@@ -1311,7 +1331,7 @@ CONT
 \newpage
 \subsection{COPY}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$FE \$13
+\item [Token:] \$F4
 \item [Format:] {\bf COPY source [,D drives] TO
                 target [,D drive] [,U unit] }
 \item [Usage:]
@@ -1861,7 +1881,7 @@ DIRECTORY "*,T=S"
 \newpage
 \subsection{DMA}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$FE \$23
+\item [Token:] \$FE \$1F
 \item [Format:] {\bf DMA command [,length, source, target, sub]}
 \item [Usage:]
    The {\bf DMA} ("Direct Memory Access") command is the fastest method
@@ -3076,7 +3096,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \newpage
 \subsection{HIGHLIGHT}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$FE \$39
+\item [Token:] \$FE \$3D
 \item [Format:] {\bf HIGHLIGHT colour}
 \item [Usage:] Sets the colour
                to be used for the "highlight" text attribute.
@@ -3517,20 +3537,26 @@ A=5      :REM SHORTER AND FASTER
 \subsection{LINE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E5
-\item [Format:] {\bf LINE xbeg,ybeg,xend,yend}
-\item [Usage:] Draws a line on the current
+\item [Format:] {\bf LINE xbeg,ybeg [,xend,yend]}
+\item [Usage:] Draws a pixel at (xbeg/ybeg), if only one
+               coordinate pair is given.
+               If both coordinate pairs are defined,
+               a line is drawn on the current
                graphics screen from the coordinate (xbeg/ybeg) to
                the coordinate (xend/yend). All currently defined
                modes and values of the graphic context are used.
 
 \item [Example:] Using {\bf LINE}:
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
  10 GRAPHIC CLR         :REM INITIALIZE
  20 SCREEN DEF 1,1,1,2  :REM 640 X 400 X 2
  30 SCREEN SET 1,1      :REM VIEW IT
  40 SCNCLR 0            :REM CLEAR SCREEN
  50 LINE 50,50,590,350  :REM DRAW LINE
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 \end{description}
 
 % ****

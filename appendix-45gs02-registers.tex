@@ -4,8 +4,9 @@
 \section{Introduction}
 
 The 45GS02 is an enhanced version of the processor portion of the CSG4510
-and of the F018 ``DMAgic'' DMA controller used in the Commodore 65 computer prototypes.  The 4510 is, in turn,
-an enhanced version of the 65CE02.  
+and of the F018 "DMAgic" DMA controller used in the Commodore 65
+computer prototypes.  The 4510 is, in turn,
+an enhanced version of the 65CE02.
 The reader is referred to
 the considerable documentation available for the 6502 and 65CE02 processors
 for the backwards-compatibile operation of the 45GS02.
@@ -22,24 +23,33 @@ The 45GGS02 has a number of key differences to earlier 6502-class processors:
 \subsection{Supervisor/Hypervisor Privileged Mode}
 
 Unlike the earlier 6502 variants, the 45GS02 has a privileged mode of operation.
-This mode is intended for use by an operating system or type-1 hypervisor.  The ambiguity between
+This mode is intended for use by an operating system or type-1
+hypervisor.  The ambiguity between
 operating system and hypervisor on the MEGA65 stems from the fact that the operating
-system of the MEGA65 is effectively little more than a loader and task-switcher for C64 and C65
-environments, i.e., effectively operating as a hypervisor, but provides only limited virtualisation
+system of the MEGA65 is effectively little more than a loader and
+task-switcher for C64 and C65
+environments, i.e., effectively operating as a hypervisor, but provides
+only limited virtualisation
 of the hardware.
 
 The key differences between normal and supervisor mode on the MEGA65, are that in
 supervisor mode:
 
 \begin{itemize}
-\item A special 16KiB memory area is mapped to \$8000 - \$BFFF, which is used to contain both
-  the program and data of the hypervisor / supervisor program.  This is normally the Hyppo program.
-  This memory is not mappable by any means when the processor is in the normal mode (the chip-select
+\item A special 16KiB memory area is mapped to \$8000 - \$BFFF, which is
+ used to contain both
+ the program and data of the hypervisor / supervisor program.
+ This is normally the Hyppo program.
+  This memory is not mappable by any means when the processor is in the
+ normal mode (the chip-select
   line to it is inhibited), protecting it from accidental or malicious access.
-\item The 64 SYSCALL trap registers in the MEGA65 IO-mode at \$D640 - \$D67F are replaced by the
-  virtualisation control registers.  These registers allow complete control over the system, and
+\item The 64 SYSCALL trap registers in the MEGA65 IO-mode at
+\$D640 - \$D67F are replaced by the
+  virtualisation control registers.  These registers allow complete
+control over the system, and
   it is their access that truly defines the privilege of the supervisor mode.
-  \item The processor always operates at full speed (40MHz) and in the 4510 processor personality.
+  \item The processor always operates at full speed (40MHz) and in the
+ 4510 processor personality.
 \end{itemize}
 
 The Hypervisor Mode is described in more detail later in this appendix.
@@ -60,33 +70,47 @@ between the 4510 and 6502.  The effect is that in 6502 mode, none of the new opc
 the 65C02, 65CE02, 4510 or 45GS02 are available, and are replaced with the original,
 often strange, behaviour of the undefined opcodes of the 6502.
 
-WARNING: This feature is incomplete and untested.  Most undocumented 6502 opcodes do not operate correctly when the 6502
+WARNING: This feature is incomplete and untested.  Most undocumented
+6502 opcodes do not operate correctly when the 6502
 personality is enabled.
 
 \subsection{Read-Modify-Write Instruction Bug Compatibility}
 
-The 65CE02 processor optimised a group of instructions called the Read-Modify-Write (RMW)
-instructions.  For such instructions, such as INC, that increments the contents of a memory
-location, the 6502 would read the original value and then write it back unchanged, before
-writing it back with the new increased value.  For most purposes, this did not cause any
-problems. However, it turned out to be a fast way to acknowledge VIC-II interrupts, because
-writing the original value back (which the instruction doesn't need to do) acknowledges
-the interrupt.  This method is faster and uses fewer bytes than any alternative, and so
+The 65CE02 processor optimised a group of instructions called the
+Read-Modify-Write (RMW) instructions.  For such instructions, such as
+INC, that increments the contents of a memory location, the 6502 would
+read the original value and then write it back unchanged, before
+writing it back with the new increased value.  For most purposes, this
+did not cause any problems. However, it turned out to be a fast way to
+acknowledge VIC-II interrupts, because writing the original value back
+(which the instruction doesn't need to do) acknowledges the interrupt.
+his method is faster and uses fewer bytes than any alternative, and so
 became widely used in C64 software.
 
-The problem came with the C65 with its 65CE02 derived CSG4510 that didn't do this extra write
-during the RMW instructions.  This made the RMW instructions one cycle faster, which made
-software run slightly faster. Unfortunately, it also meant that a lot of existing C64 software
-simply won't run on a C65, unless the interrupt acknowledgement code in each program is patched
-to work around this problem. This is the single most common reason why many C64 games and other
+The problem came with the C65 with its 65CE02 derived CSG4510 that
+didn't do this extra write
+during the RMW instructions.  This made the RMW instructions one cycle
+faster, which made
+software run slightly faster. Unfortunately, it also meant that a lot
+of existing C64 software
+simply won't run on a C65, unless the interrupt acknowledgement code in
+each program is patched
+to work around this problem. This is the single most common reason why
+many C64 games and other
 software titles won't run on a C65.
 
-Because this problem is so common, the MEGA65's 45GS02 includes bug compatibility with this
-commonly used feature of the original 6502.  It does this by checking if the target of an RMW
-instruction is \$D019, i.e., the interrupt status register of the VIC-II.  If it is, then
-the 45GS02 performs the dummy write, allowing many C64 software titles to run unmodified on the
-MEGA65, that do not run on a C65 prototype.  By only performing the dummy write if the address
-is \$D019, the MEGA65 maintains C64 compatibility, without sacrificing the speed improvement
+Because this problem is so common, the MEGA65's 45GS02 includes bug
+compatibility with this
+commonly used feature of the original 6502.  It does this by checking
+if the target of an RMW
+instruction is \$D019, i.e., the interrupt status register of the VIC-II.
+If it is, then
+the 45GS02 performs the dummy write, allowing many C64 software titles
+to run unmodified on the
+MEGA65, that do not run on a C65 prototype.  By only performing the
+dummy write if the address
+is \$D019, the MEGA65 maintains C64 compatibility, without sacrificing
+the speed improvement
 for all other uses of these instructions.
 
 \subsection{Variable CPU Speed}
@@ -132,18 +156,18 @@ is enabled.  The default value is \$80 (128), which means no bias on the CPU spe
 increase the CPU speed, with \$FF meaning $2\times$ the expected speed. Lower values slow
 the processor down, with \$00 bring the CPU to a complete stand-still.  Thus the speed can be
 varied between $0\times$ and $2\times$ the inteded value.
- 
+
 This register is provided to allow tweaking the processor speed in games.
 
 Note that this register has no effect when
 the processor is running at full-speed, because it only affects the way in which VIC-IV
-video cycle indication pulses are processed by the CPU.  
+video cycle indication pulses are processed by the CPU.
 
 \subsubsection{Direct Memory Access (DMA)}
 Direct Memory Access (DMA) is a method for quickly filling, copying or swapping memory regions.
 The MEGA65 implements an improved version of the F018 ``DMAgic'' DMA controller of the C65 prototypes.
  Unlike on the C65 prototypes, the DMA controller is part of the CPU on the MEGA65.
-   
+
 Detailed information on how to use the DMA controller and these advanced features can be found in Appendix \ref{cha:dmagic}
 
 \subsection{Accessing memory between the 64KB and 1MB points}
@@ -151,7 +175,7 @@ Detailed information on how to use the DMA controller and these advanced feature
 The C65 included four ways to access memory beyond the 64KB point: three methods
 that are limited, specialised or both, and two general-purpose methods. We will first
 consider the limited methods, before documenting the general-purpose methods.
- 
+
 \subsubsection{C64-Style Memory Banking}
 
 The first method, is to use the C64-style \$00/\$01 ROM/RAM banking.
@@ -164,7 +188,7 @@ data at \$D000, which is located at \$2D000 in the C65 memory map, and thus \$00
 the MEGA65 address space.  In addition to being limited to which regions this
 method can access, it also only provides read-only access
 to these memory regions, i.e., it cannot be used to modify these memory regions.
- 
+
 \subsubsection{VIC-III ``ROM'' Banking}
 
 Similar to the C64-style memory banking, the C65 included the facility
@@ -173,9 +197,9 @@ in and out using various bits of the VIC-III's \$D030 register:
 
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{1.5cm}|L{1.5cm}|L{1.8cm}|L{1.5cm}|L{2cm}|}
-\hline  
+\hline
 {\bf{\$D030 Bit}} & {\bf{Signal Name}} & {\bf{20-bit Address}} & {\bf{16-bit Address}} & {\bf{Read-Write Access?}} \\
-\hline  
+\hline
 \endfirsthead
 \multicolumn{3}{l@{}}{\ldots continued}\\
 \hline
@@ -188,13 +212,13 @@ in and out using various bits of the VIC-III's \$D030 register:
 \small 0 & \small CRAM2K & \$1F800 -- \$1FFFF, \$FF80000 -- \$FF807FF & \$D800 -- \$DFFF & Y \\
  \hline
 \small 3 & \small ROM8 & \$38000 -- \$39FFF & \$8000 -- \$9FFF & N \\
- \hline 
+ \hline
 \small 4 & \small ROMA & \$3A000 -- \$3BFFF & \$A000 -- \$BFFF & N \\
- \hline 
+ \hline
 \small 5 & \small ROMC & \$2C000 -- \$2CFFF & \$C000 -- \$CFFF & N \\
  \hline
 \small 6 & \small CROM9 & \$29000 -- \$29FFF & \$D000 -- \$DFFF & N \\
- \hline  
+ \hline
 \small 7 & \small ROME & \$3E000 -- \$3FFFF & \$E000 -- \$FFFF & N \\
   \hline
    \end{longtable}
@@ -251,15 +275,15 @@ anywhere in the 1MB address space. Detailed information about the F018 DMA contr
 enhancements to this, refer to Appendix \ref{cha:dmagic}
 
 \subsubsection{Flat Memory Access}
-   
+
 \subsection{Accessing memory beyond the 1MB point}
 \label{sec:exte nded-memory}
- 
+
 The MEGA65 can support up to 256MiB of memory. This is more than the 1MiB address space of the CSG4510
 on which it is based. There are several ways of performing this.
 
 \subsubsection{Using the MAP instruction to access >1MB}
-   
+
 The full address space is available to the MAP instruction for legacy C65-style memory
 mapping, although some care is required, as the MAP instruction must be called up to three times.
 The reason for this is that the MAP instruction must be called to first select which mega-byte of
@@ -268,7 +292,7 @@ way to set the memory mapping.  Because between these two calls the memory mappi
 a mix of the old and new addresses, all mapping should be first disabled via the MAP instruction.
 This means that the code to re-map memory should live in the bottom 64KB of RAM or in one of the
 ROM-bankable regions, so that it can remain visible during the mapping process.
-   
+
 Failure to handle this situation properly will result in the processor executing instructions
 from somewhere unexpected half-way through the process, because the routine it is executing
 to perform the mapping will suddenly no longer be mapped.
@@ -304,17 +328,19 @@ MAP offset of \$D80. The lower 8-bits, \$80, must be loaded into the A register.
 the low-nybl of the X register.  As we wish to apply the mapping to only the fourth of the 8KB blocks that make up the
 lower 32KB half of the C64 memory map, we must set the 4th bit of the upper nybl. That is, the upper nybl must be set
 to \%1000, i.e., \$8.  Therefore the X register must be loaded with \$8D.  Thus we yield the complete example program:
-   
-\begin{screenoutput}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 ; Map ethernet registers at $6000 - $7FFF
- 
+
 ; Ethernet controller really lives $FFDE000 - $FFDEFFF, so select $FF megabyte section for MAP LO
 lda #$ff
 ldx #$0f
 ldy #$00
 ldz #$00
 map
-  
+
 ; now enable mapping of $DE000-$DFFFF at $6000
 ; MAPs are offset based, so we need to subtract $6000 from the target address
 ; $DE000 - $6000 = $D8000
@@ -324,16 +350,17 @@ ldy #$00
 ldz #$00
 map
 eom
- 
+
 ; Ethernet buffer now visible at $6800 - $6FFF
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 Note that the EOM (End Of Mapping) instruction (which is the same as NOP on a 6502, i.e., opcode \$EA) was only supplied after the last MAP instruction, to make sure that no interrupts could occur while
 the memory map contained mixed values with the mega-byte number set, but the lower-bits of the mapping address had not been
 updated.
 
 No example in BASIC for the MAP instruction is possible, because the MAP is an machine code instruction of the 4510 / 45GS02 processors.
-  
+
 \subsubsection{Flat-Memory Access}
 
 The 45GS02 makes it easy to read or write a byte from anywhere in memory by allowing the Zero-Page Indirect
@@ -341,10 +368,13 @@ addressing mode to use a 32-bit pointer instead of the normal 16-bit pointer.  T
 using the Z-indexed Zero-Page Indirect Addressing Mode for the access, and having the instruction directly
 preceeded by a NOP instruction (opcode \$EA).  For example:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 NOP
 LDA ($45),Z
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 Would read the four bytes of Zero-Page memory at \$45 -- \$48 to form a 32-bit memory address, and add the value of the
 Z register to this to form the actual address that will be read from.  The byte order in the address is the same as
@@ -363,7 +393,9 @@ The 45GS02 allows the use of its four general purpose registers, A, X ,Y and Z a
 simplify and speed up many common operations, and help avoid many common programming errors.
 For example, adding two 16-bit or 32-bit values can now be easily accomplished with something like:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
   ; Clear carry before performing addition, as normal
   CLC
   ; Prefix an instruction with two NEG instructions to select virtual 32-bit register mode
@@ -385,13 +417,14 @@ For example, adding two 16-bit or 32-bit values can now be easily accomplished w
   ; Or to write out the bottom bytes, we can just write the contents of A and X as normal
   STA $1240
   STX $1241
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 This approach works with the LDA, STA, ADC, SBC, CMP, EOR, AND, ORA, ASL, LSR, ROL, ROR, INC and DEC instructions.
 It also works with any addressing mode.  Indexed addressing modes, where X, Y or Z are added to the address should
 be used with care, because these registers may in fact be holding part of a 32-bit value.  The special case is the Zero-Page
 Indirect Z-Indexed addressing mode: In this case the Z register is NOT added to the target address, as would normally
-be the case. This is to allow the virtual 32-bit register to be able to be used with flat-memory access with the combined prefix of 
+be the case. This is to allow the virtual 32-bit register to be able to be used with flat-memory access with the combined prefix of
 NEG NEG NOP before the instruction to allow accessing a 32-bit value anywhere in memory in a single instruction.
 
 Note that the virtual 32-bit register cannot be used in immediate mode, i.e., to load a constant into the four general
@@ -455,7 +488,7 @@ The 45GS02 handles all of these in a similar manner internally:
 
 All of the above happens in one CPU cycle, i.e., in 25 nano-seconds.
 Returning from a SYSCALL or trap consists simply of writing to \$D67F, which
-requires 125 nano-seconds, for a total overhead of 150 nano-seconds. 
+requires 125 nano-seconds, for a total overhead of 150 nano-seconds.
 This gives the MEGA65 SYSCALL performance rivaling -- even beating -- even the fastest modern computers, where the system call latency is typically hundreds to tens of thousands of cycles \cite{soares2010flexsc}.
 
 \subsection{Hypervisor Memory Layout}
@@ -669,7 +702,9 @@ made for writing programs for 6502-class processors.  The following example prog
 KickC produces very efficient code, and directly supports the MEGA65's
 hypervisor mode quite easily through the use of a linker definition file with the following contents:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 .file [name="%O.bin", type="bin", segments="XMega65Bin"]
 .segmentdef XMega65Bin [segments="Syscall, Code, Data, Stack, Zeropage"]
 .segmentdef Syscall [start=$8000, max=$81ff]
@@ -677,7 +712,8 @@ hypervisor mode quite easily through the use of a linker definition file with th
 .segmentdef Data [startAfter="Code", min=$8200, max=$bdff]
 .segmentdef Stack [min=$be00, max=$beff, fill]
 .segmentdef Zeropage [min=$bf00, max=$bfff, fill]
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 This file instructs KickC's assembler to create a 16KiB file with the 512 byte SYSCALL/trap entry point region at the start,
 followed by code and data areas, and then the stack and zero-page areas. It enforces the size and location of these fields, and
@@ -685,7 +721,9 @@ will give an error during compilation if anything is too big to fit.
 
 With this file in place, you can then create a KickC source file that provides data structures for the SYSCALL/trap table, e.g.:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 // XMega65 Kernal Development Template
 // Each function of the kernal is a no-args function
 // The functions are placed in the SYSCALLS table surrounded by JMP and NOP
@@ -768,24 +806,31 @@ export struct SysCall[] SYSCALLS = {
 
 // In this example we had only two SYSCALLs defined, so rather than having
 // another 62 lines, we can just ask KickC to make the TRAP table begin
-// at the next multiple of $100, i.e., at $8100. 
-export align(0x100) struct SysCall[] SYSCALL_RESET = {
+// at the next multiple of $100, i.e., at $8100.
+export align(0x100) struct SysCall[] SYSCALL\_RESET = {
     { JMP, &main, NOP }
 };
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 If you save the first listing into a file called mega65hyper.ld, and the second
 into a file called mega65hyper.kc, you can then compile them using KickC with
 a command like:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
   kickc -a mega65hyper
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 It will then produce a file called mega65hyper.bin, which you can then try out
 on your MEGA65, or run in the Xmega65 emulator with a command like:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
   xmega65 -kickup mega65hyper.bin
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 

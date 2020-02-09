@@ -18,7 +18,7 @@ features and enhancements of the VIC-IV include:
 \item Support for {\bf 32KB of 8-bit Colour/Attribute RAM} (up from 2KB on the VIC-III), to
   support very large screens.
 \item {\bf HDTV 720$\times$576 / 800$\times$600 native resolution} at both 50Hz and 60Hz for {\bf PAL and NTSC}, with {\bf VGA and digital video} output.
-\item {\bf 81MHz pixel clock} (up from ~8MHz with the VIC-II/III), which enables a wide range of new features.
+\item {\bf 81MHz pixel clock} (up from $\sim$ 8MHz with the VIC-II/III), which enables a wide range of new features.
 \item New 16-colour (16$\times$8 pixels per character cell) and 256-colour (8$\times$8 pixels per character cell) {\bf full-colour text modes}.
 \item Support for upto {\bf 8,192 unique characters in a character set}.
 \item {\bf Four 256-colour palette banks} (versus the VIC-III's single palette bank), each supporting {\bf 23-bit colour depth} (versus the VIC-III's 12-bit colour depth), and which can be rapidly alternated to create even more colourful graphics than is possible with the VIC-III.
@@ -31,7 +31,7 @@ n\item Sprites can use 64 bits of data per raster line, allowing {\bf sprites to
   \item Sprites can be configured to use a {\bf separate 256-colour palette} to that used to draw other text and graphics, allowing for a more colourful display.
   \item {\bf Super-extended attribute mode} which uses two screen RAM bytes and two colour RAM bytes per character mode, which supports a wide variety of new features including {\bf alpha-blending/anti-aliasing}, {\bf hardware kerning/variable-width characters}, hardware horizontal/vertical flipping, alternate palette selection and other powerful features that make it easy to create highly dynamic and colourful displays.
   \item {\bf Raster-Rewrite Buffer} which allows {\bf hardware-generated pseuso-sprites}, similar to ``bobs'' on Amiga(tm) computers, but with the advantage that they are rended in the display pipeline, and thus do not need to be undrawn and redrawn to animate them.
-    \item {\bf Multiple 8-bit colour playfields} are also possible using the Raster-Rewrite Buffer. 
+    \item {\bf Multiple 8-bit colour playfields} are also possible using the Raster-Rewrite Buffer.
 
       In short, the VIC-IV is a powerful evolution of the VIC-II/III, while retaining the character and disctinctiveness of the VIC-series of
       video controllers.
@@ -46,9 +46,9 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
 
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{2.4cm}|L{2.4cm}|L{3.5cm}|L{2cm}|}
-\hline  
+\hline
 {\bf{First Value Hex (Decimal)}} & {\bf{Second Value Hex (Decimal)}} & {\bf{Effect}} & {\bf{VIC-IV Specific? }} \\
-\hline  
+\hline
 \endfirsthead
 \multicolumn{3}{l@{}}{\ldots continued}\\
 \hline
@@ -59,24 +59,24 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
  \hline
 \endlastfoot
 \small \$00 (0) & \small \$00 (0) & Only VIC-II registers visibiel (all VIC-III and VIC-IV new registers are hidden) & No \\
- \hline 
+ \hline
 \small \$A5 (165) & \small \$96 (150) & VIC-III new registers visible & No \\
- \hline  
+ \hline
 \small \$47 (71) & \small \$53 (83) & Both VIC-III and VIC-IV new registers visible & Yes \\
- \hline  
+ \hline
 \small \$45 (69)  & \small \$54 (84) & No VIC-II/III/IV registers visible. 45E100 ethernet controller buffers are visible instead & Yes \\
- \hline 
+ \hline
    \end{longtable}
 
 
  \subsection{Detecting VIC-II/III/IV}
-  
+
  Detecting which generation of the VIC-II/III/IV a machine is fitted with can be important for programs that support only particular generations, or that wish to vary their graphical display based on the capabilities of the machine.  While there are many possibilities for this, the following is a simple and effective method.  It relies on the fact that the VIC-III and VIC-IV do not repeat the VIC-II registers throughout the IO address space.  Thus while \$D000 and \$D100 are synonymous when a VIC-II is present (or a VIC-III/IV is hiding their additional registers), this is not the case when a VIC-III or VIC-IV is making all of its registers visible.  Therefore presence of a VIC-III/IV can be determined by testing whether these two locations are aliases for the same register, or represent separate registers.
  The detection sequence consists of using the KEY register to attempt to make either VIC-IV or VIC-III additional registers visible. If either succeeds, then we can assume that the corresponding generation of VIC is installed. As the VIC-IV supports the VIC-III KEY knocks, we must first test for the presence of a VIC-IV.  Also, we assume that the MEGA65 starts in VIC-IV mode, even when running C65 BASIC.  Thus the test can be done in BASIC from either C64 or C65 mode as follows:
 
 \begin{screenoutput}
 0 REM IN C65 MODE WE CANNOT SAFELY WRITE TO 53295, SO WE TEST A DIFFERENT WAY
-10 IF PEEK(53272) AND 32 THEN GOTO 65  
+10 IF PEEK(53272) AND 32 THEN GOTO 65
 20 POKE53248,1:POKE53295,71:POKE53295,83
 30 POKE53248+256,0:IFPEEK(53248)=1THENPRINT"VIC-IV PRESENT":END
 40 POKE53248,1:POKE53295,165:POKE53295,150
@@ -89,7 +89,7 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
 90 GOTO 40
 
 \end{screenoutput}
-   
+
 As the MEGA65 is the only C64-class computer that is fitted with a VIC-IV, this can be used as a {\em de facto} test for the presence
 of a MEGA65 computer. Detection of a VIC-III can be similarily be reasonably assumed to indicate the presence of a C65.
 
@@ -130,7 +130,9 @@ As these HDTV video modes are not supported by all VGA monitors, a compatibility
 
 To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the freeze menu, which displays the current video mode, or from a program you can check the PALNTSC signal (bit 7 of \$D06F, 53359 decimal). If this bit is set, then the machine is operating in NTSC mode, and clear if operating in PAL mode. This bit can be modified to change between the modes, e.g.:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 10 IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 20 NTSC=PEEK(53359)AND128
 30 IFNTSCTHENPRINT"MEGA65 IS IN NTSC MODE"
@@ -140,7 +142,8 @@ To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the f
 70 NTSC=PEEK(53359)AND128
 80 IFNTSCTHENPRINT"MEGA65 IS NOW IN NTSC MODE"
 90 IFNTSC=0THENPRINT"MEGA65 IS NOW IN PAL MODE"
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 \subsubsection{Physical and Logical Rasters}
 
@@ -167,7 +170,8 @@ Standard Defition TV modes used by the C64. The frame parameters of the VIC-IV f
 \small NTSC & 65 & 263 & 526 \\
 \end{longtable}
 
-The result is that the frames on the VIC-IV consist of exactly the same number of ~1MHz CPU cycles as on the VIC-II exactly.
+The result is that the frames on the VIC-IV consist of exactly the same
+ number of $\sim$ 1MHz CPU cycles as on the VIC-II exactly.
 
 \subsubsection{Bad Lines}
 
@@ -197,10 +201,13 @@ The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM
 
 To use the additional memory for screen RAM, the screen RAM start address can be adjusted to any location in memory with byte-level granularity by setting the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal).  For example, to set the screen memory to address 12345:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53344+0,69:POKE53344+1,35:POKE53344+2,1
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 \subsection{Relocating Character Generator Data}
 
@@ -208,25 +215,31 @@ The location of the character generator data can also be set with byte-level pre
 
 For example, to indicate that character generator data should be sourced beginning at \$41200 (266752 decimal), the following
 could be used.  Note that the AND binary operator only works with arguments between 0 and 65,535. Therefore we first
-subtract 4$\times$65,536 = 262,144 from the address (the 4 is determined by calculating INT(266752/65536) ), before we use the AND operator to compute the lower part of the address: 
+subtract 4$\times$65,536 = 262,144 from the address (the 4 is determined by calculating INT(266752/65536) ), before we use the AND operator to compute the lower part of the address:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53352,(266752-INT(266752/65536)*65536)AND255
 POKE53353,INT((266752-INT(266752/65536)*65536)/256)
 POKE53354,INT(266752/65536)
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 
 \subsection{Relocating Colour / Attribute RAM}
 
 The area of colour RAM being used can be similarly set using the COLPTR registers (\$D064 -- \$D065, 53348 -- 53349 decimal). That is, the value is an offset from the start of the colour / attribute RAM.  This is because, like on the C64, the colour / attribute RAM of the MEGA65 is a separate memory component, with its own dedicated connection to the VIC-IV.  By default, the COLPTRs are set to zero, which replicates the behaviour of the VIC-II/III.  To set the display to use the colour / attribute RAM beginning at offset 4000, one could use something like:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53348,4000 AND 255
 POKE53349,INT(4000/256)
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 \subsection{Relocating Sprite Pointers and Images}
 
@@ -237,12 +250,15 @@ to be located anywhere in the first 4MB of RAM, the SPRPTR16 bit in \$D06E must 
 location of each sprite, instead of one. That is, the list of sprite pointers will be 16 byts long, instead of 8 bytes long as on the VIC-II/III.  When SPRPTR16 is enabled, the location of the sprite pointers should always be set explcitly via the SPRPTRADR registers.
 For example, to position the sprite pointers at location 800 -- 815, you could use something like the following. Note that a little gymnastics is required to keep the SPRPTR16 bit unchanged, and also to work around the AND binary operator not working with values greater than 65535:
 
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
 POKE53356,(800-INT(800/65536)*65536) AND 255
 POKE53357,INT(800/256)AND255
 POKE53358,(PEEK(53358)AND128)+INT(800/65536)
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 
 The location of each sprite image remains a multiple of 64 bytes, thus allowing for upto 65,536 unique sprite images
 to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location 768, because 49152 divided by 64 = 768.  We then need to split 768 into high and low bytes, to set the two pointer byes: 768 = 256$\times$3, with remainder 0, so this would require the two sprite pointer bytes to be 0 (low byte, which comes first) and 3 (high byte).  Thus if the sprite pointers were located at \$7F8 (2040 decimal), setting the first sprite to sprite image 768 could be done with something like:
@@ -308,11 +324,34 @@ improvements that were trivial to make, and it thus seemed foolish to not implem
 
 \end{enumerate}
 
-\subsection{Displaying more than 256 unique characters via ``Super-Extended Attribute Mode''}
+\subsection{Displaying more than 256 unique characters via
+"Super-Extended Attribute Mode"}
 
-The primary innovation is the addition of Super-Extended Attribute Mode Mode. The VIC-II already uses 12 bits per character: Each 8$\times$8 cell is defined by 12 bits of data: 8 bits of screen RAM data, by default from \$0400 -- \$07E7 (1024 -- 2023 decimal), indicating which characters to show, and 4 bits of colour data from the 1K nybl colour RAM at \$D800 -- \$DBFF (55296 -- 56319 decimal). The VIC-III of the C65 uses 16 bits, as the colour RAM is now 8 bits, instead of 4, with the extra 4 bits of colour RAM being used to support attributes (blink, bold, underline and reverse video).  It is recommended to revise how this works, before reading the following. A good introduction to the VIC-II text mode can be found in many places, for example, \ref{vicii-cheaper-by-the-dozen}. Super-Extended Attribute mode doubles the number of bits per used to describe each character from the VIC-III's 16, to 32: Two bytes of screen RAM and two bytes of colour/attribute RAM.
+The primary innovation is the addition of Super-Extended Attribute Mode
+Mode. The VIC-II already uses 12 bits per character: Each 8$\times$8
+cell is defined by 12 bits of data: 8 bits of screen RAM data, by
+default from \$0400 -- \$07E7 (1024 -- 2023 decimal), indicating which
+characters to show, and 4 bits of colour data from the 1K nybl colour
+RAM at \$D800 -- \$DBFF (55296 -- 56319 decimal). The VIC-III of the
+C65 uses 16 bits, as the colour RAM is now 8 bits, instead of 4, with
+the extra 4 bits of colour RAM being used to support attributes (blink,
+bold, underline and reverse video).  It is recommended to revise how
+this works, before reading the following. A good introduction to the
+VIC-II text mode can be found in many places.
+% For example, \ref{vicii-cheaper-by-the-dozen}. <- undefined
+Super-Extended Attribute mode doubles
+the number of bits per used to describe each character from the
+VIC-III's 16, to 32: Two bytes of screen RAM and two bytes of
+colour/attribute RAM.
 
-Super-Extended Attribute Mode is enabled by setting bit 0 in \$D054 (53332 decimal) (remember to first enable VIC-IV mode, to make this register accessible). When this bit is set, two bytes are used for each of the screen memory and colour RAM for each character shown on the display. Thus, in contrast to the 12 bits of information that the C64 uses per character, and the 16 bits that the VIC-III uses, the VIC-IV has 32 bits of information.  How those 32 bits are used varies slightly among the particular modes.  The default is as follows:
+Super-Extended Attribute Mode is enabled by setting bit 0 in \$D054
+(53332 decimal) (remember to first enable VIC-IV mode, to make this
+register accessible). When this bit is set, two bytes are used for each
+of the screen memory and colour RAM for each character shown on the
+display. Thus, in contrast to the 12 bits of information that the C64
+uses per character, and the 16 bits that the VIC-III uses, the VIC-IV
+has 32 bits of information.  How those 32 bits are used varies slightly
+among the particular modes.  The default is as follows:
 
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{3cm}|L{8cm}|}
@@ -320,11 +359,11 @@ Super-Extended Attribute Mode is enabled by setting bit 0 in \$D054 (53332 decim
 {\bf{Bit(s)}} & {\bf{Function}}  \\
 \hline
 \endfirsthead
-\multicolumn{3}{l@{}}{\ldots continued}\\
+\multicolumn{2}{l@{}}{\ldots continued}\\
 \hline
 {\bf{Bit(s)}} & {\bf{Function}}  \\
 \endhead
-\multicolumn{3}{l@{}}{continued \ldots}\\
+\multicolumn{2}{l@{}}{continued \ldots}\\
 \endfoot
 \hline
 \endlastfoot
@@ -417,7 +456,7 @@ If the GOTO bit is set for a character in Super-Extended Attribute Mode, instead
 pixel position specified in the low 10 bits of the screen memory bytes.  If the vertical flip bit is set, then this has the alternate
 meaning of preventing the background colour from being painted.  This combination can be used to print text material over the top of
 other text material, providing a crude supplement to the 8 hardware sprites.  The amount of material is limted only by the raster
-time of the VIC-IV. Some experimentation will be required to determine how much can be achieved in PAL and NTSC modes.  
+time of the VIC-IV. Some experimentation will be required to determine how much can be achieved in PAL and NTSC modes.
 
 This ability to draw multiple layers of text and graphics is highly powerful. For example, it can be used to provide multiple overlapping
 layers of separately scrollable graphics.  This gives many of the advantages of bitplane-based playfields on other computers, such as the
@@ -461,14 +500,14 @@ Sprites can be one of three widths with the VIC-IV:
 \item Normal VIC-II width (24 pixels wide).
 \item Extra Wide, where 64 bits (8 bytes) of data are used per raster line, instead of the VIC-II's 24.
   This results in sprites that are 64 pixels wide, unless Full-Colour Sprite Mode is selected for a sprite,
-  in which case the sprite will be $64 \divide 8 = 16$ pixels wide.
+  in which case the sprite will be 64 / 8 = 8 pixels wide.
 \item Tiled mode, where the sprite is drawn repeatedly until the end of the raster line.
 \end{enumerate}
 
 To enable a sprite to be 64 pixels (or 16 pixels if in Full-Colour Sprite Mode), set the corresponding bit for the sprite in the SPRX64EN register at (\$D057, 53335 decimal).
 
 Similarly, sprites can be various heights:  Sprites will be either the 21 pixels high of the VIC-II, or if the corresponding bit for the sprite is enabled in the SPRHGTEN signal (\$D055, 53333 decimal), then that sprite will be the number of pixels tall that is set in the SPRHGT
-register (\$D056, 53334 decimal).  
+register (\$D056, 53334 decimal).
 
 \subsection{Variable Sprite Resolution}
 
@@ -503,7 +542,7 @@ To enable the eight sprites to have 15 unique colours each, the sprite colour is
 $sprite number \times 16 + nybl value$, where $sprite number$ is the number of the sprite (from 0 to 7), and $nybl value$ is the value
 of the half-byte that contains the sprite data for the pixel.  In addition, if bitplane mode is enabled for this sprite, then 128 is
 added to the colour value, which makes it easy to switch between two colour schemes for a given sprite by changing only one bit in the
-SPRBPMEN register.  
+SPRBPMEN register.
 
 Because Full-Colour Sprite Mode requires four bits per pixel, sprites will be only six pixels wide, unless Extra Wide Sprite Mode is enabled
 for a sprite, in which case the sprite will be 16 pixels wide.  Tiled Mode also works with Full-Colour Sprite Mode, and will result in the
@@ -564,7 +603,7 @@ The following BASIC program draws a Full-Colour Sprite in either C64 or C65 mode
 2180 DATA "A@@@@@@@@@@@@@@@"
 2190 DATA "A@@@@@@@@@@@@@@@"
 2200 DATA "A@@@@@@@@@@@@@@@"
-2210 DATA "END"  
+2210 DATA "END"
 \end{screenoutput}
 
 \section{VIC-II / C64 Registers}

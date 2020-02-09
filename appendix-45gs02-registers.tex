@@ -115,7 +115,8 @@ for all other uses of these instructions.
 
 \subsection{Variable CPU Speed}
 
-The 45GSG02 is able to run at ~1MHz, ~2MHz, ~3.5MHz and 40MHz, to support running software
+The 45GSG02 is able to run at ~1MHz, ~2MHz, ~3.5MHz and 40MHz,
+to support running software
 designed for the C64, C128 in C64 mode, C65 and MEGA65.
 
 \subsubsection{Slow (1MHz -- 3.5MHz) Operation}
@@ -125,7 +126,8 @@ This is to allow existing software to run on the MEGA65 at the correct speed, an
 minimal display problems.  The VIC-IV video controller provides cycle indication pulses
 to the 45GS02 that are used to keep time.
 
-In these modes, opcodes take the same number of cycles as an 6502.  However memory accesses within an
+In these modes, opcodes take the same number of cycles as an 6502.
+However memory accesses within an
 instruction are not guaranteed to occur in the same cycle as on a 1MHz 6502.  Normally
 the effect is that instructions complete faster, and the processor idles until the
 correct number of cycles have passed. This means that timing may be incorrect by upto
@@ -133,16 +135,21 @@ correct number of cycles have passed. This means that timing may be incorrect by
 function correctly. For example, the GEOS(tm) Graphical Operating System for the C64
 can be booted and used from a 1541 connected to the MEGA65's serial port.
 
-However, some advanced VIC-II graphics tricks, such as Variable Screen Position (VSP) are
+However, some advanced VIC-II graphics tricks, such as Variable Screen
+Position (VSP) are
 highly unlikely to work correctly, due to the uncertainty in timing of the memory write
- cycles of instructions.  However, in most cases such problems can be easily solved by using
-the advanced features of the MEGA65's VIC-IV video controller.  For example, VSP is unnecessary
+cycles of instructions.  However, in most cases such problems can be
+easily solved by using
+the advanced features of the MEGA65's VIC-IV video controller.
+For example, VSP is unnecessary
 on the MEGA65, because you can set the screen RAM address to any location in memory.
 
 \subsubsection{Full Speed (40MHz) Instruction Timing}
 
-When the MEGA65's processor is operating at full speed (currently 40MHz), the instruction
-timing no longer exactly mirrors the 6502: Instructions that can be executed in fewer cycles
+When the MEGA65's processor is operating at full speed
+(currently 40MHz), the instruction
+timing no longer exactly mirrors the 6502: Instructions that can be
+executed in fewer cycles
 will do so. For example, branches are typically require fewer instructions on the 45GS02.
 There are also some instructions that require more cycles on the 45GS02, in particular the
 LDA, LDX, LDY and LDZ instructions. Those instructions typically require one additional cycle.
@@ -489,24 +496,29 @@ The 45GS02 handles all of these in a similar manner internally:
 All of the above happens in one CPU cycle, i.e., in 25 nano-seconds.
 Returning from a SYSCALL or trap consists simply of writing to \$D67F, which
 requires 125 nano-seconds, for a total overhead of 150 nano-seconds.
-This gives the MEGA65 SYSCALL performance rivaling -- even beating -- even the fastest modern computers, where the system call latency is typically hundreds to tens of thousands of cycles \cite{soares2010flexsc}.
+This gives the MEGA65 SYSCALL performance rivaling -- even beating
+-- even the fastest modern computers, where the system call latency is
+typically hundreds to tens of thousands of cycles \cite{soares2010flexsc}.
 
 \subsection{Hypervisor Memory Layout}
 
-The hypervisor memory is 16KiB in size.  The first 512 bytes are reserved for SYSCALL and system trap entry
-points, with four bytes for each.  For example, the reset entry point is at \$8100 - \$8100 + 3 = \$8100 - \$8103.
-This allows 4 bytes for an instruction, typically a JMP instruction, followed by a NOP to pad it to 4 bytes.
+The hypervisor memory is 16KiB in size.  The first 512 bytes are
+reserved for SYSCALL and system trap entry
+points, with four bytes for each.  For example, the reset entry point is
+at \$8100 - \$8100 + 3 = \$8100 - \$8103.
+This allows 4 bytes for an instruction, typically a JMP instruction,
+followed by a NOP to pad it to 4 bytes.
 
 The full list of SYSCALLs and traps is:
 
 \begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}
 \hline
-{\bf{HEX}} & {\bf{DEC}} & {\bf{Name} & {\bf{Description}} \\
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Name}} & {\bf{Description}} \\
 \hline
 \endfirsthead
 \multicolumn{3}{l@{}}{\ldots continued}\\
 \hline
-{\bf{HEX}} & {\bf{DEC}} & {\bf{Name} & {\bf{Description}} \\
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Name}} & {\bf{Description}} \\
 \hline
 \endhead
 \multicolumn{3}{l@{}}{continued \ldots}\\

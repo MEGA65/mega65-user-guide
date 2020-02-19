@@ -605,7 +605,6 @@ BOOT
 \item [Usage:] Sets the border colour
                of the screen to the argument, which must be in the
                range 1 to 16. (See colour table).
-\item [Example:] \screentext{BORDER  5} - select background colour magenta.
 \item [Colours:] {\bf Index and RGB values of colour pallette}
 
 \ttfamily
@@ -633,6 +632,13 @@ BOOT
 \hline
 \end{tabular}
 }
+\item [Example:] Using {\bf BORDER}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 BORDER  5 : REM SELECT BACKGROUND COLOUR MAGENTA
+\end{verbatim}
+\end{tcolorbox}
 \end{description}
 
 % ***
@@ -767,13 +773,16 @@ BSAVE (FN$), B(BA%), P(PA) TO (PE), U(UN%)
                to detect which sprite collided with which one.
 
 \item [Example:] Using {\bf BUMP}
-\begin{screenoutput}
-  S% = BUMP(1) : REM SPRITE-SPRITE COLLISION
-  IF (S% AND 6) = 6) THEN PRINT "SPRITE 1 & 2 COLLISION"
-
-  S% = BUMP(2) : REM SPRITE-DATA COLLISION
-  IF (S% <> 0) THEN PRINT "SOME SPRITE HIT DATA REGION"
-\end{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 S% = BUMP(1) : REM SPRITE-SPRITE COLLISION
+20 IF (S% AND 6) = 6) THEN PRINT "SPRITE 1 & 2 COLLISION"
+30 REM ---
+40 S% = BUMP(2) : REM SPRITE-DATA COLLISION
+50 IF (S% <> 0) THEN PRINT "SOME SPRITE HIT DATA REGION"
+\end{verbatim}
+\end{tcolorbox}
 
 \ttfamily
 {\setlength{\tabcolsep}{1mm}
@@ -1918,7 +1927,8 @@ DIRECTORY "*,T=S"
 \subsection{DMA}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1F
-\item [Format:] {\bf DMA command [,length, source, target, sub]}
+\item [Format:] {\bf DMA command [,length, source address,
+                 source bank, target address, target bank, sub]}
 \item [Usage:]
    The {\bf DMA} ("Direct Memory Access") command is the fastest method
    to manipulate memory areas using the DMA controller.
@@ -1927,21 +1937,27 @@ DIRECTORY "*,T=S"
 
    {\bf length} = number of bytes
 
-   {\bf source} = 24bit address of read area or fill byte
+   {\bf source address} = 16 bit address of read area or fill byte
 
-   {\bf target} = 24bit address of write area
+   {\bf source bank} = bank number for source
+
+   {\bf target} = 16 bit address of write area
+
+   {\bf traget bank} = bank number for target
 
    {\bf sub} = sub command
 
 \item [Remarks:]
-   The {\bf DMA} controller has access to the whole 8 MB address range
-   using 24 bit addresses.
- The block size is limited to 64K.
+The {\bf DMA} controller has access to the whole 16 MB address range
+organized in 256 banks of 64 K.
 \item [Example:] Using {\bf DMA}
-\begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 DMA 3, 2000,   32,0,  2048,0 :REM FILL SCREEN WITH BLANKS
 DMA 0, 2000, 2048,0, 16384,1 :REM COPY SCREEN TO $14000
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
 \end{description}
 
 % *****

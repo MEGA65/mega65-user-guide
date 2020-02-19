@@ -9,7 +9,59 @@ between the different modes, or create hybrid modes that combine different
 features from the differnt modes -- all you need is the MAP and KEY.
 
 In this chapter we explain the different modes, and the MAP instruction and
-the KEY register that let you change the mode of operation of the computer.
+the KEY register that let you change the mode of operation of the computer,
+as well being able to use BASIC commands that can be used to completely switch
+from one mode to another.
+
+\phantomsection
+\section{Switching Modes from BASIC}
+
+At the time of writing, there is no MEGA65 Mode BASIC: The computer is used either
+in C64 mode, running BASIC 2, or C65 mode, running BASIC 10.  However, various MEGA65
+features can be accessed from both C64 and C65 mode.  All MEGA65 features are also available
+to programmes written in assembly language / machine code programmes.  The information required
+to write such programmes can be found in the various appendices. 
+
+\subsection{From C65 to C64 Mode}
+
+To switch from C65 to C64 Mode, use the familiar GO 64 command, identically to switching to C64
+mode on a C128:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+GO 64
+ARE YOU SURE? Y
+\end{verbatim}
+\end{tcolorbox}
+
+Note that, just like on the C128, any programmes in memory will be lost in the process of switching modes.
+
+Alternatively, you can hold down the MEGA key when pressing the reset button or turning the computer on. Again,
+this is the same as on the C128.
+
+\subsection{From C64 to C65 Mode}
+
+To switch from C64 to C65 Mode, there is no offial method.  However the following command.  Note that this command
+does not ask you for confirmation!
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+SYS 58552
+\end{verbatim}
+\end{tcolorbox}
+
+Alternatively, you can switch back to C65 mode by pressing the reset button on the left side of the computer, or simply turning the computer off and on again.
+
+Another option is to long-press the RESTORE key, and then choose F5 from the freeze menu.  This simulates pressing the reset button.
+
+Note that, just like on the C128, any programmes in memory will be lost in the process of switching modes.
+
+\subsection{Entering Machine Code Monitor Mode}
+
+The machine code monitor can be entered by typing either the MONITOR command from BASIC 10 in C65 mode,
+or by holding the RUN/STOP key down, and then pressing the reset button on the left side of the computer.
 
 \phantomsection
 \section{The KEY Register}
@@ -156,9 +208,6 @@ will be visible. You can of course make the C65 or MEGA65 extra registers visibl
 to the KEY register again.
 
 \phantomsection
-\section{The MAP Instruction}
-
-\phantomsection
 \section{Accessing the MEGA65's Extra Memory from BASIC 10 in C65 Mode}
 
 The C65's BASIC 10 contains powerful memory banking and Direct Memory Access (DMA) commands that can be used to read,
@@ -198,3 +247,14 @@ DMA 0, 2000, 2000, 4, DEC("F800"), 1 : REM COPY COLOUR RAM FROM BANK 4
 
 Note that there is currently no way to tell BASIC 10 to put graphics screen, variables,
 arrays or program text in these extra banks of RAM.
+
+\phantomsection
+\section{The MAP Instruction}
+
+The above methods can be used from BASIC. In contrast, the MAP instruction is an assembly
+language instruction that can be used to rearrange the memory that the MEGA65 sees.
+It is used by the C65 ROM and BASIC 10 to manage what memory it can see at any particular
+point in time.  For further explanation of the MAP instruction, refer to Section \ref{sec:map-instruction} in Appendix \ref{cha:cpu}.
+
+
+

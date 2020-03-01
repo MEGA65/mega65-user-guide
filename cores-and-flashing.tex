@@ -1,7 +1,7 @@
 \chapter{Cores and Flashing}
 
 \phantomsection
-\section{What are cores?}
+\section{What are cores, and why does it matter?}
 
 The MEGA65 computer uses a versatile chip called an FPGA as its heart.
 FPGAs are ``Field Programmable Gate Arrays''. This is a fancy way of
@@ -19,3 +19,83 @@ In other words, we can upgrade the MEGA65 hardware just by providing a new
 set of instructions to the FPGA.  These sets of instructions are called ``cores''
 or ``bitstreams''.  For the purpose of the MEGA65, these two terms can usually be
 considered to be interchangeable.
+
+FPGAs are so flexible, that not only is it possible to teach the MEGA65 to be a better
+MEGA65, but it is also possible to teach the MEGA65's' FPGA to be other interesting
+home computers.  We believe that the FPGA is powerful enough that it could pretend to be
+a VIC-20 (tm), Commodore PET (tm), Apple II (tm), Spectrum (tm), BBC Micro (tm), or even
+an Amiga (tm) or one of the 16-bit era game consoles.  Unlike some previous FPGA-based
+retro-computers, the MEGA65, its FPGA instructions, board layout and other information is
+all available for free under open-source licenses. This means that anyone is free to
+create other cores for the MEGA65 hardware.
+
+To top it all off, the MEGA65 has enough storage for 7 different sets of FPGA instructions,
+so that you can easily switch the MEGA65's ``personality'' from being a MEGA65 to another
+of these systems (once the cores are available) and back again.
+
+The remainder of this chapter describes how to select which core to run on the MEGA65, and
+how to store a core into one of the seven slots in the flash memory storage.
+
+\phantomsection
+\section{Selecting a core}
+
+To operate the MEGA65 using an alternative core, turn off the power to the MEGA65, and then hold the
+\specialkey{TAB} key down while turning the power back on.  This instructs the MEGA65 to enter the
+flash and core menu, instead of booting normally.  You should see a display like the following:
+
+XXX - Screen shot of flash menu with 7 empty slots.
+
+To select a core and start it, use the cursor keys to highlight the desired core, and then press the
+\specialkey{RETURN} key.  Alternatively, you can press the number corresponding to the core you would
+like to use. The MEGA65 immediately reconfigures the FPGA, and launches the core.  If for some reason
+the core is faultly, the MEGA65 may instead restart normally after a few seconds, and depending on the
+circumstances, take you automatically back into the menu.
+
+The MEGA65 will keep running the new core until you physically power it off.  Pressing the reset button
+will not reset which core is being run.
+
+\phantomsection
+\section{Installing an upgrade core for the MEGA65}
+
+To install an upgrade core for the MEGA65, there are few easy steps.
+
+First, copy the core file onto the MEGA65's SD card.  You can do this by removing the SD card and inserting
+it into another computer that has internet access, and downloading the core from that computer. Alternatively
+you can insert an SD card that already contains the upgrade core. Finally, you can use the MEGA65 TFTP Server
+program and the MEGA65's ethernet port to copy the core upgrade file onto the SD card from another computer
+on your local network.
+
+Second, once you have the upgrade core on the MEGA65's SD card, enter the flash and core menu as above,
+i.e., turn off the power, hold the \specialkey{TAB} key down while turning the power on.  When the flash
+and core menu appears, hold the \specialkey{CTRL} key down and press the \specialkey{1} key.  The MEGA65
+will present you a list of core files that are on the SD card.  Select the upgrade core file you wish to
+install using the cursor keys, and then pressing the \specialkey{RETURN} key.  The MEGA65 will then erase
+the flash slot, before writing the upgraded core.  This process is quite slow, and can take around 15
+minutes.
+
+It is important to not turn the power off during this process. If you do, the core file will be
+only partially installed, and the MEGA65 may not start properly. If this happens, enter the flash and core
+menu as described above, and follow the instructions again.  When the process completes, you will see a message
+like this, indicating that the process is complete:
+
+XXX
+
+When this happens, simply turn off the power to the MEGA65 and turn it back on for it to start using the
+upgraded core.  This is because the MEGA65 will always try to automatically start the core in slot 1 when
+it is turned on.
+
+\phantomsection
+\section{Installing other core for the MEGA65}
+
+Installing other cores works very similarly to installing upgrade cores. The only difference is that you
+press \special{CTRL} and \specialkey{2} to \specialkey{7} from the flash and core menu, so that the core
+gets installed in another slot.
+
+Of course, there is nothing stopping you installing a different core
+in slot 1, so that the MEGA65 behaves as a different type of computer when you turn it on.  If you do this,
+you can always choose to run the MEGA65 core by entering the flash and core menu,  and selecting the MEGA65
+core.
+
+
+
+

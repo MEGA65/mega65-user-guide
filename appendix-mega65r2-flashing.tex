@@ -53,7 +53,8 @@ and the dip-switches by the red box. Dip-switch 1 is the one nearest the floppy 
 \includegraphics[width=\linewidth]{images/jtag_detail_02.jpg}
 
 
-Connect your non-8-bit computer to the FPGA programming device using a mini-USB cable. Open VIVADO, which can be downloaded from the internets.
+Connect your non-8-bit computer to the FPGA programming device using a mini-USB cable. Switch
+the MEGA65 computer ON. Open VIVADO, which can be downloaded from the internets.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/vivado01.png}
@@ -150,15 +151,16 @@ hole below.  The mini-USB cable will then connect on the side towards the 3.5" f
 The following image shows the correct position: The TE0790 is surrounded by the yellow box,
 and the dip-switches by the red box. Dip-switch 1 is the one nearest the floppy data cable.
 
-One the PCB r2 MEGA65 Mainbord dip switch 1 (the one nearest to the user sitting in front of the machine
-must be in the ON position, the other switches must be OFF. The keyboard will go into "Police Mode"
-(blue and red blinking LEDs) when set correctly.
-
 
 \includegraphics[width=\linewidth]{images/jtag_detail_05.jpg}
 
 
-Connect your non-8-bit computer to the FPGA programming device using a mini-USB cable. Open DIAMOND PROGRAMMER, which can be downloaded from the internets.
+One the PCB r2 MEGA65 Mainbord dip switch 1 (the one nearest to the user sitting in front of the machine
+must be in the ON position, the other switches must be OFF. The keyboard will go into "Police Mode"
+(blue and red blinking LEDs) when set correctly.
+
+Connect your non-8-bit computer to the FPGA programming device using a mini-USB cable. Switch
+the MEGA65 computer ON. Open DIAMOND PROGRAMMER, which can be downloaded from the internets.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/diamond01.png}
@@ -234,10 +236,83 @@ After a moment  the Output window should display "INFO - Operation: successful."
 
 \begin{figure}
   \includegraphics[width=\linewidth]{images/diamond10.png}
-  \caption{Step 10: Select cable}
+  \caption{Step 10: Operation successful}
   \label{fig:diamond10}
 \end{figure}
 
 You have now successfully flashed the MEGA65 keyboard. If you wish you can save the project now for later use.
 
 \section{Flashing the MAX10 FPGA on the MEGA65's Mainboard with INTEL QUARTUS}
+
+If you choose to proceed, you will need a TEI0004 - Arrow USB Programmer2 module with TEI0004 driver installed
+and a functioning installation of Quartus Prime Programmer Lite Edition.  This can be done on either Windows
+or Linux, but in both cases you will need to install any necessary USB drivers.
+With your MEGA65 disconnected from the power, the TEI0004 must be installed on the J17 connector,
+which is located between the floppy data cable and the ARTIX 7 FPGA on the Mainboard.
+The micro-USB port of the TEI0004 must face in the opposite direction of the HDMI and LAN sockets, towards
+the trap door.
+The following image shows the correct position.
+
+One the PCB r2 MEGA65 Mainbord all dip switches must be in the OFF. The Artix 100T main FPGA must not contain
+a valid bitstream. See section "Flashing the Artix 100T main FPGA with XILINX VIVADO" on how to erase bitstream
+from ARTIX 100T. 
+
+\includegraphics[width=\linewidth]{images/jtag_detail_05.jpg}
+
+Connect your non-8-bit computer to the FPGA programming device using a micro-USB cable.
+Open Quartus Prime Programmer Lite Edition, which can be downloaded from the internets.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{images/max10_01.png}
+  \caption{Step 1: Open Quartus Prime Programmer Lite Edition}
+  \label{fig:max10_01}
+\end{figure}
+
+Click the "Hardware Setup" button in the top left corner of the Quartus Prime Programmer window.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{images/max10_02.png}
+  \caption{Step 2: Enter Hardware Setup}
+  \label{fig:max10_02}
+\end{figure}
+
+In the newly appeared window under "Currently selected hardware" choose "Arrow-USB-Blaster".
+If "Arrow-USB-Blaster" does not appear, verify cable and drivers being correctly installed.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{images/max10_03.png}
+  \caption{Step 3: Select Arrow USB-Blaster}
+  \label{fig:max10_03}
+\end{figure}
+
+Click the "Add File" button from the left row and choose the latest ".pof" file. Then click "Open".
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{images/max10_04.png}
+  \caption{Step 4: Select Programming File}
+  \label{fig:max10_04}
+\end{figure}
+
+Tick at least the three boxes under "Program/Configure". Also enabling all boxes under "Verify" and "Blank-Check"
+will make the process more reliable.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{images/max10_05.png}
+  \caption{Step 5: Select Program/Configure Options}
+  \label{fig:max10_05}
+\end{figure}
+
+While keeping the Reset-Button pressed, switch the MEGA65 computer ON. The keyboard will go into "Police Mode" 
+(blue and red blinking LEDs). If it does not, the ARTIX 100T is not empty - restart the whole process.
+
+Now click on "Start" in the left row of buttons. The progress bar in the top right corner should quickly go to
+100 percent and turn green. You have now successfully updated your MAX10 FPGA!
+
+If you receive an error message instead, make sure the ARTIX 100T bitstream has been erased and you did not
+release the reset-button on the MEGA65 before - switch off the MEGA65 and restart this step.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{images/max10_06.png}
+  \caption{Step 6: Programming successful}
+  \label{fig:max10_06}
+\end{figure}

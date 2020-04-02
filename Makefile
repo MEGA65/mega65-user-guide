@@ -2,6 +2,9 @@
 
 all:	userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf
 
+images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot
+	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
+
 # Make sure we update the register information files before typesetting
 userguide.pdf: *.tex Makefile references.bib
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make userguide.tex

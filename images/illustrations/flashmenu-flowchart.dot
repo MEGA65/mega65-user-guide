@@ -1,0 +1,47 @@
+digraph{
+	A[shape=oval,label="MEGA65 Off"];
+	A->B[label="Power\nswitched on"];
+
+	B[shape=rectangle,label="FPGA Loads Bitstream\nfrom Slot 0"];
+	B->C[label="Bitstream from\nslot 0 starts"];
+
+	C[shape=rectangle,label="Hypervisor Boot Process"];
+	C->D[label="Hypervisor starts\nflash menu programme"];
+	
+	D[shape=diamond,label="Is the FPGA running\nfrom Slot 0?"];
+	D->E[label="Yes"];
+
+	E[shape=diamond,label="Is NO SCROLL key\nheld down?"];
+	E->F[label="No"];
+	E->H[label="Yes"];
+
+	F[shape=diamond,label="Does Slot 1\ncontain a valid core?"];
+	F->G[label="No"];
+	F->K[label="Yes"];
+
+	G[shape=rectangle,label="MEGA65 Booted"];
+	G->C[label="Reset button\npressed"];
+
+	H[shape=rectangle,label="Prompt user to\nselect core"];
+	H->I[label="Core selected"];
+
+	I[shape=rectangle,label="FPGA Tries to boot from\nspecified slot"];
+	I->J[label="Bitstream in\nslot not valid"];
+	I->C[label="Bitstream in\nslotis valid"];
+
+	J[shape=rectangle,label="Keyboard showing `ambulance lights',\nincrement slot number"];
+	J->I[label="Try next slot"];
+	J->A[label="Power\nswitched off"];
+
+	K[shape=rectangle,label="Try restarting FPGA\nfrom Slot 1"];
+	K->L;
+
+	L[shape=diamond,label="Does the bitstream\nin Slot 1 work?"];
+	L->C[label="Yes"];
+	L->M[label="No"];
+
+	M[shape=oval,label="Show `ambulance lights'\nforever"];
+	M->M[label="Reset button\npressed"];
+	M->A[label="Power\nswitched off"];
+	
+}

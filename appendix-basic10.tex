@@ -6229,6 +6229,42 @@ THE VALUE OF PI IS 3.14159265
                  in system memory. This enables the command
                  {\bf RREG} to retrieve these values.
 
+\item [Remarks:] The system leaves the memory setup in a somewhat
+  strange state, which may or may not be a bug in BASIC 10.
+  If you want to write an assembly routine that can
+  access an entire memory bank, but with IO mapped, you need to set
+  the CPU register \$01, like on the C64, and then also use the 4510's
+  MAP instruction to set the memory map.  For BANK 0, you could use
+  the following sequence:
+\begin{screenoutput}
+  ; Disable interrupts, because the C65 ROM won't be visible to
+  ; handle them.
+  SEI
+  ; Make IO visible
+  LDA #$37
+  STA $01
+  ; Prepare for MAP operation that resets memory map to BANK 0
+  LDA #$00  
+  TAX
+  TAY
+  TAZ
+  MAP
+  ; End MAPing sequence
+  NOP
+  ; Now comes your routine!
+loop:
+  INC $D020
+  JMP loop
+\end{screenoutput}
+
+\item [Remarks:] You can alternatively use BANK 128, and place your
+  routine in the lower-half of RAM, e.g., in the unallocated memory
+  area at \$1600 -- \$1FFF
+
+\item [Remarks:] The RREG command can be useful for reading the
+  register values when your routine completes.
+
+                 
 \item [Example:] Using {\bf SYS}:
 \begin{screenoutput}
  10 BANK 128
@@ -6237,6 +6273,7 @@ THE VALUE OF PI IS 3.14159265
  40 RREG A,X,Y,Z,S
  50 PRINT "REGISTER:";A;X;Y;Z;S
 \end{screenoutput}
+
 \end{description}
 
 % ***

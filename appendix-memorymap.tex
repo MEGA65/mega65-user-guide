@@ -151,6 +151,109 @@ address space.
 \multicolumn{1}{p{5cm}|}{Reserved}\\
 \hline
 \endlastfoot
-
 \hline
 \end{longtable}
+
+\section{\$D000 -- \$DFFF IO Personalities}
+\label{sec:iopersonalities}
+
+The MEGA65 supports four different IO personalities.  These are
+selected by writing the appropriate values to the \$D02F KEY register,
+which is visible in all four IO personalities.  Refer to Chapter
+\ref{cha:modes} for more information about the use of the KEY
+register.
+
+The following table shows which IO devices are visible in each of
+these IO modes, as well as the KEY register values that are used to
+select the IO personality. Note that only three of the four IO
+personalities are normally used.
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|p{2.2cm}|C{2cm}|C{2cm}|C{2cm}|C{2cm}|}
+\hline
+{\bf{HEX}} & {\bf{C64}} & {\bf{C65}} & {\bf{Unusued}} & {\bf{MEGA65}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{C64}} & {\bf{C65}} & {\bf{Unusued}} & {\bf{MEGA65}} \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\small KEY & \small \$00 & \$A5, \$96 & N/A & \$47, \$53 \\
+\hline
+\small \$D000 -- \$D02F & \small VIC-II & VIC-II & VIC-II & VIC-II \\
+\hline
+\small \$D030 -- \$D07F & \small VIC-II{$^1$} & VIC-III & VIC-III & VIC-III \\
+\hline
+\small \$D080 -- \$D08F & \small VIC-II & F011 & F011 & F011 \\
+\hline
+\small \$D090 -- \$D09F & \small VIC-II & -- & SD Card & SD Card \\
+\hline
+\small \$D0A0 -- \$D0FF & \small VIC-II & RAM EXPAND CONTROL & -- & -- \\
+\hline
+\small \$D100 -- \$D1FF & \small VIC-II & RED Palette & RED Palette &
+RED Palette \\
+\hline
+\small \$D200 -- \$D2FF & \small VIC-II & GREEN Palette & GREEN Palette &
+GREEN Palette \\
+\hline
+\small \$D300 -- \$D3FF & \small VIC-II & BLUE Palette & BLUE Palette &
+BLUE Palette \\
+\hline
+\small \$D400 -- \$D41F & \small SID Right \#1 & SID Right \#1 & SID Right \#1 &
+SID Right \#1 \\
+\hline
+\small \$D420 -- \$D43F & \small SID Right \#2 & SID Right \#2 & SID Right \#2 &
+SID Right \#2 \\
+\hline
+\small \$D440 -- \$D45F & \small SID Left \#1 & SID Left \#1 & SID Left \#1 &
+SID Left \#1 \\
+\hline
+\small \$D460 -- \$D47F & \small SID Left \#1 & SID Left \#2 & SID Left \#2 &
+SID Left \#2 \\
+\hline
+\small \$D480 -- \$D49F & \small SID Right \#1 & SID Right \#1 & SID Right \#1 &
+SID Right \#1 \\
+\hline
+\small \$D4A0 -- \$D4BF & \small SID Right \#2 & SID Right \#2 & SID Right \#2 &
+SID Right \#2 \\
+\hline
+\small \$D4C0 -- \$D4DF & \small SID Left \#1 & SID Left \#1 & SID Left \#1 &
+SID Left \#1 \\
+\hline
+\small \$D4E0 -- \$D4FF & \small SID Left \#1 & SID Left \#2 & SID Left \#2 &
+SID Left \#2 \\
+\hline
+\small \$D500 -- \$D5FF & \small SID images & -- & Reserved & Reserved \\
+\hline
+\small \$D600 -- \$D63F & \small -- & UART & UART & UART \\
+\hline
+\small \$D640 -- \$D67F & \small -- & UART images & HyperTrap
+Registers & HyperTrap Registers \\
+\hline
+\small \$D680 -- \$D6FF & \small -- & -- & MEGA65 Devices & MEGA65 Devices \\
+\hline
+\small \$D700 -- \$D7FF & \small -- & -- & MEGA65 Devices & MEGA65 Devices \\
+\hline
+\small \$D800 -- \$DBFF & \small COLOUR RAM & COLOUR RAM & COLOUR RAM & COLOUR RAM \\
+\hline
+\small \$DC00 -- \$DDFF & \small CIAs & CIAs / COLOUR RAM & CIAs /
+COLOUR RAM & CIAs / COLOUR RAM \\
+\hline
+\small \$DE00 -- \$DFFF & \small CART IO & CART IO & CART IO / SD
+SECTOR & CART IO / SD SECTOR \\
+\hline
+\multicolumn{5}{p{10.2cm}}{{$^1$} In the C64 IO personality, \$D030 behaves as on C128, allowing toggling
+  between 1MHz and 2MHz CPU speed.}\\
+\multicolumn{5}{p{10.2cm}}{{$^2$} The additional MEGA65 SIDs are visible in
+  all IO personalities.}\\
+\multicolumn{5}{p{10.2cm}}{{$^3$} Some models may replace the repeated images
+  of the first four SIDs with four additional SIDs, for a total of 8 SIDs.}\\
+\endlastfoot
+\end{longtable}
+
+
+
+

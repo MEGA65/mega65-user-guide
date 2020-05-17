@@ -254,6 +254,79 @@ SECTOR & CART IO / SD SECTOR \\
 \endlastfoot
 \end{longtable}
 
+\section{CPU Memory Banking}
+\label{sec:membanking}
+
+The 45GS10 processor, like the 6502, can only ``see'' 64KB of memory
+at a time. Access to additional memory is via a selection of
+bank-switching mechanisms.  For backward-compatibility with the C64
+and C65, the memory banking mechanisms for both of these computers
+existin the MEGA65:
+\begin{enumerate}
+\item C65-style MAP instruction banking  
+\item C65-style \$D030 banking
+\item C64-style cartridge banking
+\item C64-style \$00 / \$01 banking
+\end{enumerate}
+
+It is important to understand that these different banking modes have
+a priority order: If a higher priority form of banking is being used,
+it takes priority over a lower priority form.  The C65 banking methods
+take priority of the C64 mode banking methods.  So, for example, if
+the 45GS10 MAP instruction has been used to provide a particular
+memory layout, the C64-style \$00 / \$01 banking will not be visible.
 
 
+This makes the overall banking scheme more complex than on the C64.
+Thus to understand what the actual memory layout will be, you should
+start by considering the effects of C64 memory banking, and then if
+any C65 memory banking is enabled, using that to override the
+C64-style memory banking.  For example, using \$D030 to bank in C65
+ROM at \$A000, this will take priority over any C64-based ROM banking
+at that address.
+
+XXX C64 ROM banking diagram
+
+XXX C65 ROM banking diagram
+
+\section{C64/C65 ROM Emulation}
+
+The C64 and C65 use ROM memories to hold the KERNAL and BASIC system.
+The MEGA65 is different: It uses 128KB of its 384KB fast chip RAM at
+\$20000 - \$3FFFF (banks 2 and 3) to
+hold these system programmes. This makes it possible to change or upgrade the
+``ROM'' that the MEGA65 is running, without having to open the
+computer. It is even possible to use the MEGA65's Freeze Menu to
+change the ``ROM'' being used while a programme is running.
+
+The C64 and C65 memory banking methods use this 128KB of area when
+making ROM banks visible.  When the RAM banks are mapped, they are
+always read-only.  However, if the MAP instruction or DMA is used to
+access that address area, it is possible to write to it. For improved
+backward compatibility, the whole 128KB region of memory is normally
+set to read-only.
+
+A programme can, however, request read-write access to this
+128KB area of memory, so that it can make full use of the MEGA65's
+384KB of chip RAM.  This is accomplished by triggering the {\em Toggle
+  Rom Write-protect} system trap of the hypervisor.  The following
+code-fragment demonstrates how to do this. Calling it a second time
+will re-activate the write-protection.
+
+\begin{screenoutput}
+  LDA #$70
+  STA $D640
+  NOP
+\end{screenoutput}
+
+This fragment works by
+calling sub-function \$70 (toggle ROM write-protect) of Hypervisor
+trap \$00. Note that the \screenoutput{NOP} is mandatory. The MEGA65
+IO personality must be first selected, so that the \$D640 register is
+un-hidden. 
+
+The current write-protection
+state can be tested by attempting to write to this area of memory.
+Also, you can examine and toggle the current state from in the MEGA65
+Freeze Menu.
 

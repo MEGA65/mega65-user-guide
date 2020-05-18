@@ -122,10 +122,43 @@ you will be asked.
 
 However, there really should be no reason for using this method to replace the contents of slot 0:
 If you want to make your own bitstreams/cores, you can either put them in other slots, and use the
-flash menu to activate them, or you should simply use a TE-0790 JTAG adapter to begin with, and use
+flash menu to activate them, or you should simply use a TE-0790 JTAG adapter, and then use
 the Vivado or other FPGA development tools to write to the flash directly.  That method is also
 somewhat faster than flashing through the flash menu.
 
-Anyway, you have been warned.
+You have been warned!
+
+\phantomsection
+\section{Understanding The Core Booting Process}
+
+This section summarises how the MEGA65 selects which core to start when it is powered on.
+The process is as shown in the following figure: When the MEGA65 is
+powered on, it always starts the bitstream stores in slot 0 of the
+flash.  If that is the MEGA65 Factory Core, the MEGA65 HYPPO
+Hypervisor starts.  If it is the first boot since power-on, HYPPO
+starts the Flash Menu programme -- but note that the Flash Menu in
+this mode may not show anything on the screen to indicate that it is
+running!
+
+The Flash Menu checks if the system is booting from Flash
+Slot 0.  If it is, it checks if the NO SCROLL key is being held.  If
+it is, the Flash Menu programme shows its display, allowing the user
+to select or re-flash a core. If the NO SCROLL key is not being
+pressed, then the Flash Menu programme checks if Flash Slot 1 contains a valid
+core.  If it does, then the Flash menu programme attempts to start
+that core.  If it succeeds, then the system reconfigures to that core,
+after which the behaviour of the system is according to that core. If
+it fails, the keyboard will show the flashing red and blue ``ambulance
+lights'' to indicate that some first-aid is required.  Note that in
+the ambulance light mode that the reset button has no effect: You must
+turn the computer off and on again.
+
+If the user selected a different core in the Flash Menu, the process
+is similar, except that the ambulance lights will appear for only a
+limited time, as the FPGA will automatically search through the flash
+memory until it finds a valid core. If it gets to the end of the flash
+memory, it will start the MEGA65 Factory Core from slot 0 again.
+
+\includegraphics[width=\linewidth]{images/illustrations/flashmenu-flowchart.pdf}
 
 

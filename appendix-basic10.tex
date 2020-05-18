@@ -1305,7 +1305,7 @@ CLOSE 4
 \subsection{CONCAT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$13
-\item [Format:] {\bf CONCAT appendfile [,D drivea] TO
+\item [Format:] {\bf CONCAT appendfile [,D drive] TO
                 targetfile [,D drive] [,U unit] }
 \item [Usage:]
    The {\bf CONCAT} (concatenation) appends the contents of
@@ -1383,7 +1383,7 @@ CONT
 \subsection{COPY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F4
-\item [Format:] {\bf COPY source [,D drives] TO
+\item [Format:] {\bf COPY source [,D drive] TO
                 target [,D drive] [,U unit] }
 \item [Usage:]
    Copies the contents of
@@ -1430,7 +1430,7 @@ CONT
 \subsection{COS}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BE
-\item [Format:] {\bf COS}(numeric expression)
+\item [Format:] {\bf COS(numeric expression)}
 \item [Usage:] The {\bf COS} function returns the cosine of the
                argument.
                The argument is expected in units of {\bf [radians]}.
@@ -1945,7 +1945,7 @@ DIRECTORY "*,T=S"
 
    {\bf source address} = 16 bit address of read area or fill byte
 
-   {\bf source bank} = bank number for source
+   {\bf source bank} = bank number for source (ignored for fill mode)
 
    {\bf target} = 16 bit address of write area
 
@@ -1960,8 +1960,10 @@ organized in 256 banks of 64 K.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-DMA 3, 2000,   32,0,  2048,0 :REM FILL SCREEN WITH BLANKS
-DMA 0, 2000, 2048,0, 16384,1 :REM COPY SCREEN TO $14000
+DMA 0, 80*25, 2048, 0, 0, 1  :REM SAVE SCREEN TO $00000 BANK 1
+DMA 3, 80*25, 32, 0, 2048, 0 :REM FILL SCREEN WITH BLANKS
+DMA 0, 80*25, 0, 1, 2048, 0  :REM RESTORE SCREEN FROM $00000 BANK 1
+DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -2513,7 +2515,7 @@ where the error number is taken from the reserved variable {\bf ER}.
 \subsection{EXP}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BD
-\item [Format:] {\bf EXP}(numeric expression)
+\item [Format:] {\bf EXP(numeric expression)}
 \item [Usage:] The {\bf EXP} (EXPonential function) computes
                the value of the mathematical constant
                Euler's number {\bf e = 2.71828183}
@@ -2910,10 +2912,11 @@ RUN
 \item [Token:] \$CB \$36 \$34 (GO token and 64 )
 \item [Format:] {\bf GO64}
 \item [Usage:] Switches the
-               computer to the C64 compatible mode.
-               In direct mode a security prompt
-               "ARE YOU SURE?" is printed, which must
-               be responded with 'Y' to continue.
+               computer to the C64 compatible mode. In direct
+               mode a security prompt \screentext{ARE YOU SURE?}
+               is printed, which must be responded with 'Y' to
+               continue. Use \screentext{SYS58552} to switch back
+               to C65 mode.
 
 \item [Example:] Using {\bf GO64}:
 \begin{screenoutput}
@@ -4993,7 +4996,7 @@ statement. The default setting for the envelopes are:
 \subsection{READ}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$87
-\item [Format:] {\bf READ(variable list)}
+\item [Format:] {\bf READ variable list}
 \item [Usage:]  Reads values from program source into variables.
 
                 {\bf variable list} = any legal variables.

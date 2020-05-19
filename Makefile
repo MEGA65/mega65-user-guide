@@ -7,20 +7,25 @@ images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flo
 
 # Make sure we update the register information files before typesetting
 userguide.pdf: *.tex Makefile references.bib
+	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make userguide.tex
 
 sandbox.pdf: *.tex Makefile references.bib
+	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
 
 
 referenceguide.pdf: *.tex Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make referenceguide.tex
 
 hardwareguide.pdf: *.tex Makefile references.bib
+	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make hardwareguide.tex
 
 mega65-book.pdf: *.tex Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-book.tex
 

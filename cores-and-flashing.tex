@@ -41,13 +41,19 @@ how to store a core into one of the seven slots in the flash memory storage.
 \section{Selecting a core}
 
 To operate the MEGA65 using an alternative core, turn off the power to the MEGA65, and then hold the
-\megakey{TAB} key down while turning the power back on.  This instructs the MEGA65 to enter the
+\megakey{NO SCROLL} key down while turning the power back on.  This instructs the MEGA65 to enter the
 flash and core menu, instead of booting normally.  You should see a display like the following:
 
-XXX - Screen shot of flash menu with 7 empty slots.
+\includegraphics[width=\linewidth]{images/ss-flashmenu.png}
 
 To select a core and start it, use the cursor keys to highlight the desired core, and then press the
-\megakey{RETURN} key.  Alternatively, you can press the number corresponding to the core you would
+\megakey{RETURN} key.  If you select a flash slot that does not
+contain a valid core, it will highlight in red to indicate that it
+cannot be booted from:
+
+\includegraphics[width=\linewidth]{images/ss-flashmenu-invalidslot.png}
+
+Alternatively, you can press the number corresponding to the core you would
 like to use. The MEGA65 immediately reconfigures the FPGA, and launches the core.  If for some reason
 the core is faultly, the MEGA65 may instead restart normally after a few seconds, and depending on the
 circumstances, take you automatically back into the menu.
@@ -66,27 +72,61 @@ you can insert an SD card that already contains the upgrade core. Finally, you c
 program and the MEGA65's ethernet port to copy the core upgrade file onto the SD card from another computer
 on your local network.
 
+The flash menu will preferentially use the external microSD slot over
+the internal SD card: If you have both a microSD card and SD card
+inserted in your MEGA65, the flash menu will currently ignore the
+internal SD card.  Simply copy the core file(s) from the internal SD
+card to the external microSD card, or temporarily remove the external
+microSD card from the rear of your MEGA65, so that the flash menu will
+be able to find the core files.  Also note that the flash menu
+currently supports only DOS-style 8.3 character filenames. If your
+core files have a longer name, you will need to rename them when
+copying them onto your microSD or SD card.
+
 Second, once you have the upgrade core on the MEGA65's SD card, enter the flash and core menu as above,
-i.e., turn off the power, hold the \megakey{TAB} key down while turning the power on.  When the flash
-and core menu appears, hold the \megakey{CTRL} key down and press the \megakey{1} key.  The MEGA65
-will present you a list of core files that are on the SD card.  Select the upgrade core file you wish to
+i.e., turn off the power, hold the \megakey{NO SCROLL} key down while turning the power on.  When the flash
+and core menu appears, hold the \megakey{CTRL} key down and press the
+\megakey{1} key (or \mega{CTRL} and a different number if you wish to replace the
+contents of a different flash slot).  The MEGA65
+will present you a list of core files that are on the SD card, similar
+to this:
+
+\includegraphics[width=\linewidth]{images/ss-flashmenu-selectcore.png}
+
+Select the upgrade core file you wish to
 install using the cursor keys, and then pressing the \megakey{RETURN} key.  The MEGA65 will then erase
-the flash slot, before writing the upgraded core.  This process is quite slow, and can take around 15
-minutes.
+the flash slot, before writing the upgraded core.  You will see a progress bar while the MEGA65 erases
+the flash slot, similar to this:
+
+\includegraphics[width=\linewidth]{images/ss-flashmenu-erasing.png}
+
+The progress bar will then reset, and the MEGA65 will
+write the new core into the slot. This process can take upto 15
+minutes, depending on the size of the core file.  If you simply wish
+to erase a flash slot, you can select the 
+``-- erase slot --'' option instead of a file name. This will perform
+only the erasure part of the process. 
 
 It is important to not turn the power off during this process. If you do, the core file will be
-only partially installed, and the MEGA65 may not start properly. If this happens, enter the flash and core
-menu as described above, and follow the instructions again.  When the process completes, you will see a message
-like this, indicating that the process is complete:
+only partially installed, and the MEGA65 may not start properly. 
+While
+inconvenient, if this happens, it won't damage your MEGA65 or leave it
+in an unusable state: It will just fall back to using the factory
+supplied core.
+If this happens, enter the flash and core
+menu as described above, and follow the instructions again.
 
-XXX
+When the flashing process completes, you will see a message like this, indicating that the process is complete:
+
+\includegraphics[width=\linewidth]{images/ss-flashmenu-done.png}
+
 
 When this happens, simply turn off the power to the MEGA65 and turn it back on for it to start using the
 upgraded core.  This is because the MEGA65 will always try to automatically start the core in slot 1 when
 it is turned on.
 
 \phantomsection
-\section{Installing other core for the MEGA65}
+\section{Installing other cores}
 
 Installing other cores works very similarly to installing upgrade cores. The only difference is that you
 press \megakey{CTRL} and \megakey{2} to \megakey{7} from the flash and core menu, so that the core

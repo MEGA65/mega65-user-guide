@@ -1,0 +1,26 @@
+(indirect,X)
+2
+5
+*
+MEM(<(1+X+B1)):MEM(<(0+X+B1))
+Zero-page indirect, pre indexed by X register
+This addressing mode uses the address at the Xth entry of
+a look-up table located at the base-page address indicated by
+the argument.  
+
+For example, LDA (\$12,X) would load the accumulator from
+the address whose low byte is read from (\$12 + X) and whose
+high-byte is read from (\$12 + 1 + X).  For example, if X held
+the value \$04, the address would be read from \$16 and \$17.
+If location \$16 held \$34 and location \$17 held \$12, then
+A would be loaded with the contents of location \$1234. 
+
+NOTE: The X indexing stage adjusts only the lower-byte of the
+address. That is, the look-up table must be entirely located
+in the base-page.
+
+NOTE: This instruction always forms 16-bit addresses using
+pairs of bytes. This means that ordinarily X should hold an
+even value. This allows the use of look-up tables with up to
+128 entries.
+

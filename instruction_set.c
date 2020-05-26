@@ -158,6 +158,10 @@ int main(int argc,char **argv)
   fprintf(stderr,"%d addressing modes found.\n",mode_count);
   fprintf(stderr,"%d unique instructions found.\n",instruction_count);  
 
+  for(int i=0;i<mode_count;i++) {
+    fprintf(stderr,"Modes #%d : %s\n",i,modeinfo[i].description);
+  }
+  
   // Sort instruction names alphabetically
   fprintf(stderr,"Sorting instructions alphabetically.\n");
   qsort(&instrs[0],instruction_count,sizeof(char *),compar_str);
@@ -189,8 +193,7 @@ int main(int argc,char **argv)
 
     printf("\n\n\\subsection*{%s}\n",instruction);
     fflush(stdout);
-    printf("\\begin{table}[ht!]\n"
-	   "\\begin{tabular}{|llllllllllll|}\n\\hline\n"
+    printf("\\begin{tabular}{|llllllllllll|}\n\\hline\n"
 	   "%s &  & \\multicolumn{9}{l}{%s} & \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & \\multicolumn{2}{l}{%s}  &                             & N       & Z      & I      & C       & D       & V      & E      \\\\\n"
@@ -250,8 +253,7 @@ int main(int argc,char **argv)
       }
     }
     printf("\\hline\n"
-	   "\\end{tabular}\n"
-	   "\\end{table}\n");
+	   "\\end{tabular}\n");
         
   }
   

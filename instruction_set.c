@@ -190,6 +190,7 @@ int main(int argc,char **argv)
     char dflag[2]=".";
     char vflag[2]=".";
     char eflag[2]=".";
+    int extra_cycles=0;
 
     fprintf(stderr,"%s - %s\n",instrs[i],short_description);
     char filename[1024];
@@ -216,6 +217,7 @@ int main(int argc,char **argv)
 	case 'I': iflag[0]=line[i+1]; break;
 	case 'E': eflag[0]=line[i+1]; break;
 	case 'Z': zflag[0]=line[i+1]; break;
+	case 'M': extra_cycles++; break;
 	}
       }
       int r=fread(line,1,8192,f);
@@ -267,7 +269,7 @@ int main(int argc,char **argv)
 	char bytes[16]="3";
 	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";
-	snprintf(cycles,16,"%d",modeinfo[m].cycles);
+	snprintf(cycles,16,"%d",modeinfo[m].cycles+extra_cycles);
 	char *cycle_notes=modeinfo[m].cycle_notes?modeinfo[m].cycle_notes:"";
 	if (opcodes[j].mode_num==-1) {
 	  // Implied mode is handled separately

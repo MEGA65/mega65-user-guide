@@ -115,7 +115,7 @@ int main(int argc,char **argv)
     }
 
     if (n==3) {
-      int i;
+      int i=99;
       for(i=0;i<mode_count;i++) {
 	if (!strcmp(modes[i],mode)) {
 	  break;
@@ -123,6 +123,7 @@ int main(int argc,char **argv)
       }
       if (i<mode_count) opcodes[opcode].mode_num=i;
       else {
+	opcodes[opcode].mode_num=mode_count;	
 	modes[mode_count]=strdup(mode);
 
 	// Try to find better description and data
@@ -130,7 +131,7 @@ int main(int argc,char **argv)
 
 	mode_count++;
       }
-      opcodes[opcode].mode=strdup(mode);      
+      opcodes[opcode].mode=strdup(mode);
     } else {
       opcodes[opcode].mode_num=-1;
       opcodes[opcode].mode="";
@@ -145,8 +146,8 @@ int main(int argc,char **argv)
       }
       if (i<instruction_count) opcodes[opcode].instr_num=i;
       else {
+	opcodes[opcode].instr_num=instruction_count;
 	instrs[instruction_count++]=strdup(name);
-	opcodes[opcode].instr_num=instruction_count-1;
       }
     }
     
@@ -192,14 +193,13 @@ int main(int argc,char **argv)
     char *eflag=".";
 
     printf("\n\n\\subsection*{%s}\n",instruction);
-    fflush(stdout);
     printf("\\begin{tabular}{|llllllllllll|}\n\\hline\n"
 	   "%s &  & \\multicolumn{9}{l}{%s} & \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & \\multicolumn{2}{l}{%s}  &                             & N       & Z      & I      & C       & D       & V      & E      \\\\\n"
 	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
-	   "&  & Addressing Mode & Assembler & \\multicolumn{1}{c}{Op-Code} & \\multicolumn{3}{c}{Bytes} & \\multicolumn{3}{c}{Cycles}       &   \\\\\n",
+	   "&  & {\\underline{Addressing Mode}} & {\\underline{Assembly}} & \\multicolumn{1}{c}{\\underline{Op-Code}} & \\multicolumn{3}{c}{\\underline{Bytes}} & \\multicolumn{3}{c}{\\underline{Cycles}}       &   \\\\\n",
 	   instruction,description,action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );
@@ -208,8 +208,8 @@ int main(int argc,char **argv)
       if (opcodes[j].instr_num==i) {
 	int m=opcodes[j].mode_num;
 	if (m<0) m=0;
-	fprintf(stderr,"  $%02x %d\n",
-		j,m);
+	fprintf(stderr,"  $%02x %d,%d\n",
+		j,m,opcodes[j].mode_num);
 	char *addressing_mode=modeinfo[m].description?modeinfo[m].description:"No description";
 	char assembly[1024]="LDA \\$1234";
 	snprintf(assembly,1024,"%s ",instruction);
@@ -254,6 +254,7 @@ int main(int argc,char **argv)
     }
     printf("\\hline\n"
 	   "\\end{tabular}\n");
+    fflush(stdout);
         
   }
   

@@ -11,7 +11,17 @@ struct opcode {
 };
 
 #define MAX_MODES 32
-char *mode_descriptions[MAX_MODES];
+struct modeinfo {
+  char *description;
+  int bytes;
+  int cycles;
+  char *cycle_notes;
+  char *memory_equation;
+  char *long_description;
+  char *long_title;
+};
+
+struct modeinfo modeinfo[MAX_MODES];
 char *modes[MAX_MODES];
 int mode_count=0;
 
@@ -25,15 +35,15 @@ static int compar_str(const void *a, const void *b)
   return strcmp(* (char * const *) a, * (char * const *) b);
 }
 
-char *lookup_mode_description(char *m)
+void lookup_mode_description(int m)
 {
-  fprintf(stderr,"Looking for description of '%s'\n",m);
+  fprintf(stderr,"Looking for description of '%s'\n",modes[m]);
 
   // Normalise mode into a safe filename
   char n[256];
   int nlen=0;
-  for(int i=0;i<255&&m[i];i++) {
-    switch(m[i]) {
+  for(int i=0;i<255&&modes[m][i];i++) {
+    switch(modes[m][i]) {
     case '(':
     case '#':
     case '$':
@@ -41,7 +51,7 @@ char *lookup_mode_description(char *m)
     case ')':
       n[nlen++]='_'; break;
     default:
-      n[nlen++]=m[i];
+      n[nlen++]=modes[m][i];
     }
   }
   n[nlen]=0;
@@ -51,17 +61,36 @@ char *lookup_mode_description(char *m)
   snprintf(filename,1024,"instruction_sets/mode.%s",n);
   FILE *f=fopen(filename,"rb");
   if (f) {
-    char line[1024];
+    char line[8192];
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+    modeinfo[m].description=strdup(line);
+    fgets(line,1024,f);
+    while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+    modeinfo[m].bytes=atoi(line);
+    fgets(line,1024,f);
+    while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+    modeinfo[m].cycles=atoi(line);
+    fgets(line,1024,f);
+    while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+    modeinfo[m].cycle_notes=strdup(line);
+    fgets(line,1024,f);
+    while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+    modeinfo[m].memory_equation=strdup(line);
+    fgets(line,1024,f);
+    while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+    modeinfo[m].long_title=strdup(line);
+    int r=fread(line,1,8192,f);
+    line[r]=0;
+    modeinfo[m].long_description=strdup(line);
+    
     fclose(f);
-    fprintf(stderr,"%s -> %s\n",m,line);
-    return strdup(line);
   } else {
-    fprintf(stderr,"Could not find mode description file '%s'\n",filename);
+    fprintf(stderr,"WARNING: Could not find mode description file '%s'\n",filename);
+    bzero(&modeinfo[m],sizeof(struct modeinfo));
   }
   
-  return NULL;
+  return;
 }
 
 int main(int argc,char **argv)
@@ -94,17 +123,10 @@ int main(int argc,char **argv)
       }
       if (i<mode_count) opcodes[opcode].mode_num=i;
       else {
-	mode_descriptions[mode_count]="No description";
 	modes[mode_count]=strdup(mode);
 
-	// Try to find better description
-	char *d=lookup_mode_description(mode);
-	if (d) {
-	  mode_descriptions[mode_count]=d;
-	  fprintf(stderr,"Setting mode description.\n");
-	} else {
-	  fprintf(stderr,"No mode description.\n");
-	}
+	// Try to find better description and data
+	lookup_mode_description(mode_count);
 
 	mode_count++;
       }
@@ -181,15 +203,49 @@ int main(int argc,char **argv)
     
     for(int j=0;j<256;j++) {
       if (opcodes[j].instr_num==i) {
-	fprintf(stderr,"  $%02x %s\n",
-		j,opcodes[j].mode);
-	char *addressing_mode=mode_descriptions[opcodes[j].mode_num];
+	int m=opcodes[j].mode_num;
+	if (m<0) m=0;
+	fprintf(stderr,"  $%02x %d\n",
+		j,m);
+	char *addressing_mode=modeinfo[m].description?modeinfo[m].description:"No description";
 	char assembly[1024]="LDA \\$1234";
+	snprintf(assembly,1024,"%s ",instruction);
+	for(int j=0;modes[m][j];j++) {
+	  // Escape tricky chars
+	  switch (modes[m][j]) {
+	  case '$': case '#': 
+	    assembly[strlen(assembly)+1]=0;
+	    assembly[strlen(assembly)]='\\';
+	  }
+	  assembly[strlen(assembly)+1]=0;
+	  assembly[strlen(assembly)]=modes[m][j];
+	}
 	char opcode[16]="A9";
+	snprintf(opcode,16,"%02X",j);
 	char bytes[16]="3";
+	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";
-	char cycle_notes[16]="*^";
-	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{l}{%s} & %s\\\\\n",
+	snprintf(cycles,16,"%d",modeinfo[m].cycles);
+	char *cycle_notes=modeinfo[m].cycle_notes?modeinfo[m].cycle_notes:"";
+	if (opcodes[j].mode_num==-1) {
+	  // Implied mode is handled separately
+	  addressing_mode="implied";
+	  snprintf(bytes,16,"1");
+	  snprintf(cycles,16,"1");
+	  assembly[0]=0;
+	  cycle_notes="";
+
+	  // XXX Replace this with reading data from instruction description files
+	  if (instruction[0]=='P') {
+	    // Push/Pop = 2 cycles
+	    snprintf(cycles,16,"2");
+	  } else if (!strcmp("RTS",instruction)) {
+	    snprintf(cycles,16,"3");
+	  } else if (!strcmp("RTI",instruction)) {
+	    snprintf(cycles,16,"4");
+	  }
+	}
+	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s\\\\\n",
 	       addressing_mode,assembly,opcode,bytes,cycles,cycle_notes);
       }
     }

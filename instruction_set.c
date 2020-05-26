@@ -179,28 +179,67 @@ int main(int argc,char **argv)
   /* Now generate the instruction tables. 
    */
   for(int i=0;i<instruction_count;i++) {
-    fprintf(stderr,"%s - No description\n",instrs[i]);
-
     char *instruction=instrs[i];
-    char *description="No description";
+    char *short_description="No description";
+    char *long_description="No description";
     char *action="";
-    char *nflag=".";
-    char *zflag=".";
-    char *iflag=".";
-    char *cflag=".";
-    char *dflag=".";
-    char *vflag=".";
-    char *eflag=".";
+    char nflag[2]=".";
+    char zflag[2]=".";
+    char iflag[2]=".";
+    char cflag[2]=".";
+    char dflag[2]=".";
+    char vflag[2]=".";
+    char eflag[2]=".";
+
+    fprintf(stderr,"%s - %s\n",instrs[i],short_description);
+    char filename[1024];
+    snprintf(filename,1024,"instruction_sets/inst.%s",instrs[i]);
+    FILE *f=fopen(filename,"rb");
+    char line[8192];
+    if (f) {
+      fprintf(stderr,"Using %s\n",filename);
+      line[0]=0; fgets(line,1024,f);
+      while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+      short_description=strdup(line);
+      
+      line[0]=0; fgets(line,1024,f);
+      while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+      action=strdup(line);
+      line[0]=0; fgets(line,1024,f);
+      while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+      for(int i=0;line[i];i+=2) {
+	switch(line[i]) {
+	case 'N': nflag[0]=line[i+1]; break;
+	case 'V': vflag[0]=line[i+1]; break;
+	case 'C': cflag[0]=line[i+1]; break;
+	case 'D': dflag[0]=line[i+1]; break;
+	case 'I': iflag[0]=line[i+1]; break;
+	case 'E': eflag[0]=line[i+1]; break;
+	case 'Z': zflag[0]=line[i+1]; break;
+	}
+      }
+      int r=fread(line,1,8192,f);
+      line[r]=0;
+      long_description=line;
+      //      fflush(stdout);
+      //      fprintf(stderr,"%s Long desc:\n%s\n\n\n\n",instruction,long_description);
+      fclose(f);
+    } else {
+      fprintf(stderr,"WARNING: Could not read %s\n",filename);
+    }
+	  
 
     printf("\n\n\\subsection*{%s}\n",instruction);
+    printf("%s\n\n\n",long_description);
+
     printf("\\begin{tabular}{|llllllllllll|}\n\\hline\n"
-	   "%s &  & \\multicolumn{9}{l}{%s} & \\\\\n"
+	   "{\\bf %s} &  & \\multicolumn{9}{l}{\\bf %s} & \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
-	   "&  & \\multicolumn{2}{l}{%s}  &                             & N       & Z      & I      & C       & D       & V      & E      \\\\\n"
+	   "&  & \\multicolumn{2}{l}{%s}  &                             & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
 	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
-	   "&  & {\\underline{Addressing Mode}} & {\\underline{Assembly}} & \\multicolumn{1}{c}{\\underline{Op-Code}} & \\multicolumn{3}{c}{\\underline{Bytes}} & \\multicolumn{3}{c}{\\underline{Cycles}}       &   \\\\\n",
-	   instruction,description,action,
+	   "&  & {\\underline{\\bf Addressing Mode}} & {\\underline{Assembly}} & \\multicolumn{1}{c}{\\underline{Op-Code}} & \\multicolumn{3}{c}{\\underline{Bytes}} & \\multicolumn{3}{c}{\\underline{Cycles}}       &   \\\\\n",
+	   instruction,short_description,action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );
     

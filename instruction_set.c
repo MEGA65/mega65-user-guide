@@ -232,13 +232,13 @@ int main(int argc,char **argv)
     printf("\n\n\\subsection*{%s}\n",instruction);
     printf("%s\n\n\n",long_description);
 
-    printf("\\begin{tabular}{|llllllllllll|}\n\\hline\n"
+    printf("\\begin{tabular}{|llp{4cm}lllllllll|}\n\\hline\n"
 	   "{\\bf %s} &  & \\multicolumn{9}{l}{\\bf %s} & \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
-	   "&  & \\multicolumn{2}{l}{%s}  &                             & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
+	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
 	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
-	   "&  & {\\underline{\\bf Addressing Mode}} & {\\underline{Assembly}} & \\multicolumn{1}{c}{\\underline{Op-Code}} & \\multicolumn{3}{c}{\\underline{Bytes}} & \\multicolumn{3}{c}{\\underline{Cycles}}       &   \\\\\n",
+	   "&  & {\\underline{\\bf Addressing Mode}} & {\\bf \\underline{Assembly}} & \\multicolumn{1}{c}{\\bf \\underline{Op-Code}} & \\multicolumn{3}{c}{\\bf \\underline{Bytes}} & \\multicolumn{3}{c}{\\bf \\underline{Cycles}}       &   \\\\\n",
 	   instruction,short_description,action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );

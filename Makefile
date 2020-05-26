@@ -2,6 +2,9 @@
 
 all:	userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf
 
+instruction_set: instruction_set.c Makefile
+	gcc -Wall -g -o instruction_set instruction_set.c 
+
 images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot
 	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
 

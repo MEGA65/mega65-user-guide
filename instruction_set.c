@@ -272,7 +272,16 @@ int main(int argc,char **argv)
     }
     fprintf(stderr,"%s - %s\n",instrs[i],short_description);	  
 
-    printf("\n\n\\subsection*{%s}\n",instruction);
+    int is_undocumented=0;
+    if (strstr(short_description,"(undocumented instruction)")) {
+      is_undocumented=1;
+      short_description[strlen(short_description)-strlen("(undocumented instruction)")]=0;
+    }
+    
+    
+    printf("\n\n\\subsection*{%s%s}\n",instruction,
+	   is_undocumented?" {\\em Unofficial Instruction}":""
+	   );
     printf("%s\n\n\n",long_description);
 
     int delmodify65ce02_note_seen=0;
@@ -281,15 +290,16 @@ int main(int argc,char **argv)
     int page_note_seen=0;
     int read_note_seen=0;
     int single_cycle_seen=0;
-    
+
     printf("\\begin{tabular}{|llp{4cm}lllllllll|}\n\\hline\n"
 	   "{\\bf %s} &  & \\multicolumn{7}{l}{\\bf %s} & \\multicolumn{3}{r|}{\\bf %s}    \\\\\n"
-	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
+	   "&  \\multicolumn{7}{l}{%s}   &       &         &        &        \\\\\n"
 	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
 	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & {\\underline{\\bf Addressing Mode}} & {\\bf \\underline{Assembly}} & \\multicolumn{1}{c}{\\bf \\underline{Op-Code}} & \\multicolumn{3}{c}{\\bf \\underline{Bytes}} & \\multicolumn{3}{c}{\\bf \\underline{Cycles}}       &   \\\\\n",
 	   instruction,short_description,processor,
+	   is_undocumented?"{\\em Unofficial Instruction}":"",
 	   action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );

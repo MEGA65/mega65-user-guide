@@ -8,6 +8,9 @@ instruction_set: instruction_set.c Makefile
 instructionset-4510.tex:	instruction_set
 	./instruction_set instruction_sets/4510.opc > instructionset-4510.tex
 
+instructionset-6502.tex:	instruction_set
+	./instruction_set instruction_sets/6502.opc > instructionset-6502.tex
+
 images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot
 	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
 

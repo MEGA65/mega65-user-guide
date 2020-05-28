@@ -135,6 +135,9 @@ int main(int argc,char **argv)
       if (n==3) {
 	if (opcode>=0&&opcode<256)
 	  cycle_count_list[opcode]=strdup(cycles);
+      } else if(n==2) {
+	if (opcode>=0&&opcode<256)
+	  cycle_count_list[opcode]=strdup(instr);
       }
       line[0]=0; fgets(line,1024,cf);
     }
@@ -272,9 +275,12 @@ int main(int argc,char **argv)
     printf("\n\n\\subsection*{%s}\n",instruction);
     printf("%s\n\n\n",long_description);
 
-    int branch_note=0;
-    int page_note=0;
-    int read_note=0;
+    int delmodify65ce02_note_seen=0;
+    int delidle4510_note_seen=0;
+    int branch_note_seen=0;
+    int page_note_seen=0;
+    int read_note_seen=0;
+    int single_cycle_seen=0;
     
     printf("\\begin{tabular}{|llp{4cm}lllllllll|}\n\\hline\n"
 	   "{\\bf %s} &  & \\multicolumn{6}{l}{\\bf %s} & \\multicolumn{4}{r|}{\\bf %s}    \\\\\n"
@@ -334,7 +340,7 @@ int main(int argc,char **argv)
 	}
 
 	char cycle_count[1024];
-	char *cycle_notes;
+	char cycle_notes[1024]="";
 	
 	if (cycle_count_list[j]) {
 	  cycle_count[0]=0;
@@ -342,24 +348,49 @@ int main(int argc,char **argv)
 	    {
 	      cycle_count[i]=cycle_count_list[j][i];
 	      cycle_count[i+1]=0;
-	      cycle_notes=&cycle_count_list[j][i+1];
+	      strcpy(cycle_notes,&cycle_count_list[j][i+1]);
 	    }
 	  }
 	} else {
-	  snprintf(cycle_count,1024,"??"); cycle_notes="";
+	  snprintf(cycle_count,1024,"??"); cycle_notes[0]=0;
 	}
-	if (strstr(cycle_notes,"b")) branch_note=1;
-	if (strstr(cycle_notes,"p")) page_note=1;
-	if (strstr(cycle_notes,"r")) read_note=1;
+
+	int delmodify65ce02_note=0;
+	int delidle4510_note=0;
+	int branch_note=0;
+	int page_note=0;
+	int read_note=0;
+	int single_cycle=0;
+	
+	if (strstr(cycle_notes,"d")) { delmodify65ce02_note=1; delmodify65ce02_note_seen=1; }
+	if (strstr(cycle_notes,"m")) { delidle4510_note=1; delidle4510_note_seen=1; }
+	if (strstr(cycle_notes,"b")) { branch_note=1; branch_note_seen=1; }
+	if (strstr(cycle_notes,"p")) { page_note=1; page_note_seen=1; }
+	if (strstr(cycle_notes,"r")) { read_note=1; read_note_seen=1; }
+	if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
+	
+	snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
+		branch_note?"b":"",
+		delmodify65ce02_note?"d":"",
+		delidle4510_note?"m":"",
+		page_note?"p":"",
+		read_note?"r":"",
+		single_cycle?"s":"");
+	
 	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s \\\\\n",
 	       addressing_mode,assembly,opcode,bytes,cycle_count,cycle_notes);
 
       }
     }    
     printf("\\hline\n");
-    if (read_note) printf(" \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz} \\\\\n");
-    if (page_note) printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
-    if (branch_note) printf(" \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch crosses a page boundary.} \\\\\n");
+    // d = 65CE02 delete idle cycles when CPU >2MHz
+    // m = 4510 delete non-bus cycles
+    if (branch_note_seen) printf(" \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch crosses a page boundary.} \\\\\n");
+    if (delmodify65ce02_note_seen) printf(" \\multicolumn{1}{r}{$d$} & \\multicolumn{11}{l}{Subtract one cycle when CPU is at 3.5MHz. } \\\\\n");
+    if (delidle4510_note_seen) printf(" \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
+    if (page_note_seen) printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
+    if (read_note_seen) printf(" \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
+    if (single_cycle_seen) printf(" \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Single cycle instructions require 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");
     
     printf("\\end{tabular}\n");
     fflush(stdout);

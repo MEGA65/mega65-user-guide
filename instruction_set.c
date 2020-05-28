@@ -106,6 +106,17 @@ int main(int argc,char **argv)
      its function.
   */
 
+  char processor[1024];
+
+  int plen=0;
+  for(int i=0;argv[1]&&argv[1][i]&&argv[1][i]!='.';i++)
+    {
+      processor[plen++]=argv[1][i];
+      processor[plen]=0;
+      if (argv[1][i]=='/') plen=0;
+    }
+  fprintf(stderr,"Processor name is '%s'\n",processor);
+  
   FILE *f=fopen(argv[1],"rb");
   char line[1024];
   line[0]=0; fgets(line,1024,f);
@@ -197,7 +208,6 @@ int main(int argc,char **argv)
     char eflag[2]=".";
     int extra_cycles=0;
 
-    fprintf(stderr,"%s - %s\n",instrs[i],short_description);
     char filename[1024];
     snprintf(filename,1024,"instruction_sets/inst.%s",instrs[i]);
     FILE *f=fopen(filename,"rb");
@@ -234,19 +244,20 @@ int main(int argc,char **argv)
     } else {
       fprintf(stderr,"WARNING: Could not read %s\n",filename);
     }
-	  
+    fprintf(stderr,"%s - %s\n",instrs[i],short_description);	  
 
     printf("\n\n\\subsection*{%s}\n",instruction);
     printf("%s\n\n\n",long_description);
 
     printf("\\begin{tabular}{|llp{4cm}lllllllll|}\n\\hline\n"
-	   "{\\bf %s} &  & \\multicolumn{9}{l}{\\bf %s} & \\\\\n"
+	   "{\\bf %s} &  & \\multicolumn{6}{l}{\\bf %s} & \\multicolumn{3}{r}{\\bf %s} &    \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
 	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & {\\underline{\\bf Addressing Mode}} & {\\bf \\underline{Assembly}} & \\multicolumn{1}{c}{\\bf \\underline{Op-Code}} & \\multicolumn{3}{c}{\\bf \\underline{Bytes}} & \\multicolumn{3}{c}{\\bf \\underline{Cycles}}       &   \\\\\n",
-	   instruction,short_description,action,
+	   instruction,short_description,processor,
+	   action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );
     

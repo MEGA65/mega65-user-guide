@@ -31,8 +31,7 @@ int instruction_count=0;
 struct opcode opcodes[256];
 
 // Collected information for opcode table generation
-int cycle_counts[256];
-char *cycle_note_list[256];
+char *cycle_count_list[256];
 char *instructions[256];
 
 static int compar_str(const void *a, const void *b)
@@ -107,18 +106,42 @@ int main(int argc,char **argv)
   */
 
   char processor[1024];
-
+  char processor_path[1024];
+  int pplen=0;
   int plen=0;
   for(int i=0;argv[1]&&argv[1][i]&&argv[1][i]!='.';i++)
     {
       processor[plen++]=argv[1][i];
       processor[plen]=0;
       if (argv[1][i]=='/') plen=0;
+      processor_path[pplen++]=argv[1][i];
+      processor_path[pplen]=0;
     }
   fprintf(stderr,"Processor name is '%s'\n",processor);
+
+  char line[1024];
+  
+  strcat(processor_path,".cycles");
+  FILE *cf=fopen(processor_path,"rb");
+  if (cf)
+  {
+    fprintf(stderr,"Reading instruction cycle count information...\n");
+    line[0]=0; fgets(line,1024,cf);
+    while(line[0]) {
+      int opcode;
+      char instr[1024];
+      char cycles[1024];
+      int n=sscanf(line,"%x %s %[^\n]",&opcode,instr,cycles);
+      if (n==3) {
+	if (opcode>=0&&opcode<256)
+	  cycle_count_list[opcode]=strdup(cycles);
+      }
+      line[0]=0; fgets(line,1024,cf);
+    }
+    fclose(cf);
+  }
   
   FILE *f=fopen(argv[1],"rb");
-  char line[1024];
   line[0]=0; fgets(line,1024,f);
   while(line[0]) {
     int opcode;
@@ -286,18 +309,14 @@ int main(int argc,char **argv)
 	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";
 	snprintf(cycles,16,"%d",modeinfo[m].cycles+extra_cycles);
-	// Record calculated cycle count and notes for cycle count table
-	cycle_counts[m]=modeinfo[m].cycles+extra_cycles;
 	instructions[m]=strdup(instruction);
 	
-	char *cycle_notes=modeinfo[m].cycle_notes?modeinfo[m].cycle_notes:"";
 	if (opcodes[j].mode_num==-1) {
 	  // Implied mode is handled separately
 	  addressing_mode="implied";
 	  snprintf(bytes,16,"1");
 	  snprintf(cycles,16,"1");
 	  assembly[0]=0;
-	  cycle_notes="";
 
 	  // XXX Replace this with reading data from instruction description files
 	  if (instruction[0]=='P') {
@@ -309,10 +328,25 @@ int main(int argc,char **argv)
 	    snprintf(cycles,16,"4");
 	  }
 	}
-	cycle_note_list[m]=strdup(cycle_notes);
+
+	char cycle_count[1024];
+	char *cycle_notes;
 	
-	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s\\\\\n",
-	       addressing_mode,assembly,opcode,bytes,cycles,cycle_notes);
+	if (cycle_count_list[j]) {
+	  cycle_count[0]=0;
+	  for(int i=0;isdigit(cycle_count_list[j][i]);i++) {
+	    {
+	      cycle_count[i]=cycle_count_list[j][i];
+	      cycle_count[i+1]=0;
+	      cycle_notes=&cycle_count_list[j][i+1];
+	    }
+	  }
+	} else {
+	  snprintf(cycle_count,1024,"??"); cycle_notes="";
+	}
+	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s \\\\\n",
+	       addressing_mode,assembly,opcode,bytes,cycle_count,cycle_notes);
+
       }
     }
     printf("\\hline\n"

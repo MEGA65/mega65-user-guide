@@ -272,8 +272,12 @@ int main(int argc,char **argv)
     printf("\n\n\\subsection*{%s}\n",instruction);
     printf("%s\n\n\n",long_description);
 
+    int branch_note=0;
+    int page_note=0;
+    int read_note=0;
+    
     printf("\\begin{tabular}{|llp{4cm}lllllllll|}\n\\hline\n"
-	   "{\\bf %s} &  & \\multicolumn{6}{l}{\\bf %s} & \\multicolumn{3}{r}{\\bf %s} &    \\\\\n"
+	   "{\\bf %s} &  & \\multicolumn{6}{l}{\\bf %s} & \\multicolumn{4}{r|}{\\bf %s}    \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
 	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"
@@ -344,13 +348,20 @@ int main(int argc,char **argv)
 	} else {
 	  snprintf(cycle_count,1024,"??"); cycle_notes="";
 	}
+	if (strstr(cycle_notes,"b")) branch_note=1;
+	if (strstr(cycle_notes,"p")) page_note=1;
+	if (strstr(cycle_notes,"r")) read_note=1;
 	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s \\\\\n",
 	       addressing_mode,assembly,opcode,bytes,cycle_count,cycle_notes);
 
       }
-    }
-    printf("\\hline\n"
-	   "\\end{tabular}\n");
+    }    
+    printf("\\hline\n");
+    if (read_note) printf(" \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz} \\\\\n");
+    if (page_note) printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
+    if (branch_note) printf(" \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch crosses a page boundary.} \\\\\n");
+    
+    printf("\\end{tabular}\n");
     fflush(stdout);
         
   }

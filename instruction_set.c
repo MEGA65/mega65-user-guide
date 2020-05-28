@@ -30,6 +30,11 @@ int instruction_count=0;
 
 struct opcode opcodes[256];
 
+// Collected information for opcode table generation
+int cycle_counts[256];
+char *cycle_note_list[256];
+char *instructions[256];
+
 static int compar_str(const void *a, const void *b)
 {
   return strcmp(* (char * const *) a, * (char * const *) b);
@@ -270,6 +275,11 @@ int main(int argc,char **argv)
 	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";
 	snprintf(cycles,16,"%d",modeinfo[m].cycles+extra_cycles);
+	// Record calculated cycle count and notes for cycle count table
+	cycle_counts[m]=modeinfo[m].cycles+extra_cycles;
+	cycle_note_list[m]=strdup(cycle_notes);
+	instructions[m]=strdup(instruction);
+	
 	char *cycle_notes=modeinfo[m].cycle_notes?modeinfo[m].cycle_notes:"";
 	if (opcodes[j].mode_num==-1) {
 	  // Implied mode is handled separately

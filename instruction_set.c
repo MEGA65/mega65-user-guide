@@ -283,7 +283,7 @@ int main(int argc,char **argv)
     int single_cycle_seen=0;
     
     printf("\\begin{tabular}{|llp{4cm}lllllllll|}\n\\hline\n"
-	   "{\\bf %s} &  & \\multicolumn{6}{l}{\\bf %s} & \\multicolumn{4}{r|}{\\bf %s}    \\\\\n"
+	   "{\\bf %s} &  & \\multicolumn{7}{l}{\\bf %s} & \\multicolumn{3}{r|}{\\bf %s}    \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
 	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"

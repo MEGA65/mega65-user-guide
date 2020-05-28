@@ -1,4 +1,4 @@
-Transfer Stack Pointer High (SPL) Register into the X Register
+Transfer Stack Pointer High Register into the X Register
 X $\leftarrow$ SPH
 N+Z+
 This instruction loads the X Register with the contents of the Stack Pointer High (SPL)

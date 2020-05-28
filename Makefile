@@ -33,7 +33,7 @@ hardwareguide.pdf: *.tex Makefile references.bib
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make hardwareguide.tex
 
-mega65-book.pdf: *.tex Makefile references.bib document-memory instructionset-4510.tex ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+mega65-book.pdf: *.tex Makefile references.bib document-memory instructionset-4510.tex instructionset-6502.tex ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-book.tex

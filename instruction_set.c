@@ -277,7 +277,6 @@ int main(int argc,char **argv)
 	snprintf(cycles,16,"%d",modeinfo[m].cycles+extra_cycles);
 	// Record calculated cycle count and notes for cycle count table
 	cycle_counts[m]=modeinfo[m].cycles+extra_cycles;
-	cycle_note_list[m]=strdup(cycle_notes);
 	instructions[m]=strdup(instruction);
 	
 	char *cycle_notes=modeinfo[m].cycle_notes?modeinfo[m].cycle_notes:"";
@@ -299,6 +298,8 @@ int main(int argc,char **argv)
 	    snprintf(cycles,16,"4");
 	  }
 	}
+	cycle_note_list[m]=strdup(cycle_notes);
+	
 	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s\\\\\n",
 	       addressing_mode,assembly,opcode,bytes,cycles,cycle_notes);
       }

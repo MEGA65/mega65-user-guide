@@ -32,7 +32,7 @@ struct opcode opcodes[256];
 
 // Collected information for opcode table generation
 char *cycle_count_list[256];
-char *instructions[256];
+char *instruction_names[256];
 
 static int compar_str(const void *a, const void *b)
 {
@@ -329,26 +329,7 @@ int main(int argc,char **argv)
 	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";
 	snprintf(cycles,16,"%d",modeinfo[m].cycles+extra_cycles);
-	instructions[m]=strdup(instruction);
 	
-	if (opcodes[j].mode_num==-1) {
-	  // Implied mode is handled separately
-	  addressing_mode="implied";
-	  snprintf(bytes,16,"1");
-	  snprintf(cycles,16,"1");
-	  assembly[0]=0;
-
-	  // XXX Replace this with reading data from instruction description files
-	  if (instruction[0]=='P') {
-	    // Push/Pop = 2 cycles
-	    snprintf(cycles,16,"2");
-	  } else if (!strcmp("RTS",instruction)) {
-	    snprintf(cycles,16,"3");
-	  } else if (!strcmp("RTI",instruction)) {
-	    snprintf(cycles,16,"4");
-	  }
-	}
-
 	char cycle_count[1024];
 	char cycle_notes[1024]="";
 	
@@ -378,6 +359,8 @@ int main(int argc,char **argv)
 	if (strstr(cycle_notes,"p")) { page_note=1; page_note_seen=1; }
 	if (strstr(cycle_notes,"r")) { read_note=1; read_note_seen=1; }
 	if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
+
+	instruction_names[j]=strdup(instruction);
 	
 	snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
 		branch_note?"b":"",
@@ -404,7 +387,84 @@ int main(int argc,char **argv)
     
     printf("\\end{tabular}\n");
     fflush(stdout);
-        
+
+    snprintf(filename,1024,"%s-opcodes.tex",processor);
+    FILE *tf=fopen(filename,"wb");
+    if (tf) {
+      fprintf(tf,"\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
+      fprintf(tf,"\\cline{2-17}\n");
+      fprintf(tf,"& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 & \\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF \\\\ \\hline\n");
+      for(int i=0;i<16;i++) {
+	fprintf(tf,"\\multicolumn{1}{|l|}{\\$%Xx} ",i);
+	for(int j=0;j<16;j++) fprintf(tf,"& %s     ",instruction_names[i*16+j]);
+	fprintf(tf,"     \\\\ \\hline\n");
+      }
+      fprintf(tf,"\\end{tabular}\n");      
+      fclose(tf);
+    }
+
+    snprintf(filename,1024,"%s-cycles.tex",processor);
+    tf=fopen(filename,"wb");
+    if (tf) {
+      fprintf(tf,"\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
+      fprintf(tf,"\\cline{2-17}\n");
+      fprintf(tf,"& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 & \\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF \\\\ \\hline\n");
+      for(int i=0;i<16;i++) {
+	fprintf(tf,"\\multicolumn{1}{|l|}{\\$%Xx} ",i);
+	for(int j=0;j<16;j++) {
+	  char cycle_count[1024];
+	  char cycle_notes[1024]="";
+	  
+	  if (cycle_count_list[i*16+j]) {
+	    cycle_count[0]=0;
+	    for(int k=0;isdigit(cycle_count_list[i*16+j][k]);k++) {
+	      {
+		cycle_count[k]=cycle_count_list[i*16+j][k];
+		cycle_count[k+1]=0;
+		strcpy(cycle_notes,&cycle_count_list[i*16+j][k+1]);
+	      }
+	    }
+	  } else {
+	    snprintf(cycle_count,1024,"??"); cycle_notes[0]=0;
+	  }
+
+	  int delmodify65ce02_note=0;
+	  int delidle4510_note=0;
+	  int branch_note=0;
+	  int page_note=0;
+	  int read_note=0;
+	  int single_cycle=0;
+	  
+	  if (strstr(cycle_notes,"d")) { delmodify65ce02_note=1; delmodify65ce02_note_seen=1; }
+	  if (strstr(cycle_notes,"m")) { delidle4510_note=1; delidle4510_note_seen=1; }
+	  if (strstr(cycle_notes,"b")) { branch_note=1; branch_note_seen=1; }
+	  if (strstr(cycle_notes,"p")) { page_note=1; page_note_seen=1; }
+	  if (strstr(cycle_notes,"r")) { read_note=1; read_note_seen=1; }
+	  if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
+	  
+	  snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
+		   branch_note?"b":"",
+		   delmodify65ce02_note?"d":"",
+		   delidle4510_note?"m":"",
+		   page_note?"p":"",
+		   read_note?"r":"",
+		   single_cycle?"s":"");
+	  
+	  
+	  fprintf(tf,"& %s%s     ",cycle_count,cycle_notes);
+	}
+	fprintf(tf,"     \\\\ \\hline\n");
+      }
+      if (branch_note_seen) fprintf(tf," \\multicolumn{1}{r}{$b$} & \\multicolumn{16}{l}{Add one cycle if branch crosses a page boundary.} \\\\\n");
+      if (delmodify65ce02_note_seen) fprintf(tf," \\multicolumn{1}{r}{$d$} & \\multicolumn{16}{l}{Subtract one cycle when CPU is at 3.5MHz. } \\\\\n");
+      if (delidle4510_note_seen) fprintf(tf," \\multicolumn{1}{r}{$m$} & \\multicolumn{16}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
+      if (page_note_seen) fprintf(tf," \\multicolumn{1}{r}{$p$} & \\multicolumn{16}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
+      if (read_note_seen) fprintf(tf," \\multicolumn{1}{r}{$r$} & \\multicolumn{16}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
+      if (single_cycle_seen) fprintf(tf," \\multicolumn{1}{r}{$s$} & \\multicolumn{16}{l}{Single cycle instructions require 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");	
+      
+      fprintf(tf,"\\end{tabular}\n");      
+      fclose(tf);
+    }
   }
   
 }

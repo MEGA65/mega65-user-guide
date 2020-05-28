@@ -9,6 +9,53 @@ sections.
 
 \section{45GS02 Instruction Set}
 
+\subsection{Opcode Map}
+
+\begin{center}
+\rotatebox{270}{
+  \input{4510-opcodes}
+  }
+\end{center}
+
+\subsection{Instruction Timing}
+
+The following table lists the base cycle count for each opcode.
+Note that the number of cycles depends on the speed setting of the
+processor: Some instructions take more or fewer cycles when the
+processor is running at full-speed, or a C65 compatibility 3.5MHz speed,
+or at C64 compatibility 1MHz/2MHz speed.  More detailed information on
+this is listed under each each instruction's information, but the high-level
+view is:
+
+\begin{itemize}
+\item When the processor is running at 1MHz, all instructions take at least
+  two cycles, and dummy cycles are re-inserted into Read-Modify-Write instructions,
+  so that all instructions take exactly the same number of cycles as on a 6502.
+\item The Read-Modify-Write instructions and all instructions that read a value from
+  memory all require an extra cycle when operating at full speed, to allow signals
+  to propagate within the processor.
+\item The Read-Modify-Write instructions require an additional cycle if the operand
+  is \$D019, as the dummy write is performed in this case.
+  This is to improve compatibility with C64 software that frequently uses this
+  ``bug'' of the 6502 to more rapidly acknowledge VIC-II interrupts.
+\item Page-crossing and branch-taking penalties do not apply when the processor is
+  running at full speed.
+\item Many instructions require fewer cycles when the processor is running at full
+  speed, as generally most non-bus cycles are removed. For example, Pushing and Pulling
+  values to and from the stack requires only 2 cycles, instead of the 4 that that the
+  6502 requires for these instructions.
+\end{itemize}
+
+Note that it is possible that further changes to processor timing will occur.
+
+Similar issues apply to when the processor is in 6502 mode.
+  
+\begin{center}
+\rotatebox{270}{
+\input{4510-cycles}
+}
+\end{center}
+
 \input{instructionset-4510}
 
 \section{6502 Instruction Set}
@@ -17,6 +64,26 @@ NOTE: The mechanisms for switching from 4510 to 6502 CPU personality
 have yet to be finalised.
 
 NOTE: Not all 6502 illegal opcodes are currently implemented.
+
+\subsection{Opcode Map}
+
+\begin{center}
+\rotatebox{270}{
+\input{6502-opcodes}
+}
+\end{center}
+
+\subsection{Instruction Timing}
+
+The following table summarises the base instruction timing for 6502 mode.
+Please also read the information for 4510 mode, as it discusses a number
+of important factors that affect these figures.
+
+\begin{center}
+\rotatebox{270}{
+\input{6502-cycles}
+}
+\end{center}
 
 \input{instructionset-6502}
 

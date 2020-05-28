@@ -282,7 +282,7 @@ int main(int argc,char **argv)
     printf("\n\n\\subsection*{%s%s}\n",instruction,
 	   is_undocumented?" {\\em Unofficial Instruction}":""
 	   );
-    printf("%s\n\n\n",long_description);
+    printf("\\index{%s}%s\n\n\n",instruction,long_description);
 
     int delmodify65ce02_note_seen=0;
     int delidle4510_note_seen=0;

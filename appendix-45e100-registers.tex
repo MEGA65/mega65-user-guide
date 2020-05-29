@@ -5,7 +5,7 @@
 The 45E100 is a new and simple Fast Ethernet controller that has been
 designed specially for the MEGA65 and for 8-bit computers generally.
 In addition to supporting 100Mbit Fast Ethernet, it is radically
-different from other ethernet controllers, such as the RR-NET.
+different from other Ethernet controllers, such as the RR-NET.
 
 The 45E100 includes dual receive buffers, allowing one frame to be
 processed while another is receiving.  It includes automatic CRC32
@@ -14,10 +14,10 @@ reducing the burden on the processor and allowing for very simple programs.  It 
 full-duplex operation at 100Mbit per second, allowing for total bi-directional
 throughput exceeding 100Mbit per second.  The MAC address is software
 configurable, and promiscuous mode is supported, as are individual control
-of the reception of broadcast and multi-cast ethernet frames.  The 45E100 also
+of the reception of broadcast and multi-cast Ethernet frames.  The 45E100 also
 supports both transmit and receive interrupts, allowing greatly improved
 real-world performance. When especially low latency is required, it is also possible
-to immediately abort the transmission of the current ethernet frame, so that a
+to immediately abort the transmission of the current Ethernet frame, so that a
 higher-priority frame can be immediately sent.
 These features combine to enable sub-millisecond round trip latencies,
 which can be of particular value for interactive applications, such as multi-player network
@@ -25,41 +25,41 @@ games.
 
 \subsection{Differences to the RR-NET and similar solutions}
 
-The RR-NET and other ethernet controllers for the Commodore\texttrademark \ line
-of 8-bit home computers generally use an ethernet controller that was
+The RR-NET and other Ethernet controllers for the Commodore\texttrademark \ line
+of 8-bit home computers generally use an Ethernet controller that was
 designed for 16-bit PCs, but that also supports a so-called ``8-bit mode,''
 which suffers from a number of disadvantages. The primary disadvantages
 are the lack of working interrupts, and processor intensive access to
-the ethernet frame buffers.  The lack of interrupts forces programs to
-use polling to check for the arrival of new ethernet frames.  This,
+the Ethernet frame buffers.  The lack of interrupts forces programs to
+use polling to check for the arrival of new Ethernet frames.  This,
 together with the complexities of accessing the buffers results in an
-ethernet interface that is very slow, and whose real-world throughput
+Ethernet interface that is very slow, and whose real-world throughput
 is considerably less than its theoretical 10Mbits per second.  Even
 a Commodore 64 with REU cannot achieve speeds above several tens of
 kilobytes per second.
 
-In contrast, the 45E100 supports both RX (ethernet frame received) interrupts and TX
+In contrast, the 45E100 supports both RX (Ethernet frame received) interrupts and TX
 (ready to transmit) interrupts, freeing the processor from having to poll
 the device. Because the 45E100 supports RX interrupts, there is no need for large
 numbers of receive buffers, which is why the 45E100 requires only two RX buffers
 to achieve very high levels of performance.
 
 Further, the 45E100 supports direct memory mapping of the
-ethernet frame buffers, allowing for much more efficient access, including
+Ethernet frame buffers, allowing for much more efficient access, including
 by DMA.  Using the MEGA65's integrated DMA controller it is quite possible
 to achieve transfer rates of several mega-bytes per second -- some 100x
 faster than the RR-NET.
 
 \subsection{Theory of Operation: Receiving Frames}
 
-The 45E100 is simple to operate: To begin receiving ethernet frames, the programmer
+The 45E100 is simple to operate: To begin receiving Ethernet frames, the programmer
 needs only to clear the RST bit (bit 0 of register \$D6E0) to release the
-ethernet controller from reset.  It will then auto-negotiate connection at
+Ethernet controller from reset.  It will then auto-negotiate connection at
 the highest available speed, typically 100Mbit, full-duplex.  The RXBLKD bit (bit 6 of \$D6E0)
 should then be checked, and if set, the RXBM (bit 2 of register \$D6E1) bit should be toggled to switch
 the active and mapped receive buffers, so that the 45E100 knows that the
 program no longer needs the contents of the previously mapped buffer, and can
-safely begin receiving an ethernet frame into that buffer.
+safely begin receiving an Ethernet frame into that buffer.
 
 When the 45E100 receives an ethernet frame, it will assert RXBLKD to indicate that the receive
 buffer has been filled with an ethernet frame.  No further ethernet frames will be received until

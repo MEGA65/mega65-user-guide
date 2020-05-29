@@ -27,11 +27,11 @@ features and enhancements of the VIC-IV include:
 \item {\bf New sprite modes}: Bitplane modification, {\bf full-colour} (15 foreground colours + transparency) and tiled modes, allowing a wide variety of new and exciting sprite-based effects
   \item The ability to stack sprites in a bit-planar manner to produce {\bf sprites with up to 256 colours}.
 \item Sprites can use 64 bits of data per raster line, allowing {\bf sprites to be 64 pixels wide} when using VIC-II/III mono/multi-colour mode, or 16 pixels wide when using the new VIC-IV full-colour sprite mode.
-\item {\bf Sprite tile mode}, which allows a sprite to be repeated horizontally across an entire raster line, allowing sprites to be used to create  animated backrounds in a memory-efficient manner.
+\item {\bf Sprite tile mode}, which allows a sprite to be repeated horizontally across an entire raster line, allowing sprites to be used to create  animated backgrounds in a memory-efficient manner.
   \item Sprites can be configured to use a {\bf separate 256-colour palette} to that used to draw other text and graphics, allowing for a more colourful display.
   \item {\bf Super-extended attribute mode} which uses two screen RAM bytes and two colour RAM bytes per character mode, which supports a wide variety of new features including {\bf alpha-blending/anti-aliasing}, {\bf hardware kerning/variable-width characters}, hardware horizontal/vertical flipping, alternate palette selection and other powerful features that make it easy to create highly dynamic and colourful displays.
-  \item {\bf Raster-Rewrite Buffer} which allows {\bf hardware-generated pseudo-sprites}, similar to ``bobs'' on Amiga\texttrademark \ computers, but with the advantage that they are rended in the display pipeline, and thus do not need to be undrawn and redrawn to animate them.
-    \item {\bf Multiple 8-bit colour playfields} are also possible using the Raster-Rewrite Buffer.
+  \item {\bf Raster-Rewrite Buffer} which allows {\bf hardware-generated pseudo-sprites}, similar to ``bobs'' on Amiga\texttrademark \ computers, but with the advantage that they are rendered in the display pipeline, and thus do not need to be un-drawn and redrawn to animate them.
+    \item {\bf Multiple 8-bit colour play-fields} are also possible using the Raster-Rewrite Buffer.
 
       In short, the VIC-IV is a powerful evolution of the VIC-II/III, while retaining the character and distinctiveness of the VIC-series of
       video controllers.
@@ -64,7 +64,7 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
  \hline
 \small \$47 (71) & \small \$53 (83) & Both VIC-III and VIC-IV new registers visible & Yes \\
  \hline
-\small \$45 (69)  & \small \$54 (84) & No VIC-II/III/IV registers visible. 45E100 ethernet controller buffers are visible instead & Yes \\
+\small \$45 (69)  & \small \$54 (84) & No VIC-II/III/IV registers visible. 45E100 Ethernet controller buffers are visible instead & Yes \\
  \hline
    \end{longtable}
 
@@ -95,18 +95,18 @@ of a MEGA65 computer. Detection of a VIC-III can be similarity assumed to indica
 
 \section{Video Output Formats, Timing and Compatibility}
 
-\subsection{Integrated Marvelous Digital Hookup\texttrademark (IMDH\texttrademark)
+\subsection{Integrated Marvellous Digital Hookup\texttrademark (IMDH\texttrademark)
   Digital Video Output}}
-  \index{Integrated Marvelous Digital Hookup\texttrademark}
+  \index{Integrated Marvellous Digital Hookup\texttrademark}
   \index{IMDH\texttrademark}
   
-The MEGA65 features VGA analog video output and Integrated Marvelous
+The MEGA65 features VGA analog video output and Integrated Marvellous
 Digital Hookup\texttrademark \ (IMDH\texttrademark ). This is different
 to existing common digital video standards in several key points:
 
 \begin{enumerate}
   \item We didn't invent a new connector for it: We instead used the
-    most common digitial video connector already in use.  So your
+    most common digital video connector already in use.  So your
     existing cables should work fine!
   \item We didn't make it purposely incompatible with any existing
     digital video standard. So your existing TVs and monitors should
@@ -135,7 +135,7 @@ connector.
 
 However, regrettably, not all manufacturers
 have submitted their devices for IMDH\texttrademark compliance testing with the
-MEGEA65 team. This means that some TVs and Monitors are,
+MEGA65 team. This means that some TVs and Monitors are,
 unfortunately, not IMDH\texttrademark compliant.  Thus while most TVs and Monitors
 will work with the MEGA65, you might find that you need to try a
 couple to get a satisfactory result.  If you do find a monitor that
@@ -167,11 +167,11 @@ Frame timing is designed to match that of the 6502 + VIC-II combination of the C
 
 The VIC-IV produces timing impulses at approximately 1MHz which are used by the 45GS02 processor, so that the correct effective frequency is provided when operating at the 1MHz, 2MHz and 3.5MHz C64, C128 and C65 compatibility modes.  This allows the single machine to switch between accurate PAL and NTSC CPU timing, as well as video modes. The exact frequency varies between PAL and NTSC modes, to mimic the behaviour of PAL versus NTSC C64, C128 and C65 processor and video timing.
 
-The PAL frame is constructed from 624 physical raster lines, consisting of 864 pixelclock ticks. The pixel clock is 27MHz, which is 1/3 the VIC-IV pixel clock.  The visible frame is 720$\times$576 pixels, the entirety of which can be used in VIC-IV mode. In VIC-II and VIC-III modes, the border area reduces the usable size to 640$\times$400 pixels.  In VIC-II mode and VIC-III 200H modes, the display is double scanned, with two 31.5 micro-second physical rasters corresponding to a single 63 micro-second VIC-II-style raster line.  Thus each frame consists of 312 VIC-II raster lines of 63 micro-seconds each, exactly matching that of a PAL C64.
+The PAL frame is constructed from 624 physical raster lines, consisting of 864 pixel clock ticks. The pixel clock is 27MHz, which is 1/3 the VIC-IV pixel clock.  The visible frame is 720$\times$576 pixels, the entirety of which can be used in VIC-IV mode. In VIC-II and VIC-III modes, the border area reduces the usable size to 640$\times$400 pixels.  In VIC-II mode and VIC-III 200H modes, the display is double scanned, with two 31.5 micro-second physical rasters corresponding to a single 63 micro-second VIC-II-style raster line.  Thus each frame consists of 312 VIC-II raster lines of 63 micro-seconds each, exactly matching that of a PAL C64.
 
 \includegraphics[width=\linewidth]{images/illustrations/VIC-IV-PAL-Frame.pdf}
 
-The NTSC frame is constructed from 526 physical raster lines, consisting of 858 pixelclock ticks. The pixel clock is 27MHz, which is 1/3 the VIC-IV pixel clock.  The visible frame is 720$\times$480 pixels, the entirety of which can be used in VIC-IV mode. In VIC-II and VIC-III modes, the border area reduces the usable size to 640$\times$400 pixels.  In VIC-II mode and VIC-III 200H modes, the display is double scanned, with two 32 micro-second physical rasters corresponding to a single 64 micro-second VIC-II-style raster line.  Thus each frame consists of 263 VIC-II raster lines of 64 micro-seconds each, matching the most common C64 NTSC video timing.
+The NTSC frame is constructed from 526 physical raster lines, consisting of 858 pixel clock ticks. The pixel clock is 27MHz, which is 1/3 the VIC-IV pixel clock.  The visible frame is 720$\times$480 pixels, the entirety of which can be used in VIC-IV mode. In VIC-II and VIC-III modes, the border area reduces the usable size to 640$\times$400 pixels.  In VIC-II mode and VIC-III 200H modes, the display is double scanned, with two 32 micro-second physical rasters corresponding to a single 64 micro-second VIC-II-style raster line.  Thus each frame consists of 263 VIC-II raster lines of 64 micro-seconds each, matching the most common C64 NTSC video timing.
 
 \includegraphics[width=\linewidth]{images/illustrations/VIC-IV-NTSC-Frame.pdf}
 
@@ -199,7 +199,7 @@ To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the f
 Physical rasters per frame refers to the number of actual raster lines in the PAL or
 NTSC Enhanced Definition TV (EDTV) video modes used by the MEGA65.  Logical Rasters refers to the number of VIC-II-style rasters per frame.
 Each logical raster consists of two physical rasters per line, since EDTV modes are double-scan modes compared with the original PAL and NTSC
-Standard Defition TV modes used by the C64. The frame parameters of the VIC-IV for PAL and NTSC are as follows:
+Standard Definition TV modes used by the C64. The frame parameters of the VIC-IV for PAL and NTSC are as follows:
 
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{2cm}|L{2.5cm}|L{2.5cm}|L{2.5cm}|}
@@ -354,8 +354,8 @@ places on the screen, of which Boulder Dash and Super Giana Sisters would be goo
 \item Bitplanes also make it difficult to update a display, because every pixel is unique, in that there is no way to make a change,
 for example to the animation in an onscreen element, and have it take effect in all places at the same time. The diamond
 animations in Boulder Dash are a good example of this problem.  The requirement to modify multiple separate bytes in each
-bitplane create an increased computational burden, which is why there were calls for the Amiga AAA chipset to include so-called
-``chunky'' modes, rather than just bitplanar modes.  While the Display Address Translator (DAT) and DMAgic of the C65 provide some
+bitplane create an increased computational burden, which is why there were calls for the Amiga AAA chip-set to include so-called
+``chunky'' modes, rather than just bitplane based modes.  While the Display Address Translator (DAT) and DMAgic of the C65 provide some
 relief to this problem, the relief is only partial.
 
 \item Scrolling using the C65 bitplanes requires copying the entire bitplane, as the hardware support for smooth scrolling does not
@@ -505,7 +505,7 @@ other text material, providing a crude supplement to the 8 hardware sprites.  Th
 time of the VIC-IV. Some experimentation will be required to determine how much can be achieved in PAL and NTSC modes.
 
 This ability to draw multiple layers of text and graphics is highly powerful. For example, it can be used to provide multiple overlapping
-layers of separately scrollable graphics.  This gives many of the advantages of bitplane-based playfields on other computers, such as the
+layers of separately scrollable graphics.  This gives many of the advantages of bitplane-based play-fields on other computers, such as the
 Amiga, but without the disadvantages of bitplanes.
 
 XXX Example program
@@ -582,7 +582,7 @@ In addition to monochrome and multi-colour modes, the VIC-IV supports a new full
 encode each sprite pixel.  However, unlike multi-colour mode where pairs of bits encode pairs of pixels, in full-colour mode the pixels
 remain at their normal horizontal resolution.  The colour zero is considered transparent. If you wish to use black in a full-colour sprite, you must configure the palette bank that is selected for sprites so that one of the 15 colours for the specific sprite encodes black.
 
-Full-colour sprite mode is selectable for each sprite by setting the approprate bit in the SPR16EN register (\$D06B, 53355 decimal).
+Full-colour sprite mode is selectable for each sprite by setting the appropriate bit in the SPR16EN register (\$D06B, 53355 decimal).
 
 To enable the eight sprites to have 15 unique colours each, the sprite colour is drawn using the palette entry corresponding to:
 $sprite number \times 16 + nibble value$, where $sprite number$ is the number of the sprite (from 0 to 7), and $nibble value$ is the value

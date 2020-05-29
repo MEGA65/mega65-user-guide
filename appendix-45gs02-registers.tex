@@ -9,7 +9,7 @@ computer prototypes.  The 4510 is, in turn,
 an enhanced version of the 65CE02.
 The reader is referred to
 the considerable documentation available for the 6502 and 65CE02 processors
-for the backwards-compatibile operation of the 45GS02.
+for the backwards-compatible operation of the 45GS02.
 
 This chapter will
 focus on the differences between the 45GS02 and the earlier 6502-class
@@ -18,14 +18,14 @@ registers of the 45GS02.
 
 \section{Differences to the 6502}
 
-The 45GGS02 has a number of key differences to earlier 6502-class processors:
+The 45GS02 has a number of key differences to earlier 6502-class processors:
 
 \subsection{Supervisor/Hypervisor Privileged Mode}
 
 Unlike the earlier 6502 variants, the 45GS02 has a privileged mode of operation.
 This mode is intended for use by an operating system or type-1
 hypervisor.  The ambiguity between
-operating system and hypervisor on the MEGA65 stems from the fact that the operating
+operating system and Hypervisor on the MEGA65 stems from the fact that the operating
 system of the MEGA65 is effectively little more than a loader and
 task-switcher for C64 and C65
 environments, i.e., effectively operating as a hypervisor, but provides
@@ -38,7 +38,7 @@ supervisor mode:
 \begin{itemize}
 \item A special 16KiB memory area is mapped to \$8000 - \$BFFF, which is
  used to contain both
- the program and data of the hypervisor / supervisor program.
+ the program and data of the Hypervisor / supervisor program.
  This is normally the Hyppo program.
   This memory is not mappable by any means when the processor is in the
  normal mode (the chip-select
@@ -65,7 +65,7 @@ of using undefined opcodes (often called ``illegal opcodes'', although there is 
 law against using them), means that many existing programs will not work on these
 newer processors.
 
-To alieviate this problem the 45GS02 has the ability to switch processor personalities
+To alleviate this problem the 45GS02 has the ability to switch processor personalities
 between the 4510 and 6502.  The effect is that in 6502 mode, none of the new opcodes of
 the 65C02, 65CE02, 4510 or 45GS02 are available, and are replaced with the original,
 often strange, behaviour of the undefined opcodes of the 6502.
@@ -115,7 +115,7 @@ for all other uses of these instructions.
 
 \subsection{Variable CPU Speed}
 
-The 45GSG02 is able to run at ~1MHz, ~2MHz, ~3.5MHz and 40MHz,
+The 45GS02 is able to run at ~1MHz, ~2MHz, ~3.5MHz and 40MHz,
 to support running software
 designed for the C64, C128 in C64 mode, C65 and MEGA65.
 
@@ -130,7 +130,7 @@ In these modes, opcodes take the same number of cycles as an 6502.
 However memory accesses within an
 instruction are not guaranteed to occur in the same cycle as on a 1MHz 6502.  Normally
 the effect is that instructions complete faster, and the processor idles until the
-correct number of cycles have passed. This means that timing may be incorrect by upto
+correct number of cycles have passed. This means that timing may be incorrect by up to
 7 micro-seconds.  This is not normally a problem, and even many C64 fast loaders will
 function correctly. For example, the GEOS\texttrademark \ Graphical Operating System for the C64
 can be booted and used from a 1541 connected to the MEGA65's serial port.
@@ -162,7 +162,7 @@ vary the CPU speed using the {\bf SPEEDBIAS} register located at \$F7FA (55290),
 is enabled.  The default value is \$80 (128), which means no bias on the CPU speed.  Higher values
 increase the CPU speed, with \$FF meaning $2\times$ the expected speed. Lower values slow
 the processor down, with \$00 bring the CPU to a complete stand-still.  Thus the speed can be
-varied between $0\times$ and $2\times$ the inteded value.
+varied between $0\times$ and $2\times$ the intended value.
 
 This register is provided to allow tweaking the processor speed in games.
 
@@ -245,7 +245,7 @@ C64-style memory banking.
 
 \subsubsection{VIC-III Display Address Translator}
 
-The third specialised manner to access to memory abover the 64KB point is to use
+The third specialised manner to access to memory above the 64KB point is to use
 the VIC-III's Display Address Translator.  Use of this mechanism is documented
 in Appendix \ref{cha:viciv}.
 
@@ -311,7 +311,7 @@ map that you use either DMA or the flat-memory address features of the 45GS02 th
 Indeed, access to the full address space via the MAP instruction is only provided for completeness.
 
 To give a very simple example of how the MAP instruction can be used to map an area of memory from
-the expanded address space, the following program maps the ethernet frame buffer from its natural location
+the expanded address space, the following program maps the Ethernet frame buffer from its natural location
 at \$FFDE8000 to appear at \$6800.  To keep the example as simple as possible, we assume that the code
 is running from in the bottom 64KB of RAM, and not in the region between \$6000 -- \$8000.
 
@@ -326,7 +326,7 @@ value indicates that none of the four 8KB memory blocks will be re-mapped, but a
 the upper 4 bits of the address offset for re-mapped block is the non-zero value of \$F.  The mega-byte number
 is then specified by setting the A register.
 
-The same approach applie to the upper 32KB, but using the Z and Y
+The same approach applies to the upper 32KB, but using the Z and Y
 registers instead of the X and A registers.  However, in this case, we do not need to re-map the upper 32KB of
 memory in this example, we will leave the Z and Y registers set to zero.  We must however set X and A to
 set the mega-byte number for the lower-32KB to \$FF. Therefore A must have the value \$FF.  To set the lower 20-bits
@@ -342,24 +342,24 @@ to \%1000, i.e., \$8.  Therefore the X register must be loaded with \$8D.  Thus 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-; Map ethernet registers at $6000 - $7FFF
+; Map Ethernet registers at $6000 - $7FFF
 
 ; Ethernet controller really lives $FFDE000 - $FFDEFFF, so select $FF megabyte section for MAP LO
-lda #$ff
-ldx #$0f
-ldy #$00
-ldz #$00
+LDA #$ff
+LDX #$0f
+LDY #$00
+LDZ #$00
 map
 
 ; now enable mapping of $DE000-$DFFFF at $6000
 ; MAPs are offset based, so we need to subtract $6000 from the target address
 ; $DE000 - $6000 = $D8000
-lda #$80
-ldx #$8d
-ldy #$00
-ldz #$00
+LDA #$80
+LDX #$8d
+LDY #$00
+LDZ #$00
 map
-eom
+EOM
 
 ; Ethernet buffer now visible at $6800 - $6FFF
 \end{verbatim}
@@ -376,7 +376,7 @@ No example in BASIC for the MAP instruction is possible, because the MAP is an m
 The 45GS02 makes it easy to read or write a byte from anywhere in memory by allowing the Zero-Page Indirect
 addressing mode to use a 32-bit pointer instead of the normal 16-bit pointer.  This is accomplished by
 using the Z-indexed Zero-Page Indirect Addressing Mode for the access, and having the instruction directly
-preceeded by a NOP instruction (opcode \$EA).  For example:
+preceded by a NOP instruction (opcode \$EA).  For example:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -392,7 +392,7 @@ the 6502, i.e., the right-most (least significant) byte of the address will be r
 and so on, until the left-most (most significant) byte will be read from \$48.  For example, to read from memory location
 \$12345678, the contents of memory beginning at \$45 should be 78 56 43 12.
 
-This method iss much more efficient and also simpler than either using the MAP instruction or the DMA controller for single memory accesses,
+This method is much more efficient and also simpler than either using the MAP instruction or the DMA controller for single memory accesses,
 and is what we generally recommend.  The DMA controller can be used for moving/filler larger regions of memory.
 We recommend the MAP instruction only be used for banking code, or in rare situations where extensive access to a small region of
 memory is required, and the extra cycles of reading the 32-bit addresses is problematic.
@@ -451,7 +451,7 @@ compared to LDA \#\$nn ... LDZ \#\$nn, and would be no faster.
 
 \input{regtable_CPU.MEGA65}
 
-\section{MEGA65 CPU Math Unit Registers}
+\section{MEGA65 CPU Maths Unit Registers}
 
 \input{regtable_MATH.MEGA65}
 
@@ -492,14 +492,14 @@ The 45GS02 handles all of these in a similar manner internally:
 \begin{enumerate}
 \item The SYSCALL or trap address is calculated, based on the event.
 \item The contents of all CPU registers are saved into the virtualisation control registers.
-\item The hypervisor mode memory layout is activated, the CPU decimal flag and special purpose registers are all set to appropriate values.  The contents of the A,X,Y and Z and most other CPU flags are preserved, so that they can be accessed from the hypervisor's SYSCALL/trap handler routine, without having to load them, thus saving a few cycles for each call.
+\item The hypervisor mode memory layout is activated, the CPU decimal flag and special purpose registers are all set to appropriate values.  The contents of the A,X,Y and Z and most other CPU flags are preserved, so that they can be accessed from the Hypervisor's SYSCALL/trap handler routine, without having to load them, thus saving a few cycles for each call.
 \item The hypervisor-mode flag is asserted, and the programme counter (PC) register is set to the computed address.
 \end{enumerate}
 
 All of the above happens in one CPU cycle, i.e., in 25 nano-seconds.
 Returning from a SYSCALL or trap consists simply of writing to \$D67F, which
 requires 125 nano-seconds, for a total overhead of 150 nano-seconds.
-This gives the MEGA65 SYSCALL performance rivaling -- even beating
+This gives the MEGA65 SYSCALL performance rivalling -- even beating
 -- even the fastest modern computers, where the system call latency is
 typically hundreds to tens of thousands of cycles \cite{soares2010flexsc}.
 
@@ -528,133 +528,133 @@ The full list of SYSCALLs and traps is:
 \endfoot
 \hline
 \endlastfoot
-\small  8000 & \small 32768 & SYSCALL00 & Syscall 0 entry point \\
+\small  8000 & \small 32768 & SYSCALL00 & SYSCALL 0 entry point \\
 \hline
-\small  8004 & \small 32772 & SYSCALL01 & Syscall 1 entry point \\
+\small  8004 & \small 32772 & SYSCALL01 & SYSCALL 1 entry point \\
 \hline
-\small  8008 & \small 32776 & SYSCALL02 & Syscall 2 entry point \\
+\small  8008 & \small 32776 & SYSCALL02 & SYSCALL 2 entry point \\
 \hline
-\small  800C & \small 32780 & SYSCALL03 & Syscall 3 entry point \\
+\small  800C & \small 32780 & SYSCALL03 & SYSCALL 3 entry point \\
 \hline
-\small  8010 & \small 32784 & SYSCALL04 & Syscall 4 entry point \\
+\small  8010 & \small 32784 & SYSCALL04 & SYSCALL 4 entry point \\
 \hline
-\small  8014 & \small 32788 & SYSCALL05 & Syscall 5 entry point \\
+\small  8014 & \small 32788 & SYSCALL05 & SYSCALL 5 entry point \\
 \hline
-\small  8018 & \small 32792 & SYSCALL06 & Syscall 6 entry point \\
+\small  8018 & \small 32792 & SYSCALL06 & SYSCALL 6 entry point \\
 \hline
-\small  801C & \small 32796 & SYSCALL07 & Syscall 7 entry point \\
+\small  801C & \small 32796 & SYSCALL07 & SYSCALL 7 entry point \\
 \hline
-\small  8020 & \small 32800 & SYSCALL08 & Syscall 8 entry point \\
+\small  8020 & \small 32800 & SYSCALL08 & SYSCALL 8 entry point \\
 \hline
-\small  8024 & \small 32804 & SYSCALL09 & Syscall 9 entry point \\
+\small  8024 & \small 32804 & SYSCALL09 & SYSCALL 9 entry point \\
 \hline
-\small  8028 & \small 32808 & SYSCALL0A & Syscall 10 entry point \\
+\small  8028 & \small 32808 & SYSCALL0A & SYSCALL 10 entry point \\
 \hline
-\small  802C & \small 32812 & SYSCALL0B & Syscall 11 entry point \\
+\small  802C & \small 32812 & SYSCALL0B & SYSCALL 11 entry point \\
 \hline
-\small  8030 & \small 32816 & SYSCALL0C & Syscall 12 entry point \\
+\small  8030 & \small 32816 & SYSCALL0C & SYSCALL 12 entry point \\
 \hline
-\small  8034 & \small 32820 & SYSCALL0D & Syscall 13 entry point \\
+\small  8034 & \small 32820 & SYSCALL0D & SYSCALL 13 entry point \\
 \hline
-\small  8038 & \small 32824 & SYSCALL0E & Syscall 14 entry point \\
+\small  8038 & \small 32824 & SYSCALL0E & SYSCALL 14 entry point \\
 \hline
-\small  803C & \small 32828 & SYSCALL0F & Syscall 15 entry point \\
+\small  803C & \small 32828 & SYSCALL0F & SYSCALL 15 entry point \\
 \hline
-\small  8040 & \small 32832 & SYSCALL10 & Syscall 16 entry point \\
+\small  8040 & \small 32832 & SYSCALL10 & SYSCALL 16 entry point \\
 \hline
 \small  8044 & \small 32836 & SECURENTR & Enter secure container trap entry point \\
 \hline
 \small  8048 & \small 32840 & SECUREXIT & Leave secure container trap entry point. \\
 \hline
-\small  804C & \small 32844 & SYSCALL13 & Syscall 19 entry point \\
+\small  804C & \small 32844 & SYSCALL13 & SYSCALL 19 entry point \\
 \hline
-\small  8050 & \small 32848 & SYSCALL14 & Syscall 20 entry point \\
+\small  8050 & \small 32848 & SYSCALL14 & SYSCALL 20 entry point \\
 \hline
-\small  8054 & \small 32852 & SYSCALL15 & Syscall 21 entry point \\
+\small  8054 & \small 32852 & SYSCALL15 & SYSCALL 21 entry point \\
 \hline
-\small  8058 & \small 32856 & SYSCALL16 & Syscall 22 entry point \\
+\small  8058 & \small 32856 & SYSCALL16 & SYSCALL 22 entry point \\
 \hline
-\small  805C & \small 32860 & SYSCALL17 & Syscall 23 entry point \\
+\small  805C & \small 32860 & SYSCALL17 & SYSCALL 23 entry point \\
 \hline
-\small  8060 & \small 32864 & SYSCALL18 & Syscall 24 entry point \\
+\small  8060 & \small 32864 & SYSCALL18 & SYSCALL 24 entry point \\
 \hline
-\small  8064 & \small 32868 & SYSCALL19 & Syscall 25 entry point \\
+\small  8064 & \small 32868 & SYSCALL19 & SYSCALL 25 entry point \\
 \hline
-\small  8068 & \small 32872 & SYSCALL1A & Syscall 26 entry point \\
+\small  8068 & \small 32872 & SYSCALL1A & SYSCALL 26 entry point \\
 \hline
-\small  806C & \small 32876 & SYSCALL1B & Syscall 27 entry point \\
+\small  806C & \small 32876 & SYSCALL1B & SYSCALL 27 entry point \\
 \hline
-\small  8070 & \small 32880 & SYSCALL1C & Syscall 28 entry point \\
+\small  8070 & \small 32880 & SYSCALL1C & SYSCALL 28 entry point \\
 \hline
-\small  8074 & \small 32884 & SYSCALL1D & Syscall 29 entry point \\
+\small  8074 & \small 32884 & SYSCALL1D & SYSCALL 29 entry point \\
 \hline
-\small  8078 & \small 32888 & SYSCALL1E & Syscall 30 entry point \\
+\small  8078 & \small 32888 & SYSCALL1E & SYSCALL 30 entry point \\
 \hline
-\small  807C & \small 32892 & SYSCALL1F & Syscall 31 entry point \\
+\small  807C & \small 32892 & SYSCALL1F & SYSCALL 31 entry point \\
 \hline
-\small  8080 & \small 32896 & SYSCALL20 & Syscall 32 entry point \\
+\small  8080 & \small 32896 & SYSCALL20 & SYSCALL 32 entry point \\
 \hline
-\small  8084 & \small 32900 & SYSCALL21 & Syscall 33 entry point \\
+\small  8084 & \small 32900 & SYSCALL21 & SYSCALL 33 entry point \\
 \hline
-\small  8088 & \small 32904 & SYSCALL22 & Syscall 34 entry point \\
+\small  8088 & \small 32904 & SYSCALL22 & SYSCALL 34 entry point \\
 \hline
-\small  808C & \small 32908 & SYSCALL23 & Syscall 35 entry point \\
+\small  808C & \small 32908 & SYSCALL23 & SYSCALL 35 entry point \\
 \hline
-\small  8090 & \small 32912 & SYSCALL24 & Syscall 36 entry point \\
+\small  8090 & \small 32912 & SYSCALL24 & SYSCALL 36 entry point \\
 \hline
-\small  8094 & \small 32916 & SYSCALL25 & Syscall 37 entry point \\
+\small  8094 & \small 32916 & SYSCALL25 & SYSCALL 37 entry point \\
 \hline
-\small  8098 & \small 32920 & SYSCALL26 & Syscall 38 entry point \\
+\small  8098 & \small 32920 & SYSCALL26 & SYSCALL 38 entry point \\
 \hline
-\small  809C & \small 32924 & SYSCALL27 & Syscall 39 entry point \\
+\small  809C & \small 32924 & SYSCALL27 & SYSCALL 39 entry point \\
 \hline
-\small  80A0 & \small 32928 & SYSCALL28 & Syscall 40 entry point \\
+\small  80A0 & \small 32928 & SYSCALL28 & SYSCALL 40 entry point \\
 \hline
-\small  80A4 & \small 32932 & SYSCALL29 & Syscall 41 entry point \\
+\small  80A4 & \small 32932 & SYSCALL29 & SYSCALL 41 entry point \\
 \hline
-\small  80A8 & \small 32936 & SYSCALL2A & Syscall 42 entry point \\
+\small  80A8 & \small 32936 & SYSCALL2A & SYSCALL 42 entry point \\
 \hline
-\small  80AC & \small 32940 & SYSCALL2B & Syscall 43 entry point \\
+\small  80AC & \small 32940 & SYSCALL2B & SYSCALL 43 entry point \\
 \hline
-\small  80B0 & \small 32944 & SYSCALL2C & Syscall 44 entry point \\
+\small  80B0 & \small 32944 & SYSCALL2C & SYSCALL 44 entry point \\
 \hline
-\small  80B4 & \small 32948 & SYSCALL2D & Syscall 45 entry point \\
+\small  80B4 & \small 32948 & SYSCALL2D & SYSCALL 45 entry point \\
 \hline
-\small  80B8 & \small 32952 & SYSCALL2E & Syscall 46 entry point \\
+\small  80B8 & \small 32952 & SYSCALL2E & SYSCALL 46 entry point \\
 \hline
-\small  80BC & \small 32956 & SYSCALL2F & Syscall 47 entry point \\
+\small  80BC & \small 32956 & SYSCALL2F & SYSCALL 47 entry point \\
 \hline
-\small  80C0 & \small 32960 & SYSCALL30 & Syscall 48 entry point \\
+\small  80C0 & \small 32960 & SYSCALL30 & SYSCALL 48 entry point \\
 \hline
-\small  80C4 & \small 32964 & SYSCALL31 & Syscall 49 entry point \\
+\small  80C4 & \small 32964 & SYSCALL31 & SYSCALL 49 entry point \\
 \hline
-\small  80C8 & \small 32968 & SYSCALL32 & Syscall 50 entry point \\
+\small  80C8 & \small 32968 & SYSCALL32 & SYSCALL 50 entry point \\
 \hline
-\small  80CC & \small 32972 & SYSCALL33 & Syscall 51 entry point \\
+\small  80CC & \small 32972 & SYSCALL33 & SYSCALL 51 entry point \\
 \hline
-\small  80D0 & \small 32976 & SYSCALL34 & Syscall 52 entry point \\
+\small  80D0 & \small 32976 & SYSCALL34 & SYSCALL 52 entry point \\
 \hline
-\small  80D4 & \small 32980 & SYSCALL35 & Syscall 53 entry point \\
+\small  80D4 & \small 32980 & SYSCALL35 & SYSCALL 53 entry point \\
 \hline
-\small  80D8 & \small 32984 & SYSCALL36 & Syscall 54 entry point \\
+\small  80D8 & \small 32984 & SYSCALL36 & SYSCALL 54 entry point \\
 \hline
-\small  80DC & \small 32988 & SYSCALL37 & Syscall 55 entry point \\
+\small  80DC & \small 32988 & SYSCALL37 & SYSCALL 55 entry point \\
 \hline
-\small  80E0 & \small 32992 & SYSCALL38 & Syscall 56 entry point \\
+\small  80E0 & \small 32992 & SYSCALL38 & SYSCALL 56 entry point \\
 \hline
-\small  80E4 & \small 32996 & SYSCALL39 & Syscall 57 entry point \\
+\small  80E4 & \small 32996 & SYSCALL39 & SYSCALL 57 entry point \\
 \hline
-\small  80E8 & \small 33000 & SYSCALL3A & Syscall 58 entry point \\
+\small  80E8 & \small 33000 & SYSCALL3A & SYSCALL 58 entry point \\
 \hline
-\small  80EC & \small 33004 & SYSCALL3B & Syscall 59 entry point \\
+\small  80EC & \small 33004 & SYSCALL3B & SYSCALL 59 entry point \\
 \hline
-\small  80F0 & \small 33008 & SYSCALL3C & Syscall 60 entry point \\
+\small  80F0 & \small 33008 & SYSCALL3C & SYSCALL 60 entry point \\
 \hline
-\small  80F4 & \small 33012 & SYSCALL3D & Syscall 61 entry point \\
+\small  80F4 & \small 33012 & SYSCALL3D & SYSCALL 61 entry point \\
 \hline
-\small  80F8 & \small 33016 & SYSCALL3E & Syscall 62 entry point \\
+\small  80F8 & \small 33016 & SYSCALL3E & SYSCALL 62 entry point \\
 \hline
-\small  80FC & \small 33020 & SYSCALL3F & Syscall 63 entry point \\
+\small  80FC & \small 33020 & SYSCALL3F & SYSCALL 63 entry point \\
 \hline
 \small  8100 & \small 33024 & RESET & Power-on/reset entry point \\
 \hline
@@ -668,7 +668,7 @@ The full list of SYSCALLs and traps is:
 \hline
 \small  8114 & \small 33044 & VF011WR & F011 virtualised disk write trap entry point \\
 \hline
-\small  8118 & \small 33048 & BREAKPT & CPU breakpoint encountered \\
+\small  8118 & \small 33048 & BREAKPT & CPU break-point encountered \\
 \hline
 \small  811C -- 81FB & \small 33048 -- 33275 & RESERVED & Reserved traps point entry \\
 \hline
@@ -677,7 +677,7 @@ The full list of SYSCALLs and traps is:
 \end{longtable}
 
 The remainder of the 16KiB hypervisor memory is available for use by the programmer, but
-xwill typically use the last 512 bytes for the stack and zero-page, giving an overall memory map as follows:
+will typically use the last 512 bytes for the stack and zero-page, giving an overall memory map as follows:
 
 \begin{longtable}{|L{1.2cm}|L{1.1cm}|L{8cm}|}
 \hline
@@ -739,8 +739,8 @@ With this file in place, you can then create a KickC source file that provides d
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-// XMega65 Kernal Development Template
-// Each function of the kernal is a no-args function
+// XMega65 KERNAL Development Template
+// Each function of the KERNAL is a no-args function
 // The functions are placed in the SYSCALLS table surrounded by JMP and NOP
 
 import "string"
@@ -761,7 +761,7 @@ const char WHITE = 1;
 char[] MESSAGE = "hello world!";
 
 void main() {
-    // Initialize screen memory, and select correct font
+    // Initialise screen memory, and select correct font
     *VIC_MEMORY = 0x14;
     // Fill the screen with spaces
     memset(SCREEN, ' ', 40*25);
@@ -769,7 +769,7 @@ void main() {
     memset(COLS, WHITE, 40*25);
     // Print the "hello world!" message
     char* sc = SCREEN+40;  // Display it one line down on the screen
-    char* msg = MESSAGE; // The messag to display
+    char* msg = MESSAGE; // The massage to display
     // A simple copy routine to copy the string
     while(*msg) {
         *sc++ = *msg++;
@@ -840,7 +840,7 @@ a command like:
 \end{tcolorbox}
 
 It will then produce a file called mega65hyper.bin, which you can then try out
-on your MEGA65, or run in the Xmega65 emulator with a command like:
+on your MEGA65, or run in the XMega65 emulator with a command like:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}

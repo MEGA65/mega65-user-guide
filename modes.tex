@@ -7,7 +7,7 @@ of these earlier computers.  For people used to using the C128,
 the most important difference is that all of the MEGA65's new features
 can be accessed from every mode, and you can even switch back and forth
 between the different modes, or create hybrid modes that combine different
-features from the differnt modes -- all you need is the MAP and KEY.
+features from the different modes -- all you need is the MAP and KEY.
 
 In this chapter we explain the different modes, and the MAP instruction and
 the KEY register that let you change the mode of operation of the computer,
@@ -43,7 +43,7 @@ this is the same as on the C128.
 
 \subsection{From C64 to C65 Mode}
 
-To switch from C64 to C65 Mode, there is no offial method.  However the following command.  Note that this command
+To switch from C64 to C65 Mode, there is no official method.  However the following command.  Note that this command
 does not ask you for confirmation!
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -75,7 +75,7 @@ computer.
 
 The MEGA65 has a VIC-IV video controller chip instead of the C64's VIC-II or
 the C65's VIC-III.  Just as the VIC-III has extra registers compared to the
-VIC-II, the VIC-IV has even more regiters.  If these were visible all of the time,
+VIC-II, the VIC-IV has even more registers.  If these were visible all of the time,
 software that was made for the C64 and it's VIC-II might accidentally use the
 new registers, resulting in unexpected or unhelpful results.  Therefore the
 creators of the C65 invented a way to hide the extra VIC-III registers from old
@@ -85,12 +85,12 @@ VIC-II, VIC-III and VIC-IV IO modes refer to Appendix \ref{sec:iopersonalities}.
 
 The KEY register 53295 (hex \$D02F) is just an unused register of the VIC-II, that you can POKE and
 PEEK like the other registers.  But the KEY register has a special function: If
-you write two special values to it in quick succesion, you can tell the VIC-IV
+you write two special values to it in quick succession, you can tell the VIC-IV
 to stop hiding the VIC-III or VIC-IV registers from the rest of the computer.
 
 \subsection{Un-hiding C65 Extra Registers}
 
-For example, to unhide the VIC-III's new registers when in C64 mode, you must POKE the values 165 and 150
+For example, to un-hide the VIC-III's new registers when in C64 mode, you must POKE the values 165 and 150
 into the KEY register. Make sure you are in C64 mode before trying the following.  The easiest way to do this
 is to turn your MEGA65 off and on again, and type GO 64 and answer YES to enter C64 mode.
 
@@ -110,13 +110,13 @@ POKE 53295,165: POKE 53295,150
 \end{tcolorbox}
 
 When you type these commands, the computer just returns with a READY. prompt, and seemingly nothing else has
-happened.  This is expected, because all we have done is to unhide the VIC-III's new registers (and some other
+happened.  This is expected, because all we have done is to un-hide the VIC-III's new registers (and some other
 C65 mode features) from the computer.  However, the C64 BASIC and KERNAL are well behaved, and don't try to
 do anything strange, and so we don't immediately notice anything is different... But things are different.
 
 As an example, we will now do something that the C64 and its VIC-II can't do: smoothly change one colour into another.
 The VIC-III has registers that let you change the red, green and blue components of the colours.  So now that we have
-unhidden those registers, we can change the colour of the background progressively from blue to purple, buy increasing
+un-hidden those registers, we can change the colour of the background progressively from blue to purple, buy increasing
 the red component of the colour that is normally blue on the C64.  The red component value registers are at
 53504 -- 53759 (hex \$D100 -- \$D1FF).  Blue is colour 6, so we want to change register 53504 + 6 = 53510 (hex \$D106).
 We can do a nice FOR loop to change the colour for us:
@@ -172,7 +172,7 @@ POKE 53295,71: POKE 53295,83
 (Don't forget you have to be in C64 mode, as BASIC 10 will probably crash or freeze when the C65 / VIC-III registers get briefly
 hidden after the first POKE has happened, but the second one has not yet happened.)
 
-Again, you won't see any immediate difference, just like when unhiding C65 / VIC-III registers.  However, now the computer
+Again, you won't see any immediate difference, just like when un-hiding C65 / VIC-III registers.  However, now the computer
 can access not only the C64 / VIC-II and C65 / VIC-III registers, but also the MEGA65 / VIC-IV registers.  If you like,
 you can try the examples from earlier in this chapter, to assure yourself that the C65 / VIC-III registers are accessible again.
 But you can also do MEGA65 specific things.  But we can of course also do MEGA65 specific things. For example, if we wanted to move
@@ -204,7 +204,7 @@ C65 mode defaults. In this particular case, it is the KERNAL resetting the VIC-I
 53265 (hex \$D011), which adjusts the vertical border size in C64/C65 mode, and is thus a ``hot register''
 for the MEGA65's vertical border position registers.)
 
-See if you can intead make the screen shake around by changin the TEXTXPOS and TEXTYPOS registers of
+See if you can instead make the screen shake around by changing the TEXTXPOS and TEXTYPOS registers of
 the VIC-IV.  You can find out the POKE codes for those and lots of other interesting new registers
 by looking through Appendix \ref{cha:viciv}.
 

@@ -1,5 +1,5 @@
 Set Accumulator, X Register and SPL Register With Useless Value (undocumented instruction)
-SP, A, X $\larrow$ SP $AND$ M
+SP, A, X $\leftarrow$ SP $AND$ M
 
 NOTE: This monstrosity of an instruction, aside from being devoid of
 any conceivable useful purpose is unstable on many 6502 processors

@@ -476,7 +476,25 @@ int main(int argc,char **argv)
 	fprintf(tf,"\\multicolumn{1}{|l|}{\\$%Xx} ",i);
 	for(int j=0;j<16;j++) {	  
 	  int m=opcodes[i*16+j].mode_num;
-	  fprintf(tf,"& %s     ",modes[m]);
+	  char safe_name[1024];
+	  int slen=0;
+	  if (m>=0) {
+	    fprintf(stderr,"Escaping mode #%d ",m); fflush(stderr);
+	    fprintf(stderr,"= \"%s\"\n",modes[m]); fflush(stderr);
+	    for(int k=0;modes[m][k];k++) {
+	      switch(modes[m][k]) {
+	      case '$': case '#':
+		safe_name[slen++]='\\';
+		// FALL THROUGH
+	      default:
+		safe_name[slen++]=modes[m][k];
+	      }	      
+	    }
+	    safe_name[slen]=0;
+	  } else {
+	    snprintf(safe_name,1024,"");
+	  }
+	  fprintf(tf,"& %s     ",safe_name);
 	}
 	fprintf(tf,"     \\\\ \\hline\n");
       }

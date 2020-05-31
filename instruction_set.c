@@ -465,6 +465,26 @@ int main(int argc,char **argv)
       fprintf(tf,"\\end{tabular}\n");      
       fclose(tf);
     }
+    
+    snprintf(filename,1024,"%s-modes.tex",processor);
+    tf=fopen(filename,"wb");
+    if (tf) {
+      fprintf(tf,"\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
+      fprintf(tf,"\\cline{2-17}\n");
+      fprintf(tf,"& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 & \\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF \\\\ \\hline\n");
+      for(int i=0;i<16;i++) {
+	fprintf(tf,"\\multicolumn{1}{|l|}{\\$%Xx} ",i);
+	for(int j=0;j<16;j++) {	  
+	  int m=opcodes[j].mode_num;
+	  fprintf(tf,"& %s     ",modeinfo[m].description);
+	}
+	fprintf(tf,"     \\\\ \\hline\n");
+      }
+      
+      fprintf(tf,"\\end{tabular}\n");      
+      fclose(tf);
+    }
   }
+
   
 }

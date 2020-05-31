@@ -1,4 +1,4 @@
-AND and Subtract (undocumented instruction)
+AND and Subtract (unintended instruction)
 X $\leftarrow$ ( A $AND$ X ) - V
 N+Z+M+
 This instruction loads the X Register  with the binary

@@ -1,4 +1,4 @@
-Binary AND and Rotate Right (undocumented instruction)
+Binary AND and Rotate Right (unintended instruction)
 A $\leftarrow$ (A $AND$ Value) $>>$1, C $\leftarrow$ A(0)
 N+Z+C+M+
 This instruction shifts the Accumulator one bit right after

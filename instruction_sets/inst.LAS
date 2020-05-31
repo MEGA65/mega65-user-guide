@@ -1,4 +1,4 @@
-Set Accumulator, X Register and SPL Register With Useless Value (undocumented instruction)
+Set Accumulator, X Register and SPL Register With Useless Value (unintended instruction)
 SP, A, X $\leftarrow$ SP $AND$ M
 
 NOTE: This monstrosity of an instruction, aside from being devoid of

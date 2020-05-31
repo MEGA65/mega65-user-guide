@@ -475,8 +475,8 @@ int main(int argc,char **argv)
       for(int i=0;i<16;i++) {
 	fprintf(tf,"\\multicolumn{1}{|l|}{\\$%Xx} ",i);
 	for(int j=0;j<16;j++) {	  
-	  int m=opcodes[j].mode_num;
-	  fprintf(tf,"& %s     ",modeinfo[m].description);
+	  int m=opcodes[i*16+j].mode_num;
+	  fprintf(tf,"& %s     ",modes[m]);
 	}
 	fprintf(tf,"     \\\\ \\hline\n");
       }

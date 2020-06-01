@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <ctype.h>
 
 struct opcode {
   char *abbrev;
@@ -87,13 +88,13 @@ void lookup_mode_description(int m)
     int r=fread(line,1,8192,f);
     line[r]=0;
     modeinfo[m].long_description=strdup(line);
-    
+
     fclose(f);
   } else {
     fprintf(stderr,"WARNING: Could not find mode description file '%s'\n",filename);
     bzero(&modeinfo[m],sizeof(struct modeinfo));
   }
-  
+
   return;
 }
 
@@ -120,7 +121,7 @@ int main(int argc,char **argv)
   fprintf(stderr,"Processor name is '%s'\n",processor);
 
   char line[1024];
-  
+
   strcat(processor_path,".cycles");
   FILE *cf=fopen(processor_path,"rb");
   if (cf)
@@ -143,7 +144,7 @@ int main(int argc,char **argv)
     }
     fclose(cf);
   }
-  
+
   FILE *f=fopen(argv[1],"rb");
   line[0]=0; fgets(line,1024,f);
   while(line[0]) {
@@ -165,7 +166,7 @@ int main(int argc,char **argv)
       }
       if (i<mode_count) opcodes[opcode].mode_num=i;
       else {
-	opcodes[opcode].mode_num=mode_count;	
+	opcodes[opcode].mode_num=mode_count;
 	modes[mode_count]=strdup(mode);
 
 	// Try to find better description and data
@@ -192,19 +193,19 @@ int main(int argc,char **argv)
 	instrs[instruction_count++]=strdup(name);
       }
     }
-    
+
     opcodes[opcode].abbrev=strdup(name);
-    
+
     line[0]=0; fgets(line,1024,f);
   }
 
   fprintf(stderr,"%d addressing modes found.\n",mode_count);
-  fprintf(stderr,"%d unique instructions found.\n",instruction_count);  
+  fprintf(stderr,"%d unique instructions found.\n",instruction_count);
 
   for(int i=0;i<mode_count;i++) {
     fprintf(stderr,"Modes #%d : %s\n",i,modeinfo[i].description);
   }
-  
+
   // Sort instruction names alphabetically
   fprintf(stderr,"Sorting instructions alphabetically.\n");
   qsort(&instrs[0],instruction_count,sizeof(char *),compar_str);
@@ -217,8 +218,8 @@ int main(int argc,char **argv)
       }
     }
   }
-  
-  /* Now generate the instruction tables. 
+
+  /* Now generate the instruction tables.
    */
   for(int i=0;i<instruction_count;i++) {
     char *instruction=instrs[i];
@@ -243,7 +244,7 @@ int main(int argc,char **argv)
       line[0]=0; fgets(line,1024,f);
       while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
       short_description=strdup(line);
-      
+
       line[0]=0; fgets(line,1024,f);
       while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
       action=strdup(line);
@@ -270,18 +271,15 @@ int main(int argc,char **argv)
     } else {
       fprintf(stderr,"WARNING: Could not read %s\n",filename);
     }
-    fprintf(stderr,"%s - %s\n",instrs[i],short_description);	  
+    fprintf(stderr,"%s - %s\n",instrs[i],short_description);
 
-    int is_undocumented=0;
-    if (strstr(short_description,"(undocumented instruction)")) {
-      is_undocumented=1;
-      short_description[strlen(short_description)-strlen("(undocumented instruction)")]=0;
-    }
-    
-    
-    printf("\n\n\\subsection*{%s%s}\n",instruction,
-	   is_undocumented?" {\\em Unofficial Instruction}":""
-	   );
+    int is_unintended=NULL!=strstr(short_description,"(unintended instruction)");
+      short_description[strlen(short_description)-strlen("(unintended instruction)")]=0;
+
+    if (is_unintended)
+       printf("\n\n\\subsection*{\\textcolor{red}{%s}}\n",instruction);
+    else
+       printf("\n\n\\subsection*{%s}\n",instruction);
     printf("\\index{%s}%s\n\n\n",instruction,long_description);
 
     int delmodify65ce02_note_seen=0;
@@ -299,11 +297,11 @@ int main(int argc,char **argv)
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & {\\underline{\\bf Addressing Mode}} & {\\bf \\underline{Assembly}} & \\multicolumn{1}{c}{\\bf \\underline{Op-Code}} & \\multicolumn{3}{c}{\\bf \\underline{Bytes}} & \\multicolumn{3}{c}{\\bf \\underline{Cycles}}       &   \\\\\n",
 	   instruction,short_description,processor,
-	   is_undocumented?"{\\em Unofficial Instruction}":"",
+	   is_unintended?"{\\em Unofficial Instruction}":"",
 	   action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );
-    
+
     for(int j=0;j<256;j++) {
       if (opcodes[j].instr_num==i) {
 	int m=opcodes[j].mode_num;
@@ -316,7 +314,7 @@ int main(int argc,char **argv)
 	for(int j=0;modes[m][j];j++) {
 	  // Escape tricky chars
 	  switch (modes[m][j]) {
-	  case '$': case '#': 
+	  case '$': case '#':
 	    assembly[strlen(assembly)+1]=0;
 	    assembly[strlen(assembly)]='\\';
 	  }
@@ -329,10 +327,10 @@ int main(int argc,char **argv)
 	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";
 	snprintf(cycles,16,"%d",modeinfo[m].cycles+extra_cycles);
-	
+
 	char cycle_count[1024];
 	char cycle_notes[1024]="";
-	
+
 	if (cycle_count_list[j]) {
 	  cycle_count[0]=0;
 	  for(int i=0;isdigit(cycle_count_list[j][i]);i++) {
@@ -352,7 +350,7 @@ int main(int argc,char **argv)
 	int page_note=0;
 	int read_note=0;
 	int single_cycle=0;
-	
+
 	if (strstr(cycle_notes,"d")) { delmodify65ce02_note=1; delmodify65ce02_note_seen=1; }
 	if (strstr(cycle_notes,"m")) { delidle4510_note=1; delidle4510_note_seen=1; }
 	if (strstr(cycle_notes,"b")) { branch_note=1; branch_note_seen=1; }
@@ -361,7 +359,7 @@ int main(int argc,char **argv)
 	if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
 
 	instruction_names[j]=strdup(instruction);
-	
+
 	snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
 		branch_note?"b":"",
 		delmodify65ce02_note?"d":"",
@@ -369,12 +367,12 @@ int main(int argc,char **argv)
 		page_note?"p":"",
 		read_note?"r":"",
 		single_cycle?"s":"");
-	
+
 	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s \\\\\n",
 	       addressing_mode,assembly,opcode,bytes,cycle_count,cycle_notes);
 
       }
-    }    
+    }
     printf("\\hline\n");
     // d = 65CE02 delete idle cycles when CPU >2MHz
     // m = 4510 delete non-bus cycles
@@ -384,7 +382,7 @@ int main(int argc,char **argv)
     if (page_note_seen) printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
     if (read_note_seen) printf(" \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
     if (single_cycle_seen) printf(" \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Single cycle instructions require 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");
-    
+
     printf("\\end{tabular}\n");
     fflush(stdout);
 
@@ -399,7 +397,7 @@ int main(int argc,char **argv)
 	for(int j=0;j<16;j++) fprintf(tf,"& %s     ",instruction_names[i*16+j]);
 	fprintf(tf,"     \\\\ \\hline\n");
       }
-      fprintf(tf,"\\end{tabular}\n");      
+      fprintf(tf,"\\end{tabular}\n");
       fclose(tf);
     }
 
@@ -414,7 +412,7 @@ int main(int argc,char **argv)
 	for(int j=0;j<16;j++) {
 	  char cycle_count[1024];
 	  char cycle_notes[1024]="";
-	  
+
 	  if (cycle_count_list[i*16+j]) {
 	    cycle_count[0]=0;
 	    for(int k=0;isdigit(cycle_count_list[i*16+j][k]);k++) {
@@ -434,14 +432,14 @@ int main(int argc,char **argv)
 	  int page_note=0;
 	  int read_note=0;
 	  int single_cycle=0;
-	  
+
 	  if (strstr(cycle_notes,"d")) { delmodify65ce02_note=1; delmodify65ce02_note_seen=1; }
 	  if (strstr(cycle_notes,"m")) { delidle4510_note=1; delidle4510_note_seen=1; }
 	  if (strstr(cycle_notes,"b")) { branch_note=1; branch_note_seen=1; }
 	  if (strstr(cycle_notes,"p")) { page_note=1; page_note_seen=1; }
 	  if (strstr(cycle_notes,"r")) { read_note=1; read_note_seen=1; }
 	  if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
-	  
+
 	  snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
 		   branch_note?"b":"",
 		   delmodify65ce02_note?"d":"",
@@ -449,8 +447,8 @@ int main(int argc,char **argv)
 		   page_note?"p":"",
 		   read_note?"r":"",
 		   single_cycle?"s":"");
-	  
-	  
+
+
 	  fprintf(tf,"& %s%s     ",cycle_count,cycle_notes);
 	}
 	fprintf(tf,"     \\\\ \\hline\n");
@@ -460,12 +458,12 @@ int main(int argc,char **argv)
       if (delidle4510_note_seen) fprintf(tf," \\multicolumn{1}{r}{$m$} & \\multicolumn{16}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
       if (page_note_seen) fprintf(tf," \\multicolumn{1}{r}{$p$} & \\multicolumn{16}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
       if (read_note_seen) fprintf(tf," \\multicolumn{1}{r}{$r$} & \\multicolumn{16}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
-      if (single_cycle_seen) fprintf(tf," \\multicolumn{1}{r}{$s$} & \\multicolumn{16}{l}{Single cycle instructions require 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");	
-      
-      fprintf(tf,"\\end{tabular}\n");      
+      if (single_cycle_seen) fprintf(tf," \\multicolumn{1}{r}{$s$} & \\multicolumn{16}{l}{Single cycle instructions require 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");
+
+      fprintf(tf,"\\end{tabular}\n");
       fclose(tf);
     }
-    
+
     snprintf(filename,1024,"%s-modes.tex",processor);
     tf=fopen(filename,"wb");
     if (tf) {
@@ -474,7 +472,7 @@ int main(int argc,char **argv)
       fprintf(tf,"& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 & \\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF \\\\ \\hline\n");
       for(int i=0;i<16;i++) {
 	fprintf(tf,"\\multicolumn{1}{|l|}{\\$%Xx} ",i);
-	for(int j=0;j<16;j++) {	  
+	for(int j=0;j<16;j++) {
 	  int m=opcodes[i*16+j].mode_num;
 	  char safe_name[1024];
 	  int slen=0;
@@ -488,7 +486,7 @@ int main(int argc,char **argv)
 		// FALL THROUGH
 	      default:
 		safe_name[slen++]=modes[m][k];
-	      }	      
+	      }
 	    }
 	    safe_name[slen]=0;
 	  } else {
@@ -498,11 +496,11 @@ int main(int argc,char **argv)
 	}
 	fprintf(tf,"     \\\\ \\hline\n");
       }
-      
-      fprintf(tf,"\\end{tabular}\n");      
+
+      fprintf(tf,"\\end{tabular}\n");
       fclose(tf);
     }
   }
 
-  
+
 }

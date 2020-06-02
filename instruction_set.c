@@ -42,6 +42,7 @@ char insfilename[1024];
 char short_description[256];
 char long_description[8192];
 char action[256];
+char bction[256];
 char flags[256];
 
 char *StrDup(const char *s)
@@ -276,6 +277,17 @@ int main(int argc,char **argv)
       fprintf(stderr,"Using %s\n",insfilename);
       Fgets(short_description,sizeof(short_description),f);
       Fgets(action           ,sizeof(action)           ,f);
+      // There may be different lines for 6502 and 4510 CPU
+      if (!strncmp(action,"6502:",5) || !strncmp(action,"4510:",5))
+      {
+         Fgets(bction,sizeof(bction),f);
+         fprintf(stderr,"action:%s\n",action);
+         fprintf(stderr,"bction:%s\n",bction);
+         if (!strncmp(bction,processor,4)) memmove(action,bction+5,strlen(bction)-4);
+         else                              memmove(action,action+5,strlen(action)-4);
+         fprintf(stderr,"zction:%s\n",action);
+         fprintf(stderr,"short :%s\n",short_description);
+      }
       Fgets(flags            ,sizeof(flags)            ,f);
       for(int i=0;flags[i];i+=2) {
       	switch(flags[i]) {
@@ -301,10 +313,11 @@ int main(int argc,char **argv)
     fprintf(stderr,"%s - %s\n",instrs[i],short_description);
 
     int is_unintended=NULL!=strstr(short_description,"(unintended instruction)");
-      short_description[strlen(short_description)-strlen("(unintended instruction)")]=0;
-
     if (is_unintended)
+    {
+       short_description[strlen(short_description)-strlen("(unintended instruction)")]=0;
        printf("\n\n\\subsection*{\\textcolor{red}{%s}}\n",instruction);
+    }
     else
        printf("\n\n\\subsection*{%s}\n",instruction);
     printf("\\index{%s}%s\n\n\n",instruction,long_description);

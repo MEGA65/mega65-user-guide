@@ -35,6 +35,44 @@ struct opcode opcodes[256];
 char *cycle_count_list[256];
 char *instruction_names[256];
 
+// static variables and arrays
+
+size_t len;
+char insfilename[1024];
+char short_description[256];
+char long_description[8192];
+char action[256];
+char flags[256];
+
+char *StrDup(const char *s)
+{
+   char *r;
+   if (s == NULL) return strdup(" ");
+   r = strdup(s);
+   if (r == NULL)
+   {
+      fprintf(stderr,"\n*** failed to allocate in StrDup for string [%s]\n",s);
+      exit(1);
+   }
+   return r;
+}
+
+
+// read a line from file 'f' into buffer
+// and remove CR/LF and trailing blanks
+
+void Fgets(char *Str, size_t Size, FILE *F)
+{
+   size_t l;
+   memset(Str,0,Size);
+   if (fgets(Str,Size-1,F))
+   {
+      l = strlen(Str);
+      while (l && Str[l-1] <= ' ') Str[--l] = 0;
+   }
+   if (Str[0] == 0) strcpy(Str," ");
+}
+
 static int compar_str(const void *a, const void *b)
 {
   return strcmp(* (char * const *) a, * (char * const *) b);
@@ -69,7 +107,7 @@ void lookup_mode_description(int m)
     char line[8192];
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
-    modeinfo[m].description=strdup(line);
+    modeinfo[m].description=StrDup(line);
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
     modeinfo[m].bytes=atoi(line);
@@ -78,16 +116,16 @@ void lookup_mode_description(int m)
     modeinfo[m].cycles=atoi(line);
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
-    modeinfo[m].cycle_notes=strdup(line);
+    modeinfo[m].cycle_notes=StrDup(line);
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
-    modeinfo[m].memory_equation=strdup(line);
+    modeinfo[m].memory_equation=StrDup(line);
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
-    modeinfo[m].long_title=strdup(line);
+    modeinfo[m].long_title=StrDup(line);
     int r=fread(line,1,8192,f);
     line[r]=0;
-    modeinfo[m].long_description=strdup(line);
+    modeinfo[m].long_description=StrDup(line);
 
     fclose(f);
   } else {
@@ -135,10 +173,10 @@ int main(int argc,char **argv)
       int n=sscanf(line,"%x %s %[^\n]",&opcode,instr,cycles);
       if (n==3) {
 	if (opcode>=0&&opcode<256)
-	  cycle_count_list[opcode]=strdup(cycles);
+	  cycle_count_list[opcode]=StrDup(cycles);
       } else if(n==2) {
 	if (opcode>=0&&opcode<256)
-	  cycle_count_list[opcode]=strdup(instr);
+	  cycle_count_list[opcode]=StrDup(instr);
       }
       line[0]=0; fgets(line,1024,cf);
     }
@@ -167,14 +205,14 @@ int main(int argc,char **argv)
       if (i<mode_count) opcodes[opcode].mode_num=i;
       else {
 	opcodes[opcode].mode_num=mode_count;
-	modes[mode_count]=strdup(mode);
+	modes[mode_count]=StrDup(mode);
 
 	// Try to find better description and data
 	lookup_mode_description(mode_count);
 
 	mode_count++;
       }
-      opcodes[opcode].mode=strdup(mode);
+      opcodes[opcode].mode=StrDup(mode);
     } else {
       opcodes[opcode].mode_num=-1;
       opcodes[opcode].mode="";
@@ -190,11 +228,11 @@ int main(int argc,char **argv)
       if (i<instruction_count) opcodes[opcode].instr_num=i;
       else {
 	opcodes[opcode].instr_num=instruction_count;
-	instrs[instruction_count++]=strdup(name);
+	instrs[instruction_count++]=StrDup(name);
       }
     }
 
-    opcodes[opcode].abbrev=strdup(name);
+    opcodes[opcode].abbrev=StrDup(name);
 
     line[0]=0; fgets(line,1024,f);
   }
@@ -223,9 +261,6 @@ int main(int argc,char **argv)
    */
   for(int i=0;i<instruction_count;i++) {
     char *instruction=instrs[i];
-    char *short_description="No description";
-    char *long_description="No description";
-    char *action="";
     char nflag[2]=".";
     char zflag[2]=".";
     char iflag[2]=".";
@@ -235,41 +270,33 @@ int main(int argc,char **argv)
     char eflag[2]=".";
     int extra_cycles=0;
 
-    char filename[1024];
-    snprintf(filename,1024,"instruction_sets/inst.%s",instrs[i]);
-    FILE *f=fopen(filename,"rb");
-    char line[8192];
+    snprintf(insfilename,sizeof(insfilename),"instruction_sets/inst.%s",instrs[i]);
+    FILE *f=fopen(insfilename,"rb");
     if (f) {
-      fprintf(stderr,"Using %s\n",filename);
-      line[0]=0; fgets(line,1024,f);
-      while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
-      short_description=strdup(line);
-
-      line[0]=0; fgets(line,1024,f);
-      while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
-      action=strdup(line);
-      line[0]=0; fgets(line,1024,f);
-      while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
-      for(int i=0;line[i];i+=2) {
-	switch(line[i]) {
-	case 'N': nflag[0]=line[i+1]; break;
-	case 'V': vflag[0]=line[i+1]; break;
-	case 'C': cflag[0]=line[i+1]; break;
-	case 'D': dflag[0]=line[i+1]; break;
-	case 'I': iflag[0]=line[i+1]; break;
-	case 'E': eflag[0]=line[i+1]; break;
-	case 'Z': zflag[0]=line[i+1]; break;
-	case 'M': extra_cycles++; break;
-	}
+      fprintf(stderr,"Using %s\n",insfilename);
+      Fgets(short_description,sizeof(short_description),f);
+      Fgets(action           ,sizeof(action)           ,f);
+      Fgets(flags            ,sizeof(flags)            ,f);
+      for(int i=0;flags[i];i+=2) {
+      	switch(flags[i]) {
+      	case 'N': nflag[0]=flags[i+1]; break;
+      	case 'V': vflag[0]=flags[i+1]; break;
+      	case 'C': cflag[0]=flags[i+1]; break;
+      	case 'D': dflag[0]=flags[i+1]; break;
+      	case 'I': iflag[0]=flags[i+1]; break;
+      	case 'E': eflag[0]=flags[i+1]; break;
+      	case 'Z': zflag[0]=flags[i+1]; break;
+      	case 'M': extra_cycles++; break;
+      	}
       }
-      int r=fread(line,1,8192,f);
-      line[r]=0;
-      long_description=line;
+
+      memset(long_description,0,sizeof(long_description));
+      fread(long_description,1,sizeof(long_description)-1,f);
       //      fflush(stdout);
       //      fprintf(stderr,"%s Long desc:\n%s\n\n\n\n",instruction,long_description);
       fclose(f);
     } else {
-      fprintf(stderr,"WARNING: Could not read %s\n",filename);
+      fprintf(stderr,"WARNING: Could not read %s\n",insfilename);
     }
     fprintf(stderr,"%s - %s\n",instrs[i],short_description);
 
@@ -297,7 +324,7 @@ int main(int argc,char **argv)
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & {\\underline{\\bf Addressing Mode}} & {\\bf \\underline{Assembly}} & \\multicolumn{1}{c}{\\bf \\underline{Op-Code}} & \\multicolumn{3}{c}{\\bf \\underline{Bytes}} & \\multicolumn{3}{c}{\\bf \\underline{Cycles}}       &   \\\\\n",
 	   instruction,short_description,processor,
-	   is_unintended?"{\\em Unofficial Instruction}":"",
+	   " ", // unintended remark
 	   action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );
@@ -358,7 +385,7 @@ int main(int argc,char **argv)
 	if (strstr(cycle_notes,"r")) { read_note=1; read_note_seen=1; }
 	if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
 
-	instruction_names[j]=strdup(instruction);
+	instruction_names[j]=StrDup(instruction);
 
 	snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
 		branch_note?"b":"",
@@ -386,8 +413,8 @@ int main(int argc,char **argv)
     printf("\\end{tabular}\n");
     fflush(stdout);
 
-    snprintf(filename,1024,"%s-opcodes.tex",processor);
-    FILE *tf=fopen(filename,"wb");
+    snprintf(insfilename,1024,"%s-opcodes.tex",processor);
+    FILE *tf=fopen(insfilename,"wb");
     if (tf) {
       fprintf(tf,"\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
       fprintf(tf,"\\cline{2-17}\n");
@@ -401,8 +428,8 @@ int main(int argc,char **argv)
       fclose(tf);
     }
 
-    snprintf(filename,1024,"%s-cycles.tex",processor);
-    tf=fopen(filename,"wb");
+    snprintf(insfilename,1024,"%s-cycles.tex",processor);
+    tf=fopen(insfilename,"wb");
     if (tf) {
       fprintf(tf,"\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
       fprintf(tf,"\\cline{2-17}\n");
@@ -464,8 +491,8 @@ int main(int argc,char **argv)
       fclose(tf);
     }
 
-    snprintf(filename,1024,"%s-modes.tex",processor);
-    tf=fopen(filename,"wb");
+    snprintf(insfilename,1024,"%s-modes.tex",processor);
+    tf=fopen(insfilename,"wb");
     if (tf) {
       fprintf(tf,"\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
       fprintf(tf,"\\cline{2-17}\n");
@@ -477,8 +504,8 @@ int main(int argc,char **argv)
 	  char safe_name[1024];
 	  int slen=0;
 	  if (m>=0) {
-	    fprintf(stderr,"Escaping mode #%d ",m); fflush(stderr);
-	    fprintf(stderr,"= \"%s\"\n",modes[m]); fflush(stderr);
+	    // fprintf(stderr,"Escaping mode #%d ",m); fflush(stderr);
+	    // fprintf(stderr,"= \"%s\"\n",modes[m]); fflush(stderr);
 	    for(int k=0;modes[m][k];k++) {
 	      switch(modes[m][k]) {
 	      case '$': case '#':

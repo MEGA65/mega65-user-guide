@@ -24,7 +24,7 @@ struct modeinfo {
 
 struct modeinfo modeinfo[MAX_MODES];
 char *modes[MAX_MODES];
-int mode_count=0;
+int mode_count=1; // 0: implied
 
 char *instrs[256];
 int instruction_count=0;
@@ -187,6 +187,9 @@ int main(int argc,char **argv)
     }
     fclose(cf);
   }
+
+  modes[0]="implied";
+  lookup_mode_description(0);
 
   FILE *f=fopen(argv[1],"rb");
   line[0]=0; fgets(line,1024,f);
@@ -356,7 +359,7 @@ int main(int argc,char **argv)
 	    assembly[strlen(assembly)]='\\';
 	  }
 	  assembly[strlen(assembly)+1]=0;
-	  assembly[strlen(assembly)]=modes[m][j];
+	  if (m) assembly[strlen(assembly)]=modes[m][j];
 	}
 	char opcode[16]="A9";
 	snprintf(opcode,16,"%02X",j);
@@ -504,6 +507,8 @@ int main(int argc,char **argv)
       fprintf(tf,"\\end{tabular}\n");
       fclose(tf);
     }
+
+    // write matrix of addressing modes
 
     snprintf(insfilename,1024,"%s-modes.tex",processor);
     tf=fopen(insfilename,"wb");

@@ -39,6 +39,7 @@ char *instruction_names[256];
 
 char nflag,zflag,iflag,cflag,dflag,vflag,eflag;
 char *instruction;
+int  CPU;
 int  extra_cycles;
 size_t len;
 char *is_unintended;
@@ -112,6 +113,7 @@ void lookup_mode_description(int m)
     char line[8192];
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
+    if (CPU == 6502 && !strncmp(line,"base",4)) strncpy(line,"zero",4);
     modeinfo[m].description=StrDup(line);
     fgets(line,1024,f);
     while(line[0]&&line[strlen(line)-1]<' ') line[strlen(line)-1]=0;
@@ -162,6 +164,7 @@ int main(int argc,char **argv)
       processor_path[pplen]=0;
     }
   fprintf(stderr,"Processor name is '%s'\n",processor);
+  CPU = atoi(processor);
 
   char line[1024];
 

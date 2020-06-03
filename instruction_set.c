@@ -37,7 +37,11 @@ char *instruction_names[256];
 
 // static variables and arrays
 
+char nflag,zflag,iflag,cflag,dflag,vflag,eflag;
+char *instruction;
+int  extra_cycles;
 size_t len;
+char *is_unintended;
 char insfilename[1024];
 char short_description[256];
 char long_description[8192];
@@ -258,18 +262,12 @@ int main(int argc,char **argv)
     }
   }
 
-  /* Now generate the instruction tables.
-   */
+  // Now generate the instruction tables.
+
   for(int i=0;i<instruction_count;i++) {
-    char *instruction=instrs[i];
-    char nflag[2]=".";
-    char zflag[2]=".";
-    char iflag[2]=".";
-    char cflag[2]=".";
-    char dflag[2]=".";
-    char vflag[2]=".";
-    char eflag[2]=".";
-    int extra_cycles=0;
+    instruction=instrs[i];
+    extra_cycles=0;
+    nflag = zflag = iflag = cflag = dflag = vflag = eflag = '.';
 
     snprintf(insfilename,sizeof(insfilename),"instruction_sets/inst.%s",instrs[i]);
     FILE *f=fopen(insfilename,"rb");
@@ -291,13 +289,13 @@ int main(int argc,char **argv)
       Fgets(flags            ,sizeof(flags)            ,f);
       for(int i=0;flags[i];i+=2) {
       	switch(flags[i]) {
-      	case 'N': nflag[0]=flags[i+1]; break;
-      	case 'V': vflag[0]=flags[i+1]; break;
-      	case 'C': cflag[0]=flags[i+1]; break;
-      	case 'D': dflag[0]=flags[i+1]; break;
-      	case 'I': iflag[0]=flags[i+1]; break;
-      	case 'E': eflag[0]=flags[i+1]; break;
-      	case 'Z': zflag[0]=flags[i+1]; break;
+      	case 'N': nflag=flags[i+1]; break;
+      	case 'V': vflag=flags[i+1]; break;
+      	case 'C': cflag=flags[i+1]; break;
+      	case 'D': dflag=flags[i+1]; break;
+      	case 'I': iflag=flags[i+1]; break;
+      	case 'E': eflag=flags[i+1]; break;
+      	case 'Z': zflag=flags[i+1]; break;
       	case 'M': extra_cycles++; break;
       	}
       }
@@ -312,14 +310,13 @@ int main(int argc,char **argv)
     }
     fprintf(stderr,"%s - %s\n",instrs[i],short_description);
 
-    int is_unintended=NULL!=strstr(short_description,"(unintended instruction)");
+    is_unintended=strstr(short_description,"(unintended instruction)");
     if (is_unintended)
     {
-       short_description[strlen(short_description)-strlen("(unintended instruction)")]=0;
+       *is_unintended = 0;
        printf("\n\n\\subsection*{\\textcolor{red}{%s}}\n",instruction);
     }
-    else
-       printf("\n\n\\subsection*{%s}\n",instruction);
+    else printf("\n\n\\subsection*{%s}\n",instruction);
     printf("\\index{%s}%s\n\n\n",instruction,long_description);
 
     int delmodify65ce02_note_seen=0;
@@ -333,11 +330,11 @@ int main(int argc,char **argv)
 	   "{\\bf %s} &  & \\multicolumn{7}{l}{\\bf %s} & \\multicolumn{3}{r|}{\\bf %s}    \\\\\n"
 	   "&  \\multicolumn{7}{l}{%s}   &       &         &        &        \\\\\n"
 	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
-	   "&  &                 &           &                             & %s   & %s  & %s  & %s   & %s   & %s  & %s  \\\\\n"
+	   "&  &                 &           &                             & %c   & %c  & %c  & %c   & %c   & %c  & %c  \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
 	   "&  & {\\underline{\\bf Addressing Mode}} & {\\bf \\underline{Assembly}} & \\multicolumn{1}{c}{\\bf \\underline{Op-Code}} & \\multicolumn{3}{c}{\\bf \\underline{Bytes}} & \\multicolumn{3}{c}{\\bf \\underline{Cycles}}       &   \\\\\n",
 	   instruction,short_description,processor,
-	   " ", // unintended remark
+	   " ", // unintended remark removed
 	   action,
 	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
 	   );
@@ -416,7 +413,11 @@ int main(int argc,char **argv)
     printf("\\hline\n");
     // d = 65CE02 delete idle cycles when CPU >2MHz
     // m = 4510 delete non-bus cycles
-    if (branch_note_seen) printf(" \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch crosses a page boundary.} \\\\\n");
+    if (branch_note_seen)
+    {
+       printf(" \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch is taken.} \\\\\n");
+       printf(" \\multicolumn{1}{r}{   } & \\multicolumn{11}{l}{Add one more cycle if branch taken crosses a page boundary.} \\\\\n");
+    }
     if (delmodify65ce02_note_seen) printf(" \\multicolumn{1}{r}{$d$} & \\multicolumn{11}{l}{Subtract one cycle when CPU is at 3.5MHz. } \\\\\n");
     if (delidle4510_note_seen) printf(" \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
     if (page_note_seen) printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");

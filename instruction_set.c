@@ -332,7 +332,7 @@ int main(int argc,char **argv)
     int read_note_seen=0;
     int single_cycle_seen=0;
 
-    printf("\\begin{tabular}{|llp{4cm}lllllllll|}\n\\hline\n"
+    printf("\\begin{tabular}{|llp{4cm}llccccccc|}\n\\hline\n"
 	   "{\\bf %s} &  & \\multicolumn{7}{l}{\\bf %s} & \\multicolumn{3}{r|}{\\bf %s}    \\\\\n"
 	   "&  \\multicolumn{7}{l}{%s}   &       &         &        &        \\\\\n"
 	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"

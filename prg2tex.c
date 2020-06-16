@@ -1,16 +1,6 @@
-// prg2tex - version 1.0 - Bit Shifter - 10-Jan-2020
 // *************************************************
-
-// Compile with: cc -o prg2tex prg2tex.c
-
-// Run: prg2tex filename
-
-// The "filename" argument is used to derive names for
-// input files and output files by adding extensions:
-
-// filename.prg : input  file in Commodore BASIC PRG format
-// filename.txt : output file ASCII listing
-// Filename.tex : output file encoded for mega80-Regular.ttf
+// prg2tex - version 1.1 - Bit Shifter - 16-Jun-2020
+// *************************************************
 
 // =======
 // include
@@ -21,6 +11,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+
+int UpperCase = 0; // command line option -u
+int Debug = 1;
 
 struct TokenStruct
 {
@@ -316,6 +309,10 @@ unsigned char Ascii(unsigned char c)
    return c;
 }
 
+// **********
+// DeTokenize
+// **********
+
 void DeTokenize(void)
 {
    int i;
@@ -327,7 +324,7 @@ void DeTokenize(void)
 
    while (bi < sizeof(Buf) && Buf[bi])
    {
-      if (Buf[bi] == 0x8f) // rem token
+           if (Buf[bi] == 0x8f) // rem token
       {
          strcpy((char *)Det+di,"rem");
          bi++;
@@ -425,7 +422,8 @@ void PutSeq(int m, int c)
 
 void PrintAsciiLine(void)
 {
-   int c,i,m;
+   unsigned int i;
+   int c,m;
 
    fprintf(ap,"%5d ",Numb);
    for (i=0 ; i < strlen((char *)Det) ; ++i)
@@ -446,11 +444,11 @@ void PrintAsciiLine(void)
    fputc('\n',ap);
 }
 
-// **************
-// PrintLatexLine
-// **************
+// ************
+// PrintLatexLC
+// ************
 
-void PrintLatexLine(void)
+void PrintLatexLC(void)
 {
    int c,i,m;
 
@@ -458,19 +456,19 @@ void PrintLatexLine(void)
    for (i=0 ; i < strlen((char *)Det) ; ++i)
    {
       c = Det[i];
-           if (c == 0xff) fputc('~',tp); // pi
-      else if (c == 0x60)   // horizontal bar
+      if (c == 0xff) fputc('~',tp);   // pi
+      else if (c == 0x60)             // horizontal bar
       {
          fputc(0xc4,tp);
          fputc(0x80,tp);
       }
-      else if (c >= 0x7b && c < 0x80) // mapped to c480 -> c4bf
-      {
+      else if (c >= 0x7b && c < 0x80) // mapped to c49b -> c49f
+      {                               // pi, triangle
          fputc(0xc4  ,tp);
          fputc(0x20+c,tp);
       }
-      else if (c  < 0x20) // mapped to c5a0 -> c5bf
-      {
+      else if (c  < 0x20)             // mapped to 6a0 -> c5bf
+      {                               // reverse graphics set 1
          fputc(0xc5  ,tp);
          fputc(0xa0+c,tp);
       }
@@ -494,6 +492,67 @@ void PrintLatexLine(void)
    fputc('\n',tp);
 }
 
+// ************
+// PrintLatexUC
+// ************
+
+void PrintLatexUC(void)
+{
+   int c,i,m;
+
+   fprintf(tp,"%d ",Numb);
+   for (i=0 ; i < strlen((char *)Det) ; ++i)
+   {
+      c = Det[i];
+           if (c == 0xff) fputc('~',tp); // checker board
+      else if (c == 0x60)                // horizontal bar
+      {
+         fputc(0xc4,tp);
+         fputc(0x80,tp);
+      }
+      else if (c >= 0x7b && c < 0x80)    // mapped to c49b -> c49f
+      {
+         fputc(0xc4  ,tp);
+         fputc(0x20+c,tp);
+      }
+      else if (c  < 0x20)                // mapped to c5a0 -> c5bf
+      {                                  // A-Z reverse
+         fputc(0xc5  ,tp);
+         fputc(0xa0+c,tp);
+      }
+      else if (c >= 0x80 && c < 0xa0) // mapped to c6a0 -> c6bf
+      {
+         fputc(0xc6  ,tp);
+         fputc(0x20+c,tp);
+      }
+      else if (c >= 0xa0 && c < 0xc0) // mapped to c4a0 -> c4bf
+      {
+         fputc(0xc4,tp);
+         fputc(c   ,tp);
+      }
+      else if (c >= 0xc0 && c < 0xe0) // mapped to c4a0 -> c4bf
+      {
+         fputc(  0xc4,tp);
+         fputc(c-0x40,tp);
+      }
+      else if (c >= 'a' && c <= 'z') // mapped to A -> Z
+      {
+         fputc(c-0x20,tp);
+      }
+      else if (c >= 'A' && c <= 'Z') // mapped to c481 -> c49a
+      {
+         fputc(  0xc4,tp);
+         fputc(c+0x40,tp);
+      }
+      else fputc(c,tp);
+   }
+   fputc('\n',tp);
+}
+
+// *******
+// Convert
+// *******
+
 void Convert(void)
 {
    int i;
@@ -509,19 +568,26 @@ void Convert(void)
    while (ReadBasicLine())
    {
       PrintAsciiLine();
-      PrintLatexLine();
+      if (UpperCase) PrintLatexUC();
+      else           PrintLatexLC();
    }
    fprintf(tp,"\\end{verbatim}\n");
 }
+
+// ****
+// main
+// ****
 
 int main(int argc, char *argv[])
 {
    int l;
 
+   if (argc == 3 && !strcmp(argv[1],"-u")) UpperCase = 1;
    if (argc < 2)
    {
-      printf("\nUsage: prg2tex prog\n");
+      printf("\nUsage: prg2tex [-u] prog\n");
       printf("reads <prog.prg> and writes <prog.tex> and <prog.txt>\n");
+      printf("the option '-u' selects upper case/graphics mode\n");
       exit(1);
    }
 

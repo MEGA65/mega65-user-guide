@@ -563,6 +563,7 @@ void Convert(void)
          printf("%s",BasicVersion[i].Name);
    printf("\n");
 
+   fprintf(tp,"\\begin{tcolorbox}[colback=black,coltext=white]\n");
    fprintf(tp,"\\verbatimfont{\\codefont}\n");
    fprintf(tp,"\\begin{verbatim}\n");
    while (ReadBasicLine())
@@ -572,6 +573,7 @@ void Convert(void)
       else           PrintLatexLC();
    }
    fprintf(tp,"\\end{verbatim}\n");
+   fprintf(tp,"\\end{tcolorbox}\n");
 }
 
 // ****

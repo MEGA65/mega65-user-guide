@@ -8,8 +8,8 @@ prg2tex:	prg2tex.c
 EXAMPLEDIR=	examples
 EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex
 
-%.tex:	%.prg prg2tex
-	./prg2tex $<
+%.tex:	%.prg prg2tex Makefile
+	./prg2tex -u $<
 
 instruction_set: instruction_set.c Makefile
 	gcc -Wall -g -o instruction_set instruction_set.c 

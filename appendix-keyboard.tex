@@ -1,0 +1,221 @@
+
+\chapter{The MEGA65 Keyboard}
+
+The MEGA65 has a full mechanical keyboard which is compatible with the C65 and
+C64 keyboards, and features four distinct cursor keys which work in both C64 and
+C65 mode, as well as eleven new C65 keys that normally work only in C65 mode.
+
+\section{Hardware Accelerated Keyboard Scanning}
+
+To make use of the new extended keyboard easier, the MEGA65 features a hardware
+accelerated keyboard scan circuit, that provides ASCII (not PETSCII!) codes for
+keys and key-combinations.  This makes it very simple to use the full capabilities
+of the MEGA65's keyboard, including the entry of ASCII symbols such as \{, \_ and |,
+which are not possible to type on a normal C64 and C128 keyboards.
+
+The hardware accelerated keyboard scanner has a buffer of 3 keys, which helps to
+make it easier to read from the keyboard without having check it too regularly. 
+Further, the hardware acclerated keyboard scanner supports most Latin-1 code-page
+characters, allowing the entry of many accented characters.  These keys are
+entered by holding down the \megasymbolkey key and pressing other keys or key-combinations.
+The use of ASCII or Latin-1 symbols not present in the PETSCII character set
+requires the use  of a font that contains these symbols, and software which supports them.
+
+The hardware accelerated keyboard scanner is very simple to use: First, make sure
+that you have the MEGA65 IO context activated, then read memory location \$D610
+(decimal 54800). If the contents are zero, no key has been pressed.  Otherwise the
+value with be the ASCII code of the most recent key or key-combination that has
+been pressed.  Reading \$D610 again will continue to read the same value until
+you POKE any value into \$D610. This clears the key from the input buffer.
+
+The hardware accelerated keyboard scanner also provides a register that
+indicates which of the modifier keys are currently being held down.  This is
+accessed via the read-only register \$D611 (decimal 54801):
+
+\begin{adjustwidth}{}{-2cm}
+\begin{multicols}{2}
+\begin{description}[align=left,labelwidth=0.2cm]
+\item[Bit 0] Right \specialkey{SHIFT}
+\item[Bit 1] Left \specialkey{SHIFT}
+\item[Bit 2] \specialkey{CTRL}
+\item[Bit 3] \megasymbolkey
+\item[Bit 4] \specialkey{ALT}
+\item[Bit 5] \specialkey{NO\\SCROLL}
+\item[Bit 6] Reserved
+\item[Bit 7] Reserved
+\end{description}
+\end{multicols}
+\end{adjustwidth}
+
+Note that the hardware accelerated keyboard scanner operates independently of the
+C64 or C65 KERNAL keyboard scanning routines.  That is, the KERNAL will still have
+any keys that you have entered buffered in the normal way. For assembly language
+programs the easiest solution to this is to disable interrupts via the SEI
+instruction.  This prevents the KERNAL keyboard scanner from running.
+
+
+\subsection{Latin-1 Keyboard Map}
+
+\section{Keyboard Theory of Operation}
+
+The MEGA65 keyboard is a full mechanical keyboard, constructed as a matrix. Every
+key switch is fitted with a diode, which allows the keyboard hardware to detect
+when any combination of keys are pressed at the same time.  This matrix is scanned
+by the firmware in the CPLD chip on the keyboard PCB many thousands of times per
+second.  The matrix arrangement of the MEGA65 keyboard does not use the C65
+matrix layout.
+
+TInstead, the CPLD also sorts the natural matrix of the keyboard
+into the C65 keyboard matrix order, and transmits this serially via the keyboard
+cable to the MEGA65 mainboard.  The MEGA65 core reads this serial data and uses it
+to reconstruct a C65-compatible virtual keyboard in the FPGA.  This virtual keyboard
+also takes input from the on-screen-keyboard, synthetic keyboard injection mechanism
+and/or other keyboard input sources depending on the MEGA65 model.
+
+The end-to-end latency of the keyboard is less than one milli-second.
+
+\section{C65 Keyboard Matrix}
+
+The MEGA65 keyboard presents to legacy software as a C65-compatible keyboard.
+In this mode all keys are available for standard PETSCII scanning as per normal.
+There is also a hardware accelerated mechanism for detecting arbitrary combinations
+of keys that are held down. This is via \$D614 (decimal 54804).  Writing a value
+between 0 and 8 to this register selects the corresponding row of the C65 keyboard
+matrix, which can then be read back from \$D614.
+
+The C65 keyboard matrix layout is as follows:
+
+\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+{ & {\bf{0}} & {\bf{1}} & {\bf{2}} & {\bf{3}} & {\bf{4}} & {\bf{5}} & {\bf{6}} & {\bf{7}} & {\bf{8}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{ & {\bf{0}} & {\bf{1}} & {\bf{2}} & {\bf{3}} & {\bf{4}} & {\bf{5}} & {\bf{6}} & {\bf{7}} & {\bf{8}} \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small  {\bf{0}} & \specialkey{INST\\DEL} & 3 & 5 & 7 & 9 & + & \pounds & 1 & \specialkey{NO SCROLL} \\
+\hline
+\small  {\bf{1}} & \specialkey{RETURN} & W & R & Y & I & P  & * & $\leftarrow$ & \specialkey{TAB} \\
+\hline
+\small  {\bf{2}} & \megakey{$\rightarrow$} & A & D & G & J & L & ; & \specialkey{CTRL} & \specialkey{ALT}  \\
+\hline
+\small  {\bf{3}} & \megakey{F7} & 4 & 6 & 8 & 0 & - & \specialkey{CLR\\HOME} & 2 & \specialkey{HELP} \\
+\hline
+\small  {\bf{4}} & \megakey{F1} & Z & C & B & M & . & \begin{tabular}{@{}c@{}}right \\ \specialkey{SHIFT}\end{tabular} & \megakey{SPACE} & \megakey{F9} \\
+\hline
+\small  {\bf{5}} & \megakey{F3} & S & F & H & K & : & = & \megasymbolkey & \megakey{F11} \\
+\hline
+\small  {\bf{6}} & \megakey{F5} & E & T & O & U & O & @ & \megakey{$\uparrow$} & \megakey{F13} \\
+\hline
+\small  {\bf{7}} & \megakey{$\downarrow$} & \begin{tabular}{@{}c@{}}left \\ \specialkey{SHIFT}\end{tabular} & X & V & N & , & / & \specialkey{RUN\\STOP} & \specialkey{ESC} \\
+\hline
+\end{longtable}
+
+\section{Keyboard LED Control}
+
+The LEDs on the MEGA65's keyboard are normally controlled automatically
+by the system.  However, it is also possible to place them under
+user control.  This is activated by setting bit 7 of \$D61D (decimal 54813).
+The lower bits indicate which keyboard register to set.  Registers 0 through 11
+correspond to the red, green and blue channels of the four LEDs.  The intensity
+of an LED is set by setting \$D61E (decimal 54814) to the desired intensity.
+
+To return the keyboard LEDs to hardware control, clear bit 7 of \$D61D.
+
+\section{Native Keyboard Matrix}
+
+The native keyboard matrix is accessible only from the CPLD on the MEGA65's keyboard.
+If you are programming the MEGA65 computer, you should not need to use this.
+
+\begin{adjustwidth}{}{-2cm}
+\begin{multicols}{2}
+\begin{description}[align=left,labelwidth=0.2cm]
+    \item [0] \specialkey{F5}
+    \item [1] 9
+    \item [2] I
+    \item [3] K
+    \item [4] <
+    \item [5] \specialkey{INST\\DEL}
+    \item [6] \specialkey{CLR\\HOME}
+    \item [7] O
+    \item [8] \megakey{F3}
+    \item [9] 8
+    \item [10] U 
+    \item [11] J
+    \item [12] M
+    \item [13] \megakey{$\rightarrow$}
+    \item [14] \pounds
+    \item [15] =
+    \item [16] \megakey{F1}
+    \item [17] 7
+    \item [18] Y
+    \item [19] H
+    \item [20] N
+    \item [21] \megakey{$\downarrow$}
+    \item [22] -
+    \item [23] ;
+    \item [24] Reserved
+    \item [25] 6
+    \item [26] T
+    \item [27] G
+    \item [28] B
+    \item [29] \megakey{$\leftarrow$} (cursor left)
+    \item [30] +
+    \item [31] :
+    \item [32] \specialkey{NO\\SCRL}
+    \item [33] 5
+    \item [34] R
+    \item [35] F
+    \item [36] V
+    \item [37] \megakey{SPACE}
+    \item [38] 0
+    \item [39] L
+    \item [40] \specialkey{CAPS\\LOCK}
+    \item [41] 4
+    \item [42] E
+    \item [43] D
+    \item [44] C
+    \item [45] Reserved
+    \item [46] \specialkey{HELP}
+    \item [47] \megakey{RETURN}
+    \item [48] \specialkey{ALT}
+    \item [49] 3
+    \item [50] W
+    \item [51] S
+    \item [52] X
+    \item [53] \megakey{$\uparrow$} (cursor up)
+    \item [54] \megakey{F13}
+    \item [55] \megakey{$\uparrow$} (next to *)
+    \item [56] \specialkey{ESC}
+    \item [57] 2
+    \item [58] Q
+    \item [59] A
+    \item [60] Z
+    \item [61] right \specialkey{SHIFT}
+    \item [62] \megakey{F11}
+    \item [63] *
+    \item [64] Reserved
+    \item [65] 1
+    \item [66] Reserved
+    \item [67] Reserved
+    \item [68] left \specialkey{SHIFT} and \specialkey{SHIFT\\LOCK} 
+    \item [69] /
+    \item [70] \megakey{F9}
+    \item [71] @
+    \item [72] \specialkey{RUN\\STOP} 
+    \item [73] \megakey{$\leftarrow$} (next to 1)
+    \item [74] \specialkey{TAB}
+    \item [75] \specialkey{CTRL}
+    \item [76] \megasymbolkey
+    \item [77] >
+    \item [78] \megakey{F7}
+    \item [79] P
+\end{description}
+\end{multicols}
+\end{adjustwidth}
+

@@ -450,7 +450,7 @@ void PrintAsciiLine(void)
 
 void PrintLatexLC(void)
 {
-   int c,i,m;
+   int c,i;
 
    fprintf(tp,"%d ",Numb);
    for (i=0 ; i < strlen((char *)Det) ; ++i)
@@ -498,7 +498,7 @@ void PrintLatexLC(void)
 
 void PrintLatexUC(void)
 {
-   int c,i,m;
+   int c,i;
 
    fprintf(tp,"%d ",Numb);
    for (i=0 ; i < strlen((char *)Det) ; ++i)

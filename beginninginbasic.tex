@@ -534,12 +534,36 @@ for them:
 
 \screenshotwrap{images/input-example-3}
 
+When we run the programme, we first see the \stw{WHAT IS YOUR NAME} message
+from line 1.  The computer doesn't print the double-quote symbols,
+because they only told the computer that the piece of information
+between them is a string.  The string itself is only the part in
+between.
+
+After this we see the \stw{?} character again and the blinking cursor
+telling us that the computer is waiting for some input from us.  The
+rest of the progammed is {\em blocked}\index{IO!blocking}\index{blocked} from continuing until it we type the
+piece of information.  Once we type the piece of input, the computer
+stores it into the variable \stw{A\$}, and can continue.  Thus when it
+reaches line 3 of the programme, it has everything it needs, and
+prints out both the \stw{HELLO} message, as well as the information
+stored in the variable called \stw{A\$}.
+
+Notice that the word \stw{LISTER} doesn't appear anywhere in the
+programme.  It exists only in the variable.  This ability to process
+information that is not part of a programme is one of the things that
+makes computer programmes so powerful and able to be used for so many
+purposes. All we have to do is to change the input, and we can get
+different output.
+
+
 \needspace{4cm}
-If we run it again, we can try it with different input, and the
+For example, with our programme we run it again and again, and give it
+different input each time, and the
 programme will adapt its output to what we type. Pretty nifty, right?
 Let's have the rest of the crew try it out:
 
-\screenshotwrap{images/extra-ignored-1}
+\screenshotwrap{images/input-extra-ignored-1}
 
 We can see that each time the programme prints out the message
 customised with the input that you typed in\ldots Until we get to
@@ -548,12 +572,13 @@ case, he couldn't resist putting his Bronze Swimming Certificate
 qualification on the end of his name.
 
 We see that the computer has
-given us a king of error message, \stw{?EXTRA IGNORED}\index{Extra
+given us a kind of error message, \stw{?EXTRA IGNORED}\index{Extra
   Ignored}\index{Errors!Extra Ignored}\index{Warnings!Extra Ignored}.
 The error is not written in red, and doesn't have the word \stw{ERROR}
 on the end.  This means that it is a warning, rather than an error.
 Because it is only a warning, the programme continues.  But something
-has happened: The computer has ignored Mr. Rimmer's \stw{BSC}.  This
+has happened: The computer has ignored Mr. Rimmer's \stw{BSC}, that
+is, it has ignored the extra input.  This
 is because the \stw{INPUT} command doesn't really read a whole line
 of input. Rather, it reads {\em one piece of information}.  The
 \stw{INPUT} command thinks that a piece of information ends at the end
@@ -564,7 +589,8 @@ of a line of input, or when it encounters a comma (\stw{,}) or colon
 If you want to include one of those symbols, you need to surround the
 whole piece of information in double-quotes.  So, if Mr. Rimmer had
 read this guide instead of obsessing over the Space Core Directives,
-he would have known to type \stw{"RIMMER, BSC"), to have the programme
+he would have known to type \stw{"RIMMER, BSC"} (complete with the
+double-quotes), to have the programme 
   run correctly.  It is important that the quotes go around the whole
   piece of information, as otherwise the computer will think that the
   first quote marks the start of a new piece of information.  We can
@@ -572,7 +598,7 @@ he would have known to type \stw{"RIMMER, BSC"), to have the programme
 
   \screenshotwrap{images/input-quoting-1}
 
-\needspace{4cm}
+\needspace{1.5cm}
 While this can all be a bit annoying at times, it has a purpose: The
 \stw{INPUT} command can be used to read more than one piece of
 information.  We do this by putting more than one variable after the
@@ -586,6 +612,122 @@ we could ask for someone's name and age, with a programme like this:
   3 PRINT "HELLO "; A$
   4 PRINT "YOU ARE"; A; " YEARS OLD."
 \end{screenoutput}
+
+\needspace{4cm}
+If we run this programme, we can provide the two pieces of information
+on the one line when the computer presents us with the \stw{?} prompt,
+for example \stw{LISTER, 3000000}. Note the comma that separates the
+two pieces of information, \stw{LISTER} and \stw{3000000}.  It's also
+worth noticing that we haven't put any thousands separators into the
+number 3,000,000.  If we did, the computer would think we meant three
+separate pieces of information, \stw{3}, \stw{000} and \stw{000},
+which is not what we meant.  So let's see what it looks like when we
+give \stw{LISTER, 3000000} as input to the programme:
+
+  \screenshotwrap{images/input-multiple-1}
+
+In this case, the \stw{INPUT}\index{INPUT}\index{BASIC 10
+  Commands!INPUT} command reads the two pieces of
+information, and places the first into the variable \stw{A\$}, and the second
+into the variable \stw{A}. When the programme reaches line 3 it prints
+\stw{HELLO} followed by the first piece of information.
+Then when it gets to line 4, it prints the string \stw{YOU ARE},
+followed by the contents of the variable \stw{A}, which is the number
+3,000,000, and finally the string \stw{YEARS OLD}.
+
+It's also possible to just give one piece of information at a time.
+In that case, the \stw{INPUT} command will ask for the second piece
+of information with a double question-mark prompt, i.e., \stw{??}.
+Once it has the second piece of information.  (If we had more than
+two variables on the \stw{INPUT} command, it will still present the
+same \stw{??} prompt, rather than printing more and more
+question-marks.)
+
+\needspace{4cm}
+So if we try this with our programme, we can see ths \stw{?} and
+\stw{??} prompts, and how the first piece of information ends up in
+\stw{A\$} because it is the first variable in the \stw{INPUT}
+statement.
+The second piece of information ends up in \stw{A} because \stw{A} is
+the second variable after the \stw{INPUT} statement. Here's how it
+looks if we give this input to our programme:
+
+  
+\screenshotwrap{images/input-multiple-2}
+
+Until now we have been asking the user to input information by using a
+\stw{PRINT} command to display the message, and then an \stw{INPUT}
+command to tell the computerr which variables we would like to have
+some information input into.  But, like with the \stw{PRINT} command,
+this is something that happens often enough, that there is a shortcut
+for it. It also has the advantage that it looks nicer when
+running, and makes the programme a little shorter. The short cut is to
+put the message to show after the \stw{INPUT} command, but before the
+first variable.
+
+We can change our programme to use this approach.  First, we can
+change line 3 to include the prompt after the \stw{INPUT} command.  We
+can do this one of two ways: First, we could just type in a new line
+3. The computer will automatically replace the old line 3 with the new
+one.
+
+But, as we have mentioned a few times now, programmers are lazy
+beasts, and so there is a short-cut: If you can see the line on the
+screen that you want to change, you can use the cursor keys to
+navigate to that line, edit it on the screen, and then press the
+\specialkey{RETURN} key to tell the computer to accept the new version
+of the line.\index{Programmes!editing}\index{Programmes!replacing
+  lines}\index{Lines!editing}\index{Lines!replacing}
+
+\needspace{4cm}
+Either way, you
+can check that the changes succeeded by typing the \stw{LIST} command
+on any line of the screen that is blank.  This will show the revised
+version of the programme.  For example:
+
+\screenshotwrap{images/replacing-line-1}
+
+\needspace{3cm}
+We still have a little problem, though: Line 1 will print the message
+\stw{WHAT IS YOUR NAME AND AGE}, and then Line 2 will print it again!
+We only want the message to appear once. Thus we would like to change
+line 1 so that it doesn't do this any more.  Because there is no other
+command on line 1 that we want to keep, that line can just become
+empty. So we can type in something like this:
+
+\begin{screenoutput}
+1
+\end{screenoutput}
+
+\needspace{4cm}
+We can confirm that the contents of the line have been deleted by
+running the \stw{LIST} command again, like this:
+
+\screenshotwrap{images/deleting-line-1}
+
+Did you notice something interesting? When we told the computer to
+make line 1 of the programme empty, it deleted it completely!
+That's because the computer thinks that an empty line is of no use.
+It also makes sure that your programmes don't get all cluttered up
+with empty lines if you make lots of changes to your programmes.
+
+With that out the way, let's run our programme and see what happens.
+As usual, just type in the \stw{RUN} command and hit the
+\specialkey{RETURN} key.  You should see something like this:
+
+\screenshotwrap{images/input-comma}
+
+  \subsubsection{Exercises to try}
+
+  {\bf 1. Can you make the programme ask someone for their name, and
+    then for their favourite colour?}
+
+  At the moment it asks for their name and age. Can you change the
+  programme so that it reports on their favourite colour instead of
+  their age?
+
+  {\em Clue:} What type of information is age? Is it numeric or a
+  string? Is it the same type of information as the name of a colour?
 
 
 

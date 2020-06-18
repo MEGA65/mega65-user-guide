@@ -442,13 +442,151 @@ This leads us to a rather important point: \screentextwide{N} and
 similar names.  This applies to all possible variable names: If the
 variable name has a \screentextwide{\$} character on the end, it
 means it is a string variable quite separate from the similarly named
-numeric variable.  To use a bit of jargon, this means that numeric
-and string variable have their own separate {\em name
-  spaces}\index{name spaces}.  There are also four other variable name
+numeric variable.  To use a bit of jargon, this means that each {\em type}
+of variable has their own separate {\em name
+  spaces}\index{name spaces}.
+
+(There are also four other variable name
 spaces that we haven't talked about yet: integer variables, identified
 by having a \screentextwide{\%} character at the end of their name,
 e.g., \screentextwide{N\%}, and arrays of numeric, string or integer
-variables. We'll introduce those a bit later on.
+variables. But don't worry about those for now.
+We'll talk about those a bit later on.)
+
+So far we have only given values to variables in direct mode, or
+by using constructions like \screentextwide{FOR} loops.  But we
+haven't seen how we can get information from the user when a programme
+is running.  One way that we can do this, is with the
+\screentextwide{INPUT}\index{BASIC 10 Commands!INPUT}\index{INPUT}
+command.
+
+\needspace{4cm} % Dont allow following paragraph to separate from
+                % following screenshot
+\screentextwide{INPUT} is quite easy to use: We just have to say which
+variable we would like the input to go into.  For example, to tell the
+computer to ask for the user to provide something to put into the
+variable \screentextwide{A\$}, we could use something like
+\screentextwide{INPUT A\$}.  The only trick with the \stw{INPUT}
+command is that it cannot be used in direct mode\index{Direct Mode}.
+If you try it, the computer will tell you \stw{ILLEGAL DIURECT
+  ERROR}\index{Errors!Illegal Direct}\index{Illegal Direct Error}.
+Try it, and you should see something like the following
+
+\screenshotwrap{images/illegal-direct-error}
+
+\needspace{4cm}
+This means that the \stw{INPUT} command can only be used as part of a
+programme.  So we can instead do something like the following:
+
+\begin{screenoutput}
+1 INPUT A$
+2 PRINT "YOU TYPED "; A$
+RUN
+\end{screenoutput}
+
+\needspace{4cm}
+What do you think that this will do?  The first line will ask the
+computer for something to put into the variable \stw{A\$}, and the
+second line will print the string \stw{"YOU TYPED"}, followed by
+what the \stw{INPUT} command read from the user.  Let's try it out:
+
+\screenshotwrap{images/input-example-1}
+
+Did you expect that to happen? What is this question mark doing there?
+The \stw{?} here is the computer's way of telling you that a
+programme is waiting for some input from you.  This means that the
+computer uses the same symbol, \stw{?}, to mean two different things:
+If you type it as part of a programme or in direct mode, then it is a
+short-cut for the \stw{PRINT} command. That's when you type it. But if
+the computer shows it to you, it has this other meaning, that the
+computer is waiting for you to type something in. There is also a
+third way that the computer uses the \stw{?} character. Have you
+noticed what it is?  It is to indicate the start of an error
+message. For example, a Syntax Error is indicated by \stw{?SYNTAX
+ ERROR}. When a character or something has different meanings in
+different situations or contexts, we say that it its {\em context
+  dependent}\index{context dependent}.
+
+\needspace{4cm}
+But returning to our example,  if we now type
+something in, and press the \specialkey{RETURN} key to tell the
+computer that you are done, the programme will continue, like this:
+
+\screenshotwrap{images/input-example-2}
+
+\needspace{4cm}
+Of course, we didn't really know what to type in, because the programme
+didn't give any hints to the user as to what the programmer wanted
+them to do. So we should try to provide some instructions.  For
+example, if we wanted the user to type their name, we could print a
+message asking them to type their name, like this:
+
+\begin{screenoutput}
+  1 PRINT "WHAT IS YOUR NAME"
+  2 INPUT A$
+  3 PRINT "HELLO "; A$
+\end{screenoutput}
+
+\needspace{4cm}
+Now if we run this programme, the user will get a clue as to what we
+expect them to do, and the whole experience will make a lot more sense
+for them:
+
+\screenshotwrap{images/input-example-3}
+
+\needspace{4cm}
+If we run it again, we can try it with different input, and the
+programme will adapt its output to what we type. Pretty nifty, right?
+Let's have the rest of the crew try it out:
+
+\screenshotwrap{images/extra-ignored-1}
+
+We can see that each time the programme prints out the message
+customised with the input that you typed in\ldots Until we get to
+\stw{RIMMER, BSC}. As always, Mr. Rimmer is causing trouble.  In this
+case, he couldn't resist putting his Bronze Swimming Certificate
+qualification on the end of his name.
+
+We see that the computer has
+given us a king of error message, \stw{?EXTRA IGNORED}\index{Extra
+  Ignored}\index{Errors!Extra Ignored}\index{Warnings!Extra Ignored}.
+The error is not written in red, and doesn't have the word \stw{ERROR}
+on the end.  This means that it is a warning, rather than an error.
+Because it is only a warning, the programme continues.  But something
+has happened: The computer has ignored Mr. Rimmer's \stw{BSC}.  This
+is because the \stw{INPUT} command doesn't really read a whole line
+of input. Rather, it reads {\em one piece of information}.  The
+\stw{INPUT} command thinks that a piece of information ends at the end
+of a line of input, or when it encounters a comma (\stw{,}) or colon
+(\stw{:}) character.
+
+\needspace{4cm}
+If you want to include one of those symbols, you need to surround the
+whole piece of information in double-quotes.  So, if Mr. Rimmer had
+read this guide instead of obsessing over the Space Core Directives,
+he would have known to type \stw{"RIMMER, BSC"), to have the programme
+  run correctly.  It is important that the quotes go around the whole
+  piece of information, as otherwise the computer will think that the
+  first quote marks the start of a new piece of information.  We can
+  see the difference it makes below:
+
+  \screenshotwrap{images/input-quoting-1}
+
+\needspace{4cm}
+While this can all be a bit annoying at times, it has a purpose: The
+\stw{INPUT} command can be used to read more than one piece of
+information.  We do this by putting more than one variable after the
+\stw{INPUT} command, each separated by a comma.  The \stw{INPUT}
+command will then expect multiple pieces of information.  For example,
+we could ask for someone's name and age, with a programme like this:
+
+\begin{screenoutput}
+  1 PRINT "WHAT IS YOUR NAME AND AGE"
+  2 INPUT A$, A
+  3 PRINT "HELLO "; A$
+  4 PRINT "YOU ARE"; A; " YEARS OLD."
+\end{screenoutput}
+
 
 
 \section{Making simple decisions}

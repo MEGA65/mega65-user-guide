@@ -23,8 +23,8 @@ requires the use  of a font that contains these symbols, and software which supp
 
 The hardware accelerated keyboard scanner is very simple to use: First, make sure
 that you have the MEGA65 IO context activated, then read memory location \$D610
-(decimal 54800). If the contents are zero, no key has been pressed.  Otherwise the
-value with be the ASCII code of the most recent key or key-combination that has
+(decimal 54800). If the contents is zero, no key has been pressed.  Otherwise the
+value will be the ASCII code of the most recent key or key-combination that has
 been pressed.  Reading \$D610 again will continue to read the same value until
 you POKE any value into \$D610. This clears the key from the input buffer.
 
@@ -65,7 +65,7 @@ by the firmware in the CPLD chip on the keyboard PCB many thousands of times per
 second.  The matrix arrangement of the MEGA65 keyboard does not use the C65
 matrix layout.
 
-TInstead, the CPLD also sorts the natural matrix of the keyboard
+Instead, the CPLD also sorts the natural matrix of the keyboard
 into the C65 keyboard matrix order, and transmits this serially via the keyboard
 cable to the MEGA65 mainboard.  The MEGA65 core reads this serial data and uses it
 to reconstruct a C65-compatible virtual keyboard in the FPGA.  This virtual keyboard
@@ -100,7 +100,7 @@ The C65 keyboard matrix layout is as follows:
 \endlastfoot
 \small  {\bf{0}} & \specialkey{INST\\DEL} & 3 & 5 & 7 & 9 & + & \pounds & 1 & \specialkey{NO SCROLL} \\
 \hline
-\small  {\bf{1}} & \specialkey{RETURN} & W & R & Y & I & P  & * & $\leftarrow$ & \specialkey{TAB} \\
+\small  {\bf{1}} & \specialkey{RETURN} & W & R & Y & I & P  & * & \megakey{$\leftarrow$} & \specialkey{TAB} \\
 \hline
 \small  {\bf{2}} & \megakey{$\rightarrow$} & A & D & G & J & L & ; & \specialkey{CTRL} & \specialkey{ALT}  \\
 \hline
@@ -130,7 +130,7 @@ the \specialkey{CLR\\HOME} key is in column 6 and row 3. Thus its scan code is $
 The MEGA65 keyboard interface logic allows the use of a variety of keyboard types and alternatives. This is partly
 to cater for the early development on general purpose FPGA boards, the MEGAphone with its touch interface, and the
 desktop versions of the MEGA65 architecture.  In addition to these real keyboard types, the MEGA65 also allows the
-injecting of synthetic key events via the registers \$D615 -- \$D617 (decimal 54,805 -- 54,807).  By setting the
+injecting of up to 3 concurrent key events via the registers \$D615 -- \$D617 (decimal 54,805 -- 54,807).  By setting the
 lower 7 bits of these registers to any C65 keyboard scan code, the MEGA65 will behave as though that key is being
 held down.  To release a key, write \$7F (decimal 127) to the register containing the active key press. For example,
 to simulate briefly pressing the * key, the following could be used:
@@ -151,7 +151,7 @@ is being held down, making it rather difficult to enter the other commands!
 The LEDs on the MEGA65's keyboard are normally controlled automatically
 by the system.  However, it is also possible to place them under
 user control.  This is activated by setting bit 7 of \$D61D (decimal 54813).
-The lower bits indicate which keyboard register to set.  Registers 0 through 11
+The lower bits indicate which keyboard LED register to set.  Registers 0 through 11
 correspond to the red, green and blue channels of the four LEDs.  The intensity
 of an LED is set by setting \$D61E (decimal 54814) to the desired intensity.
 

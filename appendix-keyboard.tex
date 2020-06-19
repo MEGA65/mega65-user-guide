@@ -148,14 +148,33 @@ is being held down, making it rather difficult to enter the other commands!
 
 \section{Keyboard LED Control}
 
-The LEDs on the MEGA65's keyboard are normally controlled automatically
-by the system.  However, it is also possible to place them under
-user control.  This is activated by setting bit 7 of \$D61D (decimal 54813).
-The lower bits indicate which keyboard LED register to set.  Registers 0 through 11
-correspond to the red, green and blue channels of the four LEDs.  The intensity
-of an LED is set by setting \$D61E (decimal 54814) to the desired intensity.
+The LEDs on the MEGA65's keyboard are normally controlled automatically by the
+system.  However, it is also possible to place them under user control.  This
+is activated by setting bit 7 (decimal 128) of \$D61D (decimal 54813).  The
+lower bits indicate which keyboard LED to set.  Values 0 through 11 correspond
+to the red, green and blue channels of the four LEDs. The table below shows the
+specific values:
 
-To return the keyboard LEDs to hardware control, clear bit 7 of \$D61D.
+\begin{adjustwidth}{}{-2cm}
+\begin{description}[align=left,labelwidth=0.2cm]
+\item[ 0] left-half of DRIVE LED, RED
+\item[ 1] left-half of DRIVE LED, GREEN
+\item[ 2] left-half of DRIVE LED, BLUE
+\item[ 3] right-half of DRIVE LED, RED
+\item[ 4] right-half of DRIVE LED, GREEN
+\item[ 5] right-half of DRIVE LED, BLUE
+\item[ 6] left-half of POWER LED, RED
+\item[ 7] left-half of POWER LED, GREEN
+\item[ 8] left-half of POWER LED, BLUE
+\item[ 9] right-half of POWER LED, RED
+\item[10] right-half of POWER LED, GREEN
+\item[11] right-half of POWER LED, BLUE
+\end{description}
+\end{adjustwidth}
+
+In other words, the intensity of an LED can be set by first setting the desired
+intensity value into \$D61E (decimal 54814) and then setting \$D61D to 128 +
+0..11.  To return the keyboard LEDs to hardware control, clear bit 7 of \$D61D.
 
 For example to pulse the keyboard LEDs red and blue, the following programme
 could be used:

@@ -1,0 +1,31 @@
+Break to Interrupt
+PC $\leftarrow$ (\$FFFE)
+M+M+M+M+M+
+The break command causes the microprocessor to go through an
+interrupt sequence under program control.
+The address of the BRK instruction + 2 is pushed to the stack
+along with the status register with the Break flag set.
+This allows the interrupt service routine to distinguish
+between IRQ events and BRK events. For example:
+
+\begin{verbatim}
+   PLA           ; load status
+   PHA           ; restore stack
+   AND #$10      ; mask break flag
+   BNE DO_BREAK  ; -> it was a BRK
+   ...           ; else continue with IRQ server
+\end{verbatim}
+
+Cite from: MCS6500 Microcomputer Family Programming Manual,
+January 1976, Second Edition, MOS Technology Inc., Page 144:
+
+"The BRK is a single byte instruction and its addressing mode is Implied."
+
+There are debates, that BRK could be seen as a two byte instruction
+with the addressing mode immediate, where the operand byte is discarded.
+The byte following the BRK could then be used as a call argument for
+the break handler. Commodore however used the BRK, as stated in the manual,
+as a single byte instruction, which breaks into the ML monitor, if present.
+These builtin monitors decremented the stacked PC, so that it could
+be used to return or jump directly to the code byte after the BRK.
+

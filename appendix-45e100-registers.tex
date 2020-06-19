@@ -1,0 +1,253 @@
+\chapter{45E100 Fast Ethernet Controller}
+
+\section{Overview}
+
+The 45E100 is a new and simple Fast Ethernet controller that has been
+designed specially for the MEGA65 and for 8-bit computers generally.
+In addition to supporting 100Mbit Fast Ethernet, it is radically
+different from other Ethernet controllers, such as the RR-NET.
+
+The 45E100 includes dual receive buffers, allowing one frame to be
+processed while another is receiving.  It includes automatic CRC32
+checking on reception, and automatic CRC32 generation for transmit, considerably
+reducing the burden on the processor and allowing for very simple programs.  It also supports true
+full-duplex operation at 100Mbit per second, allowing for total bi-directional
+throughput exceeding 100Mbit per second.  The MAC address is software
+configurable, and promiscuous mode is supported, as are individual control
+of the reception of broadcast and multi-cast Ethernet frames.  The 45E100 also
+supports both transmit and receive interrupts, allowing greatly improved
+real-world performance. When especially low latency is required, it is also possible
+to immediately abort the transmission of the current Ethernet frame, so that a
+higher-priority frame can be immediately sent.
+These features combine to enable sub-millisecond round trip latencies,
+which can be of particular value for interactive applications, such as multi-player network
+games.
+
+\subsection{Differences to the RR-NET and similar solutions}
+
+The RR-NET and other Ethernet controllers for the Commodore\texttrademark \ line
+of 8-bit home computers generally use an Ethernet controller that was
+designed for 16-bit PCs, but that also supports a so-called ``8-bit mode,''
+which suffers from a number of disadvantages. The primary disadvantages
+are the lack of working interrupts, and processor intensive access to
+the Ethernet frame buffers.  The lack of interrupts forces programs to
+use polling to check for the arrival of new Ethernet frames.  This,
+together with the complexities of accessing the buffers results in an
+Ethernet interface that is very slow, and whose real-world throughput
+is considerably less than its theoretical 10Mbits per second.  Even
+a Commodore 64 with REU cannot achieve speeds above several tens of
+kilobytes per second.
+
+In contrast, the 45E100 supports both RX (Ethernet frame received) interrupts and TX
+(ready to transmit) interrupts, freeing the processor from having to poll
+the device. Because the 45E100 supports RX interrupts, there is no need for large
+numbers of receive buffers, which is why the 45E100 requires only two RX buffers
+to achieve very high levels of performance.
+
+Further, the 45E100 supports direct memory mapping of the
+Ethernet frame buffers, allowing for much more efficient access, including
+by DMA.  Using the MEGA65's integrated DMA controller it is quite possible
+to achieve transfer rates of several mega-bytes per second -- some 100x
+faster than the RR-NET.
+
+\subsection{Theory of Operation: Receiving Frames}
+
+The 45E100 is simple to operate: To begin receiving Ethernet frames, the programmer
+needs only to clear the RST bit (bit 0 of register \$D6E0) to release the
+Ethernet controller from reset.  It will then auto-negotiate connection at
+the highest available speed, typically 100Mbit, full-duplex.  The RXBLKD bit (bit 6 of \$D6E0)
+should then be checked, and if set, the RXBM (bit 2 of register \$D6E1) bit should be toggled to switch
+the active and mapped receive buffers, so that the 45E100 knows that the
+program no longer needs the contents of the previously mapped buffer, and can
+safely begin receiving an Ethernet frame into that buffer.
+
+When the 45E100 receives an ethernet frame, it will assert RXBLKD to indicate that the receive
+buffer has been filled with an ethernet frame.  No further ethernet frames will be received until
+RXBLKD is cleared again, as described above. This is because the 45E100 has only two receive buffers
+for ethernet frames: one of which is mapped visible to the processor, and the other which is visible
+to the 45E100's ethernet engine at any point in time.  Toggling RXBM allows toggling between which
+of the two buffers is mapped and which is ready to receive an ethernet frame.  The buffers are 2KiB
+bytes each.  The first two bytes are used to indicate the length of the received frame, and four
+are consumed by the ethernet CRC32 code, yielding an effective Maximum Transport Unit (MTU) length
+of 2,042 bytes.  The ethernet frame data begins at byte offset 2 in the receive buffer, with the
+frame length written LSB-first in the first two bytes.  The layout of the receive buffers is thus as follows:
+
+\begin{longtable}{|L{1.0cm}|L{1.1cm}|C{1.3cm}|L{6.9cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Length}} & {\bf{Description}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Length}} & {\bf{Description}} \\
+\hline
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small  0000 & \small 0 & 1 & The low byte of the length of the received ethernet frame. \\
+\hline
+\small  0001 & \small 1 & 1 & The lower four bits contain the upper bits of the length of the received ethernet frame.  Bit 4 is set if the received ethernet frame is a multi-cast frame. Bit 5 if it is a broadcast frame. Bit 6 is set if the frame's destination address matches the 45E100's programmed MAC address. Bit 7 is set if the CRC32 check for the received frame failed, i.e., that the frame is either truncated or was corrupted in transit.
+\hline
+\small  0002 -- 07FB & \small 2 -- 2,043 & 2,042 & The received frame. Frames shorter than 2,042 bytes will begin at offset 2.
+\hline
+\small  07FC -- 07FF & \small 2,044 -- 2,047 & 4 & Reserved space for holding the CRC32 code during reception.  The CRC32 code is, however, always located directly after the received frame, and thus will only occupy this space if the received frame is more than 2,038 bytes long.
+\hline
+\end{longtable}
+
+Because of the very rapid rate at which Fast Ethernet frames can be received, a programmer should use the
+receive interrupt feature, enabled by setting RXQEN (bit 7 of \$D6E1).  Polling is possible as an alternative, but
+is not recommended with the 45E100, because at the 100Mbit Fast Ethernet speed, packets can arrive
+as often as every 10 microseconds.  Fortunately, at the MEGA65's 40MHz full speed mode, and using
+the 20MiB per second DMA copy functionality, it is possible to keep up with such high data rates.
+
+\subsection{Accessing the Ethernet Frame Buffers}
+
+Unlike on the RR-NET, the 45E100's ethernet frame buffers are able to be memory mapped, allowing rapid access via DMA
+or through assembly language programs.  It is also possible to access the buffers from BASIC with some care.
+
+The frame buffers can either be accessed from their natural location in the MEGA65's extended address space at address
+\$FFDE800 -- \$FFDEFFF, or they can be mapped into the normal C64/C65 \$D000 IO address space.  Care must be
+taken as mapping the ethernet frame buffers into the \$D000 IO address space causes all other IO devices to unavailable
+during this time.  Therefore interrupts MUST be disabled before doing so, whether using BASIC or machine code.  Therefore
+when programming in assembly language or machine code, it is recommended to use the natural location, and to access this
+memory area using one of the three mechanisms for accessing extended address space, which are described in Appendix
+\ref{sec:extended-memory}.
+
+The method of
+disabling interrupts differs depending on the context in which a program is being written. For programs being written using C64 mode's BASIC 2, the following will work:
+
+\begin{screenoutput}
+  POKE56333,127: REM DISABLE CIA TIMER IRQS
+\end{screenoutput}
+
+While for C65's BASIC 10, the following must instead be used, because a VIC-III raster interrupt is used instead of a CIA-based timer interrupt:
+
+\begin{screenoutput}
+POKE53274,0: REM DISABLE VIC-II/III/IV RASTER IRQS
+\end{screenoutput}
+
+Once this has been done, the IO context for the ethernet controller can be activated by writing \$45 (69 in decimal, equal to the character 'E' in PETSCII)) and \$54 (84 in decimal, equal to the character 'T' in PETSCII) into the VIC-IV's KEY register (\$D02F, 53295 in decimal), for example:
+
+\begin{screenoutput}
+POKE53295,ASC("E"):POKE53295,ASC("T")
+\end{screenoutput}
+
+At this point, the ethernet RX buffer can be read beginning at location \$D000 (53248 in decimal), and the TX buffer can be written to at the same address.  Refer to `Theory of Operation: Receiving Frames' above for further explanation on this.
+
+Once you have finished accessing the ethernet frame buffer, you can restore the normal C64, C65 or MEGA65 IO context by writing to the VIC-III/IV's KEY register.  In most cases, it will make the most sense to revert to the MEGA65's IO context by writing \$47 (71 decimal) in and \$53 (83 in decimal) to the KEY register, for example:
+
+\begin{screenoutput}
+POKE53295,ASC("G"):POKE53295,ASC("S")
+\end{screenoutput}
+
+Finally, you should then re-enable interrupts, which will again depend on whether you are programming from C64 or C65 mode.  For C64 mode:
+
+\begin{screenoutput}
+POKE56333,129
+\end{screenoutput}
+
+For C65 mode it would be:
+
+\begin{screenoutput}
+POKE53274,129
+\end{screenoutput}
+
+
+
+\subsection{Theory of Operation: Sending Frames}
+
+Sending frames is similarly simple: The program must simply load the frame to be transmitted into
+the transmit buffer, write its length into TXSZLSB and TXSZMSB registers, and then write \$01 into
+the COMMAND register.  The frame will then begin to transmit, as soon as the transmitter is idle.
+There is no need to calculate and attach an ethernet CRC32 field, as the 45E100 does this automatically.
+
+Unlike for the receiver, there is only one frame buffer for the transmitter (this may be changed in
+a future revision). This means that you cannot prepare the next frame until the previous frame has
+already been sent.  This slightly reduces the maximum data throughput, in return for a very simple
+architecture.
+
+Also, note that the transmit buffer is write-only from the processor bus interface. This means that
+you cannot directly read the contents of the transmit buffer, but must load values ``blind''.  Finally,
+the 45E100 allows you to send ethernet.
+
+\subsection{Advanced Features}
+
+In addition to operating as a simple and efficient ethernet frame transceiver, the 45E100
+includes a number of advanced features, described here.
+
+\subsubsection{Broadcast and Multicast Traffic and Promiscuous Mode}
+
+The 45E100 supports filtering based on the destination Ethernet address, i.e., MAC address.
+By default, only frames where the destination Ethernet address matches the ethernet address
+programmed into the MACADDR1 -- MACADDR6 registers will be received. However, if the MCST bit
+is set, then multicast ethernet frames will also be received. Similarly, setting the BCST bit
+will allow all broadcast frames, i.e., with MAC address ff:ff:ff:ff:ff:ff, to be received.
+Finally, if the NOPROM bit is cleared, the 45E100 disables the filter entirely, and will
+receive all valid ethernet frames.
+
+\subsubsection{Debugging and Diagnosis Features}
+
+The 45E100 also supports several features to assist in the diagnosis of ethernet problems.
+First, if the NOCRC bit is set, then even ethernet frames that have invalid CRC32 values
+will be received. This can help debug faulty ethernet devices on a network.
+
+If the STRM bit is set, the ethernet transmitter transmits a continuous stream of debugging frames
+supplied via a special high-bandwidth logging interface. By default, the 45E100 emits a
+stream of approximately 2,200 byte ethernet frames that contain compressed video provided
+by a VIC-IV or compatible video controller that supports the MEGA65 video-over-ethernet
+interface.  By writing a custom decoder for this stream of ethernet frames, it is possible
+to create a remote display of the MEGA65 via ethernet. Such a remote display can be used,
+for example, to facilitate digital capture of the display of a MEGA65.
+
+The size and content of the debugging frames can be controlled by writing special values to the
+COMMAND register.  Writing \$F1 allows the selection of frames that are ~1,200 bytes long.
+While this reduces the performance of the debugging and streaming features, it allows the reception
+of these frames on systems whose ethernet controllers cannot be configured to receive frames
+of ~2,200 bytes.
+
+If the STRM bit is set and bit 2 of \$D6E1 is also set, a compressed log of instructions executed by
+the 45gs02 CPU will instead be streamed, if a compatible processor is connected to this interface.
+This mechanism includes back-pressure, and will cause the 45gs02 processor to slowdown,
+so that the instruction data can be emitted.  This typically limits the speed of the connected
+45gs02 processor to around 5MHz, depending on the particular instruction mix.
+
+Note also that
+the status of bit 2 of \$D6E1 cannot currently be read directly. This may be corrected in a future
+revision.
+
+Finally, if the video streaming functionality is enabled, this also enables reception of synthetic
+keyboard events via ethernet.  These are delivered to the MEGA65's Keyboard Complex Interface Adapter
+(KCIA), allowing full remote interaction with a MEGA65 via its ethernet interface.  This feature is
+primarily intended for development.
+
+\section{Memory Mapped Registers}
+
+The 45E100 Fast Ethernet controller is a MEGA65-specific feature.
+It is therefore only available in the MEGA65 IO context.
+This is enabled by writing \$53 and then \$47 to VIC-IV register \$D02F.
+If programming in BASIC, this can be done with:
+
+\begin{screenoutput}
+POKE53295,ASC("G"):POKE53295,ASC("S")
+\end{screenoutput}
+
+The 45E100 Fast Ethernet controller has the following registers
+
+\input{regtable_ETH.MEGA65}
+
+\subsection{COMMAND register values}
+
+The following values can be written to the COMMAND register to perform the described functions.
+In normal operation only the STARTTX command is required, for example, by performing the following POKE:
+
+\begin{screenoutput}
+POKE55012,1
+\end{screenoutput}
+
+\input{regtable_ETHCOMMAND.MEGA65}
+
+\section{Example Programs}
+
+Example programs for the ethernet controller exist in imperfect for in the MEGA65 Core repository on github in the src/tests and src/examples directories.

@@ -13,15 +13,48 @@
 %
 %    \megakey{$\leftarrow$}
 %
-% Other sizes are supported, as part of tcolorbox: http://mirror.aarnet.edu.au/pub/CTAN/macros/latex/contrib/tcolorbox/tcolorbox.pdf#subsubsection.4.7.5 however, only `title' and the default: `small' are proposed for use in this manual.
-
-% NOTE:
-% megakey used to be defined as simply:
-%   \newtcbox{\megakey}[1][small]{colback=black, coltext=white, size=#1, fontupper=\bfseries\uppercase, nobeforeafter,box align=bottom,text height=7pt}
-% while this works, the use of \uppercase gave: "! Missing { inserted" errors in the log. Reimplemented as:
+% Other sizes are supported, as part of tcolorbox:
+% http://mirror.aarnet.edu.au/pub/CTAN/macros/latex/contrib/tcolorbox/tcolorbox.pdf#subsubsection.4.7.5 however, only `title' and the default: `small' are proposed for use in this manual.
+%
+% The second macro available here is the megasymbolkey.
+% This will display the MEGA symbol as white on a black key box. Simply use:
+%
+%		 \megasymbolkey
+%
+% Some MEGA65 keys contain two lines of text like "RUN/STOP"
+% You can use the specialkey macro for this:
+%
+%    \specialkey{SHIFT LOCK}%
 
 \usepackage{tcolorbox}
-\usepackage{inputenc}
 
-\newtcbox{\megakeyinner}[1][small]{colback=black, coltext=white, size=#1, fontupper=\bfseries, nobeforeafter,box align=bottom,text height=7pt}
+\newtcbox{\megakeyinner}[1][small]{colback=black, coltext=white, size=#1, fontupper=\bfseries, nobeforeafter,box align=bottom,baseline=3pt,text height=7pt}
 \newcommand{\megakey}[2][small]{\megakeyinner[#1]{\uppercase{#2}}}
+
+% Previous version of megasymbolkey
+%\newtcbox{\megasymbolkeyinner}{colback=black, coltext=white, clip title=false. fontupper=\symbolfont, box align=bottom,baseline=3pt,text height=7pt}
+%\newcommand{\megasymbolkey}{\megakeyinner{\megasymbol[white]}\ }
+
+\newtcolorbox{megasymbolkeyinner}
+{colback=black,coltext=white,size=small,fontupper=\small\bfseries,
+width=0.65cm, height=0.55cm, box align=base,
+nobeforeafter, halign=flush left, left=0mm,top=0.3mm,bottom=0mm,right=0mm
+,boxsep=0.5mm,baseline=4pt, enlarge right by = 1mm
+}
+\newcommand{\megasymbolkey}{
+\begin{megasymbolkeyinner}%
+\megasymbol[white]%
+\end{megasymbolkeyinner}%
+}
+
+\newtcolorbox{specialkeyinner}
+{colback=black,coltext=white,size=small,fontupper=\tiny\bfseries,
+width=0.80cm, height=0.55cm, box align=base,
+nobeforeafter, halign=flush left, left=0mm,top=0.3mm,bottom=0mm,right=0mm
+,boxsep=0.5mm,baseline=4pt
+}
+\newcommand{\specialkey}[1]{
+\begin{specialkeyinner}%
+#1%
+\end{specialkeyinner}%
+}

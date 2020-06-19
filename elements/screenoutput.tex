@@ -1,5 +1,5 @@
-% This is an element for displaying output from the Mega65 screen.
-% It can display program code or to show activity on the screen.
+% This is a collection of elements for displaying output from the Mega65 screen.
+% They can display program code or fragments to show activity on the screen.
 % Example of use:
 %
 %    \begin{screenoutput}
@@ -16,16 +16,21 @@
 %
 %    RUN
 %    \end{screenoutput}
+%
+% for inline display of code, use:
+%
+%    \screentext{?SYNTAX ERROR}
+%
 
 \usepackage{listings,color}
 
-\lstnewenvironment{screenoutput}
+\lstnewenvironment{screenoutputlined}
    {
      \lstset{
-               basicstyle=\codefont\color{white}\linespread{1.1}\normalsize,
+               basicstyle=\codefont\color{white}\linespread{1.0}\normalsize,
                backgroundcolor=\color{black},fillcolor=\color{black},
+               rulecolor=\color{black},
                frame=lines,
-               rulecolor=\color{white},
                framexleftmargin=2mm,
                framexrightmargin=2mm,
                framextopmargin=2mm,
@@ -34,13 +39,33 @@
                xleftmargin=2mm,
                xrightmargin=2mm,
                basewidth={0.4em},
-               escapeinside={\%*}{*\%},
                literate={\*}{*}1{\-}{-}1{\/}{/}1{{\ }}{{ }}1
             }
    }
    {  }
 
+\lstdefinestyle{megalisting}{basicstyle=\codefont\normalsize,breaklines=false,fontadjust=true,basewidth=1.5mm}
+\makeatletter
+\newtcblisting{screenoutput}{%
+listing only,
+colback=black,
+coltext=white,
+boxsep=0mm,
+left=2mm,
+right=0mm,
+top=-1mm,
+bottom=-1mm,
+listing options={style=megalisting},
+% Gets ignored by listings package
+%fontupper=,
+enlarge left by =\csname @totalleftmargin\endcsname
+}
+\makeatother
+
+
 
 % For in-line screen text
-\newcommand{\screentext}[1]{ {\codefont\color{black}\normalsize{#1}} }
-
+\newcommand{\screentext}[1]{{\codefont\color{black}\normalsize{#1}}}
+\newcommand{\screentextwide}[1]{{\codefontwide\color{black}\small{#1}}}
+% Just to save typing
+\newcommand{\stw}[1]{{\codefontwide\color{black}\small{#1}}}

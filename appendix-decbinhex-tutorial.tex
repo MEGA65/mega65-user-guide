@@ -1,0 +1,848 @@
+\chapter{Decimal, Binary and Hexadecimal}
+
+\section{Numbers}
+Simple computer programs, such as most of the introductory BASIC programs in this book, do not require an understanding of mathematics or much knowledge about the inner workings of the computer. This is because BASIC is considered a high-level programming language. It lets us program the computer somewhat indirectly, yet still gives us control over the computer’s features. Most of the time, we don’t need to concern ourselves with the computer’s internal architecture, which is why BASIC is user friendly and accessible.
+
+As you acquire deeper knowledge and become more experienced, you will often want to instruct the computer to perform complex or specialised tasks that differ from the examples given in this book. Perhaps for reasons of efficiency, you may also want to exercise direct and precise control over the contents of the computer’s memory. This is especially true for applications that deal with advanced graphics and sound. Such operations are closer to the hardware and are therefore considered low-level. Some simple mathematical knowledge is required to be able to use these low-level features effectively.
+
+The collective position of the tiny switches inside the computer---whether each switch is on or off---is the state of the computer. It is natural to associate numerical concepts with this state. Numbers let us understand and manipulate the internals of the machine via logic and arithmetic operations. Numbers also let us encode the two essential and important pieces of information that lie within every computer program: {\it instructions} and {\it data}.
+
+A program’s instructions tell a computer what to do and how to do it. For example, the action of outputting a text string to the screen via the statement {\bf PRINT} is an instruction. The action of displaying a sprite and the action of changing the screen’s border colour are instructions too. Behind the scenes, every instruction you give to the computer is associated with one or more numbers (which, in turn, correspond to the tiny switches inside the computer being switched on or off). Most of the time these instructions won’t look like numbers to you. Instead, they might take the form of statements in BASIC.
+
+A program’s data consists of information. For example, the greeting ``HELLO MEGA65!'' is PETSCII character data in the form of a text string. The graphical design of a sprite might be pixel data in the form of a hero for a game. And the colour data of the screen’s border might represent orange. Again, behind the scenes, every piece of data you give to the computer is associated with one or more numbers. Data is sometimes given directly next to the statement to which it applies. This data is referred to as a parameter or argument (such as when changing the screen colour with a {\bf BACKGROUND 1} statement). Data may also be given within the program via the BASIC statement {\bf DATA} which accepts a list of comma-separated values.
+
+All such numbers---regardless of whether they represent instructions or data---reside in the computer’s memory. Although the computer’s memory is highly structured, the computer does not distinguish between instructions and data, nor does it have separate areas of memory for each kind of information. Instead, both are stored in whichever memory location is considered convenient. Whether a given memory location’s contents is part of the program’s instructions or is part of the program’s data largely depends on your viewpoint, the program being written and the needs of the programmer.
+
+Although BASIC is a high-level language, it still provides statements that allow programmers to manipulate the computer’s memory efficiently. The statement {\bf PEEK} lets us read the information from a specified memory location: we can inspect the contents of a memory address. The statement {\bf POKE} lets us store information inside a specified memory location: we can modify the contents of a memory address so that it is set to a given value.
+
+\section{Notations and Bases}
+We now take a look at numbers.
+
+Numbers are ideas about quantity and magnitude. In order to manipulate numbers and determine relationships between them, it’s important for them to have a unique form. This brings us to the idea of the symbolic representation of numbers using a positional notation. In this appendix we’ll restrict our discussion to whole numbers, which are also called {\it integers}.
+
+The {\it decimal} representation of numbers is the one with which you will be most comfortable since it is the one you were taught at school. Decimal notation uses the ten Hindu-Arabic numerals 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9 and is thus referred to as a base 10 numeral system. As we shall see later, in order to express large numbers in decimal, we use a positional system in which we juxtapose digits into columns to form a bigger number.
+
+For example, 53280 is a decimal number. Each such digit (0 to 9) in a decimal number represents a multiple of some power of 10. When a BASIC statement (such as {\bf PEEK} or {\bf POKE}) requires an integer as a parameter, that parameter is given in the decimal form.
+
+Although the decimal notation feels natural and comfortable for humans to use, modern computers, at their most fundamental level, use a different notation. This notation is called {\it binary}. It is also referred to as a base 2 numeral system because it uses only two Hindu-Arabic numerals: 0 and 1. Binary reflects the fact that each of the tiny switches inside the computer must be in exactly one of two mutually exclusive states: on or off. The number 0 is associated with off and the number 1 is associated with on. Binary is the simplest notation that captures this idea. In order to express large numbers in binary, we use a positional system in which we juxtapose digits into columns to form a bigger number and prefix it with a \% sign.
+
+For example, \%1001 0110 is a binary number. Each such digit (0 or 1) in a binary number represents a multiple of some power of 2.
+
+We’ll see later how we can use special BASIC statements to manipulate the patterns of ones and zeros present in a binary number to change the state of the switches associated with it. Effectively, we can toggle individual switches on or off, as needed.
+
+A third notation called {\it hexadecimal} is also often used. This is a base 16 numeral system. Because it uses more than ten digits, we need to use some letters to represent the extra digits. Hexadecimal uses the ten Hindu-Arabic digits 0 to 9 as well as the six Latin alphabetic characters as ``digits'' (A, B, C, D, E and F) to represent the numbers 10 to 15. This gives a total of sixteen symbols for the numbers 0 to 15. To express a large number in hexadecimal, we use a positional system in which we juxtapose digits into columns to form a bigger number and prefix it with a \$ sign.
+
+For example, \$E7 is a hexadecimal number. Each such digit (0 to 9 and A to F) in a hexadecimal number represents a multiple of some power of 16.
+
+Hexadecimal is not often used when programming in BASIC. It is more commonly used when programming in low-level languages like machine code or assembly language. It also appears in computer memory maps and its brevity makes it a useful notation, so it is described here.
+
+Always remember that decimal, binary and hexadecimal are just different notations for numbers. A notation just changes the way the number is written (i.e., the way it looks on paper or on the screen), but its intrinsic value remains unchanged. A notation is essentially different ways of representing the same thing. The reason that we use different notations is that each notation lends itself more naturally to a different task.
+
+When using decimal, binary and hexadecimal for extended periods you may find it handy to have a scientific pocket calculator with a programmer mode. Such calculators can convert between bases with the press of a button. They can also add, subtract, multiply and divide, and perform various bit-wise logical operations.
+See Appendix \ref{ch:referencetables}  \nameref{ch:referencetables} as it contains a \nameref{s:baseconversion} table for decimal, binary, and hexadecimal for integers between 0 and 255.
+
+The BASIC listing for this appendix is a utility program that converts individual numbers into different bases. It can also convert multiple numbers within a specified range.
+
+Although these concepts might be new now, with some practice they'll soon seem like second nature. We’ll look at ways of expressing numbers in more detail. Later, we’ll also investigate the various operations that we can perform on such numbers.
+
+\subsection{Decimal}
+When representing integers using decimal notation, each column in the number is for a different power of 10. The rightmost position represents the number of units (because $10^{0} = 1$) and each column to the left of it is 10 times larger than the column before it. The rightmost column is called the units column. Columns to the left of it are labelled tens (because $10^{1} = 10$), hundreds (because $10^{2} = 100$), thousands (because $10^{3} = 1000$), and so on.
+
+To give an example, the integer 53280 represents the total of 5 lots of 10000, 3 lots of 1000, 2 lots of 100, 8 lots of 10 and 0 units. This can be seen more clearly if we break the integer up into distinct parts, by column.
+
+Since
+\begin{center}
+  $53280 = 50000 + 3000 + 200 + 80 + 0$
+\end{center}
+we can present this as a table with the sum of each column at the bottom.
+
+\begin{center}
+  \begin{tabular}{|c|c|c|c|c|}
+  \hline
+    \small{\bf TEN THOUSANDS} & \small{\bf THOUSANDS} & \small{\bf HUNDREDS} & \small{\bf TENS} & \small{\bf UNITS} \\ \hline
+	  \small{$10^{4} = 10000$} & \small{$10^{3} = 1000$} & \small{$10^{2} = 100$} & \small{$10^{1} = 10$} & \small{$10^{0} = 1$} \\ \hhline{|=|=|=|=|=|}
+	  \large{\texttt{5}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            & \large{\texttt{3}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           & \large{\texttt{2}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           & \large{\texttt{8}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           & \large{\texttt{0}} \\ \hhline{|=|=|=|=|=|}
+	   \Large{\texttt{5}} & \Large{\texttt{3}}  & \Large{\texttt{2}}  & \Large{\texttt{8}}  & \Large{\texttt{0}} \\ \hline
+  \end{tabular}
+\end{center}
+
+Another way of stating this is to write the expression using multiples of powers of 10.
+
+\begin{center}
+  $53280 = (5 \times 10^{4}) + (3 \times 10^{3}) + (2 \times 10^{2}) + (8 \times 10^{1}) + (0 \times 10^{0})$
+\end{center}
+
+Alternatively
+
+\begin{center}
+	$53280 = (5 \times 10000) + (3 \times 1000) + (2 \times 100) + (8 \times 10) + (0 \times 1)$
+\end{center}
+
+We now introduce some useful terminology that is associated with decimal numbers.
+
+The rightmost digit of a decimal number is called the least significant digit, because, being the smallest multiplier of a power of 10, it contributes the least to the number’s magnitude. Each digit to the left of this digit has increasing significance. The leftmost (non-zero) digit of the decimal number is called the most significant digit, because, being the largest multiplier of a power of 10, it contributes the most to the number’s magnitude.
+
+For example, in the decimal number 53280, the digit 0 is the least significant digit and the digit 5 is the most significant digit.
+
+A decimal number $a$ is $m$ {\it orders of magnitude} greater than the decimal number $b$ if $a = b \times (10^{m})$. For example, 50000 is three orders of magnitude greater than 50, because it has three more zeros. This terminology can be useful when making comparisons between numbers or when comparing the time efficiency or space efficiency of two programs with respect to the sizes of the given inputs.
+
+Note that unlike binary (which uses a conventional \% prefix) and hexadecimal (which uses a conventional \$ prefix), decimal numbers are given no special prefix. In some textbooks you might see such numbers with a subscript instead. So decimal numbers will have a sub-scripted 10, binary numbers will have a sub-scripted 2, and hexadecimal numbers will have a sub-scripted 16.
+
+Another useful concept is the idea of signed and unsigned decimal integers.
+
+A signed decimal integer can be positive or negative or zero. To represent a signed decimal integer, we prefix it with either a $+$ sign or a $–$ sign. (By convention, zero, which is neither positive nor negative, is given the $+$ sign.)
+
+If, on the other hand, a decimal integer is unsigned it must be either zero or positive and does not have a negative representation. This can be illustrated with the BASIC statements {\bf PEEK} and {\bf POKE}. When we use {\bf PEEK} to return the value contained within a memory location, we get back an unsigned decimal number. For example, the statement {\bf PRINT (PEEK (49152))} outputs the contents of memory location 49152 to the screen as an unsigned decimal number. Note that the memory address that we gave to {\bf PEEK} is itself an unsigned integer. When we use {\bf POKE} to store a value inside a memory location, both the memory address and the value to store inside it are given as unsigned integers. For example, the statement {\bf POKE 49152, 128} stores the unsigned decimal integer 128 into the memory address given by the unsigned decimal integer 49152.
+
+Each memory location in the MEGA65 can store a decimal integer between 0 and 255. This corresponds to the smallest and largest decimal integers that can be represented using eight binary digits (eight bits). Also, the memory addresses are decimal integers between 0 and 65535. This corresponds to the smallest and largest decimal integers that can be represented using sixteen binary digits (sixteen bits).
+
+Note that the largest number expressible using $d$ decimal digits is $10^{d} - 1$. (This number will have $d$ nines in its representation.)
+
+\subsection{Binary}
+Binary notation uses powers of 2 (instead of 10 which is for decimal). The rightmost position represents the number of units (because $2^{0} = 1$) and each column to the left of it is 2 times larger than the column before it. Columns to the left of the rightmost column are the twos column (because $2^{1} = 2$), the fours column (because $2^{2} = 4$), the eights column (because $2^{3} = 8$), and so on.
+
+As an example, the integer \%1101 0011 uses exactly eight binary digits and represents the total of 1 lot of 128, 1 lot of 64, 0 lots of 32, 1 lot of 16, 0 lots of 8, 0 lots of 4, 1 lot of 2 and 1 unit.
+
+We can break this integer up into distinct parts, by column.
+
+Since
+\begin{center}
+	\small{\%1101 0011} = \small{\%1000 0000} + \small{\%100 0000} + \small{\%00 0000} + \small{\%1 0000} + \small{\%0000} + \small{\%000} + \small{\%10} + \small{\%1}
+\end{center}
+we can present this as a table with the sum of each column at the bottom.
+
+\begin{center}
+  \begin{tabular}{|c|c|c|c|c|c|c|c|}
+  \hline
+  	\small{\bf ONE} & & & & & & &  \\
+    \small{\bf HUNDRED AND} & \small{\bf SIXTY-} & \small{\bf THIRTY-} &  &  & &  & \\
+    \small{\bf TWENTY-EIGHTS} & \small{\bf FOURS} & \small{\bf TWOS} & \small{\bf SIXTEENS} & \small{\bf EIGHTS} & \small{\bf FOURS} & \small{\bf TWOS} & \small{\bf UNITS} \\ \hline
+	  \small{$2^{7} = 128$} & \small{$2^{6} = 64$} & \small{$2^{5} = 32$} & \small{$2^{4} = 16$} & \small{$2^{3} = 8$} & \small{$2^{2} = 4$} & \small{$2^{1} = 2$} & \small{$2^{0} = 1$} \\ \hhline{|=|=|=|=|=|=|=|=|}
+	  \large{\texttt{1}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            & \large{\texttt{1}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           & \large{\texttt{1}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           &           & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           &           &           & \large{\texttt{1}} & \large{\texttt{0}} \\ \hline
+	  					&           &           &           &           &           &           & \large{\texttt{1}} \\ \hhline{|=|=|=|=|=|=|=|=|}
+	 \Large{\texttt{1}}  & \Large{\texttt{1}}   & \Large{\texttt{0}}  & \Large{\texttt{1}}  & \Large{\texttt{0}}  & \Large{\texttt{0}}  & \Large{\texttt{1}} & \Large{\texttt{1}} \\ \hline
+  \end{tabular}
+\end{center}
+
+Another way of stating this is to write the expression in decimal, using multiples of powers of 2.
+
+\begin{center}
+  $\%1101 0011 = (1 \times 2^{7}) + (1 \times 2^{6}) + (0 \times 2^{5}) + (1 \times 2^{4}) + (0 \times 2^{3}) + (0 \times 2^{2}) + (1 \times 2^{1}) + (1 \times 2^{0})$
+\end{center}
+
+Alternatively
+
+\begin{center}
+	$\%1101 0011 = (1 \times 128) + (1 \times 64) + (0 \times 32) + (1 \times 16) + (0 \times 8)  + (0 \times 4) + (1 \times 2) + (1 \times 1)$
+\end{center}
+
+which is the same as writing
+
+\begin{center}
+  $\%1101 0011 = 128 + 64 + 16 + 2 + 1$
+\end{center}
+
+Binary has terminology of its own. Each binary digit in a binary number is called a {\it bit}. In an 8-bit number the bits are numbered consecutively with the least significant (i.e., rightmost) bit as bit 0 and the most significant (i.e., leftmost) bit as bit 7. In a 16-bit number the most significant bit is bit 15. A bit is said to be {\it set} if it equals 1. A bit is said to be {\it clear} if it equals 0. When a particular bit has a special meaning attached to it, we sometimes refer to it as a {\it flag}.
+
+\begin{center}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		1 & 1 & 0 & 1 & 0 & 0 & 1 & 1 \\ \hhline{|=|=|=|=|=|=|=|=|}
+		\small{Bit 7} & \small{Bit 6} & \small{Bit 5} & \small{Bit 4} & \small{Bit 3} & \small{Bit 2} & \small{Bit 1} & \small{Bit 0} \\ \hline
+	\end{tabular}
+\end{center}
+
+As mentioned earlier, each memory location can store an integer between 0 and 255. The minimum corresponds to \%0000 0000 and the maximum corresponds to \%1111 1111, which are the smallest and largest numbers that can be represented using exactly eight bits. The memory addresses use 16 bits. The smallest memory address, represented in exactly sixteen bits, is \%0000 0000 0000 0000 and this corresponds to the smallest 16-bit number. Likewise, the largest memory address, represented in exactly sixteen bits, is \%1111 1111 1111 1111 and this corresponds to the largest 16-bit number.
+
+It is often convenient to refer to groups of bits by different names. For example, eight bits make a {\it byte} and 1024 bytes make a {\it kilobyte}. Half a byte is called a nybble.
+See Appendix \ref{ch:referencetables} \nameref{ch:referencetables} for the \nameref{s:unitsofstorage} table for further information.
+
+Note that the largest number expressible using $d$ binary digits is (in decimal) $2^{d} - 1$. (This number will have $d$ ones in its representation.)
+
+\subsection{Hexadecimal}
+Hexadecimal notation uses powers of 16. Each of the sixteen hexadecimal numerals has an associated value in decimal.
+
+\begin{center}
+	\begin{tabular}{|c|c|}
+		\hline
+		{\bf Hexadecimal} & {\bf Decimal} \\
+		{\bf Numeral} & {\bf Equivalent} \\ \hhline{|=|=|}
+		\texttt{\$0} & \texttt{0} \\ \hline
+		\texttt{\$1} & \texttt{1} \\ \hline
+		\texttt{\$2} & \texttt{2} \\ \hline
+		\texttt{\$3} & \texttt{3} \\ \hline
+		\texttt{\$4} & \texttt{4} \\ \hline
+		\texttt{\$5} & \texttt{5} \\ \hline
+		\texttt{\$6} & \texttt{6} \\ \hline
+		\texttt{\$7} & \texttt{7} \\ \hline
+		\texttt{\$8} & \texttt{8} \\ \hline
+		\texttt{\$9} & \texttt{9} \\ \hline
+		\texttt{\$A} & \texttt{10} \\ \hline
+		\texttt{\$B} & \texttt{11} \\ \hline
+		\texttt{\$C} & \texttt{12} \\ \hline
+		\texttt{\$D} & \texttt{13} \\ \hline
+		\texttt{\$E} & \texttt{14} \\ \hline
+		\texttt{\$F} & \texttt{15} \\ \hline
+	\end{tabular}
+\end{center}
+
+The rightmost position in a hexadecimal number represents the number of ones (since $16^{0} = 1$). Each column to the left of this digit is 16 times larger than the column before it. Columns to the left of the rightmost column are the 16-column (since $16^{1} = 16$), the 256-column (since $16^{2} = 256$), the 4096-column (since $16^{3} = 4096$), and so on.
+
+As an example, the integer \$A3F2 uses exactly four hexadecimal digits and represents the total of 10 lots of 4096 (because \$A = 10), 3 lots of 256 (because \$3 = 3), 15 lots of 16 (because \$F = 15) and 2 units (because \$2 = 2). We can break this integer up into distinct parts, by column.
+
+Since
+\begin{center}
+  \$A3F2 = \$A000 + \$300 + \$F0 + \$2
+\end{center}
+we can present this as a table with the sum of each column at the bottom.
+
+\begin{center}
+  \begin{tabular}{|c|c|c|c|}
+  \hline
+    \small{\bf FOUR THOUSAND} & \small{\bf TWO HUNDRED} &  &  \\
+    \small{\bf AND NINETY-SIXES} & \small{\bf AND FIFTY-SIXES} & \small{\bf SIXTEENS} & \small{\bf UNITS} \\ \hline
+	  \small{$16^{3} = 4096$} & \small{$16^{2} = 256$} & \small{$16^{1} = 16$} & \small{$16^{0} = 1$} \\ \hhline{|=|=|=|=|}
+	  \large{\texttt{A}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            & \large{\texttt{3}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           & \large{\texttt{F}} & \large{\texttt{0}} \\ \hline
+	            &           &           & \large{\texttt{2}} \\ \hhline{|=|=|=|=|}
+	   \Large{\texttt{A}} & \Large{\texttt{3}}  & \Large{\texttt{F}}  & \Large{\texttt{2}} \\ \hline
+  \end{tabular}
+\end{center}
+
+Another way of stating this is to write the expression in decimal, using multiples of powers of 16.
+
+\begin{center}
+  \$A3F2 = $(10 \times 16^{3}) + (3 \times 16^{2}) + (15 \times 16^{1}) + (2 \times 16^{0})$
+\end{center}
+
+Alternatively
+
+\begin{center}
+  \$A3F2 = $(10 \times 4096) + (3 \times 256) + (15 \times 16) + (2 \times 1)$
+\end{center}
+
+which is the same as writing
+
+\begin{center}
+	\$A3F2 = 40960 + 768 + 240 + 2
+\end{center}
+
+Again, like binary and decimal, the rightmost digit is the least significant and the leftmost digit is the most significant.
+
+Each memory location can store an integer between 0 and 255, and this corresponds to the hexadecimal numbers \$00 and \$FF. The hexadecimal number \$FFFF corresponds to 65535---the largest 16-bit number.
+
+Hexadecimal notation is often more convenient to use and manipulate than binary. Binary numbers consist of a longer sequence of ones and zeros, while hexadecimal is much shorter and more compact. This is because one hexadecimal digit is equal to exactly four bits. So a two-digit hexadecimal number comprises of eight bits with the low nybble equalling the right digit and the high nybble equalling the left digit.
+
+Note that the largest number expressible using $d$ hexadecimal digits is (in decimal) $16^{d} - 1$. (This number will have $d$ \$F symbols in its representation.)
+
+\section{Operations}
+In this section we'll take a tour of some familiar operations like counting and arithmetic, and we'll see how they apply to numbers written in binary and hexadecimal.
+
+Then we'll take a look at various logical operations using logic gates. These operations are easy to understand. They're also very important when it comes to writing programs that have extensive numeric, graphic or sound capabilities.
+
+\subsection{Counting}
+If we consider carefully the process of {\it counting} in decimal, this will help us to understand how counting works when using binary and hexadecimal.
+
+Let's suppose that we're counting in decimal and that we're starting at 0. Recall that the list of numerals for decimal is (in order) 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9. Notice that when we add 1 to 0 we obtain 1, and when we add 1 to 1 we obtain 2. We can continue in this manner, always adding 1:
+\begin{center}
+	0 + 1 = 1  \\
+	1 + 1 = 2  \\
+	2 + 1 = 3  \\
+	3 + 1 = 4  \\
+	4 + 1 = 5  \\
+	5 + 1 = 6  \\
+	6 + 1 = 7  \\
+	7 + 1 = 8  \\
+	8 + 1 = 9  \\
+\end{center}
+
+Since 9 is the highest numeral in our list of numerals for decimal, we need some way of handling the following special addition: $9 + 1$. The answer is that we can reuse our old numerals all over again. In this important step, we reset the units column back to 0 and (at the same time) add 1 to the tens column. Since the tens column contained a 0, this gives us $9 + 1 = 10$. We say we ``carried'' the 1 over to the tens column while the units column cycled back to 0.
+
+Using this technique, we can count as high as we like. The principle of counting for binary and hexadecimal is very much same, except instead of using ten symbols, we get to use two symbols and sixteen symbols, respectively.
+
+Let's take a look at counting in binary. Recall that the list of numerals for binary is (in order) just 0 and 1. So, if we begin counting at \%0 and then add \%1, we obtain \%1 as the result:
+
+\begin{center}
+	\%0 + \%1 = \%1 \\
+\end{center}
+
+Now, the sum $\%1 + \%1$ will cause us to perform the analogous step: we reset the units column back to zero and (at the same time) add \%1 to the twos column. Since the twos column contained a \%0, this gives us $\%1 + \%1 = \%10$. We say we ``carried'' the \%1 over to the twos column while the units column cycled back to \%0. If we continue in this manner we can count higher.
+
+\begin{center}
+  \%1 + \%1 = \%10 \\
+  \%10 + \%1 = \%11 \\
+  \%11 + \%1 = \%100 \\
+  \%100 + \%1 = \%101 \\
+  \%101 + \%1 = \%110 \\
+  \%110 + \%1 = \%111 \\
+  \%111 + \%1 = \%1000 \\
+\end{center}
+
+Now we'll look at counting in hexadecimal. The list of numerals for hexadecimal is (in order) 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E and F. If we begin counting at \$0 and repeatedly add \$1 we obtain:
+
+\begin{center}
+	\$0 + \$1 = \$1 \\
+	\$1 + \$1 = \$2 \\
+	\$2 + \$1 = \$3 \\
+	\$3 + \$1 = \$4 \\
+	\$4 + \$1 = \$5 \\
+	\$5 + \$1 = \$6 \\
+	\$6 + \$1 = \$7 \\
+	\$7 + \$1 = \$8 \\
+	\$8 + \$1 = \$9 \\
+	\$9 + \$1 = \$A \\
+	\$A + \$1 = \$B \\
+	\$B + \$1 = \$C \\
+	\$C + \$1 = \$D \\
+	\$D + \$1 = \$E \\
+	\$E + \$1 = \$F \\
+\end{center}
+
+Now, when we compute \$F + \$1 we must reset the units column back to \$0 and add \$1 to the sixteens column as that number is ``carried''.
+
+\begin{center}
+	\$F + \$1 = \$10
+\end{center}
+
+Again, this process allows us to count as high as we like.
+
+\subsection{Arithmetic}
+The standard arithmetic operations of addition, subtraction, multiplication and division are all possible using binary and hexadecimal.
+
+Addition is done in the same way that addition is done using decimal, except that we use base 2 or base 16 as appropriate. Consider the following example for the addition of two binary numbers.
+\begin{center}
+	\begin{tabular}{ccccc}
+               & \texttt{\%} & \texttt{1} & \texttt{1} & \texttt{0} \\
+    \texttt{+} & \texttt{\%} & \texttt{1} & \texttt{1} & \texttt{1} \\ \hline
+    \texttt{\%} & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{1} \\ \hhline{=====}
+	\end{tabular}
+\end{center}
+
+We obtain the result by first adding the units columns of both numbers. This gives us \%0 + \%1 = \%1 with nothing to carry into the next column. Then we add the twos columns of both numbers: \%1 + \%1 = \%0 with a \%1 to carry into the next column. We then add the fours columns (plus the carry) giving (\%1 + \%1) + \%1 = \%1 with a \%1 to carry into the next column. Last of all are the eights columns. Because these are effectively both zero we only concern ourselves with the carry which is \%1. So (\%0 + \%0) + \%1 = \%1. Thus, \%1101 is the sum.
+
+Next is an example for the addition of two hexadecimal numbers.
+\begin{center}
+	\begin{tabular}{cccc}
+						 & \texttt{\$} & \texttt{7} & \texttt{D} \\
+	\texttt{+} & \texttt{\$} & \texttt{6} & \texttt{9} \\ \hline
+             & \texttt{\$} & \texttt{E} & \texttt{6} \\ \hhline{====}
+	\end{tabular}
+\end{center}
+
+We begin by adding the units columns of both numbers. This gives us \$D + \$9 = \$6 with a \$1 to carry into the next column. We then add the sixteens columns (plus the carry) giving (\$7 + \$6) + \$1 = \$E with nothing to carry and so \$E6 is the sum.
+
+We now look at subtraction. As you might suspect, binary and hexadecimal subtraction follows a similar process to that of subtraction for decimal integers.
+
+Consider the following subtraction of two binary numbers.
+
+\begin{center}
+	\begin{tabular}{cccccc}
+							& \texttt{\%} & \texttt{1} & \texttt{0} & \texttt{1} & \texttt{1} \\
+	\texttt{-}	& \texttt{\%} &            & \texttt{1} & \texttt{1} & \texttt{0} \\ \hline
+						  & \texttt{\%} &            & \texttt{1} & \texttt{0} & \texttt{1} \\ \hhline{======}
+	\end{tabular}
+\end{center}
+Starting in the units columns we perform the subtraction \%1 - \%0 = \%1. Next, in the twos columns we perform another subtraction \%1 - \%1 = \%0. Last of all we subtract the fours columns. This time, because \%0 is less than \%1, we'll need to borrow a \%1 from the eights column of the top number to make the subtraction. Thus we compute \%10 - \%1 = \%1 and deduct \%1 from the eights column. The eights columns are now both zeros. Since \%0 - \%0 = \%0 and because this is the leading digit of the result we can drop it from the final answer. This gives \%101 as the result.
+
+Let's now look at the subtraction of two hexadecimal numbers.
+
+\begin{center}
+	\begin{tabular}{cccc}
+								& \texttt{\$} & \texttt{3} & \texttt{D} \\
+		\texttt{-}  & \texttt{\$} & \texttt{1} & \texttt{F} \\ \hline
+								& \texttt{\$} & \texttt{1} & \texttt{E} \\ \hhline{====}
+	\end{tabular}
+\end{center}
+
+To perform this subtraction we compute the difference of the units columns. In order to do this, we note that because \$D is less than \$F we will need to borrow \$1 from the sixteens column of the top number to make the subtraction. Thus, we compute \$1D - \$F = \$E and also compute \$3 - \$1 = \$2 in the sixteens column for the for the \$1 that we just borrowed. Next, we compute the difference of the sixteens column as \$2 - \$1 = \$1. This gives us a final answer of \$1E.
+
+We won't give in depth examples of multiplication and division for binary and hexadecimal notation. Suffice to say that principles parallel those for the decimal system. Multiplication is repeated addition and division is repeated subtraction.
+
+We will, however, point out a special type of multiplication and division for both binary and hexadecimal. This is particularly useful for manipulating binary and hexadecimal numbers.
+
+For binary, multiplication by two is simple---just shift all bits to the left by one position and fill in the least significant bit with a \%0. Division by two is simple too---just shift all bits to the right by one position and fill in the most significant bit with a \%0. By doing these repeatedly we can multiply and divide by powers of two with ease.
+
+Thus the binary number \%111, when multiplied by eight has three extra zeros on the end of it and is equal to \%111000. (Recall that $2^{3} = 8$.) And the binary number \%10100, when divided by four has two less digits and equals \%101. (Recall that $2^{2} = 4$.)
+
+These are called left and right {\it bit shifts}. So if we say that we shift a number to the left four bit positions, we really mean that we multiplied it by $2^{4} = 16$.
+
+For hexadecimal, the situation is similar. Multiplication by sixteen is simple---just shift all digits to the left by one position and fill in the rightmost digit with a \$0. Division by sixteen is simple too---just shift all digits to the right by one position. By doing this repeatedly we can multiply and divide by powers of sixteen with ease.
+
+Thus the hexadecimal number \$F, when multiplied 256 has two extra zeros on the end of it and is equal to \$F00. (Recall that $16^{2} = 256$.) And the hexadecimal number \$EA0, when divided by sixteen has one less digit and equals \$EA. (Recall that $16^{1} = 16$.)
+
+\subsection{Logic Gates}
+
+There exist several so-called {\it logic gates}. The fundamental ones are NOT, AND, OR and XOR.
+
+They let us set, clear and invert specific binary digits. For example, when dealing with sprites, we might want to clear bit 6 (i.e., make it equal to 0) and set bit 1 (i.e., make it equal to 1) at the same time for a particular graphics chip register. Certain logic gates will, when used in combination, let us do this.
+
+Learning how these logic gates work is very important because they are the key to understanding how and why the computer executes programs as it does.
+
+All logic gates accept one or more inputs and produce a single output. These inputs and outputs are always single binary digits (i.e., they are 1-bit numbers).
+
+The NOT gate is the only gate that accepts exactly one bit as input. All other gates---AND, OR, and XOR---accept exactly two bits as input. All gates produce exactly one output, and that output is a single bit.
+
+First, let's take a look at the simplest gate, the NOT gate.
+
+The NOT gate behaves by inverting the input bit and returning this resulting bit as its output. This is summarised in the following table.
+\begin{center}
+	\begin{tabular}{c|c}
+	  \hline
+		INPUT X & OUTPUT \\ \hline
+		\texttt{0} & \texttt{1} \\ \hline
+		\texttt{1} & \texttt{0} \\ \hline
+	\end{tabular}
+\end{center}
+
+We write NOT $x$ where $x$ is the input bit.
+
+Next, we take a look at the AND gate.
+
+As mentioned earlier, the AND gate accepts two bits as input and produces a single bit as output. The AND gate behaves in the following manner. Whenever both input bits are equal to 1 the result of the output bit is 1. For all other inputs the result of the output bit is 0. This is summarised in the following table.
+\begin{center}
+	\begin{tabular}{cc|c}
+	  \hline
+		INPUT X & INPUT Y & OUTPUT \\ \hline
+		\texttt{0} & \texttt{0} & \texttt{0} \\ \hline
+		\texttt{0} & \texttt{1} & \texttt{0} \\ \hline
+		\texttt{1} & \texttt{0} & \texttt{0} \\ \hline
+		\texttt{1} & \texttt{1} & \texttt{1} \\ \hline
+	\end{tabular}
+\end{center}
+
+We write $x$ AND $y$ where $x$ and $y$ are the input bits.
+
+Next, we take a look at the OR gate.
+
+The OR gate accepts two bits as input and produces a single bit as output. The OR gate behaves in the following manner. Whenever both input bits are equal to 0 the result is 0. For all other inputs the result of the output bit is 1. This is summarised in the following table.
+\begin{center}
+	\begin{tabular}{cc|c}
+	  \hline
+		INPUT X & INPUT Y & OUTPUT \\ \hline
+		\texttt{0} & \texttt{0} & \texttt{0} \\ \hline
+		\texttt{0} & \texttt{1} & \texttt{1} \\ \hline
+		\texttt{1} & \texttt{0} & \texttt{1} \\ \hline
+		\texttt{1} & \texttt{1} & \texttt{1} \\ \hline
+	\end{tabular}
+\end{center}
+
+We write $x$ OR $y$ where $x$ and $y$ are the input bits.
+
+Last of all we look at the XOR gate.
+
+The XOR gate accepts two bits as input and produces a single bit as output. The XOR gate behaves in the following manner. Whenever both input bits are equal in value the output bit is 0. Otherwise, both input bits are unequal in value and the output bit is 1. This is summarised in the following table.
+\begin{center}
+	\begin{tabular}{cc|c}
+	  \hline
+		INPUT X & INPUT Y & OUTPUT \\ \hline
+		\texttt{0} & \texttt{0} & \texttt{0} \\ \hline
+		\texttt{0} & \texttt{1} & \texttt{1} \\ \hline
+		\texttt{1} & \texttt{0} & \texttt{1} \\ \hline
+		\texttt{1} & \texttt{1} & \texttt{0} \\ \hline
+	\end{tabular}
+\end{center}
+
+We write $x$ XOR $y$ where $x$ and $y$ are the input bits.
+
+Note that there do exist some other gates. They are easy to construct.
+\begin{itemize}
+  \item NAND gate: this is an AND gate followed by a NOT gate
+  \item NOR gate: this is an OR gate followed by a NOT gate
+  \item XNOR gate: this is an XOR gate followed by a NOT gate
+\end{itemize}
+
+\section{Signed and Unsigned Numbers}
+So far we've largely focused on unsigned integers. Unsigned integer have no positive or negative sign. They are always assumed to be positive. (For this purpose, zero is regarded as positive.)
+
+Signed numbers, as mentioned earlier, can have a positive sign or a negative sign.
+
+Signed numbers are represented by treating the most significant bit as a sign bit. This bit cannot be used for anything else. If the most significant bit is 0 then the result is interpreted as having a positive sign. Otherwise, the most significant bit is 1, and the result is interpreted as having a negative sign.
+
+A signed 8-bit number can represent positive-sign numbers between 0 and 127, and negative-sign numbers between -1 and -128.
+
+A signed 16-bit number can represent positive-sign numbers between 0 and 32767, and negative-sign numbers between -1 and -32768.
+
+Reserving the most significant bit as the sign of the signed number effectively halves the range of the available positive numbers (i.e., compared to unsigned numbers), with the trade-off being that we gain an equal quantity of negative numbers instead.
+
+To negate any signed number, every bit in the signed number must be inverted and then \%1 must added to the result. Thus, negating \%0000 0101 (which is the signed number +5) gives \%1111 1011 (which is the signed number -5). As expected, performing the negation of this negative number gives us +5 again.
+
+\section{Bit-wise Logical Operators}
+
+The BASIC statements {\bf NOT}, {\bf AND}, {\bf OR} and {\bf XOR} have functionality similar to that of the logic gates that they are named after.
+
+The {\bf NOT} statement must be given a 16-bit signed decimal integer as a parameter. It returns a 16-bit signed decimal integer as a result.
+
+In the following example, all sixteen bits of the signed decimal number +0 are equal to 0. The {\bf NOT} statement inverts all sixteen bits as per the NOT gate. This sets all sixteen bits. If we interpret the result as a signed decimal number, we obtain the answer of -1.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (NOT 0)
+-1
+\end{verbatim}
+\end{tcolorbox}
+
+As expected, repeating the {\bf NOT} statement on the parameter of -1 gets us back to where we started, since all sixteen set bits become cleared.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (NOT -1)
+ 0
+\end{verbatim}
+\end{tcolorbox}
+
+The {\bf AND} statement must be given two 16-bit signed decimal integers as parameters. The second parameter is called the {\it bit mask}. The statement returns a 16-bit signed decimal integer as a result, having changed each bit as per the AND gate.
+
+In the following example, the number +253 is used as the first parameter. As a 16-bit signed decimal integer, this is equivalent to the following number in binary: \%0000 0000 1111 1101. The {\bf AND} statement uses a bit mask as the second parameter with a 16-bit signed decimal value of +239. In binary this is the number \%0000 0000 1110 1110. If we use the AND logic gate table on corresponding pairs of bits, we obtain the 16-bit signed decimal integer +237 (which is \%0000 0000 1110 1100 in binary).
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (253 AND 239)
+ 237
+\end{verbatim}
+\end{tcolorbox}
+
+We can see this process more clearly in the following table.
+
+\begin{center}
+	\begin{tabular}{ccccccccccccccccccccc}
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{1} \\
+	  {\bf AND} & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{0} \\ \hline
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} &  & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{0} \\ \hhline{=====================}
+	  \end{tabular}
+\end{center}
+
+Notice that each bit in the top row passes through unchanged wherever there is a 1 in the mask bit below it. Otherwise the bit in that position gets cleared.
+
+The {\bf OR} statement must be given two 16-bit signed decimal integers as parameters. The second parameter is called the {\it bit mask}. The statement returns a 16-bit signed decimal integer as a result, having changed each bit as per the OR gate.
+
+In the following example, the number +240 is used as the first parameter.
+As a 16-bit signed decimal integer, this is equivalent to the following
+number in binary: \%0000 0000 1111 0000. The {\bf OR} statement uses a
+bit mask as the second parameter with a 16-bit signed decimal value of
++19. In binary this is the number \%0000 0000 0001 0011. If we use the
+OR logic gate table on corresponding pairs of bits, we obtain the 16-bit
+signed decimal integer +243 (which is \%0000 0000 1111 0011 in binary).
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (240 OR 19)
+  243
+\end{verbatim}
+\end{tcolorbox}
+
+We can see this process more clearly in the following table.
+
+\begin{center}
+	\begin{tabular}{ccccccccccccccccccccc}
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} \\
+	  {\bf OR} & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{1} \\ \hline
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{1} \\ \hhline{=====================}
+	  \end{tabular}
+\end{center}
+
+Notice that each bit in the top row passes through unchanged wherever
+there is a 0 in the mask bit below it. Otherwise the bit in that position gets set.
+
+Next we look at the {\bf XOR} statement. This statement must be given
+two 16-bit unsigned decimal integers as parameters. The second parameter
+is called the {\it bit mask}. The statement returns a 16-bit unsigned
+decimal integer as a result, having changed each bit as per the XOR gate.
+
+In the following example, the number 14091 is used as the first parameter.
+As a 16-bit unsigned decimal integer, this is equivalent to the following
+number in binary: \%0011 0111 0000 1011. The {\bf XOR} statement uses a
+bit mask as the second parameter with a 16-bit unsigned decimal value of
+8653. In binary this is the number \%0010 0001 1100 1101. If we use the
+XOR logic gate table on corresponding pairs of bits, we obtain the 16-bit
+unsigned decimal integer 5830 (which is \%0001 0110 1100 0110 in binary).
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+	PRINT (XOR(14091,8653))
+	5830
+\end{verbatim}
+\end{tcolorbox}
+
+We can see this process more clearly in the following table.
+
+\begin{center}
+	\begin{tabular}{ccccccccccccccccccccc}
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{0} & \texttt{1} & \texttt{1} \\
+	  {\bf XOR} & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{0} & &  \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} &  & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{1} \\ \hline
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} & & \texttt{0} & \texttt{1} & \texttt{1} & \texttt{0} & &  \texttt{1} & \texttt{1} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{1} & \texttt{1} & \texttt{0} \\ \hhline{=====================}
+	  \end{tabular}
+\end{center}
+
+Notice that when the bits are equal the resulting bit is 0.
+Otherwise the resulting bit is 1.
+
+Much of the utility of these bit-wise logical operators comes through
+combining them together into a compound statement. For example, the
+VIC II register to enable sprites is memory address 53269. There are
+eight sprites (numbered 0 to 7) with each bit corresponding to
+a sprite's status. Now suppose we want to turn off sprite 5 and turn on
+sprite 1, while leaving the statuses of the other sprites unchanged.
+We can do this with the following BASIC statement which combines an
+{\bf AND} statement with an {\bf OR} statement.
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+POKE 53269, (((PEEK(53269)) AND 223) OR 2)
+\end{verbatim}
+\end{tcolorbox}
+
+The technique of using {\bf PEEK} on a memory address and combining the result with bit-wise logical operators, followed by a {\bf POKE} to that same memory address is very common.
+
+\section{Converting Numbers}
+
+The program below is written in BASIC. It does number conversion for you. Type it in and save it under the name ``CONVERT.BAS''.
+
+To execute the program, type {\bf RUN} and press the \megakey{RETURN} key.
+
+The program presents you with a series of text menus. You may choose to convert a single decimal, binary or hexadecimal number. Alternatively, you may choose to convert a range of such numbers.
+
+The program can convert numbers in the range 0 to 65535.
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 REM ****************************
+20 REM *                          *
+30 REM *  INTEGER BASE CONVERTER  *
+40 REM *                          *
+50 REM ****************************
+60 POKE 0,65: BORDER 6: BACKGROUND 6: FOREGROUND 1
+70 DIM P(15)
+80 E$ = "STARTING INTEGER MUST BE LESS THAN OR EQUAL TO ENDING INTEGER"
+90 FOR N = 0 TO 15
+100 :  P(N) = 2 ^ N
+110 NEXT N
+120 REM *** OUTPUT MAIN MENU ***
+130 PRINT CHR$(147)
+140 PRINT: PRINT "INTEGER BASE CONVERTER"
+150 L = 22: GOSUB 1930: PRINT L$
+160 PRINT: PRINT "SELECT AN OPTION (S, M OR Q):": PRINT
+170 PRINT "[S]{SPACE*2}SINGLE INTEGER CONVERSION"
+180 PRINT "[M]{SPACE*2}MULTIPLE INTEGER CONVERSION"
+190 PRINT "[Q]{SPACE*2}QUIT PROGRAM"
+200 GET M$
+210 IF (M$="S") THEN GOSUB 260: GOTO 140
+220 IF (M$="M") THEN GOSUB 380: GOTO 140
+230 IF (M$="Q") THEN END
+240 GOTO 200
+250 REM *** OUTPUT SINGLE CONVERSION MENU ***
+260 PRINT: PRINT "{SPACE*2}SELECT AN OPTION (D, B, H OR R):": PRINT
+270 PRINT "{SPACE*2}[D]{SPACE*2}CONVERT A DECIMAL INTEGER"
+280 PRINT "{SPACE*2}[B]{SPACE*2}CONVERT A BINARY INTEGER"
+290 PRINT "{SPACE*2}[H]{SPACE*2}CONVERT A HEXADECIMAL INTEGER"
+300 PRINT "{SPACE*2}[R]{SPACE*2}RETURN TO TOP MENU"
+310 GET M1$
+320 IF (M1$="D") THEN GOSUB 500: GOTO 260
+330 IF (M1$="B") THEN GOSUB 760: GOTO 260
+340 IF (M1$="H") THEN GOSUB 810: GOTO 260
+350 IF (M1$="R") THEN RETURN
+360 GOTO 310
+370 REM *** OUTPUT MULTIPLE CONVERSION MENU ***
+380 PRINT: PRINT "{SPACE*2}SELECT AN OPTION (D, B, H OR R):": PRINT
+390 PRINT "{SPACE*2}[D]{SPACE*2}CONVERT A RANGE OF DECIMAL INTEGERS"
+400 PRINT "{SPACE*2}[B]{SPACE*2}CONVERT A RANGE OF BINARY INTEGERS"
+410 PRINT "{SPACE*2}[H]{SPACE*2}CONVERT A RANGE OF HEXADECIMAL INTEGERS"
+420 PRINT "{SPACE*2}[R]{SPACE*2}RETURN TO TOP MENU"
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+430 GET M2$
+440 IF (M2$="D") THEN GOSUB 1280: GOTO 380
+450 IF (M2$="B") THEN GOSUB 1670: GOTO 380
+460 IF (M2$="H") THEN GOSUB 1800: GOTO 380
+470 IF (M2$="R") THEN RETURN
+480 GOTO 430
+490 REM *** CONVERT SINGLE DECIMAL INTEGER ***
+500 D$ = ""
+510 PRINT: INPUT "ENTER DECIMAL INTEGER (UP TO 65535): ",D$
+520 GOSUB 1030: REM VALIDATE DECIMAL INPUT
+530 IF (V = 0) THEN GOTO 510
+540 PRINT: PRINT " DEC";SPC(4);"BIN";SPC(19);"HEX"
+550 L = 5: GOSUB 1930: L1$ = L$
+560 L = 20: GOSUB 1930: L2$ = L$
+570 PRINT SPC(1);L1$;SPC(2);L2$;SPC(2);L1$
+580 FOREGROUND 7
+590 B$ = ""
+600 D1 = 0
+610 IF (D < 256) THEN GOTO 660
+620 D1 = INT(D / 256)
+630 FOR N = 1 TO 8
+640 :  IF ((D1 AND P(8 - N)) > 0) THEN B$ = B$ + "1": ELSE B$ = B$ + "0"
+650 NEXT N
+660 IF (D < 256) THEN B$ = "%" + B$: ELSE B$ = "%" + B$ + " "
+670 D2 = D - 256*D1
+680 FOR N = 1 TO 8
+690 :  IF ((D2 AND P(8 - N)) > 0) THEN B$ = B$ + "1": ELSE B$ = B$ + "0"
+700 NEXT N
+710 H$ = HEX$(D)
+720 IF (D < 256) THEN H$ = "{SPACE*2}$" + RIGHT$(H$,2): ELSE H$ = "$" + H$
+730 IF (D < 256) THEN PRINT SPC(6 - LEN(D$)); D$;SPC(12) + MID$(B$,1,5) +
+" " + MID$(B$,6,10); "{SPACE*2}" + H$: FOREGROUND 1: RETURN
+740 PRINT SPC(6 - LEN(D$));D$;"{SPACE*2}" + MID$(B$,1,5) + " " + MID$(B$,6,4) +
+MID$(B$,10,5) + " " + MID$(B$,15,4); "{SPACE*2}" + H$: FOREGROUND 1: RETURN
+750 REM *** CONVERT SINGLE BINARY INTEGER ***
+760 I$=""
+770 PRINT: INPUT "ENTER BINARY INTEGER (UP TO 16 BITS): ",I$
+780 GOSUB 1110: REM VALIDATE BINARY INPUT
+790 IF (V = 0) THEN GOTO 760: ELSE GOTO 540
+800 REM *** CONVERT SINGLE HEXADECIMAL INTEGER ***
+810 H$=""
+820 PRINT: INPUT "ENTER HEXADECIMAL INTEGER (UP TO 4 DIGITS): ",H$
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+830 GOSUB 1220: REM VALIDATE HEXADECIMAL INPUT
+840 IF (V = 0) THEN GOTO 810: ELSE GOTO 540
+850 REM *** VALIDATE DECIMAL INPUT STRING ***
+860 FOR N = 1 TO LEN(D$)
+870 :  M = ASC(MID$(D$,N,1)) - ASC("0")
+880 :  IF ((M < 0) OR (M > 9)) THEN V = 0
+890 NEXT N: RETURN
+900 REM *** VALIDATE BINARY INPUT STRING ***
+910 FOR N = 1 TO LEN(I$)
+920 :  M = ASC(MID$(I$,N,1)) - ASC("0")
+930 :  IF ((M < 0) OR (M > 1)) THEN V = 0
+940 NEXT N: RETURN
+950 REM *** VALIDATE HEXADECIMAL INPUT STRING ***
+960 FOR N = 1 TO LEN(H$)
+970 :  M = ASC(MID$(H$,N,1)) - ASC("0")
+980 :  IF (NOT (((M >= 0) AND (M <= 9)) OR
+((M >= 17) AND (M <= 22)))) THEN V = 0
+990 NEXT N: RETURN
+1000 REM *** OUTPUT ERROR MESSAGE ***
+1010 FOREGROUND 2: PRINT: PRINT A$: FOREGROUND 1: RETURN
+1020 REM *** VALIDATE DECIMAL INPUT ***
+1030 V = 1: GOSUB 860: REM VALIDATE DECIMAL INPUT STRING
+1040 IF (V = 0) THEN A$ = "INVALID DECIMAL NUMBER": GOSUB 1010
+1050 IF (V = 1) THEN BEGIN
+1060 :  D = VAL(D$)
+1070 :  IF ((D < 0) OR (D > 65535)) THEN A$ = "DECIMAL NUMBER OUT OF RANGE":
+GOSUB 1010: V = 0
+1080 BEND
+1090 RETURN
+1100 REM *** VALIDATE BINARY INPUT ***
+1110 V = 1: GOSUB 910: REM VALIDATE BINARY INPUT STRING
+1120 IF (V = 0) THEN A$ = "INVALID BINARY NUMBER": GOSUB 1010: RETURN
+1130 IF (LEN(I$) > 16) THEN A$ = "BINARY NUMBER OUT OF RANGE":
+GOSUB 1010: V = 0 : RETURN
+1140 IF (V = 1) THEN BEGIN
+1150 :  I = 0
+1160 :  FOR N = 1 TO LEN(I$)
+1170 :    I = I + VAL(MID$(I$,N,1)) * P(LEN(I$) - N)
+1180 :  NEXT N
+1190 BEND
+1200 D$ = STR$(I): D = I: RETURN
+1210 REM *** VALIDATE HEXADECIMAL INPUT ***
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+1220 V = 1: GOSUB 960: REM VALIDATE HEXADECIMAL INPUT STRING
+1230 IF (V = 0) THEN A$ = "INVALID HEXADECIMAL NUMBER": GOSUB 1010: RETURN
+1240 IF (LEN(H$) > 4) THEN A$ = "HEXADECIMAL NUMBER OUT OF RANGE":
+GOSUB 1010: V = 0: RETURN
+1250 D = DEC(H$): D$ = STR$(D): H = D: RETURN
+1260 RETURN
+1270 REM *** CONVERT MULTIPLE DECIMAL INTEGERS ***
+1280 DB$=""
+1290 PRINT: INPUT "ENTER STARTING DECIMAL INTEGER (UP TO 65535): ", DB$
+1300 D$=DB$: GOSUB 1030: D$="": REM VALIDATE DECIMAL INPUT
+1310 IF (V = 0) THEN GOTO 1290
+1320 DE$=""
+1330 PRINT: INPUT "ENTER ENDING DECIMAL INTEGER (UP TO 65535): ", DE$
+1340 D$=DE$: GOSUB 1030: D$="": REM VALIDATE DECIMAL INPUT
+1350 IF (V = 0) THEN GOTO 1330
+1360 DB=VAL(DB$): DE=VAL(DE$)
+1370 IF (DE < DB) THEN A$ = E$: GOSUB 1010: GOTO 1280
+1380 SC = 1: SM = INT(((DE - DB) / 36) + 1)
+1390 D = DB
+1400 FOR J = SC TO SM
+1410 :  PRINT CHR$(147) + "RANGE: " + DB$ + " TO " + DE$ + "{SPACE*10}SCREEN: "
++ STR$(J) + " OF " + STR$(SM)
+1420 :  PRINT: PRINT "DEC";SPC(4);"BIN";SPC(19);"HEX";SPC(8);"DEC";SPC(4);
+"BIN";SPC(19);"HEX"
+1430 L = 5: GOSUB 1930: L1$ = L$
+1440 L = 20: GOSUB 1930: L2$ = L$
+1450 :    PRINT SPC(1);L1$;SPC(2);L2$;SPC(2);L1$;SPC(6);L1$;SPC(2);
+L2$;SPC(2);L1$
+1460 :  FOR K = 0 TO 17
+1470 :      FOREGROUND (7 + MOD(K,2))
+1480 :      D$ = STR$(D): GOSUB 590: D = D + 1
+1490 :      IF (D > DE) THEN GOTO 1630
+1500 :  NEXT K
+1510 :  PRINT CHR$(19): PRINT: PRINT: PRINT
+1520 :  FOR K = 0 TO 17
+1530 :      FOREGROUND (7 + MOD(K,2))
+1540 :      D$ = STR$(D): PRINT TAB(40): GOSUB 590: D = D + 1
+1550 :      IF (D > DE) THEN GOTO 1630
+1560 :  NEXT K
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+1570 :  FOREGROUND 1: PRINT: PRINT SPC(19);"PRESS X TO EXIT OR SPACEBAR TO CONTINUE..."
+1580 :  GET B$
+1590 :  IF B$="X" THEN RETURN
+1600 :  IF B$=" " THEN GOTO 1620
+1610 :  GOTO 1580
+1620 NEXT J
+1630 PRINT CHR$(19): FOR I = 1 TO 22: PRINT: NEXT I
+1640 PRINT SPC(20); "COMPLETE. PRESS SPACEBAR TO CONTINUE..."
+1650 GET B$: IF B$<>" " THEN GOTO 1650: ELSE RETURN
+1660 REM *** CONVERT MULTIPLE BINARY INTEGERS ***
+1670 IB$=""
+1680 PRINT: INPUT "ENTER STARTING BINARY INTEGER (UP TO 16 BITS): ", IB$
+1690 I$=IB$: GOSUB 1110: I$="": REM VALIDATE BINARY INPUT
+1700 IF (V = 0) THEN GOTO 1680
+1710 IB = I
+1720 IE$=""
+1730 PRINT: INPUT "ENTER ENDING BINARY INTEGER (UP TO 16 BITS): ", IE$
+1740 I$=IE$: GOSUB 1110: I$="": REM VALIDATE BINARY INPUT
+1750 IF (V = 0) THEN GOTO 1730
+1760 IE = I
+1770 IF (IE < IB) THEN A$ = E$: GOSUB 1010: GOTO 1670
+1780 DB = IB: DE = IE: DB$ = STR$(IB): DE$ = STR$(IE): GOTO 1380
+1790 REM *** CONVERT MULTIPLE HEXADECIMAL INTEGERS ***
+1800 HB$=""
+1810 PRINT: INPUT "ENTER STARTING HEXADECIMAL INTEGER (UP TO 4 DIGITS): ", HB$
+1820 H$=HB$: GOSUB 1220: H$="": REM VALIDATE HEXADECIMAL INPUT
+1830 IF (V = 0) THEN GOTO 1810
+1840 HB = H
+1850 HE$=""
+1860 PRINT: INPUT "ENTER ENDING HEXADECIMAL INTEGER (UP TO 4 DIGITS): ", HE$
+1870 H$=HE$: GOSUB 1220: H$="": REM VALIDATE HEXADECIMAL INPUT
+1880 IF (V = 0) THEN GOTO 1860
+1890 HE = H
+1900 IF (HE < HB) THEN A$ = E$: GOSUB 1010: GOTO 1800
+1910 DB = HB: DE = HE: DB$ = STR$(HB): DE$ = STR$(HE): GOTO 1380
+1920 REM *** MAKE LINES ***
+1930 L$=""
+1940 FOR K = 1 TO L: L$ = L$ + "-": NEXT K
+1950 RETURN
+\end{verbatim}
+\end{tcolorbox}

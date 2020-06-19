@@ -1,0 +1,20 @@
+(indirect),Z
+2
+5
+$^{ac}$
+MEM(<(1+B1)):MEM(<(0+B1)) + Z
+Base-page indirect, post-indexed by Y register
+This addressing mode uses the Yth byte of the memory indicated
+by a 16-bit pointer stored in the base-page.
+
+For example, LDA (\$12),Z would load the accumulator from
+the address whose low byte is read from \$12 and whose
+high-byte is read from \$12 + 1.  For example, if Z held
+the value \$04, and location \$12 held \$34 and location \$13 held \$12, then
+A would be loaded with the contents of location \$1238.
+
+This instruction normally forms 16-bit addresses using
+pairs of bytes. To use a 32-bit address pointer, proceed it with a NOP
+instruction.  In this case it will read four consecutive addresses from
+the base-page to form the pointer.  This adds 2 cycles to the execution
+time, in addition to the 1 cycle cost of the NOP instruction.

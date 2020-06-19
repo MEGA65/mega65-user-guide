@@ -1,0 +1,77 @@
+\chapter{Model Specific Features}
+
+\section{MEGA65 Desktop Computer, Revision 2 onwards}
+
+The desktop version of the MEGA65 contains a Real-Time Clock (RTC), which also includes a small amount of non-volatile memory (NVRAM)
+that retains its value, even if the computer is turned off and disconnected from its power supply. The NVRAM will hold its values
+for as long as the internal battery has sufficient charge.  This battery also powers the Real-Time Clock (RTC) itself, which includes
+a 100 year calendar spanning the years 2000 -- 2099.
+
+The main trick with accessing the RTC from BASIC, is that we will need to use a MEGA65 Enhanced DMA operation to fetch the RTC registers, because the RTC registers sit above the 1MB barrier, which is the limit of the C65's normal DMA operations.  The easiest way to do this is to construct a little DMA list in memory somewhere, and make an assembly language routine that uses it.  Something like this (using BASIC 10 in C65 mode):
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 RESTORE 110:FORI=0TO43:READA$:POKE1024+I,DEC(A$):NEXT:BANK 128:SYS1042
+20 S=PEEK(1024):M=PEEK(1025):H=PEEK(1026)
+30 D=PEEK(1027):MM=PEEK(1028):Y=PEEK(1029)+DEC("2000")
+40 IF H AND 128 GOTO 80
+50 PRINT "THE TIME IS ";RIGHT$(HEX$(H AND 63),1);":";RIGHT$(HEX$(M),2);".";RIGHT$(HEX$(S),2)
+60 IF H AND 32 THEN PRINT "PM": ELSE PRINT "AM"
+70 GOTO 90
+80 PRINT "THE TIME IS ";RIGHT$(HEX$(H AND 63),1);":";RIGHT$(HEX$(M),2);".";RIGHT$(HEX$(S),2)
+90 PRINT "THE DATE IS";RIGHT$(HEX$(D),2);".";RIGHT$(HEX$(MM),2);".";HEX$(Y)
+100 END
+100 DATA 0B,80,FF,81,00,00,00,08,00,10,71,0D,20,04,00,00,00,00
+110 DATA A9,47,8D,2F,D0,A9,53,8D,2F,D0,A9,00,8D,02,D7,A9
+120 DATA 04,8D,01,D7,A9,00,8D,05,D7,60
+\end{verbatim}
+\end{tcolorbox}
+
+
+This program works by setting up a DMA list in memory at 1,024 (hex \$0400) (unused normally on the C65), followed by a routine at 1,042 (hex \$0412) which ensures we have MEGA65 registers un-hidden, and then sets the DMA controller registers appropriately to trigger the DMA job, and then returns.  The rest of the BASIC code PEEKs out the RTC registers that the DMA job copied to 1,024 - 1,032 (hex \$0400 -- \$0407), and interprets them appropriately to print the time.
+
+The curious can use the MONITOR command, and then D1012 to see the routine.
+
+If you want a running clock, you could replace line 100 with GOTO 10.  Doing that, you will get a result something like the following:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+...
+\end{verbatim}
+\end{tcolorbox}
+
+
+If you first POKE0,65 to set the CPU to full speed, the whole program can run many times per second. There is an occasional glitch, if the RTC registers are read while being updated by the machine, so we really should de-bounce the values by reading the time a couple of times in succession, and if the values aren't the same both times, then repeat the process until they are. This is left as an exercise for the reader.
+
+NOTE: These registers are not yet fully documented.
+
+\input{regtable_TARGETM65R2.MEGA65.tex}
+
+\section{MEGAphone Handheld, Revisions 1 and 2}
+
+The MEGAphone revision 1 and 2 contain a Real-Time Clock (RTC), however this RTC does not include a non-volatile memory (NVRAM)
+area.  Other specific features of the MEGAphone revisions 1 and 2 include a 3-axis accelerometer, including analog to digital
+converters (ADCs), amplifier controller for loud speakers, and several I2C IO expanders, that are used to connect the joy-pad and other peripherals. The IO expanders are
+fully integrated into the MEGAphone design, and thus there should be no normal need to read these registers directly.  The IO
+expanders are, however, also responsible for power control of the various sub-systems of the MEGAphone.  
+
+NOTE: These registers are not yet fully documented.
+
+\input{regtable_TARGETMEGAPHONER1.MEGA65.tex}
+
+\section{Nexys4 DDR FPGA Board}
+
+NOTE: These registers are not yet fully documented.
+
+%\input{regtable_TARGETN4DDR.MEGA65.tex}
+

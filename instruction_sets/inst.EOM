@@ -1,0 +1,24 @@
+End of Mapping Sequence / No-Operation
+
+
+In contrast with the 6502, the NOP instruction on the 45GS02 performs two
+additional roles when in 4502 mode.
+
+First, indicate the end of a memory mapping sequence
+caused by a MAP instruction, allowing interrupts to occur again.
+
+Second, it instructs the processor that if the following instruction uses
+Base-Page Indirect Z Indexed addressing, that the processor should use a 32-bit
+pointer instead of a 16-bit 6502 style pointer.  Such 32-bit addresses are unaffected
+by C64, C65 or MEGA65 memory banking.  This allows fast and easy access
+to the entire address space of the MEGA65 without having to perform or be aware of any banking,
+or using the DMA controller.  This addressing mode causes a two cycle penalty,
+caused by the time required to read the extra two bytes of the pointer.
+
+\subsubsection*{Side effects}
+\begin{itemize}
+\item Removes the prohibition on all interrupts caused by the the MAP instruction,
+allowing Non-Maskable Interrupts to again occur, and IRQ interrupts,
+if the Interrupt Disable Flag
+is not set.
+\end{itemize}

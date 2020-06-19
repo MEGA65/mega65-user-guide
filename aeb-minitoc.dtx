@@ -1,0 +1,740 @@
+% \iffalse
+% makeindex -s gglo.ist -o aeb-minitoc.gls aeb-minitoc.glo
+% makeindex -s gind.ist -o aeb-minitoc.ind aeb-minitoc.idx
+%<*copyright>
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% aeb-minitoc.sty package,                              %%
+%% Copyright (C) 2012--2018  D. P. Story                 %%
+%%   dpstory@uakron.edu  dpstory@acrotex.net             %%
+%%                                                       %%
+%% This program can redistributed and/or modified under  %%
+%% the terms of the LaTeX Project Public License         %%
+%% Distributed from CTAN archives in directory           %%
+%% macros/latex/base/lppl.txt; either version 1.2 of the %%
+%% License, or (at your option) any later version.       %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%</copyright>
+%<package>\NeedsTeXFormat{LaTeX2e}
+%<package>\ProvidesPackage{aeb-minitoc}
+%<package> [2019/10/06 v1.9 Creates a simple mini-toc]
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage[colorlinks,hyperindex=false,linktocpage,bookmarksnumbered]{hyperref}
+\usepackage{calc}
+\usepackage{aeb-minitoc}
+%\def\texorpdfstring#1#2{#1}
+%\pdfstringdefDisableCommands{\let\\\textbackslash}
+\OnlyDescription  % comment out for implementation details
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\gdef\brpr#1{\texttt{\char123\relax#1\char125\relax}}
+\let\darg\brpr
+\let\env\texttt
+\let\opt\texttt
+\let\app\textsf
+\let\pkg\textsf
+\def\EXCL{!}
+\def\visispace{\symbol{32}}
+\def\ameta#1{\ensuremath{\langle\textit{\texttt{#1}}\rangle}}
+\def\meta#1{\textsl{\texttt{#1}}}
+\def\SUB#1{\ensuremath{{}_{\mbox{\scriptsize\ttfamily#1}}}}
+\def\CMD#1{\textbackslash#1}
+\makeatletter
+\renewcommand\theparagraph{\texorpdfstring{\protect\P\protect\ }{\textparagraph}}
+\renewcommand\thesubparagraph{\texorpdfstring{\protect\P\protect\P\protect\ }{\textparagraph\textparagraph}}
+\renewcommand{\section}
+  {\renewcommand{\@seccntformat}[1]{\thesection\quad}%
+  \@startsection {section}{1}{\z@}%
+    {-3.5ex \@plus -1ex \@minus -.2ex}%
+    {2.3ex \@plus.2ex}%
+    {\normalfont\Large\bfseries}}
+\renewcommand{\paragraph}
+  {\renewcommand{\@seccntformat}[1]{\theparagraph\unskip\,}%
+  \@startsection{paragraph}{4}{0pt}{6pt}{-3pt}{\bfseries}}
+\renewcommand{\subparagraph}
+    {\renewcommand{\@seccntformat}[1]{\thesubparagraph\unskip\,}%
+    \@startsection{subparagraph}{5}{\parindent}{6pt}{-3pt}{\bfseries}}
+\makeatother
+\InputIfFileExists{aebdocfmt.def}{\PackageWarning{aeb-minitoc}{Inputting aebdocfmt.def}}
+    {\def\IndexOpt{\DescribeMacro}\def\IndexKey{\DescribeMacro}\let\setupFullwidth\relax
+     \PackageInfo{aeb-minitoc}{aebdocfmt.def cannot be found}}
+\begin{document}
+\addtolength{\marginparwidth}{3pt}
+  \GetFileInfo{aeb-minitoc.sty}
+  \title{The  \textsf{aeb-minitoc} Package}
+  \author{D. P. Story\\
+    Email: \texttt{dpstory@uakron.edu}}
+  \date{processed \today}
+  \maketitle
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\bgroup
+\value{secnumdepth}=3
+\value{tocdepth}=3
+  \tableofcontents
+\egroup
+  \DocInput{aeb-minitoc.dtx}
+\IfFileExists{\jobname.ind}{\newpage\setupFullwidth\par\PrintIndex}{\paragraph*{Index} The index goes here. Execute
+    \begin{quote}\texttt{makeindex -s gind.ist -o aeb-minitoc.ind aeb-minitoc.idx}\end{quote}
+    on the command line and recompile
+    \texttt{aeb-minitoc.dtx}.}
+\IfFileExists{\jobname.gls}{\PrintChanges}{\paragraph*{Change History} The list of changes goes here. Execute
+    \begin{quote}
+    \texttt{makeindex -s gglo.ist -o aeb-minitoc.gls aeb-minitoc.glo}
+    \end{quote}
+    on the command line and recompile \texttt{aeb-minitoc.dtx}.}
+\end{document}
+%</driver>
+% \fi
+% \MakeShortVerb{|}
+% \InputIfFileExists{aebdonotindex.def}{\PackageInfo{web}{Inputting aebdonotindex.def}}
+%    {\PackageInfo{web}{cannot find aebdonotindex.def}}
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+% The \DescribeMacro{\ifMiniTocListings}\cs{ifMiniTocListings} is a Boolean switch, which when true
+% signals that there is a non-empty listing; otherwise, it is set to false. It is used to display
+% a latex warning to the user that the listing is empty. Also, globally, \cs{ifMiniTocListings}
+% is set to false when \IndexOpt{nominitocs}\opt{nominitocs} is taken. The other option
+% is \IndexOpt[\protect\EXCL]{!nominitocs}\opt{!nominitocs} is a convenience option; it is not `not' version
+% of \opt{nominitocs}; when \opt{!nominitocs} is specified, mini-tocs are created. This is the
+% same as specifiying no option at all.
+%    \begin{macrocode}
+\newif\ifMiniTocListings \MiniTocListingstrue
+\DeclareOption{nominitocs}{\AtEndOfPackage{\MiniTocListingsfalse
+  \let\insertminitoc\insertminitocNOT}}
+\DeclareOption{!nominitocs}{\MiniTocListingstrue}
+\ProcessOptions
+%    \end{macrocode}
+% \section{Description}
+% A simple mini-toc package; originally designed for \textsf{web}, but now works for all standard
+% {\LaTeX} classes. The main user command is \cs{insertminitoc}, defined below.
+%
+% Our approach is to use each entry the \cs{jobname.toc} as the first argument of the
+% macro \cs{mtocCL}, a second argument keeps a running count on the number of entries.
+%\begin{flushleft}\small
+%\begin{verbatim}
+%\mtocCL{\contentsline{section}{\numberline{1}Section Title}{2}}{cnt} or
+%\mtocCL{\contentsline{section}
+%   {\numberline{1}Section Title}{2}{section.1}}{cnt}
+%\end{verbatim}
+%\end{flushleft}
+%\cs{contentsline} has four arguments when \pkg{hyperref} is loaded and three otherwise. When inserting
+%the full table of contents, we define |\def\mtocCL#1#2{#1}| to do nothing. When we
+%are building a mini-toc, we \cs{let} \cs{mtocCL} to \cs{mtoc@CL@mtoc}. The effect
+%of this macro is to remove any entry (in \cs{jobname.toc}) that does not contain
+%\cs{contentsline} as it first token and to position the \texttt{cnt} argument for later use.
+%But by then \cs{contentsline} has already
+%been \cs{let} to \cs{cl@LOOKFORSEC}. Now \cs{cl@LOOKFORSEC} determines whether any
+%particular entry should be displayed in the current mini-toc.
+%
+% \section{Documentation and Code.}
+% As a demonstration of this package, we present a mini-toc for this section,
+% which only has \cs{paragraph} and \cs{subparagraph} section headings.
+% \changes{v1.2}{2018/08/29}{Created \string\texttt{aeb-minitoc.ins}}
+% \changes{v1.3}{2018/08/29}{Remove \string\textsf{hyperref} as a requirement}
+% \changes{v1.4}{2018/08/29}{Some renaming of commands}
+% \changes{v1.6}{2018/09/21}{Code cleanup in prepreparation for release}
+%
+% The verbatim listing for this mini-toc is
+%\begin{verbatim}
+%\TOCLevels{section}{subparagraph}
+%\begin{minitocfmt}{\minitocFmt}
+%  \declaretocfmt{paragraph}{\@W{1em}\@D{0em}}
+%  \declaretocfmt{subparagraph}{\@W{1.5em}\@D{1em}}
+%\end{minitocfmt}
+%
+%\begin{center}\minitocFmt
+%\fbox{\begin{minipage}{0.8\linewidth}\centering
+%\textbf{Contents of this section}\vadjust{\kern3pt}%
+%\insertminitoc\relax
+%\end{minipage}}
+%\end{center}
+%\end{verbatim}
+% \value{secnumdepth}=5 \value{tocdepth}=5
+% \TOCLevels{section}{subparagraph}
+% \begin{minitocfmt}{\minitocFmt}
+%   \declaretocfmt{paragraph}{\@W{1em}\@D{0em}}
+%   \declaretocfmt{subparagraph}{\@W{1.5em}\@D{1em}}
+% \end{minitocfmt}
+%
+% \begin{center}\minitocFmt
+% \fbox{\begin{minipage}{0.8\linewidth}\centering
+% \textbf{Contents of this section}\vadjust{\kern3pt}%
+% \insertminitoc\relax
+% \end{minipage}}
+% \end{center}
+%
+% \noindent We begin by saving the definitions macros we modify later.
+%    \begin{macrocode}
+\let\mtoc@contentsline\contentsline
+\let\mtoc@starttoc\@starttoc
+\let\mtoc@tableofcontents\tableofcontents
+%\let\mtoc@addtocontents\addtocontents
+%    \end{macrocode}
+%    Some counters and utility macros. The counter \DescribeMacro\@minitocCnt\cs{@minitocCnt} is incremented
+%    in the redefined \cs{addtocontents} command. The command \DescribeMacro{\mtocgobble}\cs{mtocgobble} is
+%    a `public' version of the core {\LaTeX} command \cs{@gobble}.
+%    \begin{macrocode}
+\newcount\@minitocCnt \@minitocCnt=0\relax
+\def\csarg#1#2{\expandafter#1\csname#2\endcsname}
+\let\mtoc@One=1 \let\mtoc@Zero=0
+\let\mtocgobble\@gobble
+%    \end{macrocode}
+%
+% \paragraph[The top and bottom most]{The top and bottom most.}
+% The package assigns the top level and bottom level automatically, based upon the class being used;
+% the document author can override these for the whole document, or for particular mini-tocs.
+% \DescribeMacro{\TOPLevel}\cs{TOPLevel\darg{\ameta{name}}} is the name of the top level. It is expected
+% that a mini-toc will be inserted with each top level in the document, as the author's discretion. The
+% \DescribeMacro{\BTMLevel}\cs{BTMLevel\darg{\ameta{name}}} is the name of the bottom most level. A mini-toc
+% consists of all sections \emph{beneath} the top level and \emph{above} the bottom level. Thus, if
+% \cs{TOPLevel\darg{chapter}} and \cs{BTMLevel\darg{subsubsection}}, then the mini-toc contans all \cs{section}
+% and \cs{subbsection} title headings within the current chapter.
+%
+% \subparagraph[Manually set the top and bottom levels]{Manually set the top and bottom levels.} \DescribeMacro{\TOPLevel}\cs{TOPLevel\darg{\ameta{top-level}}}
+% and \DescribeMacro{\BTMLevel}\cs{BTMLevel\darg{\ameta{btm-level}}} are used to determine what entries are to be included in the mini-toc.
+% As a convenience,
+% \begin{quote}
+%   \DescribeMacro{\TOCLevels}\cs{TOCLevels\darg{\ameta{top-level}}\darg{\ameta{btm-level}}}
+% \end{quote}
+% can declare both
+% at once. If an argument is empty, the current level is used.
+%    \begin{macrocode}
+\def\TOPLevel#1{\def\x{#1}\ifx\x\@empty\else
+  \def\mtoc@TOPLevel{#1}\edef\TOPLevelNum{\@nameuse{sl@#1}}\fi}
+\def\BTMLevel#1{\def\x{#1}\ifx\x\@empty\else
+  \def\mtoc@BTMLevel{#1}\edef\BTMLevelNum{\@nameuse{sl@#1}}\fi}
+\def\TOCLevels#1#2{\TOPLevel{#1}\BTMLevel{#2}}
+%    \end{macrocode}
+%    \subparagraph[Automatically set the top and bottom levels]{Automatically set the top and bottom levels.}
+%    We make reasonable choices for \texttt{book}, \texttt{report}, and \texttt{article}; these are the three
+%    classes that this package supports. In the course, we define, in macro form, the levels of
+%    each of these section names (\cs{sl@\ameta{sec-name}} and \cs{sl@\ameta{sec-name}*}).
+%    \begin{macrocode}
+\@ifclassloaded{book}{%
+  \TOCLevels{chapter}{subsection}
+  \def\sl@part{-1}\def\sl@chapter{0}
+  \csarg{\edef}{sl@part*}{\sl@part}
+  \csarg{\edef}{sl@chapter*}{\sl@chapter}
+}{%
+  \@ifclassloaded{report}{%
+    \TOCLevels{chapter}{subsection}
+    \def\sl@part{-1}\def\sl@chapter{0}
+    \csarg{\edef}{sl@part*}{\sl@part}
+    \csarg{\edef}{sl@chapter*}{\sl@chapter}
+  }{%
+   \TOCLevels{section}{subsubsection}
+    \def\sl@part{0}\csarg{\edef}{sl@part*}{\sl@part}
+  }%
+}
+\def\sl@section{1}\def\sl@subsection{2}\def\sl@subsubsection{3}
+\def\sl@paragraph{4}\def\sl@subparagraph{5}%\def\sl@all{17}
+\csarg{\edef}{sl@section*}{\sl@section}
+\csarg{\edef}{sl@subsection*}{\sl@subsection}
+\csarg{\edef}{sl@subsubsection*}{\sl@subsubsection}
+\csarg{\edef}{sl@paragraph*}{\sl@paragraph}
+\csarg{\edef}{sl@subparagraph*}{\sl@subparagraph}
+\newif\if@foundTOPLevel \@foundTOPLevelfalse
+%    \end{macrocode}
+% The command \cs{insertminitoc}, just before inputting \cs{jobname.toc}, \cs{let}s \cs{contentsline} to
+% \DescribeMacro\cl@LOOKFORSEC\cs{cl@LOOKFORSEC}. This command then looks for lines at the top most section level, if it finds one,
+% and the section number matches the one set by \cs{insertminitoc} (\cs{mtoc@sec}), it sets
+% \cs{if@foundTOPLevel} to \texttt{true}, and stores all subsequent lines in \cs{toks@} until
+% another section is encountered, at which time \cs{if@foundTOPLevel} is set to \texttt{false}. There are two versions
+% of \cs{cl@LOOKFORSEC}: (1) \DescribeMacro\cl@LOOKFORSEC@LX\cs{cl@LOOKFORSEC@LX} for when \pkg{hyperref} is not loaded;
+% and (2) \DescribeMacro\cl@LOOKFORSEC@HY\cs{cl@LOOKFORSEC@HY} for
+% when \pkg{hyperref} is loaded.\par\medskip
+% \noindent
+% \cs{mtoc@@contentsline} takes five arguments, we save the page number (\texttt{\#3})
+% the hyperref anchor (\texttt{\#4}) and the TOC entry number (\texttt{\#5}). The
+% definitions made within \cs{mtoc@@contentsline} are later \cs{let} to \cs{@PgNum},
+% \cs{@L}, and \cs{@E}. We grab \texttt{\#5}, which is the entry count, and pass
+% the rest to \cs{mtoc@contentsline}.
+%    \begin{macrocode}
+\def\mtoc@@contentsline#1#2#3#4#5{\def\mtoc@PgNum{#3}%
+  \def\mtoc@HY@anchor{#4}\def\TOCEntryNum{#5}%
+  \mtoc@contentsline{#1}{#2}{#3}{#4}}
+%    \end{macrocode}
+%     All but the last argument in both of these next two command are the standard
+%     arguments for \cs{contentsline}. The last argument is one introduced by this
+%     package; it keeps the count of the TOC entries. This last argument is used
+%     to identify the top level section.
+%    \begin{macrocode}
+\long\def\cl@LOOKFORSEC@LX#1#2#3#4{%
+  \cl@LOOKFORSEC@HY{#1}{#2}{#3}{\@empty}{#4}}
+\long\def\cl@LOOKFORSEC@HY#1#2#3#4#5{\def\mt@rgi{#1}% dps
+  \if@foundTOPLevel\ifx\mtocCL\@gobbletwo\else
+      \edef\NUMLevel{\@nameuse{sl@#1}}%
+      \ifnum\NUMLevel > \TOPLevelNum\relax\else
+        \let\mtocCL\@gobbletwo
+      \fi
+  \fi\fi
+  \@chkForNl#2\@nil % is it a * section
+  \ifx\mtocCL\@gobbletwo\else
+    \edef\mtoc@tmp{\the\mtocs@toks@}%
+      \ifx\mt@rgi\mtoc@TOPLevel
+        \def\SECNUM{MTOC.#5}%
+        \set@display@protect
+        \edef\mtoc@sec{\mtoc@sec}%
+        \ifx\SECNUM\mtoc@sec
+            \@foundTOPLeveltrue
+        \else
+          \@foundTOPLevelfalse\fi
+        \set@typeset@protect
+      \else
+        \if@foundTOPLevel
+          \ifnum\NUMLevel > \BTMLevelNum\relax\else
+            \ifx\@nlrtn\relax
+              \mtocs@toks@=\expandafter{\mtoc@tmp
+              \mtoc@@contentsline{#1}{#2}{#3}{#4}{#5}}\else
+              \mtocs@toks@=\expandafter{\mtoc@tmp
+              \mtoc@@contentsline{#1*}{#2}{#3}{#4}{#5}}\fi
+        \fi
+      \fi
+    \fi
+  \fi
+}
+%    \end{macrocode}
+% This version of \cs{mtoc@BTMLevel} only accepts lines that are not
+% \texttt{subsubsection}.
+%    \begin{macrocode}
+\@ifpackageloaded{hyperref}{\let\cl@LOOKFORSEC\cl@LOOKFORSEC@HY}
+  {\let\cl@LOOKFORSEC\cl@LOOKFORSEC@LX}
+%    \end{macrocode}
+%    \DescribeMacro{\@chkForNl} determines if the first token is \cs{numberline}.
+%    \begin{macrocode}
+\def\@chkForNl#1#2\@nil{% check for number line
+  \ifx#1\numberline\let\@nlrtn\relax\else
+  \def\@nlrtn{\numberline{\hfill}}\fi}
+%    \end{macrocode}
+% \paragraph{Modify \texorpdfstring{\protect\cs{tableofcontents}}{\textbackslash{tableofcontents}}}
+%    \begin{macrocode}
+\def\mtoc@st@rttoc#1{\begingroup
+    \if@filesw \expandafter\newwrite\csname tf@#1\endcsname
+    \immediate\openout \csname tf@#1\endcsname \jobname.#1\relax
+    \fi\global\@nobreakfalse\endgroup}
+\let\mtoc@@starttoc\mtoc@One
+\def\mtoc@start@toc{\let\mtoc@start@next\relax
+  \@ifundefined{aebLastPage}
+  {%
+    \ifx\mtoc@@starttoc\mtoc@One
+      \global\let\mtoc@@starttoc\mtoc@Zero
+      \def\mtoc@start@next{\mtoc@st@rttoc{toc}}\fi
+    \mtoc@start@next
+  }{%
+    \ifnum\aebLastPage<\thepage\relax
+      \def\mtoc@start@next{\mtoc@st@rttoc{toc}}\fi
+    \mtoc@start@next
+  }%
+}
+\AtEndDocument{\mtoc@start@toc}
+%    \end{macrocode}
+%
+% \paragraph[Modify \texorpdfstring{\protect\cs{addtocontents}}
+%   {\textbackslash{addtocontents}}]{Modify \cs{addtocontents}.}
+%   (\cs{addtocontents\darg{toc}\darg{\ameta{content}}}) If the document author inserts vertical spacing, or
+% other formatting, that could be problems in the minitoc. So we'll try to remove it.
+% We begin by placing the second argument \ameta{content} as the argument of a command,
+% \cs{mtocCL\darg{\ameta{content}}}. Initially, \cs{mtocCL} just passes its argument into the
+% {\TeX} stream. Later, it will be redefined within \cs{insertminitoc}.
+%    \begin{macrocode}
+\def\mtoc@TOC{toc}
+\def\mtocCL#1#2{#1}
+%    \end{macrocode}
+%    (2019/10/06) Fix the \cs{protected@file@percent} problem, the solution continues
+%    into the definition of \cs{addtocontents@mtoc}.
+%    \changes{v1.8}{2019/10/05}{\string\cs{LaTeX}/\string\pkg{hyperref} introduced
+%    \string\cs{protected@file@percent}, which breaks this package. We do a fix.}
+%    \changes{v1.9}{2019/10/06}{Additional fix to \string\cs{protected@file@percent} solution}
+%    \begin{macrocode}
+\@ifundefined{add@percent@to@temptokena}
+  {\let\protected@file@percent\@empty\def\mtoc@protect{}}
+  {\def\mtoc@protect{\protect}}
+%    \end{macrocode}
+% Here, we modify the macro \cs{addtocontents} to insert \cs{mtocCL}.
+%    \changes{v1.7}{2018/09/29}{Delay redefinition of \string\cs{addtocontents} until beginning of document,
+%    to avoid incompatibility with \string\pkg{siunitx}.}
+%    \begin{macrocode}
+\newcommand\addtocontents@mtoc[2]{\bgroup
+  \let\protected@file@percent\@empty
+  \def\mt@rgi{#1}\ifx\mt@rgi\mtoc@TOC
+  \global\advance\@minitocCnt\@ne
+  \mtoc@addtocontents{#1}{\protect
+    \mtocCL{#2}{\the\@minitocCnt}\mtoc@protect
+    \protected@file@percent}\else
+  \mtoc@addtocontents{#1}{#2}\fi\egroup}
+\AtBeginDocument{\let\mtoc@addtocontents\addtocontents
+  \let\addtocontents\addtocontents@mtoc}
+%    \end{macrocode}
+% Modify the \cs{tableofcontents} to \cs{mtoc@tableofcontents}.
+% We compensate later by executing \cs{mtoc@start@toc} at the end of the document.
+%    \begin{macrocode}
+\def\tableofcontents{%
+    \def\@starttoc##1{\makeatletter
+    \@input{\jobname.##1}\makeatother}%
+    \NoFmtTOCEntry
+    \mtoc@tableofcontents
+    \global\let\@starttoc\mtoc@starttoc}
+%    \end{macrocode}
+% \leavevmode\DescribeMacro{\mtoc@CL@mtoc}\cs{mtoc@CL@mtoc} is the redefined version of \cs{mtocCL}, as described above.
+% We attempt to see if the first token of its argument is \cs{contentsline}, if yes
+% we pass it on, otherwise, we gobble it.
+%    \begin{macrocode}
+\newcommand{\mtoc@CL@mtoc}[1]{\mtoc@parse#1\@nil}
+\def\mtoc@parse#1#2\@nil{\ifx#1\contentsline
+  \def\mtoc@next##1{#1#2{##1}}\else
+  \let\mtoc@next\@gobble\fi\mtoc@next}
+%    \end{macrocode}
+%
+%   \paragraph[Modify \texorpdfstring{\protect\cs{@startsection}}{\textbackslash{@startsection}} and referencing]%
+%     {Modify \texorpdfstring{\protect\cs{@startsection}}{\textbackslash{@startsection}} and referencing.}
+%   We redefine \cs{@startsection} to pick up the first argument (the section name)
+%   and define \cs{@currentsecname}, which is use in a simple cross referencing system
+%   needed for this mini-toc package. This package should be loaded after \pkg{hyperref} for sure.
+%    \begin{macrocode}
+\let\@startsection@mtoc@SAVE\@startsection
+\def\@startsection#1{\def\@currentsecname{#1}%
+  \@startsection@mtoc@SAVE{#1}}
+%    \end{macrocode}
+%\goodbreak\noindent
+%    The use of \DescribeMacro\mtoclabel\cs{mtoclabel} and \DescribeMacro\mtocref
+%    \cs{mtocref} are not needed unless you redefine a section heading to a non-numerical
+%    value. This system needs a section number.
+%    \begin{macrocode}
+\def\mtoclabel#1{\label{#1}\@bsphack
+    \protected@write\@auxout{}{\string
+    \csarg{\string\gdef}{mtoclbl#1}{\the\@minitocCnt}
+  }%
+  \@esphack
+}
+\def\mtocref#1{\@nameuse{mtoclbl#1}}
+%    \end{macrocode}
+%
+% \paragraph[\texorpdfstring{\protect\cs{insertminitoc}}{\textbackslash{insertminitoc}}:
+%   The main command]{\protect\cs{insertminitoc}: The main command.}
+% \DescribeMacro{\insertminitoc}\cs{insertminitoc} is the main user command for this package, it places
+% a ``minitoc'' for a section (\cs{mtoc@TOPLevel}) of a document, listing only the subsections within that section.
+% It takes an optional argument for indicating the section number, the subsections of which are to
+% be displayed. The default is the current section, \texttt{\cs{@nameuse\darg{the\cs{mtoc@TOPLevel}}}}.
+% \par\medskip\noindent
+%    \DescribeMacro{\if@minitoc} This Boolean is set to true, in a group, when \cs{insertminitoc} is expanded.
+%    This is to support a feature for formatting a mini-toc entry;
+%    \cs{miniorfulltoc} is used for this purpose. \cs{miniorfulltoc} is
+%    inserted in the optional argument of a section command:
+%\begin{verbatim}
+% \subsection[\protect
+%   \miniorfulltoc{\textbf}{Subsection Entry}]{Subsection Entry}
+%\end{verbatim}
+%\DescribeMacro\miniorfulltoc\hskip-\marginparsep\texttt{\darg{\ameta{fmt}}\darg{\ameta{entry}}}
+%The first argument of \cs{miniorfulltoc} is passed to the second entry; for example,
+%|{\textbf{Subsection Entry}}| as an argument and in a group. Thus, the first argument
+%can be a command with one argument, or a command with not arguments.
+%    \begin{macrocode}
+\newif\if@minitoc \@minitocfalse
+\newif\if@MiniTocListings \@MiniTocListingstrue
+\def\NoFmtTOCEntry{\@minitocfalse}
+\def\FmtTOCEntry{\@minitoctrue}
+\def\miniorfulltoc#1#2{\if@minitoc
+  {{#1{#2}}}\else{#2}\fi}
+%    \end{macrocode}
+%    \leavevmode\DescribeMacro\insertminitoc\hskip-\marginparsep\texttt{[\ameta{label-name}]}
+%    After the above preliminaries, we get to \cs{insertminitoc}.
+%    The default value of the optional parameter is |MTOC.\the\@minitocCnt|; thus, we use the most
+%    recent value of \cs{@minitocCnt}. An explicit argument is needed when the mini-toc is placed
+%    somewhere else (after \cs{\@minitocCnt} has been incremented). You can also say
+%    \cs{insertminitoc[\ameta{label-name}]}, where \ameta{label-name} is a label name set by
+%    the \cs{mtoclabel} command.
+%    \begin{macrocode}
+\newcommand{\insertminitoc}[1][]{%
+  \def\mtoc@rgi{#1}\ifx\mtoc@rgi\@empty
+    \edef\mtoc@rgi{MTOC.\the\@minitocCnt}\else
+    \edef\mtoc@rgi{MTOC.\mtocref{#1}}\fi
+  \ifnum\TOPLevelNum > \BTMLevelNum
+    \PackageError{aeb-minitoc}{%
+      The top level (\mtoc@TOPLevel) must be\MessageBreak
+      must be higher on the hierarchy then at bottom level}
+      {Try switching the two}\fi
+  \begingroup
+  \edef\mtoc@sec{\mtoc@rgi}\mtocs@toks@={}%
+%    \end{macrocode}
+%    \cs{let} \cs{contentsline} to \cs{cl@LOOKFORSEC}
+%    \begin{macrocode}
+  \let\contentsline\cl@LOOKFORSEC
+%    \end{macrocode}
+%    \cs{let} \cs{mtocCL} to \cs{mtoc@CL@mtoc}
+%    \begin{macrocode}
+  \let\mtocCL\mtoc@CL@mtoc
+  \@foundTOPLevelfalse
+  \let\mtoc@numberline\numberline
+%    \end{macrocode}
+%    Insert formatting ($\cs{Pg}=\cs{sl@@sNumFmt}$) for the page number here.
+%    \begin{macrocode}
+  \def\numberline##1{\makebox[\mtoc@numBoxWidth][l]%
+    {\sl@@sNumFmt{##1}}\sl@@EntryFmt}%
+  \makeatletter\InputIfFileExists{\jobname.toc}%
+  {\PackageInfo{aeb-minitoc}{TOC file read}}
+  {\PackageInfo{aeb-minitoc}{TOC file not available}}%
+  \edef\x{\the\mtocs@toks@}\ifx\x\@empty
+    \global\@MiniTocListingsfalse\else
+    \global\@MiniTocListingstrue\fi
+%    \end{macrocode}
+%    \textbf{Insertion point.} This is where the mini-toc entries are entered
+%    into the latex stream to be typeset.
+%    \begin{macrocode}
+  \the\mtocs@toks@\par\makeatother
+  \if@MiniTocListings\else
+  \PackageWarning{aeb-mintoc}{No mini-toc built here}\fi
+  \endgroup
+}
+%    \end{macrocode}
+%      When the \opt{nominitocs} option is in effect, we \cs{let} the command
+%      \cs{insertminitoc} to \DescribeMacro\insertminitocNOT\cs{insertminitocNOT}, which absorbs all its arguments.
+%    \begin{macrocode}
+\newcommand{\insertminitocNOT}[1][]{}
+%    \end{macrocode}
+%    \leavevmode\DescribeMacro{\numBoxWidth}\hskip-\marginparsep\texttt{\darg{\ameta{length}}}
+%    The \cs{mtoc@numBoxWidth} determines the width of the \cs{hbox} that contains the section number.
+%    It is conveniently set using \cs{numBoxWidth}. The default declaration is
+%    \cs{numBoxWidth\darg{2.5em}}. The \ameta{length} should be measured in em units. Within
+%    the \env{minitocfmt}, \cs{@W} is \cs{let} to \cs{numBoxWidth}.
+%    \begin{macrocode}
+\def\numBoxWidth#1{\def\mtoc@numBoxWidth{#1}}
+\numBoxWidth{2.5em}
+%    \end{macrocode}
+% In its ``raw'' expansion, \cs{insertminitoc} may not be what you want; in this case,
+% enclose it in some appropriate environment.
+% The following is an example of how to use this command.
+% This can be part of a command that inserts code just after every \cs{section}.
+%\begin{verbatim}
+%\begin{center}\minitocFmt
+%\begin{tabular}{c}\toprule
+%\begin{minipage}[c]{0.8\linewidth}
+%\insertminitoc\relax
+%\end{minipage}\\\bottomrule
+%\end{tabular}
+%\end{center}
+%\end{verbatim}
+%where \cs{minitocFmt} is a command that expands to some formatting, see demo files.
+%
+%\paragraph[The mini-toc format environment: \texttt{minitocfmt}]%
+% {The mini-toc format environment: \texttt{minitocfmt}.}
+%    To help facilitate designing and declaring the mini-toc format, we define
+%    the \texttt{minitocfmt} environment. The environment defines a command
+%    (\ameta{\cs{cmd}}) that contains all the formatting information for
+%    the mini-toc. The body of the environment consists of a series of
+%    \cs{declaretocfmt\darg{\ameta{toc-fmt}}} declarations. Within argument
+%    of \cs{declaretocfmt}, \cs{@W} is an alias for \cs{numBoxWidth} and
+%    \cs{@D} is an alias for \cs{sl@dots}. If \cs{@D}
+%    appears ($\texttt{@D} = \texttt{@dottedtocline}$, a dotted line is created in the usual
+%    {\LaTeX} manner. \cs{@N} is an alias \cs{sl@sNumFmt} and \cs{@P} is an alias for
+%    \cs{sl@pNumFmt}. All are optional. \def\MP#1{\marginpar{\raggedleft\small\itshape#1}}
+%\begin{description}
+%  \item[\cs{@A\darg{\ameta{various}}}]\hskip-.5em\relax\space is a command that is not used very
+%      often, but is available when needed. The argument \ameta{various} is
+%      various commands to support the min-toc being generated.
+%\begin{description}
+%      \item[\cs{@PW\darg{\ameta{length}}}] Within\MP{pg num box width} the argument of
+%          \cs{@A}, insert \cs{@PW\darg{\ameta{length}}} to set
+%          the width of the box that contains the page number
+%          (\cs{@pnumwidth}). The value set by {\LaTeX} is
+%          \texttt{1.55em}.
+%      \item[\cs{@DS\darg{\ameta{num}}}] The \ameta{num}\MP{dots separation} determines the
+%          separation between dots for a TOC entry that uses a dotted rule
+%          line. This command is only recognized within the argument of
+%          \cs{@A}. The default is 4.5.
+%      \item[\cs{@R\darg{\ameta{length}}}]\hskip-.5em\relax\space is a\MP{right margin of title}
+%          convenience command, it takes its argument and defines the
+%          {\LaTeX} command \cs{@tocrmarg}, which sets the right margin
+%          for the sec-title. The length set by {\LaTeX} is
+%          \texttt{2.55em}. The \ameta{length} of \cs{@R} should be \emph{larger
+%          than} the \ameta{length} set by \cs{@PW}.
+%\end{description}
+%
+%  \item[\cs{declaretocfmt\darg{\ameta{sec-name}}\darg{\ameta{various}}}]\hskip-.5em\relax\space
+%    formats all \ameta{sec-name} (section, subsection, etc.) entries.
+%
+%    A `typical' table of contents entry has the form:
+%\begin{quote}\ttfamily
+%\ameta{sec-num} \ameta{title-heading}\dotfill\ameta{pg-num}
+%\end{quote}
+%Within the \ameta{various} argument, there are a number of commands that
+%are recognized:
+%\begin{description}
+%    \item[\cs{@W\darg{\ameta{length}}}]\hskip-.5em\relax\space is\MP{sec
+%        num box width} the width of the box that encloses
+%        \ameta{sec-num}. Normally, all lengths are measured in
+%        \texttt{em} units (\cs{@W\darg{\ameta{num}em}}). The default
+%        length is \texttt{2.5em}
+%    \item[\cs{@D\darg{\ameta{length}}}]\hskip-.5em\relax\space is\MP{use dots} the
+%        amount to indent prior to \ameta{sec-num}. Again, \texttt{em}
+%        units preferred (\cs{@D\darg{\ameta{num}em}}). When the \cs{@D}
+%        command is present in the argument, a dotted line is
+%        to be used for the entry (this is the norm). If \cs{@D} not
+%        present, there is an opportunity within the \ameta{various}
+%        argument to create a custom entry.
+%    \item[\cs{@B\darg{\ameta{length}}}] Same as \cs{@D}\MP{no dots}, but no dotted leaders are created.
+%    \item[\cs{@N\darg{\ameta{fmt}}}]\hskip-.5em\relax\space is\MP{fmt sec num} the
+%        formatting for \ameta{sec-num}. You can pass a command with one
+%        argument that will operate on the section number; for example,
+%        \cs{@N\darg{\cs{textbf}}}, \cs{@N\darg{\cs{color\darg{blue}}}},
+%        or \cs{@N\darg{\cs{color\darg{blue}}\cs{textbf}}}. Note that
+%        changing the style to bold might require a corresponding change
+%        in \cs{@W}.
+%    \item[\cs{@F\darg{\ameta{fmt}}}]\hskip-.5em\relax\space is\MP{fmt title} the formatting
+%        for the title heading of the current section; for example, \cs{@F\darg{\string\bfseries}}
+%        turns all heading, for this \ameta{sec-name}, bold.
+%    \item[\cs{@P\darg{\ameta{fmt}}}]\hskip-.5em\relax\space is the\MP{fmt pg num}
+%        formatting for the page number (\ameta{pg-num}). You can pass a
+%        command with one argument that will operate on the page number
+%        When \pkg{hyperref} is loaded with the \opt{colorlinks} option,
+%        we cannot change the color of the page number (see the discussion
+%        of \cs{@A} above), but \cs{@P\darg{\string\textit}} changes the
+%        numbers to italics. If \pkg{hyperref} is not loaded,
+%        \cs{@P\darg{\string\color\darg{red}\string\textit}} changes page
+%        numbers to a red italic.
+%    \item[\cs{@R\darg{\ameta{length}}}]\hskip-.5em\relax\space is\MP{right margin of title} a convenience
+%        command, it takes its argument and defines the {\LaTeX} command
+%        \cs{@tocrmarg}, which sets the right margin for the sec-title.
+%        The length set by {\LaTeX} is \texttt{2.55em}. Setting \cs{@R}
+%        within the \ameta{various} argument of \cs{declaretocfmt} affects
+%        the current section level as well as all lower section levels. If
+%        you want to make this `local' change, you need to put \cs{@R}
+%        back to its default of \texttt{2.55em} locally for other
+%        declarations.
+%    \item[\cs{@E}] Within\MP{TOC number} the \env{minitocfmt} environment, the command
+%        \cs{@E} expands to the current TOC entry number of the TOC entry
+%        being read in.
+%    \item[\cs{@L}] This\MP{link anchor} macro expands to the \pkg{hyperref} anchor of the
+%        page entry reference, it is empty if \pkg{hyperref} is not
+%        loaded.
+%    \item[\cs{@Pg}] This\MP{pg number} macro expands to the page number this entry
+%        references.
+%\end{description}
+%\end{description}
+%    Usually, the \ameta{length} argument is measured in \texttt{em} units (\texttt{\ameta{num}em}).
+%    \begin{macrocode}
+\newtoks\mtoc@toks
+\newtoks\mtocs@toks@
+%    \end{macrocode}
+% Within the \env{minitocfmt}, \cs{@D} is \cs{let} to \cs{sl@dots}.
+%    \begin{macrocode}
+\def\sl@dots#1{\def\sl@@dots{%
+  \@dottedtocline{\sl@current}{#1}{\mtoc@numBoxWidth}}}
+\let\sl@@dots\@gobble
+\def\sl@nodots#1{\def\sl@@dots{%
+  \no@dottedtocline{\sl@current}{#1}{\mtoc@numBoxWidth}}}
+\let\sl@@nodots\@gobble
+%    \end{macrocode}
+% Within the \env{minitocfmt}, \cs{@F} is \cs{let} to \cs{\sl@EntryFmt}.
+%    \begin{macrocode}
+\def\sl@EntryFmt#1{\def\sl@@EntryFmt{#1}} % dps
+\let\sl@@EntryFmt\relax % dps
+%    \end{macrocode}
+% Within the \env{minitocfmt}, \cs{@N} is \cs{let} to \cs{sl@sNumFmt}.
+%    \begin{macrocode}
+\def\sl@sNumFmt#1{\def\sl@@sNumFmt{#1}}
+\let\sl@@sNumFmt\relax
+%    \end{macrocode}
+% Within the \env{minitocfmt}, \cs{@P} is \cs{let} to \cs{sl@pNumFmt}.
+%    \begin{macrocode}
+\def\sl@pNumFmt#1{\def\sl@@pNumFmt{#1}}
+\let\sl@@pNumFmt\relax
+\def\sl@tocrmarg#1{\def\@tocrmarg{#1}}
+\def\sl@dotsep#1{\def\@dotsep{#1}}
+\def\mtoc@star#1*#2\@nil{\def\@rgii{#2}\ifx\@rgii\@empty
+  \let\mtoc@@star\mtoc@Zero\else\let\mtoc@@star\mtoc@One\fi}
+%    \end{macrocode}
+%     \subparagraph[The \texorpdfstring{\protect\cs{declaretocfmt}}{\textbackslash{declaretocfmt}} command defined]%
+%       {The \texorpdfstring{\protect\cs{declaretocfmt}}{\textbackslash{declaretocfmt}} command defined.}
+%    The \cs{declaretocfmt} is used to designed how a mini-toc entry is displayed.
+%
+%    \begin{macro}{\declaretocfmt}\hskip-\marginparsep\texttt{\darg{\ameta{sec-name}}\darg{\ameta{various}}}
+%    The \pkg{aeb-mintoc} way of declaring the formatting for a toc \ameta{sec-name} entry. The
+%    \ameta{various} argument consists of various combinations of \cs{@W}, \cs{@D}, \cs{@N}, and \cs{@P}.
+%    \begin{macrocode}
+\long\def\declaretocfmt#1#2{%
+  \xdef\sl@current{\@nameuse{sl@#1}}%
+  \global\@namedef{\mtoc@CmdName @l@#1}##1##2{%
+    \normalfont\normalcolor\let\@E\TOCEntryNum
+    \let\@L\mtoc@HY@anchor\let\@Pg\mtoc@PgNum
+    \let\sl@@dots\@empty\let\sl@@sNumFmt\relax
+    \let\sl@@pNumFmt\relax\let\sl@@EntryFmt\relax
+    \let\@W\numBoxWidth\let\@R\sl@tocrmarg\let\@D\sl@dots
+    \let\@B\sl@nodots\let\@F\sl@EntryFmt\let\@N\sl@sNumFmt
+    \let\@P\sl@pNumFmt
+    #2\ifx\sl@@dots\@empty\let\sl@next\relax\else
+      \mtoc@star#1*\@nil % dps
+      \ifx\mtoc@@star\mtoc@Zero
+        \def\sl@next{\sl@@dots{##1}{\sl@@pNumFmt{##2}}}\else
+        \def\sl@next{\sl@@dots{\sl@@EntryFmt##1}{\sl@@pNumFmt{##2}}}\fi
+    \fi\sl@next}%
+  \edef\x{\expandafter\noexpand\csname l@#1\endcsname}%
+  \edef\y{\expandafter\noexpand\csname\mtoc@CmdName @l@#1\endcsname}%
+  \edef\mtoc@@tmp{\the\mtoc@toks\let\expandafter\noexpand\x=
+  \expandafter\noexpand\y}
+  \global\mtoc@toks=\expandafter{\mtoc@@tmp}}
+\def\mtoc@getCmdName#1{\edef\mtoc@CmdName{\expandafter
+  \@gobble\string#1}}
+%    \end{macrocode}
+%    \end{macro}
+%
+%    \subparagraph[The \texttt{minitocfmt} environment defined]%
+%     {The \texttt{minitocfmt} environment defined.} Is a `simplified' way of
+%    designing toc entries.
+%    \begin{environment}{minitocfmt}\hskip-\marginparsep\texttt{\darg{\cs{\ameta{cmdName}}}}
+%    The definition of the  environment. The argument is a command that will hold the expanded
+%    content of the environment. The body of the environment consists of one or more
+%    \cs{declaretocfmt} commands.
+%    \begin{macrocode}
+\newenvironment{minitocfmt}[1]{\makeatletter
+  \gdef\@mtoc@cmd@@{#1}\let\@A\mtoc@addto
+%    \end{macrocode}
+%    The \cs{mtoc@getCmdName} returns the \texttt{cmdName} (without backslash). \texttt{cmdName}
+%    is used the creating command sequences, using to this definition.
+%    \begin{macrocode}
+  \mtoc@getCmdName{#1}\mtoc@toks={\let\@PW\mtoc@PW\let\@DS\sl@dotsep
+    \let\@R\sl@tocrmarg}%
+%    \end{macrocode}
+%    The body of the environment consists of one or more \cs{declaretocfmt} commands, these
+%    commands contribute to \cs{mtoc@toks}. \cs{mtoc@toks} consists of all the formatting
+%    declarations requested.
+%    \begin{macrocode}
+}{\expandafter\xdef\@mtoc@cmd@@{\the\mtoc@toks}}
+%    \end{macrocode}
+%    \end{environment}
+%    \leavevmode\DescribeMacro\mtoc@addto is a macro to add to the declarations. Within
+%    \env{minitocfmt} is \cs{@A} is \cs{let} to \cs{mtoc@addto}.
+%    \begin{macrocode}
+\def\mtoc@addto#1{\edef\mtoc@@tmp{\the\mtoc@toks}%
+  \global\mtoc@toks=\expandafter{\mtoc@@tmp #1}}
+\def\mtoc@PW#1{\def\@pnumwidth{#1}}
+%    \end{macrocode}
+%    Here is code from \texttt{latex.ltx} for \cs{@dottedtocline}, we modify it so there
+%    are no leaders.
+%    \begin{macrocode}
+\def\no@dottedtocline#1#2#3#4#5{%
+  \ifnum #1>\c@tocdepth \else
+    \vskip \z@ \@plus.2\p@
+    {\leftskip #2\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+     \parindent #2\relax\@afterindenttrue
+     \interlinepenalty\@M
+     \leavevmode
+     \@tempdima #3\relax
+     \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
+     {#4}\nobreak
+%     \leaders\hbox{$\m@th
+%        \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
+%       mu$}\hfill
+% Insert an \hfill
+     \hfill
+     \nobreak
+     \hb@xt@\@pnumwidth{\hfil\normalfont \normalcolor #5}%
+     \par}%
+  \fi}
+%    \end{macrocode}
+%    \begin{macrocode}
+%</package>
+%    \end{macrocode}
+%\Finale

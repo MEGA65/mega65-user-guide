@@ -1,187 +1,9 @@
-% arara: makeindex
+\input{common-header}
 
-% Template for IEEE papers
-%% bare_conf.tex
-%% V1.4b
-%% 2015/08/26
-%% by Michael Shell
-%% See:
-%% http://www.michaelshell.org/
-%% for current contact information.
-%%
-%% This is a skeleton file demonstrating the use of IEEEtran.cls
-%% (requires IEEEtran.cls version 1.8b or later) with an IEEE
-%% conference paper.
-%%
-%% Support sites:
-%% http://www.michaelshell.org/tex/ieeetran/
-%% http://www.ctan.org/pkg/ieeetran
-%% and
-%% http://www.ieee.org/
+\input{frontcover}
+\input{regulatory}
+\input{updates}
 
-%%*************************************************************************
-%% Legal Notice:
-%% This code is offered as-is without any warranty either expressed or
-%% implied; without even the implied warranty of MERCHANTABILITY or
-%% FITNESS FOR A PARTICULAR PURPOSE!
-%% User assumes all risk.
-%% In no event shall the IEEE or any contributor to this code be liable for
-%% any damages or losses, including, but not limited to, incidental,
-%% consequential, or any other damages, resulting from the use or misuse
-%% of any information contained here.
-%%
-%% All comments are the opinions of their respective authors and are not
-%% necessarily endorsed by the IEEE.
-%%
-%% This work is distributed under the LaTeX Project Public License (LPPL)
-%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
-%% distributed and modified. A copy of the LPPL, version 1.3, is included
-%% in the base LaTeX documentation of all distributions of LaTeX released
-%% 2003/12/01 or later.
-%% Retain all contribution notices and credits.
-%% ** Modified files should be clearly indicated as such, including  **
-%% ** renaming them and changing author support contact information. **
-%%*************************************************************************
-
-
-% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
-% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
-% *** with production work. The IEEE's font choices and paper sizes can   ***
-% *** trigger bugs that do not appear when using other class files.       ***                          ***
-% The testflow support page is at:
-% http://www.michaelshell.org/tex/testflow/
-
-\documentclass{book}
-% \def\nolinkurl{\url}
-%\usepackage{nohyperref}
-% \def\UrlBreaks{\do\/\do-}
-\usepackage[table,xcdraw,dvipsnames]{xcolor} % Used by spritegrid and others.
-\usepackage[obeyspaces,spaces]{url}
-\usepackage{longtable}
-\usepackage{arydshln}
-\usepackage{booktabs}
-\usepackage{afterpage}
-\usepackage{flushend}
-\usepackage{titletoc}
-\usepackage[toc,page]{appendix}
-\usepackage{parskip}
-\usepackage{graphicx} % Used by spritegrid and others.
-\usepackage{tikzpagenodes}
-\usepackage{imakeidx}
-\usepackage[pagestyles,raggedright]{titlesec}
-\usepackage[all]{nowidow}
-\usepackage{hyperref}
-\usepackage{aeb-minitoc}
-\usepackage{fix-cm}
-\usepackage{textpos}
-\usepackage{enumitem}
-% For multi-page tables in register maps
-
-% For fixed-width columns in register maps
-\usepackage{array}
-\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
-
-% For Mega65 key display
-\input{elements/keys}
-
-% For Mega65 display of code, listings and screen activity
-\input{elements/screenoutput}
-
-% For displaying sprite data in a grid
-\input{elements/spritegrid}
-
-% Don't number sections
-\setcounter{secnumdepth}{0}
-
-\renewcommand{\indexname}{INDEX}
-\renewcommand{\appendixtocname}{APPENDICES}
-\renewcommand{\appendixpagename}{APPENDICES}
-\renewcommand{\appendixpage}{%
-  \clearpage\thispagestyle{empty}
-    \pagecolor{blue}
-     \begin{center}
-       {
-         \large
-         % Put a nice amount of vertical space before the title
-         \vspace*{2cm}
-               {\large\Huge\textcolor{white}{\bf{APPENDICES}}}\\
-             \vspace{\fill}
-       }
-     \end{center}
-     \newpage\pagecolor{white}\clearpage
-}
-
-\makeatletter\chardef\pdf@shellescape=\@ne\makeatother
-
-\setcounter{tocdepth}{5}
-
-% 3.0 cm is the distance from left of page to bullet point.
-% 2.8 cm is a fudge-factor to make multi-line section names be correctly lined up.
-% \@B{〈length〉} is the amount to indent prior to〈sec-num >
-% \@F{〈fmt〉} is the formatting for the title heading
-% \@P{〈fmt〉} is the formatting for the page number (〈pg-num〉).
-
-\TOCLevels{chapter}{section}
-\begin{minitocfmt}{\chapmtoc}
-\declaretocfmt{section}{\@F{\color{white}\hspace{3.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
-\declaretocfmt{section*}{\@F{\color{white}\hspace{3.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
-\end{minitocfmt}
-
-% The following doesn't work,
-% but the idea was to have a list of chapters on the part title pages
-%\TOCLevels{part}{chapter}
-%\begin{minitocfmt}{\partmtoc}
-%\declaretocfmt{chapter}{\@F{\Large\bfseries\hspace{5cm}\color{white}\textbullet\hspace{1em}}\@B{1.5em}\@P{\mtocgobble}}
-%\declaretocfmt{chapter*}{\@F{\Large\bfseries\hspace{5cm}\color{white}\textbullet\hspace{1em}}\@B{1.5em}\@P{\mtocgobble}}
-%\declaretocfmt{section}{}
-%\declaretocfmt{section*}{}
-%\end{minitocfmt}
-
-%\makeatletter
-%\renewcommand*{\l@section}[1]{%
-%  \@dottedtocline{1}{1.0em}{1em}{%
-%    \numberline{\textbullet}%
-%    % \numberline{$\cdot$}%
-%    \gobble@numberline
-%    #1%
-%  }%
-%}
-%\makeatother
-
-\input{fonts}
-
-% Set margins for inner and outer pages in A5 book format
-\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1cm,outer=0.5cm, footskip = 1cm]{geometry}
-
-% Some Computer Society conferences also require the compsoc mode option,
-% but others use the standard conference format.
-%
-% If IEEEtran.cls has not been installed into the LaTeX system files,
-% manually specify the path to it like:
-% \documentclass[conference]{../sty/IEEEtran}
-
-%% \input{setup}
-
-% correct bad hyphenation here
-\hyphenation{op-tical net-works semi-conduc-tor}
-
-\makeindex[intoc]
-
-\pagestyle{empty}
-
-\begin{document}
-
-% relax word wrapping with sloppy
-\sloppy
-% reduce overfull \hbox warnings
-\hfuzz=5pt
-
-\include{frontcover}
-\include{regulatory}
-
-%
 % paper title
 % Titles are generally capitalized except for words such as a, an, and, as,
 % at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
@@ -202,7 +24,9 @@
          \vspace*{2cm}
                {\Huge\textcolor{white}{\bf{MEGA65 USER'S GUIDE}}}\\
              \vspace{\fill}
-                    {\textcolor{white}{Published by \\ the MEGA Museum of Electronic Games and Art, Germany.\\and\\Flinders University, Australia.}}
+                    {\textcolor{white}
+                    {Published by \\ the MEGA Museum of Electronic Games
+                    and Art, Germany.\\and\\Flinders University, Australia.}}
        }
      \end{center}
    \end{titlepage}
@@ -212,15 +36,21 @@
   \vfill
   WORK IN PROGRESS
 
-  \index{copyright}Copyright \copyright 2018 by Paul Gardner-Stephen, Flinders University, the Museum of Electronic Games and Art eV., and contributors.
+  \index{copyright}Copyright \copyright 2019 -- 2020 by Paul Gardner-Stephen,
+  Flinders University, the Museum of Electronic Games and Art eV.,
+  and contributors.
 
-  This user-guide is made available under the GNU Free Documentation License v1.3, or later, if desired. This means that you are free to modify, reproduce
-  and redistribute this user guide, subject to certain conditions. The full text of the GNU Free Documentation License v1.3 can be
-  found at \url{https://www.gnu.org/licenses/fdl-1.3.en.html}.
+  This user guide is made available under the GNU Free Documentation
+  License v1.3, or later, if desired. This means that you are free to
+  modify, reproduce  and redistribute this user guide, subject to
+  certain conditions. The full text of the GNU Free Documentation
+  License v1.3 can be found at
+  \url{https://www.gnu.org/licenses/fdl-1.3.en.html}.
 
-  Implicit in this copyright license, is the permission to duplicate and/or redistribute this document in whole or in part for use in
-  education environments.  We want to support the education of future generations, so if you have any worries or concerns, please
-  contact us.
+  Implicit in this copyright license, is the permission to duplicate
+  and/or redistribute this document in whole or in part for use in
+  education environments. We want to support the education of future
+  generations, so if you have any worries or concerns, please contact us.
 
    \par\today
 
@@ -231,7 +61,7 @@
 
 \tableofcontents
 
-%% XXX - big numbers are not in bold, because latex gets confused
+%% big numbers are not in bold, because latex gets confused
 \newcommand*{\justifyheading}{\raggedleft}
 \definecolor{headingblue}{rgb}{0.5,0.5,1}
 
@@ -276,51 +106,49 @@
    {\huge\bf\color{headingblue}\uppercase}
    [\color{black}]
 
-\titlecontents{\chapter}
+\titlecontents{chapter}
 
-\include{introduction}
+\input{introduction}
 
 \cleardoublepage
 \pagenumbering{arabic}
 
 \part{GETTING TO KNOW YOUR MEGA65}
 
-\include{settingup}
-\include{gettingstarted}
+\input{settingup}
+\input{gettingstarted}
+\input{screen-editor}
+\input{configuring}
+\input{cores-and-flashing}
 
 \part{FIRST STEPS IN CODING}
 
-\include{howcomputerswork}
-\include{beginninginbasic}
-\include{morebasic}
-\include{datainbasic}
+%\input{howcomputerswork}
+\input{beginninginbasic}
+\input{morebasic}
+\input{datainbasic}
 
 \part{SOUND AND GRAPHICS}
 
-\include{graphics}
-\include{sprites}
-\include{sound}
+\input{graphics}
+\input{sprites}
+\input{sound}
 
 \part{APPENDICES}
 
 \begin{appendices}
 
-  \include{appendix-accessories}
-  \include{appendix-basic2}
-  \include{appendix-basic10}
-  \include{appendix-basicabbreviations}
-  \include{appendix-screencodes}
-  \include{appendix-asciicodes}
-  \include{appendix-screenmaps}
-  \include{appendix-mathfunctions}
-  \include{appendix-pinouts}
-  \include{appendix-error-messages}
-  \include{appendix-45gs02-registers}
-  \include{appendix-viciv-registers}
-  \include{appendix-cia6526-registers}
-  \include{appendix-uart4551-registers}
-  \include{appendix-sound-registers}
-  \include{appendix-nexys4ddr-setup}
+  \input{appendix-accessories}
+  \input{appendix-basic2}
+  \input{basic-fragments}
+  \input{appendix-basic10}
+  \input{appendix-basicabbreviations}
+  \input{appendix-screencodes}
+  \input{appendix-petsciicodes}
+  \input{appendix-screenmaps}
+  \input{appendix-error-messages}
+  \input{appendix-decbinhex-tutorial}
+
 \end{appendices}
 
 
@@ -330,103 +158,7 @@
 
 \printindex
 
-\part{ELEMENT CATALOGUE}
+\input{element-catalogue}
 
-
-\section{Keyboard keys}
-
-\megakey[title]{Run/Stop}
-
-Text to the left \megakey{Run/Stop} and text to the right.
-
-\megakey{Shift} \megakey{CTRL} \megakey{9} \megakey{Clr/Home}  \megakey{ } \megakey{Return}
-
-\megakey{Inst/Del} \megakey{*} \megakey{Run/Stop} \megakey{$\leftarrow$} \megakey{$\uparrow$} \megakey{$\rightarrow$} \megakey{$\downarrow$}
-
-\section{Screen Output}
-
-\begin{screenoutput}
-	10 INPUT A$
-	20 PRINT "YOU TYPED: ";A$
-	30 PRINT
-	40 GOTO 10
-	RUN
-	? MEGA 65
-	YOU TYPED: MEGA 65
-\end{screenoutput}
-
-\begin{screenoutput}
-10 OPEN 1,8,0,"$0:*,P,R
-20 : IF DS THEN PRINT DS$: GOTO 100
-30 GET#1,X$,X$
-40 DO
-50 : GET#1,X$,X$: IF ST THEN EXIT
-60 : GET#1,BL$,BH$
-70 : LINE INPUT#1, F$
-80 : PRINT LEFT$(F$,18)
-90 LOOP
-100 CLOSE 1
-
-RUN
-\end{screenoutput}
-
-
-\section{Sprite Grids}
-\subsection{Original Commodore Balloon Demo}
-
-\spritegrid{
-  \hline
-  \spritecells{---------ooooooo--------}
-  \spritecells{-------ooooooooooo------}
-  \spritecells{------ooooooooooooo-----}
-  \spritecells{------ooooo--oooooo-----}
-  \spritecells{-----ooooo-oo--ooooo----}
-  \spritecells{-----ooooo-ooooooooo----}
-  \spritecells{-----ooooo-oo--ooooo----}
-  \spritecells{------ooooo--oooooo-----}
-  \spritecells{------ooooooooooooo-----}
-  \spritecells{------ooooooooooooo-----}
-  \spritecells{------o-ooooooooo-o-----}
-  \spritecells{-------o-ooooooo-o------}
-  \spritecells{-------o--ooooo--o------}
-  \spritecells{--------o--ooo--o-------}
-  \spritecells{--------o--ooo--o-------}
-  \spritecells{---------o--o--o--------}
-  \spritecells{---------o--o--o--------}
-  \spritecells{----------ooooo---------}
-  \spritecells{----------ooooo---------}
-  \spritecells{----------ooooo---------}
-  \spritecells{-----------ooo----------}
-}
-
-\newpage
-
-\subsection{Wizball Demo Sprite}
-
-\spritegrid{
-  \hline
-  \spritecells{------------------------}
-  \spritecells{--------llllllll--------}
-  \spritecells{------llllllllggll------}
-  \spritecells{------lllleegggggg------}
-  \spritecells{----lllleeoollggllgg----}
-  \spritecells{----lllleeoolllleell----}
-  \spritecells{----llggeelllleeeell----}
-  \spritecells{--lllleegglleeooeellee--}
-  \spritecells{--lleeoolleeooeelleeee--}
-  \spritecells{--lleeoollooooeelleegg--}
-  \spritecells{--lllllleeooooeelleeee--}
-  \spritecells{--llgglleeoooolleeggee--}
-  \spritecells{--llggllooooeelleeeeee--}
-  \spritecells{--lllleeooeelleeeeeeee--}
-  \spritecells{----lleeeelleeggeeee----}
-  \spritecells{----lllllleeggeeggee----}
-  \spritecells{----llggggggggggeeee----}
-  \spritecells{------ggggggeeeeee------}
-  \spritecells{------lleeeeeeeeee------}
-  \spritecells{--------ggeeeeee--------}
-  \spritecells{------------------------}
-}
-
-\end{document}
+\input{common-footer}
 

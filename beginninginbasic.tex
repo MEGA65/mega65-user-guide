@@ -746,8 +746,171 @@ Now if we run the programme, we should see what we are looking for:
   {\em Clue:} What type of information is age? Is it numeric or a
   string? Is it the same type of information as the name of a colour?
 
+  {\bf 2. Can you write a programme that asks someone for their name,
+    prints the hello message, and then asks for their age and prints
+    out that response?}
 
+  \needspace{2cm}
+  At the moment, the programme expects both pieces of information at
+  the same time. This means the programme can't print a message about
+  the first message until after it has both pieces of information.
+  Change the programme so that you can have an interaction like the
+  following instead:
+
+\begin{screenoutput}
+WHAT IS YOUR NAME? DEEP THOUGHT
+HELLO DEEP THOUGHT
+WHAT IS THE ANSWER? 42
+YOU SAID THE ANSWER IS 42
+\end{screenoutput}
+
+{\em Clue:} You will need more lines in your programme, so that you
+can have more than one \stw{INPUT} and \stw{PRINT} statement.}
+
+{\bf 3. Can you write a programme that asks several questions, and
+  then prints out the list of answers given?}
+
+\needspace{2cm}
+Think of several questions you would like to be able to ask someone,
+and then write a programme that asks them, and remembers the answers
+and prints them out with an appropriate message. For example, running
+your programme could look like this:
+
+\begin{screenoutput}
+  WHAT IS YOUR NAME? FRODO
+  HOW OLD ARE YOU? 33
+  WHAT IS YOUR FAVOURITE FOOD? EVERYTHING!
+  THANK YOU FOR ANSWERING.
+  YOUR NAME IS FRODO
+  YOU ARE 33 YEARS OLD
+  YOU FAVOURITE FOOD IS EVERYTHING!
+\end{screenoutput}
+
+{\em Clue:} You will need more lines in you programme, to have the
+various \stw{INPUT} and \stw{PRINT} commands.
+
+{\em Clue:} You will need to think carefully about which variable
+names you will use.  
 
 \section{Making simple decisions}
+
+In the previous section we have learnt how to input text and numeric
+data, and how to display it.  However, the programmes have just
+followed the lines of instuction in order, without any way to decide
+what to do, based on what has been input.
+
+In this section we will see how we can take simple decisions using the
+\stw{IF}\index{IF}\index{BASIC 10 Commands!IF} and
+\stw{THEN}\index{THEN}\index{BASIC 10 Commands!THEN} commands.
+The \stw{IF} command checks if something is true or false, and if it
+is true, causes the computer to execute the command the comes after
+the \stw{THEN} command. 
+
+The way the computer decides whether something is true or false is
+that it operates on the supplied information using one of several
+symbols. These symbols are thus called {\em operators}.  Also, because
+the compare two things, they depend on the relationship of the
+things.  For this reason they are called {\em relational}
+operators.\index{relational operators}\index{operators!relational}
+They include the following:
+
+\begin{itemize}
+  \item Equals (\stw{=}). For example, \stw{3 = 3} would be true,
+    while \stw{3 = 2} would be false.  
+  \item Less than (\stw{<}). For example, \stw{1 < 3} would be true,
+    while both \stw{3 < 3} and \stw{1 < 3} would be false.
+  \item Greater than (\stw{>}). For example, \stw{3 > 1} would be
+    true, while both \stw{3 > 3} and \stw{1 > 3} would be false.
+\end{itemize}
+
+As it is common to want to consider when something might be equal or
+greater than, or equal or less than, there are short cuts for
+this. Similarly, if you wish to test if somthing is not equal to
+something else, there is a relational operator for this, too:
+
+\begin{itemize}
+\item Unequal, which we normally say as {\em not equal}\index{not equal}\index{unequal}\index{<>}
+  (\stw{<>}). This is different to the mathematical symbol for not
+  equal, $\ne$, because the MEGA65's character set does not include a
+  character that looks like that. So the progammers who created BASIC
+  for the MEGA65 used the greater than and less than signs together
+  to mean either less than or greater than, that is, not equal to.
+  For example, \stw{1 <> 3} would be true,
+    while \stw{3 <> 3} would be false.  
+  \item Less than or equal to (\stw{<=}). For example, \stw{1 < 3} and
+    \stw{3 <= 3} would be true,
+    while both \stw{4 < 3} would be false.
+  \item Greater than or equal to (\stw{>=}). For example, \stw{3 >= 1}
+    and \stw{3 >= 3} would be
+    true, while both \stw{1 >= 3} would be false.
+\end{itemize}
+
+A good trick if you have trouble remembering which way the \stw(<) and \stw(>)
+signs go, the side with more ends of lines is the one that needs to
+have more. For example, the \stw(<) symbol has one point on the left, but
+two ends of lines on the right hand side.  So for something to be true
+with \stw(<), the number on the left side needs to be less than the number
+on the right side.  This trick even works for the equals sign, \stw(=),
+because it has the same number of ends on both sides, so you can
+remember that the numbers on both sides need to be equal.  It also
+works when you have two symbols together, like \stw(>=), it is true if
+the condition is true for any of the symbols in it. So in this case
+the \stw(>) symbol has more ends on the left than the right, so if the
+number on the left is bigger than the number on the right, it will be
+true. But also because the \stw(=) symbol has two ends on each side,
+it will be tue if the two numbers are the same. 
+
+\needspace{2cm}
+Using these relational operators, we can write a line that will do
+something, but only if something is true or false.  Let's try this
+out, with a few examples: 
+
+\begin{screenoutput}
+  IF \-2 < 0 THEN PRINT "-2 IS A NEGATIVE NUMBER"
+  IF 2 < 0 THEN PRINT "2 IS A NEGATIVE NUMBER"
+  IF 0 < -2 THEN PRINT "-2 IS A POSITIVE NUMBER"
+  IF 0 < 2 THEN PRINT "2 IS A POSITIVE NUMBER"
+\end{screenoutput}
+
+\needspace{4cm}
+These commands work fine in direct mode, so you can just type them
+directly into the computer to see what they will do.  This can be
+handy for testing whether you have the logic correct when planning an
+\stw{IF} -- \stw{THEN} command.  If you type in those commands, you
+should see something like the following:
+
+\screenshotwrap{images/if-then-less-than-examples}
+
+We can see that only the \stw{PRINT} commands that followed an
+\stw{IF} statement that has a true statement were executed. The rest
+were silently ignored by the computer.  But we can of course include
+these into a programme. So lets make a little programme that will ask
+for two numbers, and say whether they are equal, or if one is greater
+or less than the other.  Before you have a look at the programme, have
+a think about how you might do it, and see if you can figure it out.
+The clue I will give you, is that the \stw{IF} command also accepts the name of
+a variables, not just numbers. So you can do something like \stw{IF A
+  > B THEN PRINT "SOMETHING"}. The programme will be on the next page, to stop you peeking before you
+have a think about it!
+
+\pagebreak
+
+Did you have a go?  There are lots of different ways it could be done,
+but here is what I came up with:
+
+\begin{screenoutput}
+1 INPUT "WHAT IS THE FIRST NUMBER"; A
+2 INPUT "WHAT IS THE SECOND NUMBER"; B
+3 IF A = B THEN PRINT "THE NUMBERS ARE EQUAL"
+4 IF A > B THEN PRINT "THE FIRST NUMBER IS BIGGER"
+5 IF B > A THEN PRINT "THE SECOND NUMBER IS BIGGER"
+\end{screenoutput}
+
+We can then run the programme as often as we like, and the computer
+can tell us which of the two numbers we give it is biggest, or if they
+are equal:
+
+\screenshotwrap{images/if-compare-variables-1}
+
 
 \section{Random numbers and chance}

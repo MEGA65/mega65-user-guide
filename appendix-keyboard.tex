@@ -172,9 +172,19 @@ specific values:
 \end{description}
 \end{adjustwidth}
 
-In other words, the intensity of an LED can be set by first setting the desired
-intensity value into \$D61E (decimal 54814) and then setting \$D61D to 128 +
-0..11.  To return the keyboard LEDs to hardware control, clear bit 7 of \$D61D.
+Register \$D61E (decimal 54814) is used to specify the intensity that should be
+given to a specific LED (value between 0 and 255).
+
+Note that whatever value is in \$D61E gets written to whatever register is
+currently selected in \$D61D.  Therefore to safely change the intensity of one
+specific LED ensure \$D61D is set to 255 first. This prevents affecting another
+LED when we set the intended intensity value into \$D61E. Now select the target
+LED by setting \$D61D to 128 + x, where x is a value from the table above.
+Hold the \$D61D, \$D61E configuration for approximately one millisecond to give
+the keyboard logic enough time to pick up the new intensity value for the
+selected LED.
+
+To return the keyboard LEDs to hardware control, clear bit 7 of \$D61D.
 
 For example to pulse the keyboard LEDs red and blue, the following programme
 could be used:

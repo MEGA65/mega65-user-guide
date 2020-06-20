@@ -128,14 +128,14 @@ Hopefully now you will see something like the following:
   the line you typed in.  The reason this happened is that the computer
   does understand the word \screentextwide{PRINT}.  It knows that whatever comes after
   the word \screentextwide{PRINT} should be printed to the screen.  We had to put \screentextwide{HELLO
-  COMPUTER} inside double-quotes to tell the compute that we want it to be
+  COMPUTER} inside double-quotes to tell the computer that we want it to be
   printed literally.
 
   If we hadn't put the double-quotes in, the computer would have thought
   that \screentextwide{HELLO COMPUTER} was the name of a stored piece of information.
   But because we haven't stored any piece of information in such a place,
   the computer will have zero there, so the computer will print the number
-  zero, like this. If the computer prints zero or some other number when
+  zero. If the computer prints zero or some other number when
   you expected a message of some sort, this can be the reason.
 
 \needspace{4cm} % Dont allow following paragraph to separate from
@@ -912,5 +912,114 @@ are equal:
 
 \screenshotwrap{images/if-compare-variables-1}
 
+Notice how in this programme, we didn't use fixed numbers in the
+\stw{IF} command, but instead gave variable names instead.  This is
+one of the very powerful things in computer programming, together
+with being able to make decision based on data. By being able to refer
+to data by name, regardless of its current value or how it got there,
+lets the programmer create very flexible programmes.
+
+Let's think about a bit of a more interesting example: a ``guess the
+number'' game.\index{Guess the number}\index{Games!Guess the number}
+For this, we need to have a number that someone has to guess, and then
+we need to accept guesses, and indicate whethe the guess was correct
+or not. If the guess is incorrect, we should tell the user if the
+correct number is higher or lower.
+
+We have already learned most the ingredients to make such a program: We
+can use \stw{LET} to set a variable to the secret number, \stw{INPUT}
+to prompt the user for their guess, and then \stw{IF}, \stw{THEN} and
+\stw{PRINT} to tell the user whether their guess was correct or not.
+So let's make something. Again, if you like, stop and think and
+experiment for a few minutes to see if you can make such a programme
+yourself.
+
+Here is how I have done it.  But don't worry if you have done it in a
+quite different way: There are often many ways to write a programme to
+perform a particular task.
+
+\begin{screenoutput}
+1 SN=23
+2 PRINT "GUESS THE NUMBER BETWEEN 1 AND 100"
+3 INPUT "WHAT IS YOUR GUESS"; G
+4 IF G<SN THEN PRINT "MY NUMBER IS BIGGER"
+5 IF G>SN THEN PRINT "MY NUMBER IS SMALLER"
+6 IF G=SN THEN PRINT "CONGRATULATIONS! YOU GUESSED MY NUMBER!"
+\end{screenoutput}
+
+\needspace{4cm}
+The first line puts our secret number into the variable \stw{SN}.
+The second line prints a message telling the user what they are
+supposed to do. The third line asks the user for their guess, and puts
+it into the variable \stw{G}. The
+fourth, fifth and sixth lines then check whether the guess is correct
+or not, and if not, which message it should print. This is done by
+using the \stw{IF} statement and an appropriate relative operator to
+make each decision.  This works well, to a point. For example:
+
+\screenshotwrap{images/guess-number-1}
+
+We can see that it prints the message, and it asks for a guess, and
+responds appropriately. But if we want to guess again, we have to use
+the \stw{RUN} command again for each extra guess. That's a bit poor
+from the user's perspective. However that is unlikely to be a problem
+for long, because the user can see the secret number in the listing on
+the screen!
+
+So we would like to fix these problems.  Let's start with hiding the
+listing.  We previously mentioned that when the screen scrolls,
+anything that was at the top of the screen disappears.  So we could
+just make sure the screen scrolls enough, that any listing that was
+visible is no longer visible. We could do this using \stw{PRINT} and a
+\stw{FOR} loop.  The screen is 25 lines, so we could do something
+like:
+
+\begin{screenoutput}
+FOR I = 1 to 25
+PRINT
+NEXT I
+\end{screenoutput}
+
+But there are better ways.  If you hold down the \specialkey{SHIFT}
+key, and then press the \specialkey{CLR\\HOME} key, it clears the
+screen.  This is much simpler and more convenient. But how can we do
+something like that in our programme?  It turns out to be very simple:
+You can type it while entering a string!  This is because the keyboard
+works differently based on whether you are in {\em quote
+  mode}\index{quote mode}.
+
+Quote mode is just a fancy way of
+describing what happens when you type a double-quote character into
+the computer: Until you type another double-quote or press the
+\specialkey{RETURN}.  You might remember we mentioned the problem of
+funny symbols coming up when using the cursor keys.  I didn't want to
+distact you at the time, but that is a symptom of being in quote mode:
+In quote mode many special keys show a symbol that represents them,
+rather than taking their normal action.  For example, if you press the
+cursor left key while in quote mode, a \stw{Ƣ} symbol appears. If you
+press the cursor right key, a \stw{Ž}, up \stw{Ʊ}, down \stw{ű} and the
+\specialkey{CLR\\HOME} a \stw{ų}, and if you are holding down
+\specialkey{SHIFT} and press \specialkey{CLR\\HOME} a \stw{Ƴ}.
+
+\needspace{3cm}
+So let's use this to make the second line clear the screen when it
+prints the \stw{GUESS THE NUMBER BETWEEN 1 AND 100} message.  The
+first time you try it is a bit confusing, but once you get the hang of
+it, it is quite easy.  What we want in the end is a line that looks
+like this:
+
+\begin{screenoutput}
+2 PRINT "ƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+To do this, start by typing \stw{2 PRINT "}.  Then hold the
+\specialkey{SHIFT} key down, and tap the \specialkey{CLR\\HOME} key.
+Your line should now look like \stw{2 PRINT"Ƴ}.  If so, you have
+succeeded! You can now finish typing the line as normal.  When you
+have done that, you can use the \stw{LIST} command as usual, to make
+sure that you have successfully modified the programme.   You should
+see your modified line with the \stw{Ƴ} symbol in it.
+
+\screenshotwrap{images/guess-number-2}
 
 \section{Random numbers and chance}

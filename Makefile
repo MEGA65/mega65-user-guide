@@ -36,6 +36,9 @@ sandbox.pdf: *.tex $(FONTS) $(EXAMPLES) Makefile references.bib
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
 
+wrong.pdf: *.tex $(FONTS) $(EXAMPLES) Makefile references.bib
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make wrong.tex
+
 
 referenceguide.pdf: *.tex $(FONTS) $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo

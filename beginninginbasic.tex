@@ -1322,9 +1322,9 @@ then it means to move the decimal place to the right. For example,
 Now, I promised a maze, so I better give you one. We can use this
 \stw{RND(1)} to pick between these two symbols.  The first one has a
 character code of 205, and the second one conveniently 206.  This
-means that if we add the result of \stw{RND(1)} to 195.5, we will get
-a number between 195.5 and 196.5.  Half the time it will be
-195.something, and the other half of the time it will be 196.something.
+means that if we add the result of \stw{RND(1)} to 205.5, we will get
+a number between 205.5 and 206.5.  Half the time it will be
+$205.something$, and the other half of the time it will be $206.something$.
 We can use this to print one or the other characters by using the
 \stw{CHR\$()} function that returns the character corresponding to the
 number we put between the brackets.  This means we can do something
@@ -1356,9 +1356,12 @@ programme so that it will run continuously:
 \needspace{4cm}
 If you \stw{RUN} this programme, it will start drawing a maze forever,
 that looks like the screen shot below.  You can stop it at any time by
-pressing the \specialkey{RUN\\STOP} key. If you do, the computer will
+pressing the \specialkey{RUN\\STOP} key, or you can pause it by
+pressing the \specialkey{NO\\SCROLL} key, and unpause it by pressing
+the \specialkey{NO\\SCROLL} key again\index{NO SCROLL}. If you press
+the \specialkey{RUN\\STOP} key, the computer will
 tell you where it was upto at the time. In the case of the screenshot
-below, it was working on line 10.
+below, it was working on line 10:
 
 \screenshotwrap{images/rnd-2}
 
@@ -1370,7 +1373,7 @@ line.  We can put the calculation directly into brackets for the
 \stw{CHR\$()} function:
 
 \begin{screenoutput}
-10 PRINT CHR\$(205.5+RND(1));
+10 PRINT CHR$(205.5+RND(1));
 20 GOTO 10
 \end{screenoutput}
 
@@ -1380,7 +1383,7 @@ put the \stw{GOTO} command onto the same line as the \stw{PRINT}
 command:
 
 \begin{screenoutput}
-10 PRINT CHR\$(205.5+RND(1));: GOTO 10
+10 PRINT CHR$(205.5+RND(1));: GOTO 10
 \end{screenoutput}
 
 Can you see how there are often many ways to get the same effect from
@@ -1425,7 +1428,7 @@ integer between 1 and 100.  Once you have your guess ready, have a
 look what I came up with below. You might have made a different
 programme that can do the same job. That's quite fine, too!
 
-\begin{screentext}
+\begin{screenoutput}
 10 SN=INT(RND(1)*100)+1
 20 PRINT "Ƴ"
 30 FOR I = 1 TO 10 STEP 1
@@ -1436,13 +1439,74 @@ programme that can do the same job. That's quite fine, too!
 80 IF G=SN THEN PRINT "CONGRATULATIONS! YOU GUESSED MY NUMBER!": END
 90 NEXT I
 100 PRINT "SORRY, YOU HAVE RUN OUT OF GUESSES"
-\end{screentext}
+\end{screenoutput}
 
-Now we don't have to worry about someone guessin the number, and we
+Now we don't have to worry about someone guessing the number, and we
 don't need someone else to pick the number for us. This makes the
 programme much more fun to play.  Can you beat it?
 
 
 \subsubsection{Exercises to try}
   
-{\bf 1. Can you make the programme ask at the start for the secret number?}
+{\bf 1. Can you make the maze programme make different mazes?}
+
+The maze programme currently displays equal numbers of {\symbolfont{N}}
+and {\symbolfont{M}}. Can you change the programme to print twice as
+many of one than the other?  How does the maze look then?
+
+{em Clue: We used \stw{205.5} so that when we add a random number
+  between 0 and 1, we end up with $205.something$ half the time and
+  $206.something$ the other half of the the time.  If you reduce
+  \stw{205.5} towards \stw{205}, or increase it towards \stw{206} you
+  will change the relative proportion of each character that appears.
+
+{\bf 2. Can you modify the ``guess my number'' programme to choose a
+  number between 1 and 10?}
+
+At the moment, the programme picks a number between 1 and 100.  Modify
+the programme so that it picks a number from a different range. Don't
+forget to update the message printed to the user.  Do they still need
+10 guesses? Change the maximum number of guesses they get before
+losing to a more suitable amount. 
+
+{\em Clue: You will need to modify the line that sets \stw{SN}, as
+  well as the \stw{PRINT} message that gives instuction to the user.}
+
+{\bf 3. Set the screen, border and text colour to random colours}
+
+Modify either the maze or ``guess my number'' programme to use
+random colours.  How might you make sure that the text is always
+visible?
+
+{\em Clue: Use the \stw{FOREGROUND}, \stw{BACKGROUND} and \stw{BORDER}
+  commands to set the colours. Use colour numbers between 0 and 15,
+  inclusive.
+  You can put a calculation at the end of
+  these commands in place of a simple number.}
+
+{\em Clue: To make sure you don't set the text colour to the same as
+  the backgrorund, you might like to calculate which background colour
+  you wish to use and keep it in one variable, and then calculate the
+  text colour to use and store it in a different variable. If the two
+  variables have the same number, then you need to change one of
+  them.}
+
+{\bf 4. Make the ``guess my number'' progamme randomly choose between
+  two different greeting messages when it starts.}
+
+The ``guess my number'' programe currently always prints the same
+message everytime it starts.  Modify it so that it prints one of two
+possible messages each time.
+
+{\em Clue: Use \stw{RND(1)} to obtain a random number. If that number
+  is less than some threshold, print the first message, else print the
+  second message.}
+
+{\em Clue: It might be easier, if you store the random number in a
+  variable, so that you can use two \stw{IF} statements to decide
+  whether to print each message.}
+
+{\em Clue: If you use \stw{<} (less than) as the relational operator
+  in one of the \stw{IF} statements, you will need to use the opposite
+  in the other one.  The opposite of less than is greater than or
+  equal to.}

@@ -1,0 +1,114 @@
+\include{common-header}
+
+%
+% paper title
+% Titles are generally capitalized except for words such as a, an, and, as,
+% at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
+% not capitalized unless they are the first or last word of the title.
+% Linebreaks \\ can be used within to get better formatting as desired.
+% Do not put math or special symbols in the title.
+
+\cleardoublepage
+
+\pagenumbering{roman}
+
+
+\newpagestyle{onlynumber}{\setfoot[][{\bf\small\thepage}][]
+                                  {} {\bf\small\thepage} {}}
+\pagestyle{onlynumber}
+\pagecolor{white}
+
+%% XXX - big numbers are not in bold, because latex gets confused
+\newcommand*{\justifyheading}{\raggedleft}
+\definecolor{headingblue}{rgb}{0.5,0.5,1}
+
+% \titleformat{command}[shape]
+%   {format}
+%   {label}
+%   {sep}
+%   {before}
+%   [after]
+
+% ***************
+% PART title page
+% ***************
+
+\titleclass{\part}{top}
+\titleformat{\part}[display]
+   {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
+   {\textcolor{white}{\fontsize{50}{65}\selectfont\bf{PART}\quad{\fontsize{100}{130}\selectfont \bf{\serifed\thepart}}}}
+   {20pt}
+   {\Huge\textcolor{white}}
+   [\newpage\pagecolor{white}\textcolor{black}]
+
+% ******************
+% CHAPTER title page
+% ******************
+
+\titleformat{\chapter}[display]
+   {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
+   {\textcolor{white}{\MakeUppercase{\chaptertitlename}\quad{\fontsize{100}{130}\selectfont \bf\thechapter}}}
+   {20pt}
+   {\Huge\textcolor{white}}
+   [{\chapmtoc\insertminitoc}\newpage\pagecolor{white}\textcolor{black}\cleardoublepage]
+
+% ******************
+% SECTION title page
+% ******************
+
+\titleformat{\section}[display]
+   {\raggedright}
+   {\thesection}
+   {20pt}
+   {\huge\bf\color{headingblue}\uppercase}
+   [\color{black}]
+
+\pagenumbering{arabic}
+
+The following is wrong, because the reverse-heart symbol appears BEFORE
+the double-quote, even though in the source it comes after it:
+\begin{screenoutput}
+2 PRINT "ƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+And it doesn't matter how many of them we put in there:
+\begin{screenoutput}
+2 PRINT "ƳƳƳƳƳƳƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+But if I put a ``normal'' character, then everything magically ends up in the right order:
+
+\begin{screenoutput}
+2 PRINT " ƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+And to add to the mystery, if I add an accented characte BEFORE the symbol, then the reverse
+heart appears before that, but after the quote.
+
+\begin{screenoutput}
+2 PRINT "öƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+It seems that the double-quotes and ö are in the same category of symbols for this problem.
+
+Having multiple such characters doesn't help: The reverse heart goes before the whole run
+of them:
+
+\begin{screenoutput}
+2 PRINT "ööööööƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+Same for double quote:
+
+\begin{screenoutput}
+2 PRINT ""ƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+So it seems the symbol moves to before the immediately preceding character of the affected class.
+
+\begin{screenoutput}
+2 PRINT ö"ƳGUESS THE NUMBER BETWEEN 1 AND 100"
+\end{screenoutput}
+
+
+\include{common-footer}

@@ -1280,4 +1280,169 @@ requires you to work out some new things.
 
 \section{Random numbers and chance}
 
-\screenshotwrap{images/ss-m65config-2}
+We'll come back to the Guess The Number game shortly, but let's take a
+detour first. Through a maze. Let's hope we can get back out before
+the end of the lesson!  Let's look at a simple way to make a
+maze. This programme has been known for a long time.  It works by
+choosing at random whether to display a {\symbolfont{M}} or a
+{\symbolfont{N}} symbol.  These symbols are obtained by holding down
+the \specialkey{SHIFT} key and tapping either the N or M keys.  You
+can see the symbols on the front of those keys.  While they are shown
+on the keys with a box around them, the box does not appear, only the
+diagonal line.  It turns out that printing either of these two
+characters at random draws a decent looking maze.
+
+\needspace{4cm}
+Let's give it a try.  To be able to do this, we need a way to generate
+randomness.  The MEGA65 has the \stw{RND(1)} function to do this.  This
+function works like a variable, but each time you try to use it, it
+gives a different result.  Let's see how that works.  Type in the
+following:\index{RND()}\index{BASIC 10 Functions!RND}
+
+\begin{screenoutput}
+PRINT RND(1)
+\end{screenoutput}
+
+Each time you type this, it will give a different answer, as you can
+see here:
+
+\screenshotwrap{images/rnd-1}
+
+We can see that this gives us several different results: \stw{1.07870447E-03},
+\stw{.793262171}, \stw{.44889513}, \stw{.697215893}.  Each of these is
+a number between 0 and 1, even the first one.  The first one is
+written in {\em scientific notation}\index{scientific notation}.  The
+\stw{E-03} means that the value is $1.07870447\times10^{-3}$ =
+0.000107870447.  That is, the \stw{E-03} means to move the decimal
+place three places to the left. If there is a \stw{+} after \stw{E},
+then it means to move the decimal place to the right. For example,
+\stw{1.23456E+3} represents the number 1234.56.
+
+\needspace{3cm}
+Now, I promised a maze, so I better give you one. We can use this
+\stw{RND(1)} to pick between these two symbols.  The first one has a
+character code of 205, and the second one conveniently 206.  This
+means that if we add the result of \stw{RND(1)} to 195.5, we will get
+a number between 195.5 and 196.5.  Half the time it will be
+195.something, and the other half of the time it will be 196.something.
+We can use this to print one or the other characters by using the
+\stw{CHR\$()} function that returns the character corresponding to the
+number we put between the brackets.  This means we can do something
+like:
+
+\begin{screenoutput}
+  LET C = 205.5+RND(1)
+  PRINT CHR$(C);
+\end{screenoutput}
+
+\needspace{3cm}
+This will print one or the other of these symbols each time. We could
+use this already to print the maze by doing this over and over, making
+a loop. We could use \stw{FOR} and \stw{NEXT}. But in this case, we
+want it to go forever, that is, each time the programme gets to the
+end, we want it to go to the start again.  The people who created
+BASIC really weren't very creative, so the command to do this is
+called \stw{GOTO}\index{GOTO}\index{BASIC 10 Commands!GOTO}.  You put
+the number of the line that you want to be executed next after it,
+e.g., \stw{GOTO 1}.  We can use this to write our little maze
+programme so that it will run continuously:
+
+\begin{screenoutput}
+10 LET C = 205.5+RND(1)
+20 PRINT CHR$(C);
+30 GOTO 10
+\end{screenoutput}
+
+\needspace{4cm}
+If you \stw{RUN} this programme, it will start drawing a maze forever,
+that looks like the screen shot below.  You can stop it at any time by
+pressing the \specialkey{RUN\\STOP} key. If you do, the computer will
+tell you where it was upto at the time. In the case of the screenshot
+below, it was working on line 10.
+
+\screenshotwrap{images/rnd-2}
+
+\needspace{2cm}
+That works nicely, and draws a very famous maze \cite{montfort201210}.
+We can, however, make the progamme smaller.  We don't need to put the
+result of the calculation of which symbol to display on a separate
+line.  We can put the calculation directly into brackets for the
+\stw{CHR\$()} function:
+
+\begin{screenoutput}
+10 PRINT CHR\$(205.5+RND(1));
+20 GOTO 10
+\end{screenoutput}
+
+\needspace{2cm}
+And we can use what we learnt about the \stw{:} (colon) symbol, and
+put the \stw{GOTO} command onto the same line as the \stw{PRINT}
+command:
+
+\begin{screenoutput}
+10 PRINT CHR\$(205.5+RND(1));: GOTO 10
+\end{screenoutput}
+
+Can you see how there are often many ways to get the same effect from
+a programme? This is quite normal. For complex programmes, there are
+many, many ways to get the same function.  This is one of the areas
+in computer programming where you can be very creative.
+
+But back to the topic of randomness. It's all well and good using
+these random numbers between 0 and 1 for drawing a maze, but it's a
+bit tricky to ask people to get a really long decimal.  If we want a
+number in the range 1 to 100, we can multiply what we get from
+\stw{RND(1)} by 100. If we do that, it gets a bit better, but we will
+still get numbers like \stw{55.0304651}, \stw{30.3140154},
+\stw{60.2505497} and \stw{.759229916}.
+
+\needspace{3cm}
+That's closer, but we really want to get rid of those fractional
+parts. That is, we want whole numbers or {\em integers}.  BASIC has
+the \stw{INT()} function that works like the \stw{RND(1)} function,
+except that whatever number you put in the brackets, it will return
+just the whole part of that.  So for example \stw{INT(2.18787)} will
+return the value \stw{2}. As I said just now, it chops off the
+fractional part, that is, it always rounds down. So even if we do
+\stw{INT(2.9999999)} the result will still be \stw{2}, not \stw{3}.
+This means that if we multiply the result of \stw{RND(1)} by 100, we
+will get a number in the range of 0 -- 99, not 1 -- 100. This is nice
+and easy to fix: We can just add 1 to the result.  So to generate an
+integer, that is a whole number, that is between 1 and 100 inclusive,
+we can do something like:
+
+\begin{screenoutput}
+  PRINT INT(RND(1)*100) + 1
+\end{screenoutput}
+
+\needspace{3cm}
+That looks much better. So lets type in our ``guess the number''
+programme again. But this time, lets replace the place where we set
+our secret number to the number 23, to instead set it to a random
+integer between 1 and 100.  Don't peek at the solution just yet. Have a
+think about how we can use the above to set \stw{SN} to a random
+integer between 1 and 100.  Once you have your guess ready, have a
+look what I came up with below. You might have made a different
+programme that can do the same job. That's quite fine, too!
+
+\begin{screentext}
+10 SN=INT(RND(1)*100)+1
+20 PRINT "Ƴ"
+30 FOR I = 1 TO 10 STEP 1
+40 PRINT "GUESS THE NUMBER BETWEEN 1 AND 100"                                    
+50 INPUT"WHAT IS YOUR GUESS"; G                                                    
+60 IF G<SN THEN PRINT "MY NUMBER IS BIGGER"                                       
+70 IF G>SN THEN PRINT "MY NUMBER IS SMALLER"                                      
+80 IF G=SN THEN PRINT "CONGRATULATIONS! YOU GUESSED MY NUMBER!": END
+90 NEXT I
+100 PRINT "SORRY, YOU HAVE RUN OUT OF GUESSES"
+\end{screentext}
+
+Now we don't have to worry about someone guessin the number, and we
+don't need someone else to pick the number for us. This makes the
+programme much more fun to play.  Can you beat it?
+
+
+\subsubsection{Exercises to try}
+  
+{\bf 1. Can you make the programme ask at the start for the secret number?}

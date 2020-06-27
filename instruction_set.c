@@ -37,7 +37,10 @@ char *instruction_names[256];
 
 // static variables and arrays
 
-char nflag,zflag,iflag,cflag,dflag,vflag,eflag;
+//   0     1     2     3     4     5     6
+//   nflag,zflag,iflag,cflag,dflag,vflag,eflag;
+char pflags[7][16];
+
 char *instruction;
 int  CPU;
 int  extra_cycles;
@@ -273,7 +276,7 @@ int main(int argc,char **argv)
   for(int i=0;i<instruction_count;i++) {
     instruction=instrs[i];
     extra_cycles=0;
-    nflag = zflag = iflag = cflag = dflag = vflag = eflag = '.';
+    for (int ipf=0 ; ipf < 7 ; ++ipf) strcpy(pflags[ipf],"$\\cdot$");
 
     snprintf(insfilename,sizeof(insfilename),"instruction_sets/inst.%s",instrs[i]);
     FILE *f=fopen(insfilename,"rb");
@@ -295,13 +298,13 @@ int main(int argc,char **argv)
       Fgets(flags            ,sizeof(flags)            ,f);
       for(int i=0;flags[i];i+=2) {
       	switch(flags[i]) {
-      	case 'N': nflag=flags[i+1]; break;
-      	case 'V': vflag=flags[i+1]; break;
-      	case 'C': cflag=flags[i+1]; break;
-      	case 'D': dflag=flags[i+1]; break;
-      	case 'I': iflag=flags[i+1]; break;
-      	case 'E': eflag=flags[i+1]; break;
-      	case 'Z': zflag=flags[i+1]; break;
+      	case 'N': pflags[0][0] = flags[i+1]; pflags[0][1] = 0; break;
+      	case 'Z': pflags[1][0] = flags[i+1]; pflags[1][1] = 0; break;
+      	case 'I': pflags[2][0] = flags[i+1]; pflags[2][1] = 0; break;
+      	case 'C': pflags[3][0] = flags[i+1]; pflags[3][1] = 0; break;
+      	case 'D': pflags[4][0] = flags[i+1]; pflags[4][1] = 0; break;
+      	case 'V': pflags[5][0] = flags[i+1]; pflags[5][1] = 0; break;
+      	case 'E': pflags[6][0] = flags[i+1]; pflags[6][1] = 0; break;
       	case 'M': extra_cycles++; break;
       	}
       }
@@ -332,18 +335,18 @@ int main(int argc,char **argv)
     int read_note_seen=0;
     int single_cycle_seen=0;
 
-    printf("\\begin{tabular}{|llp{3cm}llp{2.5mm}p{2.5mm}p{2.5mm}p{2.5mm}p{2.5mm}p{2.5mm}p{0.7cm}|}\n\\hline\n"
-	   "{\\bf %s} &  & \\multicolumn{7}{l}{\\bf %s} & \\multicolumn{3}{r|}{\\bf %s}    \\\\\n"
-	   "&  \\multicolumn{7}{l}{%s}   &       &         &        &        \\\\\n"
-	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
-	   "&  &                 &           &                             & %c   & %c  & %c  & %c   & %c   & %c  & %c  \\\\\n"
-	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
-	   "&  & {\\bf Addressing Mode} & {\\bf Assembly} & \\multicolumn{1}{c}{\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & \\multicolumn{3}{c}{\\bf Cycles} & \\\\ \n\\hline\n",
-	   instruction,short_description,processor,
-	   " ", // unintended remark removed
-	   action,
-	   nflag,zflag,iflag,cflag,dflag,vflag,eflag
-	   );
+    printf("\\begin{tabular}{|lp{3.6cm}ll*{7}{p{2.5mm}}p{0.2cm}|}\n\\hline\n"
+	   " & \\multicolumn{8}{l}{\\bf %s : %s} & \\multicolumn{3}{r|}{\\bf %s} \\\\\n"
+	   " & \\multicolumn{10}{l}{%s} & \\\\\n"
+	   " & & & & {\\bf N} & {\\bf Z} & \\multicolumn{1}{c}{\\bf I} & {\\bf C} & {\\bf D} & {\\bf V} & {\\bf E} & \\\\\n & & &",
+	   instruction,short_description,processor, action);
+
+    for (int ipf=0 ; ipf < 7 ; ++ipf)
+       printf(" & \\multicolumn{1}{c}{\\bf %s}",pflags[ipf]);
+
+	 printf(" & \\\\\n"
+	   " & & & & & & & & & & & \\\\\n"
+	   " & {\\bf Addressing Mode} & {\\bf Assembly} & {\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & \\multicolumn{3}{c}{\\bf Cycles} & & \\\\ \n\\hline\n");
 
     for(int j=0;j<256;j++) {
       if (opcodes[j].instr_num==i) {
@@ -411,7 +414,7 @@ int main(int argc,char **argv)
 		read_note?"r":"",
 		single_cycle?"s":"");
 
-	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{c}{%s} & %s \\\\\n",
+	printf(" & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{c}{%s} & \\multicolumn{2}{l|}{%s} \\\\\n",
 	       addressing_mode,assembly,opcode,bytes,cycle_count,cycle_notes);
 
       }

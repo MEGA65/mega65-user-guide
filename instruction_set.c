@@ -332,13 +332,13 @@ int main(int argc,char **argv)
     int read_note_seen=0;
     int single_cycle_seen=0;
 
-    printf("\\begin{tabular}{|llp{4cm}llccccccc|}\n\\hline\n"
+    printf("\\begin{tabular}{|llp{3cm}llp{2.5mm}p{2.5mm}p{2.5mm}p{2.5mm}p{2.5mm}p{2.5mm}p{0.7cm}|}\n\\hline\n"
 	   "{\\bf %s} &  & \\multicolumn{7}{l}{\\bf %s} & \\multicolumn{3}{r|}{\\bf %s}    \\\\\n"
 	   "&  \\multicolumn{7}{l}{%s}   &       &         &        &        \\\\\n"
 	   "&  & \\multicolumn{3}{l}{%s}  & {\\bf N}       & {\\bf Z}      & {\\bf I}      & {\\bf C}       & {\\bf D}       & {\\bf V}      & {\\bf E}      \\\\\n"
 	   "&  &                 &           &                             & %c   & %c  & %c  & %c   & %c   & %c  & %c  \\\\\n"
 	   "&  &                 &           &                             &         &        &        &         &         &        &        \\\\\n"
-	   "&  & {\\underline{\\bf Addressing Mode}} & {\\bf \\underline{Assembly}} & \\multicolumn{1}{c}{\\bf \\underline{Op-Code}} & \\multicolumn{3}{c}{\\bf \\underline{Bytes}} & \\multicolumn{3}{c}{\\bf \\underline{Cycles}}       &   \\\\\n",
+	   "&  & {\\bf Addressing Mode} & {\\bf Assembly} & \\multicolumn{1}{c}{\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & \\multicolumn{3}{c}{\\bf Cycles} & \\\\ \n\\hline\n",
 	   instruction,short_description,processor,
 	   " ", // unintended remark removed
 	   action,
@@ -411,7 +411,7 @@ int main(int argc,char **argv)
 		read_note?"r":"",
 		single_cycle?"s":"");
 
-	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{r}{%s} & %s \\\\\n",
+	printf("&  & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{c}{%s} & %s \\\\\n",
 	       addressing_mode,assembly,opcode,bytes,cycle_count,cycle_notes);
 
       }
@@ -428,7 +428,7 @@ int main(int argc,char **argv)
     if (delidle4510_note_seen) printf(" \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
     if (page_note_seen) printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
     if (read_note_seen) printf(" \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
-    if (single_cycle_seen) printf(" \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Single cycle instructions require 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");
+    if (single_cycle_seen) printf(" \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Instruction requires 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");
 
     printf("\\end{tabular}\n");
     fflush(stdout);
@@ -505,7 +505,7 @@ int main(int argc,char **argv)
       if (delidle4510_note_seen) fprintf(tf," \\multicolumn{1}{r}{$m$} & \\multicolumn{16}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
       if (page_note_seen) fprintf(tf," \\multicolumn{1}{r}{$p$} & \\multicolumn{16}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
       if (read_note_seen) fprintf(tf," \\multicolumn{1}{r}{$r$} & \\multicolumn{16}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
-      if (single_cycle_seen) fprintf(tf," \\multicolumn{1}{r}{$s$} & \\multicolumn{16}{l}{Single cycle instructions require 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");
+      if (single_cycle_seen) fprintf(tf," \\multicolumn{1}{r}{$s$} & \\multicolumn{16}{l}{Instruction requires 2 cycles when CPU is run at 1MHz or 2MHz.} \\\\\n");
 
       fprintf(tf,"\\end{tabular}\n");
       fclose(tf);

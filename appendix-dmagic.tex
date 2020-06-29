@@ -22,11 +22,135 @@ F018/F018A DMAgic chips of the C65:
 \item{\bf Transparency/Mask Value Support} The MEGA65's DMA controller can be told to ignore a special value
    when copying memory, leaving the destination memory contents unchanged. This allows masking of transparent
    regions when performing a DMA copy, which considerably simplifies blitting of graphics shapes.
-\i tem{\bf Per-Job Option List} A number of options can be configured for each job in a chained list of DMA
+\item{\bf Per-Job Option List} A number of options can be configured for each job in a chained list of DMA
   jobs, for example, selecting F018 or F018B mode, changing the transparency value, fractional address stepping
   or the source or destination memory region.
+
+\item{\bf Background Audio DMA}
+  The MEGA65 includes background audio DMA capabilities similar to the Amiga\texttm series of computers.
+  Key differences are that the MEGA65 can use either 8 or 16 bit samples, supports very high sample rates
+  up to approximately 1 MHz, has 256 volume settings per channel, and no inter-channel modulation.
+
 \end{itemize}
 
+\section{Audio DMA}
+
+The MEGA65 includes four channels of DMA-driven audio playback that can be used in place of the direct digital
+audio registers at \$D6F8-\$D6FB.  That is, you must select which of these two sources to feed to the audio
+cross-bar mixer.  This is selected via the AUDEN signal (\$D711 bit 7), which simultaneously enables the audio DMA
+function in the processor, as well as instructing the audio cross-bar mixer to use the audio from this instead
+of the \$D6F8-\$D6FB digital audio registers.  All other bits in
+\$D711 should ordinarily be left clear, i.e., write \$80 to \$D711 to
+enable audio DMA.
+
+Two channels form the left digital audio channel, and the other two
+channels form the right digital audio channel. It is these left and
+right channels that are then fed into the MEGA65's audio cross-bar
+mixer.   
+
+As the DMA controller is part of the processor of the MEGA65, and the MEGA65 does not have reserved bus slots
+  for multi-media operations, the MEGA65 uses idle CPU cycles to perform background DMA. This requires that the
+  MEGA65 CPU be set to the ``full speed'' mode, i.e., approximately 40MHz.  In this mode, there is a wait-state
+  whenever reading an operand from memory.  Thus each instruction that loads a byte from memory will create one
+  implicit audio DMA slot.  This is rarely a problem in practice, except if the processor idles in a very tight
+  loop.  To ensure that audio continues to play in the background, such loops should include a read instruction,
+  such as:
+
+\begin{screenoutput}
+loop:   LDA $1234   // Ensure loop has at least one idle cycle for
+                    // audio DMA
+        JMP loop
+\end{screenoutput}
+
+Each of the four DMA channels is configured using a block of 16
+registers at \$D720, \$D730, \$D740 and \$D750, respectively.
+We will explain the registers for the first channel, channel 0, at
+\$D720 -- \$D72F.
+
+\subsection{Sample Address Management}
+
+To play an audio sample you must first supply the start address of the
+sample. This is a 24-bit address, and must be in the main chip memory
+of the MEGA65. This is done by writing the address into \$D72A --
+\$D72C.  This is the address of the first sample value that will be played.
+You must then provide the end address of the sample in \$D727 --
+\$D728.  But note that this is is only 16 bits. This is because the
+MEGA65 compares only the bottom 16 bits of the address when checking
+if it has reached the end of a sample.  In practice, this means that
+samples cannot be more than 64KB in size.  If the sample contains a
+section that should be repeated, then the start address of the
+repeating part should be loaded into \$D721 -- \$D723, and the CH0LOOP
+bit should be set (\$D720 bit 6).  
+
+You can determine the current sample address at any time by reading
+the registers at \$D72A -- \$D72C. But beware: These registers are not
+latched, so it is possible that the values may be updated as you read
+the registers, unless you stop the channel first by clearing the CH0EN
+signal.
+
+\subsection{Sample Playback frequency and Volume}
+
+The MEGA65 controls the playback rate of audio DMA samples by using a
+24-bit counter.  Whenever the 24-bit counter overflows, the next
+sample is requested. Sample speed control is achieved by setting the
+value added to this counter each CPU cycle.  Thus a value of
+$FFFFFF would result in a sample rate of almost 40.5 MHz.  In
+practice, sample rates above a few megahertz are not possible, because
+there are insufficient idle CPU cycles, and distorted audio will
+result.  Even below this, care must be taken to ensure that idle
+cycles come sufficiently often and dispersed throughout the
+processor's instruction stream to prevent distortion.  At typical
+sample rates below 16KHz and using 8 bit samples these effects are
+typically negligible for normal instruction streams, and so no special
+action is normally required for typical audio playback.
+
+At the other end of the scale, sample rates as low as 40.5MHz/$2^{24}$
+= 2.4 samples per second are possible.  This is sufficiently low
+enough for even the most demanding infra-sound applications.
+
+Volume is controlled by setting \$D629.  Maximum volume is obtained
+with the value \$FF, while a value of \$00 will effectively mute the
+channel.  The first two audio channels are normally allocated to the
+left, and the second two to the right.  However, the MEGA65 includes
+separate volume controls for the opposite channels. For example, to
+play audio DMA channel 0 at full volume on both left and right sides
+of the audio output, set both \$D729 and \$D71C to \$FF.  This allows
+panning of the four audio DMA channels.
+
+Both the frequency and volume can be freely adjusted while a sample is playing
+to produce various effects.
+
+\subsection{Pure Sine Wave}
+
+Where it is necessary to produce a stable sine wave, especially at
+higher frequencies, 
+there is a special mode to support this. By setting the CH0SINE
+signal, the audio channel will play a 32-byte 16-bit sine wave
+pattern.  The sample addresses still need to be set, as though the
+sine wave table were located in the bottom 64 bytes of memory, as the
+normal address generation logic is used in this mode. However, no
+audio DMA fetches are performed when a channel is in this mode, thus
+avoiding all sources of distortion due to irregular spacing of idle
+cycles in the processor's instruction stream.
+
+This can be used to produce sine waves in both the audible range, as
+well as well into the ultrasonic range, at frequencies exceeding
+60,000Hz, provided that the MEGA65 is connected to an appropriately
+speaker arrangement. 
+
+\subsection{Sample playback control}
+
+To begin a channel playing a sample, set the CH0EN signal (\$D720 bit
+7). The sample will play until its completion, unless the CH0LOOP
+signal has also been set. When a sample completes playing, the CH0STOP
+flag will be set.  The audio DMA subsystem cannot presently generate
+interrupts.
+
+Unlike on the Amiga\texttm, the MEGA65 audio DMA system supports both
+8 and 16-bit samples.  It also supports packed 4-bit samples, playing
+either the lower or upper nybl of each sample byte.  This allows two
+separate samples to occupy the same byte, thus effectively halving the
+amount of space required to store two equal length samples.
 
 \section{F018 ``DMAgic'' DMA Controller}
 

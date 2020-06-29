@@ -39,7 +39,12 @@ The MEGA65 includes four channels of DMA-driven audio playback that can be used 
 audio registers at \$D6F8-\$D6FB.  That is, you must select which of these two sources to feed to the audio
 cross-bar mixer.  This is selected via the AUDEN signal (\$D711 bit 7), which simultaneously enables the audio DMA
 function in the processor, as well as instructing the audio cross-bar mixer to use the audio from this instead
-of the \$D6F8-\$D6FB digital audio registers.  All other bits in
+of the \$D6F8-\$D6FB digital audio registers. If you wish to have no
+other audio than the audio DMA channels, the audio cross-bar mixer can
+be bypassed, and the DMA audio played at full volume by setting the
+NOMIX signal (\$D711 bit 4).  In that mode no audio from the SIDs, FM,
+microphones or other sources will be available.
+All other bits in
 \$D711 should ordinarily be left clear, i.e., write \$80 to \$D711 to
 enable audio DMA.
 
@@ -142,7 +147,7 @@ speaker arrangement.
 
 To begin a channel playing a sample, set the CH0EN signal (\$D720 bit
 7). The sample will play until its completion, unless the CH0LOOP
-signal has also been set. When a sample completes playing, the CH0STOP
+signal has also been set. When a sample completes playing, the CH0STP
 flag will be set.  The audio DMA subsystem cannot presently generate
 interrupts.
 

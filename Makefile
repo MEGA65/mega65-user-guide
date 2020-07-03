@@ -26,7 +26,6 @@ images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flo
 	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
 
 # Make sure we update the register information files before typesetting
-#userguide.pdf: *.tex $(FONTS) $(EXAMPLES) Makefile references.bib
 userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make userguide.tex

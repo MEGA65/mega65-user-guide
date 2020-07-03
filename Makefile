@@ -44,7 +44,7 @@ referenceguide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ..
 mega65-developer-guide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
-	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-developer-guide.tex
+	latexmk -f -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-developer-guide.tex
 
 
 

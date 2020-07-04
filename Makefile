@@ -37,11 +37,15 @@ sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 wrong.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make wrong.tex
 
-
 referenceguide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make referenceguide.tex
+
+mega65-developer-guide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+	./getgitinfo
+	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+	latexmk -f -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-developer-guide.tex
 
 hardwareguide.pdf: *.tex  $(EXAMPLES) Makefile references.bib
 	./getgitinfo

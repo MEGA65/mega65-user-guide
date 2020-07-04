@@ -99,7 +99,7 @@ The MEGA65 controls the playback rate of audio DMA samples by using a
 24-bit counter.  Whenever the 24-bit counter overflows, the next
 sample is requested. Sample speed control is achieved by setting the
 value added to this counter each CPU cycle.  Thus a value of
-$FFFFFF would result in a sample rate of almost 40.5 MHz.  In
+\$FFFFFF would result in a sample rate of almost 40.5 MHz.  In
 practice, sample rates above a few megahertz are not possible, because
 there are insufficient idle CPU cycles, and distorted audio will
 result.  Even below this, care must be taken to ensure that idle
@@ -157,6 +157,42 @@ either the lower or upper nybl of each sample byte.  This allows two
 separate samples to occupy the same byte, thus effectively halving the
 amount of space required to store two equal length samples.
 
+\section{MEGA65 Enhanced DMA Jobs}
+
+The MEGA65's implementation of the DMAgic supports significantly
+enhanced DMA jobs.  An enhanced DMA job is indicated by writing the
+low-byte of the DMA list address to \$D705 instead of to \$D700.  The
+MEGA65 will then look for one or more {\em job option tokens} at the
+start of the DMA list.  Those tokens will be interpretted, before
+executing the DMA job which immediately follows the {\em end of job
+  options} token (\$00).  Job option tokens which take an argument have the
+most-significant bit set, and always take a 1 byte option.  Job option
+tokens that take no argument have the most-significant-bit clear.
+Unsupported job option tokens are simply ignored.
+This allows for future revisions of the DMAgic to add support for
+additional options, without breaking backward compatibility.
+
+The list of valid job option tokens is:
+
+\begin{tabular}{|c|l|}
+  \hline
+  \$00 & End of job option list \\
+  \$06 & Enable use of transparent value \\
+  \$07 & Disable use of transparent value \\
+  \$0A & Use 11-byte F011A DMA list format \\
+  \$0B & Use 12-byte F011B DMA list format \\
+  \$80 & Source address bits 20 -- 27 \\
+  \$81 & Destination address bits 20 -- 27 \\
+  \$82 & Source skip rate (256\textsuperscript{ths} of bytes) \\
+  \$83 & Source skip rate (whole bytes) \\
+  \$84 & Destination skip rate (256\textsuperscript{ths} of bytes) \\
+  \$85 & Destination skip rate (whole bytes) \\
+  \$86 & Transparent value (bytes with matching value are not written) \\
+\end{tabular}
+
+
+
+
 \section{F018 ``DMAgic'' DMA Controller}
 
 \input{regtable_DMA.C65}
@@ -165,3 +201,21 @@ amount of space required to store two equal length samples.
 
 \input{regtable_DMA.MEGA65}
 
+\section{Unimplemented Functionality}
+
+The MEGA65's DMAgic does not currently support either memory-swap or
+mini-term operations.
+
+Miniterms were intended for bitplane blitting,
+which is not required for the MEGA65 which offers greatly advanced
+character modes and stepped and fractional DMA address incrementing
+which allows efficient texture copying and scaling. Also there exists
+no known software which ever used this facility, and it remains
+uncertain if it was ever implemented in any revision of the DMAgic
+chip used in C65 prototypes. 
+
+The memory-swap
+operation is intended to be implemented, but can be worked around in
+the meantime by copying the first region to a 3rd region that acts as
+a temporary buffer, then copying the 2nd region to the 1st, and the
+3rd to the 2nd.

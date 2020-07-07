@@ -2,7 +2,7 @@
 
 \section{Building your own MEGA65 Compatible Computer}
 
-You can build your own MEGA65-compatible computer by using a Nexys4DDR FPGA development board.
+You can build your own MEGA65-compatible computer by using a Nexys4DDR (Nexys A7) FPGA development board.
 This appendix describes the process to setup a Nexys4DDR board for this purpose.
 The older non-DDR Nexys4 board is also supported, and the instructions are the same, except that
 you must use a bitstream designed for that board.
@@ -16,23 +16,50 @@ DISCLAIMER: M.E.G.A cannot take any responsibility for any damage that may occur
 
 \section{Power, Jumpers, Switches and Buttons}
 
-The MEGA65 core consumes too much power for the Nexys4DDR board to be powered from a standard USB port.
-In particular, writing to the SD card might hang or perform odd behaviour.
-Therefore you should use a 5V power supply.
-Digilent sell a power supply for the Nexys4DDR board, and we recommend you use this to ensure you avoid the risk of damage
-to your Nexys4DDR board.
+The Nexys4DDR board can be powered in two ways: using an external power supply, or from a standard USB port.
+
+\subsection{Micro-USB Power}
+
+\includegraphics[width=5cm]{images/illustrations/nexys-micro-usb-power.pdf}
+
+Connect your micro-usb cable to a USB port on a USB charger or PC to provide power. Connect the other end to the Nexys4DDR's micro-usb connector. Place the JP3 jumper on pins 1 and 2 to select USB power. Use the switch to turn on the Nexys4DDR.
+
+\subsection{External Power Supply}
+
+\hspace*{1.7cm}
+\includegraphics[width=3.2cm]{images/illustrations/nexys-power-supply.pdf}
+
+The MEGA65 core can consume a lot of power, and a standard USB port could potentionally be too little for the Nexys4DDR board. In particular, writing to the SD card might hang or perform odd behaviour. Therefore you should consider a 5V power supply.
+
+Digilent sell a power supply for the Nexys4DDR board, and we recommend you use this to ensure you avoid the risk of damage to your Nexys4DDR board. The chosen power supply should be center positive, 2.1mm internal diameter plug, and should deliver 4.5VDC to 5.5VDC rated at least 1 Amp.
+
+Connect the power supply cable to the supply plug of the Nexys4DDR. Place the JP3 jumper on pins 2 and 3 to select WALL power. Use the switch to turn on the Nexys4DDR.
+
+\subsection{Other Jumpers and Switches}
 
 Set the following jumpers on your Nexys4DDR board to the following positions:
 
 \begin{itemize}
 \item{JP1} - USB/SD
 \item{JP2} - SD
-\item {JP3} - Wall
 \end{itemize}
 
 % XXX - Image of board highlighting the jumpers
 
 All 16 switches on the lower edge of the board must be set to the off position.
+
+
+\subsection{Connections and Peripherals}
+
+\includegraphics[width=\linewidth]{images/illustrations/nexys-connectors.pdf}
+
+A USB keyboard can be connected to the USB port. Only a keyboard that lacks a USB hub will work with the Nexys4DDR board.  Generally extremely cheap keyboards will work, while more expensive keyboards tend to have a USB hub integrated, and will not work.  You may need to try several keyboards, before you find one that works.
+
+You can connect a VGA monitor to the VGA port.
+
+The mono audio-out jack can be connected to the line-in of an amplifier.
+
+\subsection{Onboard buttons}
 
 The ``CPU RESET'' button will reset the MEGA65 when pressed, while the ``PROG'' button will cause the FPGA itself to reload the MEGA65
 core.  The main difference between the two is that CPU RESET is faster, and does not clear the contents of memory, while the FPGA button
@@ -41,8 +68,6 @@ is slower, and does reset the contents of memory.
 Two of the five buttons in the cross arrangement can also be used:  BTNU acts as though you have pressed the \megakey{RESTORE} key, while BTNC will trigger an IRQ, as though the IRQ line had been pulled to ground.
 
 \section{Keyboard}
-
-Only USB keyboards that lack a USB hub will work with the Nexys4DDR board.  Generally extremely cheap keyboards will work, while more expensive keyboards tend to have a USB hub integrated, and will not work.  You may need to try several keyboards, before you find one that works.
 
 The keyboard layout is positional rather than logical.
 This means that keys in similar positions to the keys on a C65 keyboard will have similar function.

@@ -81,7 +81,13 @@ In this mode all keys are available for standard PETSCII scanning as per normal.
 There is also a hardware accelerated mechanism for detecting arbitrary combinations
 of keys that are held down. This is via \$D614 (decimal 54804).  Writing a value
 between 0 and 8 to this register selects the corresponding row of the C65 keyboard
-matrix, which can then be read back from \$D614.
+matrix, which can then be read back from \$D613.
+If a bit is zero, then it means that the key is being pressed. If the bit is one, then
+the key is not being pressed.
+
+The left and up cursor keys are special, because they logically press cursor right or down, and the right shift key.
+To be able to differentiate between these two situations, you can read \$D60F: Bit 0 is the state of the left cursor
+key and bit 1 is the state of the up cursor key.
 
 The C65 keyboard matrix layout is as follows:
 

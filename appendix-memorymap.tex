@@ -26,7 +26,101 @@ C64 and C65 compatible memory maps are accessed from this 28-bit
 address space.
 
 \newpage
+
 \section{MEGA65 Native Memory Map}
+
+\subsection{The First Sixteen 64KB Banks}
+
+The MEGA65 uses a similar memory map to that of the C65 for the first
+MiB of memory, i.e., 16 memory banks of 64KiB each.
+This is because the C65's 4510 CPU can access only 1MiB
+of address space.  These banks can be accessed from BASIC 10 using the
+\stw{BANK}\index{BASIC 10 Commands!BANK},
+\stw{DMA}\index{BASIC 10 Commands!DMA}, \stw{PEEK} and \stw{POKE}
+commands.  The following table summarises the contents of the first
+16 banks:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{1cm}|L{1.5cm}|L{2cm}|p{6cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Address}} & {\bf{Contents}} \\
+\hline
+\endfirsthead
+\multicolumn{4}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Address}} & {\bf{Contents}} \\
+\endhead
+\multicolumn{4}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+\small 0 & \small 0 & \$0xxxx & \multicolumn{1}{p{6cm}|}{First 64KiB RAM. This is the RAM visible in C64 mode.}\\
+\hline
+\small 1 & \small 1 & \$1xxxx & \multicolumn{1}{p{6cm}|}{Second 64KiB RAM. This is the 2nd 64KiB of RAM present on a C65.}\\
+\hline
+\small 2 & \small 2 & \$2xxxx & \multicolumn{1}{p{6cm}|}{First half of C65 ROM (C64 mode and shared components) {\em or} RAM}\\
+\hline
+\small 3 & \small 3 & \$3xxxx & \multicolumn{1}{p{6cm}|}{Second half of C65 ROM (C65 mode components) {\em or} RAM}\\
+\hline
+\small 4 & \small 4 & \$4xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (384KiB or larger chip-RAM models)}\\
+\hline
+\small 5 & \small 5 & \$5xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (384KiB or larger chip-RAM models)}\\
+\hline
+\small 6 & \small 6 & \$6xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (512KiB or larger chip-RAM models)}\\
+\hline
+\small 7 & \small 7 & \$7xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (512KiB or larger chip-RAM models)}\\
+\hline
+\small 8 & \small 8 & \$8xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small 9 & \small 9 & \$9xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small A & \small 10 & \$Axxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small B & \small 11 & \$Bxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small C & \small 12 & \$Cxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small D & \small 13 & \$Dxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small E & \small 14 & \$Exxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small F & \small 15 & \$Fxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\end{longtable}
+
+The key features of this address space are the 128KiB of RAM in the first two banks, which is also present on
+the C65. If you intend to write programmes which can also run on a C65, you should only use these two banks
+of RAM.
+
+On all models it is possible to use all or part of the 128KiB of ``ROM'' space as RAM. To do this, you must first
+request that the Hypervisor removes the read-only protection on this area, before you will be able to change
+its contents.  If you are writing a programme which will start from C64 mode, or otherwise switch to using the C64
+part of the ROM, instead of the C65 part), then the second half of that space, i.e., BANK 3, can be safely used
+for your programmes. This gives a total of 192KiB of RAM, which is available on all models of the MEGA65.
+
+On models that have 384KiB or more of chip RAM, BANK 4 and 5 are also available.  Similarly, models which provide
+1MiB or more of chip RAM will have BANK 6 through 15 also available, giving a total of 896KiB (or 960KiB, if only
+the C64 part of the ROM is required) of RAM available for your programmes.  Note that the MEGA65's built-in
+freeze cartridge currently freezes only the first 384KiB of RAM.
+
+\subsection{Colour RAM}
+
+The MEGA65's VIC-IV video controller supports much larger screens than the VIC-II or VIC-III. For this reason, it
+has access to a separate colour RAM, similar to on the C64.  For compatibility with the C65, the first two kilo-bytes
+of this are accessible at \$1F800 -- \$1FFFF.  The full 32KiB or 64KiB of colour RAM is located at \$FF80000.
+This is most easily access through the use of advanced DMA operations, or the 32-bit base-page indirect addressing
+mode of the processor.
+
+At the time of writing, the \stw{BANK} and \stw{DMA} commands cannot be used to access the rest of the colour RAM, because the
+colour RAM is not located in the first mega-byte of address space.  This may be corrected in a future revision of
+the MEGA65, allowing access to the full colour RAM via BANK 15 or an equivalent DMA job. 
+
+\subsection{28-bit Address Space}
+
+In addition to the C65-style 1MB address space, the MEGA65 extends this
+to 256MiB, by using 28-bit addresses.  The following shows the high-level
+layout of this address space.
 
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{1.5cm}|L{2cm}|L{1.1cm}|p{6cm}|}
@@ -77,10 +171,10 @@ address space.
 \multicolumn{1}{p{6cm}|}{VIC-IV Character ROM (write only)}\\
 \hline
 \small FF80000 -- FF87FFF & \small 255.5 MiB -- 255.53 MiB & 32 KiB &
-\multicolumn{1}{p{6cm}|}{VIC-IV Colour RAM}\\
+\multicolumn{1}{p{6cm}|}{VIC-IV Colour RAM (32KiB colour RAM models)}\\
 \hline
 \small FF88000 -- FF8FFFF & \small 255.53 MiB -- 255.57 MiB & 32 KiB &
-\multicolumn{1}{p{6cm}|}{Additional VIC-IV Colour RAM (selected models only)}\\
+\multicolumn{1}{p{6cm}|}{Additional VIC-IV Colour RAM (64KiB colour RAM models only)}\\
 \hline
 \small FF90000 -- FFCAFFF & \small 255.53 MiB -- 255.80 MiB & 216 KiB &
 \multicolumn{1}{p{6cm}|}{Reserved}\\
@@ -368,25 +462,25 @@ The layout of the C65 compatibility 128KB ROM area is identical to that of the C
 \multicolumn{1}{l@{}}{continued \ldots}\\
 \endfoot
 \hline
-\$1E000 -- \$1FFFF & C65 KERNAL \\
+\$3E000 -- \$3FFFF & C65 KERNAL \\
 \hline
-\$1C000 -- \$1DFFF & RESERVED \\
+\$3C000 -- \$3DFFF & RESERVED \\
 \hline
-\$18000 -- \$1BFFF & C65 BASIC GRAPHICS ROUTINES \\
+\$38000 -- \$3BFFF & C65 BASIC GRAPHICS ROUTINES \\
 \hline
-\$12000 -- \$17FFF & C65 BASIC \\
+\$32000 -- \$37FFF & C65 BASIC \\
 \hline
-\$10000 -- \$11FFF & MONITOR (gets mapped at \$6000 -- \$7FFF) \\
+\$30000 -- \$31FFF & MONITOR (gets mapped at \$6000 -- \$7FFF) \\
 \hline
-\$0E000 -- \$0FFFF & C64 KERNAL \\
+\$2E000 -- \$2FFFF & C64 KERNAL \\
 \hline
-\$0D000 -- \$0DFFF & C64 CHARSET \\
+\$2D000 -- \$2DFFF & C64 CHARSET \\
 \hline
-\$0C000 -- \$0CFFF & INTERFACE \\
+\$2C000 -- \$2CFFF & INTERFACE \\
 \hline
-\$04000 -- \$07FFF & RESERVED \\
+\$24000 -- \$27FFF & RESERVED \\
 \hline
-\$00000 -- \$03FFF & DOS (gets mapped at \$8000 -- \$BFFF) \\
+\$20000 -- \$23FFF & DOS (gets mapped at \$8000 -- \$BFFF) \\
 \hline
 \endlastfoot
 \end{longtable}

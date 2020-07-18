@@ -10,8 +10,9 @@ This features allows the debugging of programs by setting breakpoints.
 
 \section{Table of monitor commands}
 
+{
 \ttfamily
-{\setlength{\tabcolsep}{1mm}
+\setlength{\tabcolsep}{1mm}
 \begin{tabular}{|l|l|l|}
 \hline
 C & mnemonic & description \\
@@ -58,4 +59,39 @@ The monitor responds with a display of register contents and waits for a command
 \end{verbatim}
 \end{tcolorbox}
 
+% ======================================
+% Start of the monitor command reference
+% ======================================
+
+\titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
+
+% ******
+% MEMORY
+% ******
+
+\subsection{M:MEMORY}
+\index{MEMORY}
+\index{MONITOR Commands!MEMORY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf M [from [,to]]}
+\item [Usage:] Prints a memory dump for the given address range.
+               The dump displays memory contents, organized in rows
+               of 16 consecutive addresses starting with the
+               address, given as 1st. argument. The dump continues
+               until a row has been printed, containing the value
+               of the address given as 2nd. argument.
+               If no 2nd. argument is present, the dump displays
+               a full page of 256 bytes in 16 rows.
+               The contents are printed as 16 byte values in hex,
+               followed by the character representation.
+
+\item [Remarks:] The rows start with the character '>'.
+                 This enables direct full screen editing of the dump.
+                 Typing return in any row will write the changed
+                 values of the cursor row back to memory, if writable RAM is there.
+                 See monitor command {\bf >}.
+
+\item [Example:] Using {\bf M}
+
+\includegraphics[width=\linewidth]{images/monitor-m}
 

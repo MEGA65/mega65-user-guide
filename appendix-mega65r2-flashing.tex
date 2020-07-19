@@ -2,29 +2,28 @@
 \label{cha:fpgacpldflashing}
 
 The MEGA65 is an open-source and open-hardware computer. This means you are free,
-not only to write programs that run on the MEGA65 as a finished computer, but you can
-use the re-programmable chips in the MEGA65 to turn it into all sorts of other things!
+not only to write programs that run on the MEGA65 as a finished computer, but also to
+use the re-programmable chips in the MEGA65 to turn it into all sorts of other things.
 
 If you just want to install an upgrade core for the MEGA65, or a core that lets you use
 your MEGA65 as another type of computer, you are probably looking for
-Chapter \ref{cha:cores} instead.
+Chapter on \nameref{cha:cores} instead.
 This chapter is more intended for people who want to help develop cores for the MEGA65.
 
 These re-programmable chips are called Field Programmable Gate Arrays (FPGAs) or
 Complex Programmable Logic Devices (CPLDs), and can implement a wide variety of circuits.
-They are normally programmed using a programming language like VHDL or Verilog.  These
+They are normally programmed using a language like VHDL or Verilog.  These
 are languages that are not commonly encountered by most people.  They are also quite
 different in some ways to ``normal'' programming languages, and it can take a while to
-understand how they work, but with some effort and perseverance, many people will be
-able to do exiting things with them.
+understand how they work. But with some effort and perseverance, exciting things can be created with them.
 
 Be prepared to install many gigabytes of software on a Linux or Windows PC, before you will
 be able to write programs for the FPGAs and CPLDs in the MEGA65.  Also,
 "compiling" complex
 designs can take up to several hours, depending on the speed and memory
-capacity of your computer!
-We recommend a computer with at least 8GB RAM, and preferably 16GB if you want to write
-programs for FPGAs and CPLDs. If on the other hand all you want to do is load programs onto
+capacity of your computer.
+We recommend a computer with at least 8GB RAM (preferably 16GB) if you want to write
+programs for FPGAs and CPLDs. On the other hand, if all you want to do is load programs onto
 your MEGA65's FPGAs and CPLDs that other people have written, then most
 computers running a recent
 version of Windows or Linux should be able to cope.
@@ -37,21 +36,21 @@ Re-programming the MEGA65 FPGA can potentially cause
 damage, or leave your MEGA65 in an unresponsive state from which it is very difficult to
 recover, i.e., ``bricked''.  Therefore if you choose to open your MEGA65 and reprogram
 any of the FPGAs it contains, it is no longer possible to guarantee its correct operation.
-Therefore in this case we can not reasonably honour the warranty of the
+Therefore, we cannot reasonably honour the warranty of the
 device as a computer.
 You have been warned!
 
-\section{Flashing the Artix 100T main FPGA with XILINX VIVADO}
+\section{Flashing the main FPGA of a MEGA65 R2/R3 using Vivado}
+\label{sec:mainfpgaflashing}
 
-If you choose to proceed, you will need a TE0790-03 JTAG programming module, a functioning
+If you choose to proceed, you will need a TE0790-03 JTAG programming module and a functioning
 installation of Xilinx's Vivado software.  This can be done on either Windows or Linux, but
-in both cases you will need to install any necessary USB drivers. It is
+in either case you will need to install any necessary USB drivers. It is
 also necessary to have
 dip-switches 1 and 3 in the ON position and dip-switches 2 and 4 in the
 OFF position on the TE-0790.
 With your MEGA65 disconnected from the power, the TE-0790 must be
-installed on the JB1 connector,
-which is located between the floppy data cable and the audio jack.
+installed on the JB1 connector which is located between the floppy data cable and the audio jack.
 The gold-plated hole of the TE-0790 must line up with the screw
 hole below.  The mini-USB cable will then connect on the side towards the 3.5" floppy drive.
 The following image shows the correct position: The TE0790 is surrounded by the yellow box,
@@ -60,7 +59,7 @@ and the dip-switches by the red box. Dip-switch 1 is the one nearest the floppy 
 \includegraphics[width=\linewidth]{images/jtag_detail_02.jpg}
 
 Connect your non-8-bit computer to the FPGA programming device using a
-mini-USB cable. Switch the MEGA65 computer ON. Open VIVADO, which can
+mini-USB cable. Switch the MEGA65 computer ON. Open Vivado, which can
 be downloaded from the Internet.
 
 \newpage
@@ -71,7 +70,7 @@ be downloaded from the Internet.
   \includegraphics[width=0.8\linewidth]{images/vivado01.png}
   \captionsetup{width=0.8\linewidth}
   \caption{Step 1: To access the Hardware Manager, open a project in
-           VIVADO or create an empty one, if you do not have any projects yet.}
+           Vivado or create an empty one, if you do not have any projects yet.}
   \label{fig:vivado01}
 %\end{figure}
 
@@ -158,7 +157,7 @@ be downloaded from the Internet.
   \includegraphics[width=0.8\linewidth]{images/vivado09.png}
   \captionsetup{width=0.8\linewidth}
   \caption{Step 9: If your screen looks like \ref{fig:vivado09},
-           your new bistream has been successfully flashed into the Artix 100T FPGA!}
+           your new bistream has been successfully flashed into the main FPGA!}
   \label{fig:vivado09}
 %\end{figure}
 
@@ -176,11 +175,11 @@ be downloaded from the Internet.
 \end{figure}
 
 
-\section{Flashing the CPLD in the MEGA65's Keyboard with LATTICE DIAMOND}
+\section{Flashing the CPLD in the MEGA65's Keyboard with Lattice Diamond}
 
 
 If you choose to proceed, you will need a TE0790-03 JTAG programming
-module, a functioning installation of Lattice Diamond Programmer software.
+module and a functioning installation of Lattice Diamond Programmer software.
 This can be done on either Windows or Linux, but in both cases you will
 need to install any necessary USB drivers. It is also necessary to have
 dip-switches 1 and 3 in the ON position and dip-switches 2 and 4 in the
@@ -197,13 +196,13 @@ the one nearest the floppy data cable.
 \includegraphics[width=\linewidth]{images/jtag_detail_05.jpg}
 
 
-One the PCB r2 MEGA65 Mainboard dip switch 1 (the one nearest to the user
-sitting in front of the machine must be in the ON position, the other
+On the PCB R2 MEGA65 mainboard, dip switch 1 (the one nearest to the user
+sitting in front of the machine) must be in the ON position. The other
 switches must be OFF. The keyboard will go into "Police Mode"
 (blue and red blinking LEDs) when set correctly.
 
 Connect your non-8-bit computer to the FPGA programming device using a
-mini-USB cable. Switch the MEGA65 computer ON. Open DIAMOND PROGRAMMER,
+mini-USB cable. Switch the MEGA65 computer ON. Open the Diamond Programmer
 which can be downloaded from the Internet.
 
 \begin{figure}[H]
@@ -244,7 +243,7 @@ which can be downloaded from the Internet.
   \includegraphics[width=0.8\linewidth]{images/diamond04.png}
   \captionsetup{width=0.8\linewidth}
   \caption{Step 4: New Diamond Programmer project:
-           Choose "File"  then "Open File" to load the DIAMOND PROGRAMMER
+           Choose "File" then "Open File" to load the Diamond Pprogrammer
            project with the MEGA65 keyboard firmware update.}
   \label{fig:diamond04}
 \end{figure}
@@ -288,7 +287,7 @@ which can be downloaded from the Internet.
   \captionsetup{width=0.8\linewidth}
   \caption{Step 8: Select .jed file:
            Click on the icon with the green arrow facing down "PROGRAM",
-           which looks similar to the DIAMOND PROGRAMMER program icon.}
+           which looks similar to the Diamond Programmer program icon.}
   \label{fig:diamond08}
 \end{figure}
 
@@ -298,7 +297,7 @@ which can be downloaded from the Internet.
   \includegraphics[width=0.8\linewidth]{images/diamond09.png}
   \captionsetup{width=0.8\linewidth}
   \caption{Step 9: Select cable:
-           After a moment  the Output window should display
+           After a moment the Output window should display
            "INFO - Operation: successful." and the "Status" cell should
            go green (does not always happen).}
   \label{fig:diamond09}
@@ -311,7 +310,7 @@ which can be downloaded from the Internet.
   \captionsetup{width=0.8\linewidth}
   \caption{Step 10: Operation successful:
            You have now successfully flashed the MEGA65 keyboard.
-           If you wish you can save the project now for later use.}
+           If you wish you can now save the project for later use.}
   \label{fig:diamond10}
 \end{figure}
 
@@ -327,9 +326,9 @@ The micro-USB port of the TEI0004 must face in the opposite direction of the HDM
 the trap door.
 The following image shows the correct position.
 
-One the PCB r2 MEGA65 Mainboard all dip switches must be in the OFF. The Artix 100T main FPGA must not contain
-a valid bitstream. See section "Flashing the Artix 100T main FPGA with XILINX VIVADO" on how to erase bitstream
-from ARTIX 100T.
+On the PCB R2 MEGA65 mainboard, all dip switches must be in the OFF position. The main FPGA of the MEGA65 R2 must not contain
+a valid bitstream. See section \nameref{sec:mainfpgaflashing} on how to erase the bitstream
+from the main FPGA.
 
 \includegraphics[width=\linewidth]{images/jtag_detail_05.jpg}
 
@@ -393,15 +392,15 @@ Open Quartus Prime Programmer Lite Edition, which can be downloaded from the Int
 
 While keeping the Reset-Button pressed, switch the MEGA65 computer ON.
 The keyboard will go into "Police Mode" (blue and red blinking LEDs).
-If it does not, the ARTIX 100T is not empty - restart the whole process.
+If it does not, the main FPGA is not empty - restart the whole process.
 
 Now click on "Start" in the left row of buttons. The progress bar in
 the top right corner should quickly go to 100 percent and turn green.
-You have now successfully updated your MAX10 FPGA!
+You have now successfully updated your MAX10 FPGA.
 
-If you receive an error message instead, make sure the ARTIX 100T
-bitstream has been erased and you did not release the reset-button on
-the MEGA65 before - switch off the MEGA65 and restart this step.
+If you receive an error message instead, make sure the main FPGA
+bitstream has been erased and that you did not release the reset-button on
+the MEGA65 beforehand. Switch off the MEGA65 and restart this step.
 
 \begin{figure}[H]
   \centering

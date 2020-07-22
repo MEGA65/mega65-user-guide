@@ -189,10 +189,23 @@ colour to blue:
 \verbatimfont{\codefont}
 \begin{verbatim}
 LDA #$06
+STA [$12],Z
+\end{verbatim}
+\end{tcolorbox}
+
+Note: The ACME assembler is the only assembler that currently supports this addressing mode.
+For other assemblers, you can achieve the same result by using a \stw{NOP} instruction to
+prefix the equivalent {\em Base Page Indirect, Indexed by Z} instruction.
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+LDA #$06
 NOP
 STA ($12),Z
 \end{verbatim}
 \end{tcolorbox}
+
 
 The encoding for this addressing mode is identical to Base Page Mode.
 
@@ -220,7 +233,17 @@ to any location in the current 64KB memory view.  This makes it possible
 to write software that is fully relocatable, by avoiding the need for absolute
 addresses when calling routines.
 
-\section{45GS02 Instruction Set}
+\section{45GS02 Compound Instructions}
+
+As the 4510 has no unallocated opcodes, the 45GS02 uses compound instructions
+to implement its extension.  These compound instructions consist of one or
+more single-byte instructions placed immediately before a conventional
+instruction.  These prefixes instruct the 45GS02 to treat the following instruction
+differently, as described in Chapter \ref{cha:cpu}.
+
+
+
+\section{4510 Instruction Set}
 
 \subsection{Opcode Map}
 

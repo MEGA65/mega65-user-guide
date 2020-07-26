@@ -440,10 +440,10 @@ For example, adding two 16-bit or 32-bit values can now be easily accomplished w
 \end{verbatim}
 \end{tcolorbox}
 
-This approach works with the LDA, STA, ADC, SBC, CMP, EOR, AND, ORA, ASL, LSR, ROL, ROR, INC and DEC instructions.
+This approach works with the LDA, STA, ADC, SBC, CMP, EOR, AND, BIT, ORA, ASL, ASR, LSR, ROL, ROR, INC and DEC instructions.
 If you are using ACME or another 45GS02 aware assembler, you can instead use the new \stw{LDQ}, \stw{STQ}, \stw{ADCQ},
-\stw{SBCQ}, \stw{CPQ}, \stw{EORQ}, \stw{ANDQ}, \stw{ORQ}, \stw{ASLQ}, \stw{LSRQ}, \stw{ROLQ}, \stw{RORQ}, \stw{INQ} and \stw{DEQ}
-mnemonics.\index{LDQ}\index{STQ}\index{ADCQ}\index{SBCQ}\index{CPQ}\index{EORQ}\index{ANDQ}\index{ORQ}\index{ASLQ}\index{LSRQ}\index{ROLQ}\index{RORQ}\index{INQ}\index{DEQ} The previous example would thus become:
+\stw{SBCQ}, \stw{CPQ}, \stw{EORQ}, \stw{ANDQ}, \stw{BITQ} \stw{ORQ}, \stw{ASLQ}, \stw{ASRQ}, \stw{LSRQ}, \stw{ROLQ}, \stw{RORQ}, \stw{INQ} and \stw{DEQ}
+mnemonics.\index{LDQ}\index{STQ}\index{ADCQ}\index{SBCQ}\index{CPQ}\index{EORQ}\index{ANDQ}\index{BITQ}\index{ORQ}\index{ASLQ}\index{LSRQ}\index{ROLQ}\index{RORQ}\index{INQ}\index{DEQ} The previous example would thus become:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -467,14 +467,18 @@ mnemonics.\index{LDQ}\index{STQ}\index{ADCQ}\index{SBCQ}\index{CPQ}\index{EORQ}\
 
 The virtual 32-bit addressing mode works with any addressing mode.
 However, indexed addressing modes, where X, Y or Z are added to the address should
-be used with care, because these registers may in fact be holding part of a 32-bit value.  The exception is the Zero-Page
+be used with care, because these registers may in fact be holding part of a 32-bit value.
+
+The exception is the Zero-Page
 Indirect Z-Indexed addressing mode: In this case the Z register is NOT added to the target address, unlike would normally
 be the case. This is to allow the virtual 32-bit register to be able to be used with flat-memory access with the combined prefix of
 \stw{NEG NEG NOP},  before the instruction to allow accessing a 32-bit value anywhere in memory in a single instruction.
 
-Note that the virtual 32-bit register cannot be used in immediate mode, i.e., to load a constant into the four general
-purpose registers.  This is to
-avoid problems with variable length instructions. Also, it would save at most one byte
+Note that the virtual 32-bit register cannot be used in immediate mode, e.g., to load a constant into the four general
+purpose registers, or to add or subtract a constant value.  This is to
+avoid problems with variable length instructions.
+
+For LDQ and STQ, it would save at most one byte
 compared to LDA \#\$nn ... LDZ \#\$nn, and would be no faster.  In fact, for many common
 values, such as \#\$00000000, there are short-cuts, such as:
 

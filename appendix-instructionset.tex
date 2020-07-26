@@ -9,7 +9,7 @@ sections.
 
 \section{Addressing Modes}
 
-The 45GS02 supports 18 different addressing modes, which are explained below.
+The 45GS02 supports 22 different addressing modes, which are explained below.
 
 \subsection{Implied}
 
@@ -184,6 +184,18 @@ to any memory, without requiring the use of complex bank-switching or DMA operat
 For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0D, and the
 Z index contained the value \$01, the following instruction sequence would change the screen
 colour to blue:
+
+\subsection{32-bit Base Page Indirect Mode}
+
+This mode is formed by preceding a Base Page Indirect Z-Indexed Mode instruction with
+the {NOP} instruction (opcode \$EA).  This causes the 45GS02 to read a 32-bit address instead
+of a 16-bit address from the Base Page address indicated by its operand.
+Importantly, the 32-bit address does not refer to the processor's current 64KB
+view of memory, but rather to the 45GS02's true 28-bit address space. This allows easy access
+to any memory, without requiring the use of complex bank-switching or DMA operations.
+
+For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0D,
+the following instruction sequence would change the screen border colour to blue:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}

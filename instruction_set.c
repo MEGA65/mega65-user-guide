@@ -9,6 +9,7 @@ struct opcode {
   char *mode;
   int mode_num;
   int instr_num;
+  unsigned int bytes;
 };
 
 #define MAX_MODES 32
@@ -87,13 +88,16 @@ static int compar_str(const void *a, const void *b)
   return strcmp(* (char * const *) a, * (char * const *) b);
 }
 
-void lookup_mode_description(int m)
+void lookup_mode_description(int m,int isQuad)
 {
   fprintf(stderr,"Looking for description of '%s'\n",modes[m]);
-
+  
   // Normalise mode into a safe filename
   char n[256];
   int nlen=0;
+
+  if (isQuad) n[nlen++]='Q';
+  
   for(int i=0;i<255&&modes[m][i];i++) {
     switch(modes[m][i]) {
     case '(':
@@ -102,6 +106,8 @@ void lookup_mode_description(int m)
     case ',':
     case ')':
       n[nlen++]='_'; break;
+    case '[': case ']':
+      n[nlen++]='S'; break;      
     default:
       n[nlen++]=modes[m][i];
     }
@@ -195,20 +201,25 @@ int main(int argc,char **argv)
   }
 
   modes[0]="implied";
-  lookup_mode_description(0);
+  lookup_mode_description(0,0);
 
+  int opcode=0;
+  
   FILE *f=fopen(argv[1],"rb");
   line[0]=0; fgets(line,1024,f);
   while(line[0]) {
-    int opcode;
+    int bytes;
     char name[1024];
     char mode[1024];
-    int n=sscanf(line,"%x %s %[^\n]",&opcode,name,mode);
+    int n=sscanf(line,"%x %s %[^\n]",&bytes,name,mode);
     if (n<2) {
       fprintf(stderr,"ERROR: Could not parse line: %s\n",line);
       exit(-3);
     }
 
+    // Store full extended byte sequence
+    opcodes[opcode].bytes=bytes;
+    
     if (n==3) {
       int i=99;
       for(i=0;i<mode_count;i++) {
@@ -221,8 +232,11 @@ int main(int argc,char **argv)
 	opcodes[opcode].mode_num=mode_count;
 	modes[mode_count]=StrDup(mode);
 
+	int isQuad=0;
+	if (strchr(name,'Q')) isQuad=1;
+	
 	// Try to find better description and data
-	lookup_mode_description(mode_count);
+	lookup_mode_description(mode_count,isQuad);
 
 	mode_count++;
       }
@@ -248,9 +262,13 @@ int main(int argc,char **argv)
 
     opcodes[opcode].abbrev=StrDup(name);
 
+    opcode++;
+    
     line[0]=0; fgets(line,1024,f);
   }
 
+  int opcode_count=opcode;
+  
   fprintf(stderr,"%d addressing modes found.\n",mode_count);
   fprintf(stderr,"%d unique instructions found.\n",instruction_count);
 
@@ -262,7 +280,7 @@ int main(int argc,char **argv)
   fprintf(stderr,"Sorting instructions alphabetically.\n");
   qsort(&instrs[0],instruction_count,sizeof(char *),compar_str);
   // Now update the instruction numbers in the array
-  for(int i=0;i<256;i++) {
+  for(int i=0;i<opcode_count;i++) {
     for(int j=0;j<instruction_count;j++) {
       if (!strcmp(opcodes[i].abbrev,instrs[j])) {
 	opcodes[i].instr_num=j;
@@ -348,7 +366,7 @@ int main(int argc,char **argv)
 	   " & & & & & & & & & & & \\\\\n"
 	   " & {\\bf Addressing Mode} & {\\bf Assembly} & {\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & \\multicolumn{3}{c}{\\bf Cycles} & & \\\\ \n\\hline\n");
 
-    for(int j=0;j<256;j++) {
+    for(int j=0;j<opcode_count;j++) {
       if (opcodes[j].instr_num==i) {
 	int m=opcodes[j].mode_num;
 	if (m<0) m=0;
@@ -369,6 +387,22 @@ int main(int argc,char **argv)
 	}
 	char opcode[16]="A9";
 	snprintf(opcode,16,"%02X",j);
+	if (opcodes[j].bytes&0xff000000) {
+	  snprintf(opcode,16,"%02X %02X %02X %02X",
+		   opcodes[j].bytes>>24,(opcodes[j].bytes>>16)&0xff,
+		   (opcodes[j].bytes>>8)&0xff,opcodes[j].bytes&0xff);
+	  extra_cycles+=3;
+	} else if (opcodes[j].bytes&0xff0000) {
+	  snprintf(opcode,16,"%02X %02X %02X",
+		   (opcodes[j].bytes>>16)&0xff,
+		   (opcodes[j].bytes>>8)&0xff,opcodes[j].bytes&0xff);
+	  extra_cycles+=2;
+	} else if (opcodes[j].bytes&0xff00) {
+	  snprintf(opcode,16,"%02X %02X",
+		   (opcodes[j].bytes>>8)&0xff,opcodes[j].bytes&0xff);
+	  extra_cycles+=1;
+	}	
+	
 	char bytes[16]="3";
 	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";

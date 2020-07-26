@@ -16,6 +16,9 @@ EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex
 instruction_set: instruction_set.c Makefile
 	$(CC) -Wall -g -o instruction_set instruction_set.c
 
+instructionset-45GS02.tex:	instruction_set
+	./instruction_set instruction_sets/45GS02.opc > instructionset-45GS02.tex
+
 instructionset-4510.tex:	instruction_set
 	./instruction_set instruction_sets/4510.opc > instructionset-4510.tex
 

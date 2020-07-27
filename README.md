@@ -18,9 +18,13 @@ If you wish to build the reference manual, use: `mingw32-make referenceguide.pdf
 
 If you wish to build the nexys4 setup guide, use: `mingw32-make nexys4-setup-guide.pdf`.
 
+To build the entire book, use: `mingw32-make mega65-book.pdf`.
+
 There is also a `sandbox.pdf` for experimenting with typesetting or components for the manuals. But it is not included in the makefile. Instead, it is able to be built directly using software like TeXworks.
 
 The sandbox is faster to build and test changes more quickly. You can then transfer your work directly to the userguide.
+
+Check the Makefile for the growing list of books and guides that can be built.
 
 # MAC OSX
 It is recommended to install MacPorts, which gives easy access to a huge base of Linux/UNIX software.

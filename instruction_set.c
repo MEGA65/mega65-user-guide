@@ -363,6 +363,7 @@ int main(int argc,char **argv)
     int branch_note_seen=0;
     int page_note_seen=0;
     int read_note_seen=0;
+    int indirect_note_seen=0;
     int single_cycle_seen=0;
 
     printf("\\begin{tabular}{|lp{3.6cm}ll*{7}{p{2.5mm}}p{0.2cm}|}\n\\hline\n"
@@ -444,6 +445,7 @@ int main(int argc,char **argv)
 	int delmodify65ce02_note=0;
 	int delidle4510_note=0;
 	int branch_note=0;
+	int indirect_note=0;
 	int page_note=0;
 	int read_note=0;
 	int single_cycle=0;
@@ -452,15 +454,17 @@ int main(int argc,char **argv)
 	if (strstr(cycle_notes,"m")) { delidle4510_note=1; delidle4510_note_seen=1; }
 	if (strstr(cycle_notes,"b")) { branch_note=1; branch_note_seen=1; }
 	if (strstr(cycle_notes,"p")) { page_note=1; page_note_seen=1; }
+	if (strstr(cycle_notes,"i")) { indirect_note=1; indirect_note_seen=1; }
 	if (strstr(cycle_notes,"r")) { read_note=1; read_note_seen=1; }
 	if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
 
 	instruction_names[j]=StrDup(instruction);
 	fprintf(stderr,"instruction_names[%d] set\n",j);
 
-	snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
+	snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s%s}$",
 		branch_note?"b":"",
 		delmodify65ce02_note?"d":"",
+	        indirect_note?"i":"",
 		delidle4510_note?"m":"",
 		page_note?"p":"",
 		read_note?"r":"",
@@ -480,6 +484,7 @@ int main(int argc,char **argv)
        printf(" \\multicolumn{1}{r}{   } & \\multicolumn{11}{l}{Add one more cycle if branch taken crosses a page boundary.} \\\\\n");
     }
     if (delmodify65ce02_note_seen) printf(" \\multicolumn{1}{r}{$d$} & \\multicolumn{11}{l}{Subtract one cycle when CPU is at 3.5MHz. } \\\\\n");
+    if (indirect_note_seen) printf(" \\multicolumn{1}{r}{$i$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
     if (delidle4510_note_seen) printf(" \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
     if (page_note_seen) printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
     if (read_note_seen) printf(" \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");

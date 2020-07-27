@@ -3,13 +3,29 @@
 The 45GS02 CPU is able to operate in native mode, where it
 is compatible with the CSG 4510, and in 6502 compatibility mode,
 where 6502 undocumented instructions, also known as illegal
-instructions, are supported for compatibility.  The instruction set and
-timing information for both personalities are listed in the following
-sections.
+instructions, are supported for compatibility.
+
+When in 4510 compatibility mode, the 45GS02 also supports a number
+of extensions through {\em compound instructions}. These work be prefixing
+the desired instruction's opcode with one or more {\em prefix bytes}, which
+represent sequences of instructions that should not normally occur.  For example,
+two \stw{NEG} instructions in a row acts as a prefix to tell the 45GS02 that the
+following instruction will operate on 32 bits of data, instead of the usual 8 bits
+of data.  This means that a 45GS02 instruction stream can be readily decoded or disassembled,
+without needing to set special instruction length flags, as is the case with the 65816
+family of microprocessors. The trade-off is increased execution time, as the 45GS02 must
+skip over the prefix-bytes.
+
+The remainder of this chapter introduces the addressing modes, instructions, opcodes and
+instruction timing data of the 45GS02, beginning with 6502 compatibility mode, before
+moving on to 4510 compatibility mode, and the 45GS02 extensions.
 
 \section{Addressing Modes}
 
-The 45GS02 supports 22 different addressing modes, which are explained below.
+The 45GS02 supports 36 different addressing modes, which are explained below.
+Many of these are very similar to one another, being variations of the normal 6502
+or 65CE02 addressing modes, except that they accept either
+32-bit pointers, operate on 32-bits of data, or both.
 
 \subsection{Implied}
 
@@ -22,6 +38,17 @@ the X Register.
 In this mode, the Accumulator is the operand. This is typically used to shift,
 rotate or modify the value of the Accumulator Register in some way.  For example,
 \screentext{INC A} increments the value in the Accumulator Register.
+
+\subsection{Q Pseudo Register}
+
+In this mode, the Q Pseudo Register is the operand. This is typically used to shift,
+rotate or modify the value of the Q Pseudo Register in some way.  For example,
+\screentext{ASL Q} shifts the value in the Q Pseudo Register left one bit.
+
+Remember that the Q Pseudo Register is simply the A, X, Y and Z registers acting together
+as a pseudo 32-bit register, where A contains the least significant bits, and Z the
+most significant bits.  There are some cases where using a Q mode instruction can be
+helpful for operating on the four true registers.
 
 \subsection{Immediate Mode}
 
@@ -73,12 +100,33 @@ example, \screentext{LDA \$12} would read the value stored in location \$12 in t
 and put it into the Accumulator Register.  The instruction byte stream for this would be
 \$85 \$12.
 
+\subsection{Base Page (Zero-Page) Quad Mode}
+
+In this mode, the argument is an 8-bit address.  The upper 8-bits of the address are taken from
+the Base Page Register.  On 6502 processors, there is no Base Page Register, and instead, the
+upper 8-bits are always set to zero -- hence the name of this mode on the 6502: Zero-Page. On
+the 45GS02, it is possible to move this ``Zero-Page'' to any page in the processor's 64KB view
+of memory by setting the Base Page Register using the \screentext{TAB} instruction. Base Page
+Mode allows faster access to a 256 region of memory, and uses less instruction bytes to do so.
+
+The argument is encoded as a single byte that immediately follows the instruction opcode. For
+example, \screentext{LDQ \$12} would read the value stored in locations \$12 -- \$15 in the Base Page,
+and put them into the Q Pseudo Register.  
+
 \subsection{Base Page (Zero-Page) X Indexed Mode}
 
 This mode is identical to Base Page Mode, except that the address is formed by taking the
 argument, and adding the value of the X Register to it.  In 6502 mode, the result will always
 be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
+Mode.
+
+\subsection{Base Page (Zero-Page) Quad X Indexed Mode}
+
+This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
+argument, and adding the value of the X Register to it.  In 6502 mode, the result will always
+be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+of the address will be ignored.  The encoding for this addressing mode is identical to Base Page Quad
 Mode.
 
 \subsection{Base Page (Zero-Page) Y Indexed Mode}
@@ -89,12 +137,28 @@ be in the Base Page, that is, any carry due to the addition from the low-byte in
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
 
+\subsection{Base Page (Zero-Page) Base Y Indexed Mode}
+
+This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
+argument, and adding the value of the Y Register to it.  In 6502 mode, the result will always
+be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+of the address will be ignored.  The encoding for this addressing mode is identical to Base Page Quad
+Mode.
+
 \subsection{Base Page (Zero-Page) Z Indexed Mode}
 
 This mode is identical to Base Page Mode, except that the address is formed by taking the
 argument, and adding the value of the Z Register to it.  In 6502 mode, the result will always
 be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
+Mode.
+
+\subsection{Base Page (Zero-Page) Quad Z Indexed Mode}
+
+This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
+argument, and adding the value of the Z Register to it.  In 6502 mode, the result will always
+be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+of the address will be ignored.  The encoding for this addressing mode is identical to Base Page Quad
 Mode.
 
 \subsection{Absolute Mode}
@@ -105,6 +169,14 @@ byte following that.  For example, the instruction \screentext{LDA \$1234}, woul
 memory location \$1234, and place the read value into the Accumulator Register.  This would
 be encoded as \$AD \$34 \$12.
 
+\subsection{Absolute Quad Mode}
+
+In this mode, the argument is an 16-bit address.  The low 8-bits of the address are taken from
+the byte immediately following the instruction opcode. The upper 8-bits are taken from the
+byte following that.  For example, the instruction \screentext{LDQ \$1234}, would read the
+memory locations \$1234 -- \$1237, and place the read values into the Q Pseudo Register.  This would
+be encoded as \$42 \$42 \$AD \$34 \$12.
+
 \subsection{Absolute X Indexed Mode}
 
 This mode is identical to Absolute Mode, except that the address is formed by taking the
@@ -112,6 +184,14 @@ argument, and adding the value of the X Register to it.  If the indexing causes 
 to cross a page boundary, i.e., if the upper byte of the address changes, this may incur a
 1 cycle penalty, depending on the processor mode and speed setting.
 The encoding for this addressing mode is identical to Absolute Mode.
+
+\subsection{Absolute Quad X Indexed Mode}
+
+This mode is identical to Absolute Quad Mode, except that the address is formed by taking the
+argument, and adding the value of the X Register to it.  If the indexing causes the address
+to cross a page boundary, i.e., if the upper byte of the address changes, this may incur a
+1 cycle penalty, depending on the processor mode and speed setting.
+The encoding for this addressing mode is identical to Absolute Quad Mode.
 
 \subsection{Absolute Y Indexed Mode}
 
@@ -121,6 +201,14 @@ to cross a page boundary, i.e., if the upper byte of the address changes, this m
 1 cycle penalty, depending on the processor mode and speed setting.
 The encoding for this addressing mode is identical to Absolute Mode.
 
+\subsection{Absolute Quad Y Indexed Mode}
+
+This mode is identical to Absolute Quad Mode, except that the address is formed by taking the
+argument, and adding the value of the Y Register to it.  If the indexing causes the address
+to cross a page boundary, i.e., if the upper byte of the address changes, this may incur a
+1 cycle penalty, depending on the processor mode and speed setting.
+The encoding for this addressing mode is identical to Absolute Quad Mode.
+
 \subsection{Absolute Z Indexed Mode}
 
 This mode is identical to Absolute Mode, except that the address is formed by taking the
@@ -128,6 +216,14 @@ argument, and adding the value of the Z Register to it.  If the indexing causes 
 to cross a page boundary, i.e., if the upper byte of the address changes, this may incur a
 1 cycle penalty, depending on the processor mode and speed setting.
 The encoding for this addressing mode is identical to Absolute Mode.
+
+\subsection{Absolute Quad Z Indexed Mode}
+
+This mode is identical to Absolute Quad Mode, except that the address is formed by taking the
+argument, and adding the value of the Z Register to it.  If the indexing causes the address
+to cross a page boundary, i.e., if the upper byte of the address changes, this may incur a
+1 cycle penalty, depending on the processor mode and speed setting.
+The encoding for this addressing mode is identical to Absolute Quad Mode.
 
 \subsection{Absolute Indirect Mode}
 
@@ -152,6 +248,12 @@ This addressing mode is identical to Absolute Indirect X-Indexed Mode, except th
 of the pointer is formed from the Base Page Register (high byte) and the 8-bit operand (low byte).
 The encoding for this addressing mode is identical to Base Page Mode.
 
+\subsection{Base Page Quad Indirect X-Indexed Mode}
+
+This addressing mode is identical to Base PAge Indirect X-Indexed Mode, except that the address
+of the pointer is formed from the Base Page Register (high byte) and the 8-bit operand (low byte).
+The encoding for this addressing mode is identical to Base Page Quad Mode.
+
 \subsection{Base Page Indirect Y-Indexed Mode}
 
 This addressing mode differs from the X-Indexed Indirect modes, in that the Y Register is
@@ -160,6 +262,12 @@ This is a very useful mode, that is frequently because it effectively provides a
 ``the Y-th byte of the memory at the address pointed to by the operand.'' That is, it de-references
 a pointer.
 The encoding for this addressing mode is identical to Base Page Mode.
+
+\subsection{Base Page Quad Indirect Y-Indexed Mode}
+
+This addressing mode is identical to the Base Page Indirect Y-Indexed Mode, except that
+32-bits of data are operated on. The encoding for this addressing mode is identical to
+Base Page Mode, except that it is prefixed by \$42, \$42.
 
 \subsection{Base Page Indirect Z-Indexed Mode}
 
@@ -171,6 +279,12 @@ a pointer.
 The encoding for this addressing mode is identical to Base Page Mode.
 
 That is, it is equivalent to the Base Page Indirect Y-Indexed Mode.
+
+\subsection{Base Page Quad Indirect Z-Indexed Mode}
+
+This addressing mode is identical to the Base Page Indirect Z-Indexed Mode, except that
+32-bits of data are operated on. The encoding for this addressing mode is identical to
+Base Page Mode, except that it is prefixed by \$42, \$42.
 
 \subsection{32-bit Base Page Indirect Z-Indexed Mode}
 
@@ -184,6 +298,24 @@ to any memory, without requiring the use of complex bank-switching or DMA operat
 For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0D, and the
 Z index contained the value \$01, the following instruction sequence would change the screen
 colour to blue:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+LDA #$06
+LDZ #$01
+STA [$12],Z
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{32-bit Base Page Indirect Quad Z-Indexed Mode}
+
+This addressing mode is identical to the 32-bit Base Page Indirect Z-Indexed Mode,
+except that it operates on 32-bits of data at the 32-bit address formed by the argument,
+in comparison to 32-bit Base Page Indirect Z-Indexed Mode which operates on only 8 bits
+of data.   The encoding of this addressing mode is \$42, \$42, \$EA, followed by the
+natural 6502 opcode for the instruction being performed.
+
 
 \subsection{32-bit Base Page Indirect Mode}
 
@@ -201,7 +333,7 @@ the following instruction sequence would change the screen border colour to blue
 \verbatimfont{\codefont}
 \begin{verbatim}
 LDA #$06
-STA [$12],Z
+STA [$12]
 \end{verbatim}
 \end{tcolorbox}
 
@@ -220,6 +352,14 @@ STA ($12),Z
 
 
 The encoding for this addressing mode is identical to Base Page Mode.
+
+\subsection{32-bit Base Page Indirect Mode}
+
+This addressing mode is identical to the 32-bit Base Page Indirect Mode,
+except that it operates on 32-bits of data at the 32-bit address formed by the argument,
+in comparison to 32-bit Base Page Indirect Mode which operates on only 8 bits
+of data.   The encoding of this addressing mode is \$42, \$42, \$EA, followed by the
+natural 6502 opcode for the instruction being performed.
 
 \subsection{Stack Relative Indirect, Indexed by Y}
 
@@ -245,23 +385,62 @@ to any location in the current 64KB memory view.  This makes it possible
 to write software that is fully relocatable, by avoiding the need for absolute
 addresses when calling routines.
 
-\section{45GS02 Compound Instructions}
+\section{6502 Instruction Set}
 
-As the 4510 has no unallocated opcodes, the 45GS02 uses compound instructions
-to implement its extension.  These compound instructions consist of one or
-more single-byte instructions placed immediately before a conventional
-instruction.  These prefixes instruct the 45GS02 to treat the following instruction
-differently, as described in Chapter \ref{cha:cpu}.
+NOTE: The mechanisms for switching from 4510 to 6502 CPU personality
+have yet to be finalised.
 
-% Opcodes can have multiple meanings, so no table
+NOTE: Not all 6502 illegal opcodes are currently implemented.
 
-% No instruction timing table for compounds, as it can't
-% be correctly drawn.
+\subsection{Opcode Map}
 
-% Same goes for mode list.
+\begin{center}
+\rotatebox{270}{
+\input{6502-opcodes}
+}
+\end{center}
 
+\subsection{Instruction Timing}
 
-\input{instructionset-45GS02}
+The following table summarises the base instruction timing for 6502 mode.
+Please also read the information for 4510 mode, as it discusses a number
+of important factors that affect these figures.
+
+\begin{center}
+\rotatebox{270}{
+\input{6502-cycles}
+}
+\end{center}
+
+\subsection{Addressing Mode Table}
+
+\begin{center}
+  \rotatebox{270}{
+    \scriptsize
+\input{6502-modes}
+}
+\end{center}
+
+\subsection{Official And Unintended Instructions}
+
+The 6502 opcode matrix has a size of 16 x 16 = 256 possible opcodes.
+Those, that are officially documented, form the set of the
+\textcolor{blue}{legal} instructions.
+All instructions of this legal set are headed by a blue coloured mnemonic.
+
+The remaining opcodes form the set of the
+\textcolor{red}{unintended} instructions
+(sometimes called "illegal" instructions).
+For the sake of completeness these are documented too.
+All instructions of the unintended set are headed by a red coloured mnemonic.
+
+The unintended instructions are implemented in the 6502 mode,
+but are not guaranteed to produce exactly the same results as on other
+CPU's of the 65xx family. Many of these instructions are known to
+be unstable, even running on old hardware.
+
+\input{instructionset-6502}
+
 
 \section{4510 Instruction Set}
 
@@ -324,62 +503,21 @@ Similar issues apply to when the processor is in 6502 mode.
 
 \input{instructionset-4510}
 
-\section{6502 Instruction Set}
+\section{45GS02 Compound Instructions}
 
-NOTE: The mechanisms for switching from 4510 to 6502 CPU personality
-have yet to be finalised.
+As the 4510 has no unallocated opcodes, the 45GS02 uses compound instructions
+to implement its extension.  These compound instructions consist of one or
+more single-byte instructions placed immediately before a conventional
+instruction.  These prefixes instruct the 45GS02 to treat the following instruction
+differently, as described in Chapter \ref{cha:cpu}.
 
-NOTE: Not all 6502 illegal opcodes are currently implemented.
+% Opcodes can have multiple meanings, so no table
 
-\subsection{Opcode Map}
+% No instruction timing table for compounds, as it can't
+% be correctly drawn.
 
-\begin{center}
-\rotatebox{270}{
-\input{6502-opcodes}
-}
-\end{center}
-
-\subsection{Instruction Timing}
-
-The following table summarises the base instruction timing for 6502 mode.
-Please also read the information for 4510 mode, as it discusses a number
-of important factors that affect these figures.
-
-\begin{center}
-\rotatebox{270}{
-\input{6502-cycles}
-}
-\end{center}
-
-\subsection{Addressing Mode Table}
-
-\begin{center}
-  \rotatebox{270}{
-    \scriptsize
-\input{6502-modes}
-}
-\end{center}
-
-\subsection{Official And Unintended Instructions}
-
-The 6502 opcode matrix has a size of 16 x 16 = 256 possible opcodes.
-Those, that are officially documented, form the set of the
-\textcolor{blue}{legal} instructions.
-All instructions of this legal set are headed by a blue coloured mnemonic.
-
-The remaining opcodes form the set of the
-\textcolor{red}{unintended} instructions
-(sometimes called "illegal" instructions).
-For the sake of completeness these are documented too.
-All instructions of the unintended set are headed by a red coloured mnemonic.
-
-The unintended instructions are implemented in the 6502 mode,
-but are not guaranteed to produce exactly the same results as on other
-CPU's of the 65xx family. Many of these instructions are known to
-be unstable, even running on old hardware.
+% Same goes for mode list.
 
 
-
-
-\input{instructionset-6502}
+\input{instructionset-45GS02}
 

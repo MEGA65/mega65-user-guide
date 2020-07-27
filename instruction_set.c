@@ -33,7 +33,10 @@ int instruction_count=0;
 struct opcode opcodes[256];
 
 // Collected information for opcode table generation
-char *cycle_count_list[256];
+int cycle_counts=0;
+char *cycle_count_list[1024];
+unsigned int cycle_count_list_bytes[1024];
+
 char *instruction_names[256];
 
 // static variables and arrays
@@ -164,6 +167,9 @@ int main(int argc,char **argv)
   char processor_path[1024];
   int pplen=0;
   int plen=0;
+
+  for(int i=0;i<256;i++) instruction_names[i]=NULL;
+  
   for(int i=0;argv[1]&&argv[1][i]&&argv[1][i]!='.';i++)
     {
       processor[plen++]=argv[1][i];
@@ -182,24 +188,30 @@ int main(int argc,char **argv)
   if (cf)
   {
     fprintf(stderr,"Reading instruction cycle count information...\n");
+    int count=0;
     line[0]=0; fgets(line,1024,cf);
     while(line[0]) {
-      int opcode;
+      unsigned int opcode;
       char instr[1024];
       char cycles[1024];
       int n=sscanf(line,"%x %s %[^\n]",&opcode,instr,cycles);
       if (n==3) {
-	if (opcode>=0&&opcode<256)
-	  cycle_count_list[opcode]=StrDup(cycles);
+	if (count>=0&&count<256)
+	  cycle_count_list[count]=StrDup(cycles);
       } else if(n==2) {
-	if (opcode>=0&&opcode<256)
-	  cycle_count_list[opcode]=StrDup(instr);
+	if (count>=0&&count<256)
+	  cycle_count_list[count]=StrDup(instr);
       }
+      cycle_count_list_bytes[count]=opcode;
+      count++;
       line[0]=0; fgets(line,1024,cf);
     }
     fclose(cf);
+    cycle_counts=count;
   }
+  fprintf(stderr,"cycle_counts=%d\n",cycle_counts);
 
+  
   modes[0]="implied";
   lookup_mode_description(0,0);
 
@@ -411,13 +423,18 @@ int main(int argc,char **argv)
 	char cycle_count[1024];
 	char cycle_notes[1024]="";
 
-	if (cycle_count_list[j]) {
+	int k=0;
+	for(k=0;k<cycle_counts;k++) {
+	  if (cycle_count_list_bytes[k]==opcodes[j].bytes) break;
+	}
+	
+	if (k<cycle_counts) {
 	  cycle_count[0]=0;
-	  for(int i=0;isdigit(cycle_count_list[j][i]);i++) {
+	  for(int i=0;isdigit(cycle_count_list[k][i]);i++) {
 	    {
-	      cycle_count[i]=cycle_count_list[j][i];
+	      cycle_count[i]=cycle_count_list[k][i];
 	      cycle_count[i+1]=0;
-	      strcpy(cycle_notes,&cycle_count_list[j][i+1]);
+	      strcpy(cycle_notes,&cycle_count_list[k][i+1]);
 	    }
 	  }
 	} else {
@@ -439,6 +456,7 @@ int main(int argc,char **argv)
 	if (!strcmp(cycle_count,"1")) { single_cycle=1;  single_cycle_seen=1; }
 
 	instruction_names[j]=StrDup(instruction);
+	fprintf(stderr,"instruction_names[%d] set\n",j);
 
 	snprintf(cycle_notes,1024,"$^{%s%s%s%s%s%s}$",
 		branch_note?"b":"",
@@ -478,7 +496,10 @@ int main(int argc,char **argv)
       fprintf(tf,"& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 & \\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF \\\\ \\hline\n");
       for(int i=0;i<16;i++) {
 	fprintf(tf,"\\multicolumn{1}{|l|}{\\$%Xx} ",i);
-	for(int j=0;j<16;j++) fprintf(tf,"& %s     ",instruction_names[i*16+j]);
+	for(int j=0;j<16;j++)
+	  if (i*16+j<opcode_count)
+	    fprintf(tf,"& %s     ",instruction_names[i*16+j]?instruction_names[i*16+j]:"??");
+	  else fprintf(tf,"& ");
 	fprintf(tf,"     \\\\ \\hline\n");
       }
       fprintf(tf,"\\end{tabular}\n");

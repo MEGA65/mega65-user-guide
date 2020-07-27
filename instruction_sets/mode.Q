@@ -1,0 +1,9 @@
+Q Pseudo Register
+3
+3
+
+
+Q pseudo register
+This addressing mode operates directly on the Q pseudo register.
+For example, ASL Q shifts the value in the Q pseudo register
+left one bit.

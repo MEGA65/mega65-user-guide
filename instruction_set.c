@@ -196,10 +196,10 @@ int main(int argc,char **argv)
       char cycles[1024];
       int n=sscanf(line,"%x %s %[^\n]",&opcode,instr,cycles);
       if (n==3) {
-	if (count>=0&&count<256)
-	  cycle_count_list[count]=StrDup(cycles);
+	if (count>=0&&count<1024)
+	cycle_count_list[count]=StrDup(cycles);
       } else if(n==2) {
-	if (count>=0&&count<256)
+	if (count>=0&&count<1024)
 	  cycle_count_list[count]=StrDup(instr);
       }
       cycle_count_list_bytes[count]=opcode;

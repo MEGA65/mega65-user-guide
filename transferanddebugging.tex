@@ -1,0 +1,196 @@
+\chapter{Data Transfer and Debugging Tools}
+
+The key to effective cross-platform development is having quick and
+easy means to deploy and test software on the MEGA65.  This is
+especially true while the MEGA65 emulator continues to be developed.
+In fact, even once the MEGA65 emulator is complete, it is unlikely
+that it will be able to offer full compatibility at full speed,
+because the MEGA65 is much more demanding to emulate than the C64.
+
+There are a variety of tools that can be used for data transfer and
+debugging.  These typically function using either the MEGA65's serial
+monitor interface, or via the MEGA65's fast ethernet adapter.  The
+serial monitor interface is available via the UART lines on the JB1
+header.
+
+If you do not have access to the serial monitor interface, there are
+tools being developed for the fast ethernet port that provide some,
+but not all, of the capabilities of the serial monitor
+interface. These will be documented as they become available. The
+remainder of this chapter focusses on methods that access the serial
+monitor interface.
+
+You can either connect a 3.3V UART adaptor to the appropriate
+lines, or more conveniently, connect a TE-0790-03 JTAG debug module
+onto this connector.  This gives you a USB connection that can be used
+for injecting software, remote debugging and memory inspection, as
+well as activating or flashing bitstreams.  With this connection,
+there are the following tools:
+
+\section{m65 command line tool}
+
+The \url{https://github.com/mega65/mega65-tools} repository contains a
+number of tools, utilities and example programmes.  One of those is
+the \stw{m65} command line tool. This is rather a swiss-army
+knife collection of utilities in one.  Common useful functions
+include:
+
+\subsection{Screenshots using m65 tool}
+
+To take a screenshot of the MEGA65 use:
+
+\begin{screenoutput}
+m65 -S
+\end{screenoutput}
+
+This will create a file called \stw{mega65-screeen-000000.png},
+or if that file already exists, the first non-used number will be used
+in place of \stw{000000}.
+
+Note that this screenshot function works by having \stw{m65} emulate the
+function of the VIC-IV. Thus while it produces excellent looking
+digital screenshots, it may not exactly match the real display of the
+MEGA65.  At the time of writing it does not render sprites or
+bitplanes, only text and bitmap-based video modes.
+
+\subsection{Load and run a programme on the MEGA65}
+
+To load and run a programme on the MEGA65, you can use a command like:
+
+\begin{screenoutput}
+m65 -F -4 -r foo.prg
+\end{screenoutput}
+
+The \stw{-F} option tells \stw{m65} to reset the MEGA65
+before loading the programme.
+
+The \stw{-4} option tells \stw{m65} to switch the MEGA65
+to C64 mode before loading the programme. If this is left off, then it
+will attempt to load the programme in C65 mode.
+
+The \stw{-r} option tells \stw{m65} to run the programme
+immediately after loading.
+
+Note that this command works using the normal BASIC LOAD command, and
+is thus limited to loading programmes into the lower 64KB of RAM
+
+\subsection{Reconfigure the FPGA to run a different bitstream}
+
+To try out a different bitstream, a command like the following can be
+used:
+
+\begin{screenoutput}
+m65 -b bitstream.bit
+\end{screenoutput}
+
+This will cause the named bitstream to be sent to the FPGA.  As the
+FPGA will be reconfigured by this action, and programme currently
+running will not merely be stopped, but also main memory will be
+cleared. For models of the MEGA65 that are fitted with 8MB or 16MB of
+expansion memory, those expansion memories are implemented in external
+chips, and so the contents of them will not be erased.
+
+\subsection{Remote keyboard entry}
+
+The MEGA65's keyboard interface logic supports the injection of
+synthetic key events using the registers \$D615 -- \$D617.
+The \stw{m65} utility uses this to allow remote typing on the MEGA65
+in a way that is transparent to software.  There are three ways to use
+this:
+
+\begin{screenoutput}
+m65 -t sometext
+\end{screenoutput}
+
+This form types the supplied text, in this case {\em sometext}, but
+does not simulate pressing the \specialkey{RETURN} key.  If you wish
+to simulate the pressing of the \specialkey{RETURN} key, use \stw{-T}
+instead of \stw{-t}, e.g.:
+
+\begin{screenoutput}
+m65 -T list
+\end{screenoutput}
+
+This would cause the LIST command to be typed and executed.
+
+Finally, it is possible to begin general remote keyboard control via:
+
+\begin{screenoutput}
+m65 -t -
+\end{screenoutput}
+
+In this mode, any key pressed on the keyboard of the computer
+where \stw{m65} is running will be relayed to the MEGA65.  Note that
+not all special keys are supported, and that there is some latency, so
+using key repeat can cause unexpected results.  But for general remote
+control, it is a very helpful facility.
+
+
+\section{M65Connect}
+
+This is a cross-platform graphical tool available for Windows, Linux
+and MacOSX, which allows access to most of the functions of
+the \stw{m65} command-line tool, without needing to use a
+command line, or being able to compile the tool for your preferred
+operating system.
+
+\section{mega65\_ftp}
+
+The \stw{mega65\_ftp} utility from
+the \url{https://github.com/mega65/mega65-tools} repository is a
+little misleadingly named: While it 
+is a File Transfer Programme, it does not use the File Transfer
+Protocol (FTP).  Rather, it uses the serial monitor interface to take
+remote control of a MEGA65, and directly access its SD card to enable
+copying of files between the MEGA65 and the host computer.
+
+Note that it does not perfectly restore the MEGA65's state on exit,
+and thus should only be used when the MEGA65 is at the READY prompt,
+so that any running software doesn't go haywire. In particular, you
+should avoid using it when a sensitive programme is running, such as
+the Freeze Menu, MEGA65 Configuration Utility, or the MEGA65
+Format/FDISK utility.  (This problem could be solved with a little
+effort, if someone has the time and interest to fix it).
+
+When run, it provides an FTP-like interface that supports
+the \stw{get}, \stw{put}, \stw{rename} and \stw{dir} commands.
+Note that when putting a file, you should make sure that it is given a
+name that is all capitals and has o DOS-compatible 8.3 character file
+name.  This is due to limitations in both \stw{mega65\_ftp} and the
+MEGA65's Hypervisor's VFAT32 file system code. Again, these problems
+could be fixed with a modest amount of effort on the part of a
+motivated member of the community.
+
+Finally, the \stw{mega65\_ftp} programme is {\em very} slow to push
+new files to the MEGA65, typically yielding speeds of around 5KB/sec.
+This is partly because the serial monitor interface is capable of
+transferring data at only 40KB/sec (when set to 4,000,000 bits per
+second), and partly because the remote control process results in a
+lot of round-trips where helper routines are executed on the MEGA65 to
+read, write and verify sectors on the SD card.  It would be quite
+feasible to improve this to reach close to 40KB/sec, and potentially
+faster using either some combination of data compression,
+de-duplication of identical sectors (especially when uploading disk
+images) and other techniques. Again, this would be a very welcome
+contribution that someone in the community could contribute to
+everyone's benefit.
+
+\section{TFTP Server}
+
+Work on a true TFTP server for the MEGA65 that supports fast
+TFTP transfers over the 100mbit ethernet has begun, and can be used to
+very quickly read files from the MEGA65. Speeds of close to 1MB/sec
+are possible, depending on SD card performance.  Rather than using
+DHCP, this utility will respond to {\em any} IP address that ends in
+.65. It always uses the MAC address 40:40:40:40:40:40. True DHCP
+support as well as using the MEGA65's configured ethernet MAC address
+may be added in the future. 
+
+More importantly, support for writing
+files to the SD card is not yet complete, and is blocked by the need
+to the necessary functions in the MEGA65's Hypervisor for creating and
+growing files.  A particular challenge is enabling the creation of
+files with contiguous clusters as is required for D81 disk images: If
+a D81 file is fragmented, then it cannot be mounted, because the
+mounting mechanism requires a pointer to the contiguous block of the
+SD card containing the disk image.

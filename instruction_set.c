@@ -93,7 +93,7 @@ static int compar_str(const void *a, const void *b)
 
 void lookup_mode_description(int m,int isQuad)
 {
-  fprintf(stderr,"Looking for description of '%s'\n",modes[m]);
+  fprintf(stderr,"Looking for description of '%s', Q=%d\n",modes[m],isQuad);
   
   // Normalise mode into a safe filename
   char n[256];
@@ -222,7 +222,7 @@ int main(int argc,char **argv)
   while(line[0]) {
     int bytes;
     char name[1024];
-    char mode[1024];
+    char mode[1024]="";
     int n=sscanf(line,"%x %s %[^\n]",&bytes,name,mode);
     if (n<2) {
       fprintf(stderr,"ERROR: Could not parse line: %s\n",line);
@@ -231,8 +231,15 @@ int main(int argc,char **argv)
 
     // Store full extended byte sequence
     opcodes[opcode].bytes=bytes;
+
+    int isQuad=0;
+    if (strchr(name,'Q')) isQuad=1;	
+
+    if (!mode[0])
+      if (isQuad) snprintf(mode,2,"Q");
     
-    if (n==3) {
+    if (n>=2) {
+      //      fprintf(stderr,"3<%s><%s>: ",name,mode);
       int i=99;
       for(i=0;i<mode_count;i++) {
 	if (!strcmp(modes[i],mode)) {
@@ -244,18 +251,12 @@ int main(int argc,char **argv)
 	opcodes[opcode].mode_num=mode_count;
 	modes[mode_count]=StrDup(mode);
 
-	int isQuad=0;
-	if (strchr(name,'Q')) isQuad=1;
-	
 	// Try to find better description and data
 	lookup_mode_description(mode_count,isQuad);
 
 	mode_count++;
       }
       opcodes[opcode].mode=StrDup(mode);
-    } else {
-      opcodes[opcode].mode_num=-1;
-      opcodes[opcode].mode="";
     }
 
     {

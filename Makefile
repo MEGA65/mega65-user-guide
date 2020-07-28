@@ -1,8 +1,18 @@
 CC=gcc
 
-.PHONY: sandbox.pdf userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf all clean
+BOOKS=	mega65-book.pdf \
+	mega65-userguide.pdf \
+	mega65-developer-guide.pdf \
+	mega65-chipset-reference.pdf \
+	mega65-basic10-reference.pdf \
+	mega65-basic-programming.pdf \
 
-all:	userguide.pdf referenceguide.pdf hardwareguide.pdf mega65-book.pdf
+
+.PHONY: $(BOOKS) all clean
+
+all:	$(BOOKS)
+
+books:	$(BOOKS)
 
 prg2tex:	prg2tex.c
 	$(CC) -Wall -o prg2tex prg2tex.c
@@ -29,9 +39,22 @@ images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flo
 	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
 
 # Make sure we update the register information files before typesetting
-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib
+mega65-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo
-	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make userguide.tex
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-userguide.tex
+
+mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib
+	./getgitinfo
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
+
+mega65-basic10-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib
+	./getgitinfo
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-reference.tex
+
+mega65-basic10-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib
+	./getgitinfo
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-programming.tex
+
 
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo

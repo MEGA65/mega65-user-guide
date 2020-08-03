@@ -7,6 +7,11 @@ BOOKS=	mega65-book.pdf \
 	mega65-basic10-reference.pdf \
 	mega65-basic-programming.pdf \
 
+GENERATED_TEX_FILES= 	instructionset-4510.tex \
+		     	instructionset-6502.tex \
+		     	instructionset-45GS02.tex \
+		 	api-conio.tex
+
 
 .PHONY: $(BOOKS) all clean
 
@@ -45,19 +50,19 @@ images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flo
 	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
 
 # Make sure we update the register information files before typesetting
-mega65-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib
+mega65-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-userguide.tex
 
-mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib
+mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
 
-mega65-basic10-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib
+mega65-basic10-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-reference.tex
 
-mega65-basic10-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib
+mega65-basic10-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-programming.tex
 
@@ -69,21 +74,21 @@ sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 wrong.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make wrong.tex
 
-referenceguide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+referenceguide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make referenceguide.tex
 
-mega65-developer-guide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+mega65-developer-guide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory  $(GENERATED_TEX_FILES) ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -f -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-developer-guide.tex
 
-hardwareguide.pdf: *.tex  $(EXAMPLES) Makefile references.bib
+hardwareguide.pdf: *.tex  $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make hardwareguide.tex
 
-mega65-book.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory instructionset-4510.tex instructionset-6502.tex ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+mega65-book.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory $(GENERATED_TEX_FILES) ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-book.tex

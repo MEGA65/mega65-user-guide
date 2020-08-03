@@ -26,7 +26,12 @@ void parse_token(char **s,char *t)
       return;
     }
     else {
-      t[tl++]=**s;
+      switch(**s) {
+      case '_': t[tl++]='\\'; t[tl++]=**s; break;
+	
+      default:
+	t[tl++]=**s;
+      }
       (*s)++;
     }
   }
@@ -50,7 +55,7 @@ int main(int argc,char **argv)
     printf("\\index{%s}\n",token);
     parse_token(&s,token);
     printf("\\begin{description}[leftmargin=2cm,style=nextline]\n"
-	   "\\item [Desription:] {%s}\n",token);
+	   "\\item [Description:] {%s}\n",token);
     int last_was_param=0;
     while(strncmp(s,"\\m65libsummary",strlen("\\m65libsummary"))) {
       int is_param=0;
@@ -61,7 +66,7 @@ int main(int argc,char **argv)
 	parse_token(&s,token);
 	if (!last_was_param) {
 	  last_was_param=1;
-	  printf("\\item [Parameters:]\n\\begin{description}\n");
+	  printf("\\item [Parameters:]\n\\begin{description}\\item[]\n");
 	}
 	printf("\\item [{\\em %s}:]",token);
 	is_param=1;

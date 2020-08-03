@@ -46,7 +46,7 @@ int main(int argc,char **argv)
     // Skip spaces
     while(s[0]==' ') s++;
     parse_token(&s,token);
-    printf("\\subsection{%s}\n",token);
+    printf("\n\\subsection{%s}\n",token);
     printf("\\index{%s}\n",token);
     parse_token(&s,token);
     printf("\\begin{description}[leftmargin=2cm,style=nextline]\n"
@@ -57,27 +57,36 @@ int main(int argc,char **argv)
       if (!strncmp(s,"\\m65libparam",strlen("\\m65libparam"))) {
 	s+=strlen("\\m65libparam");
 	parse_token(&s,token);
-	printf("\\item [%s:]",token);
+	printf("\\item [{\\em %s}:]",token);
 	parse_token(&s,token);
 	printf(" {%s}\n",token);
       } else if (!strncmp(s,"\\m65libretval",strlen("\\m65libretval"))) {
 	s+=strlen("\\m65libretval");
+	parse_token(&s,token);
+	printf("\\item [Desription:] {%s}\n",token);
       } else if (!strncmp(s,"\\m65libsyntax",strlen("\\m65libsyntax"))) {
 	s+=strlen("\\m65libsyntax");
+	parse_token(&s,token);
+	printf("\\item [Syntax:] \stw{%s}\n",token);
       } else if (!strncmp(s,"\\m65libremarks",strlen("\\m65libremarks"))) {
 	s+=strlen("\\m65libremarks");
+	parse_token(&s,token);
+	printf("\\item [Notes:] {%s}\n",token);
       } else if (!strncmp(s,"\\m65libsummary",strlen("\\m65libsummary"))) {
-	s+=strlen("\\m65libsummary");
+	// Just catch so we don't report an error.
       } else {
 	s[32]=0;
 	fprintf(stderr,"Unknown block type '%s...'\n",s);
 	exit(-1);
       }
     }
+    printf("\\end{description}\n");
     
     // Find next instance
     if (s)
       s=strstr(s,"\\m65libsummary");
+    else
+      break;
   }
   
 }

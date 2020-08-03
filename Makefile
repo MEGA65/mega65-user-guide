@@ -26,6 +26,9 @@ EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex
 %.tex:	%.prg prg2tex Makefile
 	./prg2tex -u $<
 
+api-conio.tex:	libc-doc ../mega65-libc/cc65/include/conio.h
+	./libc-doc ../mega65-libc/cc65/include/conio.h > api-conio.tex
+
 instruction_set: instruction_set.c Makefile
 	$(CC) -Wall -g -o instruction_set instruction_set.c
 

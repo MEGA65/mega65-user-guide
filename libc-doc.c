@@ -51,35 +51,48 @@ int main(int argc,char **argv)
     parse_token(&s,token);
     printf("\\begin{description}[leftmargin=2cm,style=nextline]\n"
 	   "\\item [Desription:] {%s}\n",token);
+    int last_was_param=0;
     while(strncmp(s,"\\m65libsummary",strlen("\\m65libsummary"))) {
+      int is_param=0;
       s=strstr(s,"\\m65lib");
       if (!s) break;
       if (!strncmp(s,"\\m65libparam",strlen("\\m65libparam"))) {
 	s+=strlen("\\m65libparam");
 	parse_token(&s,token);
+	if (!last_was_param) {
+	  last_was_param=1;
+	  printf("\\item [Parameters:]\n\\begin{description}\n");
+	}
 	printf("\\item [{\\em %s}:]",token);
+	is_param=1;
 	parse_token(&s,token);
 	printf(" {%s}\n",token);
       } else if (!strncmp(s,"\\m65libretval",strlen("\\m65libretval"))) {
 	s+=strlen("\\m65libretval");
+	if (last_was_param) printf("\\end{description}\n");
 	parse_token(&s,token);
 	printf("\\item [Desription:] {%s}\n",token);
       } else if (!strncmp(s,"\\m65libsyntax",strlen("\\m65libsyntax"))) {
 	s+=strlen("\\m65libsyntax");
+	if (last_was_param) printf("\\end{description}\n");
 	parse_token(&s,token);
-	printf("\\item [Syntax:] \stw{%s}\n",token);
+	printf("\\item [Syntax:] \\stw{%s}\n",token);
       } else if (!strncmp(s,"\\m65libremarks",strlen("\\m65libremarks"))) {
 	s+=strlen("\\m65libremarks");
+	if (last_was_param) printf("\\end{description}\n");
 	parse_token(&s,token);
 	printf("\\item [Notes:] {%s}\n",token);
       } else if (!strncmp(s,"\\m65libsummary",strlen("\\m65libsummary"))) {
 	// Just catch so we don't report an error.
+	if (last_was_param) printf("\\end{description}\n");
       } else {
 	s[32]=0;
 	fprintf(stderr,"Unknown block type '%s...'\n",s);
 	exit(-1);
       }
+      last_was_param=is_param;
     }
+    
     printf("\\end{description}\n");
     
     // Find next instance

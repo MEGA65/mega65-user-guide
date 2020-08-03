@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define MAX_FILE_SIZE (4*1024*1024)
 char buff[MAX_FILE_SIZE];
@@ -7,8 +8,12 @@ char token[MAX_FILE_SIZE];
 
 void parse_token(char **s,char *t)
 {
+  while(**s==' ') (*s)++;
+  while(**s=='\t') (*s)++;
+  
   if (**s!='{') {
-    fprintf(stderr,"ERROR: Missing {\n");
+    (*s)[32]=0;
+    fprintf(stderr,"ERROR: Missing { at '%s...'\n",*s);
     exit(-1);
   }
   (*s)++;
@@ -41,10 +46,38 @@ int main(int argc,char **argv)
     // Skip spaces
     while(s[0]==' ') s++;
     parse_token(&s,token);
-    printf("Function '%s'\n",token);
+    printf("\\subsection{%s}\n",token);
+    printf("\\index{%s}\n",token);
+    parse_token(&s,token);
+    printf("\\begin{description}[leftmargin=2cm,style=nextline]\n"
+	   "\\item [Desription:] {%s}\n",token);
+    while(strncmp(s,"\\m65libsummary",strlen("\\m65libsummary"))) {
+      s=strstr(s,"\\m65lib");
+      if (!s) break;
+      if (!strncmp(s,"\\m65libparam",strlen("\\m65libparam"))) {
+	s+=strlen("\\m65libparam");
+	parse_token(&s,token);
+	printf("\\item [%s:]",token);
+	parse_token(&s,token);
+	printf(" {%s}\n",token);
+      } else if (!strncmp(s,"\\m65libretval",strlen("\\m65libretval"))) {
+	s+=strlen("\\m65libretval");
+      } else if (!strncmp(s,"\\m65libsyntax",strlen("\\m65libsyntax"))) {
+	s+=strlen("\\m65libsyntax");
+      } else if (!strncmp(s,"\\m65libremarks",strlen("\\m65libremarks"))) {
+	s+=strlen("\\m65libremarks");
+      } else if (!strncmp(s,"\\m65libsummary",strlen("\\m65libsummary"))) {
+	s+=strlen("\\m65libsummary");
+      } else {
+	s[32]=0;
+	fprintf(stderr,"Unknown block type '%s...'\n",s);
+	exit(-1);
+      }
+    }
     
     // Find next instance
-    s=strstr(s,"\\m65libsummary");
+    if (s)
+      s=strstr(s,"\\m65libsummary");
   }
   
 }

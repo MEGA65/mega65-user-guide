@@ -93,6 +93,8 @@ mega65-book.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory $(GEN
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-book.tex
 
+mega65-book-cmyk.pdf:	mega65-book.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-book-cmyk.pdf mega65-book.pdf
 
 document-memory:	document-memory.c Makefile
 	$(CC) -Wall -g -o document-memory document-memory.c

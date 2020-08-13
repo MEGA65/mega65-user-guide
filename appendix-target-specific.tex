@@ -1,6 +1,48 @@
 \chapter{Model Specific Features}
 
-\section{MEGA65 Desktop Computer, Revision 2 onwards}
+\section{Detecting MEGA65 Models}
+
+While we expect the production version of the MEGA65 to be a stable platform, there may still be
+cases where detecting which hardware your programme is running on. This is particularly important
+for the MEGA65 system software, which may need to initialise different pieces of hardware on the
+different models.  Also, because there is a hand-held version of the MEGA65 already  in development,
+which uses a slightly different resolution screen (800x480 instead of 720x576), and has a touch
+screen but no hardware keyboard, you may wish to make programmes that adapt to the hand-held
+devices in a more graceful way. For example, you may enable touch-screen input, and restructure
+on-screen selections to be large enough to be easily activated by a finger.
+
+The simple way to detect which model of MEGA65 your programme is running on, is to check the
+\$D629 register (but don't forget to enable the MEGA65 IO personality first, via \$D02F).
+This contains an 8-bit hardware identifier.  The following values are currently defined:
+
+\begin{description}[align=left,labelwidth=0.2cm]
+\item[\$01 (1)] MEGA65 R1
+\item[\$02 (2)] MEGA65 R2
+\item[\$03 (3)] MEGA65 R3
+\item[\$21 (33)] MEGAphone (hand-held) R1 
+\item[\$40 (64)] Nexys4 PSRAM
+\item[\$41 (65)] Nexys4DDR
+\item[\$42 (66)] Nexys4DDR with widget board
+\item[\$FD (253)] QMTECH Wukong A100T board
+\item[\$FE (254)] Simulation run of VHDL  
+\end{description}
+
+
+\section{MEGA65 Desktop Computer, Revision 3 onwards}
+
+The R3 desktop PCB is very similar to the R2 desktop PCB, with two key changes:
+
+\begin{itemize}
+\item First, the R3 PCB does not have an ADV7511 digital video driver chip, and so the I2C register block for that device is not present.
+\item Second, the R3 PCB uses a different on-board amplifier for the PC speakers, which are now present in stereo, rather than mono
+  as on the R2 PCB.  The amplifier on the R3 PCB is the same as on the MEGAphone R1 -- R2 PCBs.
+  However, the I2C registers are at a different address.  On the MEGA65 R3 PCB, the registers are located at \$FFD71DC -- \$FFD71EF. 
+\end{itemize}
+
+\input{regtable_TARGETM65R3.MEGA65.tex}
+
+
+\section{MEGA65 Desktop Computer, Revision 2}
 
 The desktop version of the MEGA65 contains a Real-Time Clock (RTC), which also includes a small amount of non-volatile memory (NVRAM)
 that retains its value, even if the computer is turned off and disconnected from its power supply. The NVRAM will hold its values

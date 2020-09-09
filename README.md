@@ -7,12 +7,15 @@ This is community effort to create a User Guide for the MEGA65 in the spirit of 
 * MingW32 (tested on MinGW-6.3.0, and MinGW-8.1.0) for Windows or GCC Compiler for Linux / Mac OS X.
 * This project repo.
 * The mega65-core repo: https://github.com/MEGA65/mega65-core is required for the memory tables included in the User Guide.
+* The Simple C library for the MEGA65: https://github.com/MEGA65/mega65-libc is required to create api-conio.tex 
 * A typesetting environment that supports XeLaTeX, for example: http://www.tug.org/texworks/ for Windows.
 
 # Usage
 The User Guide project is defined using a Makefile to build. Therefore if you are using an environment like TeXworks, do not use the built in Build button. That is for single file building only. For MingW32 users, just use:
 
-`mingw32-make` or `mingw32-make userguide.pdf` in the main folder of the project to build the userguide.pdf file.
+`mingw32-make` or `mingw32-make mega65-userguide.pdf` in the main folder of the project to build the mega65-userguide.pdf file.
+
+For linux: `make` or `make mega65-userguide.pdf`.
 
 If you wish to build the reference manual, use: `mingw32-make referenceguide.pdf`.
 
@@ -24,7 +27,20 @@ There is also a `sandbox.pdf` for experimenting with typesetting or components f
 
 The sandbox is faster to build and test changes more quickly. You can then transfer your work directly to the userguide.
 
-Check the Makefile for the growing list of books and guides that can be built.
+The complete list of guides that can be individually built are:
+
+| Book       | Build     |
+| :------------- | :---------- |
+| User Guide | make mega65-userguide.pdf | 
+| Chipset Reference   | make mega65-chipset-reference.pdf |
+| Complete BASIC 10 Commands | make mega65-basic10-reference.pdf |
+| For experimentation (don't commit) | make sandbox.pdf |
+| Reference Guide | make referenceguide.pdf |
+| Developer's Guide | make mega65-developer-guide.pdf |
+| Guide to MEGA65 and FPGA Hardware | make hardwareguide.pdf |
+| All books combined | make mega65-book.pdf |
+| As above but in CYMK for printing (Ghostscript required) | make mega65-book-cmyk.pdf: |
+
 
 # MAC OSX
 It is recommended to install MacPorts, which gives easy access to a huge base of Linux/UNIX software.
@@ -53,3 +69,9 @@ Of course, you can create a shell script for these three lines.
 
 # Linux
 For Linux users, the instructions are the similar, but use your favourite package manager to install a LaTeX package of your choice.
+
+# Editors
+
+## Visual Studio Code
+
+Combined with the `LaTeX Workshop` extension, this is a great IDE for working with the project. However be careful of the using the built-in terminal for compiling the guides. It's a powershell-based terminal and won't work with the Makefile. Nor will Command Prompt. Use a more Unix styled terminal like Git Bash. 

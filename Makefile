@@ -46,8 +46,8 @@ instructionset-4510.tex:	instruction_set
 instructionset-6502.tex:	instruction_set
 	./instruction_set instruction_sets/6502.opc > instructionset-6502.tex
 
-images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot
-	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
+#images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot
+#	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf
 
 # Make sure we update the register information files before typesetting
 mega65-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
@@ -62,17 +62,17 @@ mega65-basic10-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-reference.tex
 
-mega65-basic10-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
-	./getgitinfo
-	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-programming.tex
+#mega65-basic10-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+#	./getgitinfo
+#	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-programming.tex
 
 
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
 
-wrong.pdf: *.tex $(EXAMPLES) Makefile references.bib
-	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make wrong.tex
+#wrong.pdf: *.tex $(EXAMPLES) Makefile references.bib
+#	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make wrong.tex
 
 referenceguide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl  $(GENERATED_TEX_FILES)
 	./getgitinfo

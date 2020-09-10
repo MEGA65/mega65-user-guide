@@ -7,14 +7,19 @@ designed specially for the MEGA65 and for 8-bit computers generally.
 In addition to supporting 100Mbit Fast Ethernet, it is radically
 different from other Ethernet controllers, such as the RR-NET.
 
-The 45E100 includes dual receive buffers, allowing one frame to be
-processed while another is receiving.  It includes automatic CRC32
-checking on reception, and automatic CRC32 generation for transmit, considerably
-reducing the burden on the processor and allowing for very simple programs.  It also supports true
+The 45E100 includes four receive buffers, allowing upto three frames to be
+received while another is being processed, or to allow less frequent processing of interrupts.
+These receive buffers can be memory mapped, and also directly accessed using the MEGA65's DMA controller.
+Together with automatic CRC32 checking on reception, and automatic CRC32 generation for transmit, these features considerably
+reduce the burden on the processor, and make it much simpler to write ethernet-enabled programs.
+
+The 45E100 also supports true
 full-duplex operation at 100Mbit per second, allowing for total bi-directional
 throughput exceeding 100Mbit per second.  The MAC address is software
 configurable, and promiscuous mode is supported, as are individual control
-of the reception of broadcast and multi-cast Ethernet frames.  The 45E100 also
+of the reception of broadcast and multi-cast Ethernet frames.
+
+The 45E100 also
 supports both transmit and receive interrupts, allowing greatly improved
 real-world performance. When especially low latency is required, it is also possible
 to immediately abort the transmission of the current Ethernet frame, so that a
@@ -28,8 +33,8 @@ games.
 The RR-NET and other Ethernet controllers for the Commodore\texttrademark \ line
 of 8-bit home computers generally use an Ethernet controller that was
 designed for 16-bit PCs, but that also supports a so-called ``8-bit mode,''
-which suffers from a number of disadvantages. The primary disadvantages
-are the lack of working interrupts, and processor intensive access to
+which suffers from a number of disadvantages. These disadvantages
+include the lack of working interrupts, as well as processor intensive access to
 the Ethernet frame buffers.  The lack of interrupts forces programs to
 use polling to check for the arrival of new Ethernet frames.  This,
 together with the complexities of accessing the buffers results in an
@@ -53,24 +58,40 @@ faster than the RR-NET.
 \subsection{Theory of Operation: Receiving Frames}
 
 The 45E100 is simple to operate: To begin receiving Ethernet frames, the programmer
-needs only to clear the RST bit (bit 0 of register \$D6E0) to release the
-Ethernet controller from reset.  It will then auto-negotiate connection at
-the highest available speed, typically 100Mbit, full-duplex.  The RXBLKD bit (bit 6 of \$D6E0)
-should then be checked, and if set, the RXBM (bit 2 of register \$D6E1) bit should be toggled to switch
-the active and mapped receive buffers, so that the 45E100 knows that the
-program no longer needs the contents of the previously mapped buffer, and can
-safely begin receiving an Ethernet frame into that buffer.
+needs only to clear the RST and TXRST bits (bit 0 of register \$D6E0) to ensure that the 
+Ethernet controller is reset, and then set these bits to 1, to release the controller from the reset state.
+It will then auto-negotiate connection at the highest available speed, typically 100Mbit, full-duplex.
 
-When the 45E100 receives an ethernet frame, it will assert RXBLKD to indicate that the receive
-buffer has been filled with an ethernet frame.  No further ethernet frames will be received until
-RXBLKD is cleared again, as described above. This is because the 45E100 has only two receive buffers
-for ethernet frames: one of which is mapped visible to the processor, and the other which is visible
-to the 45E100's ethernet engine at any point in time.  Toggling RXBM allows toggling between which
-of the two buffers is mapped and which is ready to receive an ethernet frame.  The buffers are 2KiB
-bytes each.  The first two bytes are used to indicate the length of the received frame, and four
-are consumed by the ethernet CRC32 code, yielding an effective Maximum Transport Unit (MTU) length
-of 2,042 bytes.  The ethernet frame data begins at byte offset 2 in the receive buffer, with the
-frame length written LSB-first in the first two bytes.  The layout of the receive buffers is thus as follows:
+If you wish to simply poll for the arrival of ethernet frames, check the RXQ bit (bit 5 of \$D6E1).
+If it is set, then there is at least one frame that has been received.  To access the next frame that
+has been received, write \$01 to \$D6E1, and then \$03 to \$D6E1.  This will rotate the ring of receive
+buffers, to make the next received frame accessible by the processor. The receive buffer that was previously
+accessible by the processor is marked free, and the 45E100 will use it to receive another ethernet frame when required.
+
+Because the 45E100 has four receive buffers, it is possible that to process multiple frames in succession by
+following this procedure. If all receive buffers contain received frames, and the processor has not accepted them, then
+the RXBLKD signal will be asserted, so that the processor knows that it if any more frames are received, they will be lost.
+Programmers should take care to avoid this situation.  As the 45E100 supports receive interrupts, this is generally easy
+to manage -- but don't underestimate how often ethernet frames can arrive on a 100mbit Fast Ethernet connection:
+If a sender sends a continuous stream of minimum-length ethernet frames, they can arrive every 6 microseconds or so!
+While, it is unlikely that you will have to deal with such a high rate of packet reception, you should anticipate the need
+to process packets at least every milli-second. In particular, a once-per-frame CIA or raster IRQ may cause some packets
+to be lost, more than three arrive in a 16 -- 20 ms video frame.  The RXBLKD signal can be used to determine if this situation
+is likely to have occurred. But note that it indicates only when all receive buffers are occupied, not if any further frames
+arrived while there were no free receive buffers.
+
+The receive buffers are 2KiB bytes each, and can each hold only one received ethernet frame at a time.
+This is different to some ethernet controllers that use their total receive buffer memory as a simple ring buffer.
+The reason for this is to keep the mechanism for programmers as simple as possible. By having the fixed buffers, it
+means that the controller can memory map the received ethernet frames in exactly the same location each time, making
+it possible to write much simpler receiver programmes, because the location of the received ethernet frames can be
+assumed to be constant.
+
+The structure of a receive buffer containing an ethernet frame is quite simple: 
+The first two bytes indicate the length of the received frame. The frame then follows immediately.
+The effective Maximum Transport Unit (MTU) length is 2,042 bytes, as the last four bytes are occupied by the
+CRC32 checksum of the received ethernet frame.
+The layout of the receive buffers is thus as follows:
 
 \begin{longtable}{|L{1.0cm}|L{1.1cm}|C{1.3cm}|L{6.9cm}|}
 \hline
@@ -99,7 +120,7 @@ frame length written LSB-first in the first two bytes.  The layout of the receiv
 Because of the very rapid rate at which Fast Ethernet frames can be received, a programmer should use the
 receive interrupt feature, enabled by setting RXQEN (bit 7 of \$D6E1).  Polling is possible as an alternative, but
 is not recommended with the 45E100, because at the 100Mbit Fast Ethernet speed, packets can arrive
-as often as every 10 microseconds.  Fortunately, at the MEGA65's 40MHz full speed mode, and using
+as often as every 5 microseconds.  Fortunately, at the MEGA65's 40MHz full speed mode, and using
 the 20MiB per second DMA copy functionality, it is possible to keep up with such high data rates.
 
 \subsection{Accessing the Ethernet Frame Buffers}
@@ -110,7 +131,7 @@ or through assembly language programs.  It is also possible to access the buffer
 The frame buffers can either be accessed from their natural location in the MEGA65's extended address space at address
 \$FFDE800 -- \$FFDEFFF, or they can be mapped into the normal C64/C65 \$D000 IO address space.  Care must be
 taken as mapping the ethernet frame buffers into the \$D000 IO address space causes all other IO devices to unavailable
-during this time.  Therefore interrupts MUST be disabled before doing so, whether using BASIC or machine code.  Therefore
+during this time.  Therefore CIA-based interrupts MUST be disabled before doing so, whether using BASIC or machine code.  Therefore
 when programming in assembly language or machine code, it is recommended to use the natural location, and to access this
 memory area using one of the three mechanisms for accessing extended address space, which are described in Appendix
 \ref{sec:extended-memory}.

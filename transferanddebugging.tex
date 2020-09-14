@@ -30,7 +30,7 @@ there are the following tools:
 \section{m65 command line tool}
 
 The \url{https://github.com/mega65/mega65-tools} repository contains a
-number of tools, utilities and example programmes.  One of those is
+number of tools, utilities and example programmes. These tools are mainly for Linux but can be used on Windows with Cygwin. One of those is
 the \stw{m65} command line tool. This is rather a swiss-army
 knife collection of utilities in one.  Common useful functions
 include:
@@ -134,6 +134,14 @@ the \stw{m65} command-line tool, without needing to use a
 command line, or being able to compile the tool for your preferred
 operating system.
 
+The repository for M65Connect is: \url{https://github.com/MEGA65/m65connect}
+
+A binary version is also available from \url{https://mega.scryptos.com/sharefolder/MEGA/MEGA65+filehost} under the Tools folder.
+
+With the MEGA65 or Nexys FPGA switched off, connect a USB cable from your computer to the MEGA65 or Nexys FPGA board. Run the \textit{M65Connect} executable and follow the prompts to connect. The program will help you identify which USB Serial Port to communicate over.
+
+With this tool you can easily transfer PRG programs and a variety of other files. M65Connect can handle the transfer, switching to C64 mode, and execution of programs.
+
 \section{mega65\_ftp}
 
 The \stw{mega65}\_\stw{ftp} utility from
@@ -195,3 +203,25 @@ a D81 file is fragmented, then it cannot be mounted, because the
 mounting mechanism requires a pointer to the contiguous block of the
 SD card containing the disk image.
 In the interim, \stw{mega65}\_\stw{ftp} can be used as a substitute.
+
+\section{Converting a BASIC text file listing into a PRG file}
+
+If you have a untokenized BASIC program in plain text format sourced from somewhere like an internet post, and you wish to try it on the MEGA65 without typing it in, it is possible to convert it to a PRG.
+
+\textit{C64List} is a Windows-based command-line tool that will allow you to make the conversion. Once you have a \textit{.PRG} file, you can use a tool like M65Connect to upload it to the MEGA65 or Nexys FPGA. 
+
+C64List is available for download from \url{http://www.commodoreserver.com/Downloads.asp}
+
+Ensure you have a program listing saved to a file on your local computer (for example, \textit{program.txt}) encoded as ANSI or UTF8.
+
+Use C64List to convert the file to a PRG file using:
+    
+\begin{tcolorbox}[colback=black,coltext=white]
+    \begin{verbatim}
+        C64List program.txt -prg
+    \end{verbatim}
+\end{tcolorbox}
+
+Now you can upload your newly converted program to the MEGA65 with M65Connect or one of the other tools described previously.
+
+It is worth noting that this method will not be 100\% effective on listings with special PETSCII characters. Programs with PETSCII will require some editing on the MEGA65 itself before saving to disk.

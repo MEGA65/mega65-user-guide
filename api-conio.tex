@@ -27,46 +27,6 @@
 \item [Desription:] {The current screen RAM address start address.}
 \end{description}
 
-\subsection{setcolramoffset}
-\index{setcolramoffset}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Description:] {Sets the color RAM start offset value}
-\item [Syntax:] \stw{void setcolramoffset(long offset);}
-\item [Parameters:]
-\begin{description}\item[]
-\item [{\em addr}:] {The offset from the beginning of the color RAM address ($FF80000)}
-\end{description}
-\item [Notes:] {No bounds check is performed on the resulting address. Do not exceed the available Color RAM size}
-\end{description}
-
-\subsection{getcolramoffset}
-\index{getcolramoffset}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Description:] {Returns the color RAM start offset value}
-\item [Syntax:] \stw{long getscreenaddr(void);}
-\item [Desription:] {The current color RAM start offset value.}
-\end{description}
-
-\subsection{setcharsetaddr}
-\index{setcharsetaddr}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Description:] {Sets the character set start address}
-\item [Syntax:] \stw{void setcharsetaddr(long addr);}
-\item [Parameters:]
-\begin{description}\item[]
-\item [{\em addr}:] {The address to set as start of character set}
-\end{description}
-\item [Notes:] {No bounds check is performed on the selected address}
-\end{description}
-
-\subsection{getcharsetaddr}
-\index{getcharsetaddr}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Description:] {Returns the current character set start address}
-\item [Syntax:] \stw{long getscreenaddr(void);}
-\item [Desription:] {The current character set start address.}
-\end{description}
-
 \subsection{clrscr}
 \index{clrscr}
 \begin{description}[leftmargin=2cm,style=nextline]
@@ -83,7 +43,7 @@
 \item [Parameters:]
 \begin{description}\item[]
 \item [{\em width}:] {Pointer to location where width will be returned}
-\item [{\em height}:] {Pointer to location where height will be returned}
+\item [{\em width}:] {Pointer to location where height will be returned}
 \end{description}
 \end{description}
 
@@ -95,7 +55,7 @@
 \item [Parameters:]
 \begin{description}\item[]
 \item [{\em width}:] {The width in columns (40 or 80)}
-\item [{\em height}:] {The height in rows (25 or 50)}
+\item [{\em width}:] {The height in rows (25 or 50)}
 \end{description}
 \item [Notes:] {Currently only 40/80 and 25/50 are accepted. Other values are ignored.}
 \end{description}
@@ -247,7 +207,7 @@
 \begin{description}\item[]
 \item [{\em rc}:] {A RECT structure specifying the box coordinates}
 \item [{\em color}:] {The color to use for the graphic characters}
-\item [{\em style}:] {The style for the box borders. Can be set to BOX\_STYLE\_NONE, BOX\_STYLE\_ROUNDED, BOX\_STYLE\_INNER, BOX\_STYLE\_OUTER, BOX\_STYLE\_MID }
+\item [{\em style}:] {The style for the box borders. Can be set to BOX\_STYLE\_ROUNDED, BOX\_STYLE\_INNER, BOX\_STYLE\_OUTER, BOX\_STYLE\_MID }
 \item [{\em clear}:] {Set to 1 to clear the box interior with the selected color}
 \item [{\em shadow}:] {Set to 1 to draw a drop shadow}
 \end{description}
@@ -291,8 +251,8 @@
 \item [Syntax:] \stw{void gohome(void)}
 \end{description}
 
-\subsection{gotoxy}
-\index{gotoxy}
+\subsection{gohome}
+\index{gohome}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Description:] {Set the current position at X,Y coordinates}
 \item [Syntax:] \stw{void gotoxy(unsigned char x, unsigned char y)}
@@ -425,7 +385,7 @@
 \item [{\em n}:] {The number to write}
 \item [{\em prec}:] {The precision of the hex number, in digits. Leading zeros will be printed accordingly}
 \end{description}
-\item [Notes:] {The $ symbol will be automatically added at beginning of string}
+\item [Notes:] {The \$ symbol will be automatically added at beginning of string}
 \end{description}
 
 \subsection{cputdec}
@@ -460,9 +420,9 @@
 \item [Syntax:] \stw{void cputsxy (unsigned char x, unsigned char y, const char* s)}
 \item [Parameters:]
 \begin{description}\item[]
+\item [{\em s}:] {The string to print}
 \item [{\em x}:] {The X coordinate where string will be printed}
 \item [{\em y}:] {The Y coordinate where string will be printed}
-\item [{\em s}:] {The string to print}
 \end{description}
 \item [Notes:] {No pointer check is performed.  If s is null or invalid, behavior is undefined }
 \end{description}
@@ -484,7 +444,7 @@
 \index{cputncxy}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Description:] {Output N copies of a single character at X,Y coordinates}
-\item [Syntax:] \stw{void cputncxy (unsigned char x, unsigned char y, unsigned char count, unsigned char c)}
+\item [Syntax:] \stw{void cputncxy (unsigned char x, unsigned char y, unsigned char c)}
 \item [Parameters:]
 \begin{description}\item[]
 \item [{\em x}:] {The X coordinate where character will be printed}
@@ -504,7 +464,11 @@
    
     Cursor positioning 
 
-    \begin{table}
+    \t           Go to next tab position (multiple of 8s)
+    \r           Return
+    \n           New-line (assume \r like in C printf)
+
+    {clr}
 \item [Syntax:] \stw{unsigned char cprintf (const unsigned char* format, ...)}
 \item [Parameters:]
 \begin{description}\item[]
@@ -537,7 +501,17 @@
 \item [Description:] { 
    Return the key modifiers state, where bits:
 
-    \begin{table}
+    Bit           Meaning             Constant
+    ----------------------------------------------------
+    0             Right SHIFT state   KEYMOD\_RSHIFT
+    1             Left  SHIFT state   KEYMOD\_LSHIFT
+    2             CTRL state          KEYMOD\_CTRL
+    3             MEGA/C= state       KEYMOD\_MEGA
+    4             ALT state           KEYMOD\_ALT
+    5             NOSCRL state        KEYMOD\_NOSCRL
+    6             CAPSLOCK state      KEYMOD\_CAPSLOCK
+    7             Reserved            -
+    }
 \item [Syntax:] \stw{unsigned char getkeymodstate(void)}
 \item [Desription:] {A byte with the key modifier state bits.}
 \end{description}
@@ -559,7 +533,13 @@
 \item [{\em buffer}:] {Target character buffer preallocated by caller}
 \item [{\em buflen}:] {Target buffer length in characters}
 \item [{\em flags}:] {Flags for input:  (default is accept all printable characters)
-            \begin{table}
+            
+            CINPUT\_ACCEPT\_NUMERIC
+            CINPUT\_ACCEPT\_LETTER
+            CINPUT\_ACCEPT\_SYM
+            CINPUT\_ACCEPT\_ALL     
+            CINPUT\_ACCEPT\_ALPHA
+  }
 \end{description}
 \item [Desription:] {Successfully read characters in buffer}
 \end{description}

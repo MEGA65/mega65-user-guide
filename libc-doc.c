@@ -27,7 +27,7 @@ void parse_token(char **s,char *t)
     }
     else {
       switch(**s) {
-      case '_': t[tl++]='\\'; t[tl++]=**s; break;
+	      case '$': case '_': t[tl++]='\\'; t[tl++]=**s; break;
 	
       default:
 	t[tl++]=**s;

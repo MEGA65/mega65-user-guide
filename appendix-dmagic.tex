@@ -33,6 +33,175 @@ F018/F018A DMAgic chips of the C65:
 
 \end{itemize}
 
+
+\section{F018A/B DMA Jobs}
+
+To execute a DMA job using the F018 series of DMA controllers, you must construct the list of DMA jobs in memory,
+and then write the address of this list into the DMA address registers.  The DMA job will execute when you write to
+the ADDRLSBTRIG register (\$D700).  For this reason you must write the MSB and bank number of the DMA list inti \$D701 and \$D702 first,
+and the LSB only after having set these other two registers.  If you wish to execute multiple DMA jobs using the same
+list structure in memory, you can simply write to ADDRLSBTRIG again after updating the list contents -- provided that
+no other programme has modified the contents of \$D701 or \$D702.  Note that BASIC 10 uses the DMA controller to
+scroll the screen, so it is usually safest to always write to all three registers.
+
+When ADDRLSBTRIG has been written to, the DMA job completes immediately.  Unlike on the C65, the DMA controller is part
+of the processor of the MEGA65. This means that the processor stops trying to execute instructions {\em or fetching audio samples for DMA audio playback} until the DMA job
+has completed.  It also means that, unlike on the C65, DMA jobs cannot be interrupted. If your programme has sensitive timing
+requirements, you may need to break larger DMA jobs into several smaller jobs.  This is somewhat mitigated by the high
+speed of the MEGA65's DMA, which is able to fill memory at 40.5MiB per second and copy memory at 20.25MiB per second, compared
+with circa 3.5 MiB and 1.7 MiB per second on a C65. This allows larger DMA jobs to be executed, without needing to worry about
+the impact on real-time elements of a programme. For example, it is possible to fill an 80 column 50 row text screen using the
+MEGA65's DMA controller in just 200 microseconds.
+
+\subsection{F018 DMA Job List Format}
+
+The MEGA65's DMA controller supports the two different DMA job list formats used by the original F018 part that
+was used in the earlier C65 prototypes (upto Revision 2B) and the F018B and later revisions used in the Revision 3 -- 5
+C65 prototypes.  The main difference is the addition of a {\em sub-command} byte, as the following tables show:
+
+\subsubsection{F018 11-byte DMA List Structure}
+
+\begin{tabular}{|c|l|}
+  \hline
+  Offset & Contents \\
+  \hline
+  \$00 & Command LSB \\
+  \$01 & Count LSB \\
+  \$02 & Count MSB \\
+  \$03 & Source Address LSB  \\
+  \$04 & Source Address MSB \\
+  \$05 & Source Address BANK and FLAGS \\
+  \$06 & Source Address LSB  \\
+  \$07 & Source Address MSB \\
+  \$08 & Source Address BANK and FLAGS \\
+  \$09 & Modulo LSB \\
+  \$0a & Modulo MSB \\
+  \hline
+  \multicolumn{2}{l}{* The Command MSB is \$00 when using this list format.}
+
+\end{tabular}
+
+\subsubsection{F018B 12-byte DMA List Structure}
+
+\begin{tabular}{|c|l|}
+  \hline
+  Offset & Contents \\
+  \hline
+  \$00 & Command LSB \\
+  \$01 & Count LSB \\
+  \$02 & Count MSB \\
+  \$03 & Source Address LSB  \\
+  \$04 & Source Address MSB \\
+  \$05 & Source Address BANK and FLAGS \\
+  \$06 & Source Address LSB  \\
+  \$07 & Source Address MSB \\
+  \$08 & Source Address BANK and FLAGS \\
+  \$09 & Command MSB \\
+  \$0a & Modulo LSB / Mode \\
+  \$0b & Modulo MSB / Mode \\
+  \hline
+\end{tabular}
+
+The structure of the command word is as follows: 
+
+\begin{tabular}{|c|l|}
+  \hline
+  Bit(s) & Contents \\
+  \hline
+  0 -- 1 & DMA Operation Type \\
+  2 & Chain (i.e., another DMA list follows) \\
+  3 & Yield to interrupts \\
+  4 & MINTERM -SA,-DA bit \\
+  5 & MINTERM -SA,DA bit \\
+  6 & MINTERM SA,-DA bit \\
+  7 & MINTERM SA,DA bit \\
+  8 -- 9 & Addressing mode of source \\
+  10 -- 11 & Addressing mode of destination \\
+  12 -- 15 & RESESRVED. Always set to 0's \\
+  \hline
+\end{tabular}
+
+The command field take the following four values:
+
+\begin{tabular}{|c|l|}
+  \hline
+  Value & Contents \\
+  \hline
+  \%00 (0) & Copy \\
+  \%01 (1) & Mix (via MINTERMs) \\
+  \%10 (2) & Swap \\
+  \%11 (3) & Fill \\  
+  \hline
+  \multicolumn{2}{l}{* Only Copy and Fill are implemented at the time of writing.}
+\end{tabular}
+
+
+The addressing mode fields take the following four values:
+
+\begin{tabular}{|c|l|}
+  \hline
+  Value & Contents \\
+  \%00 (0) & Linear (normal) addressing \\
+  \%01 (1) & Modulo (rectangular) addressing \\
+  \%10 (2) & Hold (constant address) \\
+  \%11 (3) & XY MOD (bitmap rectangular) addressing \\  
+  \hline
+  \multicolumn{2}{l}{* Only Linear, Modulo and Hold are implemented at the time of writing.}
+\end{tabular}
+
+The BANK and FLAGS field for the source address allow selection of addresses within a 1MB
+address space. To access memory beyond the first 1MB, it is necessary to use an Enhanced DMA
+Job with the appropriate option bytes to select the source and/or destination MB of memory.
+The BLANKS and FLAGS field has the following structure:
+
+\begin{tabular}{|c|l|}
+  \hline
+  Bit(s) & Contents \\
+  0 -- 3 & Memory BANK within the selected MB \\
+  4 & HOLD, i.e., do not change the address \\
+  5 & MODULO, i.e., apply the MODULO field to wrap-around within a limited memory space \\
+  6 & DIRECTION. If set, then the address is decremented instead of incremented. \\
+  7 & I/O. If set, then IO registers are visible during the DMA controller at \$D000 -- \$DFFF. \\
+  \hline
+\end{tabular}
+
+
+
+\section{MEGA65 Enhanced DMA Jobs}
+
+The MEGA65's implementation of the DMAgic supports significantly
+enhanced DMA jobs.  An enhanced DMA job is indicated by writing the
+low-byte of the DMA list address to \$D705 instead of to \$D700.  The
+MEGA65 will then look for one or more {\em job option tokens} at the
+start of the DMA list.  Those tokens will be interpretted, before
+executing the DMA job which immediately follows the {\em end of job
+  options} token (\$00).  Job option tokens which take an argument have the
+most-significant bit set, and always take a 1 byte option.  Job option
+tokens that take no argument have the most-significant-bit clear.
+Unsupported job option tokens are simply ignored.
+This allows for future revisions of the DMAgic to add support for
+additional options, without breaking backward compatibility.
+
+The list of valid job option tokens is:
+
+\begin{tabular}{|c|l|}
+  \hline
+  \$00 & End of job option list \\
+  \$06 & Enable use of transparent value \\
+  \$07 & Disable use of transparent value \\
+  \$0A & Use 11-byte F011A DMA list format \\
+  \$0B & Use 12-byte F011B DMA list format \\
+  \$80 & Source address bits 20 -- 27 \\
+  \$81 & Destination address bits 20 -- 27 \\
+  \$82 & Source skip rate (256\textsuperscript{ths} of bytes) \\
+  \$83 & Source skip rate (whole bytes) \\
+  \$84 & Destination skip rate (256\textsuperscript{ths} of bytes) \\
+  \$85 & Destination skip rate (whole bytes) \\
+  \$86 & Transparent value (bytes with matching value are not written) \\
+  \hline
+\end{tabular}
+
+
 \section{Audio DMA}
 
 The MEGA65 includes four channels of DMA-driven audio playback that can be used in place of the direct digital
@@ -156,42 +325,6 @@ Unlike on the Amiga\texttrademark, the MEGA65 audio DMA system supports both
 either the lower or upper nybl of each sample byte.  This allows two
 separate samples to occupy the same byte, thus effectively halving the
 amount of space required to store two equal length samples.
-
-\section{MEGA65 Enhanced DMA Jobs}
-
-The MEGA65's implementation of the DMAgic supports significantly
-enhanced DMA jobs.  An enhanced DMA job is indicated by writing the
-low-byte of the DMA list address to \$D705 instead of to \$D700.  The
-MEGA65 will then look for one or more {\em job option tokens} at the
-start of the DMA list.  Those tokens will be interpretted, before
-executing the DMA job which immediately follows the {\em end of job
-  options} token (\$00).  Job option tokens which take an argument have the
-most-significant bit set, and always take a 1 byte option.  Job option
-tokens that take no argument have the most-significant-bit clear.
-Unsupported job option tokens are simply ignored.
-This allows for future revisions of the DMAgic to add support for
-additional options, without breaking backward compatibility.
-
-The list of valid job option tokens is:
-
-\begin{tabular}{|c|l|}
-  \hline
-  \$00 & End of job option list \\
-  \$06 & Enable use of transparent value \\
-  \$07 & Disable use of transparent value \\
-  \$0A & Use 11-byte F011A DMA list format \\
-  \$0B & Use 12-byte F011B DMA list format \\
-  \$80 & Source address bits 20 -- 27 \\
-  \$81 & Destination address bits 20 -- 27 \\
-  \$82 & Source skip rate (256\textsuperscript{ths} of bytes) \\
-  \$83 & Source skip rate (whole bytes) \\
-  \$84 & Destination skip rate (256\textsuperscript{ths} of bytes) \\
-  \$85 & Destination skip rate (whole bytes) \\
-  \$86 & Transparent value (bytes with matching value are not written) \\
-\end{tabular}
-
-
-
 
 \section{F018 ``DMAgic'' DMA Controller}
 

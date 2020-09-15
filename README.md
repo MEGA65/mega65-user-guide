@@ -1,6 +1,12 @@
 # MEGA65 User Guide
 This is community effort to create a User Guide for the MEGA65 in the spirit of the original User Guide for the Commodore 64.
 
+# Just show me the PDFs!
+
+If you just want the typeset manuals, hop over to the releases page at:
+
+https://github.com/MEGA65/mega65-user-guide/releases
+
 # Installation
 
 ## Requirements

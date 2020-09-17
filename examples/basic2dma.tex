@@ -1,0 +1,22 @@
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 rem enable mega65 io
+20 poke53295,asc("g"):poke53295,asc("s")
+30 rem dma list in data statements
+40 data 3: rem command lsb = fill
+50 data 232,3 : rem screen is 1000 bytes = 3*256+232
+60 data 32,0: rem fill with space = 32
+70 data 0: rem source bank (unused for fill)
+80 data 0,4: rem screen address = 1024 = 4*256
+90 data 0: rem screen lives in bank 0
+100 data 0: rem command high byte
+110 data 0,0: rem modulo (unused in this job)
+120 rem put dma list at $c000 = 49152
+130 fori=0to11:reada:poke49152+i,a:next
+140 rem execute job
+150 poke55042,0: rem dma list is in bank 0
+160 poke55041,192: rem dma list is in $c0xx
+170 poke55040,0: rem dma list is in $xx00, and execute
+\end{verbatim}
+\end{tcolorbox}

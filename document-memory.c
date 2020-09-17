@@ -114,8 +114,44 @@ void latex_escape(char *target, char *source)
 {
    while (*source)
    {
-      if (*source == '_') *target++ = '\\';
-      *target++ = *source++;
+      // escape dollar sign if not already escaped or math mode
+
+      if (*source == '$' && *(source-1) != '\\')
+      {
+         if (*(source+1) == '\\') // check for $\...$
+         {
+           *target++ = *source++; // copy initial $
+            while (*source && *source != '$')
+               *target++ = *source++; // copy math expression
+            if (*source) *target++ = *source++; // copy ending $
+         }
+         else // escape $
+         {
+            *target++ = '\\';
+            *target++ = *source++;
+         }
+      }
+
+      // escape underline or at sign
+
+      else if (*source == '_' || *source == '@')
+      {
+         if (*(target-1) != '\\') *target++ = '\\';
+         *target++ = *source++;
+      }
+
+      // replace tilde with middle tilde in math mode
+
+      else if (*source == '~')
+      {
+         strcpy(target,"$\\sim$");
+         target += strlen(target);
+         ++source;
+      }
+
+      // else just copy
+
+      else *target++ = *source++;
    }
    *target = '\0';
 }

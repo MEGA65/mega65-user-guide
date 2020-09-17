@@ -112,23 +112,25 @@ void clear_table_output(void)
 
 void latex_escape(char *target, char *source)
 {
+   char prev = '\0';;
+
    while (*source)
    {
       // escape dollar sign if not already escaped or math mode
 
-      if (*source == '$' && *(source-1) != '\\')
+      if (*source == '$' && prev != '\\')
       {
          if (*(source+1) == '\\') // check for $\...$
          {
            *target++ = *source++; // copy initial $
             while (*source && *source != '$')
                *target++ = *source++; // copy math expression
-            if (*source) *target++ = *source++; // copy ending $
+            if (*source) *target++ = *source; // copy ending $
          }
          else // escape $
          {
             *target++ = '\\';
-            *target++ = *source++;
+            *target++ = *source;
          }
       }
 
@@ -136,8 +138,8 @@ void latex_escape(char *target, char *source)
 
       else if (*source == '_' || *source == '@')
       {
-         if (*(target-1) != '\\') *target++ = '\\';
-         *target++ = *source++;
+         if (prev != '\\') *target++ = '\\';
+         *target++ = *source;
       }
 
       // replace tilde with middle tilde in math mode
@@ -146,12 +148,15 @@ void latex_escape(char *target, char *source)
       {
          strcpy(target,"$\\sim$");
          target += strlen(target);
-         ++source;
       }
 
       // else just copy
 
-      else *target++ = *source++;
+      else *target++ = *source;
+
+      // remember previous char and advance
+
+      prev = *source++;
    }
    *target = '\0';
 }

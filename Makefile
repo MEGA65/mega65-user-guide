@@ -23,7 +23,7 @@ prg2tex:	prg2tex.c
 	$(CC) -Wall -o prg2tex prg2tex.c
 
 libc-doc:	libc-doc.c
-	$(CC) -Wall -o libc-doc libc-doc.c
+	$(CC) -g -Wall -o libc-doc libc-doc.c
 
 EXAMPLEDIR=	examples
 EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex

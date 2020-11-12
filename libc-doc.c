@@ -96,7 +96,7 @@ int main(int argc,char **argv)
 	s+=strlen("\\m65libretval");
 	if (last_was_param) printf("\\end{description}\n");
 	parse_token(&s,token);
-	printf("\\item [Desription:] {%s}\n",token);
+	printf("\\item [Return Value:] {%s}\n",token);
       } else if (!strncmp(s,"\\m65libsyntax",strlen("\\m65libsyntax"))) {
 	s+=strlen("\\m65libsyntax");
 	if (last_was_param) printf("\\end{description}\n");

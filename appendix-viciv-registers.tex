@@ -483,18 +483,27 @@ XXX Example program
 
 The following descriptions assume that you have implemented one of the methods described above to set the screen and colour RAM.
 
-\subsection{Full-Colour (256 colours per character) Text Mode}
+\subsection{Full-Colour (256 colours per character) Text Mode (FCM)}
 
 In normal VIC-II/III text mode, one byte is used for each row of pixels in a character.  As a reminder for how those modes work, in
 hi-res mode, each pixel is either the background or foreground colour, based on the state of one bit in the byte.  Multi-colour mode
 uses two bits to select between four possible colours, but as there are still only 8 bits to describe each row of 8 pixels, each pair
-of pixels has the same colour.
+of pixels has the same colour. The VIC-IV's full-colour text mode removes these limitations, and allows each pixel of a character to
+be chosen from the 256 colour of either the primary or alternate palette bank, without sacrificing horizontal resolution.
 
-The VIC-IV's full-colour text mode removes these limitations, and allows each pixel of a character to be chosen from the 256 colour of
-either the primary or alternate palette bank.  To do this, each character now requires 64 bytes of data.  Also,
-XXX
+To do this, each character now requires 64 bytes of data. The address of the data is 64 $\times$ the character number.  FCM should
+normally be used with Super-Extended Attribute Mode (SEAM), so that more than 256 unique characters can be address. As SEAM allows
+the selection of 8,192 unique characters, this allows FCM character data to be placed anywhere in the first 512KiB of chip RAM (but
+note that most models of the MEGA65 have only 384KiB of chip RAM).
 
-\subsection{Many-colour (16 colours per character) Text Mode}
+\subsection{Nybl-colour (16 colours per character) Text Mode (NCM)}
+
+The Nybl-Colour Mode (NCM) for text is similar to Full-Colour Text Mode, except that each byte of data describes two pixels using 4 bits each. This makes the NCM unique, because the characters will be 16 pixels wide, instead of the usual 8 pixels wide. This can be used to create colourful displays, without using as much memory as FCM, because fewer characters are required to cover the screen.  Unlike the VIC-II's MCM, this mode does not result in a loss of horizontal resolution.
+
+In NCM the lower four bits of the pixel colour comes from the upper or lower four bits of the pixel data.  The upper four bits of the colour code come from the colour RAM data for the displayed character.  This makes it possible to use all palette entries in NCM, although the limitation of 16 colours per character remains.
+
+A further advantage of NCM is that it uses fewer bus cycles per pixel than FCM, because fewer character data fetches need to occur per raster line.  Together with the reduced memory requirements, this makes NCM particularly useful for creating colourful multiple layers of graphics.  This allows the VIC-IV to display arcade style displays with more colours than many 16-bit computers. 
+
 
 XXX
 
@@ -513,7 +522,9 @@ characters narrower. This can be useful for making more attractive text displays
 such variable-width text displays -- both in terms of memory usage and processing time.
 
 This feature can be combined with full-colour text mode, alpha blending mode and 4-bits per pixel mode to allow characters that consist of
-15 levels of intensity between the background and foreground colour, and that are up to 16 pixels wide.  Further, the GOTO bit can be used to implement negative kerning, so that character pairs like A and T do not have excessive white space between them when printed adjacently. The prudent use of these features can result in highly impressive text display, similar to that on modern systems, but that are still efficient enough to be implemented on a relatively constrained system such as the MEGA65. The ``MegaWAT!?'' presentation software for the MEGA65 uses several of these features to produce its attractive anti-aliased proportional text display on slides.
+15 levels of intensity between the background and foreground colour, and that are up to 16 pixels wide.  Further, the GOTO bit can be used to implement negative kerning, so that character pairs like A and T do not have excessive white space between them when printed adjacently. The prudent use of these features can result in highly impressive text display, similar to that on modern 32-bit and 64-bit systems, but that are still efficient enough to be implemented on a relatively constrained system such as the MEGA65. The ``MegaWAT!?'' presentation software for the MEGA65 uses several of these features to produce its attractive anti-aliased proportional text display on slides.
+
+XXX MEGAWat!? screenshot
 
 XXX Example program
 

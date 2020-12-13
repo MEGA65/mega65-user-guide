@@ -18,8 +18,6 @@ When the program execution encounters the code 00 (zero) alias BRK,
 the default action of the operating system is, to call the monitor.
 This features allows the debugging of programs by setting breakpoints.
 
-XXX - Move BS Monitor specifics to next section, and update screenshots accordingly
-
 \subsection{Table of Monitor Commands}
 
 {
@@ -30,7 +28,6 @@ XXX - Move BS Monitor specifics to next section, and update screenshots accordin
 C & mnemonic & description \\
 \hline
 A &     ASSEMBLE        & Assemble a line of 45GS02 code\\
-B &     BITMAPS         & Display 8x8 bitmaps (characters)\\
 C &     COMPARE         & Compare two sections of memory\\
 D &     DISASSEMBLE     & Disassemble a line of 45GS02 code\\
 F &     FILL            & Fill a section of memory with a value \\
@@ -68,18 +65,8 @@ The monitor responds with a display of register contents and waits for a command
 \verbatimfont{\codefont}
 \begin{verbatim}
 MONITOR
-\end{verbatim}
-\begin{tcolorbox}[colback=yellow,coltext=blue,,arc=0mm,boxrule=0mm,
-       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
-       left skip=0.1mm,
-       width=50mm,height=3mm,valign=center]
-\begin{verbatim}
-BS MONITOR COMMANDS:ABCDFGHJMRTX@.>;?$+&%'LSV
-\end{verbatim}
-\end{tcolorbox}
-\begin{verbatim}
-    PC   SR AC XR YR ZR BP  SP  NVEBDIZC
-; 00CFA4 35 00 00 00 00 00 01F8 --11-1-1
+    PC   SR AC XR YR ZR BP SP
+; 000000 00 00 00 00 00 00 F8
 \end{verbatim}
 \end{tcolorbox}
 
@@ -109,6 +96,7 @@ Following prefixes can be used to specify the base of the following number:
 \hline
  base  & name & prefix & digits characters & example     \\
 \hline
+16 & hexadecimal  &     & 0123456789ABCDEF &   100       \\
 16 & hexadecimal  & \$  & 0123456789ABCDEF & \$100       \\
 10 & decimal      &  +  & 0123456789       & +256        \\
  8 & octal        & \&  & 01234567         & \&400       \\
@@ -198,7 +186,72 @@ or by installing the {\tt MONITOR.M65} file on the SD card of your
 MEGA65 (this also requires that you have a sufficiently recent version
 of the core support this).
 
-XXX - Document here
+The enhanced monitor has following additional features:
+\begin{description}[leftmargin=1cm,style=nextline]
+\item[Adddresses:] All addresses are used as 32 bit (4 bytes) addresses.
+   This allows access to the whole MEGA65 address range, which needs
+   28 bit. This is especially useful for the access to the 8MB RAM blocks
+   called attic RAM at \$800000 (builtin) and cellar RAM at
+   \$8800000 (optional). Setting bit 31 of an address to 1 gives access
+   to a special (banked) configuration. In this case the I/O area at \$D000
+   and the ROM area \$6000 - \$7FFF (monitor ROM) and \$E000 - \$FFFF
+   (kernal ROM) overlay the current bank.
+
+\item[Commands:] The additional command {\bf B} displays character bitmaps.
+
+\item[Disk access:] The disk command character {\bf \@} knows two more
+  functions: {\bf U1} for reading a sequence of disk blocks to memory and
+  {\bf U2} for writing a memory range to disk blocks. This enables disk
+  disk editing, for example modifying directory entries or can be even
+  used to backup whole floppy contents or disk images. The attic RAM is
+  large enough to hold the contents of 8 complete 1581 floppies.
+
+\item[Disassembler:] The disassembler can decode all additional
+  address modes, like the 32 bit indirect mode $[\$nn],Z$
+  and the compound instructions involving the use of the 32 bit Q register.
+
+\item[Register:] The register displays the full 16 bit stack pointer
+ and the base page register and accepts new settings for ithem.
+
+\end{description}
+
+\subsection{Table of Monitor Commands}
+
+{
+\ttfamily
+\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|l|}
+\hline
+C & mnemonic & description \\
+\hline
+A &     ASSEMBLE        & Assemble a line of 45GS02 code\\
+B &     BITMAPS         & Display 8x8 bitmaps (characters)\\
+C &     COMPARE         & Compare two sections of memory\\
+D &     DISASSEMBLE     & Disassemble a line of 45GS02 code\\
+F &     FILL            & Fill a section of memory with a value \\
+G &     GO              & Start execution at specified address\\
+H &     HUNT            & Find specified data in a section of memory\\
+L &     LOAD            & Load a file from disk\\
+M &     MEMORY          & Dump a section of memory\\
+R &     REGISTERS       & Display the contents of the 45GS02 registers\\
+S &     SAVE            & Save a section of memory to a disk file\\
+T &     TRANSFER        & Transfer memory to another location\\
+V &     VERIFY          & Compare a section of memory with a disk file\\
+X &     EXIT            & Exit Monitor mode\\
+\hline
+ . &     <period>        & Assembles a line of 45GS02 code\\
+ > &     <greater>       & Modifies memory\\
+ ; &     <semicolon>     & Modifies register contents\\
+ @ &     <at sign>       & Disk command, directory or status\\
+\hline
+\$ &     <hex>           & Display hex, decimal, octal, and binary value \\
+ + &     <decimal>       & Display hex, decimal, octal, and binary value\\
+\& &     <octal>         & Display hex, decimal, octal, and binary value\\
+\% &     <binary>        & Display hex, decimal, octal, and binary value\\
+\hline
+\end{tabular}
+}
+
 
 \subsection {Calling the Monitor}
 
@@ -252,6 +305,7 @@ Following prefixes can be used to specify the base of the following number:
 \hline
  base  & name & prefix & digits characters & example     \\
 \hline
+16 & hexadecimal  &     & 0123456789ABCDEF &   100       \\
 16 & hexadecimal  & \$  & 0123456789ABCDEF & \$100       \\
 10 & decimal      &  +  & 0123456789       & +256        \\
  8 & octal        & \&  & 01234567         & \&400       \\
@@ -279,4 +333,3 @@ You will see an animation of green characters raining down from the top of the s
 then be presented with a simple text terminal interface which is transparent, so that you can
 see the screen output of your running programme at the same time.
 
-XXX - Document all commands

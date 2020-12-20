@@ -97,6 +97,27 @@ It is also possible to attempt to recover from a lost Master Boot
 Record (``Boot Sector'') by instead typing ``FIX MBR,'' should the
 need arise.
 
+
+As an end result, we want to have a correctly formatted SD card with the essential files stored on it for MEGA65 to boot from.
+
+This is how it works: When powering on, MEGA65 will search for- and boot these files:
+\begin{itemize}
+\item {\tt FREEZER.M65}
+\item {\tt AUDIOMIX.M65}
+\item {\tt C64THUMB.M65
+\item {\tt C65THUMB.M65
+\item {\tt MEGA65.ROM
+\item {\tt MEGA65.D81 (default disk image, automatically mounted during start)
+\end{itemize}
+
+Straight out-of-the-box, MEGA65 will only have one SD card installed, located inside behind the trap-door. This SD card contains the essential files to properly boot from.
+When an external microSD card is inserted, MEGA65 consider the external one as higher priority and will try to boot from it.
+That means that the microSD card needs to have the essential files on it, otherwise MEGA65 cannot boot properly and will fall back into loading the OpenROM which does not support all the MEGA65 features.
+In general, if MEGA65 cannot boot properly and fall back to OpenROM, it will be shown in the power-up screen, similar to this:
+
+\includegraphics[width=\linewidth]{images/mega65_OpenROM_boot_noSD.png}
+
+
 \section{Installing ROM and Other Support Files}
 
 The MEGA65 FDISK/FORMAT utility will install a version of the

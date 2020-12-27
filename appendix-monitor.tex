@@ -316,6 +316,31 @@ Following prefixes can be used to specify the base of the following number:
 }
 }
 
+\subsection{Assembler}
+
+The monitor has a builtin mini-assembler, which can be used to write
+machine language code using the standard mnemonics like {\bf LDA} or
+{\bf STA}, etc.
+The most important difference to a full assembler is the necessity
+to use numeric constants as operands for the instructions only.
+So you cannot use named variables, labels or subroutine names.
+A call to the kernal routine, which prints a character to the screen
+would be written {\ttfamily {\bf JSR CHROUT}} in a full assembler, while
+the mini-assembler needs the syntax {\ttfamily \bf JSR FFD2} (you need
+to know or lookup the addresses). There is the convenience for
+branch instructions, that the target address is written to the
+operand field and the mini-assembler computes the relative address,
+that is inserted in the code.
+
+The assembler knows all instructions and address modes of the MEGA65
+CPU 45GS02 (except the instructions using the Q register, these will
+be added later). So an instruction like {\ttfamily \bf LDA [TXTPTR],Z}
+will be assembled as loading the accumulator using a 32 bit pointer
+at the addresses {\ttfamily \bf TXTPTR, TXTPTR+1, TXTPTR+2, TXTPTR+3}.
+
+
+
+
 \section{MEGA65 Matrix Mode Monitor Interface}
 
 This monitor is different to the other two: It is part of the MEGA65

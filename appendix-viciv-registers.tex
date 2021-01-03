@@ -437,7 +437,7 @@ among the particular modes.  The default is as follows:
 \small Colour RAM byte 0, bit 7 & {\small Vertically flip the character }\\
 \small Colour RAM byte 0, bit 6 & {\small Horizontally flip the character }\\
 \small Colour RAM byte 0, bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
-\small Colour RAM byte 0, bit 4 & {\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later) }\\
+\small Colour RAM byte 0, bit 4 & {\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later), must be set to 0 for displaying characters }\\
 \small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
 \small Colour RAM byte 0, bits 2 & {\small Trim pixels from right side of character (bit 3) }\\
 \small Colour RAM byte 0, bits 0 - 1 & {\small Number of pixels to trim from top or bottom of character }\\
@@ -449,8 +449,36 @@ among the particular modes.  The default is as follows:
 \small Colour RAM byte 1, bit 7 & {\small Hardware underlining of character (if VIC-III extended attributes are enabled) }\\
 \end{longtable}
 
-
 * Enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
+
+If the GOTO bit is set, some of the fields have different meanings:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{3cm}|L{8cm}|}
+\hline
+{\bf{Bit(s)}} & {\bf{Function}}  \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Bit(s)}} & {\bf{Function}}  \\
+\endhead
+\multicolumn{2}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small Screen RAM byte 0 & {\small Lower 8 bits of new X position to start drawing the next character, relative to the start of character drawing.  Setting to 0 causes the next character to be drawn over the top of the left-most character. }\\
+\small Screen RAM byte 1, bits 0 - 1 & {\small Upper 2 bits of new X position }\\
+\small Screen RAM byte 1, bits 3 - 4 & {\small RESERVED, set to 0 }\\
+\small Screen RAM byte 1, bits 5 - 7 & {\small FCM Character data offset: Characters display normally when set to zero. When non-zero, 8 $\times$ the value is added to the character address. With careful planning, this can be used to smoothly vertically scroll multiple layers of RRB content.  }\\
+\small Colour RAM byte 0, bit 4 - 7 & {\small RESERVED, set to 0 }\\
+\small Colour RAM byte 0, bit 4 & {\small GOTO X, set to 1 }\\
+\small Colour RAM byte 0, bits 3 & {\small RESERVED, set to 0  }\\
+\small Colour RAM byte 0, bits 2 & {\small If set, the following characters will be rendered as background, allowing sprites to appear in front of them, even when sprites are set to background. }\\
+\small Colour RAM byte 0, bits 0 - 1 & {\small RESERVED, set to 0 }\\
+\small Colour RAM byte 1, bits 0 - 7 & {\small RESERVED, set to 0 }\\
+\end{longtable}
+
 
 We can see that we still have the C64 style bottom 8 bits of the character number in the first screen byte. The second byte of screen memory gets five extra bits for that, allowing 2$^{13}$ = 8,192 different characters to be used on a single screen. That's more than enough for unique characters covering an 80$\times$50 screen (which is possible to create with the VIC-IV).  The remaining bits allow for trimming of the character.  This allows for variable width characters, which can be used to do things that would not normally be possible, such as using text mode for free horizontal placement of characters (or parts thereof). This was originally added to provide hardware support for proportional width fonts.
 

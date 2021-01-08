@@ -82,6 +82,25 @@
 \usepackage{verbatim}
 \usepackage{ean13isbn}
 
+% Allow cross-references between the various books to the big The MEGA65 Book
+\usepackage{xr}
+\usepackage{varioref}
+\externaldocument[M65Book-]{mega65-book}
+% And a \ref alternative that checks if it needs to be a cross-reference to the
+% MEGA65 Book instead.
+\makeatletter
+\newcommand{\bookref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em the MEGA65 Book}, \nameref{M65Book-#1}, (Chapter or Appendix \ref{M65Book-#1}) 
+    }{Chapter/Appendix \ref{#1}}%
+}
+\newcommand{\bookvref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em the MEGA65 Book}, \nameref{M65Book-#1}, (Chapter or Appendix \ref{M65Book-#1}) 
+    }{Chapter/Appendix \vref{#1}}%
+}
+\makeatother
+
 % For fixed-width columns in register maps
 \usepackage{array}
 

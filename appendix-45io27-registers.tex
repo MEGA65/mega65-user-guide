@@ -1,0 +1,155 @@
+\chapter{45IO27 Multi-Function IO Controller}
+
+\section{Overview}
+
+The 45IO27 is a multi-purpose IO controller that incorporates the functions of the
+C65's F011 floppy controller, together with the MEGA65's SD card controller interface,
+and a number of other miscellation IO functions.
+
+Each of these major functions is covered in a separate section of this chapter
+
+\section{F011-compatible Floppy Controller}
+
+The MEGA65 computer is one of very few modern computers that still
+includes first-class support for magnetic floppy drives.  It includes
+a floppy controller that is backwards compatible with the C65's F011D
+floppy drive controller.
+
+However, unlike the F011D, the MEGA65's
+floppy disk controller supports HD and ED media, and similar to the
+1541 floppy drive, it also supports variable data rates, so that a
+determined user could develop disk formats that store more data,
+includ robust copy protection schemes, or both.
+
+GCR encoding is not currently supported, but may be supported by a
+future revision of the controller.  It may also be possible with some
+creativity and effort to use the debug register interface to read
+double-density GCR formatted media.  This is because there are debug
+registers that can be queried to indicate the gap between each
+successive magnetic domain -- which is sufficient to decode any disk
+format. 
+
+\subsection{Multiple Drive Support}
+
+XXX - two interal drives
+XXX - provisional support for 8 real drives via a future C1565-style
+interface.
+XXX - Drive swap support
+
+\subsection{Reading From Disks}
+
+XXX - byte-by-byte
+XXX - sector-buffer
+XXX - auto-tune
+XXX - example code to read a sector
+
+\subsection{Writing To Disks}
+
+The current revision of the 45io27 does not support writing to disks.
+This will be corrected in a future revision.  However, the determined
+user may still be able to write to disks by manipulating the WGATE and
+WDATA signals of the \$D6A0 register.  However, this is not
+recommended.
+
+\subsection{Using HD, ED Drives and/or variable Data Rates}
+
+The mechanism for using high-density (HD) and extended-density (ED)
+media and variable data rates are all identical on the 45IO27:  You
+simply set the interval rate (DATARATE) in the \$D6A2 register.
+
+The register is used as a divisor of the system bus frequency
+(40.5MHz).  Thus for 1581-compatible double-density (DD) media which
+uses a data rate of 500KHz, this register should contain:
+
+$40,500,000 / 500,000 = 81$
+
+High-density media uses a 1MHz data rate, and thus should contain 40,
+and extended-density media with its 2MHz data rate should have this
+field set to 20.  Depending on the HD or ED drive used, it may be
+necessary to clear or assert the DENSITY signal (\$D6A0 bit 7), or
+take other specific ations.  However, in our experience, most HD
+drives do not require any manual manipulation of this signal: Instead
+simply set the DATARATE register to the correct value, and begin
+accessing the disk.
+
+Note that the DATARATE register takes effect instantaneously.  This
+means that it is possible to change the data rate for different
+tracks, sectors, or even bytes within sectors.
+
+This means that it
+would be possible to, for example, use standard 500KHz DD encoding for
+the directory track and one data track, and then switch to HD encoding for the other 79
+tracks of a disk. The result would be a disk that could contain a
+boot-loader programme and directory that can be read in a 1581, and
+that could be used to switch to the faster and higher-density HD
+encoding for the remaining data tracks.  This could even be done for
+half of a disk, so that when used in a 1581, it loads at the DD speed,
+but when inserted in a MEGA65, it uses the HD data tracks, allowing
+the programme to load twice as fast, and fit twice as much data.
+
+You are really only limited by your imagination, available time, and
+the limited number of people who are still interested in inserting a
+floppy disk into their computer!
+
+\section{SD Card Controller and F011 Virtualisation Functions}
+
+For those situations where you do not wish to use real floppy disks,
+the 45io27 supports two complementary alternative modes:
+
+\begin{itemize}
+\item SD-Card Based Disk Image Access.
+\item Virtualised Disk Image Access.
+\end{itemize}
+
+\subsection{SD-Card Based Disk Image Access}
+
+XXX - D81 and ``MEGA Disk'' images (800KiB and 64MiB)
+
+\subsection{F011 Virtualisation}
+
+In addition to allowing automatic read and write access to SD-card
+based D81 images, it is possible to connect a programme to the serial
+monitor interface that provides and accepts data as though it were the
+floppy disk.
+
+This is commonly used in a cross-development
+environment, where you wish to frequently modify a disk image that is
+used by a programme you are developing -- without the need to
+continually push new versions of the disk image on the MEGA65's
+SD-Card first. It also has the added benefit that it allows you to
+easily visualise which sectors are being read from and written to,
+which can help speed up development and debugging of your programme.
+
+This function operates together with the MEGA65's Hypervisor by
+triggering hyperrupts (that is, interrupts that activate the
+Hypervisor).  There is then special code in the Hypervisor that
+communicates with the {\tt m65} programme via the serial monitor
+interface.
+
+If that all sounds rather complex, all you need to know is that to use
+this function, you run the {\tt m65} utility with arguments like
+{\tt -d image.d81}.  This should automatically establish the link with
+the MEGA65.  If the BASIC interprettor stops responding, press the
+reset button (not the power switch) on the left side of your MEGA65,
+and it should return to the BASIC's {\tt READY.} prompt -- and if your
+supplied disk image has a C65 auto-boot function, then it should
+automatically start booting.
+
+This function works very well if the host computer runs Linux, and
+will allow loading at a speed of around 60KiB per second.  However, it
+may be much slower on Windows or Apple OSX-based systems.
+
+Of course to use this, you will also need an interface module and/or
+cable to connect your cross-development system to the MEGA65's serial
+monitor interface. This is most easily done using a Trenz TE0790-03
+JTAG adapter and mini-USB cable.
+
+More information on using this interface and the {\tt m65} tool can be
+found in \bookvref{cha:transfer-and-debug-tools}.
+
+\section{Touch Panel Interface}
+
+\section{Audio Support Functions}
+
+\section{Miscellaneous IO Functions}
+

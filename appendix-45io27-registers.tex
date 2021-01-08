@@ -31,17 +31,76 @@ format.
 
 \subsection{Multiple Drive Support}
 
-XXX - two interal drives
-XXX - provisional support for 8 real drives via a future C1565-style
-interface.
-XXX - Drive swap support
+Like the C65's F011 floppy drive controller, the 45IO27 supports up to 8 drives.
+The first two of those drives, drive 0 and drive 1, are assumed to be connected to a
+standard 34-pin floppy cable, the same as used in standard PCs, i.e.,
+with a twist in the cable to allow the use of two unjumpered drives.
+
+As is described in later sections, it is possible to switch drive 0
+and drive 1's position, without having to change cabling. Similarly,
+either or both of the first two drives may reference a real floppy
+drive, a D81 disk image stored on an attached SD card, or redirected
+to the floppy drive virtualisation service, so that the sector
+accesses can be handled by a connected computer, e.g., as part of a
+comfortable and efficient cross-development environment.
+
+The remaining six drives are supported only in conjunction with a
+future C1565-compatible external drive port.
 
 \subsection{Reading From Disks}
 
-XXX - byte-by-byte
-XXX - sector-buffer
-XXX - auto-tune
-XXX - example code to read a sector
+The 45IO27 support two main modes of reading sectors from a
+disk: byte-by-byte, and via a memory-mapped sector buffer.
+
+The byte-by-byte mechanism consists of having a loop wait for the DRQ
+signal to be asserted, and then reading the byte of data from the DATA
+register (\$D087).
+
+The memory-mapped sector buffer method consists of waiting for the
+BUSY flag to clear, indicating that the entire sector has been read,
+and then directly accessing the sector buffer located at \$FFD6C00 --
+\$FFD6DFF. Care should be taken to ensure that bit 7 of \$D689 is
+cleared, so that the floppy sector buffer is visible, rather than the
+SD card sector buffer.
+
+The memory-mapped sector buffer has the advantage that it can be
+accessed via DMA, allowing for very efficient copies.  Also, it allows
+for loading a sector to occur in the background, while your programme
+gets on with more interesting things in the meantime.
+
+But before you have any data to read, you must first tell the floppy
+controller to read a sector.  To do this, load the track, sector and
+side number into the TRACK, SECTOR and SIDE registers (\$D084, \$D085
+and \$D086, respectively). Then write an appropriate read command
+value into \$D080.  This will normally be \$40 (64).  You then wait
+for the RDREQ signal (\$D083, bit 7) to go high, to indicate that the
+sector has been found. You then either wait for each occassion when
+DRQ goes high, and read byte-by-byte in such a loop, or wait for the
+BUSY flag to clear and the DRQ and EQ flags to go high, and then
+access the sector buffer directly.  
+
+What has not been discussed above is stepping the head to the correct
+track.  By default, the 45IO27 uses its ``auto-tune'' function (\$D689,
+bit 4) to compare the track number of sectors passing under the head
+of the disk drive with the requested track.  If the track matches,
+then it knows that it is on the correct track.  If not, it will
+periodically seek the head in the direction of the correct track.
+
+This considerably simplifies operation, by relieving the programmer
+from having to step the head, and recover from mis-steps, where the
+expected and actual tracks diverge. It is therefore recommended that
+programmers leave the auto-tune function enabled at all times --
+unless you purposely intend to create disks with incorrectly numbered
+tracks.
+
+With determination and perserverence, it should be possible
+to create disks that use the auto-tune function to play simple tunes.
+This is not recommended.
+
+\subsection{Disk Layout and 1581 Logical Sectors}
+
+XXX - T,S,S max values for DD, HD and ED disks.
+XXX - Mapping of 1581 logical sectors to physical disk sectors.
 
 \subsection{Writing To Disks}
 

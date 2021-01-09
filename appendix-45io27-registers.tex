@@ -69,7 +69,11 @@ for loading a sector to occur in the background, while your programme
 gets on with more interesting things in the meantime.
 
 But before you have any data to read, you must first tell the floppy
-controller to read a sector.  To do this, load the track, sector and
+controller to read a sector.  To do this, first set the SIDE1 flag in
+bit 3 of \$D080 if you wish to read a sector from the reverse side of the disk,
+or clear it if you wish to read a sector from the first side of the
+disk.
+Next, load the track, sector and
 side number into the TRACK, SECTOR and SIDE registers (\$D084, \$D085
 and \$D086, respectively). Then write an appropriate read command
 value into \$D080.  This will normally be \$40 (64).  You then wait
@@ -99,8 +103,40 @@ This is not recommended.
 
 \subsection{Disk Layout and 1581 Logical Sectors}
 
-XXX - T,S,S max values for DD, HD and ED disks.
-XXX - Mapping of 1581 logical sectors to physical disk sectors.
+The 1581 disk format is unusual in that the physical sectors on the
+disk are a different size of the size of the data blocks that it
+presents to the user.  Specifically, the disks use 512 byte sectors,
+while the 1581 (and C65) DOS present 256 byte data blocks.
+Two blocks are stored in each physical sector.  Also, the physical
+track numbers are from 0 to 79, while the logical track numbers of the
+DOS are 1 to 80.  Physical sectors are also numbered from 1 to 10,
+while logical block numbers begin are 0 to 39.
+
+This means that if you want to find a 1581 logical sector, you need to
+know which physical sector it will be found in.  To determine the
+physical sector that contains a block, you first subtract one from the
+track number, and then divide the sector number by two.  Logical
+sectors 0 to 19 of each track are located in physical sectors 1 to 10
+on the first side of the disk.  Logical sectors 20 to 39 are 
+located in physical sectors 1 to 10 on the reverse side of the disk.  
+
+Thus we can map a some logical track and sector $t$,$s$ to the
+physical track, side and sector as follows:
+
+$track = t - 1$
+
+$sector = (s/2)+1, IFF s < 20, ELSE = ((s-20)/2) + 1$
+
+$side = 0 IFF sector < 20$
+
+It is also worth noting that the 45IO27 is capable of reading from
+tracks beyond track 80, provided that the disk drive is capable of
+this.  Almost all 3.5 inch floppy drives are capable of reading at
+least one extra track, as historically manufacturers of floppy disks
+stored information about the disk on the 81st track.  In our
+experience almost all drives will also be able to access an 82nd
+track.
+
 
 \subsection{Writing To Disks}
 

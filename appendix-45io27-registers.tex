@@ -101,6 +101,19 @@ With determination and perserverence, it should be possible
 to create disks that use the auto-tune function to play simple tunes.
 This is not recommended.
 
+It is also worth noting that the TARGETANY signal can be asserted to
+tell the floppy controller to simply read the next sector that passes
+under the head.  This applies only when using real floppy disks, where
+it offers the considerable advantage of letting you read the sectors
+in the order in which they exist on the disk. This allows you to read
+a track at once, without having to wait for the index hole to pass by,
+or having to know which sector will next pass under the head.  In
+principle, this allows reading approximately 2 full tracks per second,
+i.e., two sides $\times$ two tracks, or approximately 20KiB/second on
+DD disks, or double that on HD disks, at around 40KiB/second.  This
+compares very favourably with the C65 DOS loading speed, which is
+typically nearer 1KiB/sec in C64 mode.
+
 \subsection{Disk Layout and 1581 Logical Sectors}
 
 The 1581 disk format is unusual in that the physical sectors on the
@@ -140,11 +153,39 @@ track.
 
 \subsection{Writing To Disks}
 
-The current revision of the 45IO27 does not support writing to disks.
+The 45IO27 can write to disk images that are located on the SD card,
+or when using virtualised disk access.
+
+However, the current revision of the 45IO27 does not support writing to real
+floppy disks.
 This will be corrected in a future revision.  However, the determined
 user may still be able to write to disks by manipulating the WGATE and
 WDATA signals of the \$D6A0 register.  However, this is not
 recommended.
+
+To write a sector, you follow a similar process to reading, except
+that you write \$84 to the command byte instead of \$40.  The \$80
+indicates a write, and the \$04 activates write-precompensation.  This
+is important when writing to real floppy disks, especially HD and ED
+disks.  Write-precompensation causes bits to be written slightly early
+or slightly late, using an algorithm that models how the magnetic
+domains on a disk tend to move after being written.
+
+If you do not wish
+to use the sector buffer, but instead provide each byte one at a time
+during the write operation, you must add \$01 to the command code.
+However, this is not recommended on the MEGA65, because when writing
+to the SD card or using virtualised disk images the entire sector
+operation can happen instantaneously from the perspective of your
+programme.  This means that it is not possible to supply data reliably
+when in this mode.  Thus apart from being less convenient, it is also
+less reliable. 
+
+Once a write operation has been triggered, the DRQ signal indicates
+when you should provide the next byte if performing a byte-by-byte
+write. Otherwise, it is assumed that you will have pre-filled the
+sector buffer with the complete 512 bytes of data required.
+
 
 \subsection{Using HD, ED Drives and/or variable Data Rates}
 

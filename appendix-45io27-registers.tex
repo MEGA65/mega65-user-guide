@@ -101,7 +101,7 @@ With determination and perserverence, it should be possible
 to create disks that use the auto-tune function to play simple tunes.
 This is not recommended.
 
-It is also worth noting that the TARGETANY signal can be asserted to
+It is also worth noting that the TARGANY signal can be asserted to
 tell the floppy controller to simply read the next sector that passes
 under the head.  This applies only when using real floppy disks, where
 it offers the considerable advantage of letting you read the sectors
@@ -232,6 +232,10 @@ Note that registers related to the use of SD-card based storage are found in the
 
 \input{regtable_FDC.C65}
 
+The following registers apply to the 45IO27 only, i.e., are MEGA65 specific:
+
+\input{regtable_FDC.MEGA65}
+
 \section{SD Card Controller and F011 Virtualisation Functions}
 
 For those situations where you do not wish to use real floppy disks,
@@ -244,7 +248,48 @@ the 45IO27 supports two complementary alternative modes:
 
 \subsection{SD-Card Based Disk Image Access}
 
-XXX - D81 and ``MEGA Disk'' images (800KiB and 64MiB)
+The 45IO27 is both a floppy drive and SD card controller.
+This enables it to transparently allow access to D81 disk images
+stored on the SD card.  Further, because the controller is combined,
+it is possible to still have the floppy drive step and spin as though
+it were being used, providing considerable atmosphere and sense of
+realism, even when using disk images.
+
+The 45IO27 supports both 800KB standard D81 disk images, as well as
+64MiB ``MEGA Images''.  While an operating system may impose
+restrictions based on the name of a file, the 45IO27 is blind to these
+requirements. Instead, it requires only that a {\tt contiguous} 800KiB
+or 64MiB of the SD card is used to contain a disk image.
+
+When a disk image is enabled, the corresponding set of sectors on the
+SD card are effectively placed under user control, and the operating
+system is no longer able to prevent the reading or writing of any of
+those sectors.  Thus you should never enable access to an image that
+is shorter than the required size, as it will otherwise allow the user
+to unwittingly or maliciously access and/or modify data that is not
+part of the image file.
+
+For the same reason, only the hypervisor can change the sector number
+where a disk image starts (the D?STARTSEC? signals), or allow the use
+of disk images instead of the real floppy drive (USEREAL0 and USEREAL1
+signals).  Once the Hypervisor has set the start sector of a disk
+image, and cleared the USEREAL0 or USEREAL1 signal, the user can still
+controll whether an access will go to the real floppy drive or to the
+disk image by respectively clearing or setting the appropriate
+signal.  For drive 0, this is D0IMG, and for drive 1, it is D1IMG.
+
+There are also signals to control whether a disk image is an 800KiB
+D81 image or a 64MiB MEGA Disk image, and whether a disk image is
+present, and whether it is write protected. These are all located in
+the \$D68B register. Because of the ability of manipulation of these
+registers to corrupt or improperly access data, these signals are all
+read-only, except from within the hypervisor.
+
+The following table lists the registers that are used to control
+access to disk images resident on the SD card:
+
+\input{regtable_SDFDC.MEGA65}
+
 
 \subsection{F011 Virtualisation}
 

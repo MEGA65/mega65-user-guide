@@ -48,6 +48,7 @@ The remaining six drives are supported only in conjunction with a
 future C1565-compatible external drive port.
 
 \subsection{Reading From Disks}
+\label{subsec:reading-from-disks-and-buffer-management}
 
 The 45IO27 support two main modes of reading sectors from a
 disk: byte-by-byte, and via a memory-mapped sector buffer.
@@ -59,9 +60,23 @@ register (\$D087).
 The memory-mapped sector buffer method consists of waiting for the
 BUSY flag to clear, indicating that the entire sector has been read,
 and then directly accessing the sector buffer located at \$FFD6C00 --
-\$FFD6DFF. Care should be taken to ensure that bit 7 of \$D689 is
+\$FFD6DFF. Care should be taken to ensure that the BUFSEL signal (bit 7 of \$D689) is
 cleared, so that the floppy sector buffer is visible, rather than the
-SD card sector buffer.
+SD card sector buffer for programmes other than the Hypervisor. This
+is because only the Hypervisor has access to the full 4KiB SD
+controller buffer space: Normal programmes see either the floppy
+sector buffer or the SD card sector buffer repeated 8 times between
+\$FFD6000 and \$FFD6FFF.
+
+Alternatively, the sector buffer can be mapped at \$DE00 -- \$DFFF,
+i.e., in the 4KB IO area, by writing the \$81 to the SD command
+register at \$D680.  This will hide any IO peripherals that are
+otherwise using this area, e.g., from cartridges, or REU emulation.
+This function can be disabled again by writing \$82 to the SD command
+register. As with the normal sector buffer memory mapping at
+\$FFD6xxx, the BUFSEL signal (bit 7 of \$D689) affects whether the FDC
+or the SD card sector buffer is visible, for software not running in
+Hypervisor mode. 
 
 The memory-mapped sector buffer has the advantage that it can be
 accessed via DMA, allowing for very efficient copies.  Also, it allows
@@ -246,6 +261,9 @@ the 45IO27 supports two complementary alternative modes:
 \item Virtualised Disk Image Access.
 \end{itemize}
 
+This is in addition to providing direct access to a dual-bus SD card
+interface.
+
 \subsection{SD-Card Based Disk Image Access}
 
 The 45IO27 is both a floppy drive and SD card controller.
@@ -290,7 +308,6 @@ access to disk images resident on the SD card:
 
 \input{regtable_SDFDC.MEGA65}
 
-
 \subsection{F011 Virtualisation}
 
 In addition to allowing automatic read and write access to SD-card
@@ -332,6 +349,157 @@ JTAG adapter and mini-USB cable.
 
 More information on using this interface and the {\tt m65} tool can be
 found in \bookvref{cha:transfer-and-debug-tools}.
+
+\subsection{Dual-Bus SD Card Controller}
+
+The 45IO27 contains a high-speed dual-bus SD card controller.  This
+controller operates in SPI x1 mode at a clock speed of 20MHz,
+providing a maximum throughput of approximately 2MiB/sec.  The quality
+of the SD card makes a signficant difference to performance, with some
+cards routinely delivering 1.7MiB/sec, while others 1MiB/sec or
+less. Generally speaking, newer cards marketted as being suitable for
+video recording perform better.  The controller supports SDHC cards,
+and has experimental support for SDXC cards.  Legacy SD cards with a
+capacity of 2GiB or less are not supported, as these use a different
+addressing mode.
+
+The SD controller itself is very simple to drive: Supply the sector
+number in \$D861-\$D684, and then issue a read or write command to the
+command register (\$D680).  The SD controller supports only
+sector-based buffered operations, using the sector buffer. In
+hypervisor mode, the sector buffer is located at \$FFD6E00 --
+\$FFD6FFF, while when the computer is in normal operating mode, the SD
+card and the floppy controller share a single address for both the
+floppy drive and SD card sector buffers. Which buffer is visible at
+that address is dictated by the BUFSEL signal. If it is 1, then the SD
+card buffer is visible, while if it is 0, then the floppy drive sector
+buffer is visible.  See also Sub-section
+\vref{subsec:reading-from-disks-and-buffer-management} for further
+discussion on the precise behaviour of this buffer with regard to
+normal mode versus Hypervisor mode, and how it can also be mapped at
+\$DE00. 
+
+\subsubsection{Write Gate}
+
+When writing a sector, you must, however, first open the ``write
+gate''. This is a mechanism to prevent accidental corruption of data
+on the SD card, as it requires two different values to be written to
+the command register (\$D680) in quick succession: You have
+approximately 1 milli second after opening the write gate to command
+the write, before the write gate effectively closes again,
+write-protecting the SD card until the write gate is opened again.
+There are two different write gates: One for the master boot record
+(sector 0), and the other for all other sectors, both of which are
+listed in the command table below. This is designed to provide
+additional protection to the very important master boot record sector
+against programmes accidentally calculating sector 0 as the target for
+an ordinary write.
+
+\subsubsection{Fill Mode}
+
+Where you wish to fill sectors with a constant value, the 45IO27
+supports a mode for this, so that you do not need to overwrite the
+contents of the sector buffer. This is activated by placing the
+desired fill value into the FILLVAL register (\$D686), and then
+issuing the enable fill mode command (\$83), performing the sector
+write operations, and then issuing the disable fill mode command
+(\$84). 
+
+\subsubsection{Selecting Among Multiple SD Cards}
+
+The controller supports two SD Card interfaces, and it is possible to
+have a card in both at the same time.  However, each card needs to be
+reset and commanded separately.  Only one card can be commanded at a
+time.  That said, it is possible to reset each card once, and then
+switch between the cards to perform individual operations.
+
+To select the first SD Card slot, write \$C0 to the SD Controller
+Command Register (\$D680).  To select the second SD Card slot, write
+\$C1 instead.
+
+\subsubsection{SD Controller Command Table}
+
+The SD controller supports the following commands that can be written
+to the command register at \$D680:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Command}} & {\bf{Function}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Command}} & {\bf{Function}} \\
+\endhead
+\multicolumn{2}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$00 (0) & Place SD card under reset (deprecated. Use command
+\$10 instead) \\
+ \hline
+\small \$01 (1) & Release SD card from reset \\
+ \hline
+\small \$02 (2) & Read a sector from the SD card \\
+ \hline
+\small \$03 (3) & Write a single sector to the SD card \\
+ \hline
+\small \$04 (4) & Write the first sector of a multi-sector write to the SD card \\
+ \hline
+\small \$05 (5) & Write a subsequent sector of a multi-sector write to the SD card \\
+ \hline
+\small \$06 (6) & Write the final sector of a multi-sector write to the SD card \\
+ \hline
+\small \$0C (12) & Request flush of SD card write buffers (experimental) \\
+ \hline
+\small \$0E (14) & Pull SD handshake line low (debug only) \\
+ \hline
+\small \$0F (15) & Pull SD handshake line high (debug only) \\
+ \hline
+\small \$10 (16) & Place SD card under reset with flags set (preferred
+method) \\
+ \hline
+\small \$11 (17) & Release SD card from reset (alternate method) \\
+ \hline
+\small \$40 (64) & Clear the SDHC/SDXC flag, selecting legacy SD card mode (deprecated)  \\
+ \hline
+\small \$41 (65) & Set the SDHC/SDXC mode flag   \\
+ \hline
+\small \$44 (68) & End force clearing of SD card state machine error
+flag \\
+\small \$45 (69) & Begin force clearing of SD card state machine error
+flag \\
+\small \$4D (77) & Open write-gate to sector 0 (master boot record)
+for approximately 1 milli-second \\
+ \hline
+\small \$57 (87) & Open write-gate for all sectors > 0 for approximately 1 milli-second \\
+ \hline
+\small \$81 (129) & Enable mapping of the SD/FDC sector buffer at
+\$DE00 -- \$DFFF \\
+ \hline
+\small \$82 (130) & Disable mapping of the SD/FDC sector buffer at
+\$DE00 -- \$DFFF \\
+ \hline
+\small \$83 (131) & Enable SD Card Fill Mode \\
+ \hline
+\small \$84 (132) & Disable SD Card Fill Mode \\
+ \hline
+\small \$C0 (192) & Select SD Card Slot 0 \\
+ \hline
+\small \$C1 (193) & Select SD Card Slot 1 \\
+ \hline
+   \end{longtable}
+
+
+Note that the hypervisor can enable or disable direct access to the SD
+controller. The hypervisor operating system may provide a mechanism
+for requesting permission to access the SD card controller, e.g., for
+disk management utilities.
+
+The SD card controller registers are as follows:
+
+\input{regtable_SD.MEGA65}
 
 \section{Touch Panel Interface}
 

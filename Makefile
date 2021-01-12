@@ -7,7 +7,8 @@ BOOKS=	mega65-book.pdf \
 	mega65-basic10-reference.pdf \
 	mega65-basic-programming.pdf \
 
-GENERATED_TEX_FILES= 	instructionset-4510.tex \
+GENERATED_TEX_FILES= 	document-memory \
+			instructionset-4510.tex \
 		     	instructionset-6502.tex \
 		     	instructionset-45GS02.tex \
 		 	api-conio.tex

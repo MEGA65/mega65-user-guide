@@ -311,13 +311,16 @@ void emit_table_output(FILE *f)
 		  );
       } else {
 	if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
-	  fprintf(f," %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X} & \\small %d -- %d ",
+	  fprintf(f," %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X}\\index{Registers!%d -- %d} & \\small %d -- %d ",
+		  table_stuff[row].low_addr,table_stuff[row].high_addr,
 		  table_stuff[row].low_addr,table_stuff[row].high_addr,
 		  table_stuff[row].low_addr,table_stuff[row].high_addr,
 		  table_stuff[row].low_addr,table_stuff[row].high_addr);
 	else
-	  fprintf(f," %04X\\index{Registers!\\$%04X} & \\small %d ",
-		  table_stuff[row].low_addr,table_stuff[row].low_addr,
+	  fprintf(f," %04X\\index{Registers!\\$%04X}\\index{Registers!%d} & \\small %d ",
+		  table_stuff[row].low_addr,
+		  table_stuff[row].low_addr,
+		  table_stuff[row].low_addr,
 		  table_stuff[row].low_addr
 		  );
       }

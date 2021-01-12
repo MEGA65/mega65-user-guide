@@ -503,6 +503,64 @@ The SD card controller registers are as follows:
 
 \section{Touch Panel Interface}
 
+Some MEGA65 variants include an LCD touch panel, primarily the
+MEGAphone hand-held version of the MEGA65.  The touch interface
+supports the detection of two simultaneous touch events.  Some
+variants may also support gesture detection, however, this is still
+very experimental.
+
+The touch detection interface that is contained in the 45IO27 is
+complemented by the on-screen-keyboard interface of the 4551 UART and
+GPIO controller.  Refer to \bookref{sec:uartmisc} for further
+information.  Of particular relevance are bit 7 of the registers \$D615 --
+\$D617 which allow activating the on-screen keyboard interface,
+selecting whether the on-screen keyboard is placed in the upper or
+lower portion of the screen, and whether the primary or secondary
+on-screen keyboard is displayed.
+
+Direct connections between the 4551 and the 45IO27 combine information
+about any currently displayed on-screen keyboard and the touch
+interface controller, allowing synthetic keyboard events to be
+automatically triggered when the on-screen keyboard portion of the
+touch interface is pressed.  This allows the touch interface to be
+used to drive the on-screen keyboard without requiring any support
+from user programmes. This works even when the on-screen keyboard is
+moving during activation or transitioning between the top and bottom
+of the screen.
+
+As touch interfaces can require calibration, the 45IO27 allows for a
+linear transformation of both the X and Y coordinates of a touch
+event.  Specifically, there are scale (TCHXSCALE and TCHYSCALE) and
+offset registers (TCHXDELTA and TCHYDELTA) that provide for this
+transformation. It is also possible to flip the touch screen
+coordinates in either or both the X and Y axes.  These calibration
+registers also affect the operation of the on-screen keyboard.
+
+It should also be noted that some touch interfaces do not have
+constant horizontal or vertical resolution. For example, some panels
+have a low horizontal resolution region in the middle of the panel,
+which can require some care to accommodate.
+
+To detect the primary touch event, the TOUCH1XLSB, TOUCH1XMSB, TOUCH1YLSB,
+TOUCH1YMSB registers can be read.  Similar registers exist for the 2nd
+touch event: TOUCH2XLSB, TOUCH2XMSB, TOUCH2YLSB, TOUCH2YMSB. Each
+touch event has a signle bit flag that indicates whether the touch
+event is currently valid: the EV1 and EV2 bits of the register
+\$D6B0.  There are also corresponding bit-fields that indicate whether a
+given touch event has been made or released, allowing the detection of
+when a finger both makes and breaks contact with the screen.  The
+UPDN1 and UPDN2 signals provide this information.  Binary values of 01 and
+10, respectively indicate if the finger has been removed or pressed
+against the touch panel.  Values of 00 and 11 mean that a finger is
+either being held or not being held against the touch panel.
+
+The
+primary touch event is also fed into the lightpen\index{light pen} input of the VIC-IV,
+and can be detected using the normal light pen registers of the VIC-IV.
+
+
+\input{regtable_TOUCH.MEGA65}
+
 \section{Audio Support Functions}
 
 \section{Miscellaneous IO Functions}

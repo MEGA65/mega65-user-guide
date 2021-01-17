@@ -600,6 +600,108 @@ Also, you must allow 32 cycles to elapse before changing the selected
 audio coefficient, as otherwise the change may be discarded if the
 audio mixer accumulator has not had time to re-visit that coefficient.
 
+The audio sources on the MEGA65 and MEGAphone devices are as follows:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Input Channel ID}} & {\bf{Connection}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Input Channel ID}} & {\bf{Connection}} \\
+\endhead
+\multicolumn{2}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$0 (0) & Left SIDs \\
+ \hline
+\small \$1 (1) & Right SIDs \\
+ \hline
+\small \$2 (2) & Modem Bay 1 (MEGAphone only) \\
+ \hline
+\small \$3 (3) & Modem Bay 2 (MEGAphone only) \\
+ \hline
+\small \$4 (4) & Bluetooth(tm) Left \\
+ \hline
+\small \$5 (5) & Bluetooth(tm) Right \\
+ \hline
+\small \$6 (6) & Headphone Interface 1 \\
+ \hline
+\small \$7 (7) & Headphone Interface 2 \\
+ \hline
+\small \$8 (8) & Digital audio Left \\
+ \hline
+\small \$9 (9) & Digital audio Right \\
+ \hline
+\small \$A (10) & MEMs Microphone 0 (Nexys4 and MEGAphone only) \\
+ \hline
+\small \$B (11) & MEMs Microphone 1 (MEGAphone only) \\
+ \hline
+\small \$C (12) & MEMs Microphone 2 (MEGAphone only) \\
+ \hline
+\small \$D (13) & MEMs Microphone 3 (MEGAphone only) \\
+ \hline
+\small \$E (14) & Headphone jack microphone (Nexys4 and MEGAphone only) \\
+ \hline
+\small \$F (15) & OPL-compatible FM audio ({\em shares co-efficient
+  with input 14}) \\
+ \hline
+\end{longtable}
+
+The OPL-compatible FM audio which is on source 15 is controlled by the
+coefficient for source 14.  This is because the coefficient for source
+15 provides the master volume level for each output.
+
+The audio cross-bar mixer supports the following eight output
+channels:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Output Channel ID}} & {\bf{Connection}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Output Channel ID}} & {\bf{Connection}} \\
+\endhead
+\multicolumn{2}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$0 (0) & Left Primary Speaker (digital audio on MEGA65 R2/R3,
+physical speaker on MEGAphone, headphone jack audio on Nexys4) \\
+ \hline
+\small \$1 (1) & Right Primary Speaker (digital audio on MEGA65 R2/R3,
+physical speaker on MEGAphone, headphone jack audio on Nexys4) \\
+ \hline
+\small \$2 (2) & Modem Bay 1 audio output (MEGAphone only) \\
+ \hline
+\small \$3 (3) & Modem Bay 2 audio output (MEGAphone only) \\
+ \hline
+\small \$4 (4) & Bluetooth Left Audio (MEGAphone only) \\
+ \hline
+\small \$5 (5) & Bluetooth Right Audio (MEGAphone only) \\
+ \hline
+\small \$6 (6) & Headphone Left output (MEGA65 R2/R3 and MEGAphone
+only.  On Nexys4 boards the primary speaker drives the 3.5mm jack) \\
+ \hline
+\small \$7 (7) & Headphone Right output (MEGA65 R2/R3 and MEGAphone
+only.  On Nexys4 boards the primary speaker drives the 3.5mm jack) \\
+ \hline
+\end{longtable}
+
+To determine the coefficient register number for a given source and
+output, multiply the output number by 32 and multiply the source
+number by 2.  This will be the register number for the LSB of the
+16-bit coefficient.  The MSB will be the next register. For example,
+to set the coefficient of the right SIDs to the 2nd modem bay audio
+output, the coefficient would be $32\times 3 + 1 \times 2 = 96 + 2 =
+98$.  
+
 
 
 XXX - mixer stuff

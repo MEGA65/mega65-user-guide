@@ -338,6 +338,52 @@ be added later). So an instruction like {\ttfamily \bf LDA [TXTPTR],Z}
 will be assembled as loading the accumulator using a 32 bit pointer
 at the addresses {\ttfamily \bf TXTPTR, TXTPTR+1, TXTPTR+2, TXTPTR+3}.
 
+% ********
+% ASSEMBLE
+% ********
+
+\subsubsection{A : ASSEMBLE}
+
+\index{ASSEMBLE}
+\index{MONITOR Commands!ASSEMBLE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf A address mnemonic operand}
+\item [Usage:] The mini assembler allows entry of machine language instructions
+               using easy to remember mnemonics instead of opcodes.
+               The operand may be entered as hex, decimal, binary or character.
+               Branch targets are automatically converted to relative distances.
+               After each entered instruction, the mini assembler generates
+               the 1-3 byte long machine code, prints this code along with the
+               instruction and advances the program counter. A new line
+               is generated with the command {\bf A} and the new value of the
+               program counter printed. This eases the fast entry of instructions.
+               The assembly input mode is stopped by pressing RETURN only.
+               Any line of the entered code or a line in disassembly format
+               can be changed by moving the cursor into that line and changing
+               the desired element, for example the mnemonic or the operand.
+               Listed hex values before the mnemonic are ignored.
+
+               If the monitor shall be reentered after executing the code,
+               the last instruction must be a {\bf BRK} instruction
+               and the program must be called with I/O and monitor ROM active.
+               This is done by setting the bit 31 of the execution address.
+               If the program was entered in bank 0 on address 1500,
+               it should be started with: \screentext{G 80001500}.
+
+               If the entered code is a subroutine, it must end with a
+               {\bf RTS} instruction.
+
+\item [Remarks:] The assembler recognizes all 45GS02 instructions of the
+                 MEGA65, except the instructions, that use the Q register.
+                 These instructions can be entered by typing
+                 the NEG NEG prefix explicit. E.g. instead of LDQ \$1234,
+                 entering the 3 instructions (on 3 different rows)
+                 NEG NEG LDA \$1234 is assembled to the equivalent code.
+
+\end{description}
+\includegraphics[width=\linewidth]{images/monitor-a}
+
+
 
 
 

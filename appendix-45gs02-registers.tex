@@ -543,10 +543,26 @@ produced, and the programme will take the same number of cycles to execute.
 
 \input{regtable_CPU.MEGA65}
 
-\section{MEGA65 CPU Maths Unit Registers}
+\section{MEGA65 CPU Maths Acceleration Registers}
 
-Some models include a math unit, which helps to accelerate the calculation of fixed-point formulae.
-This is not present in all models of the MEGA65.
+Every MEGA65 contains a combined 32-bit hardware multiplier and divider.
+This device takes two 32-bit inputs, MULTINA and MULTINB, and simultaneously calculates:
+
+\begin{itemize}
+\item the 64-bit product of MULTINA and MULTINB
+\item the 32-bit whole part of MULTINA / MULTINB
+\item the 32-bit fractional part of MULTINA / MULTINB
+\end{itemize}
+
+It is always updating the outputs based on the inputs, so there is no need to take special action when changing the inputs.
+The multiplier takes 1 cycle to calculate, and the updated result will thus be available immediately. The hardware divider,
+however, can take upto 16 cycles depending on the particular inputs.  Thus programmers should insert a short delay after
+changing the inputs before reading the output.  As this delay is so short, it can be implemented by simply reading the first
+byte of the result four times consecutively, as the 4th read will occur after the result has settled.
+
+Some models of the MEGA65 also include a math unit, which helps to accelerate the calculation of fixed-point formulae.
+This presently disabled in all models of the MEGA65 and will be further documented if and when it becomes
+available.
 
 \input{regtable_MATH.MEGA65}
 

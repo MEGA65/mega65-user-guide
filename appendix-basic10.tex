@@ -4185,7 +4185,7 @@ A=5      :REM SHORTER AND FASTER
 \item [Remarks:] The graphical cursor is not visible, it's just
                  the starting point for follow up graphics commands.
                  The current position can be examined with the
-                 {\bf RDOT} function.
+                 {\bf PIXEL} function.
 \item [Example:] Using {\bf LOCATE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -5616,40 +5616,6 @@ statement. The default setting for the envelopes are:
 \end{description}
 
 % ****
-% RDOT
-% ****
-
-\newpage
-\subsection{RDOT}
-\index{RDOT}
-\index{BASIC 10 Functions!RDOT}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$D0
-\item [Format:] {\bf RDOT(n)}
-\item [Usage:]  Returns information about the graphical cursor.
-
-                {\bf n} = kind of information.
-
-{\ttfamily
-                0: x-position \\
-                1: y-position \\
-                2: colour index
-}
-
-\item [Example:] Using {\bf RDOT}
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- 10 X = RDOT(0)
- 20 Y = RDOT(1)
- 30 C = RDOT(2)
- 40 PRINT "THE COLOUR INDEX AT (";X;"/";Y;") IS:";C
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
-% ****
 % READ
 % ****
 
@@ -6190,6 +6156,49 @@ if the mouse is not connected or disabled.
  20 FOR I=1 TO 10                 :REM THROW 10 TIMES
  30 PRINT I;FNDI(0)               :REM PRINT DICE POINTS
  40 NEXT
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ****
+% RPEN
+% ****
+
+\newpage
+\subsection{RPEN}
+\index{RPEN}
+\index{BASIC 10 Functions!RPEN}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$D0
+\item [Format:] {\bf RPEN(n)}
+\item [Usage:]  Returns the colour index of pen n.
+
+                {\bf n} = PEN number (0-2).
+
+{\ttfamily
+                0: draw pen \\
+                1: erase pen \\
+                2: outline pen
+}
+
+\item [Example:] Using {\bf RPEN}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 GRAPHIC CLR         :REM INITIALISE
+ 20 SCREEN DEF 0,1,0,4  :REM SCREEN 0:640 X 200 X 4
+ 30 SCREEN OPEN 0       :REM OPEN
+ 40 SCREEN SET 0,0      :REM DRAW = VIEW = 0
+ 50 SCNCLR 0            :REM CLEAR
+ 60 PEN 0,1             :REM SELECT COLOUR
+ 70 X = RPEN(0)
+ 80 Y = RPEN(1)
+ 90 C = RPEN(2)
+100 SCREEN CLOSE 0
+110 PRINT "DRAW PEN COLOUR = ";X
+RUN
+DRAW PEN COLOUR =  1
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

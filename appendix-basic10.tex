@@ -6007,34 +6007,69 @@ statement. The default setting for the envelopes are:
 \end{tcolorbox}
 \end{description}
 
-% ***
-% RGR
-% ***
+% ********
+% RGRAPHIC
+% ********
 
 \newpage
-\subsection{RGR}
-\index{RGR}
-\index{BASIC 10 Functions!RGR}
+\subsection{RGRAPHIC}
+\index{RGRAPHIC}
+\index{BASIC 10 Functions!RGRAPHIC}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CC
-\item [Format:] {\bf RGR(dummy)}
-\item [Usage:]  Returns information about the graphic mode.
+\item [Format:] {\bf RGRAPHIC(screen,parameter)}
+\item [Usage:]  Return graphic screen status and parameters
 
-                {\bf dummy} = unused numeric expression.
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|}
+\hline
+ param  & description \\
+\hline
+ 0 & open (1), closed (0), or invalid (>1)  \\
+ 1 & width  (0=320, 1=640)  \\
+ 2 & height (0=200, 1=400)  \\
+ 3 & depth (1-8 bitplanes)  \\
+ 4 & bitplanes used  (bitmask)  \\
+ 5 & bank 4 blocks used (bitmask)  \\
+ 6 & bank 5 blocks used (bitmask)  \\
+ 7 & drawscreen \# (0-3)  \\
+ 8 & viewscreen \# (0-3)  \\
+ 9 & drawmodes  (bitmask)  \\
+10 & pattern type  (bitmask)  \\
+\hline
+\end{tabular}
+}
 
-                In text mode {\bf RGR} returns zero.
-                in graphics mode {\bf RGR} returns a non zero value.
-
-\item [Example:] Using {\bf RGR}
+\item [Example:] Using {\bf RGRAPHIC}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 M = RGR(0)
- 20 IF M THEN CHAR 0,0,1,1,2,"TITLE": ELSE PRINT "TITLE"
+ 10 GRAPHIC CLR         :REM INITIALISE
+ 20 SCREEN DEF 0,1,0,4  :REM SCREEN 0:640 X 200 X 4
+ 30 SCREEN OPEN 0       :REM OPEN
+ 40 SCREEN SET 0,0      :REM DRAW = VIEW = 0
+ 50 SCNCLR 0            :REM CLEAR
+ 60 PEN 0,1             :REM SELECT COLOUR
+ 70 LINE 0,0,639,199    :REM DRAW LINE
+ 80 FOR I=0 TO 10:A(I)=RGRAPHIC(0,I) :REM GET INFO
+ 90 SCREEN CLOSE 0
+100 FOR I=0 TO  6:PRINT I;A(I):NEXT :REM PRINT INFO
+
+RUN
+ 0  1
+ 1  1
+ 2  0
+ 3  4
+ 4  15
+ 5  15
+ 6  15
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
+
+
 
 % *******
 % RIGHT\$

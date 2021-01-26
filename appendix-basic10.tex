@@ -2382,6 +2382,96 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \end{tcolorbox}
 \end{description}
 
+% ****
+% EDIT
+% ****
+
+\newpage
+\subsection{EDIT}
+\index{EDIT}
+\index{BASIC 10 System Commands!EDIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf EDIT <ON | OFF>}
+
+\item [Usage:]  {\bf EDIT} switches the builtin editor
+               either to text mode {\bf EDIT ON}
+               or BASIC program editor {\bf EDIT OFF}.
+
+               After power up or reset, the editor
+               is initialised as BASIC program editor.
+
+               After setting the editor to text mode with
+               {\bf EDIT ON}, the diffences to program mode are:
+
+               The editor does no tokenising.
+               All text entered after a linenumber remains pure text,
+               BASIC keywords like {\bf FOR} or {\bf GOTO} are not
+               converted to BASIC tokens, like in program mode.
+
+               The line numbers are only used for text organisation
+               sorting, deleting, listing etc.
+               When the text is saved to file with {\bf DSAVE},
+               a sequential file (type SEQ) is written, not a
+               program (PRG) file, like in program mode.
+               Line numbers are not written to the file.
+
+               {\bf DLOAD} in text mode can load only sequential files.
+               Linenumbers are automatically generated for editing purposes.
+
+               The mode of the editor can be recognised by looking at the prompt:
+               In program mode, the prompt is: {\bf READY.}, while in text mode
+               the prompt is: {\bf OK}.
+
+               The text mode affects entered lines with leading number only,
+               lines with no linenumber are executed as BASIC commands,
+               as usual.
+
+               Sequential files, created with the text editor, can be displayed
+               (without loading them)
+               on the screen by using the {\bf TYPE <filename>} command.
+
+\newpage
+
+\item [Example:] Using {\bf EDIT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ready.
+edit on
+
+ok.
+100 This is a simple text editor.
+dsave "example"
+
+ok.
+new
+
+ok.
+catalog
+
+0 "demoempty       " 00 3d
+1    "example"          seq
+3159 blocks free
+
+ok.
+type "example"
+This is a simple text editor.
+
+ok.
+dload "example"
+
+loading
+
+ok.
+list
+
+1000 This is a simple text editor.
+
+ok.
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % **
 % EL
 % **

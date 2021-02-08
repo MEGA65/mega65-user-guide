@@ -57,17 +57,21 @@ https://www.tug.org/mactex/mactex-download.html
 Or use MacPorts, which gives easy access to a huge base of Linux/UNIX software.
 With MacPorts install following LaTeX packages:
 
+```
 sudo port install texlive-latex
 sudo port install texlive-latex-extra
 sudo port install texlive-latex-recommended
 sudo port install latexmk
 sudo port install latexdiff
+```
 
 The manual is created in the local repository with:
 
+```
 make clean
 make mega65-book.pdf
 make mega65-book.pdf
+```
 
 Calling "make" with the target twice is intentional and needed for getting all references resolved.
 Of course, you can create a shell script for these three lines.

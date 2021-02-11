@@ -5255,19 +5255,20 @@ statement. The default setting for the envelopes are:
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$0A
 \item [Format:] {\bf POINTER(variable)}
-\item [Usage:]  Returns the current address of a variable
-                or an array element in bank 1.
+\item [Usage:]  Returns the current of a variable
+                or an array element.
                 For string variables, it is the address of
                 the string descriptor, not the string itself.
                 The string descriptor consists of the three bytes
                 (length,string address low, string address high).
 
+                Address values $>=$ \$F700 are assigned to bank 0.
+                All other addresses are assigned to bank 1.
 
 \item [Remarks:] The address values of arrays and their elements
-                 change for every new declaration
-                 (first usage) of scalar variables. \\
+                 are constant during a program execution. \\
                  The addresses of strings (not their descriptors)
-                 may change at any time due to
+                 however may change at any time due to
                  "garbage collection" in memory management.
 
 
@@ -5276,10 +5277,22 @@ statement. The default setting for the envelopes are:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 A$="TEXT": B%=5: DIM C(100) :REM DEFINE SOME VARIABLES
- 20 PRINT POINTER(A$);POINTER(B%);POINTER(C(20))
+10 H$="HELLO"
+20 P=POINTER(H$):PRINT "DESCRIPTOR AT: $";HEX$(P)
+30 IF P>= DEC("F700") THENBANK 0:ELSEBANK 1
+40 L=PEEK(P):SP=PEEK(P+1)+256*PEEK(P+2)
+50 PRINT"STRING ADDRESS:$";HEX$(SP)
+60 PRINT "LENGTH=";L
+70 BANK 1:REM STRING BANK
+80 FOR I=1TOL:PRINT PEEK(SP+I-1);:NEXT:PRINT
+90 FOR I=1TOL:PRINT CHR$(PEEK(SP+I-1));:NEXT:PRINT
 
- 1026 1033 1145
+RUN
+DESCRIPTOR AT: $F702
+STRING ADDRESS:$F6F9
+LENGTH= 5
+ 72  69  76  76  79
+HELLO
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

@@ -35,7 +35,52 @@ These values can be used to check whether a given MEGA65 system's hypervisor
 supports features that become available (or are deprecated) at particular versions.
 
 \subsection{\$00:\$38 -- Get Current Error Code (geterrorcode)}
+
+Returns the current error code from the Hypervisor.  The currently supported
+error codes are:
+
+\begin{itemize}
+\item \$01 (1) -- Partition Not Interesting, indicating that an attempt to mount a partition was rejected because the partition was not of a supported type.
+\item \$02 (2) -- Bad Signature, indicating that the signature bytes at the end of a partition table or of the first sector of a partition were missing or incorrect.
+\item \$03 (3) -- An attempt was made to mount a FAT12 or FAT16 partition.  Only FAT32 partitions are supported.
+\item \$04 (4) -- An attempt was made to mount a partition that has too many reserved sectors. The number of reserved sectors must be less than 65,536.
+  \item \$05 (5) -- An attempt was made to mount a partition that does not have exactly two copies of the FAT structure.
+\item \$06 (6) -- An attempt was made to mount a partition that contains a partition with too few clusters.
+\item \$07 (7) -- A read timeout occurred.
+  \item \$08 (8) -- An unspecified error occurred while handling a partition.
+\item \$10 (16) -- An invalid address was supplied to the Setup Transfer Area For Other Calls function.
+\item \$11 (17) -- An illegal value was supplied to a Hypervisor call.
+\item \$20 (32) -- A read error occurred.
+\item \$21 (33) -- A write error occurred.
+\item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
+\item \$81 (129) -- The supplied filename was too long.
+\item \$82 (130) -- A Hypervisor call was made to a function that is not implemented. 
+\item \$83 (131) -- An attempt was made to load a file into memory that is longer than 16MiB.
+\item \$84 (132) -- Too many files are open, and no free file descriptor could be obtained for the requested operation.
+\item \$85 (133) -- The supplied cluster number is invalid.
+\item \$86 (134) -- An attempt was made to operate on a directory, where a normal file was expected.
+\item \$87 (135) -- An attempt was made to operate on a normal file, where a directory was expected.
+\item \$88 (136) -- The requested file could not be located.
+\item \$89 (137) -- An invalid file descriptor was supplied.
+\item \$8A (138) -- A disk image file had the wrong length, and was rejected for this reason.
+\item \$8B (139) -- A disk image was attempted to be mounted, but could not because it is fragmented on the file system.  Disk images must be stored contiguously on disk. This is because of the way that the SD card controller and floppy controller work: They load the starting sector of the disk image into special registers, and have no way to correctly handle a disk image that is stored in separate pieces on the disk. 
+\item \$8C (140) -- The disk has no free space for the requested operation.
+\item \$8D (141) -- An attempt was made to create a file that already exists, or to rename a file to have the name of a file that already exists.
+\item \$8E (142) -- An attempt was made to create a file in a directory that cannot accommodate any more entries.
+\item \$FF (255) -- The end of a file or directory was encountered.
+\end{itemize}
+
 \subsection{\$00:\$3A -- Setup Transfer Area for Other Calls (setup\_transfer\_area)}
+
+Setup the transfer area for various hypervisor calls. The page number of the transfer area is supplied in the Y register.
+This page must be between \$00 and \$7E, thus indicating a transfer area between \$0000 and \$7E00. The transfer area is
+256 bytes long for most calls.  Note that the transfer area is indicated using the processor's current memory mapping at
+the time that a function is called.  However, it is good practice to always place it in the bottom 32KiB of main memory.
+
+\begin{itemize}
+  \item Y = Page number of the transfer area (\$00 -- \$7E).
+\end{itemize}
+
 
 \section{Disk/Storage Hypervisor Calls}
 

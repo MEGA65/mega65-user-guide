@@ -7021,8 +7021,22 @@ RUN
 \index{SPRITE}
 \index{BASIC 10 Commands!SPRITE}
 \item [Token:] \$FE \$07
-\item [Format:] {\bf SPRITE no [switch, colour, prio, expx, expy, mode]}
-\item [Usage:]  Switches a sprite on or off and sets its attributes.
+\item [Format:] {\bf SPRITE CLR} \\
+                {\bf SPRITE LOAD filename [,D drive] [,U unit]} \\
+                {\bf SPRITE SAVE filename [,D drive] [,U unit]} \\
+                {\bf SPRITE no [switch, colour, prio, expx, expy, mode]}
+\item [Usage:]  {\bf SPRITE CLR} clears all sprite data and sets all pointers
+                and attributes to default values.
+
+                {\bf SPRITE LOAD } loads sprite data from {\bf filename}
+                to sprite memory.
+
+                {\bf SPRITE SAVE } saves sprite data from
+                sprite memory to {\bf filename}.
+
+                \filenamedefinition
+
+                The last form switches a sprite on or off and sets its attributes.
 
                 {\bf no} = sprite number
 
@@ -7046,15 +7060,14 @@ RUN
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 COLLISION 1,70 : REM ENABLE
-20 SPRITE 1,1 : MOVSPR 1,120,  0 : MOVSPR 1,0#5
-30 SPRITE 2,1 : MOVSPR 2,120,100 : MOVSPR 2,180#5
-40 FOR I=1 TO 50000:NEXT
-50 COLLISION 1 : REM DISABLE
-50 END
-70 REM SPRITE <-> SPRITE INTERRUPT HANDLER
-80 PRINT "BUMP RETURNS";BUMP(1)
-90 RETURN: REM RETURN FROM INTERRUPT
+2290 CLR:SCNCLR:SPRITE CLR
+2300 SPRITE LOAD "DEMOSPRITES1"
+2320 FORI=0TO7: C=I: IFC=6THENC=8
+2330 MOVSPR I, 60+30*I,0 TO 60+30*I,65+20*I, 3:SPRITE I,1,C,,1,1:NEXT: SLEEP3
+2340 FORI=0TO7: SPRITE I,,,,0,0 :NEXT: SLEEP3: SPRITE CLR
+2350 FORI=0TO7: MOVSPR I,45*I#5 :NEXT: FORI=0TO7: SPRITE I,1: NEXT
+2360 FORI=0TO7:X=60+30*I:Y=65+20*I:DO:LOOPUNTIL(X=RSPPOS(I,.))AND(Y=RSPPOS(I,1))
+:MOVSPRI,.#.:NEXT
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

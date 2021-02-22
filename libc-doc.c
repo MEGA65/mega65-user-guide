@@ -8,6 +8,8 @@ char token[MAX_FILE_SIZE];
 
 void parse_token(char **s,char *t)
 {
+  int verbatim_mode=0;
+  
   while(**s==' ') (*s)++;
   while(**s=='\t') (*s)++;
   
@@ -20,19 +22,37 @@ void parse_token(char **s,char *t)
 
   int tl=0;
   while(**s) {
-    if ((**s)=='}') {
-      (*s)++;
-      t[tl]=0;
-      return;
-    }
-    else {
-      switch(**s) {
-	      case '$': case '_': t[tl++]='\\'; t[tl++]=**s; break;
-	
-      default:
-	t[tl++]=**s;
+    // %< .... %> delineates a verbatim latex section, where no escaping of any sort happens.
+    if (verbatim_mode) {
+      if ((*s)[0]=='%'&&(*s)[1]=='>') {
+	(*s)+=2;
+	verbatim_mode=0;
       }
-      (*s)++;
+      else {
+	t[tl++]=**s;
+	(*s)++;
+      }
+    } else {
+      if ((*s)[0]=='%'&&(*s)[1]=='<') {
+	(*s)+=2;
+	verbatim_mode=1;
+	continue;
+      }
+      
+      if ((**s)=='}') {
+	(*s)++;
+	t[tl]=0;
+	return;
+      }
+      else {
+	switch(**s) {
+	case '$': case '_': t[tl++]='\\'; t[tl++]=**s; break;
+	  
+	default:
+	  t[tl++]=**s;
+	}
+	(*s)++;
+      }
     }
   }
 }
@@ -76,7 +96,7 @@ int main(int argc,char **argv)
 	s+=strlen("\\m65libretval");
 	if (last_was_param) printf("\\end{description}\n");
 	parse_token(&s,token);
-	printf("\\item [Desription:] {%s}\n",token);
+	printf("\\item [Return Value:] {%s}\n",token);
       } else if (!strncmp(s,"\\m65libsyntax",strlen("\\m65libsyntax"))) {
 	s+=strlen("\\m65libsyntax");
 	if (last_was_param) printf("\\end{description}\n");

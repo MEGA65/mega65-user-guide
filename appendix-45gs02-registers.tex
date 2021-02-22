@@ -175,7 +175,7 @@ Direct Memory Access (DMA) is a method for quickly filling, copying or swapping 
 The MEGA65 implements an improved version of the F018 ``DMAgic'' DMA controller of the C65 prototypes.
  Unlike on the C65 prototypes, the DMA controller is part of the CPU on the MEGA65.
 
-Detailed information on how to use the DMA controller and these advanced features can be found in Appendix \ref{cha:dmagic}
+Detailed information on how to use the DMA controller and these advanced features can be found in \bookvref{cha:dmagic}
 
 \subsection{Accessing memory between the 64KB and 1MB points}
 
@@ -247,7 +247,7 @@ C64-style memory banking.
 
 The third specialised manner to access to memory above the 64KB point is to use
 the VIC-III's Display Address Translator.  Use of this mechanism is documented
-in Appendix \ref{cha:viciv}.
+in \bookvref{cha:viciv}.
 
 \subsubsection{The MAP instruction}
 \label{sec:map-instruction}
@@ -280,7 +280,7 @@ See under ``Using the MAP instruction to access >1MB'' for further explanation a
 
 The C65's F018/F018A DMA controller allows for rapid filling, copying and swapping of the contents of memory
 anywhere in the 1MB address space. Detailed information about the F018 DMA controller, and the MEGA65's
-enhancements to this, refer to Appendix \ref{cha:dmagic}
+enhancements to this, refer to \bookvref{cha:dmagic}
 
 \subsubsection{Flat Memory Access}
 
@@ -543,10 +543,26 @@ produced, and the programme will take the same number of cycles to execute.
 
 \input{regtable_CPU.MEGA65}
 
-\section{MEGA65 CPU Maths Unit Registers}
+\section{MEGA65 CPU Maths Acceleration Registers}
 
-Some models include a math unit, which helps to accelerate the calculation of fixed-point formulae.
-This is not present in all models of the MEGA65.
+Every MEGA65 contains a combined 32-bit hardware multiplier and divider.
+This device takes two 32-bit inputs, MULTINA and MULTINB, and simultaneously calculates:
+
+\begin{itemize}
+\item the 64-bit product of MULTINA and MULTINB
+\item the 32-bit whole part of MULTINA / MULTINB
+\item the 32-bit fractional part of MULTINA / MULTINB
+\end{itemize}
+
+It is always updating the outputs based on the inputs, so there is no need to take special action when changing the inputs.
+The multiplier takes 1 cycle to calculate, and the updated result will thus be available immediately. The hardware divider,
+however, can take upto 16 cycles depending on the particular inputs.  Thus programmers should insert a short delay after
+changing the inputs before reading the output.  As this delay is so short, it can be implemented by simply reading the first
+byte of the result four times consecutively, as the 4th read will occur after the result has settled.
+
+Some models of the MEGA65 also include a math unit, which helps to accelerate the calculation of fixed-point formulae.
+This presently disabled in all models of the MEGA65 and will be further documented if and when it becomes
+available.
 
 \input{regtable_MATH.MEGA65}
 
@@ -563,8 +579,8 @@ which fetches the address from the 6502 reset vector in the loaded client operat
 exiting hypervisor mode.
 
 The hypervisor memory is automatically mapped on reset to \$8000 - \$BFFF.  This special memory is not
-able to mapped or in anyway accessed, except when in hypervisor mode. This includes from the serial monitor/debugger
-interface.  This is to protect it from accidental or malicious access from a guest operating system.
+able to mapped or in anyway accessed, except when in hypervisor mode. It can, however, always be accessed from the serial monitor/debugger
+interface via its 28-bit address, \$FFF8000 -- \$FFFBFFF.  This is to protect it from accidental or malicious access from a guest operating system.
 
 \subsection{Entering / Exiting Hypervisor Mode}
 

@@ -355,7 +355,7 @@ AUTO     : SWITCH AUTO OFF
 \item [Format:] {\bf BACKGROUND colour}
 \item [Usage:] Sets the background colour
                of the screen to the argument, which must be in the
-               range 1 to 16. (See colour table).
+               range 0 to 15. (See colour table).
 \item [Colours:] {\bf Index and RGB values of colour palette}
 
 \ttfamily
@@ -364,22 +364,22 @@ AUTO     : SWITCH AUTO OFF
 \hline
  index  &   red & green & blue & colour \\
 \hline
-  1 &    0  &   0   &  0   & black \\
-  2 &   15  &  15   & 15   & white \\
-  3 &   15  &   0   &  0   & red   \\
-  4 &    0  &  15   & 15   & cyan  \\
-  5 &   15  &   0   & 15   & magenta\\
-  6 &    0  &  15   &  0   & green \\
-  7 &    0  &   0   & 15   & blue  \\
-  8 &   15  &  15   &  0   & yellow\\
-  9 &   15  &   6   &  0   & orange\\
- 10 &   10  &   4   &  0   & brown \\
- 11 &   15  &   7   &  7   & pink  \\
- 12 &    5  &   5   &  5   & dark grey\\
- 13 &    8  &   8   &  8   & medium grey\\
- 14 &    9  &  15   &  9   & light green \\
- 15 &    9  &   9   & 15   & light blue\\
- 16 &   11  &  11   & 11   & light grey\\
+  0 &    0  &   0   &  0   & black \\
+  1 &   15  &  15   & 15   & white \\
+  2 &   15  &   0   &  0   & red   \\
+  3 &    0  &  15   & 15   & cyan  \\
+  4 &   15  &   0   & 15   & magenta\\
+  5 &    0  &  15   &  0   & green \\
+  6 &    0  &   0   & 15   & blue  \\
+  7 &   15  &  15   &  0   & yellow\\
+  8 &   15  &   6   &  0   & orange\\
+  9 &   10  &   4   &  0   & brown \\
+ 10 &   15  &   7   &  7   & pink  \\
+ 11 &    5  &   5   &  5   & dark grey\\
+ 12 &    8  &   8   &  8   & medium grey\\
+ 13 &    9  &  15   &  9   & light green \\
+ 14 &    9  &   9   & 15   & light blue\\
+ 15 &   11  &  11   & 11   & light grey\\
 \hline
 \end{tabular}
 }
@@ -387,7 +387,7 @@ AUTO     : SWITCH AUTO OFF
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-BACKGROUND  4 : REM SELECT BACKGROUND COLOUR CYAN
+BACKGROUND  3 : REM SELECT BACKGROUND COLOUR CYAN
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -439,7 +439,7 @@ BACKUP D1 TO D0, U9: REM COPY DISK DRIVE 0 -> DRIVE 1 UNIT 9
 \item [Usage:] Selects the memory configuration
                for BASIC commands, that use 16-bit addresses.
                These are LOAD, SAVE, PEEK, POKE, WAIT and SYS.
-               See system memory map (Appendix \ref{cha:memory-map}) for details.
+               See system memory map in \bookvref{cha:memory-map} for details.
 \item [Remarks:] A value > 127 selects memory mapped I/O.
                  The default value for the bank number is 128.
                  This configuration has RAM from \$0000 to \$1FFF
@@ -899,7 +899,10 @@ BVERIFY (FN$), B(BA%), P(PA), U(UN%)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]  \$FE \$0C
 \item [Format:] {\bf CATALOG [filepattern] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf \$ [filepattern] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file catalog/directory of the specified disk.
+
+   The shortcut symbol {\bf \$} can be used in direct mode only.
 
    The {\bf R} (Recoverable) parameter includes files in the
    directory, which are flagged as deleted but are still
@@ -1054,10 +1057,27 @@ CHANGE &IN& TO &OUT&
                 upper/lower characters.
 
                 {\bf string} is a string constant or expression
-                which will be printed.
+                which will be printed. This string may optionally contain
+                one or more of the following control characters:
+
+                {\setlength{\tabcolsep}{1mm}
+
+                \ttfamily
+                \begin{tabular}{|l|l|l|}
+                  \hline
+                     CHR\$(6)       &  CTRL+F         &  flip character \\
+                     CHR\$(18)      &  RVSON          &  reverse  \\
+                     CHR\$(146)     &  RVSOFF         &  reverse off \\
+                     CHR\$(21)      &  CTRL+U         &  underline\\
+                     CHR\$(25)+"-"  &  CTRL+Y + "-"   &  rotate left\\
+                     CHR\$(25)+"+"  &  CTRL+Y + "+"   &  rotate right\\
+                     CHR\$(26)      &  CTRL+Z         &  mirror\\
+                  \hline
+                  \end{tabular}
+                }
 
 \item [Remarks:]
-                Control characters,
+                Regular text mode control characters,
                 for example: cursor movement codes, will be ignored
                 (neither printed nor interpreted).
 
@@ -1898,8 +1918,12 @@ RUN
 \index{BASIC 10 Commands!DIR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EE (DIR) \$FE \$29 (ECTORY)
-\item [Format:] {\bf DIR[ECTORY] [filepattern] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf DIRECTORY [filepattern] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf DIR [filepattern] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf \$ [filepattern] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file directory/catalog of the specified disk.
+
+   The shortcut symbol {\bf \$} can be used in direct mode only.
 
    The {\bf R} (Recoverable) parameter includes files in the
    directory, which are flagged as deleted but are still
@@ -1977,25 +2001,25 @@ DIRECTORY
 \end{verbatim}
 \end{tcolorbox}
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-DIRECTORY "*,T=S"
-\end{verbatim}
-\selectfont{\codefont 0}
-\begin{tcolorbox}[colback=white,coltext=black,arc=0mm,boxrule=0mm,
-       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
-       left skip=0.5mm,
-       width=28mm,height=3mm,valign=center]
-\begin{verbatim}
-"BLACK SMURF     " BS 2A
-\end{verbatim}
-\end{tcolorbox}
-\begin{verbatim}
-508  "STORY PHOBOS"     SEQ
-104 BLOCKS FREE.
-\end{verbatim}
-\end{tcolorbox}
+%\begin{tcolorbox}[colback=black,coltext=white]
+%\verbatimfont{\codefont}
+%\begin{verbatim}
+%DIRECTORY "*,T=S"
+%\end{verbatim}
+%\selectfont{\codefont 0}
+%\begin{tcolorbox}[colback=white,coltext=black,arc=0mm,boxrule=0mm,
+%       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
+%       left skip=0.5mm,
+%       width=28mm,height=3mm,valign=center]
+%\begin{verbatim}
+%"BLACK SMURF     " BS 2A
+%\end{verbatim}
+%\end{tcolorbox}
+%\begin{verbatim}
+%508  "STORY PHOBOS"     SEQ
+%104 BLOCKS FREE.
+%\end{verbatim}
+%\end{tcolorbox}
 \end{description}
 
 % ****
@@ -2009,9 +2033,14 @@ DIRECTORY "*,T=S"
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$40
 \item [Format:] {\bf DISK command [,U unit] }
+\item [Format:] {\bf @ command [,U unit] }
 \item [Usage:]
-   Sends a command string to the
-   specified disk unit.
+
+   The shortcut symbol {\bf @}  can be used in direct mode only.
+
+   Sends a command string to the specified disk unit.
+
+   Using the command with no parameters, prints the disk status.
 
    \unitdefinition
 
@@ -2361,6 +2390,96 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
   DVERIFY "ADVENTURE"
   DVERIFY "ZORK-I",U9
   DVERIFY "DUNGEON",D1,U10
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ****
+% EDIT
+% ****
+
+\newpage
+\subsection{EDIT}
+\index{EDIT}
+\index{BASIC 10 System Commands!EDIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf EDIT <ON | OFF>}
+
+\item [Usage:]  {\bf EDIT} switches the builtin editor
+               either to text mode {\bf EDIT ON}
+               or BASIC program editor {\bf EDIT OFF}.
+
+               After power up or reset, the editor
+               is initialised as BASIC program editor.
+
+               After setting the editor to text mode with
+               {\bf EDIT ON}, the diffences to program mode are:
+
+               The editor does no tokenising.
+               All text entered after a linenumber remains pure text,
+               BASIC keywords like {\bf FOR} or {\bf GOTO} are not
+               converted to BASIC tokens, like in program mode.
+
+               The line numbers are only used for text organisation
+               sorting, deleting, listing etc.
+               When the text is saved to file with {\bf DSAVE},
+               a sequential file (type SEQ) is written, not a
+               program (PRG) file, like in program mode.
+               Line numbers are not written to the file.
+
+               {\bf DLOAD} in text mode can load only sequential files.
+               Linenumbers are automatically generated for editing purposes.
+
+               The mode of the editor can be recognised by looking at the prompt:
+               In program mode, the prompt is: {\bf READY.}, while in text mode
+               the prompt is: {\bf OK}.
+
+               The text mode affects entered lines with leading number only,
+               lines with no linenumber are executed as BASIC commands,
+               as usual.
+
+               Sequential files, created with the text editor, can be displayed
+               (without loading them)
+               on the screen by using the {\bf TYPE <filename>} command.
+
+\newpage
+
+\item [Example:] Using {\bf EDIT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ready.
+edit on
+
+ok.
+100 This is a simple text editor.
+dsave "example"
+
+ok.
+new
+
+ok.
+catalog
+
+0 "demoempty       " 00 3d
+1    "example"          seq
+3159 blocks free
+
+ok.
+type "example"
+This is a simple text editor.
+
+ok.
+dload "example"
+
+loading
+
+ok.
+list
+
+1000 This is a simple text editor.
+
+ok.
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -2911,6 +3030,84 @@ RUN
 \end{tcolorbox}
 \end{description}
 
+% ****
+% FONT
+% ****
+
+\newpage
+\subsection{FONT}
+\index{FONT}
+\index{BASIC 10 Commands!FONT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$46
+\item [Format:] {\bf FONT [A|B|C]}
+\item [Usage:] The {\bf FONT} command is used to switch between fonts
+               and the code pages PETSCII and enhanced PETSCII.
+               The enhanced PETSCII includes all ASCII symbols, that
+               are missing in the PETSCII code page, though the order
+               is still PETSCII.
+               The ASCII symbols are typed by holding the \megasymbolkey
+               together with the desired key.
+               The codes for uppercase and lowercase
+               are swapped compared to ASCII.
+               The uppercase/graphics code page is not changed.
+
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{*{4}{|R{2.0cm}}|}
+\hline
+ code  &   key & PETSCII & ASCII  \\
+\hline
+\$5C & pound      & {\codefont \textbackslash}   & \textbackslash  \\
+\$5E & up arrow   & {\codefont \textasciicircum} & \textasciicircum  \\
+\$5F & back arrow & {\codefont \_}               & \_   \\
+\$7B & colon      & {\codefont ě }               & \{   \\
+\$7C & dot        & {\codefont Ĝ }               &  |   \\
+\$7D & semicolon  & {\codefont ĝ }               & \}   \\
+\$7E & comma      & {\codefont \textasciitilde}  & \textasciitilde   \\
+\hline
+\end{tabular}
+}
+
+% \verbatimfont{\codefont}
+% \begin{verbatim}
+%  !"#$%&'()*+,-./    20
+% 0123456789:;<=>?    30
+% @ABCDEFGHIJKLMNO    40
+% PQRSTUVWXYZ[\]^_    50
+% `abcdefghijklmno    60
+% pqrstuvwxyz{|}~     70
+%
+% ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ  c380
+% ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß  c390
+% àáâãäåæçèéêëìíîï  c3a0
+% ðñòóôõö÷øùúûüýþÿ  c3b0
+%
+% ĀāĂăĄąĆćĈĉĊċČčĎď  c480
+% ĐđĒēĔĕĖėĘęĚěĜĝĞğ  c490
+% ĠġĢģĤĥĦħĨĩĪīĬĭĮį  c4a0
+% İıĲĳĴĵĶķĸĹĺĻļĽľĿ  c4b0
+% ŀŁłŃńŅņŇňŉŊŋŌōŎŏ  c580
+% ŐőŒœŔŕŖŗŘřŚśŜŝŞş  c590
+%
+% ŠšŢţŤťŦŧŨũŪūŬŭŮů  c5a0
+% ŰűŲųŴŵŶŷŸŹźŻżŽžſ  c5b0
+% ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏ  c680
+% ƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟ  c690
+% \end{verbatim}
+
+
+\item [Example:] Using {\bf FONT}
+\begin{tcolorbox}[colback=black,coltext=white]
+%\verbatimfont{\codefont}
+\begin{verbatim}
+FONT A :REM ASCII - ENABLE {|}_~^
+FONT B :REM LIKE A, WITH A SERIF FONT
+FONT C :REM COMMODORE FONT (DEFAULT)
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % FOR
 % ***
@@ -2981,8 +3178,8 @@ RUN
 \item [Usage:] Sets the foreground colour
                (text colour) of the screen to the argument,
                which must be in the
-               range 1 to 16. (See colour table).
-\item [Example:] \screentext{FOREGROUND  8} - select foreground colour yellow.
+               range 0 to 15. (See colour table).
+\item [Example:] \screentext{FOREGROUND  7} - select foreground colour yellow.
 \item [Colours:] {\bf Index and RGB values of colour palette}
 
 \ttfamily
@@ -2991,22 +3188,22 @@ RUN
 \hline
  index  &   red & green & blue & colour \\
 \hline
-  1 &    0  &   0   &  0   & black \\
-  2 &   15  &  15   & 15   & white \\
-  3 &   15  &   0   &  0   & red   \\
-  4 &    0  &  15   & 15   & cyan  \\
-  5 &   15  &   0   & 15   & magenta\\
-  6 &    0  &  15   &  0   & green \\
-  7 &    0  &   0   & 15   & blue  \\
-  8 &   15  &  15   &  0   & yellow\\
-  9 &   15  &   6   &  0   & orange\\
- 10 &   10  &   4   &  0   & brown \\
- 11 &   15  &   7   &  7   & pink  \\
- 12 &    5  &   5   &  5   & dark grey\\
- 13 &    8  &   8   &  8   & medium grey\\
- 14 &    9  &  15   &  9   & light green \\
- 15 &    9  &   9   & 15   & light blue\\
- 16 &   11  &  11   & 11   & light grey\\
+  0 &    0  &   0   &  0   & black \\
+  1 &   15  &  15   & 15   & white \\
+  2 &   15  &   0   &  0   & red   \\
+  3 &    0  &  15   & 15   & cyan  \\
+  4 &   15  &   0   & 15   & magenta\\
+  5 &    0  &  15   &  0   & green \\
+  6 &    0  &   0   & 15   & blue  \\
+  7 &   15  &  15   &  0   & yellow\\
+  8 &   15  &   6   &  0   & orange\\
+  9 &   10  &   4   &  0   & brown \\
+ 10 &   15  &   7   &  7   & pink  \\
+ 11 &    5  &   5   &  5   & dark grey\\
+ 12 &    8  &   8   &  8   & medium grey\\
+ 13 &    9  &  15   &  9   & light green \\
+ 14 &    9  &   9   & 15   & light blue\\
+ 15 &   11  &  11   & 11   & light grey\\
 \hline
 \end{tabular}
 }
@@ -3272,6 +3469,7 @@ ARE YOU SURE?
                 {\bf GO TO line}
 \item [Usage:] Continues program
                execution at the given BASIC line number.
+
                The {\bf GOTO} command written as a single
                word executes faster than the {\bf GO TO} command.
 
@@ -3466,15 +3664,30 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \index{BASIC 10 Commands!HIGHLIGHT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$3D
-\item [Format:] {\bf HIGHLIGHT colour}
+\item [Format:] {\bf HIGHLIGHT colour [,mode]}
 \item [Usage:] Sets the colour
                to be used for the "highlight" text attribute.
                The colour index must be in the
-               range 1 to 16. (See colour table).
+               range 0 to 15. (See colour table).
+
+               The optional parameter {\bf mode} defines, how
+               BASIC listings to the screen use highlighting:
+
+{\ttfamily
+\begin{tabular}{|l|l|}
+\hline
+   {\bf mode = 0}    &  no syntax highlighting \\
+   {\bf mode = 1}    &  highlight REM statements \\
+   {\bf mode = 2}    &  highlight BASIC keywords \\
+\hline
+\end{tabular}
+}
+
 \item [Remarks:] The highlight text attribute is used to mark text
                in listings generated by the {\bf HELP FIND CHANGE}
                commands.
-\item [Example:] \screentext{HIGHLIGHT  8} - select highlight colour yellow.
+\item [Example:] \screentext{HIGHLIGHT  8,2} - select highlight colour orange
+                 for keywords.
 \item [Colours:] {\bf Index and RGB values of colour palette}
 
 \ttfamily
@@ -3483,22 +3696,22 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \hline
  index  &   red & green & blue & colour \\
 \hline
-  1 &    0  &   0   &  0   & black \\
-  2 &   15  &  15   & 15   & white \\
-  3 &   15  &   0   &  0   & red   \\
-  4 &    0  &  15   & 15   & cyan  \\
-  5 &   15  &   0   & 15   & magenta\\
-  6 &    0  &  15   &  0   & green \\
-  7 &    0  &   0   & 15   & blue  \\
-  8 &   15  &  15   &  0   & yellow\\
-  9 &   15  &   6   &  0   & orange\\
- 10 &   10  &   4   &  0   & brown \\
- 11 &   15  &   7   &  7   & pink  \\
- 12 &    5  &   5   &  5   & dark grey\\
- 13 &    8  &   8   &  8   & medium grey\\
- 14 &    9  &  15   &  9   & light green \\
- 15 &    9  &   9   & 15   & light blue\\
- 16 &   11  &  11   & 11   & light grey\\
+  0 &    0  &   0   &  0   & black \\
+  1 &   15  &  15   & 15   & white \\
+  2 &   15  &   0   &  0   & red   \\
+  3 &    0  &  15   & 15   & cyan  \\
+  4 &   15  &   0   & 15   & magenta\\
+  5 &    0  &  15   &  0   & green \\
+  6 &    0  &   0   & 15   & blue  \\
+  7 &   15  &  15   &  0   & yellow\\
+  8 &   15  &   6   &  0   & orange\\
+  9 &   10  &   4   &  0   & brown \\
+ 10 &   15  &   7   &  7   & pink  \\
+ 11 &    5  &   5   &  5   & dark grey\\
+ 12 &    8  &   8   &  8   & medium grey\\
+ 13 &    9  &  15   &  9   & light green \\
+ 14 &    9  &   9   & 15   & light blue\\
+ 15 &   11  &  11   & 11   & light grey\\
 \hline
 \end{tabular}
 }
@@ -3960,24 +4173,29 @@ A=5      :REM SHORTER AND FASTER
 \index{BASIC 10 Commands!LINE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E5
-\item [Format:] {\bf LINE xbeg,ybeg [,xend,yend]}
+\item [Format:] {\bf LINE xbeg,ybeg [[,xnext1,ynext1], [\dots]] }
 \item [Usage:] Draws a pixel at (xbeg/ybeg), if only one
                coordinate pair is given.
-               If both coordinate pairs are defined,
-               a line is drawn on the current
-               graphics screen from the coordinate (xbeg/ybeg) to
-               the coordinate (xend/yend). All currently defined
-               modes and values of the graphic context are used.
+
+               If more than one pair is defined, a line is
+               drawn on the current graphics screen from the
+               coordinate (xbeg/ybeg) to the next coordinate
+               pair(s).
+
+               All currently defined modes and values of the graphic
+               context are used.
 
 \item [Example:] Using {\bf LINE}:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 GRAPHIC CLR         :REM INITIALISE
- 20 SCREEN DEF 1,1,1,2  :REM 640 X 400 X 2
- 30 SCREEN SET 1,1      :REM VIEW IT
- 40 SCNCLR 0            :REM CLEAR SCREEN
- 50 LINE 50,50,590,350  :REM DRAW LINE
+ 10 GRAPHIC CLR                      :REM INITIALISE
+ 20 SCREEN DEF 1,1,1,2               :REM 640 X 400 X 2
+ 30 SCREEN SET 1,1                   :REM VIEW IT
+ 40 SCNCLR 0                         :REM CLEAR SCREEN
+ 50 LINE 320,200                     :REM PLOT PIXEL
+ 60 LINE 50,50,590,350               :REM DRAW LINE
+ 70 LINE 0,0,639,0,639,399,0,399,0,0 :REM DRAW RECT
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3992,8 +4210,11 @@ A=5      :REM SHORTER AND FASTER
 \index{BASIC 10 Commands!LIST}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9B
-\item [Format:] {\bf LIST [line range]}
-\item [Usage:] Used to list a range of lines from the BASIC program.
+\item [Format:] (1) {\bf LIST [line range]}
+
+(2) {\bf LIST filename [,U unit]}
+
+\item [Usage:] (1) Used to list a range of lines from the BASIC program.
 
                {\bf line range} consist of the first and the last
                line to list or a single line number.
@@ -4001,6 +4222,9 @@ A=5      :REM SHORTER AND FASTER
                first BASIC line is assumed.
                The second number in the range specifier defaults
                to the last BASIC line.
+
+               (2) Used to list a BASIC program directly from {\bf unit}.
+               {\bf unit} defaults to 8.
 
 \item [Remarks:] The {\bf LIST} command's output can be redirected
                  to other devices via the {\bf CMD} command.
@@ -4013,6 +4237,7 @@ A=5      :REM SHORTER AND FASTER
   LIST 240-350  :REM LIST ALL LINES FROM 240 TO 350
   LIST 500-     :REM LIST FROM 500 TO END
   LIST -70      :REM LIST FROM START TO 70
+  LIST "DEMO"   :REM LIST FILE "DEMO"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4027,10 +4252,18 @@ A=5      :REM SHORTER AND FASTER
 \index{BASIC 10 Commands!LOAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$93
-\item [Format:] {\bf LOAD filename [,U unit [,flag]]}
+\item [Format:] {\bf LOAD filename [unit [,flag]]}
+\item [Format:] {\bf / filename [ unit [,flag]]}
 \item [Usage:]
-   This command is obsolete in BASIC-10, where the commands
-   {\bf DLOAD} and {\bf BLOAD} are better alternatives.
+
+   The shortcut symbol {\bf /} can be used in direct mode only.
+
+   A common use of the shortcut symbol {\bf /} is to print
+   a listing to screen, move the cursor to the desired line
+   and type a {\bf /} into the first column.
+   After hitting {\bf RETURN}, the listed file will be loaded.
+   Characters before the file name and after the filename (PRG)
+   will be ignored.
 
    The {\bf LOAD} loads a file of type
    PRG into RAM bank 0, which is also used for BASIC program source.
@@ -4038,7 +4271,8 @@ A=5      :REM SHORTER AND FASTER
    {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
    a string expression.
 
-   \unitdefinition
+   The unit number ist optional.
+   If not present, the default disk device is assumed.
 
    If {\bf flag} has a non zero value, the file is loaded to
    the address, which is read from the first two bytes of the file.
@@ -4056,33 +4290,6 @@ A=5      :REM SHORTER AND FASTER
   LOAD "APOCALYPSE"
   LOAD "MEGA TOOLS",9
   LOAD "*",8,1
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
-% ******
-% LOCATE
-% ******
-
-\newpage
-\subsection{LOCATE}
-\index{LOCATE}
-\index{BASIC 10 Commands!LOCATE}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$E6
-\item [Format:] {\bf LOCATE x,y}
-\item [Usage:] Moves the graphical cursor to
-               the specified position on the current graphic screen.
-
-\item [Remarks:] The graphical cursor is not visible, it's just
-                 the starting point for follow up graphics commands.
-                 The current position can be examined with the
-                 {\bf RDOT} function.
-\item [Example:] Using {\bf LOCATE}
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- LOCATE 8,16     :REM set cursor to X=8 and Y=16
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4928,6 +5135,27 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \end{tcolorbox}
 \end{description}
 
+
+
+% *****
+% PIXEL
+% *****
+
+\newpage
+\subsection{PIXEL}
+\index{PIXEL}
+\index{BASIC 10 Functions!PIXEL}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$CE \$0C
+\item [Format:] {\bf PIXEL(x,y)}
+\item [Usage:]  Returns colour at given position.
+
+               {\bf x} = absolute screen coordinate [pixel].
+
+               {\bf y} = absolute screen coordinate [pixel].
+\end{description}
+
+
 % ****
 % PLAY
 % ****
@@ -5043,18 +5271,19 @@ statement. The default setting for the envelopes are:
 \item [Token:] \$CE \$0A
 \item [Format:] {\bf POINTER(variable)}
 \item [Usage:]  Returns the current address of a variable
-                or an array element in bank 1.
+                or an array element.
                 For string variables, it is the address of
                 the string descriptor, not the string itself.
                 The string descriptor consists of the three bytes
                 (length,string address low, string address high).
 
+                Address values $>=$ \$F700 are assigned to bank 0.
+                All other addresses are assigned to bank 1.
 
 \item [Remarks:] The address values of arrays and their elements
-                 change for every new declaration
-                 (first usage) of scalar variables. \\
+                 are constant during a program execution. \\
                  The addresses of strings (not their descriptors)
-                 may change at any time due to
+                 however may change at any time due to
                  "garbage collection" in memory management.
 
 
@@ -5063,10 +5292,22 @@ statement. The default setting for the envelopes are:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 A$="TEXT": B%=5: DIM C(100) :REM DEFINE SOME VARIABLES
- 20 PRINT POINTER(A$);POINTER(B%);POINTER(C(20))
+10 H$="HELLO"
+20 P=POINTER(H$):PRINT "DESCRIPTOR AT: $";HEX$(P)
+30 IF P>= DEC("F700") THENBANK 0:ELSEBANK 1
+40 L=PEEK(P):SP=PEEK(P+1)+256*PEEK(P+2)
+50 PRINT"STRING ADDRESS:$";HEX$(SP)
+60 PRINT "LENGTH=";L
+70 BANK 1:REM STRING BANK
+80 FOR I=1TOL:PRINT PEEK(SP+I-1);:NEXT:PRINT
+90 FOR I=1TOL:PRINT CHR$(PEEK(SP+I-1));:NEXT:PRINT
 
- 1026 1033 1145
+RUN
+DESCRIPTOR AT: $F702
+STRING ADDRESS:$F6F9
+LENGTH= 5
+ 72  69  76  76  79
+HELLO
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5454,71 +5695,34 @@ statement. The default setting for the envelopes are:
 \end{tcolorbox}
 \end{description}
 
-% ****
-% RCLR
-% ****
+% ******
+% RCOLOR
+% ******
 
 \newpage
-\subsection{RCLR}
-\index{RCLR}
-\index{BASIC 10 Functions!RCLR}
+\subsection{RCOLOR}
+\index{RCOLOR}
+\index{BASIC 10 Functions!RCOLOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CD
-\item [Format:] {\bf RCLR(colour source)}
+\item [Format:] {\bf RCOLOR(colour source)}
 \item [Usage:]  Returns the current colour index for the
                 selected colour source.
 
                 Colour sources are:
 
 {\ttfamily
-                0: 40 column background \\
-                1: graphical foreground \\
-                2: multi-colour mode 1 \\
-                3: multi-colour mode 2 \\
-                4: frame colour \\
-                5: 80 column text \\
-                6: 80 column background
+                0: background colour (VIC \$D021) \\
+                1: text colour (\$F1) \\
+                2: highlight colour (\$2D8) \\
+                3: border colour (VIC \$D020)
 }
-\item [Example:] Using {\bf RCLR}
+\item [Example:] Using {\bf RCOLOR}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 C = RCLR(5)  : REM C = colour index of 80 column text
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
-% ****
-% RDOT
-% ****
-
-\newpage
-\subsection{RDOT}
-\index{RDOT}
-\index{BASIC 10 Functions!RDOT}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$D0
-\item [Format:] {\bf RDOT(n)}
-\item [Usage:]  Returns information about the graphical cursor.
-
-                {\bf n} = kind of information.
-
-{\ttfamily
-                0: x-position \\
-                1: y-position \\
-                2: colour index
-}
-
-\item [Example:] Using {\bf RDOT}
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- 10 X = RDOT(0)
- 20 Y = RDOT(1)
- 30 C = RDOT(2)
- 40 PRINT "THE COLOUR INDEX AT (";X;"/";Y;") IS:";C
+ 10 C = RCOLOR(3)  : REM C = colour index of border colour
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5881,34 +6085,69 @@ statement. The default setting for the envelopes are:
 \end{tcolorbox}
 \end{description}
 
-% ***
-% RGR
-% ***
+% ********
+% RGRAPHIC
+% ********
 
 \newpage
-\subsection{RGR}
-\index{RGR}
-\index{BASIC 10 Functions!RGR}
+\subsection{RGRAPHIC}
+\index{RGRAPHIC}
+\index{BASIC 10 Functions!RGRAPHIC}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CC
-\item [Format:] {\bf RGR(dummy)}
-\item [Usage:]  Returns information about the graphic mode.
+\item [Format:] {\bf RGRAPHIC(screen,parameter)}
+\item [Usage:]  Return graphic screen status and parameters
 
-                {\bf dummy} = unused numeric expression.
+\ttfamily
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|}
+\hline
+ param  & description \\
+\hline
+ 0 & open (1), closed (0), or invalid (>1)  \\
+ 1 & width  (0=320, 1=640)  \\
+ 2 & height (0=200, 1=400)  \\
+ 3 & depth (1-8 bitplanes)  \\
+ 4 & bitplanes used  (bitmask)  \\
+ 5 & bank 4 blocks used (bitmask)  \\
+ 6 & bank 5 blocks used (bitmask)  \\
+ 7 & drawscreen \# (0-3)  \\
+ 8 & viewscreen \# (0-3)  \\
+ 9 & drawmodes  (bitmask)  \\
+10 & pattern type  (bitmask)  \\
+\hline
+\end{tabular}
+}
 
-                In text mode {\bf RGR} returns zero.
-                in graphics mode {\bf RGR} returns a non zero value.
-
-\item [Example:] Using {\bf RGR}
+\item [Example:] Using {\bf RGRAPHIC}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 M = RGR(0)
- 20 IF M THEN CHAR 0,0,1,1,2,"TITLE": ELSE PRINT "TITLE"
+ 10 GRAPHIC CLR         :REM INITIALISE
+ 20 SCREEN DEF 0,1,0,4  :REM SCREEN 0:640 X 200 X 4
+ 30 SCREEN OPEN 0       :REM OPEN
+ 40 SCREEN SET 0,0      :REM DRAW = VIEW = 0
+ 50 SCNCLR 0            :REM CLEAR
+ 60 PEN 0,1             :REM SELECT COLOUR
+ 70 LINE 0,0,639,199    :REM DRAW LINE
+ 80 FOR I=0 TO 10:A(I)=RGRAPHIC(0,I) :REM GET INFO
+ 90 SCREEN CLOSE 0
+100 FOR I=0 TO  6:PRINT I;A(I):NEXT :REM PRINT INFO
+
+RUN
+ 0  1
+ 1  1
+ 2  0
+ 3  4
+ 4  15
+ 5  15
+ 6  15
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
+
+
 
 % *******
 % RIGHT\$
@@ -6029,6 +6268,49 @@ if the mouse is not connected or disabled.
  20 FOR I=1 TO 10                 :REM THROW 10 TIMES
  30 PRINT I;FNDI(0)               :REM PRINT DICE POINTS
  40 NEXT
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ****
+% RPEN
+% ****
+
+\newpage
+\subsection{RPEN}
+\index{RPEN}
+\index{BASIC 10 Functions!RPEN}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$D0
+\item [Format:] {\bf RPEN(n)}
+\item [Usage:]  Returns the colour index of pen n.
+
+                {\bf n} = PEN number (0-2).
+
+{\ttfamily
+                0: draw pen \\
+                1: erase pen \\
+                2: outline pen
+}
+
+\item [Example:] Using {\bf RPEN}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 GRAPHIC CLR         :REM INITIALISE
+ 20 SCREEN DEF 0,1,0,4  :REM SCREEN 0:640 X 200 X 4
+ 30 SCREEN OPEN 0       :REM OPEN
+ 40 SCREEN SET 0,0      :REM DRAW = VIEW = 0
+ 50 SCNCLR 0            :REM CLEAR
+ 60 PEN 0,1             :REM SELECT COLOUR
+ 70 X = RPEN(0)
+ 80 Y = RPEN(1)
+ 90 C = RPEN(2)
+100 SCREEN CLOSE 0
+110 PRINT "DRAW PEN COLOUR = ";X
+RUN
+DRAW PEN COLOUR =  1
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6185,6 +6467,8 @@ if the mouse is not connected or disabled.
 \end{tcolorbox}
 \end{description}
 
+
+
 % ***
 % RUN
 % ***
@@ -6234,6 +6518,45 @@ if the mouse is not connected or disabled.
 \end{tcolorbox}
 \end{description}
 
+
+
+
+% *******
+% RWINDOW
+% *******
+
+\newpage
+\subsection{RWINDOW}
+\index{RWINDOW}
+\index{BASIC 10 Functions!RWINDOW}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$CE \$09
+\item [Format:] {\bf RWINDOW(n)}
+\item [Usage:]  Returns information regarding the current text window
+
+                {\bf n} = 0 : get width of current text window.
+
+                {\bf n} = 1 : get height of current text window.
+
+                {\bf n} = 2 : get width of screen (40 or 80).
+
+\item [Remarks:] See also {\bf WINDOW}.
+
+\item [Example:] Using {\bf RWINDOW}:
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 W = RWINDOW(2)           :REM GET SCREEN WIDTH
+ 20 IF W=80 THEN BEGIN       :REM IS 80 COLUMNS MODE ACTIVE?
+ 30   PRINT CHR$(27)+"X";    :REM YES, SWITCH TO 40COLUMNS
+ 40 BEND
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+
+
+
 % ****
 % SAVE
 % ****
@@ -6245,7 +6568,10 @@ if the mouse is not connected or disabled.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$94
 \item [Format:] {\bf SAVE filename [,unit] }
+\item [Format:] {\bf $\leftarrow$ filename [,unit] }
 \item [Usage:]
+   The shortcut symbol {\bf $\leftarrow$} can be used in direct mode only.
+
    "Saves a BASIC program to a file of type PRG.
 
    \filenamedefinition
@@ -6383,6 +6709,11 @@ if the mouse is not connected or disabled.
                 defines resolution parameters for the chosen
                 screen.
 
+                screen = 0-1 \\
+                width = 0-2 (320, 640, 1280 pixel) \\
+                height = 0-1 (200, 400 pixel) \\
+                depth = 0-7
+
                 {\bf SCREEN SET draw view} sets screen numbers
                 ( 0 or 1 ) for the drawing and the viewing screen.
 
@@ -6488,7 +6819,7 @@ if the mouse is not connected or disabled.
 \index{SIN}
 \index{BASIC 10 Functions!SIN}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$BE
+\item [Token:] \$BF
 \item [Format:] {\bf SIN(numeric expression)}
 \item [Usage:] The {\bf SIN} function returns the sine of the
                argument.
@@ -6690,8 +7021,22 @@ RUN
 \index{SPRITE}
 \index{BASIC 10 Commands!SPRITE}
 \item [Token:] \$FE \$07
-\item [Format:] {\bf SPRITE no [switch, colour, prio, expx, expy, mode]}
-\item [Usage:]  Switches a sprite on or off and sets its attributes.
+\item [Format:] {\bf SPRITE CLR} \\
+                {\bf SPRITE LOAD filename [,D drive] [,U unit]} \\
+                {\bf SPRITE SAVE filename [,D drive] [,U unit]} \\
+                {\bf SPRITE no [switch, colour, prio, expx, expy, mode]}
+\item [Usage:]  {\bf SPRITE CLR} clears all sprite data and sets all pointers
+                and attributes to default values.
+
+                {\bf SPRITE LOAD } loads sprite data from {\bf filename}
+                to sprite memory.
+
+                {\bf SPRITE SAVE } saves sprite data from
+                sprite memory to {\bf filename}.
+
+                \filenamedefinition
+
+                The last form switches a sprite on or off and sets its attributes.
 
                 {\bf no} = sprite number
 
@@ -6715,15 +7060,14 @@ RUN
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 COLLISION 1,70 : REM ENABLE
-20 SPRITE 1,1 : MOVSPR 1,120,  0 : MOVSPR 1,0#5
-30 SPRITE 2,1 : MOVSPR 2,120,100 : MOVSPR 2,180#5
-40 FOR I=1 TO 50000:NEXT
-50 COLLISION 1 : REM DISABLE
-50 END
-70 REM SPRITE <-> SPRITE INTERRUPT HANDLER
-80 PRINT "BUMP RETURNS";BUMP(1)
-90 RETURN: REM RETURN FROM INTERRUPT
+2290 CLR:SCNCLR:SPRITE CLR
+2300 SPRITE LOAD "DEMOSPRITES1"
+2320 FORI=0TO7: C=I: IFC=6THENC=8
+2330 MOVSPR I, 60+30*I,0 TO 60+30*I,65+20*I, 3:SPRITE I,1,C,,1,1:NEXT: SLEEP3
+2340 FORI=0TO7: SPRITE I,,,,0,0 :NEXT: SLEEP3: SPRITE CLR
+2350 FORI=0TO7: MOVSPR I,45*I#5 :NEXT: FORI=0TO7: SPRITE I,1: NEXT
+2360 FORI=0TO7:X=60+30*I:Y=65+20*I:DO:LOOPUNTIL(X=RSPPOS(I,.))AND(Y=RSPPOS(I,1))
+:MOVSPRI,.#.:NEXT
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6750,6 +7094,13 @@ RUN
                 But they must not be both a string variable.
                 A simple string assignment can be used for such
                 cases.
+
+                This command can be used with the basic form of sprites
+                (C64 compatible) only. These sprites have a size of 64 bytes,
+                the length of the strings is 67.
+
+                The extended sprites and the variable height sprites
+                cannot be used with this command.
 
 \item [Example:] Using {\bf SPRSAV}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -7387,7 +7738,7 @@ READY.
 \index{BASIC 10 Commands!USING}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FB
-\item [Format:] {\bf PRINT [\# channel,] USING, format, arguments}
+\item [Format:] {\bf PRINT [\# channel,] USING format; arguments}
 \item [Usage:]  {\bf USING} is a secondary keyword used after
                 {\bf PRINT} or {\bf PRINT\#}.
 
@@ -7409,7 +7760,7 @@ READY.
                 '+' or '-' set the sign option. \\
                 '.' sets the position of the decimal point. \\
                 ',' can be inserted into large numbers. \\
-                '\$' sets the position of the currency symbol. \\
+                '\$' triggers the output of the currency symbol before the number. \\
                 \string^\string^\string^\string^
                  reserves place for the exponent.
 
@@ -7561,6 +7912,35 @@ READY.
   VERIFY "ADVENTURE"
   VERIFY "ZORK-I",9
   VERIFY "1:DUNGEON",10
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ********
+% VIEWPORT
+% ********
+
+\newpage
+\subsection{VIEWPORT}
+\index{VIEWPORT}
+\index{BASIC 10 Commands!VIEWPORT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$31
+\item [Format:] {\bf VIEWPORT <CLR|DEF> X, Y, DX, DY}
+\item [Usage:]
+   {\bf VIEWPORT} must be followed either by the keyword
+   {\bf CLR} or {\bf DEF} and four integer parameters.
+
+\item [Remarks:]
+   The purpose of this command is currently not known
+   and has to be determined.
+
+\item [Example:] Using {\bf VIEWPORT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+  VIEWPORT CLR 0,0,2,2
+  VIEWPORT DEF 0,0,2,2
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

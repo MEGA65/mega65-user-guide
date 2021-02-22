@@ -251,8 +251,8 @@ layout of this address space.
 
 The MEGA65 supports four different IO personalities.  These are
 selected by writing the appropriate values to the \$D02F KEY register,
-which is visible in all four IO personalities.  Refer to Chapter
-\ref{cha:modes} for more information about the use of the KEY
+which is visible in all four IO personalities.  There is more information in
+\bookvref{cha:modes} about the use of the KEY
 register.
 
 The following table shows which IO devices are visible in each of
@@ -444,6 +444,37 @@ The current write-protection
 state can be tested by attempting to write to this area of memory.
 Also, you can examine and toggle the current state from in the MEGA65
 Freeze Menu.
+
+NOTE: If you are starting your programme from C65 mode, you must first make
+sure that the IO area is visible at \$D000-\$DFFF.  The simplest way to do
+this is to use the {\tt MAP} instruction with all zero values in the registers.
+The following fragment demonstrates this, and also makes sure that the MEGA65 IO
+context is active, so that the hypervisor trap will be able to trigger:
+
+\begin{screenoutput}
+
+  ; Clear C65 memory map
+  LDA #$00
+  TAX
+  TAY
+  TAZ
+  MAP
+  ; Bank IO in via C64 mechanism
+  LDA #$35
+  STA $01
+  ; Do MEGA65 / VIC-IV IO knock
+  LDA #$47
+  STA $D02F
+  LDA #$53
+  STA $D02F
+  ; End MAP sequence, thus allowing interrupts to occur again
+  EOM
+  ; Do Hypervisor call to un-write-protect the ROM area
+  LDA #$70
+  STA $D640
+  NOP
+\end{screenoutput}
+
 
 \subsection{C65 Compatibility ROM Layout}
 

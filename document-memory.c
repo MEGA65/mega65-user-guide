@@ -295,13 +295,35 @@ void emit_table_output(FILE *f)
   for(int row=0;row<table_len;row++)
     {
       fprintf(f,"\\small ");
-      if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
-	fprintf(f," %04X -- %04X & \\small %d -- %d ",
-		table_stuff[row].low_addr,table_stuff[row].high_addr,
-		table_stuff[row].low_addr,table_stuff[row].high_addr);
-      else
-	fprintf(f," %04X & \\small %d ",
-		table_stuff[row].low_addr,table_stuff[row].high_addr);
+      if (table_stuff[row].low_addr<0x0100) {
+	if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
+	  fprintf(f," %02X -- %02X\\index{\\$%02X (%s)}\\index{%s} & \\small %d -- %d ",
+		  table_stuff[row].low_addr,table_stuff[row].high_addr,
+		  table_stuff[row].low_addr,table_stuff[row].bit_signals[0],
+		  table_stuff[row].bit_signals[0],		  
+		  table_stuff[row].low_addr,table_stuff[row].high_addr);
+	else
+	  fprintf(f," %02X\\index{\\$%02X (%s)}\\index{%s} & \\small %d ",
+		  table_stuff[row].low_addr,
+		  table_stuff[row].low_addr,table_stuff[row].bit_signals[0],
+		  table_stuff[row].bit_signals[0],		  
+		  table_stuff[row].low_addr
+		  );
+      } else {
+	if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
+	  fprintf(f," %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X}\\index{Registers!%d -- %d} & \\small %d -- %d ",
+		  table_stuff[row].low_addr,table_stuff[row].high_addr,
+		  table_stuff[row].low_addr,table_stuff[row].high_addr,
+		  table_stuff[row].low_addr,table_stuff[row].high_addr,
+		  table_stuff[row].low_addr,table_stuff[row].high_addr);
+	else
+	  fprintf(f," %04X\\index{Registers!\\$%04X}\\index{Registers!%d} & \\small %d ",
+		  table_stuff[row].low_addr,
+		  table_stuff[row].low_addr,
+		  table_stuff[row].low_addr,
+		  table_stuff[row].low_addr
+		  );
+      }
 
       if (table_uses_bits) {
 	// Table is address + signal name of each bit,
@@ -317,9 +339,12 @@ void emit_table_output(FILE *f)
 	  if (bit_count==1) {
 	    fprintf(f,"& \\small %s ",table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--");
 	  } else {
-	    fprintf(f,"& \\multicolumn{%d}{c|}{\\small %s}",bit_count,
+	    fprintf(f,"& \\multicolumn{%d}{c|}{\\small %s",bit_count,
 		    table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--"
 		    );
+	    if (table_stuff[row].bit_signals[bit])
+	      fprintf(f,"\\index{Registers!%s}",table_stuff[row].bit_signals[bit]);
+	    fprintf(f,"}");
 	  }
 
 	  bit-=bit_count;
@@ -329,10 +354,19 @@ void emit_table_output(FILE *f)
 
       } else {
 	// Table is address + signal name + description
-	fprintf(f,"& %s & %s \\\\\n",
+      if (table_stuff[row].low_addr<0x0100) {
+	fprintf(f,"& %s\\index{%s} & %s \\\\\n",
+		table_stuff[row].bit_signals[0],
 		table_stuff[row].bit_signals[0],
 		table_stuff[row].descriptions[0]
 		);
+      } else {
+	fprintf(f,"& %s\\index{Registers!%s} & %s \\\\\n",
+		table_stuff[row].bit_signals[0],
+		table_stuff[row].bit_signals[0],
+		table_stuff[row].descriptions[0]
+		);
+      }
 	fprintf(f,"\\hline\n");
       }
 
@@ -348,7 +382,8 @@ void emit_table_output(FILE *f)
       // XXX - Replace with contents of appropriate info block if one exists!
 //    fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
       latex_escape(buftxt,table_descriptions[s]);
-      fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],buftxt);
+      fprintf(f,"\\item{\\bf{%s}\\index{Registers!%s}} %s\n",table_signals[s],table_signals[s],
+	      buftxt);
     }
     fprintf(f,"\\end{itemize}\n");
 

@@ -7,7 +7,8 @@ BOOKS=	mega65-book.pdf \
 	mega65-basic10-reference.pdf \
 	mega65-basic-programming.pdf \
 
-GENERATED_TEX_FILES= 	instructionset-4510.tex \
+GENERATED_TEX_FILES= 	document-memory \
+			instructionset-4510.tex \
 		     	instructionset-6502.tex \
 		     	instructionset-45GS02.tex \
 		 	api-conio.tex
@@ -23,7 +24,7 @@ prg2tex:	prg2tex.c
 	$(CC) -Wall -o prg2tex prg2tex.c
 
 libc-doc:	libc-doc.c
-	$(CC) -Wall -o libc-doc libc-doc.c
+	$(CC) -g -Wall -o libc-doc libc-doc.c
 
 EXAMPLEDIR=	examples
 EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex
@@ -56,6 +57,7 @@ mega65-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX
 
 mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
+	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
 
 mega65-basic10-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)

@@ -178,7 +178,7 @@ The BLANKS and FLAGS field has the following structure:
 
 \subsubsection{Performing Simple DMA Operations}
 
-For information on using the DMA controller from BASIC 10, refer to the \stw{DMA} BASIC command in Appendix \ref{BASIC 10 Commands!DMA}.
+For information on using the DMA controller from BASIC 10, refer to the \stw{DMA} BASIC command in \bookvref{BASIC 10 Commands!DMA}.
 
 To use the DMA controller from assembly language, set up a data structure with the DMA list, and then
 set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65 mode by filling
@@ -191,7 +191,7 @@ it with spaces, the following routine could be used:
   STA $D702     
   LDA #>dmalist  ; Set MSB of DMA list address
   STA $D701 
-  LDA #>dmalist  ; Set LSB of DMA list address, and execute DMA
+  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
 
@@ -218,7 +218,7 @@ also clear the colour RAM for the screen, you could use something like:
   STA $D702     
   LDA #>dmalist  ; Set MSB of DMA list address
   STA $D701 
-  LDA #>dmalist  ; Set LSB of DMA list address, and execute DMA
+  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
 
@@ -256,7 +256,7 @@ to \$5000, you could use something like:
   STA $D702     
   LDA #>dmalist  ; Set MSB of DMA list address
   STA $D701 
-  LDA #>dmalist  ; Set LSB of DMA list address, and execute DMA
+  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
 
@@ -412,8 +412,8 @@ The list of valid job option tokens is:
 \begin{tabular}{|c|l|}
   \hline
   \$00 & End of job option list \\
-  \$06 & Enable use of transparent value \\
-  \$07 & Disable use of transparent value \\
+  \$06 & Disable use of transparent value \\
+  \$07 & Enable use of transparent value \\
   \$0A & Use 11-byte F011A DMA list format \\
   \$0B & Use 12-byte F011B DMA list format \\
   \$80 & Source address bits 20 -- 27 \\

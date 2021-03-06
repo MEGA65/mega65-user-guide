@@ -131,6 +131,67 @@ string                  & "X"     & "TEXT"    \\
 \end{tabular}
 }
 
+\section{BASIC 65 variables}
+
+Each scalar variable consumes 8 bytes of storage in memory.
+The reserved area in bank 0 from \$F700 -> \$FEFF can store 256 variables.
+Variables need not to be declared, the type is determined by the appendix
+character. All variables with no appendix are regarded as REAL per default.
+The storage is claimed at their first usage and they are initialised to zero,
+string variables are initialised as NULL string "".
+
+{\ttfamily
+\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|l|l|}
+\hline
+ type                   & appendix & range    & example  \\
+\hline
+byte                    &    \&    & 0 .. 255        & BY\& = 23 \\
+integer                 &    \%    & -32768 .. 32767 & I\% = 5    \\
+real                    &   none   & -1E37 .. 1E37   & XY = 1/3   \\
+string                  &    \$    & length = 0 .. 255 & AB\$ = "TEXT" \\
+\hline
+\end{tabular}
+}
+
+\section{BASIC 65 arrays}
+
+Each array consumes the number of elements times the item size
+plus the size of the header (6 + 2 * dimensions) in memory.
+Arrays are stored in bank 1 starting at address \$2000 and expands upwards.
+They share the available memory (\$2000 .. \$F6FF) with the string area,
+which starts in bank 1 on address \$F6FF and expands downwards.
+Each of the above scalar variable types can be used as an array by declaring
+them with a DIM statement. The arrays are initialised to zero for all
+elements on declaration. If an undeclared array element is used,
+an automatic implicit declaration is done, which sets the upper  boundary
+for each dimension to 10. For example the usage of an undeclared element
+AB(3,5) would automatically perform a "DIM AB(10,10)".
+The lower boundary for each dimension is always 0 (zero).
+So an array DIM AB(10) consists of 11 elements and accepts indexes from
+0 to 10.
+
+String arrays are, more precisely expressed, arrays of string
+descriptors. Each item consists of three bytes, which hold
+the values: length of the string and the address (low/high byte)
+of the assigned string in string memory.
+The usage of the BASIC function POINTER with a string or
+string array element as argument, returns the address of the descriptor, not the string.
+
+{\ttfamily
+\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+ type          & item size & appendix & range    & example  \\
+\hline
+byte     array &  1     &    \&    & 0 .. 255        & BY\&(5,6) = 23 \\
+integer  array &  2     &    \%    & -32768 .. 32767 & I\%(0,10) = 5    \\
+real     array &  5     &   none   & -1E37 .. 1E37   & XY(I\%) = 1/3   \\
+string   array &  3     &    \$    & length = 0 .. 255 & AB\$(X) = "TEXT" \\
+\hline
+\end{tabular}
+}
+
 
 
 

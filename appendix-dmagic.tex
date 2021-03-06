@@ -6,10 +6,10 @@ Unlike in the C65, where the DMA controller exists as a separate
 chip, it is part of the 45GS02 processor in the MEGA65.  However, as the
 use of the DMA controller is a logically separate topic, it is documented
 separately in this appendix.
- 
+
 The MEGA65's DMA controller provides several important improvements over the
 F018/F018A DMAgic chips of the C65:
- 
+
 \begin{itemize}
 \item{\bf Speed} The MEGA65 performs DMA operations at 40MHz, allowing filling 40MiB or copying 20MiB
   per second.  For example, it is possible to copy a complete 8KiB C64-style bitmap display in
@@ -41,7 +41,7 @@ and then write the address of this list into the DMA address registers.  The DMA
 the ADDRLSBTRIG register (\$D700).  For this reason you must write the MSB and bank number of the DMA list inti \$D701 and \$D702 first,
 and the LSB only after having set these other two registers.  If you wish to execute multiple DMA jobs using the same
 list structure in memory, you can simply write to ADDRLSBTRIG again after updating the list contents -- provided that
-no other programme has modified the contents of \$D701 or \$D702.  Note that BASIC 10 uses the DMA controller to
+no other programme has modified the contents of \$D701 or \$D702.  Note that BASIC 65 uses the DMA controller to
 scroll the screen, so it is usually safest to always write to all three registers.
 
 When ADDRLSBTRIG has been written to, the DMA job completes immediately.  Unlike on the C65, the DMA controller is part
@@ -113,7 +113,7 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
   \hline
 \end{tabular}
 
-The structure of the command word is as follows: 
+The structure of the command word is as follows:
 
 \begin{tabular}{|c|l|}
   \hline
@@ -141,7 +141,7 @@ The command field take the following four values:
   \%00 (0) & Copy \\
   \%01 (1) & Mix (via MINTERMs) \\
   \%10 (2) & Swap \\
-  \%11 (3) & Fill \\  
+  \%11 (3) & Fill \\
   \hline
   \multicolumn{2}{l}{* Only Copy and Fill are implemented at the time of writing.}
 \end{tabular}
@@ -155,7 +155,7 @@ The addressing mode fields take the following four values:
   \%00 (0) & Linear (normal) addressing \\
   \%01 (1) & Modulo (rectangular) addressing \\
   \%10 (2) & Hold (constant address) \\
-  \%11 (3) & XY MOD (bitmap rectangular) addressing \\  
+  \%11 (3) & XY MOD (bitmap rectangular) addressing \\
   \hline
   \multicolumn{2}{l}{* Only Linear, Modulo and Hold are implemented at the time of writing.}
 \end{tabular}
@@ -178,7 +178,7 @@ The BLANKS and FLAGS field has the following structure:
 
 \subsubsection{Performing Simple DMA Operations}
 
-For information on using the DMA controller from BASIC 10, refer to the \stw{DMA} BASIC command in \bookvref{BASIC 10 Commands!DMA}.
+For information on using the DMA controller from BASIC 65, refer to the \stw{DMA} BASIC command in \bookvref{BASIC 65 Commands!DMA}.
 
 To use the DMA controller from assembly language, set up a data structure with the DMA list, and then
 set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65 mode by filling
@@ -188,9 +188,9 @@ it with spaces, the following routine could be used:
 \verbatimfont{\codefont}
 \begin{verbatim}
   LDA #$00       ; DMA list exists in BANK 0
-  STA $D702     
+  STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
-  STA $D701 
+  STA $D701
   LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
@@ -202,7 +202,7 @@ dmalist:
   .byte $00   ; Source bank (ignored with FILL operation)
   .word $0800 ; Destination address where screen lives
   .byte $00   ; Screen is in bank 0
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 \end{verbatim}
 \end{tcolorbox}
@@ -215,9 +215,9 @@ also clear the colour RAM for the screen, you could use something like:
 \verbatimfont{\codefont}
 \begin{verbatim}
   LDA #$00       ; DMA list exists in BANK 0
-  STA $D702     
+  STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
-  STA $D701 
+  STA $D701
   LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
@@ -229,7 +229,7 @@ dmalist:
   .byte $00   ; Source bank (ignored with FILL operation)
   .word $0800 ; Destination address where screen lives
   .byte $00   ; Screen is in bank 0
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 
   ; Second DMA job immediately follows the first
@@ -237,9 +237,9 @@ dmalist:
   .word 2000  ; Count: 80x25 = 2000 bytes
   .word $0001 ; Fill with value $01 = white
   .byte $00   ; Source bank (ignored with FILL operation)
-  .word $F800 ; Destination address where colour RAM lives 
+  .word $F800 ; Destination address where colour RAM lives
   .byte $01   ; colour RAM is in bank 1 ($1F800-$1FFFF)
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 \end{verbatim}
 \end{tcolorbox}
@@ -253,9 +253,9 @@ to \$5000, you could use something like:
 \verbatimfont{\codefont}
 \begin{verbatim}
   LDA #$00       ; DMA list exists in BANK 0
-  STA $D702     
+  STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
-  STA $D701 
+  STA $D701
   LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
@@ -267,7 +267,7 @@ dmalist:
   .byte $02   ; Source bank = $02 for $2xxxx
   .word $5000 ; Destination address where screen lives
   .byte $00   ; Screen is in bank 0
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 \end{verbatim}
 \end{tcolorbox}
@@ -315,7 +315,7 @@ basicheader:
 	!byte $9e,$32,$30,$36,$31,0,0,0
 
 	;; Actual code begining at $080d = 2061
-main:	
+main:
 	sei
 	lda #$47        	; enable MEGA65 IO
 	sta $D02f
@@ -335,11 +335,11 @@ raster_sync:	  		; before beginning loop for horizontal alignment
 loop:
 	jsr triggerdma
 	jmp loop
-	
-triggerdma:	
+
+triggerdma:
 	lda #0			; make sure F018 list format
 	sta $d703
-	
+
 	lda #0     		; dma list bank
 	sta $d702
 	lda #>rasterdmalist
@@ -445,7 +445,7 @@ enable audio DMA.
 Two channels form the left digital audio channel, and the other two
 channels form the right digital audio channel. It is these left and
 right channels that are then fed into the MEGA65's audio cross-bar
-mixer.   
+mixer.
 
 As the DMA controller is part of the processor of the MEGA65, and the MEGA65 does not have reserved bus slots
   for multi-media operations, the MEGA65 uses idle CPU cycles to perform background DMA. This requires that the
@@ -479,7 +479,7 @@ if it has reached the end of a sample.  In practice, this means that
 samples cannot be more than 64KB in size.  If the sample contains a
 section that should be repeated, then the start address of the
 repeating part should be loaded into \$D721 -- \$D723, and the CH0LOOP
-bit should be set (\$D720 bit 6).  
+bit should be set (\$D720 bit 6).
 
 You can determine the current sample address at any time by reading
 the registers at \$D72A -- \$D72C. But beware: These registers are not
@@ -522,7 +522,7 @@ to produce various effects.
 \subsection{Pure Sine Wave}
 
 Where it is necessary to produce a stable sine wave, especially at
-higher frequencies, 
+higher frequencies,
 there is a special mode to support this. By setting the CH0SINE
 signal, the audio channel will play a 32-byte 16-bit sine wave
 pattern.  The sample addresses still need to be set, as though the
@@ -535,7 +535,7 @@ cycles in the processor's instruction stream.
 This can be used to produce sine waves in both the audible range, as
 well as well into the ultrasonic range, at frequencies exceeding
 60,000Hz, provided that the MEGA65 is connected to an appropriately
-speaker arrangement. 
+speaker arrangement.
 
 \subsection{Sample playback control}
 
@@ -570,7 +570,7 @@ character modes and stepped and fractional DMA address incrementing
 which allows efficient texture copying and scaling. Also there exists
 no known software which ever used this facility, and it remains
 uncertain if it was ever implemented in any revision of the DMAgic
-chip used in C65 prototypes. 
+chip used in C65 prototypes.
 
 The memory-swap
 operation is intended to be implemented, but can be worked around in

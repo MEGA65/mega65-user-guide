@@ -5687,46 +5687,46 @@ HELLO
 \index{BASIC 65 Commands!PRINT USING}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$98 \$FB or \$99 \$FB
-\item [Format:] {\bf PRINT [\# channel,] USING, format, arguments}
-\item [Usage:]  Parses the format string and
-                evaluates the argument list.
-                The values are printed following the directives
-                of the format string.
+\item [Format:] {\bf PRINT [\# channel,] USING format;argument}
+\item [Usage:]  Parses the format string and evaluates the argument.
+                The argument can be either a string or a numeric value.
+                The formatting of the resulting output is directed
+                by the format string.
 
                 {\bf channel} : must be opened for output by
                 an {\bf OPEN} or {\bf DOPEN} statement.
                 If no channel is specified, the output goes to the screen.
 
-                {\bf format} : A string which defines the rules
-                for formatting.
+                {\bf format} : A string variable or a string constant
+                which defines the rules for formatting.
 
                 {\bf numeric argument} :
-                The '\#' characters set the position and with of the
-                output string. \\
-                '+' or '-' set the sign option. \\
-                '.' sets the position of the decimal point. \\
-                ',' can be inserted into large numbers. \\
-                '\$' sets the position of the currency symbol. \\
-                \string^\string^\string^\string^
-                 reserves place for the exponent.
+                The numeric formatting can be done in either
+                CBM style providing a pattern like
+                {\ttfamily "\#\#\#.\#\#"}
+                or in C style using width.precision specifier like
+                {\ttfamily \%3D \%7.2F \%4X } for example.
+
+                If the argument does not fit into the format
+                e.g. trying to print a 4 digit varaible into "\#\#\#"
+                a series of asterisks fills the format character.
 
                 {\bf string argument} : The string may consist of printable
                 characters and control codes. Printable characters
                 are printed to the cursor position, while control
                 codes are executed.
-                The number of '\#' characters sets the width of the
-                output, a '=' sign centres and a '>' character
-                right justifies the output.
+                The number of '\#' characters sets the width of the output.
+                If the first character of the format string
+                is a '=' sign, the argument string is centered within
+                the width.
+                If the first character of the format string
+                is a '>' sign, the argument string is right justified within
+                the width.
 
-                {\bf ,} : A comma acts like a tabulator.
-                {\bf ;} : A semicolon acts as a separator between
-                arguments of the list. Other than the comma character
-                it does not put in any additional characters.
-                A semicolon at the end of the argument list suppresses
-                the automatic return character.
+\item [Remarks:] The format string is applied for one argument only.
+                 But it is possible to append more than one
+                 USING format;argument sequence.
 
-\item [Remarks:] The {\bf SPC} and {\bf TAB} functions
-                 may be used for screen output.
 
 \newpage
 \item [Example:] Using {\bf PRINT\# USING}
@@ -5734,13 +5734,23 @@ HELLO
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 X = 12.34: A$ = "MEGA65"
- 30 PRINT USING "###.##"; X      : REM  "12.34"
- 40 PRINT USING "###"; X         : REM  " 12"
- 50 PRINT USING "####"; A$       : REM  "MEGA"
- 60 PRINT USING "#########"; A$  : REM  "MEGA65  "
- 70 PRINT USING "=########"; A$  : REM  " MEGA65 "
- 80 PRINT USING "#######>#"; A$  : REM  "  MEGA65"
+PRINT USING "##.##";{$5E}, USING " [%6.4F] ";SQR(2)
+ 3.14 [1.4142]
+
+PRINT USING " < # # # > ";12*31
+ < 3 7 2 >
+
+PRINT USING "###"; "ABCDE"
+ABC
+
+PRINT USING ">###"; "ABCDE"
+CDE
+
+PRINT USING "ADDRESS:$%4X";65000
+ADDRESS:$FDE8
+
+A$="###,###,###.#":PRINT USING A$;1E8/3
+ 33,333,333.3
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5749,51 +5759,51 @@ HELLO
 % PUDEF
 % *****
 
-\newpage
-\subsection{PUDEF}
-\index{PUDEF}
-\index{BASIC 65 Commands!PUDEF}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$DD
-\item [Format:] {\bf PUDEF string}
-\item [Usage:]  Redefines up to four special characters, that are
-                used in the {\bf PRINT USING} routine.
-
-                {\bf string} = definition string (max. 4 characters).
-
-{\ttfamily
-                1st.: fill character \\
-                2nd.: comma separator \\
-                3rd.: decimal point \\
-                4th.: currency symbol
-
-                The system default is " ,.\$"
-}
-
-                The new definition string overrides the system
-                default and is often used for localisation.
-                A string " .," would change the punctuation to
-                German style.
-
-                It is not necessary to redefine all four characters.
-                Any length between 1 and 4 is allowed.
-
-\item [Remarks:] {\bf PUDEF} changes the output of {\bf PRINT USING}
-                 only. {\bf PRINT} and {\bf PRINT\#} are not affected.
-                 The control characters of the format string
-                 cannot be changed.
-
-\item [Example:] Using {\bf PUDEF}
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- 10 X = 123456.78
- 20 PUDEF " .,"
- 30 PRINT USING "###,###.#"; X : REM 123.456,8
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
+%\newpage
+%\subsection{PUDEF}
+%\index{PUDEF}
+%\index{BASIC 65 Commands!PUDEF}
+%\begin{description}[leftmargin=2cm,style=nextline]
+%\item [Token:] \$DD
+%\item [Format:] {\bf PUDEF string}
+%\item [Usage:]  Redefines up to four special characters, that are
+%                used in the {\bf PRINT USING} routine.
+%
+%                {\bf string} = definition string (max. 4 characters).
+%
+%{\ttfamily
+%                1st.: fill character \\
+%                2nd.: comma separator \\
+%                3rd.: decimal point \\
+%                4th.: currency symbol
+%
+%                The system default is " ,.\$"
+%}
+%
+%                The new definition string overrides the system
+%                default and is often used for localisation.
+%                A string " .," would change the punctuation to
+%                German style.
+%
+%                It is not necessary to redefine all four characters.
+%                Any length between 1 and 4 is allowed.
+%
+%\item [Remarks:] {\bf PUDEF} changes the output of {\bf PRINT USING}
+%                 only. {\bf PRINT} and {\bf PRINT\#} are not affected.
+%                 The control characters of the format string
+%                 cannot be changed.
+%
+%\item [Example:] Using {\bf PUDEF}
+%
+%\begin{tcolorbox}[colback=black,coltext=white]
+%\verbatimfont{\codefont}
+%\begin{verbatim}
+% 10 X = 123456.78
+% 20 PUDEF " .,"
+% 30 PRINT USING "###,###.#"; X : REM 123.456,8
+%\end{verbatim}
+%\end{tcolorbox}
+%\end{description}
 
 % ******
 % RCOLOR
@@ -7838,60 +7848,70 @@ READY.
 \index{BASIC 65 Commands!USING}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FB
-\item [Format:] {\bf PRINT [\# channel,] USING format; arguments}
-\item [Usage:]  {\bf USING} is a secondary keyword used after
-                {\bf PRINT} or {\bf PRINT\#}.
-
-                It defines the format string for the
-                argument list.
-                The values are printed following the directives
-                of the format string.
+\item [Format:] {\bf PRINT [\# channel,] USING format;argument}
+\item [Usage:]  Parses the format string and evaluates the argument.
+                The argument can be either a string or a numeric value.
+                The formatting of the resulting output is directed
+                by the format string.
 
                 {\bf channel} : must be opened for output by
                 an {\bf OPEN} or {\bf DOPEN} statement.
                 If no channel is specified, the output goes to the screen.
 
-                {\bf format} : A string which defines the rules
-                for formatting.
+                {\bf format} : A string variable or a string constant
+                which defines the rules for formatting.
 
                 {\bf numeric argument} :
-                The '\#' characters set the position and with of the
-                output string. \\
-                '+' or '-' set the sign option. \\
-                '.' sets the position of the decimal point. \\
-                ',' can be inserted into large numbers. \\
-                '\$' triggers the output of the currency symbol before the number. \\
-                \string^\string^\string^\string^
-                 reserves place for the exponent.
+                The numeric formatting can be done in either
+                CBM style providing a pattern like
+                {\ttfamily "\#\#\#.\#\#"}
+                or in C style using width.precision specifier like
+                {\ttfamily \%3D \%7.2F \%4X } for example.
+
+                If the argument does not fit into the format
+                e.g. trying to print a 4 digit varaible into "\#\#\#"
+                a series of asterisks fills the format character.
 
                 {\bf string argument} : The string may consist of printable
                 characters and control codes. Printable characters
                 are printed to the cursor position, while control
                 codes are executed.
-                The number of '\#' characters sets the width of the
-                output, a '=' sign centres and a '>' character
-                right justifies the output.
+                The number of '\#' characters sets the width of the output.
+                If the first character of the format string
+                is a '=' sign, the argument string is centered within
+                the width.
+                If the first character of the format string
+                is a '>' sign, the argument string is right justified within
+                the width.
 
-                {\bf ,} : A comma acts like a tabulator.
-                {\bf ;} : A semicolon acts as a separator between
-                arguments of the list. Other than the comma character
-                it does not put in any additional characters.
-                A semicolon at the end of the argument list suppresses
-                the automatic return character.
+\item [Remarks:] The format string is applied for one argument only.
+                 But it is possible to append more than one
+                 USING format;argument sequence.
+
 
 \newpage
-\item [Example:] Using {\bf PRINT USING}
+\item [Example:] Using {\bf PRINT\# USING}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 X = 12.34: A$ = "MEGA65"
- 30 PRINT USING "###.##"; X      : REM  "12.34"
- 40 PRINT USING "###"; X         : REM  " 12"
- 50 PRINT USING "####"; A$       : REM  "MEGA"
- 60 PRINT USING "#########"; A$  : REM  "MEGA65  "
- 70 PRINT USING "=########"; A$  : REM  " MEGA65 "
- 80 PRINT USING "#######>#"; A$  : REM  "  MEGA65"
+PRINT USING "##.##";{$5E}, USING " [%6.4F] ";SQR(2)
+ 3.14 [1.4142]
+
+PRINT USING " < # # # > ";12*31
+ < 3 7 2 >
+
+PRINT USING "###"; "ABCDE"
+ABC
+
+PRINT USING ">###"; "ABCDE"
+CDE
+
+PRINT USING "ADDRESS:$%4X";65000
+ADDRESS:$FDE8
+
+A$="###,###,###.#":PRINT USING A$;1E8/3
+ 33,333,333.3
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

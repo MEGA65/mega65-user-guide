@@ -206,6 +206,26 @@ This call can result in the following error codes:
 
 \subsection{\$00:\$70 -- Toggle Write Protection of ROM Area}
 \subsection{\$00:\$72 -- Toggle 4510 vs 6502 Processor Mode}
+\subsection{\$00:\$74 -- Get current 4510 memory MAPping}
+
+Y = page where memory mapping is to be stored.  Six bytes will be returned:
+Y must be <= \$7E.
+
+\begin{itemize}
+  \item \$00 - Low byte of MAPLO (lower 32KB RAM mapping)
+  \item \$01 - High byte of MAPLO (lower 32KB RAM mapping)
+  \item \$02 - Low byte of MAPHI (upper 32KB RAM mapping)
+  \item \$03 - High byte of MAPHI (upper 32KB RAM mapping)
+  \item \$04 - Megabyte offset for MAPLO (lower 32KB RAM mapping)
+  \item \$05 - Megabyte offset for MAPHI (upper 32KB RAM mapping)
+\end{itemize}
+
+\subsection{\$00:\$76 -- Set 4510 memory MAPping}
+
+This call performs the opposite of the Get 4510 memory MAPping, reading 6 bytes
+from the memory page indicated by Y, and storing them into the current processor's mapping status.
+Y must be <= \$7E.
+
 \subsection{\$00:\$7C -- Write Character to Serial Monitor/Matrix Mode Interface}
 \subsection{\$00:\$7E -- Reset MEGA65}
 

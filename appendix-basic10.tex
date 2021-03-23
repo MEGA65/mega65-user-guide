@@ -3364,22 +3364,21 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \index{BASIC 65 Commands!GET}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1
-\item [Format:] {\bf GET string variable}
-\item [Usage:] Gets the next character
-               from the keyboard queue. If the queue is empty
+\item [Format:] {\bf GET variable}
+\item [Usage:] Gets the next character or byte value of that character
+               from the keyboard queue.
+               If the variables is of type string and the queue is empty
                an empty string is assigned to the variable,
                otherwise a one character string is created
                and assigned to the string variable.
+               If the variable is of numeric type, the character code
+               of the key is assigned to it, or zero if there was no keypress.
                This command does not wait for keyboard
                input, so it's useful to check for key presses
                in regular intervals or loops.
 
-\item [Remarks:] It is syntactically OK to use {\bf GET} with
-               a numerical variable, but this is dangerous,
-               because hitting a non numerical key will produce
-               an error message and stop the program.
-               The command {\bf GETKEY} is similar, but waits
-               until a key was hit.
+\item [Remarks:] The command {\bf GETKEY} is similar, but waits
+                 until a key was hit.
 
 \item [Example:] Using {\bf GET}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3406,18 +3405,17 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \index{BASIC 65 Commands!GET\#}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1 '\#'
-\item [Format:] {\bf GET\# channel, list of string variables}
+\item [Format:] {\bf GET\# channel, list of variables}
 \item [Usage:] Reads as many bytes
                as necessary from the channel argument
                and assigns strings of length one to
-               each variable in the list.
+               string variables or the read 8-bit binary value
+               to numeric variables.
                This is useful to read characters or bytes from
                an input stream one by one.
 
 \item [Remarks:] All values from 0 to 255 are valid, so this
                command can also be used to read binary data.
-               A value of 0 generates a string of length 1
-               containing CHR\$(0) as character value.
 
 \item [Example:] Using {\bf GET\#}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3429,8 +3427,8 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 25 DO                         :REM LINE LOOP
 30 : GET#2,D$,D$              :REM DISCARD LINE LINK
 35 : IF ST THEN EXIT          :REM END-OF-FILE
-40 : GET#2,L$,H$              :REM FILE SIZE BYTES
-45 : S=ASC(L$) + 256*ASC(H$)  :REM FILE SIZE
+40 : GET#2,LO,HI              :REM FILE SIZE BYTES
+45 : S=LO + 256 * HI          :REM FILE SIZE
 45 : LINE INPUT#2, F$         :REM FILE NAME
 50 : PRINT S;F$               :REM PRINT FILE ENTRY
 55 LOOP
@@ -3449,17 +3447,14 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \index{BASIC 65 Commands!GETKEY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1 \$F9 (GET token and KEY token)
-\item [Format:] {\bf GETKEY string variable}
-\item [Usage:] Gets the next character
+\item [Format:] {\bf GETKEY variable}
+\item [Usage:] Gets the next character or code value
                from the keyboard queue. If the queue is empty
                the program waits until a key is hit.
                Then a one character string is created
                and assigned to the string variable.
-
-\item [Remarks:] It is syntactically OK to use {\bf GETKEY} with
-               a numerical variable, but this is dangerous,
-               because hitting a non numerical key will produce
-               an error message and stop the program.
+               If the variable is numeric, the character code
+               is assigned as value.
 
 \item [Example:] Using {\bf GETKEY}:
 \begin{tcolorbox}[colback=black,coltext=white]

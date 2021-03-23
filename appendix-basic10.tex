@@ -4313,6 +4313,58 @@ A=5      :REM SHORTER AND FASTER
 \end{tcolorbox}
 \end{description}
 
+% ************
+% LINE INPUT\#
+% ************
+
+\newpage
+\subsection{LINE INPUT\#}
+\index{LINE INPUT\#}
+\index{BASIC 65 Commands!LINE INPUT\#}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$E5 \$84
+\item [Format:] {\bf LINE INPUT\# channel, variable list}
+\item [Usage:] Reads one record per variable from an input device,
+               e.g. a disk file
+               and assigns the read data to the variable.
+               The records must be terminated by a {\bf RETURN}
+               character, which will not be copied to the string variable.
+               An empty line consisting of the {\bf RETURN} character only
+               will therefore assign an empty string to the variable.
+
+               {\bf channel} = channel number assigned
+               by a {\bf DOPEN} or {\bf OPEN} command.
+
+               {\bf variable list} = list of one or more
+               variables, that receive the input.
+
+               The input record must be terminated by a
+               RETURN character and must be not longer than
+               the input buffer (160 characters).
+
+\item [Remarks:] Only string variables or string array elements
+                 can be used in the variable list.
+                 Unlike other INPUT commands, {LINE INPUT\#} does
+                 not interpret or remove quote characters in the input.
+                 They are accepted as data, as all other characters.
+
+\item [Example:] Using {\bf LINE INPUT\#}:
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 DIM N$(100)
+ 20 DOPEN#2,"DATA"
+ 30 FOR I=0 TO 100
+ 40 LINE INPUT#2,N$(I)
+ 50 IF ST=64 THEN 80:REM END OF FILE
+ 60 IF DS THEN PRINT DS$:GOTO 80:REM DISK ERROR
+ 70 NEXT I
+ 80 DCLOSE#2
+110 PRINT "READ";I;" RECORDS"
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ****
 % LIST
 % ****

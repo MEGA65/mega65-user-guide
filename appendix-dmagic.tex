@@ -400,12 +400,20 @@ low-byte of the DMA list address to \$D705 instead of to \$D700.  The
 MEGA65 will then look for one or more {\em job option tokens} at the
 start of the DMA list.  Those tokens will be interpretted, before
 executing the DMA job which immediately follows the {\em end of job
-  options} token (\$00).  Job option tokens which take an argument have the
+  options} token (\$00).
+
+Job option tokens that take an argument have the
 most-significant bit set, and always take a 1 byte option.  Job option
 tokens that take no argument have the most-significant-bit clear.
 Unsupported job option tokens are simply ignored.
 This allows for future revisions of the DMAgic to add support for
 additional options, without breaking backward compatibility.
+
+These options are also used to achieve advanced features, such as hardware
+texture scaling at up to 20Mpixels per second, and hardware line drawing
+at up to 40Mpixels per second. These advanced functions are implemented
+by allowing complex calculations to be made to the source and/or destination
+address of DMA jobs as they execute.
 
 The list of valid job option tokens is:
 
@@ -416,6 +424,7 @@ The list of valid job option tokens is:
   \$07 & Enable use of transparent value \\
   \$0A & Use 11-byte F011A DMA list format \\
   \$0B & Use 12-byte F011B DMA list format \\
+  \$53 & Enable `Shallan Spiral' Mode \\
   \$80 & Source address bits 20 -- 27 \\
   \$81 & Destination address bits 20 -- 27 \\
   \$82 & Source skip rate (256\textsuperscript{ths} of bytes) \\
@@ -423,6 +432,16 @@ The list of valid job option tokens is:
   \$84 & Destination skip rate (256\textsuperscript{ths} of bytes) \\
   \$85 & Destination skip rate (whole bytes) \\
   \$86 & Transparent value (bytes with matching value are not written) \\
+  \$87 & Set X column bytes (LSB) for line drawing \\
+  \$88 & Set X column bytes (MSB) for line drawing \\
+  \$89 & Set Y row bytes (LSB) for line drawing \\
+  \$8A & Set Y row bytes (MSB) for line drawing \\
+  \$8B & Slope (LSB) for line drawing \\
+  \$8C & Slope (MSB) for line drawing \\
+  \$8D & Slope accumulator initial fraction (LSB) for line drawing \\
+  \$8E & Slope accumulator initial fraction (MSB) for line drawing \\
+  \$8F & Line Drawing Mode enable and options (set in argument byte): Bit 7 = enable line mode, Bit 6 = select X or Y direction, Bit 5 = slope is negative. \\
+  
   \hline
 \end{tabular}
 

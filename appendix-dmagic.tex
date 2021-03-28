@@ -445,6 +445,33 @@ The list of valid job option tokens is:
   \hline
 \end{tabular}
 
+\section{Texture Scaling and Line Drawing}
+
+The DMAgic supports an advanced internal address calculator that allows it to draw scaled textures and draw
+lines with arbitrary slopes on VIC-IV FCM video displays.
+
+For texture scaling, the FCM screen must be arranged
+vertically, so that advancing vertically by one pixel adds a constant 8 bytes each time.  The source and destination
+skip rates allow setting the scaling factors.  If the two values are \$0100 this corresponds to stepping \$01.00 pixels
+through both the source and destination addresses.  This would copy a vertical line of texture data without scaling.
+By setting the source stepping to < \$0100 will cause some pixels to be repeated, effectively zooming the texture in,
+while setting the source stepping to > \$0100 will cause some pixels to be skipped, effectively zooming the texture out.
+The destination stepping does not ordinary need to be adjusted.  Note that the texture data must be stored with each
+vertical stripe stored contiguously, so that this mode can be used.
+
+XXX - Diagram showing vertical alignment of FCM chars.
+
+For line drawing, the DMA controller needs to know the screen layout, specifically, what number must be added to the
+address of a rightmost pixel in one column of FCM characters in order to calculate the address of the pixel appearing
+immediately to its right. Similarly, it must also know how much must be added to the address of a bottom most pixel in
+one row of FCM characters in order to calculate the address of the pixel appearing immediately below it.  This allows
+for flexible screen layout options, and arbitrary screen sizes.  You must then also specify the slope of the line, and
+whether the line has the X or Y as its major axis, and whether the slope is positive or negative.
+
+The file {\tt test\_290.c}
+in the \url{https://github.com/mega65/mega65-tools} repository provides an example of using these facilities to
+implement hardware accelerated line drawing. This is {\em very} fast, as it draws lines at the full DMA fill speed,
+i.e., approximately 40,500,000 pixels per second.
 
 \section{Audio DMA}
 

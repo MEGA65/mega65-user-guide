@@ -4464,6 +4464,73 @@ A=5      :REM SHORTER AND FASTER
 \end{tcolorbox}
 \end{description}
 
+% *******
+% LOADIFF
+% *******
+
+\newpage
+\subsection{LOADIFF}
+\index{LOADIFF}
+\index{BASIC 65 Commands!LOADIFF}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$43
+\item [Format:] {\bf LOADIFF filename [unit ]}
+\item [Usage:]
+
+   The {\bf LOADIFF} loads an IFF file into graphics memory.
+   The IFF (Interchange File Format) is supported by many different applications
+   and operating systems. The {\bf LOADIFF} command assumes a file
+   that contains bitplane graphics, which fit into the MEGA65 graphics memory.
+   Supported resolutions are:
+
+{\ttfamily
+\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+ Horizontal             & Vertical & Bitplanes & Colours & Memory \\
+\hline
+320                     &  200    & max. 8     & max. 256 & max. 64 K \\
+640                     &  200    & max. 8     & max. 256 & max. 128 K \\
+320                     &  400    & max. 8     & max. 256 & max. 128 K \\
+640                     &  400    & max. 4     & max.  16 & max. 128 K \\
+\hline
+\end{tabular}
+}
+
+   {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
+   a string expression.
+
+   The unit number ist optional.
+   If not present, the default disk device is assumed.
+
+\item [Remarks:]
+   {\bf IFF} files can be created or converted from other formats on
+   several operating systems, like AMIGA OS, MAC OS, Linux and Windows.
+   The tool {\bf convert} is part of the free graphics package {\bf ImageMagick}.
+
+Example for converting a JPG file to an IFF file on Linux:
+
+\begin{verbatim}
+convert <myImage.jpg> <myImage.ppm>
+ppmtoilbm -aga <myImage.pbm> > <myImage.iff>
+\end{verbatim}
+
+\item [Example:] Using {\bf LOADIFF}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+100 BANK128:SCNCLR
+110 REM DISPLAY PICTURES IN 320 X 200 X 7 RESOLUTION
+120 GRAPHIC CLR:SCREEN DEF 0,0,0,7:SCREEN OPEN 0:SCREEN SET 0,0
+130 FORI=1TO7: READF$
+140 LOADIFF(F$+".IFF"):SLEEP 4:NEXT
+150 DATA ALIEN,BEAKER,JOKER,PICARD,PULP,TROOPER,RIPLEY
+160 SCREEN CLOSE 0
+170 PALETTE RESTORE
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % LOG
 % ***

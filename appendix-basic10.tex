@@ -2940,13 +2940,19 @@ where the error number is taken from the reserved variable {\bf ER}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 DO
-20 INPUT "ENTER YOUR AGE";AGE%
-30 IF AGE% < 18 THEN EXIT
-40 INPUT "ENTER YOUR CREDIT CARD #";CR$
-50 LOOP UNTIL LEN(CR$) = 12
-60 IF AGE% >= 18 THEN GOSUB 1000:REM VALIDATE CREDIT CARD
-70 IF AGE% <  18 THEN PRINT "TOO YOUNG":END
+1 REM EXIT
+10 OPEN 2,8,0,"$"            : REM OPEN CATALOG
+15 IF DS THEN PRINT DS$: STOP: REM CANT READ
+20 GET#2,D$,D$               : REM DISCARD LOAD ADDRESS
+25 DO                        : REM LINE LOOP
+30   GET#2,D$,D$             : REM DISCARD LINE LINK
+35   IF ST THEN EXIT         : REM END-OF-FILE
+40   GET#2,LO,HI             : REM FILE SIZE BYTES
+45   S=LO + 256 * HI         : REM FILE SIZE
+50   LINE INPUT#2, F$        : REM FILE NAME
+55   PRINT S;F$              : REM PRINT FILE ENTRY
+60 LOOP
+65 CLOSE 2
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

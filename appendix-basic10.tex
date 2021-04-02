@@ -1240,13 +1240,38 @@ will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
                or 640 x 400). On other resolutions (like: 640 x 200)
                the shape will degrade to an ellipse.
 
+\includegraphics[width=\linewidth]{images/circle.png}
+\newpage
+
 \item [Example:] Using {\bf CIRCLE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 REM USE A 640 X 400 SCREEN
-20 CIRCLE 320,200,100
-30 REM DRAW CIRCLE IN THE CENTRE OF THE SCREEN
+100 REM CIRCLE (AFTER F.BOWEN)
+110 H=0:W=0                             :REM 320 X 200
+120 BORDER 0                            :REM BLACK
+130 GRAPHIC CLR                         :REM INIT
+140 SCREEN DEF  1,W,H,4                 :REM SCREEN SETUP
+150 SCREEN OPEN 1                       :REM OEN
+160 PALETTE 1,0,0,0,0                   :REM BLACK
+170 PALETTE 1,1,RND(.)*16,RND(.)*16,15  :REM RANDOM COLOURS
+180 PALETTE 1,2,RND(.)*16,15,RND(.)*16
+190 PALETTE 1,3,15,RND(.)*16,RND(.)*16
+200 PALETTE 1,4,RND(.)*16,RND(.)*16,15
+210 PALETTE 1,5,RND(.)*16,15,RND(.)*16
+220 PALETTE 1,6,15,RND(.)*16,RND(.)*16
+230 SCREEN SET 1,1                      :REM DRAW & VIEW
+240 SCNCLR 0                            :REM CLEAR
+250 FORI=0TO32                          :REM CIRCLE LOOP
+260 PEN 0,RND(.)*6+1                    :REM RANDOM PEN
+270 R=RND(.)*36+1                       :REM RADIUS
+280 XC=R+RND(.)*320:IF(XC+R)>319THEN280 :REM X CENTRE
+290 YC=R+RND(.)*200:IF(YC+R)>199THEN290 :REM Y CENTRE
+300 XC=XC+WT*320:YC=YC+HT*200
+310 CIRCLE XC,YC,R,.                    :REM DRAW
+320 NEXT
+330 GETKEY A$                           :REM WAIT FOR KEY
+340 SCREENCLOSE 1:BORDER 6: PALETTE RESTORE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

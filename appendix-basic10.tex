@@ -2646,16 +2646,47 @@ where the error line is taken from {\bf EL}.
                It can also be used to draw circles.
 
 \item [Example:] Using {\bf ELLIPSE}
+
+
+\includegraphics[width=\linewidth]{images/ellipse.png}
+
+\newpage
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 REM USE A 640 X 400 SCREEN
-20 ELLIPSE 320,200,100,150
-30 REM DRAW ELLIPSE IN THE CENTRE
+100 REM ELLIPSE
+110 S%=0                        :REM SCREEN
+120 W%=0                        :REM WIDTH  320
+130 H%=0                        :REM HEIGHT 200
+140 B%=2                        :REM BITPLANES
+150 POKE 0,65                   :REM 40 MEGAHERTZ
+160 W=(W%+1)*320:H=(H%+1)*200   :REM WIDTH & HEIGHT IN PIXELS
+170 X0=W/2:Y0=H/2:XD=W/4:YD=H/4 :REM CENTRE AND HALF AXIS
+180 BORDER 0                    :REM BLACK
+190 BACKGROUND 0                :REM BLACK
+200 FOREGROUND 5                :REM GREEN
+210 GRAPHIC CLR                 :REM INIT
+220 SCREEN DEF S%,W%,H%,B%      :REM SET PARAMETERS
+230 SCREEN OPEN S%              :REM OPEN
+240 SCREEN SET S%,S%            :REM SET VIEW AND DRAW SCREEN
+250 SCNCLR S%                   :REM CLEAR SCREEN
+260 PALETTE S%,0, 0, 0, 0       :REM BLACK
+270 PALETTE S%,1,15,15,15       :REM WHITE
+280 PALETTE S%,2,15, 0, 0       :REM RED
+290 PALETTE S%,3, 0, 0,15       :REM BLUE
+300 PEN 0,2                     :REM DRAW PEN
+310 ELLIPSE X0,Y0,XD,YD,1
+320 PEN 0,3                     :REM DRAW PEN
+330 ELLIPSE X0,Y0,XD+8,YD+8,0
+340 A$=STR$(W)+" X"+STR$(H)+" X"+STR$(B%)
+350 PEN 0,1                     :REM DRAW PEN
+360 CHAR  12,10,1,1,2,A$
+370 GETKEY A$
+380 SCREEN CLOSE S%
+390 PALETTE RESTORE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
-
 % ****
 % ELSE
 % ****

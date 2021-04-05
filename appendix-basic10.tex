@@ -7965,6 +7965,61 @@ RUN
 \end{tcolorbox}
 \end{description}
 
+% ****
+% TI\$
+% ****
+
+\newpage
+\subsection{TI\$}
+\index{TI\$}
+\index{BASIC 65 System Variables!TI\$}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf TI\$} is a reserved system variable
+\item [Usage:]  {\bf TI\$} holds the time information of the RTC
+                (Real Time Clock)
+                in text form of the format:
+                "hh:mm:ss".
+                It is updated on every usage.
+
+                {\bf TI\$} is a read-only variable, that just
+                reads the registers of the RTC and puts the values
+                formatted into a string.
+
+                The RTC can be set in the CONFIGURE menu.
+
+\item [Remarks:]
+                It is possible to access the RTC registers directly
+                via PEEK. The start address of the registers is at
+                \$FFD7110. For example:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+100 REM ****** READ RTC ****** ALL VALUES ARE BCD ENCODED
+110 RT = $FFD7110             :REM ADDRESS OF RTC
+120 FOR I=0 TO 5              :REM SS,MM,HH,DD,MO,YY
+130 T(I)=PEEK(RT+I)           :REM READ REGISTERS
+140 NEXT I                    :REM USE ONLY LAST TWO DIGITS
+150 T(2) = T(2) AND 127       :REM REMOVE 24H MODE FLAG
+160 T(5) = T(5) + $2000       :REM ADD YEAR 2000
+170 FOR I=2 TO 0 STEP -1      :REM TIME INFO
+180 PRINT USING ">## ";HEX$(T(I));
+190 NEXT I
+RUN
+12 52 36
+\end{verbatim}
+\end{tcolorbox}
+
+\item [Example:] Using {\bf TI\$}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT DT$;TI$
+05-APR-2021 15:10:00
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % **
 % TO
 % **

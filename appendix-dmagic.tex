@@ -451,15 +451,27 @@ The DMAgic supports an advanced internal address calculator that allows it to dr
 lines with arbitrary slopes on VIC-IV FCM video displays.
 
 For texture scaling, the FCM screen must be arranged
-vertically, so that advancing vertically by one pixel adds a constant 8 bytes each time.  The source and destination
-skip rates allow setting the scaling factors.  If the two values are \$0100 this corresponds to stepping \$01.00 pixels
-through both the source and destination addresses.  This would copy a vertical line of texture data without scaling.
+vertically, as shown below:
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/illustrations/char-tile-grid-vertical-numbered}
+\end{center}
+
+By lining the characters into vertical columns like this, advancing vertically by one pixel adds a constant 8 bytes each time, as shown below:
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/illustrations/char-tile-grid-vertical-addressed}
+\end{center}
+
+
+The source and destination
+skip rates also allow setting the scaling factors.  A skip rate of \$0100 this corresponds to stepping \$01.00 pixels.
+To use the vertically stacked FCM layout as the target for copying vertical lines of textrures, then the destination
+skip rate should be \$0800, i.e., 8.0 bytes per pixel.  This would copy a vertical line of texture data without scaling.
 By setting the source stepping to < \$0100 will cause some pixels to be repeated, effectively zooming the texture in,
 while setting the source stepping to > \$0100 will cause some pixels to be skipped, effectively zooming the texture out.
 The destination stepping does not ordinary need to be adjusted.  Note that the texture data must be stored with each
 vertical stripe stored contiguously, so that this mode can be used.
-
-XXX - Diagram showing vertical alignment of FCM chars.
 
 For line drawing, the DMA controller needs to know the screen layout, specifically, what number must be added to the
 address of a rightmost pixel in one column of FCM characters in order to calculate the address of the pixel appearing

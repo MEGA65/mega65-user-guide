@@ -269,12 +269,34 @@ block in a 32KB half of memory can be either mapped or not, this requires one bi
 8KB block.  Thus the processor requires 16 bits of information for each half of memory, for
 a total of 32 bits of information.  This is achieved by setting the A and X registers for
 the lower half of memory and the Y and Z registers for the upper half of memory, before executing
-the MAP instruction.  The MAP instruction copies the contents of these registers into the
+the MAP instruction.
+
+The MAP instruction copies the contents of these registers into the
 processors internal registers that hold the mapping information.  Note that there is no way to
 use the MAP instruction to determine the current memory mapping configuration, which somewhat
 limits its effectiveness.
 
-See under ``Using the MAP instruction to access >1MB'' for further explanation and an example.
+The following diagram illustrates how the MAP instruction takes the values of the four A, X, Y and Z
+registers, and uses them to compue the upper and lower address offsets, and sets the bank enable bits
+for each of the eight 8KB memory regions of the 6502 address space:
+
+\begin{center}
+  \includegraphics[width=\textwidth]{map-instruction-operation}
+\end{center}
+
+To understand how this works in practice, the following example shows how this works with a concrete
+example, showing the address ranges that would be visible in each of the 8KB slices of the 6502's
+64KB address space:
+
+\begin{center}
+  \includegraphics[width=\textwidth]{map-instruction-example-1}
+\end{center}
+
+Notice that the offsets for each of the two 32KB address ranges get added to the 6502 address.
+This is why the offset of \$48000 for the upper 32KB generates an address of \$50000 at the 6502
+address \$8000.
+
+See also under ``Using the MAP instruction to access >1MB'' for further explanation.
 
 \subsubsection{Direct Memory Access (DMA) Controller}
 
@@ -310,12 +332,10 @@ as a means of memory access, we recommend that for accessing data outside of the
 map that you use either DMA or the flat-memory address features of the 45GS02 that are described below.
 Indeed, access to the full address space via the MAP instruction is only provided for completeness.
 
-To give a very simple example of how the MAP instruction can be used to map an area of memory from
+As an other example of how the MAP instruction can be used to map an area of memory from
 the expanded address space, the following program maps the Ethernet frame buffer from its natural location
 at \$FFDE8000 to appear at \$6800.  To keep the example as simple as possible, we assume that the code
 is running from in the bottom 64KB of RAM, and not in the region between \$6000 -- \$8000.
-
-XXX - Diagram needed for this.
 
 As the MAP instruction normally is only aware of the C65-style 20-bit addresses, the MEGA65 extension to the
 instruction must be used to set the upper 8 bits of the 28-bit MEGA65 addresses, i.e., which mega-byte of address

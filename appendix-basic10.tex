@@ -2254,8 +2254,8 @@ DIRECTORY
 \item [Format:] {\bf DMA command [,length, source address,
                  source bank, target address, target bank, sub]}
 \item [Usage:]
-   The {\bf DMA} ("Direct Memory Access") command is the fastest method
-   to manipulate memory areas using the DMA controller.
+   The {\bf DMA} ("Direct Memory Access") command is obolete
+   and replaced by the command {\bf EDMA}.
 
    {\bf command} 0 = copy, 1 = mix, 2 = swap, 3 = fill
 
@@ -2272,8 +2272,10 @@ DIRECTORY
    {\bf sub} = sub command
 
 \item [Remarks:]
-The {\bf DMA} controller has access to the whole 16 MB address range
-organised in 256 banks of 64 K.
+The {\bf DMA} command has access to the lower 1 MB address range
+organised in 16 banks of 64 K. To avoid this limitation, use the
+command {\bf EDMA}, which has access to the full 256 MB address range.
+
 \item [Example:] Using {\bf DMA}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -2693,6 +2695,49 @@ list
 1000 This is a simple text editor.
 
 ok.
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ****
+% EDMA
+% ****
+
+\newpage
+\subsection{EDMA}
+\label{BASIC 65 Commands!EDMA}
+\index{EDMA}
+\index{BASIC 65 Commands!EDMA}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$21
+\item [Format:] {\bf EDMA command ,length, source,
+                 target [, sub , mod]}
+\item [Usage:]
+   The {\bf EDMA} ("Extended Direct Memory Access") command is the fastest method
+   to manipulate memory areas using the DMA controller.
+
+   {\bf command} 0 = copy, 1 = mix, 2 = swap, 3 = fill
+
+   {\bf length} = number of bytes (maximum = 65535)
+
+   {\bf source} = 28 bit address of read area or fill byte
+
+   {\bf target} = 28 bit address of write area
+
+   {\bf sub} = sub command (see chapter on DMA controller))
+
+   {\bf mod} = modifier (see chapter on DMA controller)
+
+\item [Remarks:]
+The {\bf EDMA} command can access to the whole 256 MB address range
+using up to 28 bit for the addresses of source and target.
+\item [Example:] Using {\bf EDMA}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+EDMA 0, $800, $F700, $8000000 :REM COPY SCALAR VARIABLES TO ATTIC RAM
+EDMA 3, 80*25, 32, 2048       :REM FILL SCREEN WITH BLANKS
+EDMA 0, 80*25, 2048, $8000800 :REM COPY SCREEN TO ATTIC RAM
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

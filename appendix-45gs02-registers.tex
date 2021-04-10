@@ -281,15 +281,27 @@ registers, and uses them to compue the upper and lower address offsets, and sets
 for each of the eight 8KB memory regions of the 6502 address space:
 
 \begin{center}
-  \includegraphics[width=\textwidth]{map-instruction-operation}
+  \includegraphics[width=0.75\textwidth]{images/illustrations/map-instruction-operation.pdf}
 \end{center}
+
+That is, the contents of the A register and the lower-nybl of the X register form a 12-bit value
+that is multiplied by 256 to produce the offset used for any of the 8KB banks in the lower 32KB half of the 6502's 16-bit address
+space.  The upper nybl of the X register is used as flags to indicate which of the four 8KB blocks in that 32KB half of the
+6502 address space should have the offset added to their addresses to compute the actual address.
+
+The Y and Z registers are used in a similar way to produce the offset for the upper 32KB half of the 6502 address space, and the
+flags to indicate whether the offset is used for each of the four 8KB blocks in that half of the address space.
+
+Note that the lower 8 bits of the offset cannot be set. That is, the offset will be a multiple of 256
+bytes, unlike on some extended 6502 processors.  However, in practice this restriction is rarely
+limiting.
 
 To understand how this works in practice, the following example shows how this works with a concrete
 example, showing the address ranges that would be visible in each of the 8KB slices of the 6502's
 64KB address space:
 
 \begin{center}
-  \includegraphics[width=\textwidth]{map-instruction-example-1}
+  \includegraphics[width=0.75\textwidth]{images/illustrations/map-instruction-operation-example1.pdf}
 \end{center}
 
 Notice that the offsets for each of the two 32KB address ranges get added to the 6502 address.

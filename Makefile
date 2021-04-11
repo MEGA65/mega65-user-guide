@@ -20,6 +20,9 @@ all:	$(BOOKS)
 
 books:	$(BOOKS)
 
+screen-maps:	screen-maps.c Makefile
+	$(CC) -Wall -o screen-maps screen-maps.c -lhpdf
+
 prg2tex:	prg2tex.c
 	$(CC) -Wall -o prg2tex prg2tex.c
 

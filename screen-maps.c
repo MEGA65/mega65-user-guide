@@ -15,11 +15,13 @@ int logic_columns=40;
 int columns=40;
 int rows=25;
 int screen_address=0x400;
-int show_addrs=1;
+int show_cell_numbers=1;
+int show_addrs=0;
 int show_chars=0;
 int sixteenbit_mode=0;
 
 HPDF_Doc pdf;
+HPDF_Page page_1;
 
 void error_handler (HPDF_STATUS error_no, HPDF_STATUS detail_no, void *user_data)
 {
@@ -28,25 +30,22 @@ void error_handler (HPDF_STATUS error_no, HPDF_STATUS detail_no, void *user_data
     exit(-1);
 }
 
-int main(int argc,char **argv)
+void setup_pdf(void)
 {
+  
   pdf = HPDF_New (error_handler, NULL);
   if (!pdf) {
     printf ("ERROR: cannot create pdf object.\n");
-    return 1;
+    exit(-3);
   }
     
   /* set compression mode */
   HPDF_SetCompressionMode (pdf, HPDF_COMP_ALL);
-
-  HPDF_Page page_1;
   
   page_1 = HPDF_AddPage (pdf);
 
   HPDF_Page_SetWidth (page_1, 660);
   HPDF_Page_SetHeight (page_1, 420);
-
-
 
   for(int x=0;x<=columns;x++) {  
       HPDF_Page_MoveTo (page_1,10+(x*640/columns),10+0);
@@ -66,16 +65,35 @@ int main(int argc,char **argv)
   HPDF_Page_SetFontAndSize(page_1,font,640/columns/2);
 
   HPDF_Page_BeginText(page_1);
+}  
+
+void finalise_pdf(char *pdfname)
+{
+  HPDF_Page_EndText(page_1);
+  
+  HPDF_SaveToFile (pdf, pdfname);
+  
+  HPDF_Free(pdf);
+}
+
+
+int main(int argc,char **argv)
+{
+
+  setup_pdf();
   
   for(int y=0;y<rows;y++) {
     for(int x=0;x<columns;x++) {
-      HPDF_Page_TextOut(page_1,10+1+(x*640/columns),400-(y*400/rows),"1");
+      char string[80];
+
+      string[0]=0;
+      if (show_cell_numbers) snprintf(string,80,"%d",(y*columns+x)*(1+sixteenbit_mode));
+      if (show_addrs) snprintf(string,80,"$%x",screen_address+(y*columns+x)*(1+sixteenbit_mode));
+      HPDF_Page_TextOut(page_1,10+1+(x*640/columns),400-(y*400/rows),string);
       
     }
   }
 
-  HPDF_Page_EndText(page_1);
-  
-  HPDF_SaveToFile (pdf, "test.pdf");
+  finalise_pdf("images/illustrations/screen-40x25-cell-numbers.pdf");
   
 }

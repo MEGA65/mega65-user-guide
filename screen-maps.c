@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <hpdf.h>
 
-int logic_columns=40;
+int logical_columns=40;
 int columns=40;
 int rows=25;
 int screen_address=0x400;
@@ -22,6 +22,18 @@ int sixteenbit_mode=0;
 
 HPDF_Doc pdf;
 HPDF_Page page_1;
+
+void reset_settings(void)
+{
+  logical_columns=40;
+  columns=40;
+  rows=25;
+  screen_address=0x400;
+  show_cell_numbers=0;
+  show_addrs=0;
+  show_chars=0;
+  sixteenbit_mode=0;
+}
 
 void error_handler (HPDF_STATUS error_no, HPDF_STATUS detail_no, void *user_data)
 {
@@ -61,8 +73,13 @@ void setup_pdf(void)
 
   //  const char *font_name = HPDF_LoadTTFontFromFile (pdf, "./fonts/mega40-Regular.ttf", HPDF_TRUE);
   HPDF_Font font = HPDF_GetFont (pdf, "Helvetica", "CP1250");
-  
-  HPDF_Page_SetFontAndSize(page_1,font,640/columns/2);
+
+  if (show_addrs) {
+    // Smaller print for addresses
+    HPDF_Page_SetFontAndSize(page_1,font,640/columns/2*0.75);
+  } else {
+    HPDF_Page_SetFontAndSize(page_1,font,640/columns/2);
+  }
 
   HPDF_Page_BeginText(page_1);
 }  
@@ -76,24 +93,34 @@ void finalise_pdf(char *pdfname)
   HPDF_Free(pdf);
 }
 
+void draw_screen_layout(void)
+{
+  for(int y=0;y<rows;y++) {
+    for(int x=0;x<columns;x++) {
+      char string[80];
+      
+      string[0]=0;
+      if (show_cell_numbers) snprintf(string,80,"%d",(y*columns+x)*(1+sixteenbit_mode));
+      if (show_addrs) snprintf(string,80,"$%x",screen_address+(y*columns+x)*(1+sixteenbit_mode));
+      HPDF_Page_TextOut(page_1,10+1+(x*640/columns),400-(y*400/rows),string);      
+    }
+  }
+}
+
+
+
 
 int main(int argc,char **argv)
 {
 
-  setup_pdf();
-  
-  for(int y=0;y<rows;y++) {
-    for(int x=0;x<columns;x++) {
-      char string[80];
-
-      string[0]=0;
-      if (show_cell_numbers) snprintf(string,80,"%d",(y*columns+x)*(1+sixteenbit_mode));
-      if (show_addrs) snprintf(string,80,"$%x",screen_address+(y*columns+x)*(1+sixteenbit_mode));
-      HPDF_Page_TextOut(page_1,10+1+(x*640/columns),400-(y*400/rows),string);
-      
-    }
-  }
-
+  // Draw normal 40x25 grid with cell numbers
+  reset_settings(); show_cell_numbers=1;
+  setup_pdf(); draw_screen_layout();
   finalise_pdf("images/illustrations/screen-40x25-cell-numbers.pdf");
+
+  // Draw normal 40x25 grid with addresses
+  reset_settings(); show_addrs=1;
+  setup_pdf(); draw_screen_layout();
+  finalise_pdf("images/illustrations/screen-40x25-addresses.pdf");
   
 }

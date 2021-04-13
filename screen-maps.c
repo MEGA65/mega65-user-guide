@@ -101,7 +101,7 @@ void draw_screen_layout(void)
       
       string[0]=0;
       if (show_cell_numbers) snprintf(string,80,"%d",(y*columns+x)*(1+sixteenbit_mode));
-      if (show_addrs) snprintf(string,80,"$%x",screen_address+(y*columns+x)*(1+sixteenbit_mode));
+      if (show_addrs) snprintf(string,80,"$%x",screen_address+y*logical_columns+x*(1+sixteenbit_mode));
       HPDF_Page_TextOut(page_1,10+1+(x*640/columns),400-(y*400/rows),string);      
     }
   }
@@ -122,5 +122,15 @@ int main(int argc,char **argv)
   reset_settings(); show_addrs=1;
   setup_pdf(); draw_screen_layout();
   finalise_pdf("images/illustrations/screen-40x25-addresses.pdf");
+  
+  // Draw normal 40x25 grid with addresses, 16-bit char mode with 40 byte logical stepping
+  reset_settings(); show_addrs=1; sixteenbit_mode=1;
+  setup_pdf(); draw_screen_layout();
+  finalise_pdf("images/illustrations/screen-40x25-addresses16.pdf");
+
+  // Draw normal 40x25 grid with addresses, 16-bit char mode with 80 byte logical stepping
+  reset_settings(); show_addrs=1; sixteenbit_mode=1; logical_columns=80;
+  setup_pdf(); draw_screen_layout();
+  finalise_pdf("images/illustrations/screen-40x25-addresses16-80.pdf");
   
 }

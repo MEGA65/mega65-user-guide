@@ -493,20 +493,31 @@ Many effects are possible due to Super-Extended Attribute Mode.  A few possibili
 
 \subsection{Using Super-Extended Attribute Mode}
 
-Super-Extended Attribute Mode requires double the screen RAM and colour RAM as the VIC-II/III text modes. This is because two bytes of each are
-required to define each character, instead of one.  The screen RAM can be located anywhere in the 384KiB of main memory using registers \$D060 -- \$D062 (53344 -- 53346 decimal).  The colour RAM can be located anywhere in the 32KiB colour RAM.  Only the first 1 or 2 KiB of the colour RAM is visible at \$D800 -- \$DBFF or \$D800 -- \$DFFF (if the {\em CRAM2K} signal is set in bit 0 of \$D030, 53296 decimal). Thus if using a screen larger than 40$\times$25 characters use of the DMA controller or some other means may be required to access the full amount of colour RAM.  Thus we will initially discuss using Super-Extender Attribute Mode with a 40x25 character display.
+Super-Extended Attribute Mode requires double the screen RAM and colour RAM as the VIC-II/III text modes. This is because two bytes of each are required to define each character, instead of one.  The screen RAM can be located anywhere in the 384KiB of main memory using registers \$D060 -- \$D062 (53344 -- 53346 decimal).  The colour RAM can be located anywhere in the 32KiB colour RAM.  Only the first 1 or 2 KiB of the colour RAM is visible at \$D800 -- \$DBFF or \$D800 -- \$DFFF (if the {\em CRAM2K} signal is set in bit 0 of \$D030, 53296 decimal). Thus if using a screen larger than 40$\times$25 characters use of the DMA controller or some other means may be required to access the full amount of colour RAM.  Thus we will initially discuss using Super-Extender Attribute Mode with a 40x25 character display, so that the use of DMA or other means to access the additional colour RAM.
 
-The easiest way to use Super-Extended Attribute Mode is from C65 mode, with the screen set to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM.  The user need only to treat each character pair as a single Super-Extended Attribute character.
+The first step is to enable the Super-Extended Attribute Mode by asserting the {\em FCLRHI} and {\em CHR16} signals, by setting bits 2 and 0 of \$D054 (53332 decimal).  As this is a VIC-IV register, we must first enable the VIC-IV IO mode.  The VIC-IV must also be configured to 40 column mode, by clearing the {\em H640} signal by clearing bit 7 of \$D031 (53297 decimal).  This is because each pair of characters will be used to form a single character on screen, with one character requiring two screen RAM bytes, thus 80 screen RAM bytes are required to display 40 characters.  Similarly 80 colour RAM bytes are required as well.
 
-The first step is to enable the Super-Extended Attribute Mode by asserting the {\em FCLRHI} and {\em CHR16} signals, by setting bits 2 and 0 of \$D054 (53332 decimal).  As this is a VIC-IV register, we must first enable the VIC-IV IO mode.  The VIC-IV must also be configured to 40 column mode, by clearing the {\em H640} signal by clearing bit 7 of \$D031 (53297 decimal).  This is because each pair of characters will be used to form a single character on screen, thus 80 bytes are required to display 40 characters.
+To understand this visually, it is helpful to first consider the normal C64 screen memory layout:
+
+\includegraphics[width=0.75\linewidth]{images/illustrations/screen-40x25-addresses.pdf}
+
+That is, each character cell uses one byte of screen RAM, and the addresses increase smoothly, both within lines, and between lines.
+Super-Extended Attribute Mode requires two bytes per character cell. So if you set \$D054 to \$05, for example, you will get screen addresses like this:
+
+\includegraphics[width=0.75\linewidth]{images/illustrations/screen-40x25-addresses16.pdf}
+
+There are two things to notice in the above table: First, the address advances by two bytes for each character cell, because two bytes are required to define each character.  Second, the start address of each screen line still only advances by 40 (\$28 in hexadecimal). This isn't what we really want, because it means that half of the previous row will get displayed again on each current row.  This is fixed by setting the number of bytes to advance each screen row in \$D058 (LSB) and \$D059 (MSB). So in this case, we want to increase the number of bytes skipped each line from 40 bytes, to 80 bytes, which we can do by setting \$D058 to 80 (\$50 in hexadecimal), and \$D059 to 0.  This gives us a screen layout like this:
+
+\includegraphics[width=0.75\linewidth]{images/illustrations/screen-40x25-addresses16-80.pdf}
+
+It is possible to use Super-Extended Attribute Mode from C65 mode, by setting the screen to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM, and this automatically sets \$D058 and \$D059 to the correct value for 40$\times$2 = 80 bytes per screen line.  The user need only to treat each character pair as a single Super-Extended Attribute character, and to enable Super-Extended Attribute Mode, as described above.
 
 Because pairs of colour RAM and screen RAM bytes are used to define each character, care must be taken to initialise and manipulate the screen.
 A good approach is to set the text colour to black, because this is colour code 0, and then to fill the screen with @ characters, because that is
 character code 0.  You can then have several ways to manipulate the screen.  You can use the normal PRINT command and carefully construct
 strings that will put the correct values into each screen and colour byte pair. Another approach is to use the BANK and POKE commands to directly set the contents of the screen and colour RAM.
 
-
-XXX Finish above description
+Managing a Super-Extended Attribute Mode screen in this way using BASIC 10 is of course rather a hack, and is only suggested as a relatively simple way to begin experimenting.  You will almost certainly want to quickly move to using custom screen handling code, most probably in assembly, to manipulate Super-Extended Attribute Mode screens, although this approach of using BASIC 10 can be quite powerful, by allowing use of existing screen scrolling and other manipulations.
 
 XXX Example program
 

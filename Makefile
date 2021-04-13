@@ -11,7 +11,8 @@ GENERATED_TEX_FILES= 	document-memory \
 			instructionset-4510.tex \
 		     	instructionset-6502.tex \
 		     	instructionset-45GS02.tex \
-		 	api-conio.tex
+		 	api-conio.tex \
+			images/illustrations/screen-40x25-addresses16-80.pdf
 
 
 .PHONY: $(BOOKS) all clean
@@ -22,6 +23,9 @@ books:	$(BOOKS)
 
 screen-maps:	screen-maps.c Makefile
 	$(CC) -Wall -o screen-maps screen-maps.c -lhpdf
+
+images/illustrations/screen-40x25-addresses16-80.pdf:	screen-maps
+	./screen-maps
 
 prg2tex:	prg2tex.c
 	$(CC) -Wall -o prg2tex prg2tex.c
@@ -105,4 +109,4 @@ document-memory:	document-memory.c Makefile
 	$(CC) -Wall -g -o document-memory document-memory.c
 
 clean:
-	latexmk -CA
+	latexmk -CATED

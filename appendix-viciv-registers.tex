@@ -499,16 +499,16 @@ The first step is to enable the Super-Extended Attribute Mode by asserting the {
 
 To understand this visually, it is helpful to first consider the normal C64 screen memory layout:
 
-\includegraphics[width=0.75\linewidth]{images/illustrations/screen-40x25-addresses.pdf}
+\includegraphics[width=\linewidth]{images/illustrations/screen-40x25-addresses.pdf}
 
 That is, each character cell uses one byte of screen RAM, and the addresses increase smoothly, both within lines, and between lines.
 Super-Extended Attribute Mode requires two bytes per character cell. So if you set \$D054 to \$05, for example, you will get screen addresses like this:
 
-\includegraphics[width=0.75\linewidth]{images/illustrations/screen-40x25-addresses16.pdf}
+\includegraphics[width=\linewidth]{images/illustrations/screen-40x25-addresses16.pdf}
 
 There are two things to notice in the above table: First, the address advances by two bytes for each character cell, because two bytes are required to define each character.  Second, the start address of each screen line still only advances by 40 (\$28 in hexadecimal). This isn't what we really want, because it means that half of the previous row will get displayed again on each current row.  This is fixed by setting the number of bytes to advance each screen row in \$D058 (LSB) and \$D059 (MSB). So in this case, we want to increase the number of bytes skipped each line from 40 bytes, to 80 bytes, which we can do by setting \$D058 to 80 (\$50 in hexadecimal), and \$D059 to 0.  This gives us a screen layout like this:
 
-\includegraphics[width=0.75\linewidth]{images/illustrations/screen-40x25-addresses16-80.pdf}
+\includegraphics[width=\linewidth]{images/illustrations/screen-40x25-addresses16-80.pdf}
 
 It is possible to use Super-Extended Attribute Mode from C65 mode, by setting the screen to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM, and this automatically sets \$D058 and \$D059 to the correct value for 40$\times$2 = 80 bytes per screen line.  The user need only to treat each character pair as a single Super-Extended Attribute character, and to enable Super-Extended Attribute Mode, as described above.
 

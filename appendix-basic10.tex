@@ -620,11 +620,23 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 \index{BASIC 65 Commands!BLOAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$11
-\item [Format:] {\bf BLOAD filename [,B bank]
-                [,P address]  [,D drive] [,U unit] }
+\item [Format:] {\bf BLOAD filename [,B bank] [,P address]  [,D drive] [,U unit] }
 \item [Usage:]
-   "Binary LOAD" loads a file of type
-   PRG into RAM at address P and bank B.
+   "Binary LOAD" loads a file of type PRG into RAM at address P.
+
+   The {\bf BLOAD} command has two modes:
+   The flat memory address mode can be used to load a program to any
+   address in the 28 bit (256 MB) address range where RAM is installed.
+   This includes the standard RAM banks 0 to 5, but also
+   the 8MB so called "attic RAM" at address \$8000000.
+
+   This mode is triggered by specifying an address at the P parameter,
+   that is larger than \$FFFF. The bank parameter is ignored in this mode.
+
+   For compatibility reasons with BASIC-10 and BASIC-7, the {\bf BLOAD}
+   accepts the syntax with a 16bit address at P and a bank number at B too.
+   The attic RAM is out of range for this compatibility mode.
+
 
    \filenamedefinition
 
@@ -640,8 +652,9 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
    \unitdefinition
 
 \item [Remarks:]
-   If the loading process tries to load beyond the address \$FFFF,
-   an 'OUT OF MEMORY' error occurs.
+   The {\bf BLOAD} cannot cross bank boundaries.
+
+{\bf BLOAD} uses the load address from the file, if no P parameter is given.
 
 \item [Example:] Using {\bf BLOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -651,6 +664,7 @@ BLOAD "ML DATA", B0, U9
 BLOAD "SPRITES"
 BLOAD "ML ROUTINES", B1, P32768
 BLOAD (FN$), B(BA%), P(PA), U(UN%)
+BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

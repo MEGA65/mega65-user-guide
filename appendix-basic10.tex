@@ -2100,34 +2100,34 @@ RUN
 
 % Character test
 
-%\begin{tcolorbox}[colback=black,coltext=white]
-%\verbatimfont{\codefont}
-%\begin{verbatim}
-%
-% !"#$%&'()*+,-./
-%0123456789:;<=>?
-%@ABCDEFGHIJKLMNO
-%PQRSTUVWXYZ[\]^_
-%`abcdefghijklmno
-%pqrstuvwxyz{|}~
-%
-%ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ
-%ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
-%àáâãäåæçèéêëìíîï
-%ðñòóôõö÷øùúûüýþÿ
-%
-%ĀāĂăĄąĆćĈĉĊċČčĎď
-%ĐđĒēĔĕĖėĘęĚěĜĝĞğ
-%ĠġĢģĤĥĦħĨĩĪīĬĭĮį
-%İıĲĳĴĵĶķĸĹĺĻļĽľĿ
-%
-%ŀŁłŃńŅņŇňŉŊŋŌōŎŏ
-%ŐőŒœŔŕŖŗŘřŚśŜŝŞş
-%ŠšŢţŤťŦŧŨũŪūŬŭŮů
-%ŰűŲųŴŵŶŷŸŹźŻżŽžſ
-%
-%\end{verbatim}
-%\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+
+ !"#$%&'()*+,-./
+0123456789:;<=>?
+@ABCDEFGHIJKLMNO
+PQRSTUVWXYZ[\]^_
+`abcdefghijklmno
+pqrstuvwxyz{|}~
+
+ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ
+ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
+àáâãäåæçèéêëìíîï
+ðñòóôõö÷øùúûüýþÿ
+
+ĀāĂăĄąĆćĈĉĊċČčĎď
+ĐđĒēĔĕĖėĘęĚěĜĝĞğ
+ĠġĢģĤĥĦħĨĩĪīĬĭĮį
+İıĲĳĴĵĶķĸĹĺĻļĽľĿ
+
+ŀŁłŃńŅņŇňŉŊŋŌōŎŏ
+ŐőŒœŔŕŖŗŘřŚśŜŝŞş
+ŠšŢţŤťŦŧŨũŪūŬŭŮů
+ŰűŲųŴŵŶŷŸŹźŻżŽžſ
+
+\end{verbatim}
+\end{tcolorbox}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -4364,7 +4364,7 @@ down   &  6 &    5  & 4 \\
 \index{BASIC 65 Commands!KEY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F9
-\item [Format:] {\bf KEY [ ON | OFF | number, string]}
+\item [Format:] {\bf KEY [ ON | OFF | LOAD | SAVE | number, string]}
 \item [Usage:] The function keys can either send their key code
                when pressed, or a string assigned to this key.
                After power up or reset this feature is activated
@@ -4376,6 +4376,10 @@ down   &  6 &    5  & 4 \\
                {\bf KEY ON}: switch on function key strings.
                The keys will send assigned strings if pressed.
 
+               {\bf KEY LOAD}: loads key definitions from file.
+
+               {\bf KEY SAVE}: saves key definitions to file.
+
                {\bf KEY}: list current assignments.
 
                {\bf KEY number, string} assigns the string to
@@ -4383,25 +4387,29 @@ down   &  6 &    5  & 4 \\
 
                Default assignments:
 
-{\setlength{\tabcolsep}{1mm}
-\ttfamily
-\begin{tabular}{|l|r|l|}
-\hline
-  key  & number & string \\
-\hline
-F1     &  1 & "GRAPHIC" \\
-F2     &  2 & "DLOAD"+CHR\$(34) \\
-F3     &  3 & "DIRECTORY"+CHR\$(13) \\
-F4     &  4 & "SCNCLR"+CHR\$(13) \\
-F5     &  5 & "DSAVE"+CHR\$(34) \\
-F6     &  6 & "RUN"+CHR\$(13) \\
-F7     &  7 & "LIST"+CHR\$(13) \\
-F8     &  8 & "MONITOR"+CHR\$(13) \\
-HELP   & 15 & "HELP"+CHR\$(13) \\
-RUN    & 16 & "RUN"+CHR\$(34)+"*"+CHR\$(34)+CHR\$(13) \\
-\hline
-\end{tabular}
-}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+KEY
+KEY 1,CHR$(27)+"X"
+KEY 2,CHR$(27)+"@"
+KEY 3,"DIR"+CHR$(13)
+KEY 4,"DIR "+CHR$(34)+"*=PRG"+CHR$(34)+CHR$(13)
+KEY 5,"ŵ"
+KEY 6,"KEY6"+CHR$(141)
+KEY 7,"ŷ"
+KEY 8,"MONITOR"+CHR$(13)
+KEY 9,"Ű"
+KEY 10,"KEY10"+CHR$(141)
+KEY 11,"Ŷ"
+KEY 12,"KEY12"+CHR$(141)
+KEY 13,CHR$(27)+"O"
+KEY 14,"Ŵ"+CHR$(27)+"O"
+KEY 15,"HELP"+CHR$(13)
+KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
 
 \item [Remarks:] The sum of the lengths of all assigned strings
                  must not exceed 240 characters.
@@ -4415,6 +4423,8 @@ RUN    & 16 & "RUN"+CHR\$(34)+"*"+CHR\$(34)+CHR\$(13) \\
  KEY OFF                  :REM DISABLE FUNCTION KEYS
  KEY                      :REM LIST ASSIGNMENTS
  KEY 2,"PRINT ~"+CHR$(14) :REM ASSIGN PRINT PI TO F2
+ KEY SAVE "MY KEY SET"    :REM SAVE CURRENT DEFINITIONS TO FILE
+ KEY LOAD "ELEVEN-SET"    :REM LOAD DEFINITIONS FROM FILE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

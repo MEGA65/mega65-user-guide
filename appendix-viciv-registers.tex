@@ -433,16 +433,16 @@ among the particular modes.  The default is as follows:
 \endlastfoot
 \small Screen RAM byte 0 & {\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
 \small Screen RAM byte 1, bits 0 - 4 & {\small Upper 5 bits of character number, allowing addressing of 8,192 unique characters }\\
-\small Screen RAM byte 1, bits 5 - 7 & {\small Trim pixels from right side of character (bits 0 - 2) }\\
-\small Colour RAM byte 0, bit 7 & {\small Vertically flip the character }\\
+\small Screen RAM byte 1, bits 5 -- 7 & {\small Trim pixels from right side of character (bits 0 -- 2) {\em or} Set character data Y offset if GOTOX set set (bits 0 -- 2) }\\
+\small Colour RAM byte 0, bit 7 & {\small Vertically flip the character {\em or} enable transparency for subsequent characters if GOTOX is set }\\
 \small Colour RAM byte 0, bit 6 & {\small Horizontally flip the character }\\
 \small Colour RAM byte 0, bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
 \small Colour RAM byte 0, bit 4 & {\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later), must be set to 0 for displaying characters }\\
 \small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
-\small Colour RAM byte 0, bits 2 & {\small Trim pixels from right side of character (bit 3) }\\
-\small Colour RAM byte 0, bits 0 - 1 & {\small Number of pixels to trim from top or bottom of character }\\
-\small Colour RAM byte 1, bits 0 - 3 & {\small Low 4 bits of colour of character }\\
-\small Colour RAM byte 1, bits 4 - 7 & {\small Upper 4 bits of colour of character (if VIC-II multi-colour mode is enabled) }\\
+\small Colour RAM byte 0, bits 2 & {\small Trim pixels from right side of character (bit 3) {\em or} Set character data Y offset if GOTOX set set (bit 3) }\\
+\small Colour RAM byte 0, bits 0 -- 1 & {\small Number of pixels to trim from top or bottom of character }\\
+\small Colour RAM byte 1, bits 0 -- 3 & {\small Low 4 bits of colour of character }\\
+\small Colour RAM byte 1, bits 4 -- 7 & {\small Upper 4 bits of colour of character (if VIC-II multi-colour mode is enabled) }\\
 \small Colour RAM byte 1, bit 4 & {\small Hardware blink of character (if VIC-III extended attributes are enabled) }\\
 \small Colour RAM byte 1, bit 5 & {\small Hardware reverse video enable of character (if VIC-III extended attributes are enabled)* }\\
 \small Colour RAM byte 1, bit 6 & {\small Hardware bold attribute of character (if VIC-III extended attributes are enabled)* }\\
@@ -451,7 +451,7 @@ among the particular modes.  The default is as follows:
 
 * Enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
 
-If the GOTO bit is set, some of the fields have different meanings:
+If the GOTOX bit is set, some of the fields have different meanings:
 
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{3cm}|L{8cm}|}

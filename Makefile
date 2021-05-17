@@ -12,6 +12,7 @@ GENERATED_TEX_FILES= 	document-memory \
 		     	instructionset-6502.tex \
 		     	instructionset-45GS02.tex \
 		 	api-conio.tex \
+			appendix-basic10-indexed.tex \
 			images/illustrations/screen-40x25-addresses16-80.pdf
 
 
@@ -110,6 +111,9 @@ document-memory:	document-memory.c Makefile
 
 index_basic_programmes:	index_basic_programmes.c Makefile
 	$(CC) -Wall -g -o index_basic_programmes index_basic_programmes.c
+
+appendix-basic10-indexed.tex:	appendix-basic10.tex index_basic_programmes
+	./index_basic_programmes appendix-basic10.tex > appendix-basic10-indexed.tex
 
 clean:
 	latexmk -CATED

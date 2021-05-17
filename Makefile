@@ -108,5 +108,8 @@ mega65-book-cmyk.pdf:	mega65-book.pdf
 document-memory:	document-memory.c Makefile
 	$(CC) -Wall -g -o document-memory document-memory.c
 
+index_basic_programmes:	index_basic_programmes.c Makefile
+	$(CC) -Wall -g -o index_basic_programmes index_basic_programmes.c
+
 clean:
 	latexmk -CATED

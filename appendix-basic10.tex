@@ -1004,11 +1004,15 @@ BVERIFY (FN$), B(BA%), P(PA), U(UN%)
 \index{BASIC 65 Commands!CATALOG}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]  \$FE \$0C
-\item [Format:] {\bf CATALOG [filepattern] [,R] [,D drive] [,U unit] }
-\item [Format:] {\bf \$ [filepattern] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf CATALOG [filepattern] [,W] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file catalog/directory of the specified disk.
 
    The shortcut symbol {\bf \$} can be used in direct mode only.
+
+   The {\bf W} (Wide) parameter lists the directory three columns wide
+   on the screen and pauses after a the screen is full (63 directory
+   entries). Pressing any key displays the next page.
 
    The {\bf R} (Recoverable) parameter includes files in the
    directory, which are flagged as deleted but are still
@@ -1074,6 +1078,7 @@ CATALOG "*,T=S"
 104 BLOCKS FREE.
 \end{verbatim}
 \end{tcolorbox}
+\includegraphics[width=\linewidth]{images/directory.png}
 \end{description}
 
 % ******
@@ -2068,12 +2073,16 @@ RUN
 \index{BASIC 65 Commands!DIR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EE (DIR) \$FE \$29 (ECTORY)
-\item [Format:] {\bf DIRECTORY [filepattern] [,R] [,D drive] [,U unit] }
-\item [Format:] {\bf DIR [filepattern] [,R] [,D drive] [,U unit] }
-\item [Format:] {\bf \$ [filepattern] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf DIRECTORY [filepattern] [,W] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf DIR [filepattern] [,W] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file directory/catalog of the specified disk.
 
    The shortcut symbol {\bf \$} can be used in direct mode only.
+
+   The {\bf W} (Wide) parameter lists the directory three columns wide
+   on the screen and pauses after a the screen is full (63 directory
+   entries). Pressing any key displays the next page.
 
    The {\bf R} (Recoverable) parameter includes files in the
    directory, which are flagged as deleted but are still
@@ -2100,34 +2109,34 @@ RUN
 
 % Character test
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-
- !"#$%&'()*+,-./
-0123456789:;<=>?
-@ABCDEFGHIJKLMNO
-PQRSTUVWXYZ[\]^_
-`abcdefghijklmno
-pqrstuvwxyz{|}~
-
-ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ
-ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
-àáâãäåæçèéêëìíîï
-ðñòóôõö÷øùúûüýþÿ
-
-ĀāĂăĄąĆćĈĉĊċČčĎď
-ĐđĒēĔĕĖėĘęĚěĜĝĞğ
-ĠġĢģĤĥĦħĨĩĪīĬĭĮį
-İıĲĳĴĵĶķĸĹĺĻļĽľĿ
-
-ŀŁłŃńŅņŇňŉŊŋŌōŎŏ
-ŐőŒœŔŕŖŗŘřŚśŜŝŞş
-ŠšŢţŤťŦŧŨũŪūŬŭŮů
-ŰűŲųŴŵŶŷŸŹźŻżŽžſ
-
-\end{verbatim}
-\end{tcolorbox}
+%\begin{tcolorbox}[colback=black,coltext=white]
+%\verbatimfont{\codefont}
+%\begin{verbatim}
+%
+% !"#$%&'()*+,-./
+%0123456789:;<=>?
+%@ABCDEFGHIJKLMNO
+%PQRSTUVWXYZ[\]^_
+%`abcdefghijklmno
+%pqrstuvwxyz{|}~
+%
+%ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ
+%ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
+%àáâãäåæçèéêëìíîï
+%ðñòóôõö÷øùúûüýþÿ
+%
+%ĀāĂăĄąĆćĈĉĊċČčĎď
+%ĐđĒēĔĕĖėĘęĚěĜĝĞğ
+%ĠġĢģĤĥĦħĨĩĪīĬĭĮį
+%İıĲĳĴĵĶķĸĹĺĻļĽľĿ
+%
+%ŀŁłŃńŅņŇňŉŊŋŌōŎŏ
+%ŐőŒœŔŕŖŗŘřŚśŜŝŞş
+%ŠšŢţŤťŦŧŨũŪūŬŭŮů
+%ŰűŲųŴŵŶŷŸŹźŻżŽžſ
+%
+%\end{verbatim}
+%\end{tcolorbox}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -2151,25 +2160,8 @@ DIRECTORY
 \end{verbatim}
 \end{tcolorbox}
 
-%\begin{tcolorbox}[colback=black,coltext=white]
-%\verbatimfont{\codefont}
-%\begin{verbatim}
-%DIRECTORY "*,T=S"
-%\end{verbatim}
-%\selectfont{\codefont 0}
-%\begin{tcolorbox}[colback=white,coltext=black,arc=0mm,boxrule=0mm,
-%       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
-%       left skip=0.5mm,
-%       width=28mm,height=3mm,valign=center]
-%\begin{verbatim}
-%"BLACK SMURF     " BS 2A
-%\end{verbatim}
-%\end{tcolorbox}
-%\begin{verbatim}
-%508  "STORY PHOBOS"     SEQ
-%104 BLOCKS FREE.
-%\end{verbatim}
-%\end{tcolorbox}
+\includegraphics[width=\linewidth]{images/directory.png}
+
 \end{description}
 
 % ****

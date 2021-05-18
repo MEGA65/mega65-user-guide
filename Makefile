@@ -13,7 +13,7 @@ GENERATED_TEX_FILES= 	document-memory \
 		     	instructionset-45GS02.tex \
 		 	api-conio.tex \
 			appendix-basic10-indexed.tex \
-			images/illustrations/screen-40x25-addresses16-80.pdf
+			#images/illustrations/screen-40x25-addresses16-80.pdf
 
 
 .PHONY: $(BOOKS) all clean

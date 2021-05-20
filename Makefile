@@ -116,4 +116,4 @@ appendix-basic10-indexed.tex:	appendix-basic10.tex index_basic_programmes
 	./index_basic_programmes appendix-basic10.tex > appendix-basic10-indexed.tex
 
 clean:
-	latexmk -CATED
+	latexmk -CA

@@ -631,7 +631,8 @@ Sprites can be one of three widths with the VIC-IV:
 \item Extra Wide, where 64 bits (8 bytes) of data are used per raster line, instead of the VIC-II's 24.
   This results in sprites that are 64 pixels wide, unless Full-Colour Sprite Mode is selected for a sprite,
   in which case the sprite will be 64 bits $\div$ 4 bits per pixel = 16 pixels wide.
-\item Tiled mode, where the sprite is drawn repeatedly until the end of the raster line.
+\item Tiled mode, where the sprite is drawn repeatedly until the end of the raster line. \\
+  Tiled mode should normally only be used with Extra Wide sprite mode, as the tiling always occurs using the full 64 bit sprite data. Thus if you use tiled mode wtih normal 24 pixel wide mono or multi-colour sprites, the tiling will treach 2 and 2/3 rows of sprite data as a single row, resulting in garbled displays.  
 \end{enumerate}
 
 To enable a sprite to be 64 pixels (or 16 pixels if in Full-Colour Sprite Mode), set the corresponding bit for the sprite in the SPRX64EN register at (\$D057, 53335 decimal).  Enabling Full Colour mode for a sprite implicitly enables extended width mode, causes these sprites to be 16 pixels wide.

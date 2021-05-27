@@ -126,6 +126,121 @@ not all special keys are supported, and that there is some latency, so
 using key repeat can cause unexpected results.  But for general remote
 control, it is a very helpful facility.
 
+\subsection{Unit testing and logging support}
+
+The \stw{m65} tool includes support to facilitate remote unit testing 
+directly on MEGA65 hardware. When \textit{unit testing mode} is active, 
+\stw{m65} waits for the MEGA65 to send certain byte sequences over the 
+serial interface which signal the current state (started, passed, failed) 
+of a given test. Additionally, it is possible to send log messages from 
+the MEGA65 to the host computer.
+
+Unit testing mode is entered by calling \stw{m65} with the \stw{-u} flag. 
+To run a remote BASIC program in C65 mode and simultaneously put \stw{m65}
+into \textit{unit testing mode}, the following command can be used:
+
+\begin{screenoutput}
+    m65 -Fur attic-ram.prg -w tests.log
+\end{screenoutput}
+
+The \stw{-F} and \stw{-r} options tell \stw{m65} to reset the MEGA65
+before loading the program "attic-ram.prg" and then automatically run it. 
+The \stw{-u} option then tells \stw{m65} go into \textit{unit testing mode} 
+instead of exiting after launching the program.
+The optional \stw{-w} option makes \stw{m65} append the test results to the 
+file "test.log" (creating the file if it doesn't exist). 
+
+Please note that \stw{m65} automatically exits from \textit{unit testing mode}
+if no test state signals were received for over 10 seconds.
+
+Support is provided for sending unit test signals to the host computer from
+C and BASIC65 programs:
+
+\subsubsection{Using unit tests with C}
+
+The MEGA65 libc contains support for unit testing via functions defined in 
+\stw{test.h} and \stw{test.c}. 
+
+To signal the start of a test, include \stw{test.h} and use
+
+\begin{screenoutput}
+    unit_test_setup("testName",issueNumber);
+\end{screenoutput}
+
+where \textit{"testName"} is a human-readable name of the test (e.g. 
+"VIC-II") and \textit{issueNumber} a reference to the corresponding
+bug issue (for example, the issue number from github).
+
+After starting a test, it's possible to signal passed tests with 
+the unit\_test\_ok() function:
+
+\begin{screenoutput}
+    unit_test_ok();
+\end{screenoutput}
+
+A failed test is signalled with unit\_test\_fail():
+
+\begin{screenoutput}
+    unit_test_fail("fail message");
+\end{screenoutput}
+
+Each time the unit\_test\_ok() or unit\_test\_fail() 
+functions are called, the \textit{sub issue} of the test (reported on 
+the host computer) is incremented. This makes it easier to combine and 
+identify multiple tests in one file.
+
+You can send arbitrary log messages via unit\_test\_log():
+
+\begin{screenoutput}
+    unit_test_log("hello world from mega65!");
+\end{screenoutput}
+
+...and finally, when all is done, the end of unit testing is signalled
+by the use of
+
+\begin{screenoutput}
+    unit_test_done();
+\end{screenoutput}
+
+
+\subsubsection{Using unit tests with BASIC65}
+
+\stw{b65support.bin} is a machine language module providing support for 
+unit testing from BASIC65, provided in the \stw{bin65} folder of the mega65-tools 
+repository. This module works by redirecting the USR vector to perform the functions 
+needed to communicate with the testing host.
+
+In an automated test scenario, you may want to inject the \stw{b65support.bin} 
+binary into MEGA65 RAM by using \stw{m65}:
+
+\begin{screenoutput}
+    m65 -@ mega65-tools/bin65/b65support.bin@15fe
+\end{screenoutput}
+
+Of course it's also possible to load \stw{b65support.bin} directly from the
+MEGA65 by mounting the \stw{M65UTILS.D81} image from the freezer and issuing
+
+\begin{screenoutput}
+    BLOAD "B65SUPPORT.BIN"
+\end{screenoutput}
+
+After loading, \stw{b65support.bin} is initialized with
+
+\begin{screenoutput}
+    SYS $1600
+\end{screenoutput}
+
+Once initialized, the following functions are provided by \stw{b65support.bin}:
+
+
+
+
+
+
+
+
+
+
 
 \section{M65Connect}
 

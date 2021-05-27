@@ -5610,11 +5610,14 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C2
 \item [Format:] {\bf PEEK(address)}
-\item [Usage:]  Returns a byte value
-                read from the 16 bit address and the current
-                memory bank (set by {\bf BANK}).
+\item [Usage:]  Returns an unsigned 8 bit value (byte)
+                read from address.
 
-                {\bf address} = a value 0 -> 65535.
+                If the address is in the range (\$0000 to \$FFFF) the
+                memory bank (set by {\bf BANK}) is used.
+
+                Addresses >= \$10000 are assumed to be flat memory
+                addresses and used as such, ignoring the bank setting.
 
 \item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
                  Banks > 127 are used to access I/O and SYSTEM
@@ -5625,10 +5628,45 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 BANK 128                :REM SELECT SYSTEM BANK
- 20 L = PEEK(DEC("02F8"))   :REM USR JUMP TARGET LOW
- 30 H = PEEK(DEC("02F9"))   :REM USR JUMP TARGET HIGH
+ 20 L = PEEK($02F8)         :REM USR JUMP TARGET LOW
+ 30 H = PEEK($02F9)         :REM USR JUMP TARGET HIGH
  40 T = L + 256 * H         :REM 16 BIT JUMP ADDRESS
  50 PRINT "USR FUNCTION CALLS ADDRESS";T
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% PEEKW
+% *****
+
+\newpage
+\subsection{PEEKW}
+\index{PEEKW}
+\index{BASIC 65 Functions!PEEKW}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$C2 'W'
+\item [Format:] {\bf PEEKW(address)}
+\item [Usage:]  Returns an unsigned 16 bit value (word)
+                read from address (low byte) and address+1 (high byte).
+
+                If the address is in the range (\$0000 to \$FFFF) the
+                memory bank (set by {\bf BANK}) is used.
+
+                Addresses >= \$10000 are assumed to be flat memory
+                addresses and used as such, ignoring the bank setting.
+
+
+\item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
+                 Banks > 127 are used to access I/O and SYSTEM
+                 like VIC, SID, FDC, etc.
+\item [Example:] Using {\bf PEEKW}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 20 UA = PEEKW($02F8)   :REM USR JUMP TARGET
+ 50 PRINT "USR FUNCTION CALL ADDRESS";UA
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5868,10 +5906,13 @@ HELLO
 \item [Format:] {\bf POKE address, byte [,byte ...] }
 \item [Usage:]  Puts on or more bytes into memory
                 or memory mapped I/O, starting at
-                16-bit {\bf address}.
-                The current memory bank as set by {\bf BANK} is used.
+                {\bf address}.
 
-                {\bf address} = a value 0 -> 65535.
+                If the address is in the range (\$0000 to \$FFFF) the
+                memory bank (set by {\bf BANK}) is used.
+
+                Addresses >= \$10000 are assumed to be flat memory
+                addresses and used as such, ignoring the bank setting.
 
                 {\bf byte} = a value 0 -> 255.
 
@@ -5886,7 +5927,50 @@ HELLO
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 BANK 128                :REM SELECT SYSTEM BANK
- 20 POKE DEC("02F8"),0,32   :REM SET USR VECTOR TO $2000
+ 20 POKE $02F8"),0,24       :REM SET USR VECTOR TO $1800
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% POKEW
+% *****
+
+\newpage
+\subsection{POKEW}
+\index{POKEW}
+\index{BASIC 65 Functions!POKEW}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$97 'W'
+\item [Format:] {\bf POKEW address, word [,word ...] }
+\item [Usage:]  Puts on or more words into memory
+                or memory mapped I/O, starting at
+                {\bf address}.
+
+                If the address is in the range (\$0000 to \$FFFF) the
+                memory bank (set by {\bf BANK}) is used.
+
+                Addresses >= \$10000 are assumed to be flat memory
+                addresses and used as such, ignoring the bank setting.
+
+                {\bf word} = a value 0 -> 65535
+
+                The first word is stored at address (low byte)
+                and address+1 (high byte). The second one at
+                address+2 (low byte) and address+3 (high byte), etc.
+
+\item [Remarks:] The address is increased by two for each data word,
+                 so a memory range may be filled with a single PEEKW command.
+
+                 Banks > 127 are used to access I/O and SYSTEM
+                 like VIC, SID, FDC, etc.
+\item [Example:] Using {\bf POKEW}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 BANK 128                :REM SELECT SYSTEM BANK
+ 20 POKEW $02F8,$1800       :REM SET USR VECTOR TO $1800
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

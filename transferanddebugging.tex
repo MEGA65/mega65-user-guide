@@ -126,6 +126,184 @@ not all special keys are supported, and that there is some latency, so
 using key repeat can cause unexpected results.  But for general remote
 control, it is a very helpful facility.
 
+\subsection{Unit testing and logging support}
+
+The \stw{m65} tool includes support to facilitate remote unit testing 
+directly on MEGA65 hardware. When \textit{unit testing mode} is active, 
+\stw{m65} waits for the MEGA65 to send certain byte sequences over the 
+serial interface which signal the current state (started, passed, failed) 
+of a given test. Additionally, it is possible to send log messages from 
+the MEGA65 to the host computer.
+
+Unit testing mode is entered by calling \stw{m65} with the \stw{-u} flag. 
+To run a remote BASIC program in C65 mode and simultaneously put \stw{m65}
+into \textit{unit testing mode}, the following command can be used:
+
+\begin{screenoutput}
+    m65 -Fur attic-ram.prg -w tests.log
+\end{screenoutput}
+
+The \stw{-F} and \stw{-r} options tell \stw{m65} to reset the MEGA65
+before loading the program "attic-ram.prg" and then automatically run it. 
+The \stw{-u} option then tells \stw{m65} go into \textit{unit testing mode} 
+instead of exiting after launching the program.
+The optional \stw{-w} option makes \stw{m65} append the test results to the 
+file "test.log" (creating the file if it doesn't exist). 
+
+Please note that \stw{m65} automatically exits from \textit{unit testing mode}
+if no test state signals were received for over 10 seconds.
+
+Support is provided for sending unit test signals to the host computer from
+C and BASIC65 programs:
+
+\subsubsection{Using unit tests with C}
+
+The MEGA65 libc contains support for unit testing via functions defined in 
+\stw{tests.h} and \stw{tests.c}. 
+
+To signal the start of a test, include \stw{tests.h} and use
+
+\begin{verbatim}
+    unit_test_setup("testName",issueNumber);
+\end{verbatim}
+
+where \textit{"testName"} is a human-readable name of the test (e.g. 
+"VIC-II") and \textit{issueNumber} a reference to the corresponding
+bug issue (for example, the issue number from github).
+
+After starting a test, it's possible to signal passed tests with 
+the unit\_test\_ok() function:
+
+\begin{verbatim}
+    unit_test_ok();
+\end{verbatim}
+
+A failed test is signalled with unit\_test\_fail():
+
+\begin{verbatim}
+    unit_test_fail("fail message");
+\end{verbatim}
+
+Each time the unit\_test\_ok() or unit\_test\_fail() 
+functions are called, the \textit{sub issue} of the test (reported on 
+the host computer) is incremented. This makes it easier to combine and 
+identify multiple tests in one file.
+
+You can send arbitrary log messages via unit\_test\_log():
+
+\begin{verbatim}
+    unit_test_log("hello world from mega65!");
+\end{verbatim}
+
+...and finally, when all is done, the end of unit testing is signalled
+by the use of
+
+\begin{verbatim}
+    unit_test_done();
+\end{verbatim}
+
+
+\subsubsection{Using unit tests with BASIC65}
+
+\stw{b65support.bin} is a machine language module providing support for 
+unit testing from BASIC65, available in the \stw{bin65} folder of the mega65-tools 
+repository. This module works by redirecting the USR vector to perform the functions 
+needed to communicate with the testing host.
+
+In an automated test scenario, you may want to inject the \stw{b65support.bin} 
+binary into MEGA65 RAM by using \stw{m65}:
+
+    \begin{screenoutput}
+        m65 -@ mega65-tools/bin65/b65support.bin@15fe
+    \end{screenoutput}
+
+
+Of course it's also possible to load \stw{b65support.bin} directly from the
+MEGA65 by mounting the \stw{M65UTILS.D81} image from the freezer and issuing
+
+\begin{screenoutput}
+    BLOAD "B65SUPPORT.BIN"
+\end{screenoutput}
+
+After loading, \stw{b65support.bin} is initialized with
+
+\begin{screenoutput}
+    SYS $1600
+\end{screenoutput}
+
+Once initialized, the following functions are provided by \stw{b65support.bin}:
+
+\begin{screenoutput}
+    A=USR(<issueNum>)
+\end{screenoutput}
+prepares a new test with number <issueNum> and resets subissue number to 0
+
+\begin{screenoutput}
+    A=USR("=<testName>")
+\end{screenoutput}
+sets test name and sends test start signal; for example: \stw{A=USR("=VIC-III")} 
+sets the test name to 'VIC-III' and signals the host computer that the test 
+has started.
+
+\begin{screenoutput}
+    A=USR("/<logMessage>)
+\end{screenoutput}
+sends a log message to the host computer
+
+\begin{screenoutput}
+    A=USR("P")
+\end{screenoutput}
+sends the 'passed' signal to the host computer and increases the sub issue number
+
+\begin{screenoutput}
+    A=USR("F")
+\end{screenoutput}
+sends the 'test failed' signal to the host computer and increases 
+the sub issue number
+
+\begin{screenoutput}
+    A=USR("D")
+\end{screenoutput}
+sends the 'test done' signal to the host computer 
+
+All calls return the current sub issue number or \stw{?ILLEGAL QUANTITY ERROR} in 
+case of calling an invalid command.
+
+\subsubsection{BASIC65 example}
+
+The following is a complete BASIC65 example showing how to use \stw{m65}'s 
+unit testing features:
+
+\begin{screenoutput}
+    100 rem attic ram cache test
+    110 poke $bfffff2,$e0         : rem enable attic ram cache
+    120 sys $1600                 : rem init test module
+    130 a=usr(379)                : rem set issue number
+    140 a=usr("=attic-ram-cache") : rem set test name
+    150 bank128:poke0,65          : rem just to be sure
+    160 b0=$8000000 : b1=$8000100 : rem attic ram areas to be tested
+    170 for r=0 to $ff
+    180   poke b0+r,0             : rem fill area 1 with 0
+    190   poke b1+r,$ff           : rem fill area 2 with $ff
+    200 next r
+    210 for t=1 to 10             : rem 10 tries
+    220   poke b0,32              : rem write to b0
+    230   for x=0 to $ff:t1=b1+x
+    240     a=peek(b0)            : rem read from b0
+    250     b=peek(t1):b=peek(t1) : rem read twice from t1
+    260     ifb<>255 thenf=t:t=11:x=256   : rem this shouldn't happen
+    270   next x
+    280 next t
+    290 if f=0 then begin
+    300   print "no faults detected after";t;"tries."
+    310   a=usr("p")              : rem signal 'test passed' to host
+    320 bend : else begin
+    330   a=usr("f")              : rem signal 'test failed' to host
+    340   print "hyper ram fault detected after";f;"tries."
+    350   print "peek($";hex$(t1);") [t1] is";b;"but should be 255"
+    360 bend
+    370 a=usr("d")                : rem test done    
+\end{screenoutput}
 
 \section{M65Connect}
 

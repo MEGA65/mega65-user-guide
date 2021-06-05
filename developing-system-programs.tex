@@ -17,9 +17,37 @@ Therefore this chapter explains the procedure for loading an alternate version o
 providing some useful information about these programmes, how the operate, and the environment in which they operate compared
 with normal C64 or C65 mode programmes.
 
-\section{Hypervisor}
-
 \section{Flash Menu}
+
+The flash menu is located in pre-initialised RAM at \$50000 -- \$57FFFF.  It is executed during the first boot each time the
+MEGA65 is powered on.  It is unusual in that it executes in the hypervisor context. This is so that it has access to the QSPI
+flash, which is not available outside of Hypervisor Mode, so that user programmes cannot corrupt the cores stored in the flash.
+
+It is also important to note that the flash menu programme must fit {\em entirely} below \$8000 when loaded {\em and} executing, as the Hypervisor is still mapped at \$8000 -- \$BFFF, and can easily be corrupted by an ill behaved flash menu programme.  In this regard, the flash menu
+can be regarded as an extension of the hypervisor that is discarded after the first boot.
+This is unlike all other system programmes, that operate in a dedicated memory context, from where the Hypervisor is safe from corruption. It also means that you can't crunch the flash menu to make it fit, as it would overwrite the Hypervisor during decrunching.
+
+Also, as the flash menu is executed very early in the boot process, only the pre-included OpenROM ROM image is available.  Thus you must ensure that your flash menu programme is compatible with that ROM.  
+
+The Hypervisor maintains a flag that indicates whether the flash menu has been executed or not. This flag is updated at the point
+where the Hypervisor exits to user mode for the first time, since after that point, the contents of \$50000 -- \$57FFF can no longer
+be trusted to contain the flash menu.  This means that if you wish to have the Hypervisor run a new version of the flash menu that
+you have loaded, you must prevent the Hypervisor from exiting to user mode first.
+
+The easiest way to achieve this is to hold the ALT key down while powering on the MEGA65.  This will cause the Hypervisor to display the Utility Menu, rather than exiting to user mode.  It is safe at this time to use the {\tt m65} utility to load the replacement flash menu programme using a command similar to the following:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+m65 -@ newflashmenu.prg@50000
+\end{verbatim}
+\end{tcolorbox}
+
+That command would load the file {\tt newflashmenu.prg} at memory location \$50000.
+
+After that, you can simply press the reset button the side of the MEGA65, and it will boot again, and because it never left Hypervisor Mode during the previous boot cycle, it will run your updated flash menu programme. 
+
+It should also be possible to completely automate this process, by first using {\tt m65 -b} to load a new bitstream, thus simulating a cold boot, and then quickly calling {\tt m65} again to simulate depressing the ALT key (or herhaps simply halting the processor), then {\tt m65 -@ ...} and finally {\tt m65 -F} to reset the machine.  Writing a script or utility that correctly implements this automation is left as an exercise for the reader.
 
 \section{Format/FDISK Utility}
 
@@ -30,3 +58,7 @@ with normal C64 or C65 mode programmes.
 \section{Freeze Menu}
 
 \section{Freeze Menu Helper Programmes}
+
+\section{Hypervisor}
+
+\section{OpenROM}

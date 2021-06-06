@@ -99,4 +99,13 @@ The Freeze Menu helper programmes are updated in the same way as the Freeze Menu
 
 \section{Hypervisor}
 
+The Hypervisor is normally built as HICKUP.M65, a 16KiB file that contains the complete Hypervisor programme.  MEGA65 bitstreams contain a pre-build version located at \$FFF8000 -- \$FFFBFFF.  Updated versions of the Hypervisor can be tested using two main approaches:
+
+\begin{itemize}
+	\item 1. Place the updated HICKUP.M65 file on the FAT32 file system of the SD card, and then power the MEGA65 off and on.  This works because the Hypervisor contains code that checks for an updated version of itself, and if found, loads it. However this approach is problematic in that if you install a newer bitstream, it will still downgrade the Hypervisor to whatever version is found in the HICKUP.M65 file on the SD card.  This method is only recommended for developers who have a need to test their modified Hypervisor code from a cold start. Even then, it is recommended to remove the HICKUP.M65 file immediately after testing to avoid unexpected down-grading in the future.
+	\item 2. Use the m65 command's {\\t -k} option to replace the Hypervisor in place, and then reset the MEGA65 using the reset button on the left side of the case.  This should be done when the Hypervisor is {\em not} active, so that corruption of current execution cannot occur. However, it must also occur before any ROM has been loaded to replace the default OpenROM image.  This is because the Hypervisor will attempt to call into the ROM on first-boot in prepration for calling the flash menu, and assumes that the OpenROM is present, because it uses a special OpenROM-specific call to initialise parts of the system state for the flash menu.  This is best done by using a command like {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} to load both a new Hypervisor programme and re-load an OpenROM image.
+\end{itemize}
+
 \section{OpenROM}
+
+To load a new version of a ROM, there are several options, including replacing both the Hypervisor and ROM at the same time, as described above. However, typically the easiest is to copy the new ROM onto the FAT32 filesystem of the SD card as either MEGA65.ROM, or MEGA65$x$.ROM, where $x$ is replaced by a digit between 0 and 9.  When reseting the MEGA65, MEGA65.ROM will then be loaded as normal, or if a digit between 0 and 9 is held down on the keyboard while resetting, the Hypervisor will instead load MEGA65$x$.ROM, where $x$ is the number being held down on the keyboard.

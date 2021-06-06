@@ -45,19 +45,57 @@ m65 -@ newflashmenu.prg@50000
 
 That command would load the file {\tt newflashmenu.prg} at memory location \$50000.
 
-After that, you can simply press the reset button the side of the MEGA65, and it will boot again, and because it never left Hypervisor Mode during the previous boot cycle, it will run your updated flash menu programme. 
+After that, you can simply press the reset button the side of the MEGA65i while holding down the NO SCROLL key, and it will boot again, and because it never left Hypervisor Mode during the previous boot cycle, it will run your updated flash menu programme. 
 
 It should also be possible to completely automate this process, by first using {\tt m65 -b} to load a new bitstream, thus simulating a cold boot, and then quickly calling {\tt m65} again to simulate depressing the ALT key (or herhaps simply halting the processor), then {\tt m65 -@ ...} and finally {\tt m65 -F} to reset the machine.  Writing a script or utility that correctly implements this automation is left as an exercise for the reader.
 
 \section{Format/FDISK Utility}
 
+The Format/FDISK utility is accessed as part of the Utility Menu system.  These utilities are compiled, crunched and linked using the
+{\tt utilpacker} programme.  If you have checked out the mega65-core source repository, you can re-build the colour RAM image by using:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+make bin/COLOURRAM.BIN
+\end{verbatim}
+\end{tcolorbox}
+
+You will of course need to first have modified the Format/FDISK utility, which is normally located in the {\tt src/mega65-freeze-menu} subdirectory.
+
+You need to then load this modified colour RAM image into the running machine. Similar to when updating the flash menu, the Hypervisor will
+only present the utility menu on the first boot, before exiting to user mode for the first time, because it cannot otherwise be sure that
+the colour RAM contains the valid utility programmes.  
+
+So as for the flash menu, you would power the MEGA65 off, and then holding the ALT key down, you turn the MEGA65 back on, so that it displays the utility menu.  At this point you can use the following command to load your modified {\tt COLOURRAM.BIN} file:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+m65 -c COLOURRAM.BIN
+\end{verbatim}
+\end{tcolorbox}
+
+You can now hold down the ALT key, and press the reset button on the left side of the MEGA65, which should again present the utility menu,
+but this time with your modified format/fdisk utility in place.
+
 \section{Keyboard Test Utility}
+
+The process for updating the Keyboard test utility is essentially the same as for the format/FDISK utility, as it lives in the colour RAM
 
 \section{MEGA65 Configuration Utility}
 
+The process for updating the MEGA65 Configuration utility is essentially the same as for the format/FDISK utility, as it lives in the colour RAM
+
 \section{Freeze Menu}
 
+The Freeze Menu is a normal programme, which is stored in {\tt FREEZER.M65} on the SD card's FAT32 file system.
+
+To updated the Freeze Menu, simply use the {\tt m65ftp} utility or some other means to upload your updated FREEZER.M65 file to the SD card's FAT32 file system.  The format of the programme is simply a C64-mode PRG file, just renamed to FREEZER.M65.
+
 \section{Freeze Menu Helper Programmes}
+
+The Freeze Menu helper programmes are updated in the same way as the Freeze Menu itself.
 
 \section{Hypervisor}
 

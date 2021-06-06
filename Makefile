@@ -106,6 +106,9 @@ mega65-book.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory $(GEN
 mega65-book-cmyk.pdf:	mega65-book.pdf
 	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-book-cmyk.pdf mega65-book.pdf
 
+mega65-developer-guide-cmyk.pdf:	mega65-developer-guide.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-developer-guide-cmyk.pdf mega65-developer-guide.pdf
+
 document-memory:	document-memory.c Makefile
 	$(CC) -Wall -g -o document-memory document-memory.c
 

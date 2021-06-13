@@ -1647,7 +1647,7 @@ CONT
 \index{BASIC 65 Commands!COPY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F4
-\item [Format:] {\bf COPY source [,D drive] TO
+\item [Format:] {\bf COPY source [,D drive] [,U unit] TO
                 target [,D drive] [,U unit] }
 \item [Usage:]
    Copies the contents of
@@ -1661,30 +1661,42 @@ CONT
    {\bf target} is either a quoted string, e.g. {\bf "backup"} or
    a string expression in parentheses, e.g. {\bf (FS\$)}
 
-   If the disk unit has dual drives, it is possible to copy
-   files from disk to disk.
-   In this case, it is necessary to specify the drive\#
-   for source and target in the command. This is necessary too, if both
-   files are stored on drive\#1.
-
    \drivedefinition
 
    \unitdefinition
 
+   If none or one unit number is given or the unit numbers before and after
+   the TO token are equal, the COPY command is executed inside the disk unit
+   and the source and target files are on the same disk.
+
+   If the source unit (before TO) is different to the target unit (after TO),
+   the COPY command is executed in the MEGA65 BASIC by reading the source
+   files into a RAM buffer and writing to the target unit. In this case
+   the target file name cannot be chosen, but will be the same as the
+   destination filename. The extended unit to unit copy mode allows to copy
+   single files, pattern matching files or all files of a disk.
+   Any combination of units is allowed, internal floppy, SD-card images,
+   IEC floppy drives like 1541, 1571, 1581 or CMD floppy and hard drives.
+
 \item [Remarks:]
-   The {\bf COPY} command is executed in the DOS of the disk drive.
-   It can copy all regular file types (PRG, SEQ, USR, REL).
-   The source file must exist, the target file must not exist.
-   if source and target are on the same disk, the target filename
+   The file types PRG, SEQ and USR can be copied.
+   If source and target are on the same disk, the target filename
    must be different from the source file name.
+
+   The COPY command cannot copy {\bf DEL} files, that are commonly used
+   as title or separators in disk directories. These do not conform to
+   Commodore DOS rules and cannot be accessed by standard OPEN routines.
+
+   {\bf REL} files cannot be copied from unit to unit.
 
 \item [Example:] Using {\bf COPY}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-  COPY "*",D0 TO D1        :REM COPY ALL FILES
+  COPY U8 TO U9            :REM COPY ALL FILES
   COPY "CODES" TO "BACKUP" :REM COPY SINGLE FILE
-  COPY "*.TXT" TO D1       :REM PATTERN COPY
+  COPY "*.TXT",U8 TO U9    :REM PATTERN COPY
+  COPY "M*",U9 TO U11      :REM PATTERN COPY
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

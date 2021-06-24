@@ -491,25 +491,41 @@ BACKGROUND  3 : REM SELECT BACKGROUND COLOUR CYAN
 \index{BASIC 65 Commands!BACKUP}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F6
-\item [Format:] {\bf BACKUP D source TO D target [,U unit]}
-\item [Usage:] Used on dual drive
-   disk units only (e.g. 4040, 8050, 8250).
-   The backup is done by the disk unit internally.
+\item [Format:] {\bf BACKUP U source TO U target} \\
+                {\bf BACKUP D source TO D target [,U unit]}
+\item [Usage:] The first form of the {\bf BACKUP} command, specifying
+               units for source and target can only be used for the drives
+               connected to the internal FDC (Floppy Disk Controller).
+               Units 8 and 9 are reserved for this controller.
+               These can be either the inernal floppy drive (unit 8) and
+               another floppy drive (unit 9), attached to the same ribbon cable
+               or mounted D81 disk images. So this command can be used to
+               copy from floppy to floppy, floppy to image, image to floppy
+               and image to image, dependent on image mounts and existence of
+               a second physical floppy drive.
 
-   {\bf source} = drive \# of source disk (0 or 1). \\
-   {\bf target} = drive \# of target disk (0 or 1).
+               The second form of the {\bf BACKUP} command, specifying
+               drives for source and target is meant to be used for
+               dual drives units, connected to the IEC bus.
+   For example: CBM 4040, 8050, 8250 via IEEE-488 to IEC adapter.
+   Then the backup is done by the disk unit internally.
 
-\item [Remarks:]  The target disk is formatted and
-                 a identical copy of the source disk is written. \\
-                 This command cannot be used for unit to unit copies.
+   {\bf source} = unit or drive \# of source disk. \\
+   {\bf target} = unit or drive \# of target disk.
+
+\item [Remarks:] The target disk will be formatted and
+                 an identical copy of the source disk is written. \\
+                 The {\bf BACKUP} command cannot be used to backup
+                 from internal devices to IEC devices or vice versa.
 
 \item [Example:] Using {\bf BACKUP}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-BACKUP D0 TO D1    : REM COPY DISK DRIVE 0 -> DRIVE 1 UNIT 8
-BACKUP D1 TO D0, U9: REM COPY DISK DRIVE 0 -> DRIVE 1 UNIT 9
+BACKUP U8 TO U9      : REM BACKUP INTERNAL DRIVE 8 TO DRIVE 9
+BACKUP U9 TO U8      : REM BACKUP DRIVE 9 TO INTERNAL DRIVE 8
+BACKUP D0 TO D1, U10 : REM BACKUP ON DUAL DRIVE CONNECTED VIA IEC
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

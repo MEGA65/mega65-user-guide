@@ -119,7 +119,10 @@ void lookup_mode_description(int m,int isQuad)
   fprintf(stderr,"Normalised to '%s'\n",n);
 
   char filename[1024];
-  snprintf(filename,1024,"instruction_sets/mode.%s",n);
+  if (strlen(n) == 0) // avoiding 'mode.' filename, as it's not windows-friendly
+    snprintf(filename,1024,"instruction_sets/mode");
+  else
+    snprintf(filename,1024,"instruction_sets/mode.%s",n);
   FILE *f=fopen(filename,"rb");
   if (f) {
     char line[8192];

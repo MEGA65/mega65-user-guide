@@ -113,36 +113,108 @@ The \specialkey{RUN STOP}  key is mapped to the ESC key.
 
 The MEGA65 requires an SDHC card of between 4GB and 64GB capacity.  Some SDXC cards may work, however, this is not officially supported.
 
-To prepare your SD card, you will need the following two separate files from the MEGA65 web site:
+To prepare your SD card, you will need the following files from the MEGA65 Filehost:
+
+\subsection{Bitstream File}
+
+Visit the following url:
+
+\url{https://mega.scryptos.com/sharefolder-link/MEGA/MEGA65+filehost/Bitstreams/Jenkins-Out/mega65-core/development/}
+
+Sort the list of build folders by 'Date' and click on the latest:
+
+\includegraphics[width=\linewidth]{images/latest_bitstream.png}
+
+Download either:
 
 \begin{itemize}
-\item{Bitstream} \url{http://mega65.org/assets/bitstream.7z}
-\item{Support Files} \url{http://mega65.org/assets/fileset.7z}
+  \item{\textbf{nexys4.bit} (for Nexys4 PSRAM boards)}
+  \item{\textbf{nexys4dd4-widget.bit} (for Nexys4 DDR boards)}
+  \item{You can also find bitstream files for various other m65 targets here (mega65r2, mega65r3)}
+  \item{You can also find core (.cor) files located here (See \nameref{cha:cores} chapter for more details on how to make use of them)}
 \end{itemize}
 
-In addition, you will also need a C65 ROM.  There were many different versions created during the development of the Commodore 65,
-and the MEGA65 can use any of them.  However, we recommend you use 911001.bin, as this has the most complete BASIC and DOS implementations.
+\subsection{Support Files}
+
+For official owners of the MEGA65 (both devkit and final product), visit the following url and log in with the user credentials you have been provided. This will take you to the MEGA65 Filehost location where the "\textbf{MEGA65 SD card essentials}" download page is located. Then click the "\textbf{Download}" link to retrieve the latest "\textbf{SD essentials.rar}" file. 
+
+\url{https://files.mega65.org?id=a809e0ae-30ac-42f5-ab9c-766d72fd6331}
+
+\includegraphics[width=\linewidth]{images/latest_support_files_with_closedrom.png}
+
+Note that this link is only available to official owners of the MEGA65 product, as the fileset also contains the licensed closed-source MEGA65.ROM file.
+
+For Nexys board owners in search of a similar fileset (without the ROM), visit the following url instead:
+
+\url{https://files.mega65.org/?id=0fb941fe-5c5f-4608-b0f1-32849d4a8dff}
+
+This will take you to the MEGA65 Filehost location where the "\textbf{MEGA65 SD card essentials - No ROM}" download page is located. Click the "\textbf{Download}" link to retrieve the latest "\textbf{SD essentialsNoROM.rar}" file.
+
+Note that while this fileset does not contain a ROM, there are future plans for it to include the freely available OpenROM.
+
+\includegraphics[width=\linewidth]{images/latest_support_files.png}
+
+\subsection{ROM File}
+
+\textbf{Original C65 ROMs}
+
+You may want to source your own separate C65 ROM via other means.  There were many different versions created during the development of the Commodore 65,
+and the MEGA65 can use any of them.  However, out of this set, we recommend you use 911001.bin, as this has the most complete BASIC and DOS implementations.
+
+\textbf{MEGA65 ROMs}
+
+There are newer versions of the \textbf{MEGA65 Closed ROM} actively under development also. These ROMs improve upon the original C65 ROMs and make better use of the extra hardware capabilities that the MEGA65 has over the original C65 hardware. These ROMs are available via the filehost also, but only to owners of the MEGA65, who will need to log into the filehost with their credentials in order to download it. It can be located by visiting the "\textbf{Files}" tab and searching for "\textbf{kernel rom}":
+
+\includegraphics[width=\linewidth]{images/latest_closed_rom.png}
+
+\textbf{MEGA65 ROM diff files}
+
+If you have sourced your own 911001.bin C65 ROM and would like to patch it to the latest MEGA65 ROM, we do provide patches, as the additional improvements we have made to the closed rom are open source. Those diff files are available here:
+
+\url{https://files.mega65.org?id=fd2c40b9-f337-41f7-8a81-0254b1e09fb5}
+
+\textbf{MEGA65 OpenROMs}
+
+Another available option is to make use of \textbf{MEGA65 OpenROMs}. The latest version of this is always downloadable from either of the following urls:
+
+\begin{itemize}
+  \item \url{https://files.mega65.org?id=8aec2fba-3b0a-4677-80ae-7a7f5f4f0cb8}
+  \item \url{https://github.com/MEGA65/open-roms/raw/master/bin/mega65.rom}
+\end{itemize}
+
+\subsection{Preparation Steps}
 
 The steps are:
 
 \begin{itemize}
-  \item{Format the SD card}  in a convenient computer using the FAT32 file-system.  The MEGA65 and Nexys4DDR boards do not understand other
+  \item{Format the SD card} in a convenient computer using the FAT32 file-system.  The MEGA65 and Nexys4DDR boards do not understand other
 file systems, especially the exFAT file system.
-\item{Unzip} the bitstream.7z file, and copy the file with name ending in ``.bit'' onto the SD card.
+\item{Copy} your bitstream file (with name ending in ``.bit'') onto the SD card.
 \item{Insert} the SD card into the SD card slot on the under-side of the Nexys4DDR board.
 \item{Turn on} the Nexys4DDR board.
 \item{Enter the Utility Menu} by holding the \megakey{ALT} key down on the USB keyboard you have connected to the Nexys4DDR board.
 \item{Enter the FDISK/FORMAT tool} by pressing 2 when the option appears on the MEGA65 boot screen.
-\item{Follow the prompts} in the FDISK/FORMAT program to again format the SD card for use by the MEGA65.
-  (The FDISK tool will partition your SD card into two partitions and format them.
-  One is type \$41 = MEGA65 System Partition, where the save slots, configuration data and other files live.
+\item{Follow the prompts} in the FDISK/FORMAT program to again format the SD card for use by the MEGA65. \\
+  \\
+  The FDISK tool will partition your SD card into two partitions and format them.
+  \begin{itemize}
+    \item One is type \$41 = MEGA65 System Partition, where the save slots, configuration data and other files live. \\
   (This partition is invisible in i.e. Win PCs).
-  and the other partition with type \$0C = VFAT32, where KERNEL, support files, games, and so on, will be copied to later.
+    \item The other partition with type \$0C = VFAT32, where KERNEL, support files, games, and so on, will be copied to later. \\
   (This partition is visible on i.e. Win PCs).
+  \end{itemize}
 \item{Once formatting is complete}, switch off the Nexys4DDR board and remove the microSDHC card from the Nexys board and put it back into your PC
-\item{Again copy} the bitstream back onto the SD card, as well as all the files from the other 7z file downloaded from the MEGA65 website.
-\item{Copy the 911001.bin} ROM file onto the SD card, and rename it to MEGA65.ROM
-\item{If you have any .D81 files}, copy them onto the SD card. Make sure that they have names that fit the old DOS 8.3 character limit, and are upper case.  This restriction will be removed in a future release.
+\item{This time, copy} the following items onto the SD card:
+  \begin{itemize}
+    \item The bitstream file
+    \item The extracted files from within either the "\textbf{SD essentials.rar}" or "\textbf{SD essentialsNoROM.rar}" file that you downloaded from the MEGA65 filehost.
+    \item{If you have sourced your own preferred ROM file} (e.g. "\textbf{911001.BIN}"), copy it onto the SD card also, and rename it to "\textbf{MEGA65.ROM}" (uppercase is essential).
+    \item{Any .D81 disk image files} you wish to make use of.
+      \begin{itemize}
+        \item Note that if a file named MEGA65.D81 is added to the SD card, it will be mounted automatically on startup.
+        \item Make sure that all .D81 files have names that fit the old DOS 8.3 character limit, and are upper case.  This restriction will be removed in a future release.
+      \end{itemize}
+  \end{itemize}
 \item{Remove the SD card} and reinsert it into your Nexys4DDR board.
 \item{Power the Nexys4DDR} board back on.  The MEGA65 should boot within 15 seconds.
 \end{itemize}
@@ -164,7 +236,6 @@ The following are some useful tips for getting familiar with the MEGA65:
 \item{Press the \megakey{RESTORE} key for approximately 1/2 - 1 second to enter the MEGA65 Freeze Menu.  From this menu
   you have convenient tools to change the CPU speed, switch between PAL \& NTSC video mode, change Audio settings, manage freeze-states,
    select D81 disk images, examine and modify memory of the frozen program, among other features.  This is in many ways the heart of the MEGA65, so it is well worth exploring and getting familiar with.}
-\item{Press the \megakey{RESTORE} for about 2 seconds to reset the MEGA65.  This is a temporary feature that will be removed when the MEGA65 desktop computers with built-in reset button become available.}
 \item{Type \screentext{POKE0,65} in C64 mode to switch  the CPU to full speed (40MHz). Some software may behave incorrectly in this mode, while other software will work very well, and run many times faster than on a C64.}
 \item{Type \screentext{POKE0,64} in C64 mode to switch the CPU to 1MHz.}
 \item{Type \screentext{SYS58552} in C64 mode to switch to C65 mode.}

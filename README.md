@@ -3,7 +3,12 @@ This is community effort to create a User Guide for the MEGA65 in the spirit of 
 
 # Just show me the PDFs!
 
-If you just want the typeset manuals, hop over to the releases page at:
+If you just want the typeset manuals, the latest pdf's from our build pipeline are available here:
+* http://gurce.net/mega65_files/docs/
+
+(Location will be updated to files.mega65.org at a later stage when our automation permits it)
+
+For official release increments of the documentation, hop over to the releases page at:
 
 https://github.com/MEGA65/mega65-user-guide/releases
 

@@ -3588,6 +3588,125 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \end{tcolorbox}
 \end{description}
 
+% *****
+% FREAD
+% *****
+
+\newpage
+\subsection{FREAD}
+\index{FREAD}
+\index{BASIC 65 Functions!FREAD}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$1C
+\item [Format:] {\bf FREAD\#channel, pointer, size}
+\item [Usage:] Reads {\bf size} bytes from {\bf channel} to memory
+               starting at the 32 bit address {\bf pointer}.
+
+               Care must be taken, not to overwrite memory,
+               that is used by the system or the interpreter.
+
+               It is recommended to use the {\bf POINTER} statement
+               for the pointer argument and compute the size parameter
+               my multiplying the number of elements with the item size.
+
+{\ttfamily
+\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|}
+\hline
+ type          & item size \\
+\hline
+byte     array &  1     \\
+integer  array &  2     \\
+real     array &  5     \\
+\hline
+\end{tabular}
+}
+
+Keep in mind, that the {\bf POINTER} function with a string argument
+does NOT return the string address, but the string descriptor.
+It is recommend, not to use {\bf FREAD} for strings or string arrays
+unless you are fully aware, how to handle the string storage internals.
+
+Also take care, that you always specify an index, if you use an array.
+The start address of array XY() is POINTER(XY(0)).
+POINTER(XY) returns the address of the scalar variable XY.
+
+\item [Example:] Using {\bf FREAD}:
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+100 N=23
+110 DIM B&(N),C&(N)
+120 DOPEN#2,"TEXT"
+130 FREAD#2,POINTER(B&(0)),N
+140 DCLOSE#2
+150 FORI=0TON-1:PRINTCHR$(B&(I));:NEXT
+160 FORI=0TON-1:C&(I)=B&(N-1-I):NEXT
+170 DOPEN#2,"REVERS",W
+180 FWRITE#2,POINTER(C&(0)),N
+190 DCLOSE#2
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% FWRITE
+% *****
+
+\newpage
+\subsection{FWRITE}
+\index{FWRITE}
+\index{BASIC 65 Functions!FWRITE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$1E
+\item [Format:] {\bf FWRITE\#channel, pointer, size}
+\item [Usage:] Writes {\bf size} bytes from {\bf channel} to memory
+               starting at the 32 bit address {\bf pointer}.
+
+               It is recommended to use the {\bf POINTER} statement
+               for the pointer argument and compute the size parameter
+               my multiplying the number of elements with the item size.
+
+{\ttfamily
+\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|}
+\hline
+ type          & item size \\
+\hline
+byte     array &  1     \\
+integer  array &  2     \\
+real     array &  5     \\
+\hline
+\end{tabular}
+}
+
+Keep in mind, that the {\bf POINTER} function with a string argument
+does NOT return the string address, but the string descriptor.
+It is recommend, not to use {\bf FWRITE} for strings or string arrays
+unless you are fully aware, how to handle the string storage internals.
+
+Also take care, that you always specify an index, if you use an array.
+The start address of array XY() is POINTER(XY(0)).
+POINTER(XY) returns the address of the scalar variable XY.
+
+\item [Example:] Using {\bf FWRITE}:
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+100 N=23
+110 DIM B&(N),C&(N)
+120 DOPEN#2,"TEXT"
+130 FREAD#2,POINTER(B&(0)),N
+140 DCLOSE#2
+150 FORI=0TON-1:PRINTCHR$(B&(I));:NEXT
+160 FORI=0TON-1:C&(I)=B&(N-1-I):NEXT
+170 DOPEN#2,"REVERS",W
+180 FWRITE#2,POINTER(C&(0)),N
+190 DCLOSE#2
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % GET
 % ***

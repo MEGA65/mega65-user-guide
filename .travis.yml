@@ -1,0 +1,56 @@
+language: minimal
+os: linux
+arch: amd64
+dist: focal
+branches: 
+  except:
+    - CI-latest
+script:
+- sudo apt-get install -y texlive-latex-extra texlive-xetex latexmk xzdec 
+- sudo apt-get install -y sshpass
+- sudo tlmgr init-usertree 
+- sudo tlmgr option repository http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2019/tlnet-final/
+- sudo tlmgr --no-verify-downloads install bibtex IEEEtran tools url arydshln booktabs sttools etoolbox titlesec appendix parskip kvoptions ltxcmds kvsetkeys float caption tikzpagenodes pgf ifoddpage imakeidx xkeyval nowidow hyperref infwarerr textpos enumitem tcolorbox environ listings wrapfig needspace ean ocr-b changepage tabulary multirow geometry
+- git -C .. clone https://github.com/MEGA65/mega65-libc.git
+- git -C .. clone --branch=development https://github.com/MEGA65/mega65-core.git
+- make mega65-book.pdf
+- rm mega65-book.pdf
+- make mega65-book.pdf
+- make mega65-basic10-reference.pdf
+- make mega65-chipset-reference.pdf
+- make mega65-developer-guide.pdf
+- make mega65-userguide.pdf
+after_failure:
+- echo "<html><h1>MEGA65 Documentation</h1>" > index.html
+- echo '<p><u>Last updated at</u> <b>' >> index.html
+- date >> index.html
+- echo "</b></p><ul>" >> index.html
+- ls -1 *.pdf | sed 's:\(.*\):<li><a href="\1">\1</a></li>:' >> index.html
+- echo "</ul><p><b><u>Log files</u></b>:</p><ul>" >> index.html
+- ls -1 *.log | sed 's:\(.*\):<li><a href="\1">\1</a></li>:' >> index.html
+- echo "</ul></html>" >> index.html
+- cat index.html
+- ssh-keygen -R ${SFTP_SERVER}
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.pdf ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.log ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no index.html ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs
+- # find . -maxdepth 1 \( -name '*.pdf' -o -name '*.log' -o -name 'index.html' \) -exec curl -P - -T {} ftp://$FTP_SERVER --user $FTP_USER:$FTP_PASSWORD \;
+before_deploy:
+- |
+  if [[ -z "$TRAVIS_TAG" ]]; then
+    export TRAVIS_TAG=CI-latest
+  fi
+deploy:
+- provider: releases
+  api_key: $GITHUB_API_KEY
+  file_glob: true
+  file: 
+  - $TRAVIS_BUILD_DIR/*.pdf
+  - $TRAVIS_BUILD_DIR/*.log
+  skip_cleanup: true
+  prerelease: true
+  draft: false
+  overwrite: true
+  on:
+    tags: false
+    branch: 176_automate_doc_build

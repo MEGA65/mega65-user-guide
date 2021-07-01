@@ -47,7 +47,7 @@ comfortable and efficient cross-development environment.
 The remaining six drives are supported only in conjunction with a
 future C1565-compatible external drive port.
 
-\subsection{Reading From Disks}
+\subsection{Buffered Sector Operations}
 \label{subsec:reading-from-disks-and-buffer-management}
 
 The 45IO27 support two main modes of reading sectors from a
@@ -76,45 +76,82 @@ This function can be disabled again by writing \$82 to the SD command
 register. As with the normal sector buffer memory mapping at
 \$FFD6xxx, the BUFSEL signal (bit 7 of \$D689) affects whether the FDC
 or the SD card sector buffer is visible, for software not running in
-Hypervisor mode. 
+Hypervisor mode.  Note that if you use the matrix mode / serial monitor
+interface to inspect the contents of the sector buffer, that this occurs
+in the Hypervisor context, and so the BUFSEL signal will be ignored,
+and the full 4KiB buffer will be visible.
 
 The memory-mapped sector buffer has the advantage that it can be
 accessed via DMA, allowing for very efficient copies.  Also, it allows
 for loading a sector to occur in the background, while your programme
 gets on with more interesting things in the meantime.
 
-But before you have any data to read, you must first tell the floppy
-controller to read a sector.  To do this, first set the SIDE1 flag in
-bit 3 of \$D080 if you wish to read a sector from the reverse side of the disk,
-or clear it if you wish to read a sector from the first side of the
-disk.
-Next, load the track, sector and
+\subsection{Reading Sectors from a Disk}
+
+There are several steps that you must follow in order to successfully read
+a sector from a disk. If you follow these instructions, your code will work
+with both physical disks, as well as D81 disk images that exist on the SD
+card:
+
+\begin{itemize}
+\item First, enable the motor and select the appropriate drive. The F011
+  supports upto 8 physical drives, although it is rare for more than two
+  to be physically connected.  To enable the motor, write \$60 to \$D080.
+  You should then write a SPINUP command (\$20) to \$D081, and wait for
+  the BUSY flag (bit 7 of \$D082) to clear.  The drive is now spinning
+  at speed, and ready to service requests.
+\item Next, select the correct side of the disk by either setting or clearing
+  the SIDE1 flag (bit 3 of \$D080).  This takes effect immediately.
+\item Third, use the step-in and step-out commands (writing \$10 and \$18 to
+  \$D081) as required to move the head to the correct track. Again, after each
+  command, you should wait for the BUSY flag (bit 7 of \$D082) to clear, before
+  issuing the next command.
+
+  Note that you can check if the head is at track 0
+  by checking the TRACK0 flag, but there is no fool-proof way to know if you
+  are on any other specific track.  You can use the registers at \$D6A3 --
+  \$D6A5 to see the track, sector and side value from the last sector header
+  which passed under the head to make an informed guess as to which track
+  is currently selected. Note that this only works for real disks, as disk
+  images do not spin under the read head. Also note that it is possible for
+  tracks to contain sectors which purposely or accidently have incorrect
+  track numbers in the sector headers.
+  
+  \item Fourth, you need to load the desired track, sector and
 side number into the TRACK, SECTOR and SIDE registers (\$D084, \$D085
-and \$D086, respectively). Then write an appropriate read command
+and \$D086, respectively). The FDC is now primed ready to read a sector.
+
+\item Fifth, you should write an appropriate read command
 value into \$D080.  This will normally be \$40 (64).  You then wait
 for the RDREQ signal (\$D083, bit 7) to go high, to indicate that the
 sector has been found. You then either wait for each occassion when
 DRQ goes high, and read byte-by-byte in such a loop, or wait for the
-BUSY flag to clear and the DRQ and EQ flags to go high, and then
-access the sector buffer directly.  
+BUSY flag to clear and the DRQ and EQ flags to go high, which indicates
+that the complete sector has been read into the buffer.
 
-What has not been discussed above is stepping the head to the correct
-track.  By default, the 45IO27 uses its ``auto-tune'' function (\$D689,
-bit 4) to compare the track number of sectors passing under the head
-of the disk drive with the requested track.  If the track matches,
-then it knows that it is on the correct track.  If not, it will
-periodically seek the head in the direction of the correct track.
+\end{itemize}
 
-This considerably simplifies operation, by relieving the programmer
-from having to step the head, and recover from mis-steps, where the
-expected and actual tracks diverge. It is therefore recommended that
-programmers leave the auto-tune function enabled at all times --
-unless you purposely intend to create disks with incorrectly numbered
-tracks.
+\subsection{Track Auto-Tune Function Deprecated}
 
-With determination and perserverence, it should be possible
-to create disks that use the auto-tune function to play simple tunes.
-This is not recommended.
+The 45IO27 also includes a track ``auto-tune'' function, which is enabled
+by clearing bit 4 of \$D689.  That function reads the sector headers to
+determine which track the head is currently over, and steps the head in or
+out to try to get to the correct track. This was implemented to work around
+a known problem where the floppy drive would mis-step sometimes.  However
+that problem has since been corrected, and thus the auto-tune function is
+no-longer required, and it is not recommend to use it.
+
+The reason we recommend that you do not use the auto-tune function is that if
+a disk is not properly formatted
+or purposely includes incorrect track numbers in sector headers, this can
+easily result in ``head chatter'', where the drive seeks continuously back
+and forth between two or more tracks.  This creates an annoying noise, and will
+probably shorten the life-span of your floppy drive. However, it can likely
+be used to make disks that when inserted will play simple tunes using the
+floppy drive noises, and when carefully used (and disabled after) can
+automate the stepping of the head between tracks to reduce CPU load. 
+
+\subsection{Sector Skew and Target Any Mode}
 
 It is also worth noting that the TARGANY signal can be asserted to
 tell the floppy controller to simply read the next sector that passes
@@ -122,8 +159,16 @@ under the head.  This applies only when using real floppy disks, where
 it offers the considerable advantage of letting you read the sectors
 in the order in which they exist on the disk. This allows you to read
 a track at once, without having to wait for the index hole to pass by,
-or having to know which sector will next pass under the head.  In
-principle, this allows reading approximately 2 full tracks per second,
+or having to know which sector will next pass under the head.
+
+For example,
+the C65 DOS formats disks using a skew factor of 7, while PCs may use
+a different skew-factor. If you don't know the skew factor of the disk,
+you may schedule the reading of the sectors on the track in a sub-optimal
+order. This can result in transfer rates as low as 5 sectors per second,
+compared with the optimal case of 50 sectors per second.
+Thus with either correct sector order, or using the target any mode,
+it is possible to read approximately two full tracks per second,
 i.e., two sides $\times$ two tracks, or approximately 20KiB/second on
 DD disks, or double that on HD disks, at around 40KiB/second.  This
 compares very favourably with the C65 DOS loading speed, which is
@@ -165,8 +210,39 @@ stored information about the disk on the 81st track.  In our
 experience almost all drives will also be able to access an 82nd
 track.
 
+\subsection{FD2000 Disks}
 
-\subsection{Writing To Disks}
+The CMD(tm) FD2000(tm) high-density 3.5'' disk drives for Commodore(tm) computers
+use an unusual disk layout that is quite different from PCs: They use 10 sectors,
+the same as on 720KB double-density (DD) disks, but double the {\em sector size}
+from 512 bytes to 1,024 bytes.  The 45IO27 does not currently support these
+larger sectors. Support is planned to be added via a core update in the future.
+
+\subsection{Formatting Disks}
+
+Formatting disks is now possible with the 45IO27, with two caveats:
+
+\begin{itemize}
+\item The CPU should be set to 40MHz mode, due to an unresolved timing error in instruction
+  execution that can cause problems when formatting disks using the C65 DOS.
+\item The C65 BASIC HEADER command will successfully {\em format} a disk, but will fail
+  to write the directory structure to the disk, because buffered sector writing is not yet
+  implemented, as explained below.
+\end{itemize}
+
+The formatting process is unbuffered, that is, the CPU must write each clock and data byte
+to the appropriate FDC registers each time the DRQ flag is asserted. Failure to supply the
+next byte in time will result in bit-slippage, and a disk with unreadable sectors that will require
+formatting again.
+
+To successfully format a track, the user must provide the full structure
+of the track, including all sync marks, sector headers, CRC bytes, data regions and gaps.
+The explanation of this is beyond the scope of this document. The C65 Specifications Manual,
+the C65 ROM DOS source code and the {\tt floppytest.c} programme from the
+{\url https://github.com/mega65/mega65-tools} repository each describe and/or implement the
+process for formatting tracks.
+
+\subsection{Buffered Sector Writing}
 
 The 45IO27 can write to disk images that are located on the SD card,
 or when using virtualised disk access.
@@ -200,7 +276,6 @@ Once a write operation has been triggered, the DRQ signal indicates
 when you should provide the next byte if performing a byte-by-byte
 write. Otherwise, it is assumed that you will have pre-filled the
 sector buffer with the complete 512 bytes of data required.
-
 
 \subsection{Using HD, ED Drives and/or variable Data Rates}
 

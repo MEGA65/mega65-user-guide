@@ -3556,9 +3556,9 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \index{BASIC 65 Functions!FRE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B8
-\item [Format:] {\bf FRE(mode)}
-\item [Usage:] Returns the number of free
-               bytes for modes 0 and 1.
+\item [Format:] {\bf FRE(bank)}
+\item [Usage:] Returns the number of free bytes for banks 0 or 1,
+               or the ROM version, if the argument is negative.
 
                {\bf FRE(0)} returns the number of free bytes in
                bank 0, which is used for BASIC program source.
@@ -3570,9 +3570,8 @@ FONT C :REM COMMODORE FONT (DEFAULT)
                used strings at the top of the bank, thereby
                defragmenting string memory.
 
-               {\bf FRE(2)} returns the number of expansion
-               RAM banks, that are available RAM banks above
-               the standard RAM banks 0 and 1, that are used by BASIC.
+               {\bf FRE(-1)} returns the ROM version, a six-digit number
+               of the form 92xxxx.
 
 \item [Example:] Using {\bf FRE}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3580,10 +3579,10 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \begin{verbatim}
 10 PM = FRE(0)
 20 VM = FRE(1)
-30 EM = FRE(2)
+30 RV = FRE(-1)
 40 PRINT PM;" FREE FOR PROGRAM"
 50 PRINT VM;" FREE FOR VARIABLES"
-60 PRINT EM;" EXPANSION RAM BANKS"
+60 PRINT RV;" ROM VERSION"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

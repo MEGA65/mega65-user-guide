@@ -3300,7 +3300,7 @@ FILTER 1023,0,0,1,10 :REM HIGH PASS
 \index{BASIC 65 Commands!FIND}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2B
-\item [Format:] {\bf FIND "string" [,from-to]}
+\item [Format:] {\bf FIND {\bf delimiter} string {\bf delimiter} [,from-to]}
 \item [Usage:]  {\bf FIND} is an editor command and can be used
                 in direct mode only. It searches the line range
                 (if specified) or the whole BASIC program else.
@@ -3308,25 +3308,28 @@ FILTER 1023,0,0,1,10 :REM HIGH PASS
                 listed with the string highlighted.
                 The <NO-SCROLL> key can be used to pause the output.
 
-\item [Remarks:] Instead of the quote (") each other character may be used
-                 as delimiter for the find string.
-                 Using the quote as delimiter finds text strings, that are
-                 not tokenised and therefore not part of a keyword. \\
-                 \screentext{FIND "LOOP"} will not find
-                 the BASIC keyword \screentext{LOOP}, because the
-                 keyword is stored as token and not as text.
-                 However \screentext{FIND \&LOOP\&} will
-                 find it.
+\item [Remarks:] Basically any unshifted character, that is not part of
+                 the string, can be used as delimiter.
+
+                 But using quotes {\bf "} as delimiter has a special effect:
+                 In this case the search text is not tokenised:
+                 FIND "FOR" will search the three letters F, O, R, not
+                 the BSASIC keyword {\bf FOR}. So it can find the word
+                 {\bf FOR} in string constants or REM statements, but not
+                 in program code.
+
+                 On the other hand FIND /FOR/ will find all occurences of
+                 the BASIC keyword, but not the text "FOR" in strings.
+
+                 Also notice, that you cannot search for partial keywords.
+                 {\bf FIND /LOO/} will not find the keyword {\bf LOOP},
+
 
 \item [Example:] Using {\bf FIND}
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-FIND "XX$", 2000-2700
-FIND &ER&
-\end{verbatim}
-\end{tcolorbox}
 \end{description}
+\begin{center}
+\includegraphics[width=0.8\linewidth]{images/highlight.png}
+\end{center}
 
 % **
 % FN

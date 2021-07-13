@@ -6,9 +6,10 @@ not only to write programs that run on the MEGA65 as a finished computer, but al
 use the re-programmable chips in the MEGA65 to turn it into all sorts of other things.
 
 If you just want to install an upgrade core for the MEGA65, or a core that lets you use
-your MEGA65 as another type of computer, you are probably want to look in
+your MEGA65 as another type of computer, you probably want to look in
 \bookvref{cha:cores} instead.
-This chapter is more intended for people who want to help develop cores for the MEGA65.
+
+This chapter is more intended for people who want to help develop cores for the MEGA65. This chapter may also be of interest to Nexys4 board owners that are interested booting their devices from the on-board QSPI flash memory chip (rather than a bitstream file on the sd-card). This will require flashing an .mcs file onto their board's QSPI chip, so as to provide an initial bistream in the 'Slot 0' position.
 
 These re-programmable chips are called Field Programmable Gate Arrays (FPGAs) or
 Complex Programmable Logic Devices (CPLDs), and can implement a wide variety of circuits.
@@ -17,16 +18,26 @@ are languages that are not commonly encountered by most people.  They are also q
 different in some ways to ``normal'' programming languages, and it can take a while to
 understand how they work. But with some effort and perseverance, exciting things can be created with them.
 
+\section{Suggested PC specifications}
+
 Be prepared to install many gigabytes of software on a Linux or Windows PC, before you will
 be able to write programs for the FPGAs and CPLDs in the MEGA65.  Also,
 "compiling" complex
 designs can take up to several hours, depending on the speed and memory
 capacity of your computer.
-We recommend a computer with at least 8GB RAM (preferably 16GB) if you want to write
+We recommend a computer with at least 12GB RAM (preferably 16GB) if you want to write
 programs for FPGAs and CPLDs. On the other hand, if all you want to do is load programs onto
 your MEGA65's FPGAs and CPLDs that other people have written, then most
 computers running a recent
 version of Windows or Linux should be able to cope.
+
+\begin{itemize}
+  \item \underline{OS}: Linux or Windows
+  \item \underline{CPU Speed}: As fast as you can get your hands on!
+  \item \underline{Number of cores}: Ideally, 8 or more, as the free license of Vivado can make use of a max of 8 cores.
+  \item \underline{Hard disk space}: Have about 70GB or more. The exact amount used depends on how many components within Vivado you install (bear in mind that the full install file is about 50GB in itself)
+  \item \underline{Memory}: minimum of 12GB (ideally, have more, to play it safe)
+\end{itemize}
 
 \section{Warning}
 
@@ -135,10 +146,10 @@ To get started, connect to \url{https://www.xilinx.com/support/download.html}
 \end{minipage}
 
 \begin{minipage}{\linewidth}
-  Keep the default selection and click on "Next"
+  We'd suggest selecting only the "\textbf{7 Series}" devices, as our chosen FPGA is within this series, and de-selecting the other series will save you about 6GB in download size. Then click on "Next"
   \\
   \begin{center}
-    \includegraphics[width=0.7\linewidth]{images/VivadoInstimg012.jpg}
+    \includegraphics[width=0.7\linewidth]{images/VivadoInstimg012.png}
   \end{center}
   Warning: As stated, disconnect any USB cable that would be connected to your PC from the Nexys board.
 \end{minipage}
@@ -329,14 +340,116 @@ Then click on "Generate Node-Locked Licence"
   Your Vivado software is registered and you can now use it.
 \end{minipage}
 
+\section{Installing the FTDI drivers}
 
-\section{Flashing the main FPGA of a MEGA65 R2/R3 using Vivado}
+The FTDI drivers are needed in order for your PC to communicate with the hardware's JTAG port and serial comms port (note that the single physical USB connection made to your PC actually provides these two ports).
+
+\subsection{Linux drivers}
+
+Some Linux users have reported that they have found the FTDI drivers to be installed within their Linux distributions out-of-the-box, while others have found they needed to run this extra command after installing Vivado:
+
+cd /opt/Xilinx/Vivado/2018.3/data/xicom/cable\_drivers/lin64/install\_script/install\_drivers \\
+sudo ./install\_drivers
+
+\subsection{Windows drivers}
+
+Download the following archive to install the drivers:
+
+\begin{itemize}
+  \item \url{https://www.ftdichip.com/Drivers/CDM/CDM21228\_Setup.zip}
+\end{itemize}
+
+Unzip the file \textbf{CDM21228\_Setup.zip}, you get the file \textbf{CDM21228\_Setup.exe}.
+
+\textcolor{red}{\underline{Warning}: \\
+Before installing the drivers, it is imperative to switch off the Nexys4 board and to disconnect the USB cable from the PC.}
+
+\begin{minipage}{\linewidth}
+  Review the devices already installed before the installation:
+  \\
+  \begin{center}
+    \includegraphics[width=0.6\linewidth]{images/img001_install_drivers_00.jpg}
+  \end{center}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  Run the file CDM21228\_Setup.exe as administrator:
+  \\
+  \begin{center}
+    \includegraphics[width=0.6\linewidth]{images/img001_install_drivers_01.jpg}
+  \end{center}
+\end{minipage}
+
+Confirm that you want to run the program.
+
+\begin{minipage}{\linewidth}
+  Click on "Extract".
+  \\
+  \begin{center}
+    \includegraphics[width=0.6\linewidth]{images/img001_install_drivers_02.jpg}
+  \end{center}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  Click on "Next >"
+  \\
+  \begin{center}
+    \includegraphics[width=0.6\linewidth]{images/img001_install_drivers_03.jpg}
+  \end{center}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  Accept the agreement and click on "Next >".
+  \\
+  \begin{center}
+    \includegraphics[width=0.6\linewidth]{images/img001_install_drivers_04.jpg}
+  \end{center}
+\end{minipage}
+
+The installation of the drivers starts.
+
+\begin{minipage}{\linewidth}
+  Click on "Finish".
+  \\
+  \begin{center}
+    \includegraphics[width=0.6\linewidth]{images/img001_install_drivers_05.jpg}
+  \end{center}
+\end{minipage}
+
+Connect the USB cable to a USB port on the PC \textcolor{red}{without turning on the Nexys4 board}.
+
+Connecting the USB cable triggers the appearance of new devices.
+
+\includegraphics[width=\linewidth]{images/img001_install_drivers_07.jpg}
+
+\begin{itemize}
+  \item An additional COM port has been installed: \textcolor{red}{This is the COM port that will be used to communicate with the Nexys4 board.}
+  \item An additional USB composite device has been installed.
+  \item Two USB serial converter devices have been installed.
+\end{itemize}
+
+At this point the Nexys4 board has still not been powered up.
+
+For more information about the installed drivers, you can download the corresponding documentation:
+
+\begin{itemize}
+  \item \url{https://ftdichip.com/wp-content/uploads/2020/08/AN\_396-FTDI-Drivers-Installation-Guide-for-Windows-10.pdf}
+  \item \url{https://ftdichip.com/wp-content/uploads/2021/01/AN\_119\_FTDI\_Drivers\_Installation\_Guide\_for\_Windows7.pdf}
+\end{itemize}
+
+\section{Flashing the main FPGA using Vivado}
 \label{sec:mainfpgaflashing}
 
-If you choose to proceed, you will need a TE0790-03 JTAG programming module and a functioning
-installation of Xilinx's Vivado software.  This can be done on either Windows or Linux, but
-in either case you will need to install any necessary USB drivers. It is
-also necessary to have
+Firstly, to clarify that when we say 'flashing the FPGA', in reality, what we mean is that we are flashing the QSPI flash memory chip that the FPGA makes use of upon startup in order to quickly load the bitstream from.
+
+Many of the following steps in this section are applicable not only to MEGA65 R2/R3 owners, but Nexys4 board owners too. There are a few points of distinction along the way that readers will be made aware of.
+
+If you choose to proceed, you will need a functioning installation of Xilinx's Vivado software, and the FTDI drivers installed, as described in the earlier sections.
+
+\begin{tcolorbox}[colback=white,coltext=black]
+\underline{For MEGA65 R2/R3 owners}:
+\\
+You will need a TE0790-03 JTAG programming module. It is also necessary to have
 dip-switches 1 and 3 in the ON position and dip-switches 2 and 4 in the
 OFF position on the TE-0790.
 With your MEGA65 disconnected from the power, the TE-0790 must be
@@ -345,12 +458,23 @@ The gold-plated hole of the TE-0790 must line up with the screw
 hole below.  The mini-USB cable will then connect on the side towards the 3.5" floppy drive.
 The following image shows the correct position: The TE0790 is surrounded by the yellow box,
 and the dip-switches by the red box. Dip-switch 1 is the one nearest the floppy data cable.
-
+\\
 \includegraphics[width=\linewidth]{images/jtag_detail_02.jpg}
+\end{tcolorbox}
 
-Connect your non-8-bit computer to the FPGA programming device using a
-mini-USB cable. Switch the MEGA65 computer ON. Open Vivado, which can
-be downloaded from the Internet.
+\begin{tcolorbox}[colback=white,coltext=black]
+\underline{For Nexys4 board owners}:
+\\
+  Simply connect your micro-usb cable between your Nexys4 board and your PC via the port labeled 'PROG UART' (J6), as shown:
+\\
+\includegraphics[width=\linewidth]{images/nexys4_comms.png}
+\end{tcolorbox}
+
+\begin{itemize}
+  \item Connect your non-8-bit computer to the FPGA programming device using the appropriate USB cable.
+  \item Switch the MEGA65 computer ON.
+  \item Open Vivado.
+\end{itemize}
 
 \newpage
 

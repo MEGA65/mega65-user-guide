@@ -446,8 +446,10 @@ Many of the following steps in this section are applicable not only to MEGA65 R2
 
 If you choose to proceed, you will need a functioning installation of Xilinx's Vivado software, and the FTDI drivers installed, as described in the earlier sections.
 
+You will also need to download or build an .mcs bitstream file (and optional .prm checksum verification file) that you intend flash onto the QSPI chip via Vivado. See \nameref{sec:bitstreamfiles} for more details on where such files can be downloaded.
+
 \begin{tcolorbox}[colback=white,coltext=black]
-\underline{For MEGA65 R2/R3 owners}:
+\underline{For MEGA65 R2/R3 owners}:\\
 \\
 You will need a TE0790-03 JTAG programming module. It is also necessary to have
 dip-switches 1 and 3 in the ON position and dip-switches 2 and 4 in the
@@ -457,136 +459,218 @@ installed on the JB1 connector which is located between the floppy data cable an
 The gold-plated hole of the TE-0790 must line up with the screw
 hole below.  The mini-USB cable will then connect on the side towards the 3.5" floppy drive.
 The following image shows the correct position: The TE0790 is surrounded by the yellow box,
-and the dip-switches by the red box. Dip-switch 1 is the one nearest the floppy data cable.
+and the dip-switches by the red box. Dip-switch 1 is the one nearest the floppy data cable. \\
 \\
 \includegraphics[width=\linewidth]{images/jtag_detail_02.jpg}
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white,coltext=black]
-\underline{For Nexys4 board owners}:
+\underline{For Nexys4 board owners}: \\
 \\
-  Simply connect your micro-usb cable between your Nexys4 board and your PC via the port labeled 'PROG UART' (J6), as shown:
+  Simply connect your micro-usb cable between your Nexys4 board and your PC via the port labeled 'PROG UART' (J6), as shown: \\
 \\
 \includegraphics[width=\linewidth]{images/nexys4_comms.png}
-\end{tcolorbox}
+\\
+\\
+Also, set J1 jumper to the QSPI position:
+\\
+\begin{center}
+  \includegraphics[width=0.8\linewidth]{images/nexys4_j2.png}
+\end{center}
 
+\end{tcolorbox}
+\\
+\\
 \begin{itemize}
   \item Connect your non-8-bit computer to the FPGA programming device using the appropriate USB cable.
   \item Switch the MEGA65 computer ON.
   \item Open Vivado.
 \end{itemize}
 
-\newpage
 
-
-\begin{figure}[H]
-\centering
-  \includegraphics[width=0.8\linewidth]{images/vivado01.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 1: To access the Hardware Manager, open a project in
-           Vivado or create an empty one, if you do not have any projects yet.}
-  \label{fig:vivado01}
-%\end{figure}
+\begin{minipage}{\linewidth}
+  Step 1a: Create a new Vivado project with "File", "Project", "New...". \\
+  NOTE: On future occasions that you need to flash the QSPI, just re-open this project (no need to create a new project each time).  \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado01.png}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
-\centering
-  \includegraphics[width=0.8\linewidth]{images/vivado02.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 2: In the left column, select "Open Hardware Manager"
-           at the very bottom.}
-  \label{fig:vivado02}
-\end{figure}
+\begin{minipage}{\linewidth}
+  Step 1b: The 'New Project' wizard appears. Click on "Next": \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado01b.png}
+  \end{center}
+\end{minipage}
 
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{images/vivado03.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 3: To connect to FPGA
-           under "Hardware Manager", choose "Open Target", then "Auto Connect".}
-  \label{fig:vivado03}
-%\end{figure}
+\begin{minipage}{\linewidth}
+  Step 1c: Name your project and choose the location you like, then click on "Next":\\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado01c.png}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
-  \includegraphics[width=0.8\linewidth]{images/vivado04.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 4: Wait a moment, "Connecting to server..."  should
-           automatically close without dropping an error to the console.}
-  \label{fig:vivado04}
-\end{figure}
+\begin{minipage}{\linewidth}
+  Step 1d: Keep the default selected options and click on "Next": \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado01d.png}
+  \end{center}
+\end{minipage}
 
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{images/vivado05.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 5: Under "Hardware Manager", choose "Add Configuration
-           Memory Device", then "xc7a100t\_0".}
-  \label{fig:vivado05}
-%\end{figure}
+\begin{minipage}{\linewidth}
+  Step 1e: Do not add any sources, keep the default selected options and click on "Next": \\
+  \begin{center}
+    \includegraphics[width=0.7\linewidth]{images/vivado01e.png}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
-  \includegraphics[width=0.8\linewidth]{images/vivado06.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 6: Select Memory Part:
-           In the newly opened dialogue, type "S25fl256s"
-           (without quotes), then select "s25fl256sxxxxxxx0-spi-x1\_x2\_x4"
-           (the upper one) and click "OK".}
-  \label{fig:vivado06}
-\end{figure}
+\begin{minipage}{\linewidth}
+  Step 1f: Keep the default selected options and click on "Next": \\
+  \begin{center}
+    \includegraphics[width=0.7\linewidth]{images/vivado01f.png}
+  \end{center}
+\end{minipage}
 
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.85\linewidth]{images/vivado07.png}
-  \captionsetup{width=0.85\linewidth}
-  \caption{Step 7: Set programming options:
-           In the next dialogue, choose your local Configuration file, namely
-           a bitstream with file suffix ".mcs". Leave all other parameters
-           as they are (see \ref{fig:vivado07}).}
-  \label{fig:vivado07}
-%\end{figure}
-
-\vspace{3mm}
-
-%\begin{figure}[H]
-  \includegraphics[width=0.85\linewidth]{images/vivado08.png}
-  \captionsetup{width=0.85\linewidth}
-  \caption{Step 8: Patiently wait for the programming to finish.
-           This can take several minutes as the Vivado software erases
-           and then reprograms the flash memory that is used to
-           initialise the FPGA on power-up.}
-  \label{fig:vivado08}
-\end{figure}
-
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{images/vivado09.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 9: If your screen looks like \ref{fig:vivado09},
-           your new bistream has been successfully flashed into the main FPGA!}
-  \label{fig:vivado09}
-%\end{figure}
+\begin{minipage}{\linewidth}
+  Step 1g: Click on "Finish": \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado01g.png}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
-  \includegraphics[width=0.8\linewidth]{images/vivado09.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 10: If you want to reflash the FPGA, you might find the
-  "Add Configuration Memory Device" option in step 5 greyed out.
-   Instead, select "s25fl256sxxxxxxx0-spi-x1\_x2\_x4"  in the "Hardware"
-   window, press right mouse button and select "Program Configuration
-   Memory Device" to flash.}
-  \label{fig:vivado10}
-\end{figure}
+\begin{minipage}{\linewidth}
+  Step 2: In the left column, select "Open Hardware Manager"
+  at the very bottom.
+  \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado02.png}
+  \end{center}
+\end{minipage}
+
+
+\begin{minipage}{\linewidth}
+  Step 3: Connect to the FPGA: \\
+  Under "Open Hardware Manager", choose "Open Target", then "Auto Connect".
+  \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado03.png}
+  \end{center}
+\end{minipage}
+
+\vspace{5mm}
+
+\begin{minipage}{\linewidth}
+  Step 4: Wait a moment, "Connecting to server..."  should
+  automatically close without dropping an error to the console.
+  \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado04.png}
+  \end{center}
+\end{minipage}
+
+
+\begin{minipage}{\linewidth}
+  Step 5: Under "Open Hardware Manager", choose "Add Configuration
+  Memory Device", then:
+  \begin{itemize}
+    \item \underline{For MEGA65R3}: "xc7a200t\_0"
+    \item \underline{For Nexys4 and MEGA65R2}: "xc7a100t\_0".
+  \end{itemize}
+  \\
+  \\
+  \begin{center}
+    \includegraphics[width=0.7\linewidth]{images/vivado05.png}
+  \end{center}
+\end{minipage}
+
+\vspace{5mm}
+
+\begin{minipage}{\linewidth}
+  Step 6a: Select Memory Part: \\
+  \\
+  In the newly opened dialogue:
+  \begin{itemize}
+    \item \underline{For MEGA65R2/R3}: type "S25fl256s"
+    (without quotes), then select "s25fl256sxxxxxxx0-spi-x1\_x2\_x4"
+    (the upper one) and click "OK".
+    \item \underline{For Nexys4}: type "S25fl128s"
+    (without quotes), then select "s25fl128sxxxxxxx0-spi-x1\_x2\_x4"
+    (the upper one) and click "OK".
+  \end{itemize}
+  \\
+  \begin{center}
+    \includegraphics[width=0.7\linewidth]{images/vivado06.png}
+  \end{center}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  Step 6b: Click on "OK" to confirm you want to program the configuration memory device now.
+  \begin{center}
+    \includegraphics[width=0.85\linewidth]{images/vivado06b.png}
+  \end{center}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  Step 6c: If you do not see such a popup, or wish to reprogram the QSPI on a future occasion, in "Hardware" window, right click on the memory configuration and select "Program Configuration Memory Device":
+  \begin{center}
+    \includegraphics[width=0.85\linewidth]{images/vivado06c.png}
+  \end{center}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  Step 7: Set programming options: \\
+  In the next dialogue, set the "Configuration file" to the path of your ".mcs" bitstream file. You can also optionally set the "PRM file" field to the path of your ".prm" file. Leave all other parameters
+  as they are (see screenshot below).
+  \\
+  \begin{center}
+    \includegraphics[width=0.85\linewidth]{images/vivado07.png}
+  \end{center}
+\end{minipage}
+
+\vspace{1mm}
+
+\begin{minipage}{\linewidth}
+  Step 8: Patiently wait for the programming to finish.
+  This can take several minutes as the Vivado software erases
+  and then reprograms the flash memory that is used to
+  initialise the FPGA on power-up.
+  \\
+  \begin{center}
+    \includegraphics[width=0.85\linewidth]{images/vivado08.png}
+  \end{center}
+\end{minipage}
+
+
+\begin{minipage}{\linewidth}
+Step 9: If your screen looks like the screenshot below,
+your new bitstream has been successfully flashed into Slot0 of your QSPI flash memory!
+  \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado09.png}
+  \end{center}
+\end{minipage}
+
+\vspace{5mm}
+
+\begin{minipage}{\linewidth}
+Step 10: If you want to reflash the FPGA, you might find the
+"Add Configuration Memory Device" option in step 5 greyed out.
+Instead, select "s25fl256sxxxxxxx0-spi-x1\_x2\_x4"  in the "Hardware"
+window, press right mouse button and select "Program Configuration
+Memory Device" to flash.
+  \\
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{images/vivado09.png}
+  \end{center}
+\end{minipage}
 
 
 \section{Flashing the CPLD in the MEGA65's Keyboard with Lattice Diamond}

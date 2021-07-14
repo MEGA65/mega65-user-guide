@@ -24,17 +24,7 @@ script:
 - make mega65-userguide.pdf
 - make mega65-userguide.pdf
 after_failure:
-- echo "<html><h1>MEGA65 Documentation</h1>" > index.html
-- echo '<p><u>Last updated at</u> <b>' >> index.html
-- date >> index.html
-- echo "</b></p><pre>" >> index.html
-- git log -1 >> index.html
-- echo "</pre><ul>" >> index.html
-- ls -1S *.pdf | sed 's:\(.*\):<li><a href="\1">\1</a></li>:' >> index.html
-- echo "</ul><p><b><u>Log files</u></b>:</p><ul>" >> index.html
-- ls -1S *.log | sed 's:\(.*\):<li><a href="\1">\1</a></li>:' >> index.html
-- echo "</ul></html>" >> index.html
-- cat index.html
+- ./genhtml.sh
 - ssh-keygen -R ${SFTP_SERVER}
 - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.pdf ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs
 - sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.log ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs

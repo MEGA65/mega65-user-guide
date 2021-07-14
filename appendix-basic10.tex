@@ -5256,27 +5256,39 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
 \index{BASIC 65 Commands!MOVSPR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$06
-\item [Format:] {\bf MOVSPR sprite, x, y} \\
-                {\bf MOVSPR sprite, <+|->xrel, <+|->yrel} \\
-                {\bf MOVSPR sprite, angle \# speed}
-\item [Usage:]  {\bf MOVSPR} performs, depending on the argument
-                format, three different tasks:
+\item [Format:] {\bf MOVSPR number, position} \\
+                {\bf MOVSPR number, start-position TO end-position, speed} \\
+\item [Usage:]  Each position argument consists of two 16 bit values,
+                which specify either an absolute coordinate, a relative coordinate,
+                an angle or a speed. The value type is determined by a prefix:
 
-                The first form {\bf MOVSPR sprite, x, y} uses no
-                signs for the arguments and sets the absolute
-                position of the sprite to the screen pixel
-                coordinates {\bf x} and {\bf y}.
+                +value = relative coordinate: positive offset \\
+                -value = relative coordinate: negative offset \\
+                \#value = speed \\
+                no prefix = absolute coordinate or angle
 
-                The second form {\bf MOVSPR sprite, <+|->xrel, <+|->yrel}
-                uses signs '+' or '-' to indicate a relative
-                displacement to the current position.
+                So the position argument can be used to set the sprite
+                to an absolute position on screen, to specify a displacement
+                from the current position or describe a movement
+                with angle and speed.
 
-                The third form {\bf MOVSPR sprite, angle \# speed} does not
-                set the position of sprite {\bf n}, but defines
-                motion parameters. The format is recognised by putting
-                a hash sign '\#' between the last two arguments.
+                The first format {\bf MOVSPR number, position} is used to
+                set the sprite immediately to the position or, in case of
+                an angle\#speed argument, describe its further movement.
 
-                {\bf sprite} = sprite number
+                The second format
+                {\bf MOVSPR number, start-position TO end-position, speed}
+                puts the sprite into the start position and defines the
+                destination position and the speed of movement.
+                The sprite is put immediately to its start postion and will move
+                on a straight line to the destination at the given speed.
+                The movement is controlled by the BASIC interrupt handler and
+                happens concurrently with the program execution.
+
+
+                {\bf number} = sprite number (0-7)
+
+                {\bf position} = x,y | xrel,y | x,yrel | xrel,yrel | angle\#speed
 
                 {\bf x} = absolute screen coordinate [pixel].
 
@@ -5300,6 +5312,7 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
  10 SPRITE 1,1     :REM TURN SPRITE 1 ON
  20 MOVSPR 1,50,50 :REM SET SPRITE 1 to (50,50)
  30 MOVSPR 1,45#5  :REM MOVE SPRITE 1 WITH SPEED 5 TO UPPER RIGHT
+ 40 MOVSPR 1,320,10 TO -300,+150, 5 :REM MOVE SPRITE ON A LINE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

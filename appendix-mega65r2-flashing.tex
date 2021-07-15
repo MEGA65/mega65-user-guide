@@ -442,6 +442,19 @@ For more information about the installed drivers, you can download the correspon
 
 Firstly, to clarify that when we say 'flashing the FPGA', in reality, what we mean is that we are flashing the QSPI flash memory chip that the FPGA makes use of upon startup in order to quickly load the bitstream from.
 
+The diagram below shows two common pathways that the FPGA can load bitstreams at startup:
+
+\begin{center}
+\includegraphics[width=0.8\linewidth]{images/flashing_fpga.png}
+\end{center}
+
+\begin{itemize}
+  \item We can first flash a bitstream/core-file onto the QSPI flash memory chip, and the FPGA can load this quickly at power-up. Flashing the QSPI is quite slow, but the reward of a fast boot-up time is an advantage.
+  \item We can drop a bitstream file onto our sd-card and let the FPGA load it (somewhat more slowly) from there at power-up. This way is popular amongst Nexys4 board users, and allows them to swap/upgrade bitstreams quickly.
+\end{itemize}
+
+In this section, we describe the pathway that makes use of the QSPI.
+
 Many of the following steps in this section are applicable not only to MEGA65 R2/R3 owners, but Nexys4 board owners too. There are a few points of distinction along the way that readers will be made aware of.
 
 If you choose to proceed, you will need a functioning installation of Xilinx's Vivado software, and the FTDI drivers installed, as described in the earlier sections.
@@ -703,114 +716,111 @@ Connect your non-8-bit computer to the FPGA programming device using a
 mini-USB cable. Switch the MEGA65 computer ON. Open the Diamond Programmer
 which can be downloaded from the Internet.
 
-\begin{figure}[H]
-  \centering
+\\
+\begin{minipage}{\linewidth}
+Step 1: Open DIAMOND PROGRAMMER: \\
+Select "Create a new project from a JTAG scan". If entry
+under "Cable:" is empty, click "Detect Cable".
+\\
+  \begin{center}
   \includegraphics{images/diamond01.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 1: Open DIAMOND PROGRAMMER:
-           Select "Create a new project from a JTAG scan". If entry
-           under "Cable:" is empty, click "Detect Cable".}
-  \label{fig:diamond01}
-%\end{figure}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
-  \includegraphics[width=0.8\linewidth]{images/diamond02.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 2: Create a new project:
-           If dialog "Programmer: Multiple Cables Detected" appears,
-           select the first entry ("Location 0000") and click "OK".}
-  \label{fig:diamond02}
-\end{figure}
+\begin{minipage}{\linewidth}
+Step 2: Create a new project: \\
+If dialog "Programmer: Multiple Cables Detected" appears,
+select the first entry ("Location 0000") and click "OK".
+  \begin{center}
+  \includegraphics[width=0.7\linewidth]{images/diamond02.png}
+  \end{center}
+\end{minipage}
 
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\linewidth]{images/diamond03.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 3: Select cable:
-           You have now created a new project which should display
-           "MachXO2" under "Device Family" and "LCMXO2-1200HC" under "Device"}
-  \label{fig:diamond03}
-%\end{figure}
+\begin{minipage}{\linewidth}
+Step 3: Select cable: \\
+You have now created a new project which should display
+"MachXO2" under "Device Family" and "LCMXO2-1200HC" under "Device"
+  \begin{center}
+  \includegraphics[width=0.6\linewidth]{images/diamond03.png}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
+\begin{minipage}{\linewidth}
+Step 4: New Diamond Programmer project: \\
+Choose "File" then "Open File" to load the Diamond Pprogrammer
+project with the MEGA65 keyboard firmware update.
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/diamond04.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 4: New Diamond Programmer project:
-           Choose "File" then "Open File" to load the Diamond Pprogrammer
-           project with the MEGA65 keyboard firmware update.}
-  \label{fig:diamond04}
-\end{figure}
+  \end{center}
+\end{minipage}
 
 
-\begin{figure}[H]
-  \centering
+\begin{minipage}{\linewidth}
+Step 5: Open project: \\
+Navigate into the folder with the extracted MEGA65 keyboard
+firmware files you have received and select the file ending with ".xcf".
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/diamond05.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 5: Open project:
-           Navigate into the folder with the extracted MEGA65 keyboard
-           firmware files you have received and select the file ending with ".xcf".}
-  \label{fig:diamond05}
-%\end{figure}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
+\begin{minipage}{\linewidth}
+Step 6: Select project file: \\
+Click the three dots under "File Name" to set the correct
+path and find the file ending with ".jed".
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/diamond06.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 6: Select project file:
-           Click the three dots under "File Name" to set the correct
-           path and find the file ending with ".jed".}
-  \label{fig:diamond06}
-\end{figure}
+  \end{center}
+\end{minipage}
 
 
-\begin{figure}[H]
-  \centering
+\begin{minipage}{\linewidth}
+Step 7: Choose correct path of .jed file: \\
+Select the file ending with ".jed" and click "OK".
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/diamond07.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 7: Choose correct path of .jed file:
-           Select the file ending with ".jed" and click "OK".}
-  \label{fig:diamond07}
-%\end{figure}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
+\begin{minipage}{\linewidth}
+  Step 8: Select .jed file: \\
+Click on the icon with the green arrow facing down "PROGRAM",
+which looks similar to the Diamond Programmer program icon.
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/diamond08.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 8: Select .jed file:
-           Click on the icon with the green arrow facing down "PROGRAM",
-           which looks similar to the Diamond Programmer program icon.}
-  \label{fig:diamond08}
-\end{figure}
+  \end{center}
+\end{minipage}
 
 
-\begin{figure}[H]
-  \centering
+\begin{minipage}{\linewidth}
+Step 9: Select cable: \\
+After a moment the Output window should display
+"INFO - Operation: successful." and the "Status" cell should
+go green (does not always happen).
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/diamond09.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 9: Select cable:
-           After a moment the Output window should display
-           "INFO - Operation: successful." and the "Status" cell should
-           go green (does not always happen).}
-  \label{fig:diamond09}
-%\end{figure}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
+\begin{minipage}{\linewidth}
+Step 10: Operation successful: \\
+You have now successfully flashed the MEGA65 keyboard.
+If you wish you can now save the project for later use.
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/diamond10.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 10: Operation successful:
-           You have now successfully flashed the MEGA65 keyboard.
-           If you wish you can now save the project for later use.}
-  \label{fig:diamond10}
-\end{figure}
+  \end{center}
+\end{minipage}
 
 
 \section{Flashing the MAX10 FPGA on the MEGA65's Mainboard with INTEL QUARTUS}
@@ -833,60 +843,57 @@ from the main FPGA.
 Connect your non-8-bit computer to the FPGA programming device using a micro-USB cable.
 Open Quartus Prime Programmer Lite Edition, which can be downloaded from the Internet.
 
-\begin{figure}[H]
-  \centering
+\begin{minipage}{\linewidth}
+Step 1: Open Quartus Prime Programmer Lite Edition: \\
+Click the "Hardware Setup" button in the top left corner of
+the Quartus Prime Programmer window.
+  \begin{center}
   \includegraphics{images/max10_01.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 1: Open Quartus Prime Programmer Lite Edition:
-           Click the "Hardware Setup" button in the top left corner of
-           the Quartus Prime Programmer window.}
-  \label{fig:max10_01}
-%\end{figure}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
+\begin{minipage}{\linewidth}
+Step 2: Enter Hardware Setup: \\
+In the newly appeared window under "Currently selected
+hardware" choose "Arrow-USB-Blaster".
+If "Arrow-USB-Blaster" does not appear, verify cable and
+drivers being correctly installed.
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/max10_02.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 2: Enter Hardware Setup:
-           In the newly appeared window under "Currently selected
-           hardware" choose "Arrow-USB-Blaster".
-           If "Arrow-USB-Blaster" does not appear, verify cable and
-           drivers being correctly installed.}
-  \label{fig:max10_02}
-\end{figure}
+  \end{center}
+\end{minipage}
 
 
-\begin{figure}[H]
-  \centering
+\begin{minipage}{\linewidth}
+Step 3: Select Arrow USB-Blaster: \\
+Click the "Add File" button from the left row and choose the
+latest ".pof" file. Then click "Open".
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/max10_03.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 3: Select Arrow USB-Blaster:
-           Click the "Add File" button from the left row and choose the
-           latest ".pof" file. Then click "Open".}
-  \label{fig:max10_03}
-\end{figure}
+  \end{center}
+\end{minipage}
 
 
-\begin{figure}[H]
-  \centering
+\begin{minipage}{\linewidth}
+Step 4: Select Programming File: \\
+Tick at least the three boxes under "Program/Configure".
+Also enabling all boxes under "Verify" and "Blank-Check"
+will make the process more reliable.
+  \begin{center}
   \includegraphics[width=0.7\linewidth]{images/max10_04.png}
-  \captionsetup{width=0.7\linewidth}
-  \caption{Step 4: Select Programming File:
-           Tick at least the three boxes under "Program/Configure".
-           Also enabling all boxes under "Verify" and "Blank-Check"
-           will make the process more reliable.}
-  \label{fig:max10_04}
-%\end{figure}
+  \end{center}
+\end{minipage}
 
 \vspace{5mm}
 
-%\begin{figure}[H]
+\begin{minipage}{\linewidth}
+Step 5: Select Program/Configure Options:
+  \begin{center}
   \includegraphics[width=0.7\linewidth]{images/max10_05.png}
-  \captionsetup{width=0.7\linewidth}
-  \caption{Step 5: Select Program/Configure Options}
-  \label{fig:max10_05}
-\end{figure}
+  \end{center}
+\end{minipage}
 
 While keeping the Reset-Button pressed, switch the MEGA65 computer ON.
 The keyboard will go into ``ambulance mode'' (blue flashing lights).
@@ -900,11 +907,10 @@ If you receive an error message instead, make sure the main FPGA
 bitstream has been erased and that you did not release the reset-button on
 the MEGA65 beforehand. Switch off the MEGA65 and restart this step.
 
-\begin{figure}[H]
-  \centering
+\begin{minipage}{\linewidth}
+Step 6: Programming successful:
+  \begin{center}
   \includegraphics[width=0.8\linewidth]{images/max10_06.png}
-  \captionsetup{width=0.8\linewidth}
-  \caption{Step 6: Programming successful}
-  \label{fig:max10_06}
-\end{figure}
+  \end{center}
+\end{minipage}
 

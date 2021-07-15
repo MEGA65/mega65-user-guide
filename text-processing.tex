@@ -5,7 +5,11 @@ Representing textual information in the form of printable letters, numbers and s
 
 Characters can be printable or non-printable. A character most often represents a single, primitive element of printable text which may be displayed on the screen via the statement {\bf PRINT}. It is most common and most natural to think of a character as representing a letter of an alphabet. A character might, for example, be any of the uppercase letters 'A' to 'Z', or any of the lowercase letters 'a' to 'z'. However, characters can also represent commonly used symbols such as punctuation marks or currency symbols. Indeed, characters can also represent the decimal digits, '0' to '9'. It is worth noting that this refers to the text-based representation of the numerals 0 to 9 as printable symbols as opposed to their numeric counterparts. In addition, the MEGA65 provides an extensive range of special symbols that can be used together for games, for drawing fancy borders or art. Besides displaying information, such symbols can create simple yet intruiging visual patterns. For convenience, these special symbols appear on the front sides of the MEGA65's keys.
 
-A character can also be non-printable. Using such characters (in a {\bf PRINT} statement) can activate certain behaviors or cause certain modes to become active, such as the switching of all text on the screen to lowercase or setting the foreground color to orange. Other non-printable characters might represent a carriage return or clear the screen.
+A character can also be non-printable. Using such characters
+(in a {\bf PRINT} statement) can activate certain behaviors or cause
+certain modes to become active, such as the switching of all text on the
+screen to lowercase or setting the foreground color to orange. Other
+non-printable characters might represent a carriage return or clear the screen.
 
 For a complete catalog of available characters, refer to \bookvref{appendix:asciicodes}. The table lists the characters that correspond to a given code number. The code number must be supplied as an argument to the statement {\bf CHR\$} which, when combined with the {\bf PRINT} statement, outputs the respective characters to the screen.
 
@@ -80,7 +84,7 @@ Here are some examples:
 
 \begin{screenoutput}
 PRINT ("SECOND" + "HAND")
-SECONDHAND	
+SECONDHAND
 \end{screenoutput}
 
 \begin{screenoutput}
@@ -159,7 +163,7 @@ The following program asks for an input string and then prints all left substrin
 \begin{screenoutput}
 10 INPUT "ENTER A WORD:", A$
 20 PRINT "ALL LEFT SUBSTRINGS ARE:"
-30 FOR I = 0 TO LEN(A$) 
+30 FOR I = 0 TO LEN(A$)
 40 :  PRINT LEFT$(A$, I)
 50 NEXT I
 \end{screenoutput}
@@ -190,7 +194,7 @@ The following program ask for an input string consisting of a first name followi
 When using the {\bf PRINT} statement in a program, the default behaviour is to output the string and then move to the next line. To stop the behaviour of automatically moving to the next line, simply append a ; (semicolon) after the end of the string. Constrast lines 10, 20 and 30 in the following program.
 
 \begin{screenoutput}
-10 PRINT "THIS A SINGLE LINE OF TEXT": REM A NEW LINE IS ADDED AT THE END 
+10 PRINT "THIS A SINGLE LINE OF TEXT": REM A NEW LINE IS ADDED AT THE END
 20 PRINT "THE SECOND LINE"; : REM A NEW LINE IS SUPPRESSED
 30 PRINT " USES A SEMICOLON" : REM A NEW LINE IS ADDED AT THE END
 \end{screenoutput}
@@ -202,10 +206,10 @@ Sometimes is can be convenient to use the {\bf PRINT} statement to output inform
 10 PRINT "TEXT 1", "TEXT 2", "TEXT 3", "TEXT 4"
 \end{screenoutput}
 
-Note that each tab stop is 10 characters apart. So TEXT 1 begins at column 0, TEXT 2 begins at column 10, TEXT 3 begins at column 20, and TEXT 4 begins at column 30. 
+Note that each tab stop is 10 characters apart. So TEXT 1 begins at column 0, TEXT 2 begins at column 10, TEXT 3 begins at column 20, and TEXT 4 begins at column 30.
 
 \subsection{Tabs Stops and Spacing}
-When printing text on the screen, it is often necessary to format text by using spaces and tabs. Two commands come in handy here: {\bf SPC} and {\bf TAB}. 
+When printing text on the screen, it is often necessary to format text by using spaces and tabs. Two commands come in handy here: {\bf SPC} and {\bf TAB}.
 
 The command {\bf SPC(5)}, for example, moves five characters to the right. Any intervening characters that lie between the current cursor position and the position five characters to the right are left unchanged.
 
@@ -219,7 +223,10 @@ We conclude with some examples.
 
 A {\it palindrome} is a word or phrase or number that reads the same forwards as it does backwards. Some examples are: CIVIC, LEVEL, RADAR, MADAM and 1234321. The following program reverses the input text and then determines whether the original phrase is equal to the reversed phrase.
 
-\begin{screenoutput}
+% \begin{screenoutput}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
 10 REM *** PALINDROMES ***
 20 INPUT "ENTER SOME TEXT: ", A$
 30 B$ = ""
@@ -228,7 +235,9 @@ A {\it palindrome} is a word or phrase or number that reads the same forwards as
 60 NEXT I
 70 IF (A$ = B$) THEN PRINT (A$ + " IS A PALINDROME"): ELSE PRINT (A$ + " IS NOT A PALINDROME")
 80 GOTO 20
-\end{screenoutput}
+\end{verbatim}
+\end{tcolorbox}
+% \end{screenoutput}
 
 
 \subsection{Simple Ciphers}
@@ -266,7 +275,7 @@ To reduce a given number using modulo 26 we can use the following function:
  f(x) = x - \left\lfloor{\frac{x}{26}}\right\rfloor \times 26
 \]
 
-This says that to obtain the value of a number $x$ using modulo 26 we first divide $x$ by 26 and round down, which gives us the number of times we went around the circle. We then multiply this result by 26 again and subtract this from $x$. The final result is the remainder left over and will always be a value between 0 and 25. 
+This says that to obtain the value of a number $x$ using modulo 26 we first divide $x$ by 26 and round down, which gives us the number of times we went around the circle. We then multiply this result by 26 again and subtract this from $x$. The final result is the remainder left over and will always be a value between 0 and 25.
 
 As an example, the number 28 in modulo 26 is equal to 2:
 \[
@@ -279,7 +288,7 @@ The program at the end of this chapter makes use of this formula by defining a c
 DEF FN F(X)=X-INT(X/26)*26
 \end{screenoutput}
 
-{\bf ROT13:} When we encrypt each plaintext letter we move forward 13 places. So the plaintext letter A becomes the ciphertext letter N, B becomes O, with latter letters "wrapping around" back to the beginning of the alphabet. Thus, the plaintext letter Z becomes the ciphertext letter M. This covers encryption. To decrypt each ciphertext letter we simply repeat the process by moving forward 13 places again, which brings us full circle, back to where we started. Thus, a ciphertext letter N becomes the plaintext letter A. 
+{\bf ROT13:} When we encrypt each plaintext letter we move forward 13 places. So the plaintext letter A becomes the ciphertext letter N, B becomes O, with latter letters "wrapping around" back to the beginning of the alphabet. Thus, the plaintext letter Z becomes the ciphertext letter M. This covers encryption. To decrypt each ciphertext letter we simply repeat the process by moving forward 13 places again, which brings us full circle, back to where we started. Thus, a ciphertext letter N becomes the plaintext letter A.
 
 We can see this visually as a mapping in the form of a table:
 
@@ -304,7 +313,7 @@ We can see this visually as a mapping in the form of a table:
 
 To encrypt using ROT13, find the plaintext letter in the top row and move down to the bottom row to find the corresponding ciphertext letter. To decrypt using ROT13, find the ciphertext letter in the bottom row and move up to the top row to find the corresponding plaintext letter.
 
-If we consider the ROT13 cipher from a mathematical standpoint, we can see that to both encrypt and decrypt we simply add 13 to the numerical value of a plaintext or ciphertext letter and reduce it using modulo 26. This gives us a new number between 0 and 25 which corresponds to the encrypted or decrypted letter. Function $E_{ROT13}$ is the encryption function. It accepts the value of a plaintext letter $x$ as an argument and returns the value of the ciphertext letter as a result. Function $D_{ROT13}$ is the decryption function. It accepts the value of a ciphertext letter $x$ as an argument and returns the value of the plaintext letter as a result. 
+If we consider the ROT13 cipher from a mathematical standpoint, we can see that to both encrypt and decrypt we simply add 13 to the numerical value of a plaintext or ciphertext letter and reduce it using modulo 26. This gives us a new number between 0 and 25 which corresponds to the encrypted or decrypted letter. Function $E_{ROT13}$ is the encryption function. It accepts the value of a plaintext letter $x$ as an argument and returns the value of the ciphertext letter as a result. Function $D_{ROT13}$ is the decryption function. It accepts the value of a ciphertext letter $x$ as an argument and returns the value of the plaintext letter as a result.
 
 \[
   E_{ROT13}(x) = (x + 13) \bmod 26
@@ -314,7 +323,7 @@ If we consider the ROT13 cipher from a mathematical standpoint, we can see that 
   D_{ROT13}(x) = (x + 13) \bmod 26
 \]
 
-Notice that the definitions of both the encryption and decryption functions are, in this case, exactly the same. 
+Notice that the definitions of both the encryption and decryption functions are, in this case, exactly the same.
 
 {\bf Atbash:} Atbash is an ancient technique used to encrypt the 22-letter Hebrew alphabet, but we can apply the same logic to encrypt the 26-letter English alphabet. To encrypt a letter using Atbash we need to consider the English alphabet written backwards. So encrypting the plaintext letter A becomes the ciphertext letter Z, B becomes Y, C becomes X and so on. Decrypting the ciphertext works the same way: the ciphertext letter A becomes the plaintext letter Z, B becomes Y, C becomes X and so on.
 
@@ -341,7 +350,7 @@ We can see this visually as a mapping in the form of a table:
 
 To encrypt using Atbash, find the plaintext letter in the top row and move down to the bottom row to find the corresponding ciphertext letter. To decrypt using Atbash, find the ciphertext letter in the bottom row and move up to the top row to find the corresponding plaintext letter.
 
-If we consider the Atbash cipher from a mathematical standpoint, we can see that to encrypt and decrypt, we need to multiply by 25 and then add 25 to the numerical value of the plaintext or ciphertext and reduce it using modulo 26. This gives us a new number between 0 and 25 which corresponds to the encrypted or decrypted letter. Function $E_{Atbash}$ is the encryption function. It accepts the value of a plaintext letter $x$ as an argument and returns the value of the ciphertext letter as a result. Function $D_{Atbash}$ is the decryption function. It accepts the value of a ciphertext letter $x$ as an argument and returns the value of the plaintext letter as a result. 
+If we consider the Atbash cipher from a mathematical standpoint, we can see that to encrypt and decrypt, we need to multiply by 25 and then add 25 to the numerical value of the plaintext or ciphertext and reduce it using modulo 26. This gives us a new number between 0 and 25 which corresponds to the encrypted or decrypted letter. Function $E_{Atbash}$ is the encryption function. It accepts the value of a plaintext letter $x$ as an argument and returns the value of the ciphertext letter as a result. Function $D_{Atbash}$ is the decryption function. It accepts the value of a ciphertext letter $x$ as an argument and returns the value of the plaintext letter as a result.
 
 \[
   E_{Atbash}(x) = (25 \times x + 25) \bmod 26
@@ -351,7 +360,7 @@ If we consider the Atbash cipher from a mathematical standpoint, we can see that
   D_{Atbash}(x) = (25 \times x + 25) \bmod 26
 \]
 
-Notice that the definitions of both the encryption and decryption functions are, in this case, exactly the same. 
+Notice that the definitions of both the encryption and decryption functions are, in this case, exactly the same.
 
 {\bf Caesar:} The Caesar cipher is also an ancient technique used encrypt and decrypt messages. To encrypt a letter using the Caesar cipher we move three positions forward. So encrypting the plaintext letter A becomes the ciphertext letter D, B becomes E, C becomes F and so on. Decrypting the ciphertext works the opposite way. Instead of moving forward, we move three positions backward. The ciphertext letter A becomes the plaintext letter X, B becomes Y, C becomes Z and so on.
 
@@ -380,7 +389,7 @@ To encrypt using the Caesar cipher, find the plaintext letter in the top row and
 
 If we consider the Casear cipher from a mathematical standpoint, we can see that to encrypt, we need to add 3 to the numerical value of the plaintext and reduce it using modulo 26. This gives us a new number between 0 and 25 which corresponds to the encrypted letter. To decrypt, we need to subtract 3 from the numerical value of the ciphertext and reduce it modulo 26. This gives us a new number between 0 and 25 which corresponds to the decrypted letter.
 
-Function $E_{Caesar}$ is the encryption function. It accepts the value of a plaintext letter $x$ as an argument and returns the value of the ciphertext letter as a result. Function $D_{Caesar}$ is the decryption function. It accepts the value of a ciphertext letter $x$ as an argument and returns the value of the plaintext letter as a result. 
+Function $E_{Caesar}$ is the encryption function. It accepts the value of a plaintext letter $x$ as an argument and returns the value of the ciphertext letter as a result. Function $D_{Caesar}$ is the decryption function. It accepts the value of a ciphertext letter $x$ as an argument and returns the value of the plaintext letter as a result.
 
 \[
   E_{Caesar}(x) = (x + 3) \bmod 26
@@ -390,7 +399,7 @@ Function $E_{Caesar}$ is the encryption function. It accepts the value of a plai
   D_{Caesar}(x) = (x - 3) \bmod 26
 \]
 
-Notice that the definitions of both the encryption and decryption functions are, in this case, different. 
+Notice that the definitions of both the encryption and decryption functions are, in this case, different.
 
 We can generalise all three of the above methods by stating that they use the following encryption and decryption functions:
 
@@ -400,11 +409,11 @@ We can generalise all three of the above methods by stating that they use the fo
 
 \[
  D(x) = (A_{2}x + B_{2}) \bmod 26
-\] 
+\]
 
 Here, $A_{1}$, $A_{2}$, $B_{1}$ and $B_{2}$ are constants and put together they comprise the {\it encryption key} for an affine cipher.
 
-Running the following program displays a text menu. The user can choose to encrypt or decrypt a string, or quit the program. You can practice typing in a plaintext phrase to encrypt and then decrypt the ciphertext phrase to retrieve the orginal plaintext. 
+Running the following program displays a text menu. The user can choose to encrypt or decrypt a string, or quit the program. You can practice typing in a plaintext phrase to encrypt and then decrypt the ciphertext phrase to retrieve the orginal plaintext.
 
 A good sample text string for testing a cipher is:
 
@@ -471,7 +480,7 @@ Encrypting the above text string using the Caesar cipher yields:
 440 RETURN
 450 REM ERROR MESSAGE
 460 PRINT: PRINT "USE LETTERS AND SPACES ONLY": PRINT
-470 RETURN	
+470 RETURN
 \end{screenoutput}
 
 If you wish to use the ROT13 cipher ensure that the following lines are changed:

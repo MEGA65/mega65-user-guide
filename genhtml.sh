@@ -19,8 +19,7 @@ echo "</ul><p><b><u>Log files</u></b>:</p><ul>" >> index.html
 LOGS=`ls -S *.log`
 
 for file in $LOGS; do
-  echo "file=$file"
-  SIZE=`ls -lh $file | cut -d' ' -f 6`
+  SIZE=`ls -sh $file | cut -d' ' -f 1`
   echo "<li><a href=\"$file\">$file</a> ($SIZE)</li>" >> index.html
 done
 

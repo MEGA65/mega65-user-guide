@@ -26,9 +26,9 @@ script:
 after_failure:
 - ./genhtml.sh
 - ssh-keygen -R ${SFTP_SERVER}
-- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -P ${SFTP_PORT} $*.pdf ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
-- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -P ${SFTP_PORT} $*.log ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
-- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -P ${SFTP_PORT} $index.html ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -P ${SFTP_PORT} *.pdf ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -P ${SFTP_PORT} *.log ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no -P ${SFTP_PORT} index.html ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
 before_deploy:
 - |
   if [[ -z "$TRAVIS_TAG" ]]; then

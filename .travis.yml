@@ -26,10 +26,9 @@ script:
 after_failure:
 - ./genhtml.sh
 - ssh-keygen -R ${SFTP_SERVER}
-- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.pdf ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs
-- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.log ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs
-- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no index.html ${SFTP_USER}@${SFTP_SERVER}:www/mega65_files/docs
-- # find . -maxdepth 1 \( -name '*.pdf' -o -name '*.log' -o -name 'index.html' \) -exec curl -P - -T {} ftp://$FTP_SERVER --user $FTP_USER:$FTP_PASSWORD \;
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.pdf -P ${SFTP_PORT} ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no *.log -P ${SFTP_PORT} ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
+- sshpass -p ${SFTP_PASSWORD} scp -o StrictHostKeyChecking=no index.html -P ${SFTP_PORT} ${SFTP_USER}@${SFTP_SERVER}:manuals-upload/
 before_deploy:
 - |
   if [[ -z "$TRAVIS_TAG" ]]; then

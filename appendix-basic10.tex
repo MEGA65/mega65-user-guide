@@ -2491,10 +2491,14 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf DS} is a reserved system variable
 \item [Usage:]  {\bf DS} holds the status of the last disk operation.
-                It is updated after every disk activity.
-                DS is set to zero, if there was no error, otherwise
-                it is set to a DOS error code (listed in the
-                disk manuals).
+                It is a volatile variable.
+                Each use triggers the reading of the disk status
+                from the current disk device in usage.
+                {\bf DS} is coupled to the string variable {\bf DS\$}
+                which is updated at the same time.
+                Reading the disk status from a disk device automatically
+                clears any error status on that device, so subsequent reads
+                will return 0, if no other activity was in between.
 
 \item [Example:] Using {\bf DS}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2520,7 +2524,8 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                 in text form of the format:
                 Code,Message,Track,Sector.
 
-                It is updated after every disk activity.
+                {\bf DS\$} is coupled to the numeric variable {\bf DS}
+                It is updated, when {\bf DS} is used.
                 DS\$ is set to "00,OK,00,00", if there was no error, otherwise
                 it is set to a DOS error message (listed in the
                 disk manuals).

@@ -661,12 +661,12 @@ The program can convert numbers in the range 0 to 65535.
 390 PRINT "{SPACE*2}[D]{SPACE*2}CONVERT A RANGE OF DECIMAL INTEGERS"
 400 PRINT "{SPACE*2}[B]{SPACE*2}CONVERT A RANGE OF BINARY INTEGERS"
 410 PRINT "{SPACE*2}[H]{SPACE*2}CONVERT A RANGE OF HEXADECIMAL INTEGERS"
-420 PRINT "{SPACE*2}[R]{SPACE*2}RETURN TO TOP MENU"
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+420 PRINT "{SPACE*2}[R]{SPACE*2}RETURN TO TOP MENU"
 430 GET M2$
 440 IF (M2$="D") THEN GOSUB 1280: GOTO 380
 450 IF (M2$="B") THEN GOSUB 1670: GOTO 380
@@ -707,13 +707,13 @@ MID$(B$,10,5) + " " + MID$(B$,15,4); "{SPACE*2}" + H$: FOREGROUND 1: RETURN
 780 GOSUB 1110: REM VALIDATE BINARY INPUT
 790 IF (V = 0) THEN GOTO 760: ELSE GOTO 540
 800 REM *** CONVERT SINGLE HEXADECIMAL INTEGER ***
-810 H$=""
-820 PRINT: INPUT "ENTER HEXADECIMAL INTEGER (UP TO 4 DIGITS): ",H$
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+810 H$=""
+820 PRINT: INPUT "ENTER HEXADECIMAL INTEGER (UP TO 4 DIGITS): ",H$
 830 GOSUB 1220: REM VALIDATE HEXADECIMAL INPUT
 840 IF (V = 0) THEN GOTO 810: ELSE GOTO 540
 850 REM *** VALIDATE DECIMAL INPUT STRING ***
@@ -753,14 +753,14 @@ GOSUB 1010: V = 0 : RETURN
 1160 :  FOR N = 1 TO LEN(I$)
 1170 :    I = I + VAL(MID$(I$,N,1)) * P(LEN(I$) - N)
 1180 :  NEXT N
-1190 BEND
-1200 D$ = STR$(I): D = I: RETURN
-1210 REM *** VALIDATE HEXADECIMAL INPUT ***
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+1190 BEND
+1200 D$ = STR$(I): D = I: RETURN
+1210 REM *** VALIDATE HEXADECIMAL INPUT ***
 1220 V = 1: GOSUB 960: REM VALIDATE HEXADECIMAL INPUT STRING
 1230 IF (V = 0) THEN A$ = "INVALID HEXADECIMAL NUMBER": GOSUB 1010: RETURN
 1240 IF (LEN(H$) > 4) THEN A$ = "HEXADECIMAL NUMBER OUT OF RANGE":
@@ -798,13 +798,14 @@ L2$;SPC(2);L1$
 1520 :  FOR K = 0 TO 17
 1530 :      FOREGROUND (7 + MOD(K,2))
 1540 :      D$ = STR$(D): PRINT TAB(40): GOSUB 590: D = D + 1
-1550 :      IF (D > DE) THEN GOTO 1630
-1560 :  NEXT K
+
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+1550 :      IF (D > DE) THEN GOTO 1630
+1560 :  NEXT K
 1570 :  FOREGROUND 1: PRINT: PRINT SPC(19);"PRESS X TO EXIT OR SPACEBAR TO CONTINUE..."
 1580 :  GET B$
 1590 :  IF B$="X" THEN RETURN

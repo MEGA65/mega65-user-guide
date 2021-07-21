@@ -7506,16 +7506,35 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Commands!SCREEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2E
-\item [Format:] {\bf SCREEN CLR} \\
+\item [Format:] {\bf SCREEN width, height, depth} \\
+                {\bf SCREEN CLR} \\
                 {\bf SCREEN DEF} \\
                 {\bf SCREEN SET} \\
                 {\bf SCREEN OPEN screen [,errvar]} \\
                 {\bf SCREEN CLOSE screen}
 
-\item [Usage:] {\bf SCREEN} performs one of five actions,
-               selected by the secondary keyword after it.
+\item [Usage:] The first version of the {\bf SCREEN} command is the easiest
+               way to start a graphics screen and is the preferred
+               method, if only one single screen is needed. This includes
+               the actions {\bf GRAPHIC CLR}, {\bf SCREEN DEF},
+               {\bf SCREEN SET}, {\bf SCREEN OPEN} and {\bf SCREEN CLR}.
+               The screen \#0 is opened, initialised and ready to draw to it.
 
-                {\bf SCREEN CLR colour} clear graphics screen
+               {\bf width} = 320 or 640 (default = 320)
+
+               {\bf height} = 200 or 400 (default = 200)
+
+               {\bf depth} = 1..8 (default = 8), colours = 2 \uparrow depth.
+
+               The argument parser is error tolerant and uses default values,
+               if the parsed argument is not valid.
+
+               The other five versions of the
+               {\bf SCREEN} command perform special actions needed for
+               advanced graphics programs, that need multiple screens
+               or double buffering. They are not needed, if the first version was used.
+
+                {\bf SCREEN CLR colour} clear the active graphics screen
                 by filling it with {\bf colour}.
 
                 {\bf SCREEN DEF screen, width, height, depth}
@@ -7539,11 +7558,18 @@ DRAW PEN COLOUR =  1
                 {\bf SCREEN CLOSE screen } closes screen
                 (0-3) and frees resources.
 
-\item [Remarks:] The {\bf SCREEN} command cannot be used alone.
-               It must always be used together with a secondary keyword.
-
 \item [Example:] Using {\bf SCREEN}:
 \begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 SCREEN 320,200,2    :REM SCREEN #0: 320 X 200 X 2
+ 20 LINE 25,25,295,175  :REM DRAW LINE
+ 30 GETKEY A$           :REM WAIT KEYPRESS
+ 40 SCREEN CLOSE 0      :REM CLOSE SCREEN 0
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 GRAPHIC CLR         :REM INITIALISE

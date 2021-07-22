@@ -7506,7 +7506,7 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Commands!SCREEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2E
-\item [Format:] {\bf SCREEN width, height, depth} \\
+\item [Format:] {\bf SCREEN [screen,] width, height, depth} \\
                 {\bf SCREEN CLR colour} \\
                 {\bf SCREEN DEF width flag, height flag, depth} \\
                 {\bf SCREEN SET draw view} \\
@@ -7518,7 +7518,9 @@ DRAW PEN COLOUR =  1
                method, if only one single screen is needed. This includes
                the actions {\bf GRAPHIC CLR}, {\bf SCREEN DEF},
                {\bf SCREEN SET}, {\bf SCREEN OPEN} and {\bf SCREEN CLR}.
-               The screen \#0 is opened, initialised and ready to draw to it.
+
+               {\bf screen} the screen number (0-3) is optional.
+               If no screen number is given, screen 0 is used.
 
                {\bf width} = 320 or 640 (default = 320)
 
@@ -7526,7 +7528,8 @@ DRAW PEN COLOUR =  1
 
                {\bf depth} = 1..8 (default = 8), colours = 2 $\uparrow$ depth.
 
-               The argument parser is error tolerant and uses default values,
+               The argument parser is error tolerant and uses default values
+               for width (320) and height (200)
                if the parsed argument is not valid.
 
                The other versions of the
@@ -7565,9 +7568,11 @@ DRAW PEN COLOUR =  1
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 SCREEN 320,200,2    :REM SCREEN #0: 320 X 200 X 2
- 20 LINE 25,25,295,175  :REM DRAW LINE
- 30 GETKEY A$           :REM WAIT KEYPRESS
- 40 SCREEN CLOSE 0      :REM CLOSE SCREEN 0
+ 20 PEN 1               :REM DRAWING PEN COLOUR = 1 (WHITE)
+ 30 LINE 25,25,295,175  :REM DRAW LINE
+ 40 GETKEY A$           :REM WAIT KEYPRESS
+ 50 SCREEN CLOSE        :REM CLOSE SCREEN 0
+ 60 PALETTE RESTORE     :REM BACK TO TEXT PALETTE
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -7579,9 +7584,12 @@ DRAW PEN COLOUR =  1
  30 SCREEN OPEN 1       :REM OPEN SCREEN 1
  40 SCREEN SET 1,1      :REM USE SCREEN 1 FOR RENDERING AND VIEWING
  50 SCREEN CLR 0        :REM CLEAR SCREEN
- 60 LINE 25,25,295,175  :REM DRAW LINE
- 70 SLEEP 10            :REM WAIT 10 SECONDS
- 80 SCREEN CLOSE 1      :REM CLOSE SCREEN 1
+ 60 PALETTE 1,1,15,15,15:REM DEFINE COLOUR 1 AS WHITE
+ 70 PEN 0,1             :REM DRAWING PEN
+ 80 LINE 25,25,295,175  :REM DRAW LINE
+ 90 SLEEP 10            :REM WAIT 10 SECONDS
+100 SCREEN CLOSE 1      :REM CLOSE SCREEN 1
+110 PALETTE RESTORE     :REM BACK TO TEXT PALETTE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

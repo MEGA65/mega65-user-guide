@@ -565,7 +565,7 @@ see the screen output of your running programme at the same time.
 \index{HELP}
 \index{MONITOR Commands!HELP}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf b [address]}
+\item [Format:] {\bf ?} {\em} {\bf h}
 \item [Usage:] Displays a (very) brief message identifying the monitor.
   On some models of the MEGA65 that have more memory available to the
   monitor processor, this command may display information about each
@@ -586,7 +586,9 @@ see the screen output of your running programme at the same time.
   Whenever the programme counter (PC) register of the MEGA65's processor equals the value
   provided to this command, the processor will halt, and the Matrix Mode monitor interface
   will display the last instruction executed and current register values to alert the user
-  to this event. 
+  to this event. It does not activate the Matrix Mode display when this occurs. It is
+  normally expected that Matrix Mode will either already be active, or that the user is
+  interacting via the serial interface.
 
 \end{description}
 
@@ -644,6 +646,163 @@ see the screen output of your running programme at the same time.
   that is desired to be filled.
 
 \end{description}
+
+\subsubsection{G : SETPC}
+\index{SETPC}
+\index{MONITOR Commands!SETPC}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf g address}
+\item [Usage:] Sets the Programme Counter (PC) register of the MEGA65's processor
+  to the supplied 16-bit address.  If the processor is running at the time, execution
+  will immediately proceed from that address. If the processor is halted at the time,
+  e.g., due to the use of the {\\tt t1} command, the processor remains halted, but with
+  the Programme Counter set to the indicated address, ready for when the processor is
+  again allowed to run.
+
+\end{description}
+
+
+\subsubsection{I : INTERRUPTS}
+\index{INTERRUPTS}
+\index{MONITOR Commands!INTERRUPTS}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf i[0|1]}
+\item [Usage:] Enables or disables interrupts on the MEGA65's
+  processor. Disabling interrupts can be helpful when single-stepping
+  through a programme, as otherwise you will tend to end up only
+  stepping through the interrupt handler code, because the interrupts
+  will happen more frequently than the steps through the code.
+
+\item [Remarks:] {\em This command is known to have problems, and may
+  not currently function.}
+
+\end{description}
+
+\subsubsection{J : DEBUGMON}
+\index{DEBUGMON}
+\index{MONITOR Commands!DEBUGMON}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf j [value]}
+\item [Usage:] Display, and optionally set, internal signals of the matrix
+  mode monitor interface.
+
+\end{description}
+
+
+\subsubsection{L : LOADMEMORY}
+\index{LOADMEMORY}
+\index{MONITOR Commands!LOADMEMORY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf l <start addr> <end addr + 1>}
+\item [Usage:] Fast-load a block of memory via the serial monitor
+  interface.  Immediately after sending this command, the bytes of
+  memory to be loaded should be sent to the serial monitor interface.
+  The bytes are read as-is, and thus should be provided as natural
+  bytes, not encoded in hexadecimal.  This allows loading data at
+  approximately 200KiB per second at the default serial baud rate
+  of 2,000,000 bits per second.
+
+\end{description}
+
+\subsubsection{M : MEMORY}
+\index{MEMORY}
+\index{MONITOR Commands!MEMORY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf <m|M> [address]}
+\item [Usage:] Prints a memory dump for the given 28-bit address.
+  If you wish to inspect the contents of memory as currently seen
+  by the processor's current banking configuration, use the \@
+  command instead.
+
+  The dump displays memory contents, organised in rows
+  of 16 consecutive addresses starting with the
+  address. The dump displays
+  a full page of 256 bytes in 16 rows.
+  The contents are printed as 16 byte values in hex,
+  followed by the character representation.
+
+\item [Remarks:] If not address is provided, it will show the next 256 bytes.
+
+\end{description}
+
+\subsubsection{R : REGISTERS}
+\index{REGISTERS}
+\index{MONITOR Commands!REGISTERS}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf r}
+\item [Usage:] Displays the current value of various processor registers
+  and flags, as well as a disassembly of the most recently executed
+  instruction.
+
+\end{description}
+
+\subsubsection{S : SETMEMORY}
+\index{SETMEMORY}
+\index{MONITOR Commands!SETMEMORY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf s addr <value ...>}
+\item [Usage:] Sets the contents of the indicated memory location to the supplied value.
+  If more than one space-separated value is provided, then multiple consecutive memory
+  locations will be set.
+
+  This command uses 28-bit addresses, and therefore ignores the current selected memory banking
+  configuration.
+
+\end{description}
+
+
+\subsubsection{T : TRACE}
+\index{TRACE}
+\index{MONITOR Commands!TRACE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf t<0|1|c>}
+\item [Usage:] Selects the trace or run mode of the processor: {\tt t0} means that the
+  processor runs freely, {\tt t1} halts the processor, and {\tt tc} runs the processor
+  in continuous-trace mode, where it displays each instruction and the register values
+  immediately following its execution, as though {\tt t1} had been selected, and the user
+  were to then immediately press return or enter to request the next instruction to be
+  executed.
+
+  If {\tt t1} is selected, pressing enter or return in the matrix mode monitor will cause
+  the next instruction to be executed.
+
+  The {\tt t0} command is also used following the triggering of a break-point or watch-point,
+  to allow the processor to resume.
+  
+\end{description}
+
+\subsubsection{W : WATCHPOINT}
+\index{WATCHPOINT}
+\index{MONITOR Commands!WATCHPOINT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf w [address]}
+\item [Usage:] Sets or clears the hardware watch-point. If no address is provided,
+  then the watch-point will be disabled. Otherwise the watch-point is set to the
+  provided 28-bit address.
+
+  Whenever the MEGA65's processor writes to the address
+  provided to this command, the processor will halt, and the Matrix Mode monitor interface
+  will display the last instruction executed and current register values to alert the user
+  to this event.  It does not activate the Matrix Mode display when this occurs.
+  It is
+  normally expected that Matrix Mode will either already be active, or that the user is
+  interacting via the serial interface.
+
+\end{description}
+
+\subsubsection{Z : CPUHISTORY}
+\index{CPUHISTORY}
+\index{MONITOR Commands!CPUHISTORY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf z [address]}
+\item [Usage:] Displays information about the instructions recently executed by
+  the MEGA65's processor.
+
+\item [Remarks:] {\em This command is suspected to not be correctly operational at
+  the time of writing.}
+
+\end{description}
+
 
 
   

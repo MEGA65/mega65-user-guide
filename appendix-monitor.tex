@@ -11,14 +11,14 @@ including support for all enhanced CPU instructions of the MEGA65.  This chapter
 describes all three of these machine language monitors.
 
 \section{C65 ROM Standard Machine Language Monitor}
-
+\index{MONITOR!Standard C65 ROM Monitor}
 The machine language monitor is a debugging tool for machine language
 programs. It includes a mini-assembler, a disassembler and many useful commands.
 When the program execution encounters the code 00 (zero) alias BRK,
 the default action of the operating system is, to call the monitor.
 This features allows the debugging of programs by setting breakpoints.
 
-\subsection{Table of Monitor Commands}
+\subsection{Table of C65 ROM Standard Monitor Commands}
 
 {
 \ttfamily
@@ -178,6 +178,7 @@ Following prefixes can be used to specify the base of the following number:
 \includegraphics[width=\linewidth]{images/monitor-m}
 
 \section{Enhanced Machine Language Monitor}
+\index{MONITOR!Enhanced MEGA65 ROM Monitor}
 \label{cha:MLMonitor}
 
 This machine language monitor is a new development for the MEAG65.
@@ -212,7 +213,7 @@ The enhanced monitor has following additional features:
 
 \end{description}
 
-\subsection{Table of Monitor Commands}
+\subsection{Table of MEGA65 Enhanced Monitor Commands}
 
 {
 \ttfamily
@@ -417,6 +418,7 @@ FONT C : $02D000 : original C64 font
 
 
 \section{MEGA65 Matrix Mode Monitor Interface}
+\index{MONITOR!Matrix Mode/Serial Monitor Interface}
 
 This monitor is different to the other two: It is part of the MEGA65
 system itself, and runs concurrently with MEGA65's processor. That is,
@@ -426,6 +428,62 @@ This works using dedicated hardware in the MEGA65 design, that implements a litt
 helper processor that runs this monitor interface, and has a special access mechanism
 to the memory and processor of the MEGA65.
 
+In comparison with the ROM-based monitors that execute on the MEGA65's primary processor,
+the matrix mode monitor has several advantages and disadvantes:
+\begin{itemize}
+\item It can be used while a programme is running.
+\item It can be used, even if the ROM area is being used for programme code or data,
+  instead of containing a standard C65 or MEGA65 ROM.
+\item It can be accessed via the serial debug interface, via the JB1 connector.
+\item It can be instructed to stop the processor as soon as the programme counter (PC)
+  register of the main processor reaches a user specified address. That is, it supports
+  a (single) hardware breakpoint.
+\item It can be instructed to stop the processor whenever a specified memory address
+  is written to. That is, it suppors a ``write watch'' on a single memory address.
+  The memory address is specified as a full 28-bit address, allowing it to detect memory
+  writes via any means. Note that DMA operations will complete, before the watch point
+  takes effect.
+\item It can be instructed to stop the processor whenever specific CPU flags are set
+  or cleared, which can also be used to support debugging of programmes.
+\item On some models of the MEGA65, the integrated ROM of the monitor processor is
+  very small, which means that functionality may be limited. This is why, for example,
+  there is no ``assemble'' command for this monitor.  This may be corrected in future
+  core updates for MEGA65 models that have capacity for a larger monitor processor ROM.
+\end{itemize}
+
+\subsection{Table of Matrix Mode Monitor Commands}
+
+{
+\ttfamily
+\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|l|}
+\hline
+C & mnemonic & description \\
+\hline
+\# & HYPERTRAP & Enable/disable CPU hypervisor traps \\
++ & UARTDIVISOR & Set UART bitrate divisor \\
+? & HELP & help \\
+@ & CPUMEM & (show memory from CPU context) \\
+\hline
+B & BREAKPOINT & Set/clear CPU execution break point \\
+D & DISASSEMBLE & Disassemble memory \\
+E & FLAGWATCH & Set/clear CPU flags watch point \\
+F & FILL & Fill memory with a value \\
+G & SETPC & Set CPU program counter \\
+H & HELP & help \\
+I & INTERRUPTS & Enable/disable CPU interrupts \\
+J & DEBUGMON & Various debug functions for the monitor itself \\
+L & LOADMEMORY & Load data into memory \\
+M & MEMORY & Show memory contents \\
+R & REGISTERS & show registers \\
+S & SETMEMORY & Set memory contents \\
+T & TRACE & set CPU trace/run mode \\
+W & MEMORYWATCH & Set/clear memory write watch point \\
+Z & CPUHISTORY & CPU history \\
+\hline
+\end{tabular}
+}
+
 \subsection {Calling the Monitor}
 
 To enter or exit the monitor hold down the \megasymbolkey and press the \specialkey{TAB} key.
@@ -433,3 +491,159 @@ You will see an animation of green characters raining down from the top of the s
 then be presented with a simple text terminal interface which is transparent, so that you can
 see the screen output of your running programme at the same time.
 
+\subsubsection{\# : Hypervisor trap enable/disable}
+
+\index{HYPERTRAP}
+\index{MONITOR Commands!HYPERTRAP}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf \# Enable or disable Hypervisor Traps}
+\item [Usage:] \#[0|1]
+
+\item [Remarks:] If the argument is 1, then Hypervisor traps are enabled,
+  otherwise they are disabled.
+
+  {\em It is not confirmed if this command is currently functional.}
+\end{description}
+
+
+\subsubsection{+ : Set Serial Interface UART Divisor}
+
+\index{UARTDIVISOR}
+\index{MONITOR Commands!UARTDIVISOR}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf + Set Serial Interface UART Divisor}
+\item [Usage:] + divisor
+
+\item [Remarks:] Sets the divisor for the serial monitor interface.
+  This allows changing the baud rate of the serial monitor interface
+  from the default 2,000,000 bits per second.  The baud rate will be
+  equal to 40,500,000 $\divide (divisor+1)$. This affects only the
+  serial UART interface, and does not affect accessing this monitor
+  via the Matrix Mode composited display.
+
+  For example, to slow the
+  serial monitor interface down to 19,200 bits per second, the divisor
+  would need to be 40,500,000 $\divide$ 19,200 - 1 $ = 2108.
+  The + command then requires that you convert this value to hexadecimal,
+  thus the command would be {\tt +83c}.  
+
+  Note that this command does {\em no} sanity checking of the provided value.
+  If you accidentally provide an incorrect value for your needs, you can
+  recover from this situation by activating the Matrix Mode interface by holding
+  down the \megasymbolkey and tapping the \specialkey{TAB} key, and entering
+  the appropriate command to correct the divisor, e.g., {\tt +14} to return
+  to the default of 2,000,000 bits per second.
+
+  You must then exit the Matrix
+  Mode again by repeating the \megasymbolkey + \specialkey{TAB} key combination,
+  before the serial UART interface will become active again. This is because
+  the Matrix Mode disables the serial UART interface when active.
+\end{description}
+
+\subsubsection{@ : CPUMEMORY}
+\index{CPUMEMORY}
+\index{MONITOR Commands!CPUMEMORY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf @ [address]}
+\item [Usage:] Prints a memory dump for the given 16-bit address,
+  {\em as interpretted by the current CPU memory mapping}.
+  If you wish to inspect the contents of memory anywhere in the 28-bit
+  address space, use the M command instead.
+
+  The dump displays memory contents, organised in rows
+  of 16 consecutive addresses starting with the
+  address. The dump displays
+  a full page of 256 bytes in 16 rows.
+  The contents are printed as 16 byte values in hex,
+  followed by the character representation.
+
+\item [Remarks:] If not address is provided, it will show the next 256 bytes.
+
+\end{description}
+
+\subsubsection{? {\em or} H : HELP}
+\index{HELP}
+\index{MONITOR Commands!HELP}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf b [address]}
+\item [Usage:] Displays a (very) brief message identifying the monitor.
+  On some models of the MEGA65 that have more memory available to the
+  monitor processor, this command may display information about each
+  of the available commands.
+
+\end{description}
+
+
+\subsubsection{B : BREAKPOINT}
+\index{BREAKPOINT}
+\index{MONITOR Commands!BREAKPOINT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf b [address]}
+\item [Usage:] Sets or clears the hardware breakpoint. If no address is provided,
+  then the breakpoint will be disabled. Otherwise the breakpoint is set to the
+  provided 16-bit address.
+
+  Whenever the programme counter (PC) register of the MEGA65's processor equals the value
+  provided to this command, the processor will halt, and the Matrix Mode monitor interface
+  will display the last instruction executed and current register values to alert the user
+  to this event. 
+
+\end{description}
+
+
+\subsubsection{D : DISASSEMBLE}
+\index{DISASSEMBLE}
+\index{MONITOR Commands!DISASSEMBLE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf <d|D> [address]}
+\item [Usage:] Disassembles and displays the instruction stored at the
+  indicated 28-bit address.
+
+  To disassemble instructions from the CPU's
+  current memory context, taking into account current memory banking,
+  prefix the address with 777, e.g., {\tt d777080D} would disassemble
+  the instruction at \$080D, as currently visible to the MEGA65's
+  processor.
+
+  Use {\tt D} instead of {\tt d} to disassemble 16 instructions at a time, instead of just one.
+
+\end{description}
+
+\subsubsection{E : FLAGWATCH}
+\index{FLAGWATCH}
+\index{MONITOR Commands!FLAGWATCH}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf e [value]}
+\item [Usage:] 
+  Sets or clears the CPU flag watch point: If no argument is provided, the
+  flag watch point is disabled. If a value is provided, it is assumed to be
+  a 16-bit value, where the first two hexadecimal digits indicate the processor
+  flags that will trigger the watch point if they are set. The second two
+  hexadecimal digits indicate which processor flags will trigger the watch point
+  if they are clear.  In this way any combination of processor flag values can
+  be monitored.
+
+  {\em This command does not function correctly at the time of writing.}
+  
+\item [Example:]
+
+  To cause the watch point to trigger when the Negative Flag is asserted, the
+  command {\tt e8000} would be used.  
+  
+\end{description}
+
+\subsubsection{F : FILL}
+\index{FILL}
+\index{MONITOR Commands!FILL}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf f [start] [end+1] [value] }
+\item [Usage:] Fills the indicated 28-bit address range with
+  the indicated value. 
+\item [Remarks:]
+  The end address should be one more than the last address
+  that is desired to be filled.
+
+\end{description}
+
+
+  

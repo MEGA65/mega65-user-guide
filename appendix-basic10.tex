@@ -5289,6 +5289,8 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
                 destination position and the speed of movement.
                 The sprite is put immediately to its start postion and will move
                 on a straight line to the destination at the given speed.
+                This second format can use absolute or relative coordinates only.
+                The angle\#speed coordinate is restricted to the first format.
                 The movement is controlled by the BASIC interrupt handler and
                 happens concurrently with the program execution.
 
@@ -5305,10 +5307,15 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
 
                 {\bf yrel} = relative screen coordinate [pixel].
 
-                {\bf angle} = direction for sprite movement [degrees].
-                0 = up, 90 = right, 180 = down, 270 = left.
+                {\bf angle} = compass direction for sprite movement [degrees].
+                0 = up, 90 = right, 180 = down, 270 = left, 45 upper right, etc.
 
-                {\bf speed} = speed of movement (0 -> 15).
+                {\bf speed} = speed of movement, a floating point number in the
+                range (0.0 to 127.0) uses the the unit (pixel/frame).
+                PAL mode has 50 frames per second and NTSC 60 frames per second.
+                A speed value of 1.0 will move the sprite 50 pixels per second
+                in PAL mode.
+
 
 \item [Remarks:] The "hot spot" is the upper left pixel of the sprite.
 
@@ -5316,14 +5323,20 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 SPRITE 1,1     :REM TURN SPRITE 1 ON
- 20 MOVSPR 1,50,50 :REM SET SPRITE 1 to (50,50)
- 30 MOVSPR 1,45#5  :REM MOVE SPRITE 1 WITH SPEED 5 TO UPPER RIGHT
- 40 MOVSPR 1,320,10 TO -300,+150, 5 :REM MOVE SPRITE ON A LINE
+100 CLR:SCNCLR:SPRITECLR
+110 BLOAD "DEMOSPRITES1",B0,P1536
+130 FORI=0TO7: C=I+1:SP=0.07*(I+1)
+140 MOVSPRI, 160,120
+145 MOVSPRI,45*I#SP
+150 SPRITEI,1,C,,0,0
+160 NEXT
+170 SLEEP 3
+180 FORI=0TO7:MOVSPR I,0#0:NEXT
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
 
+\includegraphics[width=0.8\linewidth]{images/sprites.png}
 % ***
 % NEW
 % ***

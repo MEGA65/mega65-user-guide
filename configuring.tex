@@ -3,25 +3,26 @@
 
 \section{Preparing for First Use: Formatting SD Cards}
 
-The MEGA65 has two SD card slots: A full-size SD card slot in the trapdoor underneath the machine,
-and a microSD size slot at the rear. At the time of writing,
-the MEGA65 firmware only supports the use of one SD card at a time.
+The MEGA65 has two SD card slots: A full-size SD card slot inside, next to
+the trap-door, and a microSD size slot on the rear.  The current version
+of the MEGA65 firmware only supports the use of one SD card at a time.
 If you have cards in both slots, the MEGA65 will use the external microSD
-slot. An exception to this is the MEGA65's FDISK/FORMAT
-utility which can access both, allowing you to select a card to format or
+slot in preference.  The exception to this, is that the MEGA65's FDISK/FORMAT
+utility can access both, allowing you to select which you wish to format or
 repair.
 
-Depending on the model, your MEGA65 may have included a pre-configured SD card.
-If it didn't, or if you wish to use a different SD card, you must first format it for use in the MEGA65.
+Depending on the model, your MEGA65 may or may not come with a pre-configured SD card.
+If it doesn't, or if you wish to use a different SD card, e.g., with a
+larger capacity, you must first format it for use in the MEGA65.
 
-{\em This must be done on the MEGA65, not in a PC or other computer.}
+{\em This must be done in the MEGA65, not in a PC or other computer.}
 
 {\em Only SDHC cards should be used. Older SD cards (typically with
   a capacity of <4GB) will not work.  Newer SDXC cards with
   capacities greater than 32GB may or may not work.  We would
   appreciate hearing your experience with such cards. It is unimportant
   what file-system is currently on the card, as the MEGA65
-  FDISK/FORMAT utility will completely reformat it.}
+  FDISK/FORMAT utility will completely reformat the card.}
 
 There are several reasons for this: First, in order to fit the most
 features into the MEGA65's small operating system, it is
@@ -33,13 +34,13 @@ switch which programme or game you are running on your MEGA65.
 
 Fortunately, formatting an SD card on the MEGA65 is very easy.
 
-First, turn the MEGA65 on while holding down the \megakey{ALT} key.
-This will show the MEGA65 Utility Menu, which contains a
+First, power the MEGA65 on while holding down the \megakey{ALT} key.
+This will present the MEGA65 Utility Menu, which contains a
 selection of built-in utilities, similar to the following:
 
 \includegraphics[width=\linewidth]{images/ss-utilmenu.png}
 
-{\em Note that the Utility Menu is always accessible, even if no SD card is present in both the internal and external slots.}
+{\em Note that Utility Menu is always accessible, even if no SD card is present in both internal and external slots.}
 
 The exact set of utilities
 depends on the model of your MEGA65 and the version of the MEGA65
@@ -47,31 +48,32 @@ factory core which it is running. However, all versions include both
 the MEGA65 FDISK/FORMAT utility, and the MEGA65 Configure utility.
 Most models also include a keyboard test utility, that you can use
 to test that your keyboard is functioning correctly.  This is
-the same utility used during manufacture to test keyboards.
+the same utility used in the factory when testing brand
+new keyboards.
 
 Select the number that corresponds to the FDISK/FORMAT utility.  This
 will typically be 2.  The FDISK utility will start, and attempt to
-detect the size of all SD cards that are installed.  If you have both
+detect the size of all SD cards you have installed.  If you have both
 an internal and external SD card installed, it will allow you to
 choose which one you wish to format. The internal SD card is bus 1,
 and the external card is bus 0.  Note that the MEGA65 will
 always attempt to boot using an external microSD card, if one is
 installed.
 
-For safety, when formatting it's {\em strongly} recommended
+For safety when formatting we {\em strongly} recommend
 that you remove any SD card or microSD card that you do not intend to
 format, so that you do not accidentally destroy any data.  This is
 because formatting an SD card in the MEGA65 cannot be undone, and
 all data currently on the SD card {\em will be lost}.  If you
 have files or data on the SD card that you wish to retain, you
-should first create a backup.  The contents of the FAT32
+should first back this up.  The contents of the FAT32
 partition can be easily backed up by inserting the SD card into
 another computer.  The contents of the MEGA65 System Partition,
 including the contents of freeze slots requires the use of specialised
 software.
 
-It's recommended to perform regular backups of the data on
-MEGA65, especially while the computer remains under
+You should aim to backup valuable data from your
+MEGA65 on a regular basis, especially while the computer remains under
 development.  While we take every care to avoid data corruption or
 other mishaps, we cannot guarantee that the MEGA65 is free of bugs in
 this regard.
@@ -81,36 +83,37 @@ display similar to the following:
 
 \includegraphics[width=\linewidth]{images/ss-m65fdisk-busselect.png}
 
-Once you have selected the bus, the FDISK/FORMAT utility will ask
+Once you have selected the bus, the FDISK/FORMAT utility asks you
 to confirm that you wish to delete everything:
 
 \includegraphics[width=\linewidth]{images/ss-m65fdisk-typesomething.png}
 
-To avoid accidental loss of data, you
+To avoid accidentally loss of data, you
 must type ``DELETE EVERYTHING'' in capitals and press
 \megakey{RETURN}.  Alternatively, turn the MEGA65 off and on to
 abort this process without causing damage to your data.
 
 It is also possible to attempt to recover from a lost Master Boot
-Record (``Boot Sector'') instead by typing ``FIX MBR'', should the
+Record (``Boot Sector'') by instead typing ``FIX MBR,'' should the
 need arise.
 
-The aim here is to have a correctly formatted SD card with the essential files stored on it for the MEGA65 to boot from.
 
-When powering on, the MEGA65 will search for, and boot these files:
+As an end result, we want to have a correctly formatted SD card with the essential files stored on it for MEGA65 to boot from.
+
+This is how it works: When powering on, MEGA65 will search for- and boot these files:
 \begin{itemize}
 \item {\tt FREEZER.M65}
 \item {\tt AUDIOMIX.M65}
 \item {\tt C64THUMB.M65}
 \item {\tt C65THUMB.M65}
 \item {\tt MEGA65.ROM}
-\item {\tt MEGA65.D81} (the default disk image, which is automatically mounted at startup)
+\item {\tt MEGA65.D81 (default disk image, automatically mounted during start)}
 \end{itemize}
 
-Straight out-of-the-box, the MEGA65 will only have one SD card installed, located inside the trapdoor. This SD card contains the essential files to properly boot from.
-When an external microSD card is inserted, it's given a higher priority, so the MEGA65 will attempt to boot from it instead.
-That means that the microSD card needs to have the essential files stored on it, otherwise the MEGA65 cannot boot properly, and will fall back into loading the OpenROM which does not support all of the MEGA65's features.
-In general, if the MEGA65 cannot boot properly and falls back to OpenROM, a screen similar to the one below will be shown:
+Straight out-of-the-box, MEGA65 will only have one SD card installed, located inside behind the trap-door. This SD card contains the essential files to properly boot from.
+When an external microSD card is inserted, MEGA65 consider the external one as higher priority and will try to boot from it.
+That means that the microSD card needs to have the essential files on it, otherwise MEGA65 cannot boot properly and will fall back into loading the OpenROM which does not support all the MEGA65 features.
+In general, if MEGA65 cannot boot properly and fall back to OpenROM, it will be shown in the power-up screen, similar to this:
 
 \includegraphics[width=\linewidth]{images/mega65_OpenROM_boot_noSD.png}
 
@@ -123,39 +126,39 @@ open-source OpenROM project's C64-compatible ROMs as part of the
 formatting process. However, you may have other ROMs that you wish to
 use on the MEGA65. The 911001 version of the C65 ROM in
 particular is known to work well with the MEGA65.
-You can copy as many of these as you wish onto an
-SD card, (just make sure that they have the \textbf{.ROM} extension). The default ROM
-should be called \textbf{MEGA65.ROM}. These \textbf{.ROM} files
+You can copy as many of these as you wish onto the
+SD card.  Make sure that they have the .ROM extension.  The default ROM
+should be called MEGA65.ROM.  These files
 should be 128KB in size, and use the same internal format as ROMs
 intended for the C65.  This means that the C64-mode KERNAL should be
 placed at offset \$E000, a C65-mode BASIC at \$A000, and a suitable
 character set at \$D000.  
 
-Other important support files include \textbf{FREEZER.M65} and \textbf{AUDIOMIX.M65}, which
-allow you to use the MEGA65's integrated freezer. More details of the freezer are provided in this section.
+Other important support files include FREEZER.M65 and AUDIOMIX.M65, which
+allow you to use the MEGA65's integrated freezer. More details provided below. 
 
 \subsection{ROM File}
 
 \textbf{Original C65 ROMs}
 
-You may like to source your own separate C65 ROM via other means. Many different versions were created during the development of the Commodore 65,
-and the MEGA65 can use any of them. However, out of this set, we recommend you use \textbf{911001.bin}, as this has the most complete BASIC and DOS implementations.
+You may want to source your own separate C65 ROM via other means.  There were many different versions created during the development of the Commodore 65,
+and the MEGA65 can use any of them.  However, out of this set, we recommend you use 911001.bin, as this has the most complete BASIC and DOS implementations.
 
 \textbf{MEGA65 ROMs}
 
-There are also newer versions of the \textbf{MEGA65 Closed ROM} actively under development. These ROMs improve upon the original C65 ROMs and make better use of the extra hardware capabilities that the MEGA65 has over the original C65 hardware. These ROMs are available via a dedicated MEGA65 filehost, but only to owners of the MEGA65, who will need a login and password in order to download them. It can be located by visiting the "\textbf{Files}" tab and searching for "\textbf{kernel rom}":
+There are newer versions of the \textbf{MEGA65 Closed ROM} actively under development also. These ROMs improve upon the original C65 ROMs and make better use of the extra hardware capabilities that the MEGA65 has over the original C65 hardware. These ROMs are available via the filehost also, but only to owners of the MEGA65, who will need to log into the filehost with their credentials in order to download it. It can be located by visiting the "\textbf{Files}" tab and searching for "\textbf{kernel rom}":
 
 \includegraphics[width=\linewidth]{images/latest_closed_rom.png}
 
 \textbf{MEGA65 ROM diff files}
 
-If you have sourced your own \textbf{911001.bin} C65 ROM and would like to patch it to the latest MEGA65 ROM, patches are available, as the improvements made to the closed rom are open source. The diff files are available here:
+If you have sourced your own 911001.bin C65 ROM and would like to patch it to the latest MEGA65 ROM, we do provide patches, as the additional improvements we have made to the closed rom are open source. Those diff files are available here:
 
 \url{https://files.mega65.org?id=fd2c40b9-f337-41f7-8a81-0254b1e09fb5}
 
 \textbf{MEGA65 OpenROMs}
 
-Another option is to make use of \textbf{MEGA65 OpenROMs}. The latest version is available at either of the following URLs:
+Another available option is to make use of \textbf{MEGA65 OpenROMs}. The latest version of this is always downloadable from either of the following urls:
 
 \begin{itemize}
   \item \url{https://files.mega65.org?id=8aec2fba-3b0a-4677-80ae-7a7f5f4f0cb8}
@@ -165,13 +168,13 @@ Another option is to make use of \textbf{MEGA65 OpenROMs}. The latest version is
 
 \subsection{Support Files}
 
-For official owners of the MEGA65 (both the devkit and the final product), visit the following URL, and log in with the your user credentials. This will take you to the MEGA65 Filehost location where the "\textbf{MEGA65 SD card essentials}" download page is located. Next, click on the "\textbf{Download}" link to retrieve the latest "\textbf{SD essentials.rar}" file.
+For official owners of the MEGA65 (both devkit and final product), visit the following url and log in with the user credentials you have been provided. This will take you to the MEGA65 Filehost location where the "\textbf{MEGA65 SD card essentials}" download page is located. Then click the "\textbf{Download}" link to retrieve the latest "\textbf{SD essentials.rar}" file. 
 
 \url{https://files.mega65.org?id=a809e0ae-30ac-42f5-ab9c-766d72fd6331}
 
 \includegraphics[width=\linewidth]{images/latest_support_files_with_closedrom.png}
 
-Note that this link is only available to official owners of the MEGA65 product, as the fileset also contains the licensed closed-source \textbf{MEGA65.ROM} file.
+Note that this link is only available to official owners of the MEGA65 product, as the fileset also contains the licensed closed-source MEGA65.ROM file.
 
 For Nexys board owners in search of a similar fileset (without the ROM), visit the following url instead:
 
@@ -185,13 +188,15 @@ Note that while this fileset does not contain a ROM, there are future plans for 
 
 \section{On-boarding}
 
-Upon first launch of your MEGA65, you will see the following on-boarding screen:
+On first launch of your MEGA65, you will see the on-boarding screen.
 
 \begin{center}
   \includegraphics[width=\linewidth]{images/img011_final_boot_01.jpg}
 \end{center}
 
-Here, you can select and test you screen configuration. For example, press \megakey{TAB} to switch to PAL 50Hz.
+Here you can select and test you screen configuration.
+
+For example, type \megakey{TAB} to switch to PAL 50HZ
 
 \begin{center}
   \includegraphics[width=\linewidth]{images/img011_final_boot_02.png}
@@ -203,13 +208,13 @@ Then press \megakey{RETURN} , followed by \megakey{Y} to test the new video mode
   \includegraphics[width=\linewidth]{images/img011_final_boot_03.jpg}
 \end{center}
 
-Next, press \megakey{K} to keep the new video mode.
+Press \megakey{K} to keep the new video mode.
 
 \begin{center}
   \includegraphics[width=\linewidth]{images/img011_final_boot_04.jpg}
 \end{center}
 
-Finally, press \megakey{RETURN} to complete the configuration.
+Press \megakey{RETURN} to complete the configuration.
 
 \begin{center}
   \includegraphics[width=\linewidth]{images/img011_final_boot_05.png}
@@ -217,7 +222,7 @@ Finally, press \megakey{RETURN} to complete the configuration.
 
 \textcolor{red}{\underline{Note for Nexys4 board users}: \\
 \\
-  At this very specific step, the board should reboot and display the main MEGA65 screen. If the board does not reboot and the screen remains black, then switch power to the board off then on again.}
+  At this very specific step, the board is supposed to reboot and display the main MEGA65 screen. If the board does not reboot and the screen remains black, then switch power to the board off then on again.}
 
 After the reboot you will get the main MEGA65 screen:
 
@@ -229,7 +234,7 @@ After the reboot you will get the main MEGA65 screen:
 
 The configuration utility for the MEGA65 fills a similar purpose to the BIOS on a
 PC, and allows you to control certain default behaviours of your
-MEGA65. However, rather than storing the configuration data in
+MEGA65. However, rather than storing the configuration data in a
 battery-backed RAM, it stores them on sector 1 of the SD card. This means
 that if you switch SD cards, you will change the configuration data that you are using.
 
@@ -243,7 +248,7 @@ that if you switch SD cards, you will change the configuration data that you are
 \end{minipage}
 
 \begin{minipage}{\linewidth}
-  Next, press the number corresponding to the Configure MEGA65 menu-item.  The MEGA65
+  Now press the number corresponding to the Utility Menu.  The MEGA65
   Configuration Utility will launch, showing a display similar to
   the following: \\
   \\
@@ -252,19 +257,21 @@ that if you switch SD cards, you will change the configuration data that you are
 
 \begin{minipage}{\linewidth}
   If your MEGA65's System Partition has become corrupt, you may be
-  prompted to press \megakey{F14} to correct this, (i.e., hold \megakey{SHIFT} and tap
-  the \megakey{F13} key), with a display similar to the following: \\
+  prompted to press \megakey{F14} to correct this, i.e., hold \megakey{SHIFT} and tap
+  the \megakey{F13} key, with a display like the following: \\
   \\
   \includegraphics[width=\linewidth]{images/ss-m65config-corrupt.png}
 \end{minipage}
 
-If you come across this error message, you will need to use the \megakey{F7} key to save the reset configuration, otherwise
-the reset data will not be saved to the MEGA65 System Partition.
+If you do, you will
+need to use \megakey{F7} to save the reset configuration, as otherwise
+the reset data will not be saved to the MEGA65 System
+Partition.
 
-Once you have dismissed the corrupt data display message, or if your MEGA65 System
+Once you have dismissed that display, or if your MEGA65 System
 Partition was not corrupted, you can begin exploring and adjusting
-various settings. The programme can be controlled using the keyboard, or
-optionally, an Amiga{\texttrademark} or C1351 mouse.
+various settings.  The programme can be controlled using the keyboard, or
+optionally, an Amiga(tm) or C1351 mouse.
 
 You can advance screens by pressing \megakey{F1}, or use \megakey{F2}
 to navigate in the opposite direction through the screens. You can also
@@ -280,8 +287,8 @@ allow changing a text or numeric value.  The black circle next to an
 option indicates that it is the selected setting.
 
 \begin{minipage}{\linewidth}
-  When you are happy with the settings, you can press \megakey{F7} to show the
-  option to save the changes, and/or exit. This will provide you with four options: \\
+  When finished, you can press \megakey{F7} to receive the
+  option to save the changes. This will give you four options: \\
   \\
   \includegraphics[width=\linewidth]{images/ss-m65config-save.png}
 \end{minipage}
@@ -320,7 +327,7 @@ option indicates that it is the selected setting.
     smoothly in all directions, you may set it to {\bf
       aggressive}. Conversely, if you regularly use joysticks in the
     port, and have difficulties with the joystick input
-    misbehaving, you may select the {\bf conservative}
+    mis-behaving, you may select the {\bf conservative}
     option.
   \item{\em Joystick 2 Amiga Mouse Mode} is the same as the first
     option, but for the second joystick port. This allows you to
@@ -369,7 +376,8 @@ option indicates that it is the selected setting.
     The MEGA65 supports true 480p NTSC and 576p PAL double-scan modes,
     with exact 60Hz / 50Hz frame-rates.  This setting sets the
     default value, and the system can be switched between PAL and NTSC
-    via the Freeze Menu, or by programmes that are MEGA65-aware.
+    via the Freeze Menu, or under software control by MEGA65-enabled
+    programmes.
 \end{itemize}
 
 \subsection{Audio}
@@ -378,21 +386,21 @@ option indicates that it is the selected setting.
 
 \begin{itemize}
   \item{\em Audio Output} selects whether the SIDs and digital audio
-    channels are combined to provide a monaural signal, or whether
+    channels are combined to provide a mono-aural signal, or whether
     the left and right tagged audio sources are separated to provide a
-    stereo signal. Again, this setting can be different to the Audio
-    Mixer of the Freeze Menu, and changed under the control of MEGA65-aware
+    stereo signal. Again, this setting can be varied from in the Audio
+    Mixer of the Freeze Menu, or under the control of MEGA65-enabled
     software.
-  \item{\em Swap Stereo Channels} allows the switching of the left and right
+  \item{\em Swap Stereo Channels} allows switching the left and right
     sides of the stereo audio output. This is primarily useful for
     software that expects left and right SIDs to be at swapped
-    addresses compared to the MEGA65.
+    addresses compared with the MEGA65.
   \item{\em DAC Algorithm} allows selecting between two different
     digital to analog conversion algorithms.  Both are very good,
     but you may have a preference for one or the other.
   \item{\em Audio Amplifier} allows enabling or disabling the audio
     amplifier contained in some models of the MEGA65 for
-    certain audio outputs, e.g., internal speaker or loudspeaker.
+    certain audio outputs, e.g., internal speaker or loud speaker.
 \end{itemize}
 
 \subsection{Network}
@@ -401,5 +409,6 @@ option indicates that it is the selected setting.
 
 \begin{itemize}
   \item{\em MAC Address} allows you to set the default MAC address of your
-    MEGA65. This can be changed at run-time by MEGA65-aware software.
+    MEGA65.  This can be changed at run-time by MEGA65-enabled
+    software
 \end{itemize}

@@ -247,8 +247,8 @@ COLLISION  & FE17 &EXP        &   BD &LINE       &   E5 \\
 \setlength{\tabcolsep}{1mm}
 \begin{tabular}{|p{2.2cm}r|p{2.2cm}r|p{2.2cm}r|}
 \hline
-LIST       &   9B &PRINT\#    &   98 &SOUND      &   DA \\
-LOAD       &   93 &PUDEF      &   DD &SPC(       &   A6 \\
+LIST       &   9B &PRINT\#    &   98 &SPC(       &   A6 \\
+LOAD       &   93 &PUDEF      &   DD &SPEED      & FE26 \\
 LOADIFF    & FE43 &RCOLOR     &   CD &SPRCOLOR   & FE08 \\
 LOG        &   BC &RCURSOR    & FE42 &SPRDEF     & FE1D \\
 LOG10      & CE08 &READ       &   87 &SPRITE     & FE07 \\
@@ -280,7 +280,7 @@ POKE       &   97 &SET        & FE2D &WINDOW     & FE1A \\
 POLYGON    & FE2F &SGN        &   B4 &XOR        &   E9 \\
 POS        &   B9 &SIN        &   BF &\string^   &   AE \\
 POT        & CE02 &SLEEP      & FE0B &   &       \\
-PRINT      &   99 &SLOW       & FE26 &   &       \\
+PRINT      &   99 &SOUND      &   DA &   &       \\
 \hline
 \end{tabular}}
 % page 1
@@ -366,7 +366,7 @@ CE0A & POINTER    &FE21 & EDMA       &FE45 & EDIT       \\
 CE0B & MOD        &FE23 & MEM        &FE46 & FONT       \\
 CE0C & PIXEL      &FE24 & OFF        &FE47 & FGOTO      \\
 CE0D & RPALETTE   &FE25 & FAST       &FE48 & FGOSUB     \\
-FE02 & BANK       &FE26 & SLOW       &   &       \\
+FE02 & BANK       &FE26 & SPEED      &   &       \\
 FE03 & FILTER     &FE27 & TYPE       &   &       \\
 \hline
 \end{tabular}}
@@ -3411,24 +3411,23 @@ PRINT EXP(LOG(2))
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$25
 \item [Format:] {\bf FAST}
-\item [Usage:] Sets the system speed to 3.5 MHz.
-               The system default is {\bf FAST}.
-               However after using {\bf SLOW}, {\bf FAST} can be used to return
-               to fast mode.
-
-\item [Remarks:] Switching the MEGA65 to the fastest mode at 40 MHz
-                 is done with the command {\bf POKE 0,65}.
+\item [Usage:] Set CPU clock to 1 MHz, 3.5 MHz or 40 MHz.
+\item [Remarks:] Any numerical parameter, that is not 1.X or 3.X
+                 is discarded and the speed is set to maximum. \\
+                 {\bf FAST} is a synonym of {\bf SPEED}.
 
 \item [Example:] Using {\bf FAST}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 SLOW
-20 GOSUB 1000:REM DO SOME SLOW I/O
-30 FAST
+10 FAST      :REM SET SPEED TO MAXIMUM (40 MHZ)
+20 FAST 1    :REM SET SPEED TO 1 MHZ
+30 FAST 3    :REM SET SPEED TO 3.5 MHZ
+40 FAST 3.5  :REM SET SPEED TO 3.5 MHZ
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
+
 
 % ******
 % FILTER
@@ -8036,30 +8035,6 @@ DRAW PEN COLOUR =  1
 \end{tcolorbox}
 \end{description}
 
-% ****
-% SLOW
-% ****
-
-\newpage
-\subsection{SLOW}
-\index{SLOW}
-\index{BASIC 65 Commands!SLOW}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$FE \$26
-\item [Format:] {\bf SLOW}
-\item [Usage:] Slow down system clock to 1 MHz.
-
-\item [Example:] Using {\bf SLOW}
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-50 SLOW      :REM SET SPEED TO MINIMUM
-60 GOSUB 100 :REM EXECUTE SUBROUTINE AT 1 MHZ
-70 FAST      :REM BACK TO HIGH SPEED
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
 % *****
 % SOUND
 % *****
@@ -8146,6 +8121,33 @@ RUN
 10
 11
 12
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% SPEED
+% *****
+
+\newpage
+\subsection{SPEED}
+\index{SPEED}
+\index{BASIC 65 Commands!SPEED}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$26
+\item [Format:] {\bf SPEED}
+\item [Usage:] Set CPU clock to 1 MHz, 3.5 MHz or 40 MHz.
+\item [Remarks:] Any numerical parameter, that is not 1.X or 3.X
+                 is discarded and the speed is set to maximum.
+
+\item [Example:] Using {\bf SPEED}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 SPEED      :REM SET SPEED TO MAXIMUM (40 MHZ)
+20 SPEED 1    :REM SET SPEED TO 1 MHZ
+30 SPEED 3    :REM SET SPEED TO 3.5 MHZ
+40 SPEED 3.5  :REM SET SPEED TO 3.5 MHZ
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

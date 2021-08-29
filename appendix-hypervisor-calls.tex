@@ -174,11 +174,30 @@ This call can result in the following error codes:
 \subsection{\$00:\$2C -- {\em NOT IMPLEMENTED} Set time stamp of a file (filedate)}
 \subsection{\$00:\$2E -- Set the current filename (setname)}
 
+Sets the current Hypervisor filename to the ASCIIZ string stored at \$YYXX. The provided address
+must be in the first 31KiB of main memory.  Addresses at \$7F00 or above will result in errors.
+
 \subsection{\$00:\$30 -- Find first matching file (findfirst)}
 \subsection{\$00:\$32 -- Find subsequent matching file (findnext)}
 \subsection{\$00:\$34 -- Find matching file (one only) (findfile)}
-\subsection{\$00:\$36 -- Load a File into Memory (loadfile)}
+\subsection{\$00:\$36 -- Load a File into Main Memory (loadfile)}
+
+On success, this call loads the file specified by the setname Hypervisor call into the specified
+address in main (chip) memory.  It is limited to files of 16MiB size, and the first 16MiB of 
+the address space.  The load address will be \$00ZZYYXX.
+
+Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
+significant address byte will not be incremented during loading.
+
 \subsection{\$00:\$3C -- Change Working Directory to Root Directory of Selected Partition}
+\subsection{\$00:\$3E -- Load a File into Attic Memory (loadfile_attic)}
+
+On success, this call loads the file specified by the setname Hypervisor call into the specified
+address in the Attic RAM memory.  It is limited to files of 16MiB size, and the first 16MiB of 
+the attic RAM address space.  The load address will be \$08ZZYYXX.
+
+Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
+significant address byte will not be incremented during loading.
 
 \section{Disk Image Management}
 

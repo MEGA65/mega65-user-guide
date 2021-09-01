@@ -39,7 +39,7 @@ Hexadecimal is not often used when programming in BASIC. It is more commonly use
 Always remember that decimal, binary and hexadecimal are just different notations for numbers. A notation just changes the way the number is written (i.e., the way it looks on paper or on the screen), but its intrinsic value remains unchanged. A notation is essentially different ways of representing the same thing. The reason that we use different notations is that each notation lends itself more naturally to a different task.
 
 When using decimal, binary and hexadecimal for extended periods you may find it handy to have a scientific pocket calculator with a programmer mode. Such calculators can convert between bases with the press of a button. They can also add, subtract, multiply and divide, and perform various bit-wise logical operations.
-See Appendix \ref{ch:referencetables}  \nameref{ch:referencetables} as it contains a \nameref{s:baseconversion} table for decimal, binary, and hexadecimal for integers between 0 and 255.
+See \bookvref{ch:referencetables} as it contains a \nameref{s:baseconversion} table for decimal, binary, and hexadecimal for integers between 0 and 255.
 
 The BASIC listing for this appendix is a utility program that converts individual numbers into different bases. It can also convert multiple numbers within a specified range.
 
@@ -165,7 +165,7 @@ Binary has terminology of its own. Each binary digit in a binary number is calle
 As mentioned earlier, each memory location can store an integer between 0 and 255. The minimum corresponds to \%0000 0000 and the maximum corresponds to \%1111 1111, which are the smallest and largest numbers that can be represented using exactly eight bits. The memory addresses use 16 bits. The smallest memory address, represented in exactly sixteen bits, is \%0000 0000 0000 0000 and this corresponds to the smallest 16-bit number. Likewise, the largest memory address, represented in exactly sixteen bits, is \%1111 1111 1111 1111 and this corresponds to the largest 16-bit number.
 
 It is often convenient to refer to groups of bits by different names. For example, eight bits make a {\it byte} and 1024 bytes make a {\it kilobyte}. Half a byte is called a nybble.
-See Appendix \ref{ch:referencetables} \nameref{ch:referencetables} for the \nameref{s:unitsofstorage} table for further information.
+See \bookvref{ch:referencetables} for the \nameref{s:unitsofstorage} table for further information.
 
 Note that the largest number expressible using $d$ binary digits is (in decimal) $2^{d} - 1$. (This number will have $d$ ones in its representation.)
 
@@ -661,12 +661,12 @@ The program can convert numbers in the range 0 to 65535.
 390 PRINT "{SPACE*2}[D]{SPACE*2}CONVERT A RANGE OF DECIMAL INTEGERS"
 400 PRINT "{SPACE*2}[B]{SPACE*2}CONVERT A RANGE OF BINARY INTEGERS"
 410 PRINT "{SPACE*2}[H]{SPACE*2}CONVERT A RANGE OF HEXADECIMAL INTEGERS"
-420 PRINT "{SPACE*2}[R]{SPACE*2}RETURN TO TOP MENU"
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+420 PRINT "{SPACE*2}[R]{SPACE*2}RETURN TO TOP MENU"
 430 GET M2$
 440 IF (M2$="D") THEN GOSUB 1280: GOTO 380
 450 IF (M2$="B") THEN GOSUB 1670: GOTO 380
@@ -707,13 +707,13 @@ MID$(B$,10,5) + " " + MID$(B$,15,4); "{SPACE*2}" + H$: FOREGROUND 1: RETURN
 780 GOSUB 1110: REM VALIDATE BINARY INPUT
 790 IF (V = 0) THEN GOTO 760: ELSE GOTO 540
 800 REM *** CONVERT SINGLE HEXADECIMAL INTEGER ***
-810 H$=""
-820 PRINT: INPUT "ENTER HEXADECIMAL INTEGER (UP TO 4 DIGITS): ",H$
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+810 H$=""
+820 PRINT: INPUT "ENTER HEXADECIMAL INTEGER (UP TO 4 DIGITS): ",H$
 830 GOSUB 1220: REM VALIDATE HEXADECIMAL INPUT
 840 IF (V = 0) THEN GOTO 810: ELSE GOTO 540
 850 REM *** VALIDATE DECIMAL INPUT STRING ***
@@ -753,14 +753,14 @@ GOSUB 1010: V = 0 : RETURN
 1160 :  FOR N = 1 TO LEN(I$)
 1170 :    I = I + VAL(MID$(I$,N,1)) * P(LEN(I$) - N)
 1180 :  NEXT N
-1190 BEND
-1200 D$ = STR$(I): D = I: RETURN
-1210 REM *** VALIDATE HEXADECIMAL INPUT ***
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+1190 BEND
+1200 D$ = STR$(I): D = I: RETURN
+1210 REM *** VALIDATE HEXADECIMAL INPUT ***
 1220 V = 1: GOSUB 960: REM VALIDATE HEXADECIMAL INPUT STRING
 1230 IF (V = 0) THEN A$ = "INVALID HEXADECIMAL NUMBER": GOSUB 1010: RETURN
 1240 IF (LEN(H$) > 4) THEN A$ = "HEXADECIMAL NUMBER OUT OF RANGE":
@@ -798,13 +798,14 @@ L2$;SPC(2);L1$
 1520 :  FOR K = 0 TO 17
 1530 :      FOREGROUND (7 + MOD(K,2))
 1540 :      D$ = STR$(D): PRINT TAB(40): GOSUB 590: D = D + 1
-1550 :      IF (D > DE) THEN GOTO 1630
-1560 :  NEXT K
+
 \end{verbatim}
 \end{tcolorbox}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+1550 :      IF (D > DE) THEN GOTO 1630
+1560 :  NEXT K
 1570 :  FOREGROUND 1: PRINT: PRINT SPC(19);"PRESS X TO EXIT OR SPACEBAR TO CONTINUE..."
 1580 :  GET B$
 1590 :  IF B$="X" THEN RETURN

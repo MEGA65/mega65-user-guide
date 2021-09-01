@@ -34,9 +34,9 @@ address space.
 The MEGA65 uses a similar memory map to that of the C65 for the first
 MiB of memory, i.e., 16 memory banks of 64KiB each.
 This is because the C65's 4510 CPU can access only 1MiB
-of address space.  These banks can be accessed from BASIC 10 using the
-\stw{BANK}\index{BASIC 10 Commands!BANK},
-\stw{DMA}\index{BASIC 10 Commands!DMA}, \stw{PEEK} and \stw{POKE}
+of address space.  These banks can be accessed from BASIC 65 using the
+\stw{BANK}\index{BASIC 65 Commands!BANK},
+\stw{DMA}\index{BASIC 65 Commands!DMA}, \stw{PEEK} and \stw{POKE}
 commands.  The following table summarises the contents of the first
 16 banks:
 
@@ -114,7 +114,7 @@ mode of the processor.
 
 At the time of writing, the \stw{BANK} and \stw{DMA} commands cannot be used to access the rest of the colour RAM, because the
 colour RAM is not located in the first mega-byte of address space.  This may be corrected in a future revision of
-the MEGA65, allowing access to the full colour RAM via BANK 15 or an equivalent DMA job. 
+the MEGA65, allowing access to the full colour RAM via BANK 15 or an equivalent DMA job.
 
 \subsection{28-bit Address Space}
 
@@ -251,8 +251,8 @@ layout of this address space.
 
 The MEGA65 supports four different IO personalities.  These are
 selected by writing the appropriate values to the \$D02F KEY register,
-which is visible in all four IO personalities.  Refer to Chapter
-\ref{cha:modes} for more information about the use of the KEY
+which is visible in all four IO personalities.  There is more information in
+\bookvref{cha:modes} about the use of the KEY
 register.
 
 The following table shows which IO devices are visible in each of
@@ -480,18 +480,11 @@ context is active, so that the hypervisor trap will be able to trigger:
 
 The layout of the C65 compatibility 128KB ROM area is identical to that of the C65:
 
+{\ttfamily
 \setlength{\tabcolsep}{3pt}
-\begin{longtable}{|p{3cm}|p{6cm}|}
+\begin{tabular}{|l|l|}
 \hline
 {\bf{HEX}} & {\bf{Contents}} \\
-\hline
-\endfirsthead
-\multicolumn{1}{l@{}}{\ldots continued}\\
-\hline
-{\bf{HEX}} & {\bf{Contents}} \\
-\endhead
-\multicolumn{1}{l@{}}{continued \ldots}\\
-\endfoot
 \hline
 \$3E000 -- \$3FFFF & C65 KERNAL \\
 \hline
@@ -513,8 +506,8 @@ The layout of the C65 compatibility 128KB ROM area is identical to that of the C
 \hline
 \$20000 -- \$23FFF & DOS (gets mapped at \$8000 -- \$BFFF) \\
 \hline
-\endlastfoot
-\end{longtable}
+\end{tabular}
+}
 
 The INTERFACE program is a series of routines that are used by the C65
 to switch between C64 mode, C65 mode and the C65's built-in DOS.  The

@@ -1,0 +1,38 @@
+\chapter{Trouble shooting}
+    \section{Vivado}
+    \subsection{RAM requirements}
+    \begin{tcolorbox}[colback=black,coltext=white]
+    \verbatimfont{\codefont}
+    \begin{verbatim}
+INFO: [Synth 8-256] done synthesizing module 'ram32x1024' [/home/....]
+INFO: [Synth 8-256] synthesizing module 'charrom' [/home/....]
+    /opt/Xilinx/Vivado/2019.2/bin/loader: line 280: 2317 killed
+    WARNING: [Vivado 12-8222] Failed run(s) : 'synth_1'
+        ERROR: Application Exception: failed to launch run 'impl_1' due to failures in the following run(s):
+        synth_1
+        These failed run(s) need to be reset prior to launching 'impl_1' again.
+    \end{verbatim}
+    \end{tcolorbox}
+This error is due to vivado crashing because the machine doesn't have enough RAM for vivado to run.
+Vivado requires at least 4GB to synthesise the MEGA65 target, but 8GB is better.
+
+\section{mega65-ftp}
+    \subsection{Missing Library}
+    \begin{tcolorbox}[colback=black,coltext=white]
+    \verbatimfont{\codefont}
+    \begin{verbatim}
+/usr/bin/ld: cannot find -lncurses
+collect2: error: ld returned 1 exit status
+Makefile:474: recipe for target 'bin/mega65_ftp' failed
+make: *** [bin/mega65_ftp] Error 1
+    \end{verbatim}
+    \end{tcolorbox}
+This error occurs when the ncurses library is missing from the computer when building the mega65_ftp program.
+To rectify this issue you will need to ensure that you install this dependency.
+
+    \begin{tcolorbox}[colback=black,coltext=white]
+    \verbatimfont{\codefont}
+    \begin{verbatim}
+sudo apt-get install libncurses5-dev libncursesw5-dev
+    \end{verbatim}
+    \end{tcolorbox}

@@ -1,4 +1,4 @@
-\chapter {C64. C65 and MEGA65 Modes}
+\chapter {C64, C65 and MEGA65 Modes}
 \label{cha:modes}
 
 The MEGA65, like the C65 and the C128 has multiple operating modes,
@@ -18,10 +18,10 @@ from one mode to another.
 \section{Switching Modes from BASIC}
 
 At the time of writing, there is no MEGA65 Mode BASIC. The computer is used either
-in C64 mode, running BASIC 2, or C65 mode, running BASIC 10.  However, various MEGA65
+in C64 mode, running BASIC 2, or C65 mode, running BASIC 65.  However, various MEGA65
 features can be accessed from both C64 and C65 mode.  All MEGA65 features are available
 to programmes written in assembly language / machine code.  The information required
-to write such programmes can be found in the various appendices. 
+to write such programmes can be found in the various appendices.
 
 \subsection{From C65 to C64 Mode}
 
@@ -56,20 +56,20 @@ SYS 58552
 
 Alternatively, you can switch back to C65 mode by pressing the reset
 button on the left side of the computer, or simply turning the
-computer off and on again.  
+computer off and on again.
 
 Another option is to long-press the RESTORE key, and then choose F5
-from the freeze menu.  This simulates pressing the reset button. 
+from the freeze menu.  This simulates pressing the reset button.
 
 Note that, just like on the C128, any programmes in memory will be
-lost in the process of switching modes. 
+lost in the process of switching modes.
 
 \subsection{Entering Machine Code Monitor Mode}
 
 The machine code monitor can be entered by typing either the MONITOR
-command from BASIC 10 in C65 mode, or by holding the RUN/STOP key
+command from BASIC 65 in C65 mode, or by holding the RUN/STOP key
 down, and then pressing the reset button on the left side of the
-computer. 
+computer.
 
 \phantomsection
 \section{The KEY Register}
@@ -82,7 +82,7 @@ new registers, resulting in unexpected or unhelpful results.  Therefore the
 creators of the C65 invented a way to hide the extra VIC-III registers from old
 C64 programs. This is called the KEY register. For more information
 about which registers are hidden and visible in each of the
-VIC-II, VIC-III and VIC-IV IO modes refer to Appendix \ref{sec:iopersonalities}.
+VIC-II, VIC-III and VIC-IV IO modes refer to \bookvref{sec:iopersonalities}.
 
 The KEY register 53295 (hex \$D02F) is just an unused register of the VIC-II, that you can POKE and
 PEEK like the other registers.  But the KEY register has a special function: If
@@ -97,7 +97,7 @@ is to turn your MEGA65 off and on again, and type GO 64 and answer YES to enter 
 
 (If you do it from
 C65 mode, the computer will get rather confused, because in between the first and second POKE commands running,
-none of the C65-mode extra features will be visible to the computer, and BASIC 10 will probably crash or
+none of the C65-mode extra features will be visible to the computer, and BASIC 65 will probably crash or
 freeze as a result. But don't worry, if you accidentally do this, just turn the computer off and on again,
 or press and release the reset button the left side of the computer.)
 
@@ -170,7 +170,7 @@ POKE 53295,71: POKE 53295,83
 \end{verbatim}
 \end{tcolorbox}
 
-(Don't forget you have to be in C64 mode, as BASIC 10 will probably crash or freeze when the C65 / VIC-III registers get briefly
+(Don't forget you have to be in C64 mode, as BASIC 65 will probably crash or freeze when the C65 / VIC-III registers get briefly
 hidden after the first POKE has been performed, but the second one hasn't yet.)
 
 Again, you won't see any immediate difference, just like when un-hiding C65 / VIC-III registers.  However, now the computer
@@ -207,7 +207,7 @@ for the MEGA65's vertical border position registers.)
 
 See if you can instead make the screen shake around by changing the TEXTXPOS and TEXTYPOS registers of
 the VIC-IV.  You can find out the POKE codes for those and lots of other interesting new registers
-by looking through Appendix \ref{cha:viciv}.
+by looking through \bookvref{cha:viciv}.
 
 \subsection{Traps to watch out for}
 
@@ -218,9 +218,9 @@ will be visible. You can of course make the C65 or MEGA65 extra registers visibl
 to the KEY register again.
 
 \phantomsection
-\section{Accessing the MEGA65's Extra Memory from BASIC 10 in C65 Mode}
+\section{Accessing the MEGA65's Extra Memory from BASIC 65 in C65 Mode}
 
-The C65's BASIC 10 contains powerful memory banking and Direct Memory Access (DMA) commands that can be used to read,
+The C65's BASIC 65 contains powerful memory banking and Direct Memory Access (DMA) commands that can be used to read,
 fill, copy and write areas of memory beyond the C65's 128KB of RAM.  The MEGA65 has 384KB of main memory. Of this,
 the first 128KB (BANK 0 and BANK 1) acts as the C65's normal 128KB RAM. The second 128KB (BANK 2 and BANK 3) is normally
 write-protected, and is used to hold the C65's ROM image.  The last 128KB (BANK 4 and BANK 5) is however, completely free.
@@ -255,7 +255,7 @@ DMA 0, 2000, 2000, 4, DEC("F800"), 1 : REM COPY COLOUR RAM FROM BANK 4
 \end{verbatim}
 \end{tcolorbox}
 
-Note that there is currently no way to tell BASIC 10 to put graphics screen, variables,
+Note that there is currently no way to tell BASIC 65 to put graphics screen, variables,
 arrays or program text in these extra banks of RAM.
 
 \phantomsection
@@ -263,8 +263,8 @@ arrays or program text in these extra banks of RAM.
 
 The above methods can be used from BASIC. In contrast, the MAP instruction is an assembly
 language instruction that can be used to rearrange the memory that the MEGA65 sees.
-It is used by the C65 ROM and BASIC 10 to manage what memory it can see at any particular
-point in time.  For further explanation of the MAP instruction, refer to the relevant section of Appendix \ref{sec:map-instruction}.
+It is used by the C65 ROM and BASIC 65 to manage what memory it can see at any particular
+point in time.  For further explanation of the MAP instruction, refer to the relevant section of \bookvref{sec:map-instruction}.
 
 
 

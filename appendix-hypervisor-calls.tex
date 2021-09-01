@@ -1,0 +1,283 @@
+\chapter{MEGA65 Hypervisor Services}
+
+The MEGA65's Hypervisor provides a number of services via Hypervisor Traps.
+This chapter will describe these services.  For detailed information on how
+Hypervisor Traps are facilitated by the CPU is described in \bookvref{cha:cpu}.
+
+The hypervisor calls are identified by the trap register (\$D640 -- \$D67F), and
+the value of the accumulator register when writing to the trap register.  Thus
+a hypervisor call \$00:\$02 would be made via the following sequence of instructions:
+
+\begin{screenoutput}
+  LDA #$02         
+  STA $D640+$00
+  NOP                ; All traps calls MUST be followed by a NOP instruction
+\end{screenoutput}
+
+The values of the other registers or other structures will be described for
+each individual call.
+
+\section{General Services}
+
+\subsection{\$00:\$00 -- Get Hypervisor Version}
+
+Returns the version of the Hypervisor operating system and DOS components in the
+four registers:
+
+\begin{itemize}
+  \item A = Hypervisor Operating System Major Version number. 
+  \item X = Hypervisor Operating System Minor Version number. 
+  \item Y = Hypervisor DOS Minor Version number. 
+  \item Z = Hypervisor DOS Major Version number. 
+\end{itemize}
+
+These values can be used to check whether a given MEGA65 system's hypervisor
+supports features that become available (or are deprecated) at particular versions.
+
+\subsection{\$00:\$38 -- Get Current Error Code (geterrorcode)}
+
+Returns the current error code from the Hypervisor.  The currently supported
+error codes are:
+
+\begin{itemize}
+\item \$01 (1) -- Partition Not Interesting, indicating that an attempt to mount a partition was rejected because the partition was not of a supported type.
+\item \$02 (2) -- Bad Signature, indicating that the signature bytes at the end of a partition table or of the first sector of a partition were missing or incorrect.
+\item \$03 (3) -- An attempt was made to mount a FAT12 or FAT16 partition.  Only FAT32 partitions are supported.
+\item \$04 (4) -- An attempt was made to mount a partition that has too many reserved sectors. The number of reserved sectors must be less than 65,536.
+  \item \$05 (5) -- An attempt was made to mount a partition that does not have exactly two copies of the FAT structure.
+\item \$06 (6) -- An attempt was made to mount a partition that contains a partition with too few clusters.
+\item \$07 (7) -- A read timeout occurred.
+  \item \$08 (8) -- An unspecified error occurred while handling a partition.
+\item \$10 (16) -- An invalid address was supplied to the Setup Transfer Area For Other Calls function.
+\item \$11 (17) -- An illegal value was supplied to a Hypervisor call.
+\item \$20 (32) -- A read error occurred.
+\item \$21 (33) -- A write error occurred.
+\item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
+\item \$81 (129) -- The supplied filename was too long.
+\item \$82 (130) -- A Hypervisor call was made to a function that is not implemented. 
+\item \$83 (131) -- An attempt was made to load a file into memory that is longer than 16MiB.
+\item \$84 (132) -- Too many files are open, and no free file descriptor could be obtained for the requested operation.
+\item \$85 (133) -- The supplied cluster number is invalid.
+\item \$86 (134) -- An attempt was made to operate on a directory, where a normal file was expected.
+\item \$87 (135) -- An attempt was made to operate on a normal file, where a directory was expected.
+\item \$88 (136) -- The requested file could not be located.
+\item \$89 (137) -- An invalid file descriptor was supplied.
+\item \$8A (138) -- A disk image file had the wrong length, and was rejected for this reason.
+\item \$8B (139) -- A disk image was attempted to be mounted, but could not because it is fragmented on the file system.  Disk images must be stored contiguously on disk. This is because of the way that the SD card controller and floppy controller work: They load the starting sector of the disk image into special registers, and have no way to correctly handle a disk image that is stored in separate pieces on the disk. 
+\item \$8C (140) -- The disk has no free space for the requested operation.
+\item \$8D (141) -- An attempt was made to create a file that already exists, or to rename a file to have the name of a file that already exists.
+\item \$8E (142) -- An attempt was made to create a file in a directory that cannot accommodate any more entries.
+\item \$FF (255) -- The end of a file or directory was encountered.
+\end{itemize}
+
+\subsection{\$00:\$3A -- Setup Transfer Area for Other Calls (setup\_transfer\_area)}
+
+Setup the transfer area for various hypervisor calls. The page number of the transfer area is supplied in the Y register.
+This page must be between \$00 (0) and \$7E (126), thus indicating a transfer area starting between \$0000 and \$7E00 (0 and 32,256).
+The transfer area is
+256 bytes long for most calls.  Note that the transfer area is indicated using the processor's current memory mapping at
+the time that a function is called.  However, it is good practice to always place it in the bottom 32KiB of main memory.
+
+\begin{itemize}
+  \item Y = Page number of the transfer area (\$00 -- \$7E).
+\end{itemize}
+
+This call can produce the following error codes:
+
+\begin{itemize}
+\item \$10 (16) -- An invalid transfer area address was supplied, i.e., Y > \$7E (126).
+\end{itemize}
+
+\section{Disk/Storage Hypervisor Calls}
+
+\subsection{\$00:\$02 -- Get Default Drive (SD Card Partition)}
+
+This call returns the default drive (SD card partition) number in the A register.
+
+\subsection{\$00:\$04 -- Get Current Drive (SD Card Partition)}
+
+This call returns the current selected drive (SD card partition) in the A register.
+
+\subsection{\$00:\$06 -- Select Drive (SD Card Partition)}
+
+This call sets the currently selected drive (SD card partition) to the drive indicated in the X register.
+
+\begin{itemize}
+  \item X = Selected drive (SD card partition) number.
+\end{itemize}
+
+This call can produce the following error codes:
+
+\begin{itemize}
+\item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
+\end{itemize}
+
+\subsection{\$00:\$08 -- {\em NOT IMPLEMENTED} Get Disk Size}
+
+When implemented, this call will return information on the size of the currently selected disk (SD card partition).
+
+\subsection{\$00:\$0A -- {\em NOT IMPLEMENTED} Get Current Working Directory}
+
+When implemented, this call will return information on the currently selected directory or sub-directory.
+
+\subsection{\$00:\$0C -- Change Working Directory}
+
+Changes the current working directory to the directory specified in the dirent structure. The dirent structure
+can be populated by using any of the findfirst, findnext, findfile, or readdir Hypervisor calls.
+
+This call can produce the following error codes:
+
+\begin{itemize}
+\item \$87 (135) -- An attempt was made to operate on a normal file, where a directory was expected.
+\end{itemize}
+
+\subsection{\$00:\$0E -- {\em NOT IMPLEMENTED} Create Directory}
+
+When implemented, this call will allow the creation of new subdirectories.
+
+\subsection{\$00:\$10 -- {\em NOT IMPLEMENTED} Remove Directory}
+
+When implemented, ths call will allow the removal of a directory.
+
+\subsection{\$00:\$12 -- Open Directory (opendir)}
+
+Open the current working directory.
+
+On success, it returns the file descriptor of the opened directory in the A register.
+
+This call can result in the following error codes:
+
+\begin{itemize}
+\item \$07 (7) -- A read timeout occurred.
+  \item \$08 (8) -- An unspecified error occurred while handling a partition.
+\item \$10 (16) -- An invalid address was supplied to the Setup Transfer Area For Other Calls function.
+\item \$11 (17) -- An illegal value was supplied to a Hypervisor call.
+\item \$20 (32) -- A read error occurred.
+\item \$21 (33) -- A write error occurred.
+\item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
+\item \$84 (132) -- Too many files are open, and no free file descriptor could be obtained for the requested operation.
+\end{itemize}
+
+\subsection{\$00:\$14 -- Read Next Directory Entry (readdir)}
+\subsection{\$00:\$16 -- Close Directory (closedir)}
+\subsection{\$00:\$18 -- Open File (openfile)}
+\subsection{\$00:\$1A -- Read From a File (readfile)}
+\subsection{\$00:\$1C -- {\em NOT IMPLEMENTED} Write to a File (writefile)}
+\subsection{\$00:\$1E -- {\em NOT IMPLEMENTED} Create File (mkfile)}
+
+\subsection{\$00:\$20 -- Close a File (closefile)}
+\subsection{\$00:\$22 -- Close All Open Files (closeall)}
+\subsection{\$00:\$24 -- {\em NOT IMPLEMENTED} Seek to a Given Offset in a File (seekfile)}
+\subsection{\$00:\$26 -- {\em NOT IMPLEMENTED} Delete a File (rmfile)}
+\subsection{\$00:\$28 -- {\em NOT IMPLEMENTED} Get Information About a File (fstat)}
+\subsection{\$00:\$2A -- {\em NOT IMPLEMENTED} Rename a File (rename)}
+\subsection{\$00:\$2C -- {\em NOT IMPLEMENTED} Set time stamp of a file (filedate)}
+\subsection{\$00:\$2E -- Set the current filename (setname)}
+
+Sets the current Hypervisor filename to the ASCIIZ string stored at \$YYXX. The provided address
+must be in the first 31KiB of main memory.  Addresses at \$7F00 or above will result in errors.
+
+The filename indicates a file in the current working directory of the SD card's FAT file system.
+This call will {\em not} work with names of files that are stored on floppy disks or floppy disk
+images.  
+
+\subsection{\$00:\$30 -- Find first matching file (findfirst)}
+\subsection{\$00:\$32 -- Find subsequent matching file (findnext)}
+\subsection{\$00:\$34 -- Find matching file (one only) (findfile)}
+\subsection{\$00:\$36 -- Load a File into Main Memory (loadfile)}
+
+On success, this call loads the file specified by the setname Hypervisor call into the specified
+address in main (chip) memory.  It is limited to files of 16MiB size, and the first 16MiB of 
+the address space.  The load address will be \$00ZZYYXX.
+
+Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
+significant address byte will not be incremented during loading.
+
+\subsection{\$00:\$3C -- Change Working Directory to Root Directory of Selected Partition}
+\subsection{\$00:\$3E -- Load a File into Attic Memory (loadfile_attic)}
+
+On success, this call loads the file specified by the setname Hypervisor call into the specified
+address in the Attic RAM memory.  It is limited to files of 16MiB size, and the first 16MiB of 
+the attic RAM address space.  The load address will be \$08ZZYYXX.
+
+Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
+significant address byte will not be incremented during loading.
+
+\section{Disk Image Management}
+
+\subsection{\$00:\$40 -- Attach a D81 Disk Image to Drive 0}
+\subsection{\$00:\$42 -- Detach All D81 Disk Images}
+\subsection{\$00:\$44 -- Write Enable All Currently Attached D81 Disk Images}
+\subsection{\$00:\$46 -- Attach a D81 Disk Image to Drive 1}
+
+\section{Task and Process Management}
+
+\subsection{\$00:\$50 -- {\em NOT IMPLEMENTED} Get Task List}
+\subsection{\$00:\$52 -- {\em NOT IMPLEMENTED} Send Message to Another Task}
+\subsection{\$00:\$54 -- {\em NOT IMPLEMENTED} Receive Messages From Other Tasks}
+\subsection{\$00:\$56 -- {\em NOT IMPLEMENTED} Write Into Memory of Another Task}
+\subsection{\$00:\$58 -- {\em NOT IMPLEMENTED} Read From Memory of Another Task}
+
+\subsection{\$00:\$60 -- {\em NOT IMPLEMENTED} Terminate Another Task}
+\subsection{\$00:\$62 -- {\em NOT IMPLEMENTED} Create a Native MEGA65 Task}
+\subsection{\$00:\$64 -- {\em NOT IMPLEMENTED} Load File Into Task}
+\subsection{\$00:\$66 -- {\em NOT IMPLEMENTED} Create a C64-Mode Task}
+\subsection{\$00:\$68 -- {\em NOT IMPLEMENTED} Create a C65-Mode Task}
+\subsection{\$00:\$6A -- {\em NOT IMPLEMENTED} Exit and Switch to Another Task}
+\subsection{\$00:\$6C -- {\em NOT IMPLEMENTED} Context-Switch to Another Task}
+\subsection{\$00:\$6E -- {\em NOT IMPLEMENTED} Exit This Task}
+
+\subsection{\$00:\$70 -- Toggle Write Protection of ROM Area}
+\subsection{\$00:\$72 -- Toggle 4510 vs 6502 Processor Mode}
+\subsection{\$00:\$74 -- Get current 4510 memory MAPping}
+
+Y = page where memory mapping is to be stored.  Six bytes will be returned:
+Y must be <= \$7E.
+
+\begin{itemize}
+  \item \$00 - Low byte of MAPLO (lower 32KB RAM mapping)
+  \item \$01 - High byte of MAPLO (lower 32KB RAM mapping)
+  \item \$02 - Low byte of MAPHI (upper 32KB RAM mapping)
+  \item \$03 - High byte of MAPHI (upper 32KB RAM mapping)
+  \item \$04 - Megabyte offset for MAPLO (lower 32KB RAM mapping)
+  \item \$05 - Megabyte offset for MAPHI (upper 32KB RAM mapping)
+\end{itemize}
+
+\subsection{\$00:\$76 -- Set 4510 memory MAPping}
+
+This call performs the opposite of the Get 4510 memory MAPping, reading 6 bytes
+from the memory page indicated by Y, and storing them into the current processor's mapping status.
+Y must be <= \$7E.
+
+\subsection{\$00:\$7C -- Write Character to Serial Monitor/Matrix Mode Interface}
+\subsection{\$00:\$7E -- Reset MEGA65}
+
+\subsection{\$01:\$00 -- Enable Write Protection of ROM Area}
+\subsection{\$01:\$02 -- Disable Write Protection of ROM Area}
+
+\section{System Partition \& Freezing}
+
+\subsection{\$02:\$00 -- Read System Config Sector Into Memory}
+\subsection{\$02:\$02 -- Write System Config Sector From Memory}
+\subsection{\$02:\$04 -- Apply System Config Sector Current Loaded Into Memory}
+\subsection{\$02:\$06 -- Set DMAgic Revision Based On Loaded ROM}
+
+\subsection{\$02:\$10 -- Locate First Sector of Freeze Slot}
+\subsection{\$02:\$12 -- Unfreeze From Freeze Slot}
+\subsection{\$02:\$14 -- Read Freeze Region List}
+\subsection{\$02:\$16 -- Get Number of Freeze Slots}
+
+\subsection{\$03:\$XX -- Write Character to Serial Monitor/Matrix Mode Interface}
+
+\section{Secure Mode}
+
+\subsection{\$11:\$XX -- Request Enter Secure Mode}
+\subsection{\$12:\$XX -- Request Exit Secure Mode}
+\subsection{\$32:\$XX -- {\em DEPRECATED} Set Protected Hardware Configuration}
+
+This call will be removed once the secure mode framework is more completely implemented.
+
+Until it is removed, this call allows a process to request the setting of the protected hardware configuration to allow or restrict access to various sub-systems, including the SD card storage system.
+
+\subsection{\$3F:\$XX -- Freeze Self}
+

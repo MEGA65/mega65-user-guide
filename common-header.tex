@@ -66,6 +66,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{caption}
+\usepackage{pdfpages}
 \usepackage{tikzpagenodes}
 \usepackage{imakeidx}
 \usepackage[pagestyles,raggedright]{titlesec}
@@ -81,6 +82,28 @@
 \usepackage{needspace}
 \usepackage{verbatim}
 \usepackage{ean13isbn}
+
+% Use CHAPTER-PAGE page numbering to make it easier to modify chapters
+% later, without messing up page number of the rest of the book.
+\usepackage[auto]{chappg}
+
+% Allow cross-references between the various books to the big The MEGA65 Book
+\usepackage{xr}
+\usepackage{varioref}
+\usepackage{xparse}
+\externaldocument[M65Book-]{mega65-book}
+% And a \ref alternative that checks if it needs to be a cross-reference to the
+% MEGA65 Book instead.
+\makeatletter
+\newcommand{\bookref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em the MEGA65 Book}, \nameref{M65Book-#1} (\autoref{M65Book-#1})}{\autoref{#1}}%
+}
+\newcommand{\bookvref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em the MEGA65 Book}, \nameref{M65Book-#1} (\autoref{M65Book-#1})}{Chapter/Appendix \vref{#1}}%
+}
+\makeatother
 
 % For fixed-width columns in register maps
 \usepackage{array}
@@ -155,7 +178,7 @@
 \input{fonts}
 
 % Set margins for inner and outer pages in A5 book format
-\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1cm,outer=0.5cm, footskip = 1cm]{geometry}
+\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1.3cm,outer=0.8cm, footskip = 1cm]{geometry}
 
 % Some Computer Society conferences also require the compsoc mode option,
 % but others use the standard conference format.
@@ -174,6 +197,7 @@
 \pagestyle{empty}
 
 \begin{document}
+\raggedbottom
 
 % relax word wrapping with sloppy
 \sloppy

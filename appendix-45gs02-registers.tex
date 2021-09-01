@@ -175,7 +175,7 @@ Direct Memory Access (DMA) is a method for quickly filling, copying or swapping 
 The MEGA65 implements an improved version of the F018 ``DMAgic'' DMA controller of the C65 prototypes.
  Unlike on the C65 prototypes, the DMA controller is part of the CPU on the MEGA65.
 
-Detailed information on how to use the DMA controller and these advanced features can be found in Appendix \ref{cha:dmagic}
+Detailed information on how to use the DMA controller and these advanced features can be found in \bookvref{cha:dmagic}
 
 \subsection{Accessing memory between the 64KB and 1MB points}
 
@@ -247,10 +247,11 @@ C64-style memory banking.
 
 The third specialised manner to access to memory above the 64KB point is to use
 the VIC-III's Display Address Translator.  Use of this mechanism is documented
-in Appendix \ref{cha:viciv}.
+in \bookvref{cha:viciv}.
 
 \subsubsection{The MAP instruction}
 \label{sec:map-instruction}
+\index{MAP}\index{Memory banking}
 
 The first general-purpose means of access to memory is the MAP instruction of the
 4510 processor. The MEGA65's 45GS02 processor also supports this mechanism.
@@ -269,18 +270,52 @@ block in a 32KB half of memory can be either mapped or not, this requires one bi
 8KB block.  Thus the processor requires 16 bits of information for each half of memory, for
 a total of 32 bits of information.  This is achieved by setting the A and X registers for
 the lower half of memory and the Y and Z registers for the upper half of memory, before executing
-the MAP instruction.  The MAP instruction copies the contents of these registers into the
+the MAP instruction.
+
+The MAP instruction copies the contents of these registers into the
 processors internal registers that hold the mapping information.  Note that there is no way to
 use the MAP instruction to determine the current memory mapping configuration, which somewhat
 limits its effectiveness.
 
-See under ``Using the MAP instruction to access >1MB'' for further explanation and an example.
+The following diagram illustrates how the MAP instruction takes the values of the four A, X, Y and Z
+registers, and uses them to compue the upper and lower address offsets, and sets the bank enable bits
+for each of the eight 8KB memory regions of the 6502 address space:
+
+\begin{center}
+  \includegraphics[width=0.75\textwidth]{images/illustrations/map-instruction-operation.pdf}\index{MAP}\index{Memory banking}
+\end{center}
+
+That is, the contents of the A register and the lower-nybl of the X register form a 12-bit value
+that is multiplied by 256 to produce the offset used for any of the 8KB banks in the lower 32KB half of the 6502's 16-bit address
+space.  The upper nybl of the X register is used as flags to indicate which of the four 8KB blocks in that 32KB half of the
+6502 address space should have the offset added to their addresses to compute the actual address.
+
+The Y and Z registers are used in a similar way to produce the offset for the upper 32KB half of the 6502 address space, and the
+flags to indicate whether the offset is used for each of the four 8KB blocks in that half of the address space.
+
+Note that the lower 8 bits of the offset cannot be set. That is, the offset will be a multiple of 256
+bytes, unlike on some extended 6502 processors.  However, in practice this restriction is rarely
+limiting.
+
+To understand how this works in practice, the following example shows how this works with a concrete
+example, showing the address ranges that would be visible in each of the 8KB slices of the 6502's
+64KB address space:
+
+\begin{center}
+  \includegraphics[width=0.75\textwidth]{images/illustrations/map-instruction-operation-example1.pdf}\index{MAP}\index{Memory banking}
+\end{center}
+
+Notice that the offsets for each of the two 32KB address ranges get added to the 6502 address.
+This is why the offset of \$48000 for the upper 32KB generates an address of \$50000 at the 6502
+address \$8000.
+
+See also under ``Using the MAP instruction to access >1MB'' for further explanation.
 
 \subsubsection{Direct Memory Access (DMA) Controller}
 
 The C65's F018/F018A DMA controller allows for rapid filling, copying and swapping of the contents of memory
 anywhere in the 1MB address space. Detailed information about the F018 DMA controller, and the MEGA65's
-enhancements to this, refer to Appendix \ref{cha:dmagic}
+enhancements to this, refer to \bookvref{cha:dmagic}
 
 \subsubsection{Flat Memory Access}
 
@@ -310,12 +345,10 @@ as a means of memory access, we recommend that for accessing data outside of the
 map that you use either DMA or the flat-memory address features of the 45GS02 that are described below.
 Indeed, access to the full address space via the MAP instruction is only provided for completeness.
 
-To give a very simple example of how the MAP instruction can be used to map an area of memory from
+As an other example of how the MAP instruction can be used to map an area of memory from
 the expanded address space, the following program maps the Ethernet frame buffer from its natural location
 at \$FFDE8000 to appear at \$6800.  To keep the example as simple as possible, we assume that the code
 is running from in the bottom 64KB of RAM, and not in the region between \$6000 -- \$8000.
-
-XXX - Diagram needed for this.
 
 As the MAP instruction normally is only aware of the C65-style 20-bit addresses, the MEGA65 extension to the
 instruction must be used to set the upper 8 bits of the 28-bit MEGA65 addresses, i.e., which mega-byte of address
@@ -543,10 +576,26 @@ produced, and the programme will take the same number of cycles to execute.
 
 \input{regtable_CPU.MEGA65}
 
-\section{MEGA65 CPU Maths Unit Registers}
+\section{MEGA65 CPU Maths Acceleration Registers}
 
-Some models include a math unit, which helps to accelerate the calculation of fixed-point formulae.
-This is not present in all models of the MEGA65.
+Every MEGA65 contains a combined 32-bit hardware multiplier and divider.
+This device takes two 32-bit inputs, MULTINA and MULTINB, and simultaneously calculates:
+
+\begin{itemize}
+\item the 64-bit product of MULTINA and MULTINB
+\item the 32-bit whole part of MULTINA / MULTINB
+\item the 32-bit fractional part of MULTINA / MULTINB
+\end{itemize}
+
+It is always updating the outputs based on the inputs, so there is no need to take special action when changing the inputs.
+The multiplier takes 1 cycle to calculate, and the updated result will thus be available immediately. The hardware divider,
+however, can take upto 16 cycles depending on the particular inputs.  Thus programmers should insert a short delay after
+changing the inputs before reading the output.  As this delay is so short, it can be implemented by simply reading the first
+byte of the result four times consecutively, as the 4th read will occur after the result has settled.
+
+Some models of the MEGA65 also include a math unit, which helps to accelerate the calculation of fixed-point formulae.
+This presently disabled in all models of the MEGA65 and will be further documented if and when it becomes
+available.
 
 \input{regtable_MATH.MEGA65}
 

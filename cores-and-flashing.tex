@@ -35,7 +35,57 @@ so that you can easily switch the MEGA65's ``personality'' from being a MEGA65 t
 of these systems (once the cores are available) and back again.
 
 The remainder of this chapter describes how to select which core to run on the MEGA65, and
-how to store a core into one of the seven slots in the flash memory storage.
+how to store a core into one of the three (or for MEGA65R2, seven) slots in the flash memory storage.
+
+\section{Bitstream files}
+\label{sec:bitstreamfiles}
+
+Firstly, there are a variety of files related to the project's bitstreams/cores that we need to get familiar with, in order to decide what file-types are needed for what occasion.
+
+\subsection{File types}
+
+\index{.bit files}\index{.mcs files}\index{.prm files}\index{.cor files}
+\begin{center}
+  \begin{longtable}{|R{2.2cm}|p{10cm}|}
+  \hline
+    {\textbf{File-type}} & {\textbf{Purpose}} \\
+  \hhline{|=|=|}
+  {.cor} & {The MEGA65 project's custom bitstream file format, containing extra header information to help identity the bitstream and the specific MEGA65 target device it is intended for. The MEGA65's flashing utility makes use of this additional information to assure you don't accidentally flash the bitstream of a different device.} \\
+  \hline
+  {.mcs} & {The bitstream file in a format needed when flashing it to your device's QSPI flash memory chip via Vivado} \\
+  \hline
+  {.prm} & {This (optional) file contains checksum information that can be used by Vivado to verify the .mcs file you have tried to flash} \\
+  \hline
+  {.bit} & {A plain bitstream file that can be copied onto your sd-card} \\
+  \hline
+  \end{longtable}
+\end{center}
+
+\subsection{Where to download}
+
+Visit the following url:
+
+\url{https://mega.scryptos.com/sharefolder-link/MEGA/MEGA65+filehost/Bitstreams/Jenkins-Out/mega65-core/development/}
+
+Sort the list of build folders by 'Date' and click on the latest:
+
+\includegraphics[width=\linewidth]{images/latest_bitstream.png}
+
+For the purposes of this chapter on core-flashing, download the desired .cor file that suits your target device:
+
+\begin{itemize}
+  \item{\textbf{nexys4.cor} (for Nexys4 PSRAM boards)}
+  \item{\textbf{nexys4ddr-widget.cor} (for Nexys4 DDR boards)}
+  \item{\textbf{mega65r2.cor} (for MEGA65R2 boards)}
+  \item{\textbf{mega65r3.cor} (for MEGA65R3 boards, aka DevKits)}
+  \item{You can also find .bit, .mcs and .prm files located here too.}
+\end{itemize}
+
+Alternatively, if you intend to flash the QSPI chip via Vivado, you'd instead download the .mcs file for your target device (and optionally, the .prm files too).
+
+Or another alternative Nexys4 board users is to download .bit files and put them on their sd-cards, you can grab such files from here also.
+
+But once again, to confirm, for the purposes of this chapter on core-flashing, you will only be interested in the .cor files.
 
 \phantomsection
 \section{Selecting a core}
@@ -141,7 +191,7 @@ core.
 \section{Creating cores for the MEGA65}
 
 If you would like to create your own cores for the MEGA65, or help contribute to the MEGA65 core, then
-you may also wish to take a look at Appendix \ref{cha:fpgacpldflashing} which explains how to use the
+you may also wish to take a look at \bookvref{cha:fpgacpldflashing} which explains how to use the
 FPGA development tools to flash the MEGA65.
 
 \phantomsection

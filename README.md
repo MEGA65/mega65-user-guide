@@ -44,7 +44,7 @@ The complete list of guides that can be individually built are:
 | :------------- | :---------- |
 | User Guide | make mega65-userguide.pdf |
 | Chipset Reference   | make mega65-chipset-reference.pdf |
-| Complete BASIC 10 Commands | make mega65-basic10-reference.pdf |
+| Complete BASIC 65 Commands | make mega65-basic65-reference.pdf |
 | For experimentation (don't commit) | make sandbox.pdf |
 | Reference Guide | make referenceguide.pdf |
 | Developer's Guide | make mega65-developer-guide.pdf |

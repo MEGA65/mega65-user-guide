@@ -4,7 +4,7 @@ BOOKS=	mega65-book.pdf \
 	mega65-userguide.pdf \
 	mega65-developer-guide.pdf \
 	mega65-chipset-reference.pdf \
-	mega65-basic10-reference.pdf \
+	mega65-basic65-reference.pdf \
 	mega65-basic-programming.pdf \
 
 GENERATED_TEX_FILES= 	document-memory \
@@ -12,7 +12,7 @@ GENERATED_TEX_FILES= 	document-memory \
 		     	instructionset-6502.tex \
 		     	instructionset-45GS02.tex \
 		 	api-conio.tex \
-			appendix-basic10-indexed.tex \
+			appendix-basic65-indexed.tex \
 			#images/illustrations/screen-40x25-addresses16-80.pdf
 
 
@@ -68,13 +68,13 @@ mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
 
-mega65-basic10-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
-	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-reference.tex
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic65-reference.tex
 
-#mega65-basic10-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+#mega65-basic65-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 #	./getgitinfo
-#	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-programming.tex
+#	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic65-programming.tex
 
 
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
@@ -115,8 +115,8 @@ document-memory:	document-memory.c Makefile
 index_basic_programmes:	index_basic_programmes.c Makefile
 	$(CC) -Wall -g -o index_basic_programmes index_basic_programmes.c
 
-appendix-basic10-indexed.tex:	appendix-basic10.tex index_basic_programmes
-	./index_basic_programmes appendix-basic10.tex > appendix-basic10-indexed.tex
+appendix-basic65-indexed.tex:	appendix-basic65.tex index_basic_programmes
+	./index_basic_programmes appendix-basic65.tex > appendix-basic65-indexed.tex
 
 clean:
 	latexmk -CA

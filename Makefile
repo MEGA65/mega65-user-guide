@@ -13,6 +13,7 @@ GENERATED_TEX_FILES= 	document-memory \
 		     	instructionset-45GS02.tex \
 		 	api-conio.tex \
 			appendix-basic65-indexed.tex \
+			appendix-basic65-condensed.tex \
 			#images/illustrations/screen-40x25-addresses16-80.pdf
 
 
@@ -117,6 +118,12 @@ index_basic_programmes:	index_basic_programmes.c Makefile
 
 appendix-basic65-indexed.tex:	appendix-basic65.tex index_basic_programmes
 	./index_basic_programmes appendix-basic65.tex > appendix-basic65-indexed.tex
+
+generate_condensed: generate_condensed.c Makefile
+	 $(CC) -Wall -g -o generate_condensed generate_condensed.c
+
+appendix-basic65-condensed.tex: appendix-basic65-indexed.tex generate_condensed
+	./generate_condensed
 
 clean:
 	latexmk -CA

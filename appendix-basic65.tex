@@ -6428,8 +6428,8 @@ HELLO
 
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2F
-\item [Format:] {\bf POLYGON x, y, xrad, yrad, solid, angle,
-                sides, n}
+\item [Format:] {\bf POLYGON x, y, xrad, yrad, sides
+                [,drawsides [,subtend [,angle [,solid]]]]}
 
 \item [Usage:] Draws a regular {\bf n} sided polygon.
                The polygon is drawn using the current drawing context
@@ -6439,13 +6439,15 @@ HELLO
 
                {\bf xrad,yrad} = radius in x- and y-direction.
 
-               {\bf solid} = fill (1) or outline (0).
+               {\bf sides} = number of polygon sides.
+
+               {\bf drawsides} = sides to draw.
+
+               {\bf subtend} = 1: draw line from centre to start.
 
                {\bf angle} = start angle.
 
-               {\bf sides} = sides to draw $(<= n)$.
-
-               {\bf n} = number of sides or edges.
+               {\bf solid} = fill (1) or outline (0).
 
 \item [Remarks:] A regular polygon is both isogonal and isotoxal,
                  meaning all sides and angles are alike.
@@ -6454,7 +6456,10 @@ HELLO
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-  POLYGON 320,100,50,50,0,0,6,6
+100 SCREEN 320,200,1         :REM OPEN 320 x 200 SCREEN
+110 POLYGON 160,100,40,40,6  :REM DRAW HONEYCOMB
+120 GETKEY A$                :REM WAIT FOR KEY
+130 SCREEN CLOSE             :REM CLOSE GRAPHICS SCREEN
 \end{verbatim}
 \end{tcolorbox}
 \begin{tikzpicture}[thick]

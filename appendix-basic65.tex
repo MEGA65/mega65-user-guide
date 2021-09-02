@@ -6226,9 +6226,10 @@ Embedded directives consist of a letter followed by a digit:
 \end{verbatim}
 \end{tcolorbox}
 
-  If you wish to assess whether a melody is playing on a voice channel, presently you can
-  find out by checking the value returned from RPLAY(0), which returns a value from 0-63,
-  with binary bits 0 to 5 representing whether voice1-6 is playing(1) or not(0).
+  If you wish to assess whether a melody is playing on a voice channel, you can
+  find out by checking the value returned from RPLAY(voice), where the voice parameter
+  is a value from 1 to 6 indicating the voice channel. It returns either 1 (playing)
+  or 0 (not playing).
 
   One caveat to be aware of is that BASIC's garbage collection may be called during the
   execution of your program and may shuffle the positions of your strings in memory.
@@ -7475,16 +7476,15 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Functions!RPLAY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0F
-\item [Format:] {\bf RPLAY(0)}
-\item [Usage:] Returns a value from 0 to 63
-               with binary bits 0 to 5 representing whether voice1-6
-               is playing(1) or not(0).
+\item [Format:] {\bf RPLAY(voice)}
+\item [Usage:] Returns a value of 1 or 0, to indicate if a melody is playing on this voice channel or not.
 
 \item [Example:] Using {\bf RPLAY}:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 VO = RPLAY(0) :REM GET STATUS OF 6 VOICES
+ 10 PLAY "O4ICDEFGABO5C","O2QCGEGCO1GC"
+ 30 IF RPLAY(1) OR RPLAY(2) THEN GOTO 30: REM WAIT FOR END OF SONG
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

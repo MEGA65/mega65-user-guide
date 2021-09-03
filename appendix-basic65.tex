@@ -6294,14 +6294,11 @@ statement. The default setting for the envelopes are:
 \item [Token:] \$CE \$0A
 \item [Format:] {\bf POINTER(variable)}
 \item [Usage:]  Returns the current address of a variable
-                or an array element.
+                or an array element as 32 bit pointer.
                 For string variables, it is the address of
                 the string descriptor, not the string itself.
                 The string descriptor consists of the three bytes
                 (length,string address low, string address high).
-
-                Address values $>=$ \$F700 are assigned to bank 0.
-                All other addresses are assigned to bank 1.
 
 \item [Remarks:] The address values of arrays and their elements
                  are constant during a program execution. \\
@@ -6309,26 +6306,24 @@ statement. The default setting for the envelopes are:
                  however may change at any time due to
                  "garbage collection" in memory management.
 
-
 \item [Example:] Using {\bf POINTER}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 H$="HELLO"
-20 P=POINTER(H$):PRINT "DESCRIPTOR AT: $";HEX$(P)
-30 IF P>= DEC("F700") THENBANK 0:ELSEBANK 1
-40 L=PEEK(P):SP=PEEK(P+1)+256*PEEK(P+2)
-50 PRINT"STRING ADDRESS:$";HEX$(SP)
-60 PRINT "LENGTH=";L
-70 BANK 1:REM STRING BANK
-80 FOR I=1TOL:PRINT PEEK(SP+I-1);:NEXT:PRINT
-90 FOR I=1TOL:PRINT CHR$(PEEK(SP+I-1));:NEXT:PRINT
+10 BANK 0                  :REM SCALARS ARE IN BANK 0
+20 H$="HELLO"              :REM ASSIGN STRING TO H$
+30 P=POINTER(H$)           :REM GET DESCRIPTOR ADDRESS
+40 PRINT "DESCRIPTOR AT: $";HEX$(P)
+50 L=PEEK(P):SP=PEEKW(P+1) :REM LENGTH & STRING POINTER
+60 PRINT "LENGTH = ";L     :REM PRINT LENGTH
+70 BANK 1                  :REM STRINGS ARE IN BANK 1
+80 FOR I%=0 TOL-1:PRINT PEEK(SP+I%);:NEXT:PRINT
+90 FOR I%=0 TOL-1:PRINT CHR$(PEEK(SP+I%));:NEXT:PRINT
 
 RUN
-DESCRIPTOR AT: $F702
-STRING ADDRESS:$F6F9
-LENGTH= 5
+DESCRIPTOR AT: $F743
+LENGTH =  5
  72  69  76  76  79
 HELLO
 \end{verbatim}

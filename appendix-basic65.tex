@@ -2978,11 +2978,13 @@ where the error line is taken from {\bf EL}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 TRAP 100
-
-100 IF ER>0 AND ER<42 THEN PRINT ERR$(ER);" ERROR"
+ 10 TRAP 100
+ 20 PRINT SQR(-1)     :REM PROVOKE ERROR
+ 30 PRINT "AT LINE 30":REM HERE TO RESUME
+ 40 END
+100 IF ER>0 THEN PRINT ERR$(ER);" ERROR"
 110 PRINT " IN LINE";EL
-120 RESUME
+120 RESUME NEXT       :REM RESUME AFTER ERROR
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3281,10 +3283,14 @@ where the error number is taken from {\bf ER}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+ 10 TRAP 100
+ 20 PRINT SQR(-1)     :REM PROVOKE ERROR
+ 30 PRINT "AT LINE 30":REM HERE TO RESUME
+ 40 END
+100 IF ER>0 THEN PRINT ERR$(ER);" ERROR"
+110 PRINT " IN LINE";EL
+120 RESUME NEXT       :REM RESUME AFTER ERROR
 10 TRAP 100
-
-100 IF ER>0 AND ER<42 THEN PRINT ERR$(ER);" ERROR"
-110 RESUME
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3315,10 +3321,13 @@ where the error number is taken from the reserved variable {\bf ER}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 TRAP 100
-
-100 IF ER>0 AND ER<42 THEN PRINT ERR$(ER);" ERROR"
-110 RESUME
+ 10 TRAP 100
+ 20 PRINT SQR(-1)     :REM PROVOKE ERROR
+ 30 PRINT "AT LINE 30":REM HERE TO RESUME
+ 40 END
+100 IF ER>0 THEN PRINT ERR$(ER);" ERROR"
+110 PRINT " IN LINE";EL
+120 RESUME NEXT       :REM RESUME AFTER ERROR
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

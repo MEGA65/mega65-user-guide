@@ -5986,12 +5986,14 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
  20 SCREEN DEF 1,0,0,2   :REM 320 X 200
  30 SCREEN OPEN 1        :REM OPEN
  40 SCREEN SET 1,1       :REM MAKE SCREEN ACTIVE
- 50 LINE 160,0,240,100   :REM 1ST. LINE
- 60 LINE 240,100,80,100  :REM 2ND. LINE
- 70 LINE 80,100,160,0    :REM 3RD. LINE
- 80 PAINT 160,10,0,1     :REM FILL TRIANGLE WITH COLOUR 1
- 90 GETKEY K$            :REM WAIT FOR KEY
-100 SCREEN CLOSE 1       :REM END GRAPHICS
+ 50 PALETTE 1,1,10,15,10 :REM COLOUR 1 TO LIGHT GREEN
+ 60 PEN 1                :REM SET DRAWING PEN (PEN 0) TO LIGHT GREEN (1)
+ 70 LINE 160,0,240,100   :REM 1ST. LINE
+ 80 LINE 240,100,80,100  :REM 2ND. LINE
+ 90 LINE 80,100,160,0    :REM 3RD. LINE
+100 PAINT 160,10,0,1     :REM FILL TRIANGLE WITH COLOUR 1
+110 GETKEY K$            :REM WAIT FOR KEY
+120 SCREEN CLOSE 1       :REM END GRAPHICS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6039,13 +6041,13 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
  60 PALETTE 1,1, 15, 0, 0   :REM 1 = RED
  70 PALETTE 1,2,  0, 0,15   :REM 2 = BLUE
  80 PALETTE 1,3,  0,15, 0   :REM 3 = GREEN
- 90 PEN 2
-100 LINE 160,0,240,100 :REM 1ST. LINE
-110 LINE 240,100,80,100 :REM 2ND. LINE
-120 LINE 80,100,160,0 :REM 3RD. LINE
-130 PAINT 160,10,0,2 :REM FILL TRIANGLE WITH BLUE (2)
-140 GETKEY K$ :REM WAIT FOR KEY
-150 SCREEN CLOSE 1 :REM END GRAPHICS
+ 90 PEN 2                   :REM SET DRAWING PEN (PEN 0) TO BLUE (2)
+100 LINE 160,0,240,100      :REM 1ST. LINE
+110 LINE 240,100,80,100     :REM 2ND. LINE
+120 LINE 80,100,160,0       :REM 3RD. LINE
+130 PAINT 160,10,0,2        :REM FILL TRIANGLE WITH BLUE (2)
+140 GETKEY K$               :REM WAIT FOR KEY
+150 SCREEN CLOSE 1          :REM END GRAPHICS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6132,21 +6134,21 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \index{BASIC 65 Commands!PEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$33
-\item [Format:] {\bf PEN pen colour}
+\item [Format:] {\bf PEN [pen,] colour}
 \item [Usage:]  Sets the colour for the graphic pen.
 
                 {\bf pen} = pen number ( 0 -> 2 )
 
-                pen 0 : drawing pen \\
+                pen 0 : drawing pen (default, if only single parameter provided) \\
                 pen 1 : off bits in jam2 mode \\
                 pen 2 : currently unused
 
                 {\bf colour} = palette index.
 
-\item [Remarks:] {\bf PEN} defined colours are used by all
-                 following drawing commands.
-                 For setting the drawing pen 0, the first
-                 parameter (0) may be omitted.
+\item [Remarks:] The colour selected by {\bf PEN} will be used by all
+                 graphic/drawing commands that follow after it.
+                 If you intend to set the drawing pen (pen 0) to a colour, you can
+                 omit the first parameter and just provide the 'color' parameter.
 
 \item [Example:] Using {\bf PEN}
 
@@ -6161,11 +6163,11 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
  60 PALETTE 1,1, 15, 0, 0   :REM 1 = RED
  70 PALETTE 1,2,  0, 0,15   :REM 2 = BLUE
  80 PALETTE 1,3,  0,15, 0   :REM 3 = GREEN
- 90 PEN 1                   :REM PEN 0 = 1 RED
+ 90 PEN 1                   :REM SET DRAWING PEN (PEN 0) TO RED (1)
 100 LINE 160,0,240,100      :REM DRAW RED LINE
-110 PEN 2                   :REM PEN 0 = 2 BLUE
+110 PEN 2                   :REM SET DRAWING PEN (PEN 0) TO BLUE (2)
 120 LINE 240,100,80,100     :REM DRAW BLUE LINE
-130 PEN 3                   :REM PEN 0 = 3 GREEN
+130 PEN 3                   :REM SET DRAWING PEN (PEN 0) TO BLUE (3)
 140 LINE 80,100,160,0       :REM DRAW GREEN LINE
 150 GETKEY K$               :REM WAIT FOR KEY
 160 SCREEN CLOSE 1          :REM END GRAPHICS

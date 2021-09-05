@@ -1324,15 +1324,16 @@ CHANGE &IN& TO &OUT&
 \item [Usage:]  Displays text on a graphic screen.
                 It can be used for all resolutions.
 
-                {\bf column} is the start position of the output
-                in horizontal direction.
-                One column is 8 pixels wide, so a screen width of 320
-                has a column range 0 -> 39, while a width of 640
-                has a range of 0 -> 79.
+                {\bf column} (in units of character positions) is the
+                start position of the output in horizontal direction.
+                As each column unit is 8 pixels wide, a screen width of 320
+                has a column range of 0 -> 39, while a screen width of 640
+                has a column range of 0 -> 79.
 
-                {\bf row} is the start position of the output
-                in vertical direction. Other than column, its unit is
-                pixel with top row having the value 0.
+                {\bf row} (in pixel units) is the start position of the output
+                in vertical direction. In contrast to the column parameter,
+                its unit are in pixels (not character positions), with the top
+                row having the value 0.
 
                 {\bf height} is a factor applied to the vertical
                 size of the characters. 1 is normal size (8 pixels)
@@ -1383,10 +1384,13 @@ CHANGE &IN& TO &OUT&
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-CHAR 304,196, 1,1,2,  "MEGA65"
+10 SCREEN 640,400,2
+20 CHAR 28,180,4,4,2,"MEGA65",$9000
+30 GETKEY A$
+40 SCREEN CLOSE
 \end{verbatim}
 \end{tcolorbox}
-will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
+Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
 \end{description}
 
 % ****

@@ -1531,21 +1531,17 @@ will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9C
 \item [Format:] {\bf CLR}        \\
-                {\bf CLR DS\$}   \\
-                {\bf CLR ERR\$}
+                {\bf CLR V}   \\
 \item [Usage:] {\bf CLR} with no parameters Resets all pointers, that
                are used for management of BASIC variables, arrays
                and strings. The run-time stack pointers are reset
                and the table of open channels is reset.
+               So all variables and arrays are undeclared.
                A {\bf RUN} command performs {\bf CLR} automatically.
 
-               {\bf CLR DS\$} clears the currently buffered disk status.
-               Any reference to {\bf DS} or {\bf DS\$} after clearing
-               will read the status from the disk device.
-
-               {\bf CLR ERR\$} clears the program error status.
-               This command is typically used in a {\bf TRAP} handler,
-               which has resolved an error and calls {\bf RESUME}.
+               {\bf CLR V} clears (zeroes) the variable V.
+               V can be a numeric variable or a string variable, but not
+               an array.
 
 \item [Remarks:] {\bf CLR} should not be used inside loops or
                subroutines because it destroys the return address.
@@ -1563,9 +1559,6 @@ RUN
 
 0
 READY.
-CLR DS$
-PRINT DS$
-00,OK,00,00
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

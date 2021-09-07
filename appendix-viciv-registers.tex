@@ -75,19 +75,17 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
  The detection sequence consists of using the KEY register to attempt to make either VIC-IV or VIC-III additional registers visible. If either succeeds, then we can assume that the corresponding generation of VIC is installed. As the VIC-IV supports the VIC-III KEY knocks, we must first test for the presence of a VIC-IV.  Also, we assume that the MEGA65 starts in VIC-IV mode, even when running C65 BASIC.  Thus the test can be done in BASIC from either C64 or C65 mode as follows:
 
 \begin{screenoutput}
-0 REM IN C65 MODE WE CANNOT SAFELY WRITE TO 53295, SO WE TEST A DIFFERENT WAY
-10 IF PEEK(53272) AND 32 THEN GOTO 65
-20 POKE53248,1:POKE53295,71:POKE53295,83
-30 POKE53248+256,0:IFPEEK(53248)=1THENPRINT"VIC-IV PRESENT":END
-40 POKE53248,1:POKE53295,165:POKE53295,150
-50 POKE53248+256,0:IFPEEK(53248)=1THENPRINT"VIC-III PRESENT":END
-60 PRINT "VIC-II PRESENT": END
-
+0 REM IN C65 MODE WE CANNOT SAFELY WRITE TO $D02F, SO WE TEST A DIFFERENT WAY
+10 IF PEEK($D018) AND 32 THEN GOTO 65
+20 POKE $D000,1:POKE $D02F,71:POKE $D02F,83
+30 POKE $D000+256,0:IF PEEK($D000)=1 THEN PRINT"VIC-IV PRESENT":END
+40 POKE $D000,1:POKE $D02F,165:POKE $D02F,150
+50 POKE $D000+256,0:IF PEEK($D000)=1 THEN PRINT"VIC-III PRESENT":END
+60 PRINT "VIC-II PRESENT":END
 65 REM WE ASSUME WE HAVE A C65 HERE
-70 V1=PEEK(53248+80):V2=PEEK(53248+80):V3=PEEK(53248+80)
+70 V1=PEEK($D050):V2=PEEK($D050):V3=PEEK($D050)
 80 IF V1<>V2 OR V1<>V3 OR V2<>V3 THEN PRINT "VIC-IV PRESENT":END
 90 GOTO 40
-
 \end{screenoutput}
 
 Line 10 of this programme checks whether the screen is a multiple of 2KiB.
@@ -200,15 +198,18 @@ To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the f
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
-20 NTSC=PEEK(53359)AND128
-30 IFNTSCTHENPRINT"MEGA65 IS IN NTSC MODE"
-40 IFNTSC=0THENPRINT"MEGA65 IS IN PAL MODE"
-50 INPUT"SWITCH MODES (Y/N)? ",A$
-60 IFA$="Y"THENPOKE53359,PEEK(53359)+128-NTSC
-70 NTSC=PEEK(53359)AND128
-80 IFNTSCTHENPRINT"MEGA65 IS NOW IN NTSC MODE"
-90 IFNTSC=0THENPRINT"MEGA65 IS NOW IN PAL MODE"
+10 REM ENABLE C65+MEGA65 IO
+20 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
+30 REM CHECK NTSC BIT
+40 NTSC=PEEK($D06F) AND 128
+50 REM DISPLAY STATE AND ASK FOR TOGGLE
+60 PRINT"MEGA65 IS IN ";:IF NTSC THEN PRINT"NTSC MODE":ELSE PRINT"PAL MODE"
+70 INPUT"SWITCH MODES (Y/N)? ",A$
+80 REM TOGGLE NTSC BIT
+90 IF A$="Y" THEN POKE $D06F,PEEK($D06F) XOR 128:ELSE END
+100 REM DISPLAY NEW STATE
+110 NTSC=PEEK($D06F) AND 128
+120 PRINT"MEGA65 IS IN ";:IF NTSC THEN PRINT"NTSC MODE":ELSE PRINT"PAL MODE"
 \end{verbatim}
 \end{tcolorbox}
 
@@ -271,8 +272,9 @@ To use the additional memory for screen RAM, the screen RAM start address can be
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
-POKE53344+0,69:POKE53344+1,35:POKE53344+2,1
+REM ENABLE C65+MEGA65 IO
+IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
+POKE $D060,$45:POKE $D061,$23:POKE $D062,$1
 \end{verbatim}
 \end{tcolorbox}
 
@@ -287,24 +289,29 @@ subtract 4$\times$65,536 = 262,144 from the address (the 4 is determined by calc
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
-POKE53352,(266752-INT(266752/65536)*65536)AND255
-POKE53353,INT((266752-INT(266752/65536)*65536)/256)
-POKE53354,INT(266752/65536)
+REM ENABLE C65+MEGA65 IO
+IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
+REM HEX $41200 IS EASILY DIVIDED IN ITS 3 BYTES $00, $12, $4
+REM BUT YOU CAN ALSO USE MATH TO EXTRACT THE PARTS
+POKE $D060,(266752-INT(266752/65536)*$10000) AND 255
+POKE $D061,INT((266752-INT(266752/65536)*65536)/256)
+POKE $D062,INT(266752/65536)
 \end{verbatim}
 \end{tcolorbox}
 
 
 \subsection{Relocating Colour / Attribute RAM}
 
-The area of colour RAM being used can be similarly set using the COLPTR registers (\$D064 -- \$D065, 53348 -- 53349 decimal). That is, the value is an offset from the start of the colour / attribute RAM.  This is because, like on the C64, the colour / attribute RAM of the MEGA65 is a separate memory component, with its own dedicated connection to the VIC-IV.  By default, the COLPTRs are set to zero, which replicates the behaviour of the VIC-II/III.  To set the display to use the colour / attribute RAM beginning at offset 4000, one could use something like:
+The area of colour RAM being used can be similarly set using the COLPTR registers (\$D064 -- \$D065, 53348 -- 53349 decimal). That is, the value is an offset from the start of the colour / attribute RAM.  This is because, like on the C64, the colour / attribute RAM of the MEGA65 is a separate memory component, with its own dedicated connection to the VIC-IV.  By default, the COLPTRs are set to zero, which replicates the behaviour of the VIC-II/III.  To set the display to use the colour / attribute RAM beginning at offset \$4000, one could use something like:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
-POKE53348,4000 AND 255
-POKE53349,INT(4000/256)
+REM ENABLE C65+MEGA65 IO
+IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
+REM SET COLPTR TO $4000, SPLITS INTO $00 LSB and $40 MSB
+POKE $D064,$00
+POKE $D065,$40
 \end{verbatim}
 \end{tcolorbox}
 
@@ -320,10 +327,11 @@ For example, to position the sprite pointers at location 800 -- 815, you could u
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-IFPEEK(53272)<32THENPOKE53295,ASC("G"):POKE53295,ASC("S"):REM ENABLE C65+MEGA65 IO
-POKE53356,(800-INT(800/65536)*65536) AND 255
-POKE53357,INT(800/256)AND255
-POKE53358,(PEEK(53358)AND128)+INT(800/65536)
+REM ENABLE C65+MEGA65 IO
+IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
+POKE $D06C,(800-INT(800/65536)*65536) AND 255
+POKE $D06D,INT(800/256) AND 255
+POKE $D06E,(PEEK($D06E) AND 128)+INT(800/65536)
 \end{verbatim}
 \end{tcolorbox}
 
@@ -331,8 +339,8 @@ The location of each sprite image remains a multiple of 64 bytes, thus allowing 
 to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location 768, because 49152 divided by 64 = 768.  We then need to split 768 into high and low bytes, to set the two pointer bytes: 768 = 256$\times$3, with remainder 0, so this would require the two sprite pointer bytes to be 0 (low byte, which comes first) and 3 (high byte).  Thus if the sprite pointers were located at \$7F8 (2040 decimal), setting the first sprite to sprite image 768 could be done with something like:
 
 \begin{screenoutput}
-POKE2040,768-256*INT(768/256)
-POKE2041,INT(768/256)
+POKE 2040,768-256*INT(768/256)
+POKE 2041,INT(768/256)
 \end{screenoutput}
 
 \section{Hot Registers}
@@ -666,7 +674,8 @@ to be the palette accessible via the palette bank registers at \$D100 -- \$D3FF 
 
 In addition to monochrome and multi-colour modes, the VIC-IV supports a new full-colour sprite mode.  In this mode, four bits are used to
 encode each sprite pixel.  However, unlike multi-colour mode where pairs of bits encode pairs of pixels, in full-colour mode the pixels
-remain at their normal horizontal resolution.  The colour zero is considered transparent. If you wish to use black in a full-colour sprite, you must configure the palette bank that is selected for sprites so that one of the 15 colours for the specific sprite encodes black.
+remain at their normal horizontal resolution.  The colour zero is considered transparent. If you wish to use black in a full-colour sprite, 
+you must configure the palette bank that is selected for sprites so that one of the 15 colours for the specific sprite encodes black.
 
 Full-colour sprite mode is selectable for each sprite by setting the appropriate bit in the SPR16EN register (\$D06B, 53355 decimal).
 
@@ -698,16 +707,16 @@ The following BASIC program draws a Full-Colour Sprite in either C64 or C65 mode
 899 END
 
 900 REM LOAD SPRITE
-910 READN$:IFN$="END"THEN RETURN
+910 READ N$:IF N$="END" THEN RETURN
 920 GOSUB 1000
 930 GOTO 910
 
 1000 REM DECODE STRING OF NIBBLES IN N$ AT ADDRESS AD
 1010 L=LEN(N$)
 1020 FOR I=1 TO (L/2+1):POKE AD+I,0
-1030 FOR I= 1 TO L:N=ASC(MID$(N$,I,1))-ASC("@")
+1030 FOR I=1 TO L:N=ASC(MID$(N$,I,1))-ASC("@")
 1040 A=AD+INT((I-1)/2):IF (I AND 1)=1 THEN N=N*16
-1050 V=PEEK(A):POKE A,V OR N:NEXTI
+1050 V=PEEK(A):POKE A,V OR N:NEXT I
 1060 AD=AD+INT(I/2)
 1070 IF (L AND 1) THEN AD=AD+1
 1080 RETURN

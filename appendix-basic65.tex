@@ -1324,15 +1324,16 @@ CHANGE &IN& TO &OUT&
 \item [Usage:]  Displays text on a graphic screen.
                 It can be used for all resolutions.
 
-                {\bf column} is the start position of the output
-                in horizontal direction.
-                One column is 8 pixels wide, so a screen width of 320
-                has a column range 0 -> 39, while a width of 640
-                has a range of 0 -> 79.
+                {\bf column} (in units of character positions) is the
+                start position of the output in horizontal direction.
+                As each column unit is 8 pixels wide, a screen width of 320
+                has a column range of 0 -> 39, while a screen width of 640
+                has a column range of 0 -> 79.
 
-                {\bf row} is the start position of the output
-                in vertical direction. Other than column, its unit is
-                pixel with top row having the value 0.
+                {\bf row} (in pixel units) is the start position of the output
+                in vertical direction. In contrast to the column parameter,
+                its unit are in pixels (not character positions), with the top
+                row having the value 0.
 
                 {\bf height} is a factor applied to the vertical
                 size of the characters. 1 is normal size (8 pixels)
@@ -1352,6 +1353,16 @@ CHANGE &IN& TO &OUT&
                 to select a character set different from the default
                 character set at \$29800, which is the set with
                 upper/lower characters.
+
+                Three character sets (see also command FONT) are available:
+
+                \$29000 Font A (ASCII) \\
+                \$3D000 Font B (Bold)  \\
+                \$2D000 Font C (CBM)
+
+                1st. part \$xx000 -> \$xx7FF : upper case / graphics
+
+                2nd. part \$xx800 -> \$xxFFF : lower case / upper case
 
                 {\bf string} is a string constant or expression
                 which will be printed. This string may optionally contain
@@ -1378,15 +1389,21 @@ CHANGE &IN& TO &OUT&
                 for example: cursor movement codes, will be ignored
                 (neither printed nor interpreted).
 
+                Notice, that the start position of the string has
+                different units in x and y direction:
+                x is in [columns] and y in [pixel].
 
 \item [Example:] Using {\bf CHAR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-CHAR 304,196, 1,1,2,  "MEGA65"
+10 SCREEN 640,400,2
+20 CHAR 28,180,4,4,2,"MEGA65",$29000
+30 GETKEY A$
+40 SCREEN CLOSE
 \end{verbatim}
 \end{tcolorbox}
-will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
+Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
 \end{description}
 
 % ****
@@ -6679,18 +6696,21 @@ HELLO
 \item [Remarks:] The {\bf SPC} and {\bf TAB} functions
                  are not suitable for devices other than the screen.
 
-\item [Example:] Using {\bf PRINT\#}
+\item [Example:] Using {\bf PRINT\#} to write to a file to drive 8:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 DOPEN#2,"TABLE",W,U9
+ 10 DOPEN#2,"TABLE",W,U8
  20 FOR I=1 TO 10    : REM START LOOP
  30 PRINT#2,I,I*I,SQR(I)
  40 NEXT
  50 DCLOSE#2
 \end{verbatim}
 \end{tcolorbox}
+
+    You can then confirm that the file {\bf 'TABLE'} was written to drive 8 by typing 
+    \screentextwide{DIR "TA*"}, and then view the contents of the file by typing \screentextwide{TYPE "TABLE"}.
 \end{description}
 
 % ***********

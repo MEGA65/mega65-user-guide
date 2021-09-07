@@ -14,6 +14,8 @@ You can also do the reverse with the ASC statement.  For example:
 \screentext{PRINT ASC("A")} will output \screentext{65}, which matches with the
 code in the table.
 
+Note: Function key (F1-F14 + HELP) values in this table are not intended to be printed via CHR\$(), but rather to allow function-key input to be assessed in BASIC programs via the GET / GETKEY commands.
+
 \begin{adjustwidth}{}{-2cm}
 \begin{multicols}{4}
 \begin{description}[align=left,labelwidth=0.2cm]
@@ -26,28 +28,26 @@ code in the table.
     \item [6]
     \item [7]   \small{BELL}
     \item [8]
-    \item [9]
+    \item [9]   \megakey{TAB}
     \item [10]  \small{LINEFEED}
 %   \item [11]  \footnotesize{DISABLE \specialkey{SHIFT}\megasymbolkey}
     \item [11]  DISABLE \\ \specialkey{SHIFT}\megasymbolkey
 %   \item [12]  \footnotesize{ENABLE \specialkey{SHIFT}\megasymbolkey}
     \item [12]  ENABLE \\ \specialkey{SHIFT}\megasymbolkey
-    \item [11]
-    \item [12]
     \item [13]  \megakey{RETURN}
     \item [14]  \small{LOWER CASE}
-    \item [15]  \small{BLINK ON}
-    \item [16]
+    \item [15]  \small{BLINK/FLASH ON}
+    \item [16]  F9
     \item [17]  \megakey{$\downarrow$}
     \item [18]  \specialkey{RVS ON}
     \item [19]  \specialkey{CLR HOME}
     \item [20]  \specialkey{INST DEL}
-    \item [21]
-    \item [22]
-    \item [23]
-    \item [24]
-    \item [25]
-    \item [26]
+    \item [21]  F10 / BACK WORD
+    \item [22]  F11
+    \item [23]  F12 / NEXT WORD
+    \item [24]  SET/CLEAR TAB
+    \item [25]  F13
+    \item [26]  F14 / BACK TAB
     \item [27]  \small{ESCAPE}
     \item [28]  \small{RED}
     \item [29]  \megakey{$\rightarrow$}
@@ -153,7 +153,7 @@ code in the table.
     \item [129] \small{ORANGE}
     \item [130] \small{UNDERLINE OFF}
     \item [131]
-    \item [132]
+    \item [132] HELP
     \item [133] F1
     \item [134] F3
     \item [135] F5
@@ -164,12 +164,12 @@ code in the table.
     \item [140] F8
     \item [141] \specialkey{SHIFT}\megakey{RETURN}
     \item [142] \small{UPPERCASE}
-    \item [143] \small{BLINK OFF}
+    \item [143] \small{BLINK/FLASH OFF}
     \item [144] \small{BLACK}
     \item [145] \megakey{$\uparrow$}
     \item [146] \specialkey{RVS OFF}
-    \item [147] \specialkey{CLR HOME}
-    \item [148] \specialkey{INST DEL}
+    \item [147] \specialkey{SHIFT}\specialkey{CLR HOME}
+    \item [148] \specialkey{SHIFT}\specialkey{INST DEL}
     \item [149] \small{BROWN}
     \item [150] \small{LT. RED}
     \item [151] \small{DK. GRAY}
@@ -217,8 +217,6 @@ code in the table.
 \end{multicols}
 \end{adjustwidth}
 NOTE: Codes for 192 to 223 are the equal to 96-127. Codes 224 to 254 equal to 160-190 and code 255 equal to 126.
-\newpage
-
 
 
 \section{Control codes}
@@ -270,32 +268,45 @@ Backspace the character immediately to the left and to shift all rightmost chara
 \hline
 \megakey{CTRL} + \megakey{M} &
 Performs a carriage return, the same function as the \megakey{Return} key.\\
+
   \hhline{==}
   \multicolumn{2}{l}{\textbf{Word movement}} \\
   \hhline{==}
+
 \megakey{CTRL} + \megakey{U} &
 Moves cursor back to the start of the previous word, or unbroken string of characters. If there are no characters between the current cursor position and the start of the line, the cursor will move to the first column of the current line.\\
 \hline
 \megakey{CTRL} + \megakey{W} &
 Advances cursor forward to the start of the next word, or unbroken string of characters. If there are no characters between the current cursor position and the end of the line, the cursor will move to the first column of the next line.\\
+
   \hhline{==}
   \multicolumn{2}{l}{\textbf{Scrolling}} \\
   \hhline{==}
+
 \megakey{CTRL} + \megakey{P} &
 Scroll BASIC listing down one line, equivalent to \megakey{F9} key.\\
 \hline
 \megakey{CTRL} + \megakey{V} &
 Scroll BASIC listing up one line, equivalent to \megakey{F11} key.\\
-  \hhline{==}
-  \multicolumn{2}{l}{\textbf{Miscellaneous}} \\
-  \hhline{==}
 \hline
-\megakey{CTRL} + \megakey{G} &
-Produces a bell tone.\\
-\hline
+\megakey{CTRL} + \megakey{S} &
+Equivalent to \specialkey{NO\\SCROLL} key.\\
+
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Formatting}} \\
+  \hhline{==}
+
 \megakey{CTRL} + \megakey{B} &
 Turns on underline text mode. Turn off underline mode by pressing \megakey{ESC} then \megakey{O}.\\
 \hline
+\megakey{CTRL} + \megakey{O} &
+Turns on flashing text mode. Turn off flashing mode by pressing \megakey{ESC} then \megakey{O}.\\
+\hline
+
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Casing}} \\
+  \hhline{==}
+
 \megakey{CTRL} + \megakey{N} &
 Changes the text case mode from uppercase to lowercase.\\
 \hline
@@ -304,6 +315,13 @@ Locks the uppercase/lowercase mode switch usually performed with \megasymbolkey 
 \hline
 \megakey{CTRL} + \megakey{L} &
 Enables the uppercase/lowercase mode switch that is performed with the \megasymbolkey and \megakey{Shift} keys.\\
+
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Miscellaneous}} \\
+  \hhline{==}
+
+\megakey{CTRL} + \megakey{G} &
+Produces a bell tone.\\
 \hline
 \megakey{CTRL} + \megakey{[} &
 Equivalent to pressing the \megakey{ESC} key.\\
@@ -315,6 +333,7 @@ Enters the Matrix Mode Debugger.\\
 \end{longtable}
 \end{center}
 
+\newpage
 
 \section{Shifted codes}
 \label{appendix:shiftedcodes}
@@ -335,9 +354,6 @@ Clear home, clear the entire screen and move the cursor to the home position.\\
 
 \end{longtable}
 \end{center}
-
-
-\newpage
 
 
 

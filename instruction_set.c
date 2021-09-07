@@ -94,13 +94,13 @@ static int compar_str(const void *a, const void *b)
 void lookup_mode_description(int m,int isQuad)
 {
   fprintf(stderr,"Looking for description of '%s', Q=%d\n",modes[m],isQuad);
-  
+
   // Normalise mode into a safe filename
   char n[256];
   int nlen=0;
 
   if (isQuad) n[nlen++]='Q';
-  
+
   for(int i=0;i<255&&modes[m][i];i++) {
     switch(modes[m][i]) {
     case '(':
@@ -110,7 +110,7 @@ void lookup_mode_description(int m,int isQuad)
     case ')':
       n[nlen++]='_'; break;
     case '[': case ']':
-      n[nlen++]='S'; break;      
+      n[nlen++]='S'; break;
     default:
       n[nlen++]=modes[m][i];
     }
@@ -172,7 +172,7 @@ int main(int argc,char **argv)
   int plen=0;
 
   for(int i=0;i<256;i++) instruction_names[i]=NULL;
-  
+
   for(int i=0;argv[1]&&argv[1][i]&&argv[1][i]!='.';i++)
     {
       processor[plen++]=argv[1][i];
@@ -214,12 +214,12 @@ int main(int argc,char **argv)
   }
   fprintf(stderr,"cycle_counts=%d\n",cycle_counts);
 
-  
+
   modes[0]="implied";
   lookup_mode_description(0,0);
 
   int opcode=0;
-  
+
   FILE *f=fopen(argv[1],"rb");
   line[0]=0; fgets(line,1024,f);
   while(line[0]) {
@@ -236,11 +236,11 @@ int main(int argc,char **argv)
     opcodes[opcode].bytes=bytes;
 
     int isQuad=0;
-    if (strchr(name,'Q')) isQuad=1;	
+    if (strchr(name,'Q')) isQuad=1;
 
     if (!mode[0])
       if (isQuad) snprintf(mode,2,"Q");
-    
+
     if (n>=2) {
       //      fprintf(stderr,"3<%s><%s>: ",name,mode);
       int i=99;
@@ -279,12 +279,12 @@ int main(int argc,char **argv)
     opcodes[opcode].abbrev=StrDup(name);
 
     opcode++;
-    
+
     line[0]=0; fgets(line,1024,f);
   }
 
   int opcode_count=opcode;
-  
+
   fprintf(stderr,"%d addressing modes found.\n",mode_count);
   fprintf(stderr,"%d unique instructions found.\n",instruction_count);
 
@@ -357,7 +357,7 @@ int main(int argc,char **argv)
     if (is_unintended)
     {
        *is_unintended = 0;
-       printf("\n\n\\subsection*{\\textcolor{red}{%s}}\n",instruction);
+       printf("\n\n\\subsection*{\\textcolor{red}{%s [unintended]}}\n",instruction);
     }
     else printf("\n\n\\subsection*{%s}\n",instruction);
     printf("\\index{%s}%s\n\n\n",instruction,long_description);
@@ -418,8 +418,8 @@ int main(int argc,char **argv)
 	  snprintf(opcode,16,"%02X %02X",
 		   (opcodes[j].bytes>>8)&0xff,opcodes[j].bytes&0xff);
 	  extra_cycles+=1;
-	}	
-	
+	}
+
 	char bytes[16]="3";
 	snprintf(bytes,16,"%d",modeinfo[m].bytes);
 	char cycles[16]="4";
@@ -432,7 +432,7 @@ int main(int argc,char **argv)
 	for(k=0;k<cycle_counts;k++) {
 	  if (cycle_count_list_bytes[k]==opcodes[j].bytes) break;
 	}
-	
+
 	if (k<cycle_counts) {
 	  cycle_count[0]=0;
 	  for(int i=0;isdigit(cycle_count_list[k][i]);i++) {

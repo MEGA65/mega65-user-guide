@@ -10,6 +10,14 @@ FILE* wp;
 
 char Line[60000];
 
+int skip(const char *text)
+{
+   size_t len;
+
+   len = strlen(text);
+   return (!strncmp(Line,text,len));
+}
+
 int main(int argc, char* argv[])
 {
   rp = fopen("appendix-basic65-indexed.tex", "r");
@@ -26,9 +34,11 @@ int main(int argc, char* argv[])
 
   while (!feof(rp)) {
     fgets(Line, sizeof(Line), rp);
-    if (!strncmp(Line, "\\newpage", 8))
+    if (skip("\\newpage"))
       continue;
-    if (!strncmp(Line, "\\item [Token:", 13))
+    if (skip("\\item [Token:"))
+      continue;
+    if (skip("\\input{appendix-keywords}"))
       continue;
     fputs(Line, wp);
   }

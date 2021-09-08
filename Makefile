@@ -127,3 +127,6 @@ appendix-basic65-condensed.tex: appendix-basic65-indexed.tex generate_condensed
 
 clean:
 	latexmk -CA
+
+format:
+	find . -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' | xargs clang-format --style=file -i

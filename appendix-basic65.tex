@@ -970,22 +970,28 @@ BOOT
 \index{BASIC 65 Commands!BOX}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E1
-\item [Format:] {\bf BOX X0,Y0, X1,Y1, X2,Y2, X3,Y3, SOLID}
-\item [Usage:] Draws a quadrangle by connecting the
-               coordinate pairs 0 -> 1 -> 2 -> 3 -> 0.
+\item [Format:] {\bf BOX X0,Y0, X2,Y2 [,SOLID]} \\
+                {\bf BOX X0,Y0, X1,Y1, X2,Y2, X3,Y3 [,SOLID]}
+\item [Usage:] The first form of the {\bf BOX} command with
+               two coordinate pairs and an optional {\bf SOLID} parameter
+               draws a simple rectangle, assuming, that he
+               coordinate pairs declare two diagonal opposite corners.
+
+               The second form with four coordinate pairs declares a
+               path of four points, which will be connected by lines.
+               The path is closed by connecting the last point with the
+               first one.
+
                The quadrangle is drawn using the current drawing context
                set with SCREEN, PALETTE and PEN.
-               The quadrangle is filled, if the parameter SOLID is 1.
+               The quadrangle is filled, if the parameter {\bf SOLID}
+               is not 0.
 
-\item [Remarks:] A quadrangle is a geometric figure with four sides
-                 and four angles. A box is a special form of a
-                 quadrangle, with all four angles at 90 degrees.
-                 Rhomboids, kites and parallelograms are special
-                 forms too.
-                 So the name of this command is misleading, because
-                 it can be used to draw all kind of quadrangles,
-                 not only boxes. \\
-                 It is possible to draw bow-tie shapes.
+\item [Remarks:] The BOX command with four coordinate pairs can be used
+                 to draw any shape, that can be defined with four points,
+                 not only rectangles. For example
+                 rhomboids, kites, trapezoids and parallelograms.
+                 It is also possible to draw bow-tie shapes.
 \item [Example:] Using {\bf BOX}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -1008,7 +1014,7 @@ BOOT
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- BOX 0,0, 160,0, 140,80, 20,80
+ BOX 20,0, 140,0, 160,80, 0,80
 \end{verbatim}
 \end{tcolorbox}
 \begin{tikzpicture}[thick]
@@ -6709,8 +6715,9 @@ HELLO
 \end{verbatim}
 \end{tcolorbox}
 
-    You can then confirm that the file {\bf 'TABLE'} was written to drive 8 by typing 
-    \screentextwide{DIR "TA*"}, and then view the contents of the file by typing \screentextwide{TYPE "TABLE"}.
+    You can then confirm that the file {\bf 'TABLE'} was written to drive 8 by typing
+    \screentextwide{DIR "TA*"}, and then view the contents of the file
+    by typing \screentextwide{TYPE "TABLE"}.
 \end{description}
 
 % ***********

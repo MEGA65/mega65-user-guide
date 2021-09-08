@@ -82,7 +82,7 @@ int main(int argc, char** argv)
     printf("\n\\subsection{%s}\n", token);
     printf("\\index{%s}\n", token);
     parse_token(&s, token);
-    printf("\\begin{description}[leftmargin=2cm,style=nextline]\n"
+    printf("\\begin{description}[leftmargin=2.4cm,style=nextline]\n"
            "\\item [Description:] {%s}\n",
         token);
     int last_was_param = 0;
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
         parse_token(&s, token);
         if (!last_was_param) {
           last_was_param = 1;
-          printf("\\item [Parameters:]\n\\begin{description}\\item[]\n");
+          printf("\\item [Parameters:]\n\\begin{description}\n");
         }
         printf("\\item [{\\em %s}:]", token);
         is_param = 1;

@@ -2908,35 +2908,21 @@ where the error line is taken from {\bf EL}.
 \verbatimfont{\codefont}
 \begin{verbatim}
 100 REM ELLIPSE
-110 S%=0                        :REM SCREEN
-120 W%=0                        :REM WIDTH  320
-130 H%=0                        :REM HEIGHT 200
-140 B%=2                        :REM BITPLANES
-150 POKE 0,65                   :REM 40 MEGAHERTZ
-160 W=(W%+1)*320:H=(H%+1)*200   :REM WIDTH & HEIGHT IN PIXELS
-170 X0=W/2:Y0=H/2:XD=W/4:YD=H/4 :REM CENTRE AND HALF AXIS
-180 BORDER 0                    :REM BLACK
-190 BACKGROUND 0                :REM BLACK
-200 FOREGROUND 5                :REM GREEN
-210 GRAPHIC CLR                 :REM INIT
-220 SCREEN DEF S%,W%,H%,B%      :REM SET PARAMETERS
-230 SCREEN OPEN S%              :REM OPEN
-240 SCREEN SET S%,S%            :REM SET VIEW AND DRAW SCREEN
-250 SCNCLR S%                   :REM CLEAR SCREEN
-260 PALETTE S%,0, 0, 0, 0       :REM BLACK
-270 PALETTE S%,1,15,15,15       :REM WHITE
-280 PALETTE S%,2,15, 0, 0       :REM RED
-290 PALETTE S%,3, 0, 0,15       :REM BLUE
-300 PEN 0,2                     :REM DRAW PEN
-310 ELLIPSE X0,Y0,XD,YD,1
-320 PEN 0,3                     :REM DRAW PEN
-330 ELLIPSE X0,Y0,XD+8,YD+8,0
-340 A$=STR$(W)+" X"+STR$(H)+" X"+STR$(B%)
-350 PEN 0,1                     :REM DRAW PEN
-360 CHAR  12,10,1,1,2,A$
-370 GETKEY A$
-380 SCREEN CLOSE S%
-390 PALETTE RESTORE
+110 W=320:H=200:B%=2            :REM WIDTH, HEIGHT, DEPTH
+120 X0=W/2:Y0=H/2:XD=W/4:YD=H/4 :REM CENTRE AND HALF AXIS
+130 BORDER 0                    :REM BLACK
+140 BACKGROUND 0                :REM BLACK
+150 FOREGROUND 5                :REM GREEN
+160 SCREEN 320,200,B%           :REM SET PARAMETERS
+170 PEN 2                       :REM DRAW PEN RED
+180 ELLIPSE X0,Y0,XD,YD,1       :REM DRAW SOLID ELLIPSE
+190 PEN 3                       :REM DRAW PEN CYAN
+200 ELLIPSE X0,Y0,XD+8,YD+8,0   :REM DRAW OUTLINED ELLIPSE
+210 A$=STR$(W)+" X"+STR$(H)+" X"+STR$(B%)
+220 PEN 1                       :REM DRAW PEN WHITE
+230 CHAR  12,10,1,1,2,A$        :REM DRAW TEXT
+240 GETKEY A$                   :REM WWAIT FOR KEYPRESS
+250 SCREEN CLOSE                :REM CLOSE GRAPHICS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

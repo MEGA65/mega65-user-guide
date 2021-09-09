@@ -1,5 +1,5 @@
 /*
-  Programme for generating simple screen map diagrams for the MEGA65 documentation.
+  Program for generating simple screen map diagrams for the MEGA65 documentation.
 
   It is designed to produce maps showing screen addresses in various modes, as well
   as the memory layout corresponding to various actual displays.

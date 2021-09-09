@@ -112,7 +112,7 @@ int main(int argc, char** argv)
     fprintf(stderr, "  %s\n", commands[i]);
 
   /*
-    Pass 2: Find example programs, and note which commands should be indexed following each example programme.
+    Pass 2: Find example programs, and note which commands should be indexed following each example program.
    */
   f = fopen(argv[1], "r");
   if (!f) {
@@ -169,7 +169,7 @@ int main(int argc, char** argv)
       fprintf(stdout, "%s", line);
       code_font = 0;
       if (in_code) {
-        // Parse example programme to look for known keywords
+        // Parse example program to look for known keywords
         parse_basic_text(line);
       }
     }

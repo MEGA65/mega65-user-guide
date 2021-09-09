@@ -41,16 +41,16 @@ and then write the address of this list into the DMA address registers.  The DMA
 the ADDRLSBTRIG register (\$D700).  For this reason you must write the MSB and bank number of the DMA list inti \$D701 and \$D702 first,
 and the LSB only after having set these other two registers.  If you wish to execute multiple DMA jobs using the same
 list structure in memory, you can simply write to ADDRLSBTRIG again after updating the list contents -- provided that
-no other programme has modified the contents of \$D701 or \$D702.  Note that BASIC 65 uses the DMA controller to
+no other program has modified the contents of \$D701 or \$D702.  Note that BASIC 65 uses the DMA controller to
 scroll the screen, so it is usually safest to always write to all three registers.
 
 When ADDRLSBTRIG has been written to, the DMA job completes immediately.  Unlike on the C65, the DMA controller is part
 of the processor of the MEGA65. This means that the processor stops trying to execute instructions {\em or fetching audio samples for DMA audio playback} until the DMA job
-has completed.  It also means that, unlike on the C65, DMA jobs cannot be interrupted. If your programme has sensitive timing
+has completed.  It also means that, unlike on the C65, DMA jobs cannot be interrupted. If your program has sensitive timing
 requirements, you may need to break larger DMA jobs into several smaller jobs.  This is somewhat mitigated by the high
 speed of the MEGA65's DMA, which is able to fill memory at 40.5MiB per second and copy memory at 20.25MiB per second, compared
 with circa 3.5 MiB and 1.7 MiB per second on a C65. This allows larger DMA jobs to be executed, without needing to worry about
-the impact on real-time elements of a programme. For example, it is possible to fill an 80 column 50 row text screen using the
+the impact on real-time elements of a program. For example, it is possible to fill an 80 column 50 row text screen using the
 MEGA65's DMA controller in just 200 microseconds.
 
 \subsection{F018 DMA Job List Format}
@@ -299,12 +299,12 @@ that uses a linear memory layout -- at the cost of consuming all of the processo
 during the active part of the display.
 
 The following example does this to draw vertical raster bars on the screen.
-This programme assumes that the MEGA65 is set to PAL.  For NTSC, the size of the DMA transfer
-would need to be decreased a little.  The other thing to note with this programme, is that
+This program assumes that the MEGA65 is set to PAL.  For NTSC, the size of the DMA transfer
+would need to be decreased a little.  The other thing to note with this program, is that
 it uses MEGA65 Enhanced DMA Job option \$81 to set the destination mega-byte in memory to
 \$FFxxxxx, and the bank is set to \$D, and the destination address to \$0021, to form the
 complete address \$FFD0021.  This is the true location of the VIC-IV's border colour register.
-The programme is written using ACME-compatible syntax.
+The program is written using ACME-compatible syntax.
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}

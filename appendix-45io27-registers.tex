@@ -83,7 +83,7 @@ and the full 4KiB buffer will be visible.
 
 The memory-mapped sector buffer has the advantage that it can be
 accessed via DMA, allowing for very efficient copies.  Also, it allows
-for loading a sector to occur in the background, while your programme
+for loading a sector to occur in the background, while your program
 gets on with more interesting things in the meantime.
 
 \subsection{Reading Sectors from a Disk}
@@ -238,7 +238,7 @@ formatting again.
 To successfully format a track, the user must provide the full structure
 of the track, including all sync marks, sector headers, CRC bytes, data regions and gaps.
 The explanation of this is beyond the scope of this document. The C65 Specifications Manual,
-the C65 ROM DOS source code and the {\tt floppytest.c} programme from the
+the C65 ROM DOS source code and the {\tt floppytest.c} program from the
 {\url https://github.com/mega65/mega65-tools} repository each describe and/or implement the
 process for formatting tracks.
 
@@ -268,7 +268,7 @@ during the write operation, you must add \$01 to the command code.
 However, this is not recommended on the MEGA65, because when writing
 to the SD card or using virtualised disk images the entire sector
 operation can happen instantaneously from the perspective of your
-programme.  This means that it is not possible to supply data reliably
+program.  This means that it is not possible to supply data reliably
 when in this mode.  Thus apart from being less convenient, it is also
 less reliable. 
 
@@ -304,12 +304,12 @@ This means that it
 would be possible to, for example, use standard 500KHz DD encoding for
 the directory track and one data track, and then switch to HD encoding for the other 79
 tracks of a disk. The result would be a disk that could contain a
-boot-loader programme and directory that can be read in a 1581, and
+boot-loader program and directory that can be read in a 1581, and
 that could be used to switch to the faster and higher-density HD
 encoding for the remaining data tracks.  This could even be done for
 half of a disk, so that when used in a 1581, it loads at the DD speed,
 but when inserted in a MEGA65, it uses the HD data tracks, allowing
-the programme to load twice as fast, and fit twice as much data.
+the program to load twice as fast, and fit twice as much data.
 
 You are really only limited by your imagination, available time, and
 the limited number of people who are still interested in inserting a
@@ -386,22 +386,22 @@ access to disk images resident on the SD card:
 \subsection{F011 Virtualisation}
 
 In addition to allowing automatic read and write access to SD-card
-based D81 images, it is possible to connect a programme to the serial
+based D81 images, it is possible to connect a program to the serial
 monitor interface that provides and accepts data as though it were the
 floppy disk.
 
 This is commonly used in a cross-development
 environment, where you wish to frequently modify a disk image that is
-used by a programme you are developing -- without the need to
+used by a program you are developing -- without the need to
 continually push new versions of the disk image on the MEGA65's
 SD-Card first. It also has the added benefit that it allows you to
 easily visualise which sectors are being read from and written to,
-which can help speed up development and debugging of your programme.
+which can help speed up development and debugging of your program.
 
 This function operates together with the MEGA65's Hypervisor by
 triggering hyperrupts (that is, interrupts that activate the
 Hypervisor).  There is then special code in the Hypervisor that
-communicates with the {\tt m65} programme via the serial monitor
+communicates with the {\tt m65} program via the serial monitor
 interface.
 
 If that all sounds rather complex, all you need to know is that to use

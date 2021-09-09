@@ -88,13 +88,13 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
 90 GOTO 40
 \end{screenoutput}
 
-Line 10 of this programme checks whether the screen is a multiple of 2KiB.
+Line 10 of this program checks whether the screen is a multiple of 2KiB.
 As the screen on the C64 is located at 1KiB, this test will fail, and execution
 will continue to line 20.  Line 20 writes 1 to one of the VIC-II sprite position
 registers, 53248, before writing the MEGA65 knock to the key register, 53295.
 Line 30 writes to 53248 + 256, which on the C64 is a mirror of 53248, but on a
 MEGA65 with VIC-IV IO enabled will be one of the red palette registers.
-After writing to 53248 + 256, the programme checks if the register at 53248 has
+After writing to 53248 + 256, the program checks if the register at 53248 has
 been modified by the write to 53248 + 256.  If it has, then the two addresses
 point to the same register.  This will happen on either a C64 or C65, but not on
 a computer with a VIC-IV.  Thus if 53248 has not changed, we report that we have detected a VIC-IV.

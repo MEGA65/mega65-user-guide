@@ -8,7 +8,7 @@ its own helper programmes, as well as the Flash Menu \index{Flash Menu}\index{ME
 
 A number of these system programmes are pre-loaded into the MEGA65 bitstream, while others live on the SD card.
 For those that are pre-loaded into the MEGA65 bitstream, this works by having areas of pre-initialised memory, that
-contain the appropriate programme.  For example, the utilities accessible via the Utility Menu are all located in
+contain the appropriate program.  For example, the utilities accessible via the Utility Menu are all located in
 the colour RAM, while the Flash Menu is located at \$50000 -- \$57FFF.
 
 In one sense, the easiest way to test new versions of these utilities is to generate a new bitstream with the updated versions.
@@ -23,18 +23,18 @@ The flash menu is located in pre-initialised RAM at \$50000 -- \$57FFFF.  It is 
 MEGA65 is powered on.  It is unusual in that it executes in the hypervisor context. This is so that it has access to the QSPI
 flash, which is not available outside of Hypervisor Mode, so that user programmes cannot corrupt the cores stored in the flash.
 
-It is also important to note that the flash menu programme must fit {\em entirely} below \$8000 when loaded {\em and} executing, as the Hypervisor is still mapped at \$8000 -- \$BFFF, and can easily be corrupted by an ill behaved flash menu programme.  In this regard, the flash menu
+It is also important to note that the flash menu program must fit {\em entirely} below \$8000 when loaded {\em and} executing, as the Hypervisor is still mapped at \$8000 -- \$BFFF, and can easily be corrupted by an ill behaved flash menu program.  In this regard, the flash menu
 can be regarded as an extension of the hypervisor that is discarded after the first boot.
 This is unlike all other system programmes, that operate in a dedicated memory context, from where the Hypervisor is safe from corruption. It also means that you can't crunch the flash menu to make it fit, as it would overwrite the Hypervisor during decrunching.
 
-Also, as the flash menu is executed very early in the boot process, only the pre-included OpenROM ROM image is available.  Thus you must ensure that your flash menu programme is compatible with that ROM.  
+Also, as the flash menu is executed very early in the boot process, only the pre-included OpenROM ROM image is available.  Thus you must ensure that your flash menu program is compatible with that ROM.
 
 The Hypervisor maintains a flag that indicates whether the flash menu has been executed or not. This flag is updated at the point
 where the Hypervisor exits to user mode for the first time, since after that point, the contents of \$50000 -- \$57FFF can no longer
 be trusted to contain the flash menu.  This means that if you wish to have the Hypervisor run a new version of the flash menu that
 you have loaded, you must prevent the Hypervisor from exiting to user mode first.
 
-The easiest way to achieve this is to hold the ALT key down while powering on the MEGA65.  This will cause the Hypervisor to display the Utility Menu, rather than exiting to user mode.  It is safe at this time to use the {\tt m65} utility to load the replacement flash menu programme using a command similar to the following:
+The easiest way to achieve this is to hold the ALT key down while powering on the MEGA65.  This will cause the Hypervisor to display the Utility Menu, rather than exiting to user mode.  It is safe at this time to use the {\tt m65} utility to load the replacement flash menu program using a command similar to the following:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -45,14 +45,14 @@ m65 -@ newflashmenu.prg@50000
 
 That command would load the file {\tt newflashmenu.prg} at memory location \$50000.
 
-After that, you can simply press the reset button the side of the MEGA65i while holding down the NO SCROLL key, and it will boot again, and because it never left Hypervisor Mode during the previous boot cycle, it will run your updated flash menu programme. 
+After that, you can simply press the reset button the side of the MEGA65i while holding down the NO SCROLL key, and it will boot again, and because it never left Hypervisor Mode during the previous boot cycle, it will run your updated flash menu program.
 
 It should also be possible to completely automate this process, by first using {\tt m65 -b} to load a new bitstream, thus simulating a cold boot, and then quickly calling {\tt m65} again to simulate depressing the ALT key (or herhaps simply halting the processor), then {\tt m65 -@ ...} and finally {\tt m65 -F} to reset the machine.  Writing a script or utility that correctly implements this automation is left as an exercise for the reader.
 
 \section{Format/FDISK Utility}
 
 The Format/FDISK utility is accessed as part of the Utility Menu system.  These utilities are compiled, crunched and linked using the
-{\tt utilpacker} programme.  If you have checked out the mega65-core source repository, you can re-build the colour RAM image by using:
+{\tt utilpacker} program.  If you have checked out the mega65-core source repository, you can re-build the colour RAM image by using:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -89,9 +89,9 @@ The process for updating the MEGA65 Configuration utility is essentially the sam
 
 \section{Freeze Menu}
 
-The Freeze Menu is a normal programme, which is stored in {\tt FREEZER.M65} on the SD card's FAT32 file system.
+The Freeze Menu is a normal program, which is stored in {\tt FREEZER.M65} on the SD card's FAT32 file system.
 
-To updated the Freeze Menu, simply use the {\tt m65ftp} utility or some other means to upload your updated FREEZER.M65 file to the SD card's FAT32 file system.  The format of the programme is simply a C64-mode PRG file, just renamed to FREEZER.M65.
+To updated the Freeze Menu, simply use the {\tt m65ftp} utility or some other means to upload your updated FREEZER.M65 file to the SD card's FAT32 file system.  The format of the program is simply a C64-mode PRG file, just renamed to FREEZER.M65.
 
 \section{Freeze Menu Helper Programmes}
 
@@ -99,11 +99,11 @@ The Freeze Menu helper programmes are updated in the same way as the Freeze Menu
 
 \section{Hypervisor}
 
-The Hypervisor is normally built as HICKUP.M65, a 16KiB file that contains the complete Hypervisor programme.  MEGA65 bitstreams contain a pre-build version located at \$FFF8000 -- \$FFFBFFF.  Updated versions of the Hypervisor can be tested using two main approaches:
+The Hypervisor is normally built as HICKUP.M65, a 16KiB file that contains the complete Hypervisor program.  MEGA65 bitstreams contain a pre-build version located at \$FFF8000 -- \$FFFBFFF.  Updated versions of the Hypervisor can be tested using two main approaches:
 
 \begin{itemize}
 	\item 1. Place the updated HICKUP.M65 file on the FAT32 file system of the SD card, and then power the MEGA65 off and on.  This works because the Hypervisor contains code that checks for an updated version of itself, and if found, loads it. However this approach is problematic in that if you install a newer bitstream, it will still downgrade the Hypervisor to whatever version is found in the HICKUP.M65 file on the SD card.  This method is only recommended for developers who have a need to test their modified Hypervisor code from a cold start. Even then, it is recommended to remove the HICKUP.M65 file immediately after testing to avoid unexpected down-grading in the future.
-	\item 2. Use the m65 command's {\\t -k} option to replace the Hypervisor in place, and then reset the MEGA65 using the reset button on the left side of the case.  This should be done when the Hypervisor is {\em not} active, so that corruption of current execution cannot occur. However, it must also occur before any ROM has been loaded to replace the default OpenROM image.  This is because the Hypervisor will attempt to call into the ROM on first-boot in prepration for calling the flash menu, and assumes that the OpenROM is present, because it uses a special OpenROM-specific call to initialise parts of the system state for the flash menu.  This is best done by using a command like {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} to load both a new Hypervisor programme and re-load an OpenROM image.
+	\item 2. Use the m65 command's {\\t -k} option to replace the Hypervisor in place, and then reset the MEGA65 using the reset button on the left side of the case.  This should be done when the Hypervisor is {\em not} active, so that corruption of current execution cannot occur. However, it must also occur before any ROM has been loaded to replace the default OpenROM image.  This is because the Hypervisor will attempt to call into the ROM on first-boot in prepration for calling the flash menu, and assumes that the OpenROM is present, because it uses a special OpenROM-specific call to initialise parts of the system state for the flash menu.  This is best done by using a command like {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} to load both a new Hypervisor program and re-load an OpenROM image.
 \end{itemize}
 
 \section{OpenROM}

@@ -134,22 +134,9 @@ that the complete sector has been read into the buffer.
 \subsection{Track Auto-Tune Function Deprecated}
 
 The 45IO27 also includes a track ``auto-tune'' function, which is enabled
-by clearing bit 4 of \$D689.  That function reads the sector headers to
+by clearing bit 7 of \$D696.  That function reads the sector headers to
 determine which track the head is currently over, and steps the head in or
-out to try to get to the correct track. This was implemented to work around
-a known problem where the floppy drive would mis-step sometimes.  However
-that problem has since been corrected, and thus the auto-tune function is
-no-longer required, and it is not recommend to use it.
-
-The reason we recommend that you do not use the auto-tune function is that if
-a disk is not properly formatted
-or purposely includes incorrect track numbers in sector headers, this can
-easily result in ``head chatter'', where the drive seeks continuously back
-and forth between two or more tracks.  This creates an annoying noise, and will
-probably shorten the life-span of your floppy drive. However, it can likely
-be used to make disks that when inserted will play simple tunes using the
-floppy drive noises, and when carefully used (and disabled after) can
-automate the stepping of the head between tracks to reduce CPU load. 
+out to try to get to the correct track. Auto-tune is enabled by default.
 
 \subsection{Sector Skew and Target Any Mode}
 
@@ -216,43 +203,136 @@ The CMD(tm) FD2000(tm) high-density 3.5'' disk drives for Commodore(tm) computer
 use an unusual disk layout that is quite different from PCs: They use 10 sectors,
 the same as on 720KB double-density (DD) disks, but double the {\em sector size}
 from 512 bytes to 1,024 bytes.  The 45IO27 does not currently support these
-larger sectors. Support is planned to be added via a core update in the future.
+larger sectors. At least read-only support is planned to be added via a core update
+in the future.
+
+However, the 45IO27 {\em does} already support high-density disks and drives, with much
+higher capacities than the FD2000 was able to support.
+
+\subsection{High-Density and Variable-Density Disks}
+
+The 45IO27 supports variable data rates, allowing the use of HD drives and media,
+with a flexible approach to disk formats to support user experimentation, and the
+easy manipulation of high-capacity software distribution formats.
+
+You are really only limited by your imagination, available time, and
+the limited number of people who are still interested in inserting a
+floppy disk into their computer!
+
+The standard high-density (HD) disk format is ``1.44MB'', using 18 sectors per track over 80 tracks.
+This results in 80 tracks $\times$ 18 sectors $\times$ 2 sides = 2,880 sectors. As each sector
+is 512 bytes, this corresponds to 1,440 KiB.  This leads us into the interesting wonderland of
+``floppy disk marketing megabytes,'' a phenomena which long predates SD card and hard drive
+manufacturers using 1,000,000 byte megabytes.
+
+Curiously for floppy disks, the 1,024,000 byte ``mega byte'' was used, i.e., ``1MB'' = 1 KiB $\times$ 1 KB,
+that is a strange hybrid of binary and decimal conventions.  Perhaps it was because the previous standard
+was 720KB, and they thought people would thing it odd if double 720KB was 1.41MiB, and complain about the
+missing kilo-bytes.  We will continue to use the 1,024KB = 1,000KiB floppy disk marketing mega-byte for
+consistency with this historical inconsistency.
+
+However, HD floppy disks are fundamentally capable of holding much more than 1.44MB. For example, the FD2000
+stored 1.6MB by using double-sized sectors to squeeze the equivalent of 20 sectors per track, and the Amiga
+went further by using track-at-once writing to fit 22 sectors per track. Both these formats used a constant
+data rate over all tracks, and thus a constant number of sectors per track.
+
+However, the circumference of the tracks on a 3.5'' floppy disk vary quite a lot: The inner track has a diameter
+of around 2.5cm, while the outside track is 1.6$\times$ longer. 
+The 1.44MB disk format is designed so that
+the data is reliably stored on those shorter inner tracks.
+This means that we should be able to fit 160\%
+more data on the outer-most track compared with the inner-most track, subject to a number of terms and conditions
+imposed by The Laws of Physics, the design of floppy drive electronics, the quality of media being used and
+various other annoying things.
+Because of this variability and uncertainty, the MEGA65's floppy controller supports fully variable data rate
+on a track-by-track basis.
+
+\subsection{Track Information Blocks}
+
+To support variable data rates, the 45GS27 supports the use of
+{\em Track Information Blocks}\index{Track Information Block} (TIBs)\index{TIB} that contain information on the
+data rate and encoding used on the track. This allows users to experiment with various densities on various tracks,
+and yet have the disks function automatically for buffered sector operations.
+
+The Track Information Block is automatically created when using the automatic track format function, but must be
+manually created if using unbuffered formatting. The TIB itself consists of the following data:
+
+\begin{enumerate}
+\item 3$\times$ \$A1 Sync bytes (written with clock byte \$FB)
+\item \$65 MEGA65 Track Information Block marker (written with clock byte \$FF, as are all following bytes in the block)
+\item The track number
+\item The data rate divisor, in the same format as \$D6A2, i.e., data rate = 40.5MHz / value.
+\item Track encoding information: Bit 7 = Track-at-once flag, 1 = no inter-sector gaps (Amiga style), 0 = with inter-sector gaps (normal), Bit 6 = data encoding, 0 = MFM, 1=RLL2,7. Other bits are reserved, and should be 0 when written.
+\item Sector count, i.e., number of sectors on the track.
+\item CRC byte 1, using the normal floppy disk CRC algorithm.
+\item CRC byte 2, using the normal floppy disk CRC algorithm.
+\end{itemize}
+
+The Track Information Block is always written a the data rate for a 720KB Double-Density disk,
+so that they can be present on any disk.  Writing the Track Information Block and start-of-track
+gaps at the DD data rate also ensures that at very high data rates, the head still has sufficient
+time to switch to write mode, thus avoiding one of the many problems that arise when writing data
+at very high data rates.
+
+If formatting disks unbuffered, it is the programmer's responsibility to switch the data rate after
+having written the Track Information Block, and several more bytes to allow the floppy encoding
+pipeline to flush out the last byte of the Track Information Block.
+This is all automatically managed if using the automatic track formatting function.
+
+The inclusion of the TIB allows users to play and explore the possibilities of different data rates
+on different drives and media, while still being automatically readable in all MEGA65s, because the
+TIB allows the controller to switch to the correct data rate and encoding.  It is likely that over
+time somewhat standardised formats will develop, quite likely in the range of 2MB to 3.5MB -- thus
+approaching the capacity of ED media in ED drives, without the need for those drives or media.
 
 \subsection{Formatting Disks}
 
-Formatting disks is now possible with the 45IO27, with two caveats:
+Formatting disks is now possible with the 45IO27, either unbuffered or fully-automatic.
+To format a track issue one of the following commands to \$D081:
 
 \begin{itemize}
-\item The CPU should be set to 40MHz mode, due to an unresolved timing error in instruction
-  execution that can cause problems when formatting disks using the C65 DOS.
-\item The C65 BASIC HEADER command will successfully {\em format} a disk, but will fail
-  to write the directory structure to the disk, because buffered sector writing is not yet
-  implemented, as explained below.
-\end{itemize}
+\item \$A0 -- Automatic format, with inter-sector gaps, and write pre-compensation disabled.
+\item \$A1 -- Manual format, write-precompensation disabled.
+\item \$A4 -- Automatic format, with inter-sector gaps, and write pre-compensation enable.
+\item \$A5 -- Manual format, write-precompensation enabled.
+\item \$A8 -- Automatic format, Amiga-style track-at-once, and write pre-compensation disabled.
+\item \$AC -- Automatic format, Amiga-style track-at-once, and write pre-compensation enable.
+\end{itemize}  
+  
+Manual formatting is not recommended, unless mastering track-at-once formatted disks for software
+distribution, because of the relative complexity of doing so. Also, at the higher data rates,
+bytes have to be delivered to the floppy controller as often as every 20 cycles, which requires
+considerable care when writing the format routine.
+For more information on manual formatting tracks, refer to the C64 Specifications Manual or the
+C65 ROM DOS source code, for examples of manual formatting.
 
-The formatting process is unbuffered, that is, the CPU must write each clock and data byte
-to the appropriate FDC registers each time the DRQ flag is asserted. Failure to supply the
-next byte in time will result in bit-slippage, and a disk with unreadable sectors that will require
-formatting again.
+The automatic modes, in contrast, format a track with a single command, and are thus much easier to use,
+and are recommended for general use.  Write pre-compensation should normally be enabled, as it is
+required at higher data rates, and does not cause problems at lower data rates.
 
-To successfully format a track, the user must provide the full structure
-of the track, including all sync marks, sector headers, CRC bytes, data regions and gaps.
-The explanation of this is beyond the scope of this document. The C65 Specifications Manual,
-the C65 ROM DOS source code and the {\tt floppytest.c} program from the
-{\url https://github.com/mega65/mega65-tools} repository each describe and/or implement the
-process for formatting tracks.
+\subsection{Write Pre-Compensation}
+
+Write pre-compensation is a family of algorithms used when writing high data-rate signals to floppy disks.
+It is used to anticipate and cancel out the predictable component of timing variation of magnetic recording.
+There are a variety of sources of this timing variation, which have been the subject of PhD theses, and a
+lot of proprietary research by hard drive manufacturers.  What is important for us to understand is that adjacent
+pulses (really magnetic inversions) get pushed together, if they are surrounded by longer pulses, or tend to
+spread apart if surrounded by shorter pulses.
+
+There are also other fascinatingly complex and difficult to predict factors, that cause things such as the ``negative
+shift of mid-length pulses'', ``inverse F-distribution of pulse arrival times'' and goodness knows what else.  But
+we shall leave those to the hard drive manufacturers.  We limit ourselves to the data pattern induced effect described
+in the previous paragraph.
+
+The 45GS27 supports two tunable coefficients for small and large corrections to this,
+which are used with an internal look-up table.  However, this is all automatically handled if you enable write pre-compensation.
+This allows data rates that much more closely approach the expected limit of HD media, although due to the other horrors of
+magnetic media recording alluded to above, the actual limit is not reached.
 
 \subsection{Buffered Sector Writing}
 
 The 45IO27 can write to disk images that are located on the SD card,
 or when using virtualised disk access.
-
-However, the current revision of the 45IO27 does not support writing to real
-floppy disks.
-This will be corrected in a future revision.  However, the determined
-user may still be able to write to disks by manipulating the WGATE and
-WDATA signals of the \$D6A0 register.  However, this is not
-recommended.
 
 To write a sector, you follow a similar process to reading, except
 that you write \$84 to the command byte instead of \$40.  The \$80
@@ -277,43 +357,9 @@ when you should provide the next byte if performing a byte-by-byte
 write. Otherwise, it is assumed that you will have pre-filled the
 sector buffer with the complete 512 bytes of data required.
 
-\subsection{Using HD, ED Drives and/or variable Data Rates}
-
-The mechanism for using high-density (HD) and extended-density (ED)
-media and variable data rates are all identical on the 45IO27:  You
-simply set the interval rate (DATARATE) in the \$D6A2 register.
-
-The register is used as a divisor of the system bus frequency
-(40.5MHz).  Thus for 1581-compatible double-density (DD) media which
-uses a data rate of 500KHz, this register should contain 40.5MHz / 500KHz = 81.
-
-High-density media uses a 1MHz data rate, and thus should contain 40,
-and extended-density media with its 2MHz data rate should have this
-field set to 20.  Depending on the HD or ED drive used, it may be
-necessary to clear or assert the DENSITY signal (\$D6A0 bit 7), or
-take other specific ations.  However, in our experience, most HD
-drives do not require any manual manipulation of this signal: Instead
-simply set the DATARATE register to the correct value, and begin
-accessing the disk.
-
-Note that the DATARATE register takes effect instantaneously.  This
-means that it is possible to change the data rate for different
-tracks, sectors, or even bytes within sectors.
-
-This means that it
-would be possible to, for example, use standard 500KHz DD encoding for
-the directory track and one data track, and then switch to HD encoding for the other 79
-tracks of a disk. The result would be a disk that could contain a
-boot-loader program and directory that can be read in a 1581, and
-that could be used to switch to the faster and higher-density HD
-encoding for the remaining data tracks.  This could even be done for
-half of a disk, so that when used in a 1581, it loads at the DD speed,
-but when inserted in a MEGA65, it uses the HD data tracks, allowing
-the program to load twice as fast, and fit twice as much data.
-
-You are really only limited by your imagination, available time, and
-the limited number of people who are still interested in inserting a
-floppy disk into their computer!
+To write to disks that contain Track Information Blocks\index{Track Information Block}\index{TIB},
+you should first wait for the TIB to be read when changing tracks. This is done by waiting
+for \$D6A9 (sectors per track from the TIB) to contain a non-zero value.
 
 \subsection{F011 Floppy Controller Registers}
 

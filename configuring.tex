@@ -115,14 +115,19 @@ In general, if MEGA65 cannot boot properly and fall back to OpenROM, it will be 
 
 The MEGA65 FDISK/FORMAT utility will install a version of the
 open-source OpenROM project's C64-compatible ROMs as part of the
-formatting process. However, you may have other ROMs that you wish to
-use on the MEGA65. The 911001 version of the C65 ROM in
-particular is known to work well with the MEGA65.
+formatting process.
+The default ROM however is read from the file MEGA65.ROM, which contains
+the operating system, BASIC 65, CBDOS and the machine language monitori BSMON.
+This ROM is developed especially for the MEGA65 and can be
+identified by the version number 92xxxx.
+
+However, you may have other ROMs that you wish to
+use on the MEGA65.
 You can copy as many of these as you wish onto the
 SD card.  Make sure that they have the .ROM extension.  The default ROM
 should be called MEGA65.ROM.  These files
-should be 128KB in size, and use the same internal format as ROMs
-intended for the C65.  This means that the C64-mode KERNAL should be
+must be 128KB in size, and use the same internal format as ROMs
+intended for the C65.  This means that the C64-mode KERNAL must be
 placed at offset \$E000, a C65-mode BASIC at \$A000, and a suitable
 character set at \$D000.
 
@@ -133,8 +138,11 @@ allow you to use the MEGA65's integrated freezer. More details provided below.
 
 \textbf{Original C65 ROMs}
 
-You may want to source your own separate C65 ROM via other means.  There were many different versions created during the development of the Commodore 65,
-and the MEGA65 can use any of them.  However, out of this set, we recommend you use 911001.bin, as this has the most complete BASIC and DOS implementations.
+You may want to source your own separate C65 ROM via other means.
+There were many different versions created during the development of the Commodore 65,
+and the MEGA65 can use any of them.  However, they will not support the advanced
+features of the MEGA65 and are incomplete and buggy, because the development
+was stopped, before these C65 ROMs could be completed.
 
 \textbf{MEGA65 ROMs}
 
@@ -212,14 +220,17 @@ Press \megakey{RETURN} to complete the configuration.
   \includegraphics[width=\linewidth]{images/img011_final_boot_05.png}
 \end{center}
 
+\ifdefined\printmanual
+\else
 \textcolor{red}{\underline{Note for Nexys4 board users}: \\
 \\
   At this very specific step, the board is supposed to reboot and display the main MEGA65 screen. If the board does not reboot and the screen remains black, then switch power to the board off then on again.}
+\fi
 
 After the reboot you will get the main MEGA65 screen:
 
 \begin{center}
-  \includegraphics[width=\linewidth]{images/img011_final_boot_06.jpg}
+  \includegraphics[width=0.9\linewidth]{images/img011_final_boot_06.png}
 \end{center}
 
 \section{Configuration Utility}
@@ -227,28 +238,29 @@ After the reboot you will get the main MEGA65 screen:
 The configuration utility for the MEGA65 fills a similar purpose to the BIOS on a PC, and allows you to control certain default behaviours of your MEGA65; however, rather than storing the configuration data in a
 battery-backed RAM, the MEGA65 stores this data on sector 1 of the SD card. If you switch SD cards, you will change the configuration data.
 
-
-\begin{minipage}{\linewidth}
   To enter the configuration utility, turn the MEGA65 on while
   holding the \megakey{ALT} key.  This will show the utility menu,
-  similar to the following: \\
-  \\
-  \includegraphics[width=\linewidth]{images/ss-utilmenu.png}
-\end{minipage}
+  similar to the following:
+
+\begin{center}
+  \includegraphics[width=0.9\linewidth]{images/ss-utilmenu.png}
+\end{center}
 
 \begin{minipage}{\linewidth}
   Now press the number corresponding to the Utility Menu.  The MEGA65
   Configuration Utility will launch, showing a display similar to
-  the following: \\
-  \\
+  the following:
+
+  \vspace{5mm}
   \includegraphics[width=\linewidth]{images/ss-m65config-1.png}
 \end{minipage}
 
 \begin{minipage}{\linewidth}
   If your MEGA65's System Partition has become corrupt, you may be
   prompted to press \megakey{F14} to correct this, i.e., hold \megakey{SHIFT} and tap
-  the \megakey{F13} key, with a display like the following: \\
-  \\
+  the \megakey{F13} key, with a display like the following:
+
+  \vspace{5mm}
   \includegraphics[width=\linewidth]{images/ss-m65config-corrupt.png}
 \end{minipage}
 
@@ -265,8 +277,9 @@ Press \megakey{RETURN} or \megakey{SPACE} to toggle a setting, or to change a te
 
 \begin{minipage}{\linewidth}
   When finished, you can press \megakey{F7} to receive the
-  option to save the changes. This will give you four options: \\
-  \\
+  option to save the changes. This will give you four options:
+
+  \vspace{5mm}
   \includegraphics[width=\linewidth]{images/ss-m65config-save.png}
 \end{minipage}
 

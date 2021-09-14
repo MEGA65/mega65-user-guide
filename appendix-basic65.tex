@@ -3,8 +3,8 @@
 \section{Commands, Functions and Operators}
 
 This appendix describes each of the commands, functions and other
-callable elements of BASIC 65, an enhanced version of BASIC 65.
-Some of these can take one or more arguments, that is, pieces of input
+callable elements of BASIC 65, an enhanced version of BASIC 10.
+Some of these can take one or more arguments, which are pieces of input
 that you provide as part of the command or function call.
 Some also require that you use special keywords.
 Here is an example of how commands, functions and operators will be
@@ -22,9 +22,9 @@ be there for the command, function or operator to work.
 In this case, it tells us that we need to have a
 {\bf numeric expression} in one place, and a {\bf string expression}
 in another place.
-We'll explain what there are a bit more in a few moments.
+We'll explain what they are a bit more in a few moments.
 
-You might also see square brackets around something, for example,
+You might also see square brackets around something. For example,
 {\bf [,numeric expression]}.
 This means that whatever appears between the square brackets is
 optional, that is, you can include it if you need to, but
@@ -41,7 +41,7 @@ wrong thing in the wrong place, it is called a
 syntax error, and the computer will tell you if you have a syntax error
 by giving a \screentext{?SYNTAX ERROR} message.
 
-There is nothing to worry about getting an error from the computer.
+There is nothing to worry about if you get an error from the computer.
 Instead, it is just the computer's way of telling you that something
 isn't quite right, so that you can more easily
 find and fix the problem.
@@ -67,7 +67,7 @@ KEY 8."FISH"
 
 
 It is very common for commands, functions and operators to use one or
-more {\bf``expression''}.
+more {\bf``expressions''}.
 An expression is just a fancy name for something that has a value.
 This could be a string, such as \screentext{"HELLO"}, or a number, like
 \screentext{23.7}, or it could be a calculation, that might include
@@ -80,9 +80,7 @@ For example, \screentext{"HELLO"} is a {\bf string expression}, while
 It is important to use the correct type of expression when writing your programs.
 If you accidentally use the wrong type, the computer will give you a
 \screentext{?TYPE MISMATCH ERROR}, to say that the type
-of expression you gave doesn't match what it expected, that is, there
- is a mismatch between the type of expression
-it expected, and the one you gave.  For example, we will get a
+of expression you gave doesn't match what it expected. For example, we will get a
 \screentext{?TYPE MISMATCH ERROR} if we type the following command,
 because \screentext{"POTATO"} is a string expression instead of a numeric expression:
 
@@ -132,16 +130,16 @@ string                  & "X"     & "TEXT"    \\
 
 Each scalar variable consumes 8 bytes of storage in memory.
 The reserved area in bank 0 from \$F700 -> \$FEFF can store 256 variables.
-Variables need not to be declared, the type is determined by the appendix
-character. All variables with no appendix are regarded as REAL per default.
+Variables don't need to be declared, the type is determined by an appended
+character. All variables without an appended character are regarded as REAL by default.
 The storage is claimed at their first usage and they are initialised to zero,
-string variables are initialised as NULL string "".
+string variables are initialised as an empty string "".
 
 {\ttfamily
 \setlength{\tabcolsep}{1mm}
 \begin{tabular}{|l|l|l|l|}
 \hline
- type                   & appendix & range    & example  \\
+ type                   & appended character & range    & example  \\
 \hline
 byte                    &    \&    & 0 .. 255        & BY\& = 23 \\
 integer                 &    \%    & -32768 .. 32767 & I\% = 5    \\
@@ -153,7 +151,7 @@ string                  &    \$    & length = 0 .. 255 & AB\$ = "TEXT" \\
 
 \section{BASIC 65 arrays}
 
-Each array consumes the number of elements times the item size
+Each array consumes the number of elements multiplied by the item size
 plus the size of the header (6 + 2 * dimensions) in memory.
 For example an array
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -163,21 +161,21 @@ For example an array
 \end{verbatim}
 \end{tcolorbox}
 has 3 dimensions and 9 x 3 x 4 = 108 items.
-The size for real items is 5, so the data of that array occupy 540 bytes.
+The size for real items is 5, so the data of that array occupies 540 bytes.
 The header size is 6 + 2 * 3 = 12 bytes.
 So the total length in memory is 552 bytes.
 
-Arrays are stored in bank 1 starting at address \$2000 and expands upwards.
+Arrays are stored in bank 1 starting at address \$2000 and expand upwards.
 They share the available memory (\$2000 .. \$F6FF) with the string area,
-which starts in bank 1 on address \$F6FF and expands downwards.
+which starts in bank 1 at address \$F6FF and expand downwards.
 Each of the above scalar variable types can be used as an array by declaring
 them with a DIM statement. The arrays are initialised to zero for all
 elements on declaration. If an undeclared array element is used,
 an automatic implicit declaration is done, which sets the upper  boundary
-for each dimension to 10. For example the usage of an undeclared element
+for each dimension to 10. For example, the usage of an undeclared element
 AB(3,5) would automatically perform a "DIM AB(10,10)".
-The lower boundary for each dimension is always 0 (zero).
-So an array DIM AB(10) consists of 11 elements and accepts indexes from
+The lower boundary for each dimension is always 0 (zero),
+so an array initialised with DIM AB(10) consists of 11 elements and accepts indexes from
 0 to 10.
 
 String arrays are, more precisely expressed, arrays of string
@@ -185,14 +183,14 @@ descriptors. Each item consists of three bytes, which hold
 the values: length of the string and the address (low/high byte)
 of the assigned string in string memory.
 The usage of the BASIC function POINTER with a string or
-string array element as argument, returns the address of the descriptor, not the string.
+string array element as the argument, returns the address of the descriptor, not the string itself.
 
 {\ttfamily
 \setlength{\tabcolsep}{1mm}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
 %type          & item size & appendix & range    & example  \\
-\multicolumn{2}{|l|}{type \& item size} & appendix & range    & example  \\
+\multicolumn{2}{|l|}{type \& item size} & appended character & range    & example  \\
 \hline
 byte     array &  1     &    \&    & 0 .. 255        & BY\&(5,6) = 23 \\
 integer  array &  2     &    \%    & -32768 .. 32767 & I\%(0,10) = 5    \\
@@ -228,7 +226,7 @@ string   array &  3     &    \$    & length = 0 .. 255 & AB\$(X) = "TEXT" \\
                 the absolute value of the numeric
                 argument {\bf x}. \\
                {\bf x} = numeric argument (integer or real expression).
-\item [Remarks:] The result is of real type.
+\item [Remarks:] The result is of type real.
 \item [Example:] Using {\bf ABS}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -270,10 +268,10 @@ string   array &  3     &    \$    & length = 0 .. 255 & AB\$(X) = "TEXT" \\
       1 AND 1  ->  1
    \end{verbatim}
 
-\item [Remarks:] The result is of integer type.
+\item [Remarks:] The result is of type integer.
                  If the result is used in a logical context,
                  the value of 0 is regarded as FALSE,
-                 all other, nonzero values are regarded as TRUE.
+                 all other nonzero values are regarded as TRUE.
 \item [Example:] Using {\bf AND}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -324,13 +322,13 @@ In most cases {\bf AND} is used in {\bf IF} statements.
    \unitdefinition
 
 \item [Remarks:]
-   \screentext{APPEND\#} functions similar to the \screentext{DOPEN\#}
+   \screentext{APPEND\#} functions similarly to the \screentext{DOPEN\#}
    command, except that if the file already
    exists, the existing content of the file will be retained, and any
    \screentext{PRINT\#} commands made to the
    open file will cause the file to grow longer.
 
-\item [Example:] Open file in append mode:
+\item [Examples:] Open file in append mode:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -359,10 +357,10 @@ In most cases {\bf AND} is used in {\bf IF} statements.
                The name is apparently chosen to be a mnemonic to ASCII,
                but the returned value is in fact the so called PETSCII code.
 \item [Remarks:]
-               {\bf ASC} returns a zero for an empty string, which behaviour
+               {\bf ASC} returns zero for an empty string, whose behaviour
                is different to BASIC 2, where ASC("") gave an error.
                The inverse function to {\bf ASC} is {\bf CHR\$}.
-\item [Example:] Using {\bf ASC}
+\item [Examples:] Using {\bf ASC}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -392,7 +390,7 @@ In most cases {\bf AND} is used in {\bf IF} statements.
                A multiplication of the result with $180/\pi$
                converts the value to the unit "degrees".
                {\bf ATN} is the inverse function to {\bf TAN}.
-\item [Example:] Using {\bf ATN}
+\item [Examples:] Using {\bf ATN}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -449,7 +447,7 @@ AUTO     : SWITCH AUTO OFF
 \item [Format:] {\bf BACKGROUND colour}
 \item [Usage:] Sets the background colour
                of the screen to the argument, which must be in the
-               range 0 to 15. (See colour table).
+               range of 0 to 15. (See colour table).
 \item [Colours:] {\bf Index and RGB values of colour palette}
 
 \ttfamily
@@ -462,7 +460,7 @@ AUTO     : SWITCH AUTO OFF
   1 &   15  &  15   & 15   & white \\
   2 &   15  &   0   &  0   & red   \\
   3 &    0  &  15   & 15   & cyan  \\
-  4 &   15  &   0   & 15   & magenta\\
+  4 &   15  &   0   & 15   & purple\\
   5 &    0  &  15   &  0   & green \\
   6 &    0  &   0   & 15   & blue  \\
   7 &   15  &  15   &  0   & yellow\\
@@ -504,22 +502,22 @@ BACKGROUND  3 : REM SELECT BACKGROUND COLOUR CYAN
                Units 8 and 9 are reserved for this controller.
                These can be either the inernal floppy drive (unit 8) and
                another floppy drive (unit 9), attached to the same ribbon cable
-               or mounted D81 disk images. So this command can be used to
+               or mounted D81 disk images. Therefore, this command can be used to
                copy from floppy to floppy, floppy to image, image to floppy
-               and image to image, dependent on image mounts and existence of
+               and image to image, depending on image mounts and the existence of
                a second physical floppy drive.
 
                The second form of the {\bf BACKUP} command, specifying
-               drives for source and target is meant to be used for
-               dual drives units, connected to the IEC bus.
+               drives for source and target, is meant to be used for
+               dual drives units connected to the IEC bus.
    For example: CBM 4040, 8050, 8250 via IEEE-488 to IEC adapter.
-   Then the backup is done by the disk unit internally.
+   The backup is then done by the disk unit internally.
 
    {\bf source} = unit or drive \# of source disk. \\
    {\bf target} = unit or drive \# of target disk.
 
 \item [Remarks:] The target disk will be formatted and
-                 an identical copy of the source disk is written. \\
+                 an identical copy of the source disk will be written. \\
                  The {\bf BACKUP} command cannot be used to backup
                  from internal devices to IEC devices or vice versa.
 
@@ -547,7 +545,7 @@ BACKUP D0 TO D1, U10 : REM BACKUP ON DUAL DRIVE CONNECTED VIA IEC
 \item [Token:] \$FE \$02
 \item [Format:] {\bf BANK bank-number}
 \item [Usage:] Selects the memory configuration
-               for BASIC commands, that use 16-bit addresses.
+               for BASIC commands that use 16-bit addresses.
                These are LOAD, SAVE, PEEK, POKE, WAIT and SYS.
                See system memory map in
 \ifdefined\printmanual
@@ -657,24 +655,24 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
    This includes the standard RAM banks 0 to 5, but also
    the 8MB so called "attic RAM" at address \$8000000.
 
-   This mode is triggered by specifying an address at the P parameter,
+   This mode is triggered by specifying an address at parameter P,
    that is larger than \$FFFF. The bank parameter is ignored in this mode.
 
-   For compatibility reasons with older BASIC versions, the {\bf BLOAD}
-   accepts the syntax with a 16bit address at P and a bank number at B too.
+   For compatibility reasons with older BASIC versions, {\bf BLOAD}
+   accepts the syntax with a 16-bit address at P and a bank number at B as well.
    The attic RAM is out of range for this compatibility mode.
 
    The optional parameter {\bf R} (RAW MODE) does not interpret or use the
-   first two bytes of the program file as load address, which is otherwise the
+   first two bytes of the program file as the load address, which is otherwise the
    default behaviour. In RAW MODE every byte is read as data.
 
    \filenamedefinition
 
    {\bf bank} specifies the RAM bank to be used.
-   If not specified the current bank, as set with the last
+   If not specified, the current bank, as set with the last
    {\bf BANK} statement, will be used.
 
-   {\bf address} can be used to overrule the load address,
+   {\bf address} can be used to override the load address,
    that is stored in the first two bytes of the PRG file.
 
    \drivedefinition
@@ -686,7 +684,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 
 {\bf BLOAD} uses the load address from the file, if no P parameter is given.
 
-\item [Example:] Using {\bf BLOAD}
+\item [Examples:] Using {\bf BLOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -715,11 +713,11 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
                 {\bf BOOT} 
 \item [Usage:]
    {\bf BOOT filename} loads a file of type
-   PRG into RAM at address P and bank B and starts executing
+   PRG into RAM at address P and bank B, and starts executing
    the code at the load address.
 
    {\bf BOOT SYS} loads the boot sector from sector 0,
-   track 1 and unit 8 to address \$0400 on bank 0 and
+   track 1 and unit 8 to address \$0400 in bank 0, and
    performs a JSR \$0400 afterwards (Jump To Subroutine).
 
    The {\bf BOOT} command with no parameter tries to load
@@ -729,10 +727,10 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
    \filenamedefinition
 
    {\bf bank} specifies the RAM bank to be used.
-   If not specified the current bank, as set with the last
+   If not specified, the current bank, as set with the last
    {\bf BANK} statement, will be used.
 
-   {\bf address} can be used to overrule the load address,
+   {\bf address} can be used to override the load address,
    that is stored in the first two bytes of the PRG file.
 
    \drivedefinition
@@ -744,7 +742,7 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
    (two logical sectors) = 512 bytes from disc to RAM,
    filling RAM from \$0400 to \$05ff.
 
-\item [Example:] Using {\bf BOOT}
+\item [Examples:] Using {\bf BOOT}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -768,7 +766,7 @@ BOOT
 \item [Format:] {\bf BORDER colour}
 \item [Usage:] Sets the border colour
                of the screen to the argument, which must be in the
-               range 0 to 15. (See colour table).
+               range of 0 to 15. (See colour table).
 \item [Colours:] {\bf Index and RGB values of colour palette}
 
 \ttfamily
@@ -781,7 +779,7 @@ BOOT
   1 &   15  &  15   & 15   & white \\
   2 &   15  &   0   &  0   & red   \\
   3 &    0  &  15   & 15   & cyan  \\
-  4 &   15  &   0   & 15   & magenta\\
+  4 &   15  &   0   & 15   & purple\\
   5 &    0  &  15   &  0   & green \\
   6 &    0  &   0   & 15   & blue  \\
   7 &   15  &  15   &  0   & yellow\\
@@ -800,7 +798,7 @@ BOOT
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 BORDER  4 : REM SELECT BORDER COLOUR MAGENTA
+10 BORDER  4 : REM SELECT BORDER COLOUR PURPLE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -819,8 +817,8 @@ BOOT
                 {\bf BOX X0,Y0, X1,Y1, X2,Y2, X3,Y3 [,SOLID]}
 \item [Usage:] The first form of the {\bf BOX} command with
                two coordinate pairs and an optional {\bf SOLID} parameter
-               draws a simple rectangle, assuming, that he
-               coordinate pairs declare two diagonal opposite corners.
+               draws a simple rectangle, assuming that the
+               coordinate pairs declare two diagonally opposite corners.
 
                The second form with four coordinate pairs declares a
                path of four points, which will be connected by lines.
@@ -829,7 +827,7 @@ BOOT
 
                The quadrangle is drawn using the current drawing context
                set with SCREEN, PALETTE and PEN.
-               The quadrangle is filled, if the parameter {\bf SOLID}
+               The quadrangle is filled if the parameter {\bf SOLID}
                is not 0.
 
 \item [Remarks:] The BOX command with four coordinate pairs can be used
@@ -837,7 +835,7 @@ BOOT
                  not only rectangles. For example
                  rhomboids, kites, trapezoids and parallelograms.
                  It is also possible to draw bow-tie shapes.
-\item [Example:] Using {\bf BOX}
+\item [Examples:] Using {\bf BOX}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -880,24 +878,23 @@ BOOT
 \item [Format:] {\bf BSAVE filename ,P start TO P end
                 [,B bank] [,D drive] [,U unit] }
 \item [Usage:]
-   "Binary SAVE" saves a memory range to
-   a file of type PRG.
+   "Binary SAVE" saves a memory range to a file of type PRG.
 
    \filenamedefinition
-   If the first character of the filename is an at-sign '@' it
+   If the first character of the filename is an at-sign '@', it
    is interpreted as a "save and replace" operation. It is dangerous
-   to use this replace option on drives 1541 and 1571, because they
-   contain the notorious "save and replace bug" in their DOS.
+   to use this replace option on 1541 and 1571 drives, as they
+   contain a notorious "save and replace bug" in their DOS.
 
    {\bf bank} specifies the RAM bank to be used.
-   If not specified the current bank, as set with the last
+   If not specified, the current bank, as set with the last
    {\bf BANK} statement, will be used.
 
    {\bf start} is the first address, where the saving begins.
-   It becomes also the load address,
-   that is stored in the first two bytes of the PRG file.
+   It also becomes the load address,
+   which is stored in the first two bytes of the PRG file.
 
-   {\bf end} Is the address, where the saving stops.
+   {\bf end} is the address, where the saving stops.
    {\bf end-1} is the last address to be used for saving.
 
    \drivedefinition
@@ -906,12 +903,12 @@ BOOT
 
 \item [Remarks:]
    The length of the file is {\bf end - start + 2}. \\
-   If the number after an argument letter ist not a decimal
-   number, ist must be set in parenthesis, like shown
+   If the number after an argument letter is not a decimal
+   number, it must be set in parenthesis, as shown
    in the third and fourth line of the examples.
 
 
-\item [Example:] Using {\bf BSAVE}
+\item [Examples:] Using {\bf BSAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -936,19 +933,19 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 \item [Format:] {\bf b = BUMP(type)}
 \item [Usage:] Used to detect
                sprite-sprite (type=1) or sprite-data (type=2) collisions.
-               the return value {\bf b} is a 8-bit mask with
-               one bit per sprite. The bit position corresponds with the
+               the return value {\bf b} is an 8-bit mask with
+               one bit per sprite. The bit position corresponds to the
                sprite number.
-               Each bit set in the return value indicates, that the
-               sprite for this position was involved in a collision
+               Each bit set in the return value indicates that the
+               sprite for its position was involved in a collision
                since the last call of {\bf BUMP}.
                Calling {\bf BUMP} resets the collision mask, so you
-               get always a summary of collisions encountered since
+               always get a summary of collisions encountered since
                the last call of {\bf BUMP}.
 
 \item [Remarks:] It's possible to detect multiple collisions,
-               but you need to evaluate sprite coordinates then
-               to detect which sprite collided with which one.
+               but you will need to evaluate the sprite coordinates
+               to detect which sprites have collided.
 
 \item [Example:] Using {\bf BUMP}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1000,12 +997,12 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
    \filenamedefinition
 
    {\bf bank} specifies the RAM bank to be used.
-   If not specified the current bank, as set with the last
+   If not specified, the current bank, as set with the last
    {\bf BANK} statement, will be used.
 
-   {\bf address} is the address, where the comparison begins.
-   If the parameter P is omitted, it is the load address,
-   that is stored in the first two bytes of the PRG file.
+   {\bf address} is the address where the comparison begins.
+   If the parameter P is omitted, it is the load address
+   that is stored in the first two bytes of the PRG file that will be used.
 
    \drivedefinition
 
@@ -1013,13 +1010,13 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 
 \item [Remarks:]
    {\bf BVERIFY} can only test for equality. It gives no information
-   about the number or position of different valued bytes.
+   about the number, or position of different valued bytes.
    In direct mode the command exits either with the message {\bf OK}
-   or with {\bf VERIFY ERROR}. In program mode a {\bf VERIFY ERROR}
+   or with {\bf VERIFY ERROR}. In program mode, a {\bf VERIFY ERROR}
    either stops execution or enters the {\bf TRAP} error handler,
    if active.
 
-\item [Example:] Using {\bf BVERIFY}
+\item [Examples:] Using {\bf BVERIFY}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1363,7 +1360,7 @@ Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
                channel, that was established before by an {\bf OPEN}
                command.
 
-               {\bf channel} is a value in the range 0 -> 255.
+               {\bf channel} is a value in the range of 0 -> 255.
 
 \item [Remarks:] Closing open files before the program stops is
                very important, especially for output files.
@@ -2637,8 +2634,8 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    The maximum length of the filename is 16 characters.
    If the first character of the filename is an at-sign '@' it
    is interpreted as a "save and replace" operation. It is dangerous
-   to use this replace option on drives 1541 and 1571, because they
-   contain the notorious "save and replace bug" in their DOS.
+   to use this replace option on 1541 and 1571 drives, as they
+   contain a notorious "save and replace bug" in their DOS.
 
    \drivedefinition
 
@@ -3592,7 +3589,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Usage:] Sets the foreground colour
                (text colour) of the screen to the argument,
                which must be in the
-               range 0 to 15. (See colour table).
+               range of 0 to 15. (See colour table).
 \item [Example:] \screentext{FOREGROUND  7} - select foreground colour yellow.
 \item [Colours:] {\bf Index and RGB values of colour palette}
 
@@ -3606,7 +3603,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
   1 &   15  &  15   & 15   & white \\
   2 &   15  &   0   &  0   & red   \\
   3 &    0  &  15   & 15   & cyan  \\
-  4 &   15  &   0   & 15   & magenta\\
+  4 &   15  &   0   & 15   & purple\\
   5 &    0  &  15   &  0   & green \\
   6 &    0  &   0   & 15   & blue  \\
   7 &   15  &  15   &  0   & yellow\\
@@ -4169,7 +4166,7 @@ HELP
 \item [Usage:] Returns a four
                character string in hexadecimal notation
                converted from the argument.
-               The argument must be in the range 0 -> 65535
+               The argument must be in the range of 0 -> 65535
                corresponding to the hex numbers 0000 -> FFFF.
 
 \item [Remarks:] If real numbers are used as arguments, the
@@ -4199,7 +4196,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Usage:] Sets the colour
                to be used for the "highlight" text attribute.
                The colour index must be in the
-               range 0 to 15. (See colour table).
+               range of 0 to 15. (See colour table).
 
                The optional parameter {\bf mode} defines, how
                BASIC listings to the screen use highlighting:
@@ -4231,7 +4228,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
   1 &   15  &  15   & 15   & white \\
   2 &   15  &   0   &  0   & red   \\
   3 &    0  &  15   & 15   & cyan  \\
-  4 &   15  &   0   & 15   & magenta\\
+  4 &   15  &   0   & 15   & purple\\
   5 &    0  &  15   &  0   & green \\
   6 &    0  &   0   & 15   & blue  \\
   7 &   15  &  15   &  0   & yellow\\
@@ -4924,7 +4921,7 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
    {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
    a string expression.
 
-   The unit number ist optional.
+   The unit number is optional.
    If not present, the default disk device is assumed.
 
    If {\bf flag} has a non zero value, the file is loaded to
@@ -4983,7 +4980,7 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
    {\bf filename} is either a quoted string, e.g. {\bf "picture.iff"} or
    a string expression.
 
-   The unit number ist optional.
+   The unit number is optional.
    If not present, the default disk device is assumed.
 
 \item [Remarks:]
@@ -5559,7 +5556,7 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
       NOT 1  ->  0
    \end{verbatim}
 
-\item [Remarks:] The result is of integer type.
+\item [Remarks:] The result is type integer.
                  If the result is used in a logical context,
                  the value of 0 is regarded as FALSE,
                  all other, nonzero values are regarded as TRUE.
@@ -5773,7 +5770,7 @@ In most cases the {\bf NOT} will be used in {\bf IF} statements.
       1 OR 1  ->  1
    \end{verbatim}
 
-\item [Remarks:] The result is of integer type.
+\item [Remarks:] The result is of type integer.
                  If the result is used in a logical context,
                  the value of 0 is regarded as FALSE,
                  all other, nonzero values are regarded as TRUE.
@@ -7697,8 +7694,8 @@ DRAW PEN COLOUR =  1
    and the in-file drive definition..
    If the first character of the filename is an at-sign '@' it
    is interpreted as a "save and replace" operation. It is dangerous
-   to use this replace option on drives 1541 and 1571, because they
-   contain the notorious "save and replace bug" in their DOS.
+   to use this replace option on 1541 and 1571 drives, as they
+   contain a notorious "save and replace bug" in their DOS.
    The filename may be preceded by the drive number definition
    "0:" or "1:" which is only relevant for dual drive disk units.
 
@@ -7877,7 +7874,7 @@ DRAW PEN COLOUR =  1
   3 &    0  &  15   &  0   & green \\
   4 &    0  &   0   & 15   & blue   \\
   5 &   15  &  15   &  0   & yellow\\
-  6 &   15  &   0   & 15   & magenta \\
+  6 &   15  &   0   & 15   & purple \\
   7 &    0  &  15   & 15   & cyan  \\
   8 &    8  &   8   &  8   & gray  \\
   9 &    8  &   0   &  0   & maroon \\
@@ -9511,7 +9508,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
       1 XOR 1  ->  0
    \end{verbatim}
 
-\item [Remarks:] The result is of integer type.
+\item [Remarks:] The result is of type integer.
                  If the result is used in a logical context,
                  the value of 0 is regarded as FALSE,
                  all other, nonzero values are regarded as TRUE.

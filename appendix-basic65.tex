@@ -253,7 +253,7 @@ string   array &  3     &    \$    & length = 0 .. 255 & AB\$(X) = "TEXT" \\
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$AF
 \item [Format:] operand {\bf AND} operand
-\item [Usage:]  The Boolean {\bf AND} operator performs a bit-wise
+\item [Usage:]  {\bf AND} performs a bit-wise
                 logical AND operation on two 16-bit values.
                 Integer operands are used as they are.
                 Real operands are converted to a signed 16 bit integer.
@@ -578,7 +578,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$18
 \item [Format:] {\bf BEGIN} ... {\bf BEND}
-\item [Usage:] The {\bf BEGIN} and {\bf BEND} keywords act like
+\item [Usage:] The {\bf BEGIN} and {\bf BEND} keywords act as
                a pair of brackets around a compound statement
                to be executed after a {\bf THEN} or {\bf ELSE} keyword.
                This overcomes the single line limitation of the
@@ -612,7 +612,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$19
 \item [Format:] {\bf BEGIN} ... {\bf BEND}
-\item [Usage:] The {\bf BEGIN} and {\bf BEND} keywords act like
+\item [Usage:] The {\bf BEGIN} and {\bf BEND} keywords act as
                a pair of brackets around a compound statement
                to be executed after a {\bf THEN} or {\bf ELSE} keyword.
                This overcomes the single line limitation of the
@@ -739,7 +739,7 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
 
 \item [Remarks:]
    {\bf BOOT SYS} copies the contents of one physical sector
-   (two logical sectors) = 512 bytes from disc to RAM,
+   (two logical sectors) = 512 bytes from disk to RAM,
    filling RAM from \$0400 to \$05ff.
 
 \item [Examples:] Using {\bf BOOT}
@@ -1042,14 +1042,12 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
 \item [Format:] {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file catalog/directory of the specified disk.
 
-   The shortcut symbol {\bf \$} can be used in direct mode only.
-
    The {\bf W} (Wide) parameter lists the directory three columns wide
-   on the screen and pauses after a the screen is full (63 directory
-   entries). Pressing any key displays the next page.
+   on the screen and pauses after the screen has been filled with a page
+   (63 directory entries). Pressing any key displays the next page.
 
    The {\bf R} (Recoverable) parameter includes files in the
-   directory, which are flagged as deleted but are still
+   directory which are flagged as deleted but still
    recoverable.
 
    {\bf filepattern} is either a quoted string, for example: {\bf "da*"} or
@@ -1069,7 +1067,9 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
    (for {\bf P}RG, {\bf S}EQ, {\bf U}SR, {\bf R}EL) filters the
    output to that filetype.
 
-\item [Example:] Using {\bf CATALOG}
+   The shortcut symbol {\bf \$} can be used in direct mode only.
+
+\item [Examples:] Using {\bf CATALOG}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -1112,8 +1112,13 @@ CATALOG "*,T=S"
 104 BLOCKS FREE.
 \end{verbatim}
 \end{tcolorbox}
+
+Below is a screenshot showing how the directory looks with the {\bf w}ide parameter:
+
 \includegraphics[width=\linewidth]{images/directory.png}
+
 \end{description}
+
 
 % ******
 % CHANGE
@@ -1125,29 +1130,31 @@ CATALOG "*,T=S"
 \index{BASIC 65 Commands!CHANGE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2C
-\item [Format:] {\bf CHANGE "find" TO "replace" [,from-to]}
-\item [Usage:]  Used
-                in direct mode only. It searches the line range
-                if specified or the whole BASIC program else.
-                At each occurrence of the "find string" the line is
-                listed and the user prompted for an action: \\
-                'Y' <RETURN> do the change and find next string \\
-                'N' <RETURN> do {\bf not} change and find next string \\
-                '*' <RETURN> change this and all following matches \\
-                    <RETURN> exit command, don't change.
-                \item [Remarks:] Instead of the quote (\screentext{"})
-                  each other character may be used
-                 as delimiter for the findstring and replacestring.
-                 Using the quote as delimiter finds text strings, that are
-                 not tokenised and therefore not part of a keyword. \\
-                 \screentext{CHANGE "LOOP" TO "OOPS"} will not find
-                 the BASIC keyword \screentext{LOOP}, because the
-                 keyword is stored as token and not as text.
-                 However \screentext{CHANGE \&LOOP\& TO \&OOPS\&} will
-                 find and replace it (probably spoiling the program).
+\item [Format:] {\bf CHANGE "findstring" TO "replacestring" [,from-to]}
+\item [Usage:]  Performs a find/replace of the current BASIC program.
+   Searches the line range (if specified), otherwise the whole BASIC program is searched.
+   At each occurrence of the findstring, the line is
+   listed and the user is prompted for an action: \\
+    \begin{itemize}
+      \item \megakey{Y} \megakey{RETURN} perform the replace and find the next string
+      \item \megakey{N} \megakey{RETURN} do {\bf not} perform the replace and find the next string
+      \item \megakey{*} \megakey{RETURN} replace the current and all following matches
+      \item \megakey{RETURN} exit the command, and don't replace the current match
+    \end{itemize}
+\item [Remarks:] Any character may be used except the
+   double quote (\screentext{"}) character in the
+   the findstring and replacestring.
+   Using the double quote character finds text strings that are
+   not tokenised, and therefore not part of a keyword. \\
+   For example, \screentext{CHANGE "LOOP" TO "OOPS"} will not find
+   the BASIC keyword \screentext{LOOP}, because the
+   keyword is stored as a token and not as text.
+   However \screentext{CHANGE \&LOOP\& TO \&OOPS\&} will
+   find and replace it (probably spoiling the program).
 
+   Used in direct mode only.
 
-\item [Example:] Using {\bf CHANGE}
+\item [Examples:] Using {\bf CHANGE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1170,25 +1177,25 @@ CHANGE &IN& TO &OUT&
 \item [Format:] {\bf CHAR column, row, height, width, direction, string
                 [, address of character set]}
 \item [Usage:]  Displays text on a graphic screen.
-                It can be used for all resolutions.
+                It can be used in all resolutions.
 
                 {\bf column} (in units of character positions) is the
-                start position of the output in horizontal direction.
+                start position of the output in horizontally.
                 As each column unit is 8 pixels wide, a screen width of 320
                 has a column range of 0 -> 39, while a screen width of 640
                 has a column range of 0 -> 79.
 
                 {\bf row} (in pixel units) is the start position of the output
-                in vertical direction. In contrast to the column parameter,
+                in vertically. In contrast to the column parameter,
                 its unit are in pixels (not character positions), with the top
                 row having the value 0.
 
                 {\bf height} is a factor applied to the vertical
-                size of the characters. 1 is normal size (8 pixels)
+                size of the characters, where 1 is normal size (8 pixels)
                 2 is double size (16 pixels), and so on.
 
                 {\bf width} is a factor applied to the horizontal
-                size of the characters. 1 is normal size (8 pixels)
+                size of the characters, where 1 is normal size (8 pixels)
                 2 is double size (16 pixels), and so on.
 
                 {\bf direction} controls the printing direction: \\
@@ -1198,9 +1205,9 @@ CHANGE &IN& TO &OUT&
                 8: left
 
                 The optional {\bf address of character set} can be used
-                to select a character set different from the default
-                character set at \$29800, which is the set with
-                upper/lower characters.
+                to select a character set, different to the default
+                character set at \$29800, which includes upper and lower case
+                characters.
 
                 Three character sets (see also command FONT) are available:
 
@@ -1208,9 +1215,9 @@ CHANGE &IN& TO &OUT&
                 \$3D000 Font B (Bold)  \\
                 \$2D000 Font C (CBM)
 
-                1st. part \$xx000 -> \$xx7FF : upper case / graphics
+                The first part of the font (upper case / graphics) is stored at \$xx000 - \$xx7FF.
 
-                2nd. part \$xx800 -> \$xxFFF : lower case / upper case
+                The second part of the font (lower case / upper case) is stored at \$xx800 - \$xxFFF.
 
                 {\bf string} is a string constant or expression
                 which will be printed. This string may optionally contain
@@ -1234,12 +1241,12 @@ CHANGE &IN& TO &OUT&
 
 \item [Remarks:]
                 Regular text mode control characters,
-                for example: cursor movement codes, will be ignored
+                such as cursor movement codes, will be ignored
                 (neither printed nor interpreted).
 
-                Notice, that the start position of the string has
-                different units in x and y direction:
-                x is in [columns] and y in [pixel].
+                Notice that the start position of the string has
+                different units in the horizontl and vertical directions
+                horizontal is in [columns] and vertical is in [pixels].
 
 \item [Example:] Using {\bf CHAR}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1251,7 +1258,7 @@ CHANGE &IN& TO &OUT&
 40 SCREEN CLOSE
 \end{verbatim}
 \end{tcolorbox}
-Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
+Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \end{description}
 
 % ****
@@ -1265,11 +1272,10 @@ Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C1
 \item [Format:] {\bf CHR\$(numeric expression)}
-\item [Usage:] Returns a string of length one character
-               using the argument to insert the character having this
-               value as PETSCII code.
+\item [Usage:] Returns a string containing one character, whose PETSCII
+               value is equal to the argument.
 
-\item [Remarks:] The argument range is 0 -> 255, so this function may
+\item [Remarks:] The argument range is from 0 - 255, so this function may
                  also be used to insert control codes into strings.
                  Even the NULL character, with code 0, is allowed. \\
                {\bf CHR\$} is the inverse function to {\bf ASC}.
@@ -1297,21 +1303,21 @@ Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
 \item [Token:] \$E2
 \item [Format:] {\bf CIRCLE xcentre, ycentre, radius, [,solid]}
 \item [Usage:] A special case of
-               the {\bf ELLIPSE} command using the same value for
+               the {\bf ELLIPSE} command, using the same value for
                horizontal and vertical radius.
 
-               {\bf xcentre} x coordinate of centre in pixels.
+               {\bf xcentre} x coordinate of the centre in pixels
 
-               {\bf ycentre} y coordinate of centre in pixels.
+               {\bf ycentre} y coordinate of the centre in pixels
 
-               {\bf radius} radius of the circle in pixels.
+               {\bf radius} radius of the circle in pixels
 
-               {\bf solid} will fill the circle if not zero.
+               {\bf solid} fills the circle, if not zero
 
 \item [Remarks:] The {\bf CIRCLE} command is used to draw circles on
-               screens with an aspect ratio 1:1 (for example: 320 x 200
-               or 640 x 400). On other resolutions (like: 640 x 200)
-               the shape will degrade to an ellipse.
+               screens with an aspect ratio of 1:1 (for example: 320 x 200
+               or 640 x 400). Whilst using other resolutions (such as 640 x 200)
+               the shape will instead be an ellipse.
 
 \includegraphics[width=\linewidth]{images/circle.png}
 \newpage
@@ -1357,18 +1363,19 @@ Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
 \item [Token:] \$A0
 \item [Format:] {\bf CLOSE channel}
 \item [Usage:] Closes an input or output
-               channel, that was established before by an {\bf OPEN}
+               channel, that has previously been established by an {\bf OPEN}
                command.
 
-               {\bf channel} is a value in the range of 0 -> 255.
+               {\bf channel} is a value in the range of 0 - 255.
 
-\item [Remarks:] Closing open files before the program stops is
+\item [Remarks:] Closing files that have previously been opened
+               before a program has completed is
                very important, especially for output files.
                This command flushes output buffers and
-               updates directory information on disks.
-               Failing to {\bf CLOSE}  can corrupt files and disks.
-               BASIC does NOT automatically close channels or files
-               when the program stops.
+               updates the directory information on disks.
+               Failing to {\bf CLOSE} can corrupt files and disks.
+               BASIC does NOT automatically close channels nor files
+               when a program stops.
 
 \item [Example:] Using {\bf CLOSE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1393,11 +1400,11 @@ Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
 \item [Token:] \$9C
 \item [Format:] {\bf CLR}        \\
                 {\bf CLR V}   \\
-\item [Usage:] {\bf CLR} with no parameters Resets all pointers, that
+\item [Usage:] {\bf CLR} with no parameters resets all pointers, that
                are used for management of BASIC variables, arrays
                and strings. The run-time stack pointers are reset
-               and the table of open channels is reset.
-               So all variables and arrays are undeclared.
+               and the table of open channels is also reset
+               After executing a {\bf CLR} all variables and arrays will be undeclared.
                A {\bf RUN} command performs {\bf CLR} automatically.
 
                {\bf CLR V} clears (zeroes) the variable V.
@@ -1405,9 +1412,9 @@ Will print the text "MEGA65" on the centre of a 640 x 400 graphic screen.
                an array.
 
 \item [Remarks:] {\bf CLR} should not be used inside loops or
-               subroutines because it destroys the return address.
-               After a {\bf CLR} all variables are unknown and will
-               be initialised at the next usage.
+               subroutines, as it destroys the return address.
+               After a {\bf CLR}, all variables are unknown and will
+               be initialised when they are next used.
 
 \item [Example:] Using {\bf CLR}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1436,21 +1443,21 @@ READY.
 \item [Token:] \$9D
 \item [Format:] {\bf CMD channel [,string]}
 \item [Usage:] Redirects the standard output
-               from screen to the channel. This enables to
-               print listings and directories or other screen outputs.
-               It is also possible to redirect this output to a disk file
+               from screen to the channel. This enables you to
+               print listings and directories or other output channels.
+               It is also possible to redirect this output to a disk file,
                or a modem.
 
                {\bf channel} must be opened by the {\bf OPEN} command.
 
                The optional {\bf string} is sent to the channel
                before the redirection begins and can be used,
-               for example, for printer setup escape sequences.
+               for example, for printer or modem setup escape sequences.
 
-\item [Remarks:] The {\bf CMD} mode is stopped by a {\bf PRINT\# channel}
-                 or by closing the channel with {\bf CLOSE channel}.
-                 It is recommended to use a {\bf PRINT\# channel}
-                 before closing, to make sure, that the output buffer
+\item [Remarks:] The {\bf CMD} mode is stopped by a {\bf PRINT\# channel},
+                 or by closing the channel with the {\bf CLOSE channel} command.
+                 It is recommended to use {\bf PRINT\# channel}
+                 before closing, to make sure that the output buffer
                  is flushed.
 
 \item [Example:] Using {\bf CMD} to print a program listing:
@@ -1479,22 +1486,21 @@ CLOSE 1
 \item [Format:] {\bf COLLECT [,D drive] [,U unit] }
 \item [Usage:]
    Rebuilds the {\bf BAM}
-   (Block Availability Map) deleting splat files and marking
-   unused blocks as free.
+   (Block Availability Map) of a disk, deleting splat files (files which have been opened,
+   but not properly closed) and marking unused blocks as free.
 
    \drivedefinition
 
    \unitdefinition
 
 \item [Remarks:]
-   While this command is useful for cleaning the disk from
-   splat files (for example: write files, that weren't properly closed)
-   it is dangerous for disks with boot blocks or random access files.
+   While this command is useful for cleaning a disk from
+   splat files it is dangerous for disks with boot blocks or random access files.
    These blocks are not associated with standard disk files
-   and will therefore be marked as free too and may be overwritten
+   and will therefore be marked as free and may be overwritten
    by further disk write operations.
 
-\item [Example:] Using {\bf COLLECT}
+\item [Examples:] Using {\bf COLLECT}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1517,34 +1523,34 @@ CLOSE 1
 \item [Token:] \$FE \$17
 \item [Format:] {\bf COLLISION type [,linenumber]}
 \item [Usage:]  Enables or disables
-                an user programmed interrupt handler.
-                A call without linenumber disables the handler,
+                a user-programmed interrupt handler.
+                A call without the linenumber argument disables the handler,
                 while a call with linenumber enables it.
                 After the execution of {\bf COLLISION} with
-                linenumber a sprite collision of the same type,
-                as specified in the {\bf COLLISION} call,
-                interrupts the BASIC program and perform a {\bf GOSUB}
-                to {\bf linenumber} which is expected to contain
+                linenumber, a sprite collision of the same type,
+                (as specified in the {\bf COLLISION} call)
+                interrupts the BASIC program and performs a {\bf GOSUB}
+                to {\bf linenumber}, which is expected to contain
                 the user code for handling sprite collisions.
                 This handler must give control back with a {\bf RETURN}.
 
                 {\bf type} specifies the collision type for
                 this interrupt handler: \\
-                1 = sprite - sprite collision \\
-                2 = sprite - data - collision \\
-                3 = light pen
+                1: sprite - sprite collision \\
+                2: sprite - data - collision \\
+                3: light pen
 
                 {\bf linenumber} must point to a subroutine
-                which holds code for handling sprite collision
+                which has code for handling sprite collision
                 and ends with a {\bf RETURN}.
 
-\item [Remarks:] It is possible to enable interrupt handler for
+\item [Remarks:] It is possible to enable the interrupt handler for
                all types, but only one can execute at any time.
-               A interrupt handler cannot be interrupted by another
+               An interrupt handler cannot be interrupted by another
                interrupt handler.
-               Functions like {\bf BUMP}, {\bf RSPPOS} and
+               Functions such as {\bf BUMP}, {\bf RSPPOS} and
                {\bf LPEN} may be used for evaluation of the sprites
-               which are involved and their positions.
+               which are involved, and their positions.
 
 \item [Example:] Using {\bf COLLISION}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1575,15 +1581,15 @@ CLOSE 1
 \item [Token:] \$E7
 \item [Format:] {\bf COLOR <ON|OFF>}
 \item [Usage:] Enables or disables
-               handling of the character attributes on the screen.
+               handling of character attributes on screen.
                If {\bf COLOR} is {\bf ON}, the screen routines
-               take care for both character RAM and attribute RAM.
-               E.g. if the screen is scrolled for text, the attributes
-               are scrolled too, so each character keeps his attribute
-               or colour. If {\bf COLOR} is {\bf OFF}, the attribute
-               or colour RAM is fixed and character movement is only
-               done for screen characters. This speeds up screen
-               handling, if moving characters with different colours is
+               take care of both character RAM and attribute RAM (or colour RAM).
+               For example, if the screen is scrolling text, the attributes
+               are also scrolled, so each character keeps its attribute.
+               If {\bf COLOR} is {\bf OFF}, the attribute
+               is fixed and only character movement is performed
+               for screen characters. This speeds up screen
+               handling, which could be useful when moving characters with different colours is
                not intended.
 \item [Example:] \screentext{COLOR ON} - with colour/attribute handling \\
                  \screentext{COLOR OFF} - no colour/attribute handling
@@ -1603,8 +1609,8 @@ CLOSE 1
 \item [Format:] {\bf CONCAT appendfile [,D drive] TO
                 targetfile [,D drive] [,U unit] }
 \item [Usage:]
-   The {\bf CONCAT} (concatenation) appends the contents of
-   {\bf appendfile} to the {\bf targetfile}. Afterwards {\bf targetfile}
+   {\bf CONCAT} (concatenation) appends the contents of
+   {\bf appendfile} to the {\bf targetfile}. Afterwards, {\bf targetfile}
    contains the contents of both files, while {\bf appendfile}
    remains unchanged.
 
@@ -1617,7 +1623,7 @@ CLOSE 1
    If the disk unit has dual drives, it is possible to apply
    the {\bf CONCAT} command to files, which are stored on different
    disks. In this case, it is necessary to specify the drive\#
-   for both files in the command. This is necessary too, if both
+   for both files in the command. This is also necessary if both
    files are stored on drive\#1.
 
    \drivedefinition
@@ -1625,11 +1631,11 @@ CLOSE 1
    \unitdefinition
 
 \item [Remarks:]
-   The {\bf CONCAT} commands is executed in the DOS of the disk drive.
+   The {\bf CONCAT} command is executed in the DOS of the disk drive.
    Both files must exist and no pattern matching is allowed.
-   Only sequential files of type {\bf SEQ} may be concatenated.
+   Only files of type {\bf SEQ} may be concatenated.
 
-\item [Example:] Using {\bf CONCAT}
+\item [Examples:] Using {\bf CONCAT}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1652,15 +1658,15 @@ CLOSE 1
 \item [Format:] {\bf CONT}
 \item [Usage:] Used to resume
                program execution after a break or stop caused by
-               an {\bf END} or {\bf STOP} statement or by pressing
+               an {\bf END} or {\bf STOP} statement, or by pressing
                the {\bf STOP KEY}.
-               This is a useful debug tool. The BASIC program may be stopped
-               and variables can be examined and even changed.
-               The {\bf CONT} statement then resumes execution.
-\item [Remarks:] {\bf CONT} cannot be used, if the program stops
-               due to errors. Also any editing of the program
+               This is a useful debugging tool. The BASIC program may be stopped
+               and variables can be examined, and even changed.
+               The {\bf CONT} statement resumes execution.
+\item [Remarks:] {\bf CONT} cannot be used, if a program has stopped because
+               of an error. Also ,any editing of a program
                inhibits continuation. Stopping and continuation
-               can spoil the screen output or interfere with
+               can spoil the screen output, and can also interfere with
                input/output operations.
 \item [Example:] Using {\bf CONT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1692,7 +1698,7 @@ CONT
                 target [,D drive] [,U unit] }
 \item [Usage:]
    Copies the contents of
-   {\bf source} to the {\bf target}.
+   {\bf source} to {\bf target}.
    It is used to copy either single files or, by using
    wildcard characters, multiple files.
 
@@ -1706,18 +1712,18 @@ CONT
 
    \unitdefinition
 
-   If none or one unit number is given or the unit numbers before and after
-   the TO token are equal, the COPY command is executed inside the disk unit
-   and the source and target files are on the same disk.
+   If none or one unit number is given, or the unit numbers before and after
+   the TO token are equal, the COPY command is executed on the disk drive
+   itself, and the source and target files are will be on the same disk.
 
    If the source unit (before TO) is different to the target unit (after TO),
-   the COPY command is executed in the MEGA65 BASIC by reading the source
-   files into a RAM buffer and writing to the target unit. In this case
-   the target file name cannot be chosen, but will be the same as the
-   destination filename. The extended unit to unit copy mode allows to copy
+   the COPY command is executed in MEGA65 BASIC by reading the source
+   files into a RAM buffer and writing to the target unit. In this case,
+   the target file name cannot be chosen, it will be the same as the
+   destination filename. The extended unit-to-unit copy mode allows the copying of
    single files, pattern matching files or all files of a disk.
-   Any combination of units is allowed, internal floppy, SD-card images,
-   IEC floppy drives like 1541, 1571, 1581 or CMD floppy and hard drives.
+   Any combination of units is allowed, internal floppy, SD card images,
+   IEC floppy drives such as the 1541, 1571, 1581, or CMD floppy and hard drives.
 
 \item [Remarks:]
    The file types PRG, SEQ and USR can be copied.
@@ -1730,7 +1736,7 @@ CONT
 
    {\bf REL} files cannot be copied from unit to unit.
 
-\item [Example:] Using {\bf COPY}
+\item [Examples:] Using {\bf COPY}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1753,15 +1759,14 @@ CONT
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BE
 \item [Format:] {\bf COS(numeric expression)}
-\item [Usage:] The {\bf COS} function returns the cosine of the
-               argument.
+\item [Usage:] Returns the cosine of the argument.
                The argument is expected in units of {\bf [radians]}.
                The result is in the range (-1.0 to +1.0)
 
 \item [Remarks:] An argument in units of {\bf [degrees]}
                  can be converted to {\bf [radians]}
                by multiplication with $\pi/180$.
-\item [Example:] Using {\bf COS}
+\item [Examples:] Using {\bf COS}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1817,14 +1822,14 @@ X=60:PRINT COS(X * ~ / 180)
 \item [Format:] {\bf DATA [list of constants]}
 \item [Usage:] Used to define constants
                which can be read by {\bf READ} statements somewhere
-               in the program. Numbers and strings are allowed, but no expressions.
+               in a program. Numbers and strings are allowed, but no expressions.
                Items are separated by commas.
                Strings containing commas, colons or spaces must be put
                in quotes. \\
                A {\bf RUN} command initialises the data pointer
                to the first item of the first {\bf DATA} statement
-               and advances it for every read item. It is in the
-               responsibility of the programmer, that the type of
+               and advances it for every read item. It is the
+               responsibility of the programmer that the type of
                the constant and the variable in the {\bf READ}
                statement match. Empty items with no constant
                between commas are allowed and will be interpreted as
@@ -1832,9 +1837,9 @@ X=60:PRINT COS(X * ~ / 180)
                string variables. \\
                The {\bf RESTORE} command may be used to set the
                data pointer to a specific line for subsequent
-               readings.
+               reads.
 
-\item [Remarks:] It is good programming style to put large amount of
+\item [Remarks:] It is good programming practice to put large amounts of
                {\bf DATA} statements at the end of the program.
                Otherwise they slow down the search for line numbers
                after {\bf GOTO} and other statements with targets.
@@ -1883,13 +1888,13 @@ N-POINT GAUSSLEGENDRE FACTORS E1
    \unitdefinition
 
 \item [Remarks:]
-   The DOS inside the disk unit will close all open files,
-   clear all channels, free buffers and reread the BAM.
+   The DOS of the disk drive will close all open files,
+   clear all channels, free buffers and re-read the BAM.
    This command should be used together with a {\bf DCLOSE}
-   to make sure, that the computer and the drive agree
-   on the status, otherwise strange side effects may occur.
+   to ensure that the computer and the drive agree
+   on the status of the disk, otherwise strange side effects may occur.
 
-\item [Example:] Using {\bf DCLEAR}
+\item [Examples:] Using {\bf DCLEAR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1923,11 +1928,11 @@ N-POINT GAUSSLEGENDRE FACTORS E1
    or a unit number, but never both.
 
 \item [Remarks:]
-   It is important to close all open files before the program ends.
+   It is important to close all open files before a program ends.
    Otherwise buffers will not be freed and even worse, open write
-   files will be incomplete (splat files) and no more usable.
+   files may be incomplete (commonly called splat files) and no longer usable.
 
-\item [Example:] Using {\bf DCLOSE}
+\item [Examples:] Using {\bf DCLOSE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1950,8 +1955,7 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \item [Format:] {\bf DEC(string expression)}
 \item [Usage:] Returns the decimal value
                of the argument, that is written as a hex string.
-               The argument range is "0000" to "FFFF" or
-               0 to 65535 respectively.
+               The argument range is "0000" to "FFFF" (0 to 65535 in decimal).
                The argument must have 1-4 hex digits.
 
 \item [Remarks:] Allowed digits in uppercase/graphics mode are: \\
@@ -1983,15 +1987,15 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \item [Token:] \$96
 \item [Format:] {\bf DEF FN name(real variable)}
 \item [Usage:] Defines a single statement
-               user function with one argument of real type
+               user function with one argument of type real,
                returning a real value.
                The definition must be executed before the function
                can be used in expressions. The argument is
                a dummy variable, which will be replaced by the
-               argument in the function usage.
+               argument when the function is used.
 
-\item [Remarks:] The value of the dummy variable will not be changed
-                 and the variable may be used in other context
+\item [Remarks:] The value of the dummy variable will not change
+                 and the variable may be used in other contexts
                  without side effects.
 
 \item [Example:] Using {\bf DEF FN}
@@ -2136,8 +2140,6 @@ RUN
 \item [Format:] {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file directory/catalog of the specified disk.
 
-   The shortcut symbol {\bf \$} can be used in direct mode only.
-
    The {\bf W} (Wide) parameter lists the directory three columns wide
    on the screen and pauses after a the screen is full (63 directory
    entries). Pressing any key displays the next page.
@@ -2162,6 +2164,8 @@ RUN
    a filetype of {\bf P}, {\bf S}, {\bf U} or {\bf R}
    (for {\bf P}RG, {\bf S}EQ, {\bf U}SR, {\bf R}EL) filters the
    output to that filetype.
+
+   The shortcut symbol {\bf \$} can be used in direct mode only.
 
 \item [Example:] Using {\bf DIR}
 
@@ -2275,8 +2279,6 @@ DIR W
 \item [Format:] {\bf @ command [,U unit] }
 \item [Usage:]
 
-   The shortcut symbol {\bf @}  can be used in direct mode only.
-
    Sends a command string to the specified disk unit.
 
    Using the command with no parameters, prints the disk status.
@@ -2289,6 +2291,8 @@ DIR W
    The command string is interpreted by the disk unit
    and must be compatible to the used DOS version.
    Read the disk drive manual for possible commands.
+
+   The shortcut symbol {\bf @}  can be used in direct mode only.
 
 \item [Example:] Using {\bf DISK}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4907,7 +4911,6 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 \item [Format:] {\bf / filename [ unit [,flag]]}
 \item [Usage:]
 
-   The shortcut symbol {\bf /} can be used in direct mode only.
    A common use of the shortcut symbol {\bf /} is to print
    a listing to screen, move the cursor to the desired line
    and type a {\bf /} into the first column.
@@ -4932,6 +4935,8 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 \item [Remarks:]
    This command is implemented in BASIC-65 to keep it backward
    compatible to BASIC-2.
+
+   The shortcut symbol {\bf /} can be used in direct mode only.
 
 \item [Example:] Using {\bf LOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -7684,8 +7689,6 @@ DRAW PEN COLOUR =  1
 \item [Format:] {\bf SAVE filename [,unit] }
 \item [Format:] {\bf $\leftarrow$ filename [,unit] }
 \item [Usage:]
-   The shortcut symbol {\bf $\leftarrow$} can be used in direct mode only.
-
    "Saves a BASIC program to a file of type PRG.
 
    \filenamedefinition
@@ -7705,6 +7708,8 @@ DRAW PEN COLOUR =  1
    This is an obsolete command, implemented only for compatibility
    to older BASIC dialects. The command {\bf DSAVE} should be used
    instead.
+
+   The shortcut symbol {\bf $\leftarrow$} can be used in direct mode only.
 
 \item [Example:] Using {\bf SAVE}
 \begin{tcolorbox}[colback=black,coltext=white]

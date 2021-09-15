@@ -54,6 +54,9 @@ Below are some simple MEGA65 rules:
 * When quoting keywords, tokens, or any other values whilst documenting BASIC, use plain double quotes ("). However, 
   when quoting elsewhere (for example, "home-brew") please use ``home-brew'' syntax instead.
 
+* If you're documenting BASIC, ensure that every mention of a BASIC command is in __BOLD__ and uppercase. Same goes for
+  file types __PRG__,__USR__,__REL__,__SEQ__,__DEL__.
+
 
 Some commonly used words, and their preferences:
 

@@ -89,3 +89,7 @@ For Linux users, the instructions are the similar, but use your favourite packag
 ## Visual Studio Code
 
 Combined with the `LaTeX Workshop` extension, this is a great IDE for working with the project. However be careful of the using the built-in terminal for compiling the guides. It's a powershell-based terminal and won't work with the Makefile. Nor will Command Prompt. Use a more Unix styled terminal like Git Bash.
+
+
+## Style Guide
+If you wish to contribute to the MEGA65 literature, please try to read and follow the [style-guide](style-guide.md). 

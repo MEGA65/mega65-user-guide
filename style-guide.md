@@ -32,6 +32,11 @@ Below are some simple MEGA65 rules:
     * You may like to read more about the style guide here.
     * You may wish to change the program above to see what happens.
 
+* Such as, similarly, not like. Please try not to get this confused with the previous item! When describing that 
+  something is similar to something else, don't use the word like (too casual).
+  * The external microSD slot works similarly to the internal SD card slot. Not external microSD slot works like the 
+    internal SD card slot
+
 * Turn on, not power up or switch on. This is how it's worded in the C64 User Manual.
     * When you turn on your MEGA65, the following screen will appear.
 

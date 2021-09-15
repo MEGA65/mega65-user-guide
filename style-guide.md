@@ -58,7 +58,7 @@ Below are some simple MEGA65 rules:
   __DATA__, __DIR__, __PRINT__. Same goes for file types __PRG__,__USR__,__REL__,__SEQ__,__DEL__.
 
 
-Some commonly used words, and their preferences:
+Some commonly used words, and their preferences (in alphabetical order):
 
 * Adapter, not adaptor. See [here](https://english.stackexchange.com/questions/22537/which-is-the-proper-spelling-adapter-or-adaptor) for more information. 
 

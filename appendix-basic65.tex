@@ -882,7 +882,7 @@ BOOT
 
    \filenamedefinition
    If the first character of the filename is an at-sign '@', it
-   is interpreted as a "save and replace" operation. It is dangerous
+   is interpreted as a "save and replace" operation. It is not recommended
    to use this replace option on 1541 and 1571 drives, as they
    contain a notorious "save and replace bug" in their DOS.
 
@@ -1532,7 +1532,7 @@ CLOSE 1
 
 \item [Remarks:]
    While this command is useful for cleaning a disk from
-   splat files it is dangerous for disks with boot blocks or random access files.
+   splat files it is not recommended for disks with boot blocks or random access files.
    These blocks are not associated with standard disk files
    and will therefore be marked as free and may be overwritten
    by further disk write operations.
@@ -2521,7 +2521,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0D
 \item [Format:]
-  {\bf DOPEN\# lfn, filename [,L[reclen]] [,W] [,D drive] [,U unit] }
+  {\bf DOPEN\# lfn, filename [,L[recordlength]] [,W] [,D drive] [,U unit] }
 \item [Usage:]
    Opens a file for reading, or writing.
 
@@ -2529,10 +2529,10 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    1 <= lfn <= 127: line terminator is CR \\
    128 <= lfn <= 255: line terminator is CR LF
 
-   {\bf L} indicates, that the file is a relative file, which
-   is opened for read/write, as well as random access. The reclength
-   is mandatory for creating relative files. For existing
-   relative files, the {\bf reclen} is used as a safety check, if given.
+   {\bf L} indicates that the file is a relative file, which
+   is opened for read/write, as well as random access. The {\bf recordlength}
+   is mandatory for creating relative files. Although optional,
+   the {\bf recordlength} is used as a safety check for existing relative files.
 
    {\bf W} opens a file for write access. The file must not exist.
 
@@ -2582,7 +2582,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Token:] \$FE \$36
 \item [Format:] {\bf DPAT type [,number, pattern, ...]}
 \item [Usage:]
-   "Drawing PATtern" sets pattern
+   "Drawing PATtern" sets pattern the
    of the graphical context for drawing commands.
 
 \ttfamily
@@ -2604,7 +2604,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DS}
 \index{BASIC 65 System Variables!DS}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DS} is a reserved system variable
+\item [Format:] {\bf DS} is a reserved system variable.
 \item [Usage:]  {\bf DS} holds the status of the last disk operation.
                 It is a volatile variable.
                 Each use triggers the reading of the disk status
@@ -2613,7 +2613,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                 which is updated at the same time.
                 Reading the disk status from a disk device automatically
                 clears any error status on that device, so subsequent reads
-                will return 0, if no other activity was in between.
+                will return 0 if no other drive activity has taken place.
 
 \item [Example:] Using {\bf DS}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2634,16 +2634,16 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DS\$}
 \index{BASIC 65 System Variables!DS\$}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DS\$} is a reserved system variable
+\item [Format:] {\bf DS\$} is a reserved system variable.
 \item [Usage:]  {\bf DS\$} holds the status of the last disk operation
-                in text form of the format:
+                in text form in the folloing format:
                 Code,Message,Track,Sector.
 
-                {\bf DS\$} is coupled to the numeric variable {\bf DS}
-                It is updated, when {\bf DS} is used.
-                DS\$ is set to "00,OK,00,00", if there was no error, otherwise
-                it is set to a DOS error message (listed in the
-                disk manuals).
+                {\bf DS\$} is coupled to the numeric variable {\bf DS}.
+                It is updated when {\bf DS} is used.
+                {\bfDS\$} is set to "00,OK,00,00" if there was no error, otherwise
+                it is set to a DOS error message (listed in the manual
+                of your disk drive).
 
 \item [Example:] Using {\bf DS\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2673,7 +2673,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    \filenamedefinition
    The maximum length of the filename is 16 characters.
    If the first character of the filename is an at-sign '@' it
-   is interpreted as a "save and replace" operation. It is dangerous
+   is interpreted as a "save and replace" operation. It is not recommended
    to use this replace option on 1541 and 1571 drives, as they
    contain a notorious "save and replace bug" in their DOS.
 
@@ -2682,11 +2682,11 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    \unitdefinition
 
 \item [Remarks:]
-   The {\bf DVERIFY} can be used after {\bf DSAVE} to check,
+   {\bf DVERIFY} can be used after {\bf DSAVE} to check
    if the saved program on disk is identical to the program
    in memory.
 
-\item [Example:] Using {\bf DSAVE}
+\item [Examples:] Using {\bf DSAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -2706,7 +2706,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DT\$}
 \index{BASIC 65 System Variables!DT\$}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DT\$} is a reserved system variable
+\item [Format:] {\bf DT\$} is a reserved system variable.
 \item [Usage:]  {\bf DT\$} holds the current date and is updated before
                 each usage from the RTC (Real Time Clock).
                 The RTC can be set in the CONFIGURE menu.
@@ -2745,11 +2745,11 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 
 \item [Remarks:]
    {\bf DVERIFY} can only test for equality. It gives no information
-   about the number or position of different valued bytes.
+   about the number or position of different-valued bytes.
    The command exits either with the message {\bf OK}
    or with {\bf VERIFY ERROR}.
 
-\item [Example:] Using {\bf DVERIFY}
+\item [Examples:] Using {\bf DVERIFY}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -2771,43 +2771,38 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf EDIT <ON | OFF>}
 
-\item [Usage:]  {\bf EDIT} switches the builtin editor
-               either to text mode {\bf EDIT ON}
-               or BASIC program editor {\bf EDIT OFF}.
+\item [Usage:]  {\bf EDIT} switches the built-in editor
+               either to text mode when using {\bf EDIT ON},
+               or BASIC program editor mode with {\bf EDIT OFF}.
 
-               After power up or reset, the editor
-               is initialised as BASIC program editor.
+               After power up or reset, the editor defaults
+               to the BASIC program editor mode.
+
+                The mode of the editor can be identified by looking at the prompt.
+                In program mode the prompt is {\bf READY}, whereas in text mode
+                the prompt is {\bf OK}.
 
                After setting the editor to text mode with
-               {\bf EDIT ON}, the diffences to program mode are:
+               {\bf EDIT ON}, the differences to program mode are:
 
-               The editor does no tokenising.
-               All text entered after a linenumber remains pure text,
-               BASIC keywords like {\bf FOR} or {\bf GOTO} are not
-               converted to BASIC tokens, like in program mode.
+                \begin{itemize}
+                \item The editor does no tokenising. All text entered after a linenumber remains pure text,
+                      BASIC keywords such as {\bf FOR} or {\bf GOTO} are not
+                      converted to BASIC tokens, like in program mode.
+                \item Line numbers are only used for text organisation,
+                        sorting, deleting, listing etc.
+                        When text is saved to file with {\bf DSAVE},
+                        a sequential file (type {\bf SEQ}) is written, as opposed to a
+                        program ({\bf PRG}) file, which is the case when in program mode.
+                \item Line numbers are not written to disk.
+                \item Text mode only affects lines with a leading number,
+                        lines with no linenumber are executed as BASIC commands.
+                \item Sequential files, created with the text editor, can be displayed
+                        (without loading them) on screen by using the {\bf TYPE <filename>} command.
+                \end{itemize}
 
-               The line numbers are only used for text organisation
-               sorting, deleting, listing etc.
-               When the text is saved to file with {\bf DSAVE},
-               a sequential file (type {\bf SEQ}) is written, not a
-               program ({\bf PRG}) file, like in program mode.
-               Line numbers are not written to the file.
 
-               {\bf DLOAD} in text mode can load only sequential files.
-               Linenumbers are automatically generated for editing purposes.
-
-               The mode of the editor can be recognised by looking at the prompt:
-               In program mode, the prompt is: {\bf READY.}, while in text mode
-               the prompt is: {\bf OK}.
-
-               The text mode affects entered lines with leading number only,
-               lines with no linenumber are executed as BASIC commands,
-               as usual.
-
-               Sequential files, created with the text editor, can be displayed
-               (without loading them)
-               on the screen by using the {\bf TYPE <filename>} command.
-
+% TODO newpage isn't creating a new page here
 \newpage
 
 \item [Example:] Using {\bf EDIT}
@@ -2864,7 +2859,7 @@ ok.
 \item [Format:] {\bf EDMA command ,length, source,
                  target [, sub , mod]}
 \item [Usage:]
-   The {\bf EDMA} ("Extended Direct Memory Access") command is the fastest method
+   The {\bf EDMA} ("Extended Direct Memory Access") command is the fastest way
    to manipulate memory areas using the DMA controller.
 
    {\bf command} 0 = copy, 1 = mix, 2 = swap, 3 = fill
@@ -2875,7 +2870,7 @@ ok.
 
    {\bf target} = 28 bit address of write area
 
-   {\bf sub} = sub command (see chapter on DMA controller))
+   {\bf sub} = sub command (see chapter on DMA controller)
 
    {\bf mod} = modifier (see chapter on DMA controller)
 
@@ -7732,7 +7727,7 @@ DRAW PEN COLOUR =  1
    not counting the optional save and replace character '@'
    and the in-file drive definition..
    If the first character of the filename is an at-sign '@' it
-   is interpreted as a "save and replace" operation. It is dangerous
+   is interpreted as a "save and replace" operation. It is not recommended
    to use this replace option on 1541 and 1571 drives, as they
    contain a notorious "save and replace bug" in their DOS.
    The filename may be preceded by the drive number definition

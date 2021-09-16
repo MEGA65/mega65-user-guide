@@ -129,7 +129,7 @@ string                  & "X"     & "TEXT"    \\
 \section{BASIC 65 variables}
 
 Each scalar variable consumes 8 bytes of storage in memory.
-The reserved area in bank 0 from \$F700 -> \$FEFF can store 256 variables.
+The reserved area in bank 0 from \$F700-\$FEFF can store 256 variables.
 Variables don't need to be declared, the type is determined by an appended
 character. All variables without an appended character are regarded as REAL by default.
 The storage is claimed at their first usage and they are initialised to zero,
@@ -1221,8 +1221,8 @@ CHANGE &IN& TO &OUT&
                 {\bf column} (in units of character positions) is the
                 start position of the output in horizontally.
                 As each column unit is 8 pixels wide, a screen width of 320
-                has a column range of 0 -> 39, while a screen width of 640
-                has a column range of 0 -> 79.
+                has a column range of 0-39, while a screen width of 640
+                has a column range of 0-79.
 
                 {\bf row} (in pixel units) is the start position of the output
                 in vertically. In contrast to the column parameter,
@@ -2503,7 +2503,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 20 GOSUB 2000 : REM ITERATION SUBROUTINE
 30 LOOP
 
-10 I%=0 : REM INTEGER LOOP 1 -> 100
+10 I%=0 : REM INTEGER LOOP 1-100
 20 DO I%=I%+1
 30 LOOP WHILE I% < 101
 \end{verbatim}
@@ -3086,20 +3086,20 @@ where the error line is taken from {\bf EL}.
                the parameters for the synthesis of a musical
                instrument.
 
-      {\bf n} = envelope slot (0 -> 9)
+      {\bf n} = envelope slot (0-9)
 
-      {\bf attack} = attack rate (0 -> 15)
+      {\bf attack} = attack rate (0-15)
 
-      {\bf decay} = decay rate (0 -> 15)
+      {\bf decay} = decay rate (0-15)
 
-      {\bf sustain} = sustain rate (0 -> 15)
+      {\bf sustain} = sustain rate (0-15)
 
-      {\bf release} = release rate (0 -> 15)
+      {\bf release} = release rate (0-15)
 
       {\bf waveform} = (0:triangle, 1:sawtooth, 2:square/pulse, 3:noise,
                        4:ring modulation)
 
-      {\bf pw} = pulse width (0 -> 4095) for waveform = pulse.
+      {\bf pw} = pulse width (0-4095) for waveform = pulse.
 
                There are 10 slots for storing tunes,
                preset with following values:
@@ -3230,12 +3230,12 @@ where the error number is taken from {\bf ER}.
 \item [Usage:] Used to convert
                an error number to an error string.
 
-   {\bf number} is a BASIC error number (1 -> 41).
+   {\bf number} is a BASIC error number (1-41).
 
 This function is typically used in a TRAP routine,
 where the error number is taken from the reserved variable {\bf ER}.
 
-\item [Remarks:] Arguments out of range (1 -> 41) will
+\item [Remarks:] Arguments out of range (1-41) will
                  produce an 'ILLEGAL QUANTITY' error.
 
 \item [Example:] Using {\bf ERR\$}
@@ -3374,7 +3374,7 @@ PRINT EXP(LOG(2))
 
       {\bf sid} = 1 : right SID, 2 : left SID
 
-      {\bf freq} = filter cut off frequency (0 -> 2047)
+      {\bf freq} = filter cut off frequency (0-2047)
 
       {\bf lp} = low pass filter (0:off, 1:on)
 
@@ -3382,7 +3382,7 @@ PRINT EXP(LOG(2))
 
       {\bf hp} = high pass filter (0:off, 1:on)
 
-      {\bf resonance} = resonance (0 -> 15)
+      {\bf resonance} = resonance (0-15)
 
 \item [Remarks:] Missing parameter keep their current value.
                  The effective filter is the sum of
@@ -4206,8 +4206,8 @@ HELP
 \item [Usage:] Returns a four
                character string in hexadecimal notation
                converted from the argument.
-               The argument must be in the range of 0 -> 65535
-               corresponding to the hex numbers 0000 -> FFFF.
+               The argument must be in the range of 0-65535
+               corresponding to the hex numbers 0000-FFFF.
 
 \item [Remarks:] If real numbers are used as arguments, the
                  fractional part will be cut off, not rounded.
@@ -4549,11 +4549,11 @@ TYPE "CBM-PEOPLE"
                integer value, that is less or equal to the argument
                and returns this value as a real number.
                This function is {\bf NOT} limited to the typical
-               16-bit integer range (-32768 -> 32767), because
+               16-bit integer range (-32768 to 32767), because
                it uses real arithmetic. The allowed range is
                therefore determined by the size of the real
                mantissas \\
-               (32-bit) : (-2147483648 -> 2147483647).
+               (32-bit) : (-2147483648 to 2147483647).
 
 \item [Remarks:] It is not necessary to use the {\bf INT}
                function for assigning real values to integer
@@ -4716,7 +4716,7 @@ KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
 
                {\bf string} = a string expression
 
-               {\bf n} = a numeric expression (0 -> 255)
+               {\bf n} = a numeric expression (0-255)
 
 \item [Remarks:] Empty strings and zero lengths are legal values.
 
@@ -5165,7 +5165,7 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
 20 GOSUB 2000 : REM ITERATION SUBROUTINE
 30 LOOP
 
-10 I%=0 : REM INTEGER LOOP 1 -> 100
+10 I%=0 : REM INTEGER LOOP 1-100
 20 DO I%=I%+1
 30 LOOP WHILE I% < 101
 \end{verbatim}
@@ -5189,10 +5189,10 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
                The light pen must be connected to port 1.
 
                {\bf LPEN(0)} returns the X position of the light pen,
-               the range is 60 -> 320.
+               the range is 60-320.
 
                {\bf LPEN(1)} returns the Y position of the light pen,
-               the range is 50 -> 250.
+               the range is 50-250.
 
 \item [Remarks:] The X resolution is two pixels, {\bf LPEN(0)} returns
                  therefore only even numbers.
@@ -5271,9 +5271,9 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
 
                {\bf string} = a string expression
 
-               {\bf index} = start index (0 -> 255)
+               {\bf index} = start index (0-255)
 
-               {\bf n} = length of sub-string (0 -> 255)
+               {\bf n} = length of sub-string (0-255)
 
 \item [Remarks:] Empty strings and zero lengths are legal values.
 
@@ -5756,7 +5756,7 @@ In most cases the {\bf NOT} will be used in {\bf IF} statements.
 
    The {\bf secondary address} has some special values for
    IEC disk units, 0:load, 1:save, 15:command channel.
-   The values 2 -> 14 may be used for disk files.
+   The values 2-14 may be used for disk files.
 
    {\bf filename} is either a quoted string, e.g. {\bf "data"} or
    a string expression. The syntax is different to the {\bf DOPEN\#}
@@ -5897,17 +5897,17 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
                 {\bf PALETTE RESTORE} resets the system palette to
                 the default values.
 
-                {\bf screen} = screen number 0 -> 3.
+                {\bf screen} = screen number 0-3.
 
                 {\bf COLOR} = keyword for changing system palette.
 
-                {\bf colour} = index to palette 0 -> 255.
+                {\bf colour} = index to palette 0-255.
 
-                {\bf red} = red intensity 0 -> 15.
+                {\bf red} = red intensity 0-15.
 
-                {\bf green} = green intensity 0 -> 15.
+                {\bf green} = green intensity 0-15.
 
-                {\bf blue} = blue intensity 0 -> 15.
+                {\bf blue} = blue intensity 0-15.
 
 \item [Example:] Using {\bf PALETTE}
 
@@ -5953,7 +5953,7 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
                 Addresses >= \$10000 are assumed to be flat memory
                 addresses and used as such, ignoring the bank setting.
 
-\item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
+\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
                  Banks > 127 are used to access I/O and SYSTEM
                  like VIC, SID, FDC, etc.
 \item [Example:] Using {\bf PEEK}
@@ -5991,7 +5991,7 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
                 addresses and used as such, ignoring the bank setting.
 
 
-\item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
+\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
                  Banks > 127 are used to access I/O and SYSTEM
                  like VIC, SID, FDC, etc.
 \item [Example:] Using {\bf PEEKW}
@@ -6018,7 +6018,7 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \item [Format:] {\bf PEN [pen,] colour}
 \item [Usage:]  Sets the colour for the graphic pen.
 
-                {\bf pen} = pen number ( 0 -> 2 )
+                {\bf pen} = pen number ( 0-2 )
 
                 pen 0 : drawing pen (default, if only single parameter provided) \\
                 pen 1 : off bits in jam2 mode \\
@@ -6286,7 +6286,7 @@ HELLO
                 Addresses >= \$10000 are assumed to be flat memory
                 addresses and used as such, ignoring the bank setting.
 
-                {\bf byte} = a value 0 -> 255.
+                {\bf byte} = a value 0-255.
 
 \item [Remarks:] The address is increased by one for each data byte,
                  so a memory range may be filled with a single command.
@@ -6325,7 +6325,7 @@ HELLO
                 Addresses >= \$10000 are assumed to be flat memory
                 addresses and used as such, ignoring the bank setting.
 
-                {\bf word} = a value 0 -> 65535
+                {\bf word} = a value 0-65535
 
                 The first word is stored at address (low byte)
                 and address+1 (high byte). The second one at
@@ -6439,7 +6439,7 @@ HELLO
 \item [Format:] {\bf POT(paddle)}
 \item [Usage:]  Returns the position of a paddle.
 
-                {\bf paddle} = paddle number 1 -> 4.
+                {\bf paddle} = paddle number 1-4.
 
                 The low byte of the return value is the
                 paddle value
@@ -6490,7 +6490,7 @@ HELLO
                 the necessary number of digits. Real values are
                 printed either in fixed point format with typically
                 9 digits or in scientific format, if the value is
-                outside the range of 0.01 -> 999999999.
+                outside the range of 0.01 to 999999999.
 
                 {\bf string} : The string may consist of printable
                 characters and control codes. Printable characters
@@ -6549,7 +6549,7 @@ HELLO
                 the necessary number of digits. Real values are
                 printed either in fixed point format with typically
                 9 digits or in scientific format, if the value is
-                outside the range of 0.01 -> 999999999.
+                outside the range of 0.01 to 999999999.
 
                 {\bf string} : The string may consist of printable
                 characters and control codes. Printable characters
@@ -6849,7 +6849,7 @@ RUN
 
                 {\bf lfn} = {\bf l}ogical {\bf f}ile {\bf n}umber
 
-                {\bf record} = target record ( 1 -> 65535 ).
+                {\bf record} = target record ( 1-65535 ).
 
                 {\bf byte} = byte position in record.
 
@@ -7228,7 +7228,7 @@ RUN
 
                {\bf string} = a string expression
 
-               {\bf n} = a numeric expression (0 -> 255)
+               {\bf n} = a numeric expression (0-255)
 
 \item [Remarks:] Empty strings and zero lengths are legal values.
 
@@ -7589,11 +7589,11 @@ DRAW PEN COLOUR =  1
 \item [Format:] {\bf RSPRITE(sprite,n)}
 \item [Usage:]  Returns sprite's parameter.
 
-                {\bf sprite} : sprite number (0 -> 7)
+                {\bf sprite} : sprite number (0-7)
 
                 {\bf n} = 0 : turned on (0 or 1).
 
-                {\bf n} = 1 : foreground colour (0 -> 15)
+                {\bf n} = 1 : foreground colour (0-15)
 
                 {\bf n} = 2 : background priority (0 or 1).
 
@@ -8157,22 +8157,22 @@ DRAW PEN COLOUR =  1
 
 \item [Usage:] plays a sound effect.
 
-               {\bf voice} = voice number ( 1 -> 6 ).
+               {\bf voice} = voice number ( 1-6 ).
 
-               {\bf freq} = frequency ( 0 -> 65535 ).
+               {\bf freq} = frequency ( 0-65535 ).
 
-               {\bf dur} = duration ( 0 -> 32767) .
+               {\bf dur} = duration ( 0-32767) .
 
                {\bf dir} = direction (0:up, 1:down, 2:oscillate).
 
-               {\bf min} = minimum frequency ( 0 -> 65535 ).
+               {\bf min} = minimum frequency ( 0-65535 ).
 
-               {\bf sweep} = sweep range ( 0 -> 65535 ).
+               {\bf sweep} = sweep range ( 0-65535 ).
 
                {\bf wave} = waveform (0:triangle, 1:saw, 2:square,
                3:noise).
 
-               {\bf pulse} = pulse width ( 0 -> 5095 ).
+               {\bf pulse} = pulse width ( 0-5095 ).
 
 For details on sound programming, read the {\bf SOUND} chapter.
 
@@ -8748,7 +8748,7 @@ RUN
 \item [Format:] {\bf TEMPO speed}
 \item [Usage:] Sets the playback speed for the {\bf PLAY} command.
 
-               {\bf speed} = 1 -> 255.
+               {\bf speed} = 1 to 255.
 
                The duration of a whole note is computed with
                $ duration = 24 / speed $.
@@ -9121,7 +9121,7 @@ READY.
 20 GOSUB 2000 : REM ITERATION SUBROUTINE
 30 LOOP
 
-10 I%=0 : REM INTEGER LOOP 1 -> 100
+10 I%=0 : REM INTEGER LOOP 1-100
 20 DO I%=I%+1
 30 LOOP WHILE I% < 101
 \end{verbatim}
@@ -9226,7 +9226,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
                 the contents of the floating point accumulator 1,
                 which should be set by the user routine..
 
-\item [Remarks:] Banks 0 -> 127 give access to RAM or ROM banks.
+\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
                  Banks > 127 are used to access I/O and SYSTEM
                  like VIC, SID, FDC, etc.
 \item [Example:] Using {\bf USR}
@@ -9369,7 +9369,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \item [Usage:] Sets the volume for sound output with
                {\bf SOUND} or {\bf PLAY}.
 
-               {\bf volume} = 0 (off) -> 15 (loudest).
+               {\bf volume} = 0 (off) to 15 (loudest).
 
 \item [Remarks:] This volume setting affects all voices.
 
@@ -9470,7 +9470,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 20 GOSUB 2000 : REM ITERATION SUBROUTINE
 30 LOOP
 
-10 I%=0 : REM INTEGER LOOP 1 -> 100
+10 I%=0 : REM INTEGER LOOP 1-100
 20 DO I%=I%+1
 30 LOOP WHILE I% < 101
 \end{verbatim}

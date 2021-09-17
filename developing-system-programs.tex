@@ -2,30 +2,30 @@
 
 \section{Introduction}
 
-The MEGA65 has a number of system programmes and utilities that are used at various times to perform various functions.
+The MEGA65 has a number of system programs and utilities that are used at various times to perform various functions.
 This includes the utilities accessible via the Utility Menu \index{Utility Menu}, the Freeze Menu \index{Freeze Menu} and
-its own helper programmes, as well as the Flash Menu \index{Flash Menu}\index{MEGA Flash}.
+its own helper programs, as well as the Flash Menu \index{Flash Menu}\index{MEGA Flash}.
 
-A number of these system programmes are pre-loaded into the MEGA65 bitstream, while others live on the SD card.
+A number of these system programs are pre-loaded into the MEGA65 bitstream, while others live on the SD card.
 For those that are pre-loaded into the MEGA65 bitstream, this works by having areas of pre-initialised memory, that
 contain the appropriate program.  For example, the utilities accessible via the Utility Menu are all located in
 the colour RAM, while the Flash Menu is located at \$50000 -- \$57FFF.
 
 In one sense, the easiest way to test new versions of these utilities is to generate a new bitstream with the updated versions.
 However, synthesising a new bitstream is very time consuming, typically taking an hour on a reasonably fast computer.
-Therefore this chapter explains the procedure for loading an alternate version of each of these system programmes, as well as
-providing some useful information about these programmes, how the operate, and the environment in which they operate compared
-with normal C64 or C65 mode programmes.
+Therefore this chapter explains the procedure for loading an alternate version of each of these system programs, as well as
+providing some useful information about these programs, how the operate, and the environment in which they operate compared
+with normal C64 or C65 mode programs.
 
 \section{Flash Menu}
 
 The flash menu is located in pre-initialised RAM at \$50000 -- \$57FFFF.  It is executed during the first boot each time the
 MEGA65 is powered on.  It is unusual in that it executes in the hypervisor context. This is so that it has access to the QSPI
-flash, which is not available outside of Hypervisor Mode, so that user programmes cannot corrupt the cores stored in the flash.
+flash, which is not available outside of Hypervisor Mode, so that user programs cannot corrupt the cores stored in the flash.
 
 It is also important to note that the flash menu program must fit {\em entirely} below \$8000 when loaded {\em and} executing, as the Hypervisor is still mapped at \$8000 -- \$BFFF, and can easily be corrupted by an ill behaved flash menu program.  In this regard, the flash menu
 can be regarded as an extension of the hypervisor that is discarded after the first boot.
-This is unlike all other system programmes, that operate in a dedicated memory context, from where the Hypervisor is safe from corruption. It also means that you can't crunch the flash menu to make it fit, as it would overwrite the Hypervisor during decrunching.
+This is unlike all other system programs, that operate in a dedicated memory context, from where the Hypervisor is safe from corruption. It also means that you can't crunch the flash menu to make it fit, as it would overwrite the Hypervisor during decrunching.
 
 Also, as the flash menu is executed very early in the boot process, only the pre-included OpenROM ROM image is available.  Thus you must ensure that your flash menu program is compatible with that ROM.
 
@@ -65,7 +65,7 @@ You will of course need to first have modified the Format/FDISK utility, which i
 
 You need to then load this modified colour RAM image into the running machine. Similar to when updating the flash menu, the Hypervisor will
 only present the utility menu on the first boot, before exiting to user mode for the first time, because it cannot otherwise be sure that
-the colour RAM contains the valid utility programmes.  
+the colour RAM contains the valid utility programs.  
 
 So as for the flash menu, you would power the MEGA65 off, and then holding the ALT key down, you turn the MEGA65 back on, so that it displays the utility menu.  At this point you can use the following command to load your modified {\tt COLOURRAM.BIN} file:
 
@@ -95,7 +95,7 @@ To updated the Freeze Menu, simply use the {\tt m65ftp} utility or some other me
 
 \section{Freeze Menu Helper Programmes}
 
-The Freeze Menu helper programmes are updated in the same way as the Freeze Menu itself.
+The Freeze Menu helper programs are updated in the same way as the Freeze Menu itself.
 
 \section{Hypervisor}
 

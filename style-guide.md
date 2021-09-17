@@ -74,3 +74,7 @@ Some commonly used words, and their preferences (in alphabetical order):
 * Programmer, not coder (C64 manual doesn't use the term, and it's not very formal).
 
 * SD card/microSD and not sd-card.
+
+* 8-bit, not 8 bit. When referring to multiple bits, no hyphen is necessary. Example:
+  * The C64 is an 8-bit computer with a 16-bit address space.
+  * A byte consists of 8 bits.

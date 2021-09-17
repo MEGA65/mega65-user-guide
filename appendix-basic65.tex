@@ -3131,7 +3131,7 @@ where the error line is taken from {\bf EL}.
    \unitdefinition
 
    {\bf R} Recover a previously erased file.
-   This will only work, if there were no write operations
+   This will only work if there were no write operations
    between erasing and recovery, which may have altered the
    contents of the file.
 
@@ -3169,8 +3169,8 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 System Variables!ER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf ER} is a reserved system variable.
-\item [Usage:]  {\bf ER} has the value of the latest BASIC error that has
-               occurred or -1 if there was no error.
+\item [Usage:]  {\bf ER} has the value of the most recent BASIC error that has
+               occurred, or -1 if there was no error.
 
 This variable is typically used in a TRAP routine,
 where the error number is taken from {\bf ER}.
@@ -3210,7 +3210,7 @@ This function is typically used in a TRAP routine,
 where the error number is taken from the reserved variable {\bf ER}.
 
 \item [Remarks:] Arguments out of range (1-41) will
-                 produce an 'ILLEGAL QUANTITY' error.
+                 produce an ILLEGAL QUANTITY error.
 
 \item [Example:] Using {\bf ERR\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3240,11 +3240,10 @@ where the error number is taken from the reserved variable {\bf ER}.
 \item [Format:] {\bf EXIT}
 \item [Usage:] Exits the current {\bf DO .. LOOP}
                and continues execution at the first
-               statement after the next {\bf LOOP} statement.
+               statement after {\bf LOOP}.
 
-\item [Remarks:] In nested loops {\bf EXIT} exits only one loop
-               continuing executing in the next outer loop
-               if there is one.
+\item [Remarks:] In nested loops, {\bf EXIT} exits only the current loop,
+               and continues execution in an outer loop (if there is one).
 \item [Example:] Using {\bf EXIT}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -3279,13 +3278,13 @@ where the error number is taken from the reserved variable {\bf ER}.
 \item [Format:] {\bf EXP(numeric expression)}
 \item [Usage:] The {\bf EXP} (EXPonential function) computes
                the value of the mathematical constant
-               Euler's number {\bf e = 2.71828183}
+               Euler's number {\bf 2.71828183}
                raised to the power of the
                argument.
 
 \item [Remarks:] An argument greater than 88 produces
                  an OVERFLOW ERROR:
-\item [Example:] Using {\bf EXP}
+\item [Examples:] Using {\bf EXP}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -3313,12 +3312,13 @@ PRINT EXP(LOG(2))
 \item [Token:] \$FE \$25
 \item [Format:] {\bf FAST}
 \item [Usage:] Set CPU clock to 1 MHz, 3.5 MHz or 40 MHz.
-\item [Remarks:] Any numerical parameter, that is not 1.X or 3.X
+\item [Remarks:] Any numerical parameter that is not 1.X or 3.X
                  is discarded and the speed is set to maximum. \\
+                 \\
                  {\bf FAST} is a synonym of {\bf SPEED}.
 
-                 {\bf SPEED} has no effect, if {\bf POKE 0,65}
-                 was used before to force the speed to maximum.
+                 {\bf FAST} has no effect if {\bf POKE 0,65}
+                 has previously been used to enable the highest speed (40MHz).
 
 \item [Example:] Using {\bf FAST}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3344,7 +3344,7 @@ PRINT EXP(LOG(2))
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$03
 \item [Format:] {\bf FILTER sid [,freq, lp, bp, hp, res]}
-\item [Usage:] Sets the parameters for sound filter.
+\item [Usage:] Sets the parameters for a SID sound filter.
 
       {\bf sid} 1 : right SID, 2 : left SID
 
@@ -3358,7 +3358,7 @@ PRINT EXP(LOG(2))
 
       {\bf resonance} resonance (0 -> 15)
 
-\item [Remarks:] Missing parameter keep their current value.
+\item [Remarks:] Missing parameters keep their current value.
                  The effective filter is the sum of
                  of all filter settings.
                  This enables band reject and notch effects.
@@ -3386,27 +3386,27 @@ FILTER 1,1023,0,0,1,10 :REM HIGH PASS
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2B
 \item [Format:] {\bf FIND {\bf delimiter} string {\bf delimiter} [,from-to]}
-\item [Usage:]  {\bf FIND} is an editor command and can be used
-                in direct mode only. It searches the line range
-                (if specified) or the whole BASIC program else.
+\item [Usage:]  {\bf FIND} is an editor command that can be used
+                in direct mode only. It searches a given line range
+                (if specified), otherwise the entire BASIC program is searched.
                 At each occurrence of the "find string" the line is
                 listed with the string highlighted.
-                The <NO-SCROLL> key can be used to pause the output.
+                The \specialkey{NO\\SCROLL} key can be used to pause the output.
 
-\item [Remarks:] Basically any unshifted character, that is not part of
-                 the string, can be used as delimiter.
+\item [Remarks:] Any un-shifted character that is not part of
+                 the string can be used as delimiter.
 
-                 But using quotes {\bf "} as delimiter has a special effect:
-                 In this case the search text is not tokenised:
-                 FIND "FOR" will search the three letters F, O, R, not
-                 the BSASIC keyword {\bf FOR}. So it can find the word
+                 However, using double quotes {\bf "} as a delimiter has a special effect:
+                 The search text is not tokenised.
+                 {\bf FIND "FOR"} will search for the three letters F, O, and R, not
+                 the BASIC keyword {\bf FOR}. Therefore, it can find the word
                  {\bf FOR} in string constants or REM statements, but not
                  in program code.
 
-                 On the other hand FIND /FOR/ will find all occurences of
+                 On the other hand, {\bf FIND /FOR/} will find all occurrences of
                  the BASIC keyword, but not the text "FOR" in strings.
 
-                 Also notice, that you cannot search for partial keywords.
+                 Partial keywords cannot be searched. For example,
                  {\bf FIND /LOO/} will not find the keyword {\bf LOOP},
 
 
@@ -3427,11 +3427,11 @@ FILTER 1,1023,0,0,1,10 :REM HIGH PASS
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A5
 \item [Format:] {\bf FN name(numeric expression)}
-\item [Usage:] The {\bf FN} functions are user defined
-               functions, that accept a numeric expression as
+\item [Usage:] {\bf FN} functions are user-defined
+               functions, that accept a numeric expression as an
                argument and return a real value.
-               They must be defined with {\bf DEF FN} before
-               the first usage.
+               They must first be defined with {\bf DEF FN} before
+               being used.
 
 \item [Example:] Using {\bf FN}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3466,10 +3466,10 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$46
 \item [Format:] {\bf FONT [A|B|C]}
-\item [Usage:] The {\bf FONT} command is used to switch between fonts
-               and the code pages PETSCII and enhanced PETSCII.
-               The enhanced PETSCII includes all ASCII symbols, that
-               are missing in the PETSCII code page, though the order
+\item [Usage:] {\bf FONT} is used to switch between fonts,
+               and the code pages PETSCII, and enhanced PETSCII.
+               The enhanced PETSCII includes all ASCII symbols that
+               are missing in the PETSCII code page, although the order
                is still PETSCII.
                The ASCII symbols are typed by holding the \megasymbolkey
                together with the desired key.
@@ -3522,7 +3522,7 @@ RUN
 % \end{verbatim}
 
 
-\item [Example:] Using {\bf FONT}
+\item [Examples:] Using {\bf FONT}
 \begin{tcolorbox}[colback=black,coltext=white]
 %\verbatimfont{\codefont}
 \begin{verbatim}
@@ -3544,34 +3544,34 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$81
 \item [Format:] {\bf FOR index=start TO end [STEP step] ... NEXT [index]}
-\item [Usage:] The {\bf FOR} statement starts the definition
+\item [Usage:] {\bf FOR} statements start the definition
                of a BASIC loop with an index variable.
 
-               The {\bf index} variable may be incremented or decremented
+               {\bf index} may be incremented or decremented
                by a constant value on each iteration. The default
                is to increment the variable by 1.
                The index variable must be a real variable.
 
-               The {\bf start} value is used to initialise the index.
+               {\bf start} is used to initialise the index.
 
-               The {\bf end} value is used at the end of the loop
-               and controls, whether the next iteration will be started
+               {\bf end} is used at the end of the loop,
+               and controls whether the next iteration will be executed,
                or the loop exited.
 
-               The {\bf step} value defines the change applied to
-               to the index variable at the end of the loop.
+               {\bf step} defines the change applied to
+               to the index variable at the end of an iteration.
                Positive step values increment it, while negative values
                decrement it. It defaults to 1.0 if not specified.
 
-\item [Remarks:] For positive increments {\bf end} must be greater
-               or equal than {\bf start}, for negative increments
-               {\bf end} must be less or equal than {\bf start}.
+\item [Remarks:] For positive increments {\bf end} must be greater than
+               or equal to {\bf start}, whereas for negative increments
+               {\bf end} must be less than or equal to {\bf start}.
 
-               It is bad programming style to change the value
+               It is bad programming practice to change the value
                of the index variable inside the loop or to
-               jump into or out of the loop body with {\bf GOTO}.
+               jump into or out of a loop body with {\bf GOTO}.
 
-\item [Example:] Using {\bf FOR}
+\item [Examples:] Using {\bf FOR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -3603,8 +3603,15 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Usage:] Sets the foreground colour
                (text colour) of the screen to the argument,
                which must be in the
-               range of 0 to 15. (See colour table under the {\bf BACKGROUND} command on page \pageref{colourtable}).
-\item [Example:] \screentext{FOREGROUND  7} - select foreground colour yellow.
+               range of 0 to 15.
+(See colour table under the {\bf BACKGROUND} command on
+page \pageref{colourtable}).
+\item [Example:] Using {\bf FOREGROUND}
+\begin{center}
+\includegraphics[width=0.7\linewidth]{images/foreground-7.png}
+\end{center}
+
+
 \end{description}
 
 % ***
@@ -3619,15 +3626,15 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Token:] \$B8
 \item [Format:] {\bf FRE(bank)}
 \item [Usage:] Returns the number of free bytes for banks 0 or 1,
-               or the ROM version, if the argument is negative.
+               or the ROM version if the argument is negative.
 
                {\bf FRE(0)} returns the number of free bytes in
                bank 0, which is used for BASIC program source.
 
                {\bf FRE(1)} returns the number of free bytes in
                bank 1, which is the bank for BASIC variables, arrays
-               and strings. A usage of {\bf FRE(1)} also triggers the
-               "garbage collection", a process, that collects
+               and strings. {\bf FRE(1)} also triggers
+               "garbage collection", which is a process that collects
                used strings at the top of the bank, thereby
                defragmenting string memory.
 
@@ -3662,13 +3669,14 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Usage:] Reads {\bf size} bytes from {\bf channel} to memory
                starting at the 32-bit address {\bf pointer}.
 
-               Care must be taken, not to overwrite memory,
+               Care must be taken not to overwrite memory
                that is used by the system or the interpreter.
 
                It is recommended to use the {\bf POINTER} statement
-               for the pointer argument and compute the size parameter
+               for the pointer argument, and to compute the size parameter
                by multiplying the number of elements with the item size.
 
+\label{freadtable}
 {\ttfamily
 \setlength{\tabcolsep}{1mm}
 \begin{tabular}{|l|l|}
@@ -3682,12 +3690,12 @@ real     array &  5     \\
 \end{tabular}
 }
 
-Keep in mind, that the {\bf POINTER} function with a string argument
+Keep in mind that the {\bf POINTER} function with a string argument
 does NOT return the string address, but the string descriptor.
-It is recommend, not to use {\bf FREAD} for strings or string arrays
-unless you are fully aware, how to handle the string storage internals.
+It is not recommended to use {\bf FREAD} for strings or string arrays
+unless you are fully aware on how to handle the string storage internals.
 
-Also take care, that you always specify an index, if you use an array.
+Also, ensure that you always specify an index if you use an array.
 The start address of array XY() is POINTER(XY(0)).
 POINTER(XY) returns the address of the scalar variable XY.
 
@@ -3720,34 +3728,26 @@ POINTER(XY) returns the address of the scalar variable XY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1E
 \item [Format:] {\bf FWRITE\#channel, pointer, size}
-\item [Usage:] Writes {\bf size} bytes from {\bf channel} to memory
+\item [Usage:] Writes {\bf size} bytes to {\bf channel} from memory
                starting at the 32-bit address {\bf pointer}.
 
                It is recommended to use the {\bf POINTER} statement
                for the pointer argument and compute the size parameter
                by multiplying the number of elements with the item size.
 
-{\ttfamily
-\setlength{\tabcolsep}{1mm}
-\begin{tabular}{|l|l|}
-\hline
- type          & item size \\
-\hline
-byte     array &  1     \\
-integer  array &  2     \\
-real     array &  5     \\
-\hline
-\end{tabular}
-}
+               Refer to the {\bf FREAD} item size table on page \pageref{freadtable}
+               for the item sizes.
 
-Keep in mind, that the {\bf POINTER} function with a string argument
+Keep in mind that the {\bf POINTER} function with a string argument
 does NOT return the string address, but the string descriptor.
-It is recommend, not to use {\bf FWRITE} for strings or string arrays
-unless you are fully aware, how to handle the string storage internals.
+It is not recommended to use {\bf FWRITE} for strings or string arrays
+unless you are fully aware on how to handle the string storage internals.
 
-Also take care, that you always specify an index, if you use an array.
+
+Also ensure that you always specify an index if you use an array.
 The start address of array XY() is POINTER(XY(0)).
 POINTER(XY) returns the address of the scalar variable XY.
+
 
 \item [Example:] Using {\bf FWRITE}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3778,20 +3778,20 @@ POINTER(XY) returns the address of the scalar variable XY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1
 \item [Format:] {\bf GET variable}
-\item [Usage:] Gets the next character or byte value of that character
+\item [Usage:] Gets the next character (or byte value of the next character)
                from the keyboard queue.
-               If the variables is of type string and the queue is empty
-               an empty string is assigned to the variable,
+               If the variable being set to the character is of type string and the queue is empty,
+               an empty string is assigned to it,
                otherwise a one character string is created
-               and assigned to the string variable.
-               If the variable is of numeric type, the character code
-               of the key is assigned to it, or zero if there was no keypress.
+               and assigned instead.
+               If the variable is of type numeric, the byte value
+               of the key is assigned to it, otherwise zero will be assigned if the queue is empty.
                This command does not wait for keyboard
                input, so it's useful to check for key presses
-               in regular intervals or loops.
+               at regular intervals or in loops.
 
 \item [Remarks:] The command {\bf GETKEY} is similar, but waits
-                 until a key was hit.
+                 until a key has been pressed.
 
 \item [Example:] Using {\bf GET}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3822,10 +3822,10 @@ POINTER(XY) returns the address of the scalar variable XY.
 \item [Usage:] Reads as many bytes
                as necessary from the channel argument
                and assigns strings of length one to
-               string variables or the read 8-bit binary value
+               string variables, or an 8-bit binary value
                to numeric variables.
-               This is useful to read characters or bytes from
-               an input stream one by one.
+               This is useful for reading characters (or bytes) from
+               an input stream one byte at a time.
 
 \item [Remarks:] All values from 0 to 255 are valid, so this
                command can also be used to read binary data.
@@ -3862,13 +3862,14 @@ POINTER(XY) returns the address of the scalar variable XY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1 \$F9 (GET token and KEY token)
 \item [Format:] {\bf GETKEY variable}
-\item [Usage:] Gets the next character or code value
-               from the keyboard queue. If the queue is empty
-               the program waits until a key is hit.
-               Then a one character string is created
-               and assigned to the string variable.
-               If the variable is numeric, the character code
-               is assigned as value.
+\item [Usage:] Gets the next character (or byte value of the next character)
+               from the keyboard queue. If the queue is empty,
+               the program will wait until a key has been pressed.
+               After a key has been pressed the variable will be set
+               and program execution will continue. When used with
+               a string variable, a one character string is created and assigned.
+               Otherwise if the variable is of type numeric, the byte value
+               is assigned.
 
 \item [Example:] Using {\bf GETKEY}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3897,10 +3898,10 @@ POINTER(XY) returns the address of the scalar variable XY.
 \item [Token:] \$CB \$36 \$34 (GO token and 64 )
 \item [Format:] {\bf GO64}
 \item [Usage:] Switches the
-               computer to the C64 compatible mode. In direct
-               mode a security prompt \screentext{ARE YOU SURE?}
-               is printed, which must be responded with 'Y' to
-               continue. Use \screentext{SYS58552} to switch back
+               MEGA65 to C64 compatible mode. If you're in direct
+               mode, a security prompt \screentext{ARE YOU SURE?}
+               is displayed, which must be responded with \screentext{Y} to
+               continue. \screentext{SYS58552} can be used to switch back
                to C65 mode.
 
 \item [Example:] Using {\bf GO64}:
@@ -3929,23 +3930,23 @@ ARE YOU SURE?
                execution at the given BASIC line number,
                saving the current BASIC program counter
                and line number on the run-time stack.
-               This enables the resume of the execution after
+               This enables the resumption of execution after
                the {\bf GOSUB} statement, once a {\bf RETURN}
-               statement in the called subroutine was executed.
-               Calls to subroutines via {\bf GOSUB} may be nested
-               but the end of the subroutine code must always
-               be a {\bf RETURN}. Otherwise a stack overflow
+               statement in the called subroutine is executed.
+               Calls to subroutines via {\bf GOSUB} may be nested,
+               but the subroutines must always end with a
+               {\bf RETURN}, otherwise a stack overflow
                may occur.
 
-\item [Remarks:] Unlike other programming languages, this BASIC
-               version does not support arguments or local
+\item [Remarks:] Unlike other programming languages, BASIC65
+               does not support arguments or local
                variables for subroutines. \\
                Programs can be optimised by grouping subroutines
                at the beginning of the program source. The
                {\bf GOSUB} calls will then have low line numbers
-               with only few digits to decode. Also the subroutines
-               will be found faster, because the search for subroutines
-               starts very often at the start of the program.
+               with fewer digits to decode. The subroutines
+               will also be found faster, since the search for subroutines
+               often starts at the beginning of the program.
 \item [Example:] Using {\bf GOSUB}:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}

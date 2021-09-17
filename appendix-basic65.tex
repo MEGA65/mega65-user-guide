@@ -256,8 +256,8 @@ string   array &  3     &    \$    & length = 0 .. 255 & AB\$(X) = "TEXT" \\
 \item [Usage:]  {\bf AND} performs a bit-wise
                 logical AND operation on two 16-bit values.
                 Integer operands are used as they are.
-                Real operands are converted to a signed 16 bit integer.
-                Logical operands are converted to 16 bit integer
+                Real operands are converted to a signed 16-bit integer.
+                Logical operands are converted to 16-bit integer
                 using \$FFFF, decimal -1 for TRUE
                 and \$0000, decimal 0, for FALSE.
 
@@ -651,7 +651,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 
    The {\bf BLOAD} command has two modes:
    The flat memory address mode can be used to load a program to any
-   address in the 28 bit (256 MB) address range where RAM is installed.
+   address in the 28-bit (256 MB) address range where RAM is installed.
    This includes the standard RAM banks 0 to 5, but also
    the 8MB so called "attic RAM" at address \$8000000.
 
@@ -882,7 +882,7 @@ BOOT
 
    \filenamedefinition
    If the first character of the filename is an at-sign '@', it
-   is interpreted as a "save and replace" operation. It is not recommended
+   is interpreted as a "save and replace" operation. It is dangerous
    to use this replace option on 1541 and 1571 drives, as they
    contain a notorious "save and replace bug" in their DOS.
 
@@ -1168,12 +1168,12 @@ width=28mm,height=3mm,valign=center]
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2C
 \item [Format:] {\bf CHANGE "findstring" TO "replacestring" [,from-to]}
-\item [Usage:]  Performs a {\bf find and replace} of the BASIC programi
+\item [Usage:]  {\bf CHANGE} performs a {\bf find and replace} of the BASIC program
                 that is currently in memory.
-   A specified line range limits the seaarch to this range.
-   Otherwise the whole BASIC program is searched.
-   At each occurrence of the findstring, the line is
-   listed and the user is prompted for an action: \\
+   An optional line range {\bf from-to} limits the search to this range,
+   otherwise the whole BASIC program is searched.
+   At each oc\-cur\-rence of the {\bf findstring}, the line is
+   listed and the user is prompted for an action:
     \begin{itemize}
       \item \megakey{Y} \megakey{RETURN} perform the replace and find the next string
       \item \megakey{N} \megakey{RETURN} do {\bf not} perform the replace and find the next string
@@ -1532,7 +1532,7 @@ CLOSE 1
 
 \item [Remarks:]
    While this command is useful for cleaning a disk from
-   splat files it is not recommended for disks with boot blocks or random access files.
+   splat files it is dangerous for disks with boot blocks or random access files.
    These blocks are not associated with standard disk files
    and will therefore be marked as free and may be overwritten
    by further disk write operations.
@@ -1572,7 +1572,7 @@ CLOSE 1
                 This handler must give control back with a {\bf RETURN}.
 
                 {\bf type} specifies the collision type for
-                this interrupt handler: \\
+                this interrupt handler:
                     \begin{longtable}{ c | l}
                     1	& 	sprite - sprite collision \\
                     2	& 	sprite - data - collision \\
@@ -2409,11 +2409,11 @@ DIR W
 
    {\bf length} number of bytes
 
-   {\bf source address} 16 bit address of read area or fill byte
+   {\bf source address} = 16-bit address of read area or fill byte
 
    {\bf source bank} bank number for source (ignored for fill mode)
 
-   {\bf target} 16 bit address of write area
+   {\bf target} = 16-bit address of write area
 
    {\bf target bank} bank number for target
 
@@ -2521,7 +2521,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0D
 \item [Format:]
-  {\bf DOPEN\# lfn, filename [,L[recordlength]] [,W] [,D drive] [,U unit] }
+  {\bf DOPEN\# lfn, filename [,L[reclen]] [,W] [,D drive] [,U unit] }
 \item [Usage:]
    Opens a file for reading, or writing.
 
@@ -2529,10 +2529,10 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    1 <= lfn <= 127: line terminator is CR \\
    128 <= lfn <= 255: line terminator is CR LF
 
-   {\bf L} indicates that the file is a relative file, which
-   is opened for read/write, as well as random access. The {\bf recordlength}
-   is mandatory for creating relative files. Although optional,
-   the {\bf recordlength} is used as a safety check for existing relative files.
+   {\bf L} indicates, that the file is a relative file, which
+   is opened for read/write, as well as random access. The reclength
+   is mandatory for creating relative files. For existing
+   relative files, the {\bf reclen} is used as a safety check, if given.
 
    {\bf W} opens a file for write access. The file must not exist.
 
@@ -2582,7 +2582,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Token:] \$FE \$36
 \item [Format:] {\bf DPAT type [,number, pattern, ...]}
 \item [Usage:]
-   "Drawing PATtern" sets pattern the
+   "Drawing PATtern" sets pattern
    of the graphical context for drawing commands.
 
 \ttfamily
@@ -2604,7 +2604,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DS}
 \index{BASIC 65 System Variables!DS}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DS} is a reserved system variable.
+\item [Format:] {\bf DS} is a reserved system variable
 \item [Usage:]  {\bf DS} holds the status of the last disk operation.
                 It is a volatile variable.
                 Each use triggers the reading of the disk status
@@ -2613,7 +2613,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                 which is updated at the same time.
                 Reading the disk status from a disk device automatically
                 clears any error status on that device, so subsequent reads
-                will return 0 if no other drive activity has taken place.
+                will return 0, if no other activity was in between.
 
 \item [Example:] Using {\bf DS}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2634,16 +2634,16 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DS\$}
 \index{BASIC 65 System Variables!DS\$}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DS\$} is a reserved system variable.
+\item [Format:] {\bf DS\$} is a reserved system variable
 \item [Usage:]  {\bf DS\$} holds the status of the last disk operation
-                in text form in the folloing format:
+                in text form of the format:
                 Code,Message,Track,Sector.
 
-                {\bf DS\$} is coupled to the numeric variable {\bf DS}.
-                It is updated when {\bf DS} is used.
-                {\bfDS\$} is set to "00,OK,00,00" if there was no error, otherwise
-                it is set to a DOS error message (listed in the manual
-                of your disk drive).
+                {\bf DS\$} is coupled to the numeric variable {\bf DS}
+                It is updated, when {\bf DS} is used.
+                DS\$ is set to "00,OK,00,00", if there was no error, otherwise
+                it is set to a DOS error message (listed in the
+                disk manuals).
 
 \item [Example:] Using {\bf DS\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2673,7 +2673,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    \filenamedefinition
    The maximum length of the filename is 16 characters.
    If the first character of the filename is an at-sign '@' it
-   is interpreted as a "save and replace" operation. It is not recommended
+   is interpreted as a "save and replace" operation. It is dangerous
    to use this replace option on 1541 and 1571 drives, as they
    contain a notorious "save and replace bug" in their DOS.
 
@@ -2682,11 +2682,11 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    \unitdefinition
 
 \item [Remarks:]
-   {\bf DVERIFY} can be used after {\bf DSAVE} to check
+   The {\bf DVERIFY} can be used after {\bf DSAVE} to check,
    if the saved program on disk is identical to the program
    in memory.
 
-\item [Examples:] Using {\bf DSAVE}
+\item [Example:] Using {\bf DSAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -2706,7 +2706,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DT\$}
 \index{BASIC 65 System Variables!DT\$}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DT\$} is a reserved system variable.
+\item [Format:] {\bf DT\$} is a reserved system variable
 \item [Usage:]  {\bf DT\$} holds the current date and is updated before
                 each usage from the RTC (Real Time Clock).
                 The RTC can be set in the CONFIGURE menu.
@@ -2745,11 +2745,11 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 
 \item [Remarks:]
    {\bf DVERIFY} can only test for equality. It gives no information
-   about the number or position of different-valued bytes.
+   about the number or position of different valued bytes.
    The command exits either with the message {\bf OK}
    or with {\bf VERIFY ERROR}.
 
-\item [Examples:] Using {\bf DVERIFY}
+\item [Example:] Using {\bf DVERIFY}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -2771,38 +2771,43 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf EDIT <ON | OFF>}
 
-\item [Usage:]  {\bf EDIT} switches the built-in editor
-               either to text mode when using {\bf EDIT ON},
-               or BASIC program editor mode with {\bf EDIT OFF}.
+\item [Usage:]  {\bf EDIT} switches the builtin editor
+               either to text mode {\bf EDIT ON}
+               or BASIC program editor {\bf EDIT OFF}.
 
-               After power up or reset, the editor defaults
-               to the BASIC program editor mode.
-
-                The mode of the editor can be identified by looking at the prompt.
-                In program mode the prompt is {\bf READY}, whereas in text mode
-                the prompt is {\bf OK}.
+               After power up or reset, the editor
+               is initialised as BASIC program editor.
 
                After setting the editor to text mode with
-               {\bf EDIT ON}, the differences to program mode are:
+               {\bf EDIT ON}, the diffences to program mode are:
 
-                \begin{itemize}
-                \item The editor does no tokenising. All text entered after a linenumber remains pure text,
-                      BASIC keywords such as {\bf FOR} or {\bf GOTO} are not
-                      converted to BASIC tokens, like in program mode.
-                \item Line numbers are only used for text organisation,
-                        sorting, deleting, listing etc.
-                        When text is saved to file with {\bf DSAVE},
-                        a sequential file (type {\bf SEQ}) is written, as opposed to a
-                        program ({\bf PRG}) file, which is the case when in program mode.
-                \item Line numbers are not written to disk.
-                \item Text mode only affects lines with a leading number,
-                        lines with no linenumber are executed as BASIC commands.
-                \item Sequential files, created with the text editor, can be displayed
-                        (without loading them) on screen by using the {\bf TYPE <filename>} command.
-                \end{itemize}
+               The editor does no tokenising.
+               All text entered after a linenumber remains pure text,
+               BASIC keywords like {\bf FOR} or {\bf GOTO} are not
+               converted to BASIC tokens, like in program mode.
 
+               The line numbers are only used for text organisation
+               sorting, deleting, listing etc.
+               When the text is saved to file with {\bf DSAVE},
+               a sequential file (type {\bf SEQ}) is written, not a
+               program ({\bf PRG}) file, like in program mode.
+               Line numbers are not written to the file.
 
-% TODO newpage isn't creating a new page here
+               {\bf DLOAD} in text mode can load only sequential files.
+               Linenumbers are automatically generated for editing purposes.
+
+               The mode of the editor can be recognised by looking at the prompt:
+               In program mode, the prompt is: {\bf READY.}, while in text mode
+               the prompt is: {\bf OK}.
+
+               The text mode affects entered lines with leading number only,
+               lines with no linenumber are executed as BASIC commands,
+               as usual.
+
+               Sequential files, created with the text editor, can be displayed
+               (without loading them)
+               on the screen by using the {\bf TYPE <filename>} command.
+
 \newpage
 
 \item [Example:] Using {\bf EDIT}
@@ -2859,7 +2864,7 @@ ok.
 \item [Format:] {\bf EDMA command ,length, source,
                  target [, sub , mod]}
 \item [Usage:]
-   The {\bf EDMA} ("Extended Direct Memory Access") command is the fastest way
+   The {\bf EDMA} ("Extended Direct Memory Access") command is the fastest method
    to manipulate memory areas using the DMA controller.
 
    {\bf command} 0 = copy, 1 = mix, 2 = swap, 3 = fill.
@@ -3708,7 +3713,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Token:] \$FE \$1C
 \item [Format:] {\bf FREAD\#channel, pointer, size}
 \item [Usage:] Reads {\bf size} bytes from {\bf channel} to memory
-               starting at the 32 bit address {\bf pointer}.
+               starting at the 32-bit address {\bf pointer}.
 
                Care must be taken, not to overwrite memory,
                that is used by the system or the interpreter.
@@ -3769,7 +3774,7 @@ POINTER(XY) returns the address of the scalar variable XY.
 \item [Token:] \$FE \$1E
 \item [Format:] {\bf FWRITE\#channel, pointer, size}
 \item [Usage:] Writes {\bf size} bytes from {\bf channel} to memory
-               starting at the 32 bit address {\bf pointer}.
+               starting at the 32-bit address {\bf pointer}.
 
                It is recommended to use the {\bf POINTER} statement
                for the pointer argument and compute the size parameter
@@ -5403,7 +5408,7 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
 \item [Token:] \$FE \$06
 \item [Format:] {\bf MOVSPR number, position} \\
                 {\bf MOVSPR number, start-position TO end-position, speed}
-\item [Usage:]  Each position argument consists of two 16 bit values,
+\item [Usage:]  Each position argument consists of two 16-bit values,
                 which specify either an absolute coordinate, a relative coordinate,
                 an angle or a speed. The value type is determined by a prefix:
 
@@ -5581,10 +5586,10 @@ FOR I = 0 TO 8: PRINT MOD(I,4);: NEXT I
 \item [Token:] \$A8
 \item [Format:] {\bf NOT} operand
 \item [Usage:]  Performs a bit-wise
-                logical NOT operation on a 16 bit value.
+                logical NOT operation on a 16-bit value.
                 Integer operands are used as they are.
-                Real operands are converted to a signed 16 bit integer.
-                Logical operands are converted to 16 bit integer
+                Real operands are converted to a signed 16-bit integer.
+                Logical operands are converted to 16-bit integer
                 using \$FFFF, decimal -1 for TRUE
                 and \$0000, decimal 0, for FALSE.
 
@@ -5940,7 +5945,7 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C2
 \item [Format:] {\bf PEEK(address)}
-\item [Usage:]  Returns an unsigned 8 bit value (byte)
+\item [Usage:]  Returns an unsigned 8-bit value (byte)
                 read from address.
 
                 If the address is in the range (\$0000 to \$FFFF) the
@@ -5960,7 +5965,7 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
  10 BANK 128                :REM SELECT SYSTEM BANK
  20 L = PEEK($02F8)         :REM USR JUMP TARGET LOW
  30 H = PEEK($02F9)         :REM USR JUMP TARGET HIGH
- 40 T = L + 256 * H         :REM 16 BIT JUMP ADDRESS
+ 40 T = L + 256 * H         :REM 16-BIT JUMP ADDRESS
  50 PRINT "USR FUNCTION CALLS ADDRESS";T
 \end{verbatim}
 \end{tcolorbox}
@@ -5977,7 +5982,7 @@ In most cases the {\bf OR} will be used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C2 'W'
 \item [Format:] {\bf PEEKW(address)}
-\item [Usage:]  Returns an unsigned 16 bit value (word)
+\item [Usage:]  Returns an unsigned 16-bit value (word)
                 read from address (low byte) and address+1 (high byte).
 
                 If the address is in the range (\$0000 to \$FFFF) the
@@ -6225,7 +6230,7 @@ statement. The default setting for the envelopes are:
 \item [Token:] \$CE \$0A
 \item [Format:] {\bf POINTER(variable)}
 \item [Usage:]  Returns the current address of a variable
-                or an array element as 32 bit pointer.
+                or an array element as 32-bit pointer.
                 For string variables, it is the address of
                 the string descriptor, not the string itself.
                 The string descriptor consists of the three bytes
@@ -7728,7 +7733,7 @@ DRAW PEN COLOUR =  1
    not counting the optional save and replace character '@'
    and the in-file drive definition..
    If the first character of the filename is an at-sign '@' it
-   is interpreted as a "save and replace" operation. It is not recommended
+   is interpreted as a "save and replace" operation. It is dangerous
    to use this replace option on 1541 and 1571 drives, as they
    contain a notorious "save and replace bug" in their DOS.
    The filename may be preceded by the drive number definition
@@ -9532,8 +9537,8 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \item [Usage:]  The Boolean {\bf XOR} operator performs a bit-wise
                 logical exclusive OR operation on two 16-bit values.
                 Integer operands are used as they are.
-                Real operands are converted to a signed 16 bit integer.
-                Logical operands are converted to 16 bit integer
+                Real operands are converted to a signed 16-bit integer.
+                Logical operands are converted to 16-bit integer
                 using \$FFFF, decimal -1 for TRUE
                 and \$0000, decimal 0, for FALSE.
 

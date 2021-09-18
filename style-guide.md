@@ -57,6 +57,7 @@ Below are some simple MEGA65 rules:
 * If you're documenting BASIC, ensure that every mention of a BASIC command is in bold and uppercase. For example,
   __DATA__, __DIR__, __PRINT__. Same goes for file types __PRG__,__USR__,__REL__,__SEQ__,__DEL__.
 
+* When using tables, please center them on the page by using `\begin{center}` and `\end{center}`.
 
 Some commonly used words, and their preferences (in alphabetical order):
 

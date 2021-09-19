@@ -119,7 +119,8 @@ you leave a few pixels spare on all sides. This is so you can round off the corn
   * Open or paste your screenshot as a new image.
   * Press CTRL/Command+A to select all, or click Select > All.
   * Click Select > Rounded Rectangle.
-  * Choose a sensible percentage so the corners are similar to the LaTeX/text based code snippets.
+  * Choose a sensible percentage so the corners are similar to the LaTeX/text based code snippets. Normally the 
+    percentage is from 5-15%.
   * Press CTRL/Command + I, or click Select > Invert.
   * Press Delete, or click Edit > Clear.
   * Export the image as a PNG.

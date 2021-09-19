@@ -69,9 +69,9 @@ KEY 8."FISH"
 It is very common for commands, functions and operators to use one or
 more {\bf``expressions''}.
 An expression is just a fancy name for something that has a value.
-This could be a string  (\screentext{"HELLO"}), a number
+This could be a string (\screentext{"HELLO"}), a number
 (\screentext{23.7}), or a calculation that might include
-one or more functions or operators, (\screentext{LEN("HELLO") * (3 XOR 7)}).
+one or more functions or operators (\screentext{LEN("HELLO") * (3 XOR 7)}).
 Generally speaking, expressions can result in either a string or a numeric result.
 In this case we call the expressions either string expressions or numeric expressions.
 For example, \screentext{"HELLO"} is a {\bf string expression}, while
@@ -2428,7 +2428,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                Using {\bf DO} and {\bf LOOP} alone without any
                modifiers creates an infinite loop, which can only be left
                by the {\bf EXIT} statement. The loop can be
-               controlled by adding {\bf UNTIL} or {\bf WHILE},
+               controlled by adding {\bf UNTIL} or {\bf WHILE}
                after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
@@ -2496,10 +2496,10 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    must be specified in the filename, e.g. by adding ",P" to the
    filename for {\bf PRG} files or ",U" for {\bf USR} files.
 
-   The usage of the "save-and-replace" character '@' at the
-   beginning of the filename is not recommended, because many
-   Commodore disk drives have a bug that can cause data loss
-   when using this feature.
+   If the first character of the filename is an at sign (@), it
+   is interpreted as a "save and replace" operation. It is not recommended
+   to use this option on 1541 and 1571 drives, as they
+   contain a "save and replace bug" in their DOS.
 
 \newpage
 \item [Examples:] Using {\bf DOPEN}
@@ -2620,7 +2620,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 
    \filenamedefinition
    The maximum length of the filename is 16 characters.
-   If the first character of the filename is an at sign (@) it
+   If the first character of the filename is an at sign (@), it
    is interpreted as a "save and replace" operation. It is not recommended
    to use this option on 1541 and 1571 drives, as they
    contain a "save and replace bug" in their DOS.
@@ -4650,8 +4650,8 @@ MEGA
 \item [Remarks:] There is no terminating character, as opposed to
                  other programming languages such as C, which uses
                  the NULL character. The length of
-                 the string is internally stored in an extra byte
-                 of the string descriptor.
+                 the string is internally stored in a byte within
+                 the string descriptor.
 
 \item [Example:] Using {\bf LEN}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5066,10 +5066,10 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
 {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expression>]
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                the start of a BASIC loop.
-Using {\bf DO} and {\bf LOOP} alone without any
-modifiers creates an infinite loop, which can only be left
-by the {\bf EXIT} statement. The loop can be
-controlled by adding {\bf UNTIL} or {\bf WHILE}
+               Using {\bf DO} and {\bf LOOP} alone without any
+               modifiers creates an infinite loop, which can only be left
+               by the {\bf EXIT} statement. The loop can be
+               controlled by adding {\bf UNTIL} or {\bf WHILE}
                after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
@@ -5595,9 +5595,9 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$91
 \item [Format:] {\bf ON expression GOSUB line list} \\
-\item [Format:] {\bf ON expression GOTO line list}  \\
-\item [Format:] {\bf ON expression GOSUB line list} \\
-\item [Format:] {\bf keyword} {\bf ON}
+                {\bf ON expression GOTO line list}  \\
+                {\bf ON expression GOSUB line list} \\
+                {\bf keyword} {\bf ON}
 \item [Usage:]  {\bf ON} calls
                 either a computed {\bf GOSUB} or {\bf GOTO} statement.
                 Depending on the result of the expression, the target
@@ -5698,15 +5698,15 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
    {\bf filename} is either a quoted string, e.g. {\bf "data"} or
    a string expression. The syntax is different to the {\bf DOPEN\#}
    command, since the {\bf filename} for {\bf OPEN} includes all
-   file attributes, e.g.: "0:data,s,w".
+   file attributes, for example "0:data,s,w".
 
 \item [Remarks:]
    For IEC disk units the usage of {\bf DOPEN\#} is recommended.
 
-   The usage of the "save-and-replace" character '@' at the
-   beginning of the filename is not recommended, because many
-   Commodore disk drives have a bug that can cause data loss
-   when using this feature.
+   If the first character of the filename is an at sign (@), it
+   is interpreted as a "save and replace" operation. It is not recommended
+   to use this option on 1541 and 1571 drives, as they
+   contain a "save and replace bug" in their DOS.
 
 \item [Example:] Using {\bf OPEN}
 
@@ -5761,7 +5761,7 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 \item [Remarks:] The result is of type integer.
                  If the result is used in a logical context,
                  the value of 0 is regarded as FALSE, and
-                 all other, non-zero values are regarded as TRUE.
+                 all other non-zero values are regarded as TRUE.
 \item [Example:] Using {\bf OR}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -6044,8 +6044,8 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                and all of BASIC's music-system variables to be reset (E.g. {\bf TEMPO}).
 
                The {\bf PLAY} command can be followed by up to six comma-separated string arguments,
-               where each argument provides the sequence of notes and directives to be played on
-               a specific voice on the two available SID chips, allowing for up to 6-channel polyphony.
+               where each argument provides a sequence of notes and directives to be played on
+               a specific voice on the two available SID chips, allowing for up to 6 channel polyphony.
 
                A musical note is a character (A, B, C, D, E, F, or G),
                which may be preceded by an optional modifier.
@@ -6094,7 +6094,7 @@ Embedded directives consist of a letter, followed by a digit:
   beginning of your string upon completion.
 
   You have a lot of flexibility on which voice channels you choose to play your melodies on.
-  For instance, you may decide to use only voice1 and voice4 for your melody, and spare
+  For instance, you may decide to use only voice 1 and voice 4 for your melody, and spare
   the other channels for sound effects generated by the {\bf SOUND} command. Just skip the voices
   you're not using with {\bf PLAY}, by leaving those arguments empty:
 
@@ -6106,7 +6106,7 @@ Embedded directives consist of a letter, followed by a digit:
 \end{tcolorbox}
 
   You can even call {\bf PLAY} again to use the aforementioned unused channels, to play another melody
-  alongside your first melody. For example, using voice2 and voice5 this time:
+  alongside your first melody. For example, using voice 2 and voice 5 this time:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -6262,7 +6262,6 @@ HELLO
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
                 {\bf word} a value from 0-65535.
-
                 The first word is stored at address (low byte)
                 and address+1 (high byte). The second word is stored at
                 address+2 (low byte) and address+3 (high byte), etc.
@@ -6435,7 +6434,7 @@ Results in:
 
                     \item {\bf string} The string may consist of printable
                     characters and control codes. Printable characters
-                    are printed to the cursor position, while control
+                    are printed at the cursor position, while control
                     codes are executed.
 
                     \item {\bf ","} A comma acts as a tabulator.
@@ -6492,7 +6491,7 @@ Results in:
 
                     \item {\bf string} The string may consist of printable
                     characters and control codes. Printable characters
-                    are printed to the cursor position, while control
+                    are printed at the cursor position, while control
                     codes are executed.
 
                     \item {\bf ","} A comma acts as a tabulator.
@@ -6940,7 +6939,7 @@ RECORD # 4 RECORD # 2
                {\bf RENUMBER} can be executed in direct mode only.
                If it detects a problem such as memory overflow,
                unresolved references or line number overflow
-               (greater than 64000), it will stop with an error
+               (more than than 64000 lines), it will stop with an error
                message and leave the program unchanged.
 
                The command may be called with 0-3 parameters.
@@ -7015,16 +7014,16 @@ RENUMBER 100,5,120-180   :REM RENUMBER LINES 120-180 TO 100,105,...
                 resume normal program execution after
                 handling the exception.
 
+                {\bf RESUME} with no parameters attempts to
+                re-execute the statement that caused the error.
+                The {\bf TRAP} routine should have examined
+                and corrected the variables in this case.
+
                 {\bf line} program execution resumes
                 at the given line number.
 
                 {\bf NEXT} resumes execution at the statement following
                 {\bf NEXT} that caused the error.
-
-                {\bf RESUME} with no parameters attempts to
-                re-execute the statement that caused the error.
-                The {\bf TRAP} routine should have examined
-                and corrected the variables in this case.
 
 \item [Remarks:] {\bf RESUME} cannot be used in direct mode.
 \item [Example:] Using {\bf RESUME}
@@ -7816,8 +7815,8 @@ DRAW PEN COLOUR =  1
                method, if only one single screen is needed (i.e., no need
                for two screens to double-buffer). This does all
                preparatory work for you, and will call commands such as
-               {\bf GRAPHIC CLR}, {\bf SCREEN DEF},
-               {\bf SCREEN SET}, {\bf SCREEN OPEN} and {\bf SCREEN CLR}
+               {\bf GRAPHIC CLR}, {\bf SCREEN CLR}, {\bf SCREEN DEF},
+               {\bf SCREEN OPEN} and, {\bf SCREEN SET}
                on your behalf. It takes the following parameters:
 
                {\bf SCREEN [screen,] width, height, depth}
@@ -9372,8 +9371,8 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                the start of a BASIC loop.
                Using {\bf DO} and {\bf LOOP} alone without any
-               modifiers creates an infinite loop, that can be left
-               by the {\bf EXIT} statement only. The loop can be
+               modifiers creates an infinite loop, which can only be left
+               by the {\bf EXIT} statement. The loop can be
                controlled by adding {\bf UNTIL} or {\bf WHILE}
                after the {\bf DO} or {\bf LOOP}.
 
@@ -9475,8 +9474,8 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 
 \item [Remarks:] The result is of type integer.
                  If the result is used in a logical context,
-                 the value of 0 is regarded as FALSE,
-                 all other, non-zero values are regarded as TRUE.
+                 the value of 0 is regarded as FALSE, and
+                 all other non-zero values are regarded as TRUE.
 \item [Example:] Using {\bf XOR}
 
 \begin{tcolorbox}[colback=black,coltext=white]

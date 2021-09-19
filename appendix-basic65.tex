@@ -1172,7 +1172,7 @@ width=28mm,height=3mm,valign=center]
    the BASIC keyword \screentext{LOOP}, because the
    keyword is stored as a token and not as text.
    However \screentext{CHANGE \&LOOP\& TO \&OOPS\&} will
-   find and replace it (probably causing SYNTAX ERRORs).
+   find and replace it (possibly causing SYNTAX ERRORs).
 
    Used in direct mode only.
 
@@ -2436,7 +2436,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                Using {\bf DO} and {\bf LOOP} alone without any
                modifiers creates an infinite loop, which can only be left
                by the {\bf EXIT} statement. The loop can be
-               controlled by adding {\bf UNTIL} or {\bf WHILE}
+               controlled by adding {\bf UNTIL} or {\bf WHILE},
                after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
@@ -2628,7 +2628,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 
    \filenamedefinition
    The maximum length of the filename is 16 characters.
-   If the first character of the filename is an at sign (@), it
+   If the first character of the filename is an at sign (@) it
    is interpreted as a "save and replace" operation. It is not recommended
    to use this option on 1541 and 1571 drives, as they
    contain a "save and replace bug" in their DOS.
@@ -3921,7 +3921,7 @@ ARE YOU SURE?
                {\bf RETURN}, otherwise a stack overflow
                may occur.
 
-\item [Remarks:] Unlike other programming languages, BASIC 65
+\item [Remarks:] Unlike other programming languages, BASIC65
                does not support arguments or local
                variables for subroutines. \\
                Programs can be optimised by grouping subroutines
@@ -4417,7 +4417,7 @@ TYPE "CBM-PEOPLE"
                character. The second special pattern character is
                the '*' (asterisk). The asterisk in the search string indicates
                that the character preceding the asterisk may never occur
-               in order to be considered a match.
+               in order to be considered as a match.
 
                The optional argument {\bf start} is an integer
                expression, which defines the starting position
@@ -4658,7 +4658,7 @@ MEGA
 \item [Remarks:] There is no terminating character, as opposed to
                  other programming languages such as C, which uses
                  the NULL character. The length of
-                 the string is internally stored in a byte within
+                 the string is internally stored in an extra byte of
                  the string descriptor.
 
 \item [Example:] Using {\bf LEN}:
@@ -5069,16 +5069,16 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EC
 \item [Format:] {\bf DO} ... {\bf LOOP} \\
-{\bf DO} [ <{\bf UNTIL | WHILE}> <logical expression>] \\
-. . . statements [{\bf EXIT}] \\
-{\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expression>]
+                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expression>] \\
+                . . . statements [{\bf EXIT}] \\
+                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expression>]
 \item [Usage:] {\bf DO} and {\bf LOOP} define
-               the start of a BASIC loop.
-               Using {\bf DO} and {\bf LOOP} alone without any
-               modifiers creates an infinite loop, which can only be left
-               by the {\bf EXIT} statement. The loop can be
-               controlled by adding {\bf UNTIL} or {\bf WHILE}
-               after the {\bf DO} or {\bf LOOP}.
+                the start of a BASIC loop.
+                Using {\bf DO} and {\bf LOOP} alone without any
+                modifiers creates an infinite loop, that can be left
+                by the {\bf EXIT} statement only. The loop can be
+                controlled by adding {\bf UNTIL} or {\bf WHILE}
+                after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
 only exits the current loop.
@@ -5168,7 +5168,7 @@ only exits the current loop.
    replace a program in memory (which is what {\bf DLOAD} does),
    but is appended to a program in memory.
    After loading the program is re-linked
-   and ready to run, or edit.
+   and ready to run or edit.
 
    It is the user's responsibility to ensure that there
    are no line number conflicts among the program in memory and
@@ -6052,8 +6052,8 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                and all of BASIC's music-system variables to be reset (E.g. {\bf TEMPO}).
 
                The {\bf PLAY} command can be followed by up to six comma-separated string arguments,
-               where each argument provides a sequence of notes and directives to be played on
-               a specific voice on the two available SID chips, allowing for up to 6 channel polyphony.
+               where each argument provides the sequence of notes and directives to be played on
+               a specific voice on the two available SID chips, allowing for up to 6-channel polyphony.
 
                A musical note is a character (A, B, C, D, E, F, or G),
                which may be preceded by an optional modifier.
@@ -6114,7 +6114,7 @@ Embedded directives consist of a letter, followed by a digit:
 \end{tcolorbox}
 
   You can even call {\bf PLAY} again to use the aforementioned unused channels, to play another melody
-  alongside your first melody. For example, using voice 2 and voice 5 this time:
+  alongside your first melody. For example, using voice2 and voice5 this time:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -6903,7 +6903,7 @@ RECORD # 4 RECORD # 2
    The {\bf RENAME} command is executed in the DOS of the disk drive.
    It can rename all regular file types ({\bf PRG}, {\bf SEQ}, {\bf USR}, {\bf REL}).
    The old file must exist, the new file must not exist.
-   Only single files can be renamed, wild characters such as
+   Only single files can be renamed, wildcard characters such as
    '*' and '?' are not allowed. The file type cannot be changed.
 
 \item [Example:] Using {\bf RENAME}
@@ -6941,8 +6941,8 @@ RECORD # 4 RECORD # 2
 
                The {\bf RENUMBER} changes all line numbers in
                the chosen range and also changes all references
-               in statements that use {\bf GOTO}, {\bf GOSUB}, {\bf TRAP},
-               {\bf RESTORE}, {\bf RUN} etc.
+               in statements that use {\bf GOSUB}, {\bf GOTO},
+               {\bf RESTORE}, {\bf RUN}, {\bf TRAP}, etc.
 
                {\bf RENUMBER} can be executed in direct mode only.
                If it detects a problem such as memory overflow,
@@ -7018,14 +7018,14 @@ RENUMBER 100,5,120-180   :REM RENUMBER LINES 120-180 TO 100,105,...
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D6
 \item [Format:] {\bf RESUME [line | NEXT]}
-\item [Usage:]  is used inside a {\bf TRAP} routine to
+\item [Usage:]  Is used inside a {\bf TRAP} routine to
                 resume normal program execution after
-                handling the exception.
+                handling an exception.
 
                 {\bf RESUME} with no parameters attempts to
                 re-execute the statement that caused the error.
                 The {\bf TRAP} routine should have examined
-                and corrected the variables in this case.
+                and corrected the issue that cause the exception in this case.
 
                 {\bf line} program execution resumes
                 at the given line number.

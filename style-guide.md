@@ -50,6 +50,8 @@ Below are some simple MEGA65 styling rules:
 
 * There's a dedicated LaTeX tag used for signifying keys on the MEGA65 keyboard. So instead of using text such as `<RETURN>`,   use the `megakey`
   or `specialkey` tag, for example: `\specialkey{RETURN}`, `megakey{X}`.
+  * Only letter, number, function, and symbol keys should be using the `\megakey` tag. Everything else should 
+    use `\specialkey`, for the MEGA key use `\megasymbolkey`. `RESTORE` needs to be `\widekey{RESTORE}`.
 
 * When pointing out on-screen text, the `screentext` tag should be used. Example: `\screentext{HELLO WORLD}`. Note that upper case letters were used, as that's what the MEGA65 uses by default.
 

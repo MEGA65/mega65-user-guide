@@ -4,13 +4,17 @@ BOOKS=	mega65-book.pdf \
 	mega65-userguide.pdf \
 	mega65-developer-guide.pdf \
 	mega65-chipset-reference.pdf \
-	mega65-basic10-reference.pdf \
+	mega65-basic65-reference.pdf \
 	mega65-basic-programming.pdf \
 
-GENERATED_TEX_FILES= 	instructionset-4510.tex \
+GENERATED_TEX_FILES= 	document-memory \
+			instructionset-4510.tex \
 		     	instructionset-6502.tex \
 		     	instructionset-45GS02.tex \
-		 	api-conio.tex
+		 	api-conio.tex \
+			appendix-basic65-indexed.tex \
+			appendix-basic65-condensed.tex \
+			#images/illustrations/screen-40x25-addresses16-80.pdf
 
 
 .PHONY: $(BOOKS) all clean
@@ -18,6 +22,12 @@ GENERATED_TEX_FILES= 	instructionset-4510.tex \
 all:	$(BOOKS)
 
 books:	$(BOOKS)
+
+screen-maps:	screen-maps.c Makefile
+	$(CC) -Wall -o screen-maps screen-maps.c -lhpdf
+
+images/illustrations/screen-40x25-addresses16-80.pdf:	screen-maps
+	./screen-maps
 
 prg2tex:	prg2tex.c
 	$(CC) -Wall -o prg2tex prg2tex.c
@@ -37,13 +47,13 @@ api-conio.tex:	libc-doc ../mega65-libc/cc65/include/conio.h
 instruction_set: instruction_set.c Makefile
 	$(CC) -Wall -g -o instruction_set instruction_set.c
 
-instructionset-45GS02.tex:	instruction_set
+instructionset-45GS02.tex:	instruction_sets instruction_set
 	./instruction_set instruction_sets/45GS02.opc > instructionset-45GS02.tex
 
-instructionset-4510.tex:	instruction_set
+instructionset-4510.tex:	instruction_sets instruction_set
 	./instruction_set instruction_sets/4510.opc > instructionset-4510.tex
 
-instructionset-6502.tex:	instruction_set
+instructionset-6502.tex:	instruction_sets instruction_set
 	./instruction_set instruction_sets/6502.opc > instructionset-6502.tex
 
 #images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot
@@ -56,15 +66,16 @@ mega65-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX
 
 mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
+	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
 
-mega65-basic10-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
-	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-reference.tex
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic65-reference.tex
 
-#mega65-basic10-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+#mega65-basic65-programming.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 #	./getgitinfo
-#	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic10-programming.tex
+#	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic65-programming.tex
 
 
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
@@ -96,8 +107,26 @@ mega65-book.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory $(GEN
 mega65-book-cmyk.pdf:	mega65-book.pdf
 	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-book-cmyk.pdf mega65-book.pdf
 
+mega65-developer-guide-cmyk.pdf:	mega65-developer-guide.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-developer-guide-cmyk.pdf mega65-developer-guide.pdf
+
 document-memory:	document-memory.c Makefile
 	$(CC) -Wall -g -o document-memory document-memory.c
 
+index_basic_programmes:	index_basic_programmes.c Makefile
+	$(CC) -Wall -g -o index_basic_programmes index_basic_programmes.c
+
+appendix-basic65-indexed.tex:	appendix-basic65.tex index_basic_programmes
+	./index_basic_programmes appendix-basic65.tex > appendix-basic65-indexed.tex
+
+generate_condensed: generate_condensed.c Makefile
+	 $(CC) -Wall -g -o generate_condensed generate_condensed.c
+
+appendix-basic65-condensed.tex: appendix-basic65-indexed.tex generate_condensed
+	./generate_condensed
+
 clean:
 	latexmk -CA
+
+format:
+	find . -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' | xargs clang-format --style=file -i

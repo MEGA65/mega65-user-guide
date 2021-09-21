@@ -1,0 +1,837 @@
+\chapter{45IO27 Multi-Function IO Controller}
+
+\section{Overview}
+
+The 45IO27 is a multi-purpose IO controller that incorporates the functions of the
+C65's F011 floppy controller, together with the MEGA65's SD card controller interface,
+and a number of other miscellaneous IO functions.
+
+Each of these major functions is covered in a separate section of this chapter.
+
+\section{F011-compatible Floppy Controller}
+
+The MEGA65 computer is one of the very few modern computers that still
+includes first-class support for magnetic floppy drives.  It includes
+a floppy controller that is backwards compatible with the C65's F011D
+floppy drive controller.
+
+However, unlike the F011D, the MEGA65's
+floppy disk controller supports HD and ED media, and similar to the
+1541 floppy drive, it also supports variable data rates, so that a
+determined user could develop disk formats that store more data,
+include robust copy protection schemes, or both.
+
+GCR encoding is not currently supported, but may be supported by a
+future revision of the controller.  It may also be possible with some
+creativity and effort to use the debug register interface to read
+double-density GCR formatted media.  This is because there are debug
+registers that can be queried to indicate the gap between each
+successive magnetic domain -- which is sufficient to decode any disk
+format. 
+
+\subsection{Multiple Drive Support}
+
+Like the C65's F011 floppy drive controller, the 45IO27 supports up to 8 drives.
+The first two of those drives, drive 0 and drive 1, are assumed to be connected to a
+standard 34-pin floppy cable, the same as used in standard PCs, i.e.,
+with a twist in the cable to allow the use of two unjumpered drives.
+
+As is described in later sections, it is possible to switch drive 0
+and drive 1's position, without having to change cabling. Similarly,
+either or both of the first two drives may reference a real floppy
+drive, a D81 disk image stored on an attached SD card, or redirected
+to the floppy drive virtualisation service, so that the sector
+accesses can be handled by a connected computer, e.g., as part of a
+comfortable and efficient cross-development environment.
+
+The remaining six drives are supported only in conjunction with a
+future C1565-compatible external drive port.
+
+\subsection{Buffered Sector Operations}
+\label{subsec:reading-from-disks-and-buffer-management}
+
+The 45IO27 support two main modes of reading sectors from a
+disk: byte-by-byte, and via a memory-mapped sector buffer.
+
+The byte-by-byte mechanism consists of having a loop wait for the DRQ
+signal to be asserted, and then reading the byte of data from the DATA
+register (\$D087).
+
+The memory-mapped sector buffer method consists of waiting for the
+BUSY flag to clear, indicating that the entire sector has been read,
+and then directly accessing the sector buffer located at \$FFD6C00 --
+\$FFD6DFF. Care should be taken to ensure that the BUFSEL signal (bit 7 of \$D689) is
+cleared, so that the floppy sector buffer is visible, rather than the
+SD card sector buffer for programs other than the Hypervisor. This
+is because only the Hypervisor has access to the full 4KiB SD
+controller buffer space: Normal programs see either the floppy
+sector buffer or the SD card sector buffer repeated 8 times between
+\$FFD6000 and \$FFD6FFF.
+
+Alternatively, the sector buffer can be mapped at \$DE00 -- \$DFFF,
+i.e., in the 4KB IO area, by writing the \$81 to the SD command
+register at \$D680.  This will hide any IO peripherals that are
+otherwise using this area, e.g., from cartridges, or REU emulation.
+This function can be disabled again by writing \$82 to the SD command
+register. As with the normal sector buffer memory mapping at
+\$FFD6xxx, the BUFSEL signal (bit 7 of \$D689) affects whether the FDC
+or the SD card sector buffer is visible, for software not running in
+Hypervisor mode.  Note that if you use the matrix mode / serial monitor
+interface to inspect the contents of the sector buffer, that this occurs
+in the Hypervisor context, and so the BUFSEL signal will be ignored,
+and the full 4KiB buffer will be visible.
+
+The memory-mapped sector buffer has the advantage that it can be
+accessed via DMA, allowing for very efficient copies.  Also, it allows
+for loading a sector to occur in the background, while your program
+gets on with more interesting things in the meantime.
+
+\subsection{Reading Sectors from a Disk}
+
+There are several steps that you must follow in order to successfully read
+a sector from a disk. If you follow these instructions, your code will work
+with both physical disks, as well as D81 disk images that exist on the SD
+card:
+
+\begin{itemize}
+\item First, enable the motor and select the appropriate drive. The F011
+  supports upto 8 physical drives, although it is rare for more than two
+  to be physically connected.  To enable the motor, write \$60 to \$D080.
+  You should then write a SPINUP command (\$20) to \$D081, and wait for
+  the BUSY flag (bit 7 of \$D082) to clear.  The drive is now spinning
+  at speed, and ready to service requests.
+\item Next, select the correct side of the disk by either setting or clearing
+  the SIDE1 flag (bit 3 of \$D080).  This takes effect immediately.
+\item Third, use the step-in and step-out commands (writing \$10 and \$18 to
+  \$D081) as required to move the head to the correct track. Again, after each
+  command, you should wait for the BUSY flag (bit 7 of \$D082) to clear, before
+  issuing the next command.
+
+  Note that you can check if the head is at track 0
+  by checking the TRACK0 flag, but there is no fool-proof way to know if you
+  are on any other specific track.  You can use the registers at \$D6A3 --
+  \$D6A5 to see the track, sector and side value from the last sector header
+  which passed under the head to make an informed guess as to which track
+  is currently selected. Note that this only works for real disks, as disk
+  images do not spin under the read head. Also note that it is possible for
+  tracks to contain sectors which purposely or accidently have incorrect
+  track numbers in the sector headers.
+  
+  \item Fourth, you need to load the desired track, sector and
+side number into the TRACK, SECTOR and SIDE registers (\$D084, \$D085
+and \$D086, respectively). The FDC is now primed ready to read a sector.
+
+\item Fifth, you should write an appropriate read command
+value into \$D081.  This will normally be \$40 (64).  You then wait
+for the RDREQ signal (\$D083, bit 7) to go high, to indicate that the
+sector has been found. You then either wait for each occassion when
+DRQ goes high, and read byte-by-byte in such a loop, or wait for the
+BUSY flag to clear and the DRQ and EQ flags to go high, which indicates
+that the complete sector has been read into the buffer.
+
+\end{itemize}
+
+\subsection{Track Auto-Tune Function Deprecated}
+
+The 45IO27 also includes a track ``auto-tune'' function, which is enabled
+by clearing bit 7 of \$D696.  That function reads the sector headers to
+determine which track the head is currently over, and steps the head in or
+out to try to get to the correct track. Auto-tune is enabled by default.
+
+\subsection{Sector Skew and Target Any Mode}
+
+It is also worth noting that the TARGANY signal can be asserted to
+tell the floppy controller to simply read the next sector that passes
+under the head.  This applies only when using real floppy disks, where
+it offers the considerable advantage of letting you read the sectors
+in the order in which they exist on the disk. This allows you to read
+a track at once, without having to wait for the index hole to pass by,
+or having to know which sector will next pass under the head.
+
+For example,
+the C65 DOS formats disks using a skew factor of 7, while PCs may use
+a different skew-factor. If you don't know the skew factor of the disk,
+you may schedule the reading of the sectors on the track in a sub-optimal
+order. This can result in transfer rates as low as 5 sectors per second,
+compared with the optimal case of 50 sectors per second.
+Thus with either correct sector order, or using the target any mode,
+it is possible to read approximately two full tracks per second,
+i.e., two sides $\times$ two tracks, or approximately 20KiB/second on
+DD disks, or double that on HD disks, at around 40KiB/second.  This
+compares very favourably with the C65 DOS loading speed, which is
+typically nearer 1KiB/sec in C64 mode.
+
+\subsection{Disk Layout and 1581 Logical Sectors}
+
+The 1581 disk format is unusual in that the physical sectors on the
+disk are a different size of the size of the data blocks that it
+presents to the user.  Specifically, the disks use 512 byte sectors,
+while the 1581 (and C65) DOS present 256 byte data blocks.
+Two blocks are stored in each physical sector.  Also, the physical
+track numbers are from 0 to 79, while the logical track numbers of the
+DOS are 1 to 80.  Physical sectors are also numbered from 1 to 10,
+while logical block numbers begin are 0 to 39.
+
+This means that if you want to find a 1581 logical sector, you need to
+know which physical sector it will be found in.  To determine the
+physical sector that contains a block, you first subtract one from the
+track number, and then divide the sector number by two.  Logical
+sectors 0 to 19 of each track are located in physical sectors 1 to 10
+on the first side of the disk.  Logical sectors 20 to 39 are 
+located in physical sectors 1 to 10 on the reverse side of the disk.  
+
+Thus we can map a some logical track and sector $t$,$s$ to the
+physical track, side and sector as follows:
+
+$track = t - 1$
+
+$sector = (s/2)+1, IFF s < 20, ELSE = ((s-20)/2) + 1$
+
+$side = 0 IFF sector < 20$
+
+It is also worth noting that the 45IO27 is capable of reading from
+tracks beyond track 80, provided that the disk drive is capable of
+this.  Almost all 3.5 inch floppy drives are capable of reading at
+least one extra track, as historically manufacturers of floppy disks
+stored information about the disk on the 81st track.  In our
+experience almost all drives will also be able to access an 82nd
+track.
+
+\subsection{FD2000 Disks}
+
+The CMD(tm) FD2000(tm) high-density 3.5'' disk drives for Commodore(tm) computers
+use an unusual disk layout that is quite different from PCs: They use 10 sectors,
+the same as on 720KB double-density (DD) disks, but double the {\em sector size}
+from 512 bytes to 1,024 bytes.  The 45IO27 does not currently support these
+larger sectors. At least read-only support is planned to be added via a core update
+in the future.
+
+However, the 45IO27 {\em does} already support high-density disks and drives, with much
+higher capacities than the FD2000 was able to support.
+
+\subsection{High-Density and Variable-Density Disks}
+
+The 45IO27 supports variable data rates, allowing the use of HD drives and media,
+with a flexible approach to disk formats to support user experimentation, and the
+easy manipulation of high-capacity software distribution formats.
+
+You are really only limited by your imagination, available time, and
+the limited number of people who are still interested in inserting a
+floppy disk into their computer!
+
+The standard high-density (HD) disk format is ``1.44MB'', using 18 sectors per track over 80 tracks.
+This results in 80 tracks $\times$ 18 sectors $\times$ 2 sides = 2,880 sectors. As each sector
+is 512 bytes, this corresponds to 1,440 KiB.  This leads us into the interesting wonderland of
+``floppy disk marketing megabytes,'' a phenomena which long predates SD card and hard drive
+manufacturers using 1,000,000 byte megabytes.
+
+Curiously for floppy disks, the 1,024,000 byte ``megabyte'' was used, i.e., ``1MB'' = 1 KiB $\times$ 1 KB,
+that is a strange hybrid of binary and decimal conventions.  Perhaps it was because the previous standard
+was 720KB, and they thought people would thing it odd if double 720KB was 1.41MiB, and complain about the
+missing kilo-bytes.  We will continue to use the 1,024KB = 1,000KiB floppy disk marketing mega-byte for
+consistency with this historical inconsistency.
+
+However, HD floppy disks are fundamentally capable of holding much more than 1.44MB. For example, the FD2000
+stored 1.6MB by using double-sized sectors to squeeze the equivalent of 20 sectors per track, and the Amiga
+went further by using track-at-once writing to fit 22 sectors per track. Both these formats used a constant
+data rate over all tracks, and thus a constant number of sectors per track.
+
+However, the circumference of the tracks on a 3.5'' floppy disk vary quite a lot: The inner track has a diameter
+of around 2.5cm, while the outside track is 1.6$\times$ longer. 
+The 1.44MB disk format is designed so that
+the data is reliably stored on those shorter inner tracks.
+This means that we should be able to fit 160\%
+more data on the outer-most track compared with the inner-most track, subject to a number of terms and conditions
+imposed by The Laws of Physics, the design of floppy drive electronics, the quality of media being used and
+various other annoying things.
+Because of this variability and uncertainty, the MEGA65's floppy controller supports fully variable data rate
+on a track-by-track basis.
+
+\subsection{Track Information Blocks}
+
+To support variable data rates, the 45GS27 supports the use of
+{\em Track Information Blocks}\index{Track Information Block} (TIBs)\index{TIB} that contain information on the
+data rate and encoding used on the track. This allows users to experiment with various densities on various tracks,
+and yet have the disks function automatically for buffered sector operations.
+
+The Track Information Block is automatically created when using the automatic track format function, but must be
+manually created if using unbuffered formatting. The TIB itself consists of the following data:
+
+\begin{enumerate}
+\item 3$\times$ \$A1 Sync bytes (written with clock byte \$FB)
+\item \$65 MEGA65 Track Information Block marker (written with clock byte \$FF, as are all following bytes in the block)
+\item The track number
+\item The data rate divisor, in the same format as \$D6A2, i.e., data rate = 40.5MHz / value.
+\item Track encoding information: Bit 7 = Track-at-once flag, 1 = no inter-sector gaps (Amiga style), 0 = with inter-sector gaps (normal), Bit 6 = data encoding, 0 = MFM, 1=RLL2,7. Other bits are reserved, and should be 0 when written.
+\item Sector count, i.e., number of sectors on the track.
+\item CRC byte 1, using the normal floppy disk CRC algorithm.
+\item CRC byte 2, using the normal floppy disk CRC algorithm.
+\end{itemize}
+
+The Track Information Block is always written a the data rate for a 720KB Double-Density disk,
+so that they can be present on any disk.  Writing the Track Information Block and start-of-track
+gaps at the DD data rate also ensures that at very high data rates, the head still has sufficient
+time to switch to write mode, thus avoiding one of the many problems that arise when writing data
+at very high data rates.
+
+If formatting disks unbuffered, it is the programmer's responsibility to switch the data rate after
+having written the Track Information Block, and several more bytes to allow the floppy encoding
+pipeline to flush out the last byte of the Track Information Block.
+This is all automatically managed if using the automatic track formatting function.
+
+The inclusion of the TIB allows users to play and explore the possibilities of different data rates
+on different drives and media, while still being automatically readable in all MEGA65s, because the
+TIB allows the controller to switch to the correct data rate and encoding.  It is likely that over
+time somewhat standardised formats will develop, quite likely in the range of 2MB to 3.5MB -- thus
+approaching the capacity of ED media in ED drives, without the need for those drives or media.
+
+\subsection{Formatting Disks}
+
+Formatting disks is now possible with the 45IO27, either unbuffered or fully-automatic.
+To format a track issue one of the following commands to \$D081:
+
+\begin{itemize}
+\item \$A0 -- Automatic format, with inter-sector gaps, and write pre-compensation disabled.
+\item \$A1 -- Manual format, write-precompensation disabled.
+\item \$A4 -- Automatic format, with inter-sector gaps, and write pre-compensation enable.
+\item \$A5 -- Manual format, write-precompensation enabled.
+\item \$A8 -- Automatic format, Amiga-style track-at-once, and write pre-compensation disabled.
+\item \$AC -- Automatic format, Amiga-style track-at-once, and write pre-compensation enable.
+\end{itemize}  
+  
+Manual formatting is not recommended, unless mastering track-at-once formatted disks for software
+distribution, because of the relative complexity of doing so. Also, at the higher data rates,
+bytes have to be delivered to the floppy controller as often as every 20 cycles, which requires
+considerable care when writing the format routine.
+For more information on manual formatting tracks, refer to the C64 Specifications Manual or the
+C65 ROM DOS source code, for examples of manual formatting.
+
+The automatic modes, in contrast, format a track with a single command, and are thus much easier to use,
+and are recommended for general use.  Write pre-compensation should normally be enabled, as it is
+required at higher data rates, and does not cause problems at lower data rates.
+
+\subsection{Write Pre-Compensation}
+
+Write pre-compensation is a family of algorithms used when writing high data-rate signals to floppy disks.
+It is used to anticipate and cancel out the predictable component of timing variation of magnetic recording.
+There are a variety of sources of this timing variation, which have been the subject of PhD theses, and a
+lot of proprietary research by hard drive manufacturers.  What is important for us to understand is that adjacent
+pulses (really magnetic inversions) get pushed together, if they are surrounded by longer pulses, or tend to
+spread apart if surrounded by shorter pulses.
+
+There are also other fascinatingly complex and difficult to predict factors, that cause things such as the ``negative
+shift of mid-length pulses'', ``inverse F-distribution of pulse arrival times'' and goodness knows what else.  But
+we shall leave those to the hard drive manufacturers.  We limit ourselves to the data pattern induced effect described
+in the previous paragraph.
+
+The 45GS27 supports two tunable coefficients for small and large corrections to this,
+which are used with an internal look-up table.  However, this is all automatically handled if you enable write pre-compensation.
+This allows data rates that much more closely approach the expected limit of HD media, although due to the other horrors of
+magnetic media recording alluded to above, the actual limit is not reached.
+
+\subsection{Buffered Sector Writing}
+
+The 45IO27 can write to disk images that are located on the SD card,
+or when using virtualised disk access.
+
+To write a sector, you follow a similar process to reading, except
+that you write \$84 to the command byte instead of \$40.  The \$80
+indicates a write, and the \$04 activates write-precompensation.  This
+is important when writing to real floppy disks, especially HD and ED
+disks.  Write-precompensation causes bits to be written slightly early
+or slightly late, using an algorithm that models how the magnetic
+domains on a disk tend to move after being written.
+
+If you do not wish
+to use the sector buffer, but instead provide each byte one at a time
+during the write operation, you must add \$01 to the command code.
+However, this is not recommended on the MEGA65, because when writing
+to the SD card or using virtualised disk images the entire sector
+operation can happen instantaneously from the perspective of your
+program.  This means that it is not possible to supply data reliably
+when in this mode.  Thus apart from being less convenient, it is also
+less reliable. 
+
+Once a write operation has been triggered, the DRQ signal indicates
+when you should provide the next byte if performing a byte-by-byte
+write. Otherwise, it is assumed that you will have pre-filled the
+sector buffer with the complete 512 bytes of data required.
+
+To write to disks that contain Track Information Blocks\index{Track Information Block}\index{TIB},
+you should first wait for the TIB to be read when changing tracks. This is done by waiting
+for \$D6A9 (sectors per track from the TIB) to contain a non-zero value.
+
+\subsection{F011 Floppy Controller Registers}
+
+The following are the set of F011 compatibility registers of the 45IO47.
+Note that registers related to the use of SD card based storage are found in the corresponding section below.
+
+\input{regtable_FDC.C65}
+
+The following registers apply to the 45IO27 only, i.e., are MEGA65 specific:
+
+\input{regtable_FDC.MEGA65}
+
+\section{SD Card Controller and F011 Virtualisation Functions}
+
+For those situations where you do not wish to use real floppy disks,
+the 45IO27 supports two complementary alternative modes:
+
+\begin{itemize}
+\item SD card Based Disk Image Access.
+\item Virtualised Disk Image Access.
+\end{itemize}
+
+This is in addition to providing direct access to a dual-bus SD card
+interface.
+
+\subsection{SD card Based Disk Image Access}
+
+The 45IO27 is both a floppy drive and SD card controller.
+This enables it to transparently allow access to D81 disk images
+stored on the SD card.  Further, because the controller is combined,
+it is possible to still have the floppy drive step and spin as though
+it were being used, providing considerable atmosphere and sense of
+realism, even when using disk images.
+
+The 45IO27 supports both 800KB standard D81 disk images, as well as
+64MiB ``MEGA Images''.  While an operating system may impose
+restrictions based on the name of a file, the 45IO27 is blind to these
+requirements. Instead, it requires only that a {\tt contiguous} 800KiB
+or 64MiB of the SD card is used to contain a disk image.
+
+When a disk image is enabled, the corresponding set of sectors on the
+SD card are effectively placed under user control, and the operating
+system is no longer able to prevent the reading or writing of any of
+those sectors.  Thus you should never enable access to an image that
+is shorter than the required size, as it will otherwise allow the user
+to unwittingly or maliciously access and/or modify data that is not
+part of the image file.
+
+For the same reason, only the hypervisor can change the sector number
+where a disk image starts (the D?STARTSEC? signals), or allow the use
+of disk images instead of the real floppy drive (USEREAL0 and USEREAL1
+signals).  Once the Hypervisor has set the start sector of a disk
+image, and cleared the USEREAL0 or USEREAL1 signal, the user can still
+controll whether an access will go to the real floppy drive or to the
+disk image by respectively clearing or setting the appropriate
+signal.  For drive 0, this is D0IMG, and for drive 1, it is D1IMG.
+
+There are also signals to control whether a disk image is an 800KiB
+D81 image or a 64MiB MEGA Disk image, and whether a disk image is
+present, and whether it is write protected. These are all located in
+the \$D68B register. Because of the ability of manipulation of these
+registers to corrupt or improperly access data, these signals are all
+read-only, except from within the hypervisor.
+
+The following table lists the registers that are used to control
+access to disk images resident on the SD card:
+
+\input{regtable_SDFDC.MEGA65}
+
+\subsection{F011 Virtualisation}
+
+In addition to allowing automatic read and write access to SD card
+based D81 images, it is possible to connect a program to the serial
+monitor interface that provides and accepts data as though it were the
+floppy disk.
+
+This is commonly used in a cross-development
+environment, where you wish to frequently modify a disk image that is
+used by a program you are developing -- without the need to
+continually push new versions of the disk image on the MEGA65's
+SD card first. It also has the added benefit that it allows you to
+easily visualise which sectors are being read from and written to,
+which can help speed up development and debugging of your program.
+
+This function operates together with the MEGA65's Hypervisor by
+triggering hyperrupts (that is, interrupts that activate the
+Hypervisor).  There is then special code in the Hypervisor that
+communicates with the {\tt m65} program via the serial monitor
+interface.
+
+If that all sounds rather complex, all you need to know is that to use
+this function, you run the {\tt m65} utility with arguments like
+{\tt -d image.d81}.  This should automatically establish the link with
+the MEGA65.  If the BASIC interprettor stops responding, press the
+reset button (not the power switch) on the left side of your MEGA65,
+and it should return to the BASIC's {\tt READY.} prompt -- and if your
+supplied disk image has a C65 auto-boot function, then it should
+automatically start booting.
+
+This function works very well if the host computer runs Linux, and
+will allow loading at a speed of around 60KiB per second.  However, it
+may be much slower on Windows or Apple OSX-based systems.
+
+Of course to use this, you will also need an interface module and/or
+cable to connect your cross-development system to the MEGA65's serial
+monitor interface. This is most easily done using a Trenz TE0790-03
+JTAG adapter and mini-USB cable.
+
+More information on using this interface and the {\tt m65} tool can be
+found in \bookvref{cha:transfer-and-debug-tools}.
+
+\subsection{Dual-Bus SD Card Controller}
+
+The 45IO27 contains a high-speed dual-bus SD card controller.  This
+controller operates in SPI x1 mode at a clock speed of 20MHz,
+providing a maximum throughput of approximately 2MiB/sec.  The quality
+of the SD card makes a signficant difference to performance, with some
+cards routinely delivering 1.7MiB/sec, while others 1MiB/sec or
+less. Generally speaking, newer cards marketted as being suitable for
+video recording perform better.  The controller supports SDHC cards,
+and has experimental support for SDXC cards.  Legacy SD cards with a
+capacity of 2GiB or less are not supported, as these use a different
+addressing mode.
+
+The SD controller itself is very simple to drive: Supply the sector
+number in \$D861-\$D684, and then issue a read or write command to the
+command register (\$D680).  The SD controller supports only
+sector-based buffered operations, using the sector buffer. In
+hypervisor mode, the sector buffer is located at \$FFD6E00 --
+\$FFD6FFF, while when the computer is in normal operating mode, the SD
+card and the floppy controller share a single address for both the
+floppy drive and SD card sector buffers. Which buffer is visible at
+that address is dictated by the BUFSEL signal. If it is 1, then the SD
+card buffer is visible, while if it is 0, then the floppy drive sector
+buffer is visible.  See also Sub-section
+\vref{subsec:reading-from-disks-and-buffer-management} for further
+discussion on the precise behaviour of this buffer with regard to
+normal mode versus Hypervisor mode, and how it can also be mapped at
+\$DE00. 
+
+\subsubsection{Write Gate}
+
+When writing a sector, you must, however, first open the ``write
+gate''. This is a mechanism to prevent accidental corruption of data
+on the SD card, as it requires two different values to be written to
+the command register (\$D680) in quick succession: You have
+approximately 1 milli second after opening the write gate to command
+the write, before the write gate effectively closes again,
+write-protecting the SD card until the write gate is opened again.
+There are two different write gates: One for the master boot record
+(sector 0), and the other for all other sectors, both of which are
+listed in the command table below. This is designed to provide
+additional protection to the very important master boot record sector
+against programs accidentally calculating sector 0 as the target for
+an ordinary write.
+
+\subsubsection{Fill Mode}
+
+Where you wish to fill sectors with a constant value, the 45IO27
+supports a mode for this, so that you do not need to overwrite the
+contents of the sector buffer. This is activated by placing the
+desired fill value into the FILLVAL register (\$D686), and then
+issuing the enable fill mode command (\$83), performing the sector
+write operations, and then issuing the disable fill mode command
+(\$84). 
+
+\subsubsection{Selecting Among Multiple SD Cards}
+
+The controller supports two SD Card interfaces, and it is possible to
+have a card in both at the same time.  However, each card needs to be
+reset and commanded separately.  Only one card can be commanded at a
+time.  That said, it is possible to reset each card once, and then
+switch between the cards to perform individual operations.
+
+To select the first SD Card slot, write \$C0 to the SD Controller
+Command Register (\$D680).  To select the second SD Card slot, write
+\$C1 instead.
+
+\subsubsection{SD Controller Command Table}
+
+The SD controller supports the following commands that can be written
+to the command register at \$D680:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Command}} & {\bf{Function}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Command}} & {\bf{Function}} \\
+\endhead
+\multicolumn{2}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$00 (0) & Place SD card under reset (deprecated. Use command
+\$10 instead) \\
+ \hline
+\small \$01 (1) & Release SD card from reset \\
+ \hline
+\small \$02 (2) & Read a sector from the SD card \\
+ \hline
+\small \$03 (3) & Write a single sector to the SD card \\
+ \hline
+\small \$04 (4) & Write the first sector of a multi-sector write to the SD card \\
+ \hline
+\small \$05 (5) & Write a subsequent sector of a multi-sector write to the SD card \\
+ \hline
+\small \$06 (6) & Write the final sector of a multi-sector write to the SD card \\
+ \hline
+\small \$0C (12) & Request flush of SD card write buffers (experimental) \\
+ \hline
+\small \$0E (14) & Pull SD handshake line low (debug only) \\
+ \hline
+\small \$0F (15) & Pull SD handshake line high (debug only) \\
+ \hline
+\small \$10 (16) & Place SD card under reset with flags set (preferred
+method) \\
+ \hline
+\small \$11 (17) & Release SD card from reset (alternate method) \\
+ \hline
+\small \$40 (64) & Clear the SDHC/SDXC flag, selecting legacy SD card mode (deprecated)  \\
+ \hline
+\small \$41 (65) & Set the SDHC/SDXC mode flag   \\
+ \hline
+\small \$44 (68) & End force clearing of SD card state machine error
+flag \\
+\small \$45 (69) & Begin force clearing of SD card state machine error
+flag \\
+\small \$4D (77) & Open write-gate to sector 0 (master boot record)
+for approximately 1 milli-second \\
+ \hline
+\small \$57 (87) & Open write-gate for all sectors > 0 for approximately 1 milli-second \\
+ \hline
+\small \$81 (129) & Enable mapping of the SD/FDC sector buffer at
+\$DE00 -- \$DFFF \\
+ \hline
+\small \$82 (130) & Disable mapping of the SD/FDC sector buffer at
+\$DE00 -- \$DFFF \\
+ \hline
+\small \$83 (131) & Enable SD Card Fill Mode \\
+ \hline
+\small \$84 (132) & Disable SD Card Fill Mode \\
+ \hline
+\small \$C0 (192) & Select SD Card Slot 0 \\
+ \hline
+\small \$C1 (193) & Select SD Card Slot 1 \\
+ \hline
+   \end{longtable}
+
+
+Note that the hypervisor can enable or disable direct access to the SD
+controller. The hypervisor operating system may provide a mechanism
+for requesting permission to access the SD card controller, e.g., for
+disk management utilities.
+
+The SD card controller registers are as follows:
+
+\input{regtable_SD.MEGA65}
+
+\section{Touch Panel Interface}
+
+Some MEGA65 variants include an LCD touch panel, primarily the
+MEGAphone hand-held version of the MEGA65.  The touch interface
+supports the detection of two simultaneous touch events.  Some
+variants may also support gesture detection, however, this is still
+very experimental.
+
+The touch detection interface that is contained in the 45IO27 is
+complemented by the on-screen-keyboard interface of the 4551 UART and
+GPIO controller.  Refer to \bookref{sec:uartmisc} for further
+information.  Of particular relevance are bit 7 of the registers \$D615 --
+\$D617 which allow activating the on-screen keyboard interface,
+selecting whether the on-screen keyboard is placed in the upper or
+lower portion of the screen, and whether the primary or secondary
+on-screen keyboard is displayed.
+
+Direct connections between the 4551 and the 45IO27 combine information
+about any currently displayed on-screen keyboard and the touch
+interface controller, allowing synthetic keyboard events to be
+automatically triggered when the on-screen keyboard portion of the
+touch interface is pressed.  This allows the touch interface to be
+used to drive the on-screen keyboard without requiring any support
+from user programs. This works even when the on-screen keyboard is
+moving during activation or transitioning between the top and bottom
+of the screen.
+
+As touch interfaces can require calibration, the 45IO27 allows for a
+linear transformation of both the X and Y coordinates of a touch
+event.  Specifically, there are scale (TCHXSCALE and TCHYSCALE) and
+offset registers (TCHXDELTA and TCHYDELTA) that provide for this
+transformation. It is also possible to flip the touch screen
+coordinates in either or both the X and Y axes.  These calibration
+registers also affect the operation of the on-screen keyboard.
+
+It should also be noted that some touch interfaces do not have
+constant horizontal or vertical resolution. For example, some panels
+have a low horizontal resolution region in the middle of the panel,
+which can require some care to accommodate.
+
+To detect the primary touch event, the TOUCH1XLSB, TOUCH1XMSB, TOUCH1YLSB,
+TOUCH1YMSB registers can be read.  Similar registers exist for the 2nd
+touch event: TOUCH2XLSB, TOUCH2XMSB, TOUCH2YLSB, TOUCH2YMSB. Each
+touch event has a signle bit flag that indicates whether the touch
+event is currently valid: the EV1 and EV2 bits of the register
+\$D6B0.  There are also corresponding bit-fields that indicate whether a
+given touch event has been made or released, allowing the detection of
+when a finger both makes and breaks contact with the screen.  The
+UPDN1 and UPDN2 signals provide this information.  Binary values of 01 and
+10, respectively indicate if the finger has been removed or pressed
+against the touch panel.  Values of 00 and 11 mean that a finger is
+either being held or not being held against the touch panel.
+
+The
+primary touch event is also fed into the lightpen\index{light pen} input of the VIC-IV,
+and can be detected using the normal light pen registers of the VIC-IV.
+
+The registers for the touch panel interface are as follows:
+
+\input{regtable_TOUCH.MEGA65}
+
+\section{Audio Support Functions}
+\index{cross-bar switch, audio}
+\index{mixer, audio}
+\index{audio mixer}
+\index{audio cross-bar switch}
+The 45IO27 provides the primary interface into the MEGA65's full
+cross-bar audio mixer. This includes the interface for reading or
+modifying the mixer co-efficients, as well as accessing the mixer
+feedback registers, and setting the 16-bit digital sample values that
+are two of the input channels into the audio mixer.
+
+The audio mixer consists of 128 coefficients, each of which is 16
+bits.  Each audio output channel, e.g., left speaker, right speaker,
+left headphone, right headphone, cellular modem 1 (MEGAphone models
+only) and so on, are generated by taking each of the audio input
+channels, multiplying them by the appropriate coefficient, and adding
+it to the total output of the audio output channel.
+
+Because each
+audio output channel has its own set of coefficients that are applied
+to all of the audio input channels, this means that it is possible to
+produce totally different audio out each audio channel: For example,
+it is possible to play your favourite quadrophonic SID music out of
+the headphones while rick-rolling passers by with Amiga-style MOD
+audio.  This is why the audio mixer is refered to as a {\tt full
+  cross-bar} mixer, because there are no restrictions on how you mix
+each audio output channel.  In this regard, it is very similar to a
+full-function audio desk, allowing different mixing levels for
+different speakers.
+
+Because the audio coefficients are 16 bits each, each one is formed
+using two successive bytes of the audio co-efficient space.  Changes
+to the audio coefficients take effect immediately, so care should be
+taken when changing coefficients to avoid audible clicks and pops.
+Also, you must allow 32 cycles to elapse before changing the selected
+audio coefficient, as otherwise the change may be discarded if the
+audio mixer accumulator has not had time to re-visit that coefficient.
+
+The audio sources on the MEGA65 and MEGAphone devices are as follows:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Input Channel ID}} & {\bf{Connection}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Input Channel ID}} & {\bf{Connection}} \\
+\endhead
+\multicolumn{2}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$0 (0) & Left SIDs \\
+ \hline
+\small \$1 (1) & Right SIDs \\
+ \hline
+\small \$2 (2) & Modem Bay 1 (MEGAphone only) \\
+ \hline
+\small \$3 (3) & Modem Bay 2 (MEGAphone only) \\
+ \hline
+\small \$4 (4) & Bluetooth(tm) Left \\
+ \hline
+\small \$5 (5) & Bluetooth(tm) Right \\
+ \hline
+\small \$6 (6) & Headphone Interface 1 \\
+ \hline
+\small \$7 (7) & Headphone Interface 2 \\
+ \hline
+\small \$8 (8) & Digital audio Left \\
+ \hline
+\small \$9 (9) & Digital audio Right \\
+ \hline
+\small \$A (10) & MEMs Microphone 0 (Nexys4 and MEGAphone only) \\
+ \hline
+\small \$B (11) & MEMs Microphone 1 (MEGAphone only) \\
+ \hline
+\small \$C (12) & MEMs Microphone 2 (MEGAphone only) \\
+ \hline
+\small \$D (13) & MEMs Microphone 3 (MEGAphone only) \\
+ \hline
+\small \$E (14) & Headphone jack microphone (Nexys4 and MEGAphone only) \\
+ \hline
+\small \$F (15) & OPL-compatible FM audio ({\em shares co-efficient
+  with input 14}) \\
+ \hline
+\end{longtable}
+
+The OPL-compatible FM audio which is on source 15 is controlled by the
+coefficient for source 14.  This is because the coefficient for source
+15 provides the master volume level for each output.
+
+The audio cross-bar mixer supports the following eight output
+channels:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Output Channel ID}} & {\bf{Connection}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots continued}\\
+\hline
+{\bf{Output Channel ID}} & {\bf{Connection}} \\
+\endhead
+\multicolumn{2}{l@{}}{continued \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$0 (0) & Left Primary Speaker (digital audio on MEGA65 R2/R3,
+physical speaker on MEGAphone, headphone jack audio on Nexys4) \\
+ \hline
+\small \$1 (1) & Right Primary Speaker (digital audio on MEGA65 R2/R3,
+physical speaker on MEGAphone, headphone jack audio on Nexys4) \\
+ \hline
+\small \$2 (2) & Modem Bay 1 audio output (MEGAphone only) \\
+ \hline
+\small \$3 (3) & Modem Bay 2 audio output (MEGAphone only) \\
+ \hline
+\small \$4 (4) & Bluetooth Left Audio (MEGAphone only) \\
+ \hline
+\small \$5 (5) & Bluetooth Right Audio (MEGAphone only) \\
+ \hline
+\small \$6 (6) & Headphone Left output (MEGA65 R2/R3 and MEGAphone
+only.  On Nexys4 boards the primary speaker drives the 3.5mm jack) \\
+ \hline
+\small \$7 (7) & Headphone Right output (MEGA65 R2/R3 and MEGAphone
+only.  On Nexys4 boards the primary speaker drives the 3.5mm jack) \\
+ \hline
+\end{longtable}
+
+To determine the coefficient register number for a given source and
+output, multiply the output number by 32 and multiply the source
+number by 2.  This will be the register number for the LSB of the
+16-bit coefficient.  The MSB will be the next register. For example,
+to set the coefficient of the right SIDs to the 2nd modem bay audio
+output, the coefficient would be $32\times 3 + 1 \times 2 = 96 + 2 =
+98$.  
+
+
+
+XXX - mixer stuff
+XXX - mixer feedback registers
+XXX - Left and right digi
+XXX - CPU register for selecting PWM/PDM
+
+\input{regtable_AUDIO.MEGA65}
+
+
+\section{Miscellaneous IO Functions}
+

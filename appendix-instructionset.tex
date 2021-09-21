@@ -14,7 +14,7 @@ following instruction will operate on 32 bits of data, instead of the usual 8 bi
 of data.  This means that a 45GS02 instruction stream can be readily decoded or disassembled,
 without needing to set special instruction length flags, as is the case with the 65816
 family of microprocessors. The trade-off is increased execution time, as the 45GS02 must
-skip over the prefix-bytes.
+skip over the prefix bytes.
 
 The remainder of this chapter introduces the addressing modes, instructions, opcodes and
 instruction timing data of the 45GS02, beginning with 6502 compatibility mode, before
@@ -82,7 +82,7 @@ PHW #$1234
 \end{verbatim}
 \end{tcolorbox}
 
-The low-byte of the immediate value follows the opcode of the instruction.  The high-byte of the
+The low byte of the immediate value follows the opcode of the instruction.  The high byte of the
 immediate value then follows that.  For the above example, the instruction stream would thus
 be \$F4 \$34 \$12.
 
@@ -117,7 +117,7 @@ and put them into the Q Pseudo Register.
 
 This mode is identical to Base Page Mode, except that the address is formed by taking the
 argument, and adding the value of the X Register to it.  In 6502 mode, the result will always
-be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
 
@@ -125,7 +125,7 @@ Mode.
 
 This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
 argument, and adding the value of the X Register to it.  In 6502 mode, the result will always
-be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page Quad
 Mode.
 
@@ -133,7 +133,7 @@ Mode.
 
 This mode is identical to Base Page Mode, except that the address is formed by taking the
 argument, and adding the value of the Y Register to it.  In 6502 mode, the result will always
-be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
 
@@ -141,7 +141,7 @@ Mode.
 
 This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
 argument, and adding the value of the Y Register to it.  In 6502 mode, the result will always
-be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page Quad
 Mode.
 
@@ -149,7 +149,7 @@ Mode.
 
 This mode is identical to Base Page Mode, except that the address is formed by taking the
 argument, and adding the value of the Z Register to it.  In 6502 mode, the result will always
-be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
 
@@ -157,7 +157,7 @@ Mode.
 
 This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
 argument, and adding the value of the Z Register to it.  In 6502 mode, the result will always
-be in the Base Page, that is, any carry due to the addition from the low-byte into the high-byte
+be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page Quad
 Mode.
 
@@ -337,7 +337,7 @@ STA [$12]
 \end{verbatim}
 \end{tcolorbox}
 
-Note: The ACME assembler is the only assembler that currently supports this addressing mode.
+NOTE: The ACME assembler is the only assembler that currently supports this addressing mode.
 For other assemblers, you can achieve the same result by using a \stw{NOP} instruction to
 prefix the equivalent {\em Base Page Indirect, Indexed by Z} instruction.
 
@@ -373,8 +373,8 @@ high-level language.  It is encoded identically to the Base Page Mode.
 \subsection{Relative Addressing Mode}
 
 In this addressing mode, the operand is an 8-bit signed offset to the
-current value of the Programme Counter (PC). It is used to allow branches
-to encode the near-by address at which execution should proceed if the
+current value of the Program Counter (PC). It is used to allow branches
+to encode the nearby address at which execution should proceed if the
 branch is taken.
 
 \subsection{Relative Word Addressing Mode}
@@ -507,15 +507,9 @@ Similar issues apply to when the processor is in 6502 mode.
 
 As the 4510 has no unallocated opcodes, the 45GS02 uses compound instructions
 to implement its extension.  These compound instructions consist of one or
-more single-byte instructions placed immediately before a conventional
+more single byte instructions placed immediately before a conventional
 instruction.  These prefixes instruct the 45GS02 to treat the following instruction
-differently, as described in Chapter \ref{cha:cpu}.
-
-NOTE: Compound instructions cannot be safely used at 1MHz or 2MHz operating modes.
-This is because in those operating modes it is possible for an interrupt to occur
-following one of the single-byte prefix instructions, but before the compound
-instruction executes.  This will cause the processor to forget to apply the effects
-of the prefix to the instruction, resulting in incorrect behaviour.
+differently, as described in \bookvref{cha:cpu}.
 
 % Opcodes can have multiple meanings, so no table
 

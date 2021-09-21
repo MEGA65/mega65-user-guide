@@ -60,25 +60,24 @@
 int Warn = 1; // print warnings to stderr if set
 
 struct reg_line {
-  unsigned int low_address,high_address;
-  unsigned int low_bit,high_bit;
-  char *signal;
-  char *description;
-
+  unsigned int low_address, high_address;
+  unsigned int low_bit, high_bit;
+  char* signal;
+  char* description;
 };
 
 struct info_block {
-  char *signal;
-  char *description;
+  char* signal;
+  char* description;
   int line_count;
 #define MAX_LINES 1024
-  char *lines[MAX_LINES];
+  char* lines[MAX_LINES];
 };
 
 struct reg_table {
-  char *name;
+  char* name;
   int mode;
-  #define MAX_ENTRIES 1024
+#define MAX_ENTRIES 1024
   struct reg_line regs[MAX_ENTRIES];
   int reg_count;
   struct info_block info_blocks[MAX_ENTRIES];
@@ -86,568 +85,599 @@ struct reg_table {
 };
 
 #define MAX_TABLES 1024
-struct reg_table *reg_tables[MAX_TABLES];
-int table_count=0;
+struct reg_table* reg_tables[MAX_TABLES];
+int table_count = 0;
 
 struct table_output_line {
-  int low_addr,high_addr;
-  char *bit_signals[8];
-  char *descriptions[8];
+  int low_addr, high_addr;
+  char* bit_signals[8];
+  char* descriptions[8];
 };
 
 struct table_output_line table_stuff[MAX_ENTRIES];
-int table_len=0;
-int table_uses_bits=0;
+int table_len = 0;
+int table_uses_bits = 0;
 
-char *table_signals[MAX_ENTRIES];
-char *table_descriptions[MAX_ENTRIES];
-int table_sigcount=0;
+char* table_signals[MAX_ENTRIES];
+char* table_descriptions[MAX_ENTRIES];
+int table_sigcount = 0;
 
 void clear_table_output(void)
 {
-  table_len=0;
-  table_uses_bits=0;
-  table_sigcount=0;
+  table_len = 0;
+  table_uses_bits = 0;
+  table_sigcount = 0;
 }
 
-void latex_escape(char *target, char *source)
+void latex_escape(char* target, char* source)
 {
-   char prev = '\0';;
+  char prev = '\0';
+  ;
 
-   while (*source)
-   {
-      // escape dollar sign if not already escaped or math mode
+  while (*source) {
+    // escape dollar sign if not already escaped or math mode
 
-      if (*source == '$' && prev != '\\')
+    if (*source == '$' && prev != '\\') {
+      if (*(source + 1) == '\\') // check for $\...$
       {
-         if (*(source+1) == '\\') // check for $\...$
-         {
-           *target++ = *source++; // copy initial $
-            while (*source && *source != '$')
-               *target++ = *source++; // copy math expression
-            if (*source) *target++ = *source; // copy ending $
-         }
-         else // escape $
-         {
-            *target++ = '\\';
-            *target++ = *source;
-         }
+        *target++ = *source++; // copy initial $
+        while (*source && *source != '$')
+          *target++ = *source++; // copy math expression
+        if (*source)
+          *target++ = *source; // copy ending $
       }
-
-      // escape underline or at sign
-
-      else if (*source == '_' || *source == '@')
+      else // escape $
       {
-         if (prev != '\\') *target++ = '\\';
-         *target++ = *source;
+        *target++ = '\\';
+        *target++ = *source;
       }
+    }
 
-      // replace tilde with middle tilde in math mode
+    // escape underline or at sign
 
-      else if (*source == '~')
-      {
-         strcpy(target,"$\\sim$");
-         target += strlen(target);
-      }
+    else if (*source == '_' || *source == '@') {
+      if (prev != '\\')
+        *target++ = '\\';
+      *target++ = *source;
+    }
 
-      // else just copy
+    // replace tilde with middle tilde in math mode
 
-      else *target++ = *source;
+    else if (*source == '~') {
+      strcpy(target, "$\\sim$");
+      target += strlen(target);
+    }
 
-      // remember previous char and advance
+    // else just copy
 
-      prev = *source++;
-   }
-   *target = '\0';
+    else
+      *target++ = *source;
+
+    // remember previous char and advance
+
+    prev = *source++;
+  }
+  *target = '\0';
 }
 
-void table_output_add_reg(struct reg_line *r)
+void table_output_add_reg(struct reg_line* r)
 {
-  int l=0;
-  int insert_point=-1;
+  int l = 0;
+  int insert_point = -1;
 
-  if (0) printf("Adding $%04X -- $%04X bits %d..%d : %s = %s\n",
-		r->low_address,r->high_address,r->low_bit,r->high_bit,r->signal,r->description);
+  if (0)
+    printf("Adding $%04X -- $%04X bits %d..%d : %s = %s\n", r->low_address, r->high_address, r->low_bit, r->high_bit,
+        r->signal, r->description);
 
   // Have we already seen this register?
-  for(l=0;l<table_len;l++) {
-    if ((table_stuff[l].low_addr==r->low_address)
-	&&(table_stuff[l].high_addr==r->high_address)) {
+  for (l = 0; l < table_len; l++) {
+    if ((table_stuff[l].low_addr == r->low_address) && (table_stuff[l].high_addr == r->high_address)) {
       // It is this register
       break;
     }
     // Remember where we should insert the register, if required
-    if (table_stuff[l].low_addr<r->low_address) {
+    if (table_stuff[l].low_addr < r->low_address) {
       // printf("  stored $%04X > this $%04X, setting insert_point to here.\n",table_stuff[l].low_addr,r->low_address);
-      insert_point=l;
+      insert_point = l;
     }
   }
   // Is a new table entry required?
-  if (l==table_len) {
+  if (l == table_len) {
     // Too many?
-    if (l>=MAX_ENTRIES) {
-      fprintf(stderr,"ERROR: Too many register lines when building table output.  This probably indicates a bug.\n");
+    if (l >= MAX_ENTRIES) {
+      fprintf(stderr, "ERROR: Too many register lines when building table output.  This probably indicates a bug.\n");
       return;
     }
     // Not too many, so setup the next one
     // First, shuffle space
-    for(int m=table_len;m>insert_point;m--) table_stuff[m]=table_stuff[m-1];
+    for (int m = table_len; m > insert_point; m--)
+      table_stuff[m] = table_stuff[m - 1];
     // Now setup entry
-    l=insert_point;
-    if (l==-1) l=0;
-    else if (table_stuff[l].low_addr<r->low_address) l++;
+    l = insert_point;
+    if (l == -1)
+      l = 0;
+    else if (table_stuff[l].low_addr < r->low_address)
+      l++;
     // if (l) printf("  inserting after $%04X\n",table_stuff[l-1].low_addr);
     // if (l<(table_len-1)) printf("  inserting before $%04X\n",table_stuff[l+1].low_addr);
     memset(&table_stuff[l], 0, sizeof(struct table_output_line));
-    table_stuff[l].low_addr=r->low_address;
-    table_stuff[l].high_addr=r->high_address;
+    table_stuff[l].low_addr = r->low_address;
+    table_stuff[l].high_addr = r->high_address;
     table_len++;
   }
 
   // Update entry
-  for(int bit=r->low_bit;bit<=r->high_bit;bit++) {
-    table_stuff[l].bit_signals[bit]=r->signal;
-    table_stuff[l].descriptions[bit]=r->description;
+  for (int bit = r->low_bit; bit <= r->high_bit; bit++) {
+    table_stuff[l].bit_signals[bit] = r->signal;
+    table_stuff[l].descriptions[bit] = r->description;
   }
 
   // Note if this table addresses signals by bit, so we can format it appropriately
-  if (r->low_bit||(r->high_bit<7)) {
+  if (r->low_bit || (r->high_bit < 7)) {
     // Register table uses bits
-    table_uses_bits=1;
+    table_uses_bits = 1;
   }
 
   // Now do the same for the signal list, for those tables that are bit-addressed
-  int signum=0;
-  insert_point=-1;
-  for(signum=0;signum<table_sigcount;signum++) {
-    if (!strcmp(table_signals[signum],r->signal)) {
-      insert_point=signum;
+  int signum = 0;
+  insert_point = -1;
+  for (signum = 0; signum < table_sigcount; signum++) {
+    if (!strcmp(table_signals[signum], r->signal)) {
+      insert_point = signum;
       break;
     }
-    else if (strcmp(table_signals[signum],r->signal)>0) {
-      if (insert_point<0) {
-	insert_point=signum;
+    else if (strcmp(table_signals[signum], r->signal) > 0) {
+      if (insert_point < 0) {
+        insert_point = signum;
       }
     }
   }
-  if (insert_point<0) insert_point=table_sigcount;
-  if (signum==table_sigcount) {
+  if (insert_point < 0)
+    insert_point = table_sigcount;
+  if (signum == table_sigcount) {
     // New signal.
 
-    if (table_sigcount>=MAX_ENTRIES) {
-      fprintf(stderr,"ERROR: Too many unique signal names in table. Fix or increase MAX_ENTRIES.\n");
+    if (table_sigcount >= MAX_ENTRIES) {
+      fprintf(stderr, "ERROR: Too many unique signal names in table. Fix or increase MAX_ENTRIES.\n");
       return;
     }
 
     // Shuffle to make space
-    for(int m=table_sigcount;m>insert_point;m--) {
-      table_signals[m]=table_signals[m-1];
-      table_descriptions[m]=table_descriptions[m-1];
+    for (int m = table_sigcount; m > insert_point; m--) {
+      table_signals[m] = table_signals[m - 1];
+      table_descriptions[m] = table_descriptions[m - 1];
     }
-    table_signals[insert_point]=r->signal;
-    table_descriptions[insert_point]=r->description;
+    table_signals[insert_point] = r->signal;
+    table_descriptions[insert_point] = r->description;
     table_sigcount++;
   }
-
 }
 
-void emit_table_output(FILE *f)
+void emit_table_output(FILE* f)
 {
   char buftxt[256]; // used to convert special chars to latex
 
   if (table_uses_bits) {
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
-    fprintf(f,
-	    "\\setlength{\\tabcolsep}{3pt}\n"
-	    "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|c|c|c|c|c|c|c|c|}\n"
-	    "\\hline\n"
-	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & {\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
-	    "\\hline\n"
-	    "\\endfirsthead\n"
-	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
-	    "\\hline\n"
-	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & {\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
-	    );
-
-  } else {
+    fprintf(f, "\\setlength{\\tabcolsep}{3pt}\n"
+               "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|c|c|c|c|c|c|c|c|}\n"
+               "\\hline\n"
+               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
+               "{\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
+               "\\hline\n"
+               "\\endfirsthead\n"
+               "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
+               "\\hline\n"
+               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
+               "{\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n");
+  }
+  else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
-    fprintf(f,
-	    "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}\n"
-	    "\\hline\n"
-	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
-	    "\\hline\n"
-	    "\\endfirsthead\n"
-	    "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
-	    "\\hline\n"
-	    "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
-	    "\\hline\n"
-	    );
-
+    fprintf(f, "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}\n"
+               "\\hline\n"
+               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
+               "\\hline\n"
+               "\\endfirsthead\n"
+               "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
+               "\\hline\n"
+               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
+               "\\hline\n");
   }
 
-  fprintf(f,
-	  "\\endhead\n"
-	  "\\multicolumn{3}{l@{}}{continued \\ldots}\\\\\n"
-	  "\\endfoot\n"
-	  "\\hline\n"
-	  "\\endlastfoot\n");
+  fprintf(f, "\\endhead\n"
+             "\\multicolumn{3}{l@{}}{continued \\ldots}\\\\\n"
+             "\\endfoot\n"
+             "\\hline\n"
+             "\\endlastfoot\n");
 
-  for(int row=0;row<table_len;row++)
-    {
-      fprintf(f,"\\small ");
-      if (table_stuff[row].low_addr!=table_stuff[row].high_addr)
-	fprintf(f," %04X -- %04X & \\small %d -- %d ",
-		table_stuff[row].low_addr,table_stuff[row].high_addr,
-		table_stuff[row].low_addr,table_stuff[row].high_addr);
+  for (int row = 0; row < table_len; row++) {
+    fprintf(f, "\\small ");
+    if (table_stuff[row].low_addr < 0x0100) {
+      if (table_stuff[row].low_addr != table_stuff[row].high_addr)
+        fprintf(f, " %02X -- %02X\\index{\\$%02X (%s)}\\index{%s} & \\small %d -- %d ", table_stuff[row].low_addr,
+            table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].bit_signals[0],
+            table_stuff[row].bit_signals[0], table_stuff[row].low_addr, table_stuff[row].high_addr);
       else
-	fprintf(f," %04X & \\small %d ",
-		table_stuff[row].low_addr,table_stuff[row].high_addr);
-
-      if (table_uses_bits) {
-	// Table is address + signal name of each bit,
-	// followed by signal name glossary
-
-	for(int bit=7;bit>=0;) {
-	  // Check for signals that span multiple bits
-	  int bit_count=1;
-	  for(int b=bit-1;b>=0;b--) {
-	    if (table_stuff[row].bit_signals[bit]==table_stuff[row].bit_signals[b]) bit_count++;
-	    else break;
-	  }
-	  if (bit_count==1) {
-	    fprintf(f,"& \\small %s ",table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--");
-	  } else {
-	    fprintf(f,"& \\multicolumn{%d}{c|}{\\small %s}",bit_count,
-		    table_stuff[row].bit_signals[bit]?table_stuff[row].bit_signals[bit]:"--"
-		    );
-	  }
-
-	  bit-=bit_count;
-	}
-	fprintf(f,"\\\\\n");
-	fprintf(f,"\\hline\n");
-
-      } else {
-	// Table is address + signal name + description
-	fprintf(f,"& %s & %s \\\\\n",
-		table_stuff[row].bit_signals[0],
-		table_stuff[row].descriptions[0]
-		);
-	fprintf(f,"\\hline\n");
-      }
-
+        fprintf(f, " %02X\\index{\\$%02X (%s)}\\index{%s} & \\small %d ", table_stuff[row].low_addr,
+            table_stuff[row].low_addr, table_stuff[row].bit_signals[0], table_stuff[row].bit_signals[0],
+            table_stuff[row].low_addr);
     }
+    else {
+      if (table_stuff[row].low_addr != table_stuff[row].high_addr)
+        fprintf(f, " %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X}\\index{Registers!%d -- %d} & \\small %d -- %d ",
+            table_stuff[row].low_addr, table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].high_addr,
+            table_stuff[row].low_addr, table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].high_addr);
+      else
+        fprintf(f, " %04X\\index{Registers!\\$%04X}\\index{Registers!%d} & \\small %d ", table_stuff[row].low_addr,
+            table_stuff[row].low_addr, table_stuff[row].low_addr, table_stuff[row].low_addr);
+    }
+
+    if (table_uses_bits) {
+      // Table is address + signal name of each bit,
+      // followed by signal name glossary
+
+      for (int bit = 7; bit >= 0;) {
+        // Check for signals that span multiple bits
+        int bit_count = 1;
+        for (int b = bit - 1; b >= 0; b--) {
+          if (table_stuff[row].bit_signals[bit] == table_stuff[row].bit_signals[b])
+            bit_count++;
+          else
+            break;
+        }
+        if (bit_count == 1) {
+          fprintf(f, "& \\small %s ", table_stuff[row].bit_signals[bit] ? table_stuff[row].bit_signals[bit] : "--");
+        }
+        else {
+          fprintf(f, "& \\multicolumn{%d}{c|}{\\small %s", bit_count,
+              table_stuff[row].bit_signals[bit] ? table_stuff[row].bit_signals[bit] : "--");
+          if (table_stuff[row].bit_signals[bit])
+            fprintf(f, "\\index{Registers!%s}", table_stuff[row].bit_signals[bit]);
+          fprintf(f, "}");
+        }
+
+        bit -= bit_count;
+      }
+      fprintf(f, "\\\\\n");
+      fprintf(f, "\\hline\n");
+    }
+    else {
+      // Table is address + signal name + description
+      if (table_stuff[row].low_addr < 0x0100) {
+        fprintf(f, "& %s\\index{%s} & %s \\\\\n", table_stuff[row].bit_signals[0], table_stuff[row].bit_signals[0],
+            table_stuff[row].descriptions[0]);
+      }
+      else {
+        fprintf(f, "& %s\\index{Registers!%s} & %s \\\\\n", table_stuff[row].bit_signals[0], table_stuff[row].bit_signals[0],
+            table_stuff[row].descriptions[0]);
+      }
+      fprintf(f, "\\hline\n");
+    }
+  }
   // fprintf(f,"\\normal\n");
 
-  fprintf(f,"\\end{longtable}\n");
+  fprintf(f, "\\end{longtable}\n");
 
   // If table uses bits, then we need to produce the table of signal descriptions
   if (table_uses_bits) {
-    fprintf(f,"\\begin{itemize}\n");
-    for(int s=0;s<table_sigcount;s++) {
+    fprintf(f, "\\begin{itemize}\n");
+    for (int s = 0; s < table_sigcount; s++) {
       // XXX - Replace with contents of appropriate info block if one exists!
-//    fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
-      latex_escape(buftxt,table_descriptions[s]);
-      fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],buftxt);
+      //    fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
+      latex_escape(buftxt, table_descriptions[s]);
+      fprintf(f, "\\item{\\bf{%s}\\index{Registers!%s}} %s\n", table_signals[s], table_signals[s], buftxt);
     }
-    fprintf(f,"\\end{itemize}\n");
-
+    fprintf(f, "\\end{itemize}\n");
   }
 }
 
-char *describe_mode(int m)
+char* describe_mode(int m)
 {
-  if (m==MODE_C64) return "C64";
-  if (m==MODE_C65) return "C65";
-  if (m==MODE_MEGA65) return "MEGA65";
+  if (m == MODE_C64)
+    return "C64";
+  if (m == MODE_C65)
+    return "C65";
+  if (m == MODE_MEGA65)
+    return "MEGA65";
   return "???";
 }
 
-int parse_io_line(char *line)
+int parse_io_line(char* line)
 {
-  int low_addr=0,high_addr=0,low_bit=0,high_bit=7;
+  int low_addr = 0, high_addr = 0, low_bit = 0, high_bit = 7;
   char mode[8192];
   char table[8192];
   char signal[8192];
-  char *description;
+  char* description;
   int n;
   int mode_num;
 
   // Get fields
-  int ok=0;
+  int ok = 0;
 
-  if (sscanf(line,"-- @IO:%[^ ] $%x.%d-%d %[^:]:%[^ ] %n",mode,&low_addr,&low_bit,&high_bit,table,signal,&n)==6) {
-    ok=1; high_addr=low_addr;
+  if (sscanf(line, "-- @IO:%[^ ] $%x.%d-%d %[^:]:%[^ ] %n", mode, &low_addr, &low_bit, &high_bit, table, signal, &n) == 6) {
+    ok = 1;
+    high_addr = low_addr;
   }
-  else if (sscanf(line,"-- @IO:%[^ ] $%x.%d %[^:]:%[^ ] %n",mode,&low_addr,&low_bit,table,signal,&n)==5) {
-    ok=1; high_addr=low_addr; high_bit=low_bit;
+  else if (sscanf(line, "-- @IO:%[^ ] $%x.%d %[^:]:%[^ ] %n", mode, &low_addr, &low_bit, table, signal, &n) == 5) {
+    ok = 1;
+    high_addr = low_addr;
+    high_bit = low_bit;
   }
-  else if (sscanf(line,"-- @IO:%[^ ] $%x-$%x %[^:]:%[^ ] %n",mode,&low_addr,&high_addr,table,signal,&n)==5) {
-    ok=1;
+  else if (sscanf(line, "-- @IO:%[^ ] $%x-$%x %[^:]:%[^ ] %n", mode, &low_addr, &high_addr, table, signal, &n) == 5) {
+    ok = 1;
   }
-  else if (sscanf(line,"-- @IO:%[^ ] $%x - $%x %[^:]:%[^ ] %n",mode,&low_addr,&high_addr,table,signal,&n)==5) {
-    ok=1;
+  else if (sscanf(line, "-- @IO:%[^ ] $%x - $%x %[^:]:%[^ ] %n", mode, &low_addr, &high_addr, table, signal, &n) == 5) {
+    ok = 1;
   }
-  else if (sscanf(line,"-- @IO:%[^ ] $%x %[^:]:%[^ ] %n",mode,&low_addr,table,signal,&n)==4) {
-    ok=1; high_addr=low_addr;
+  else if (sscanf(line, "-- @IO:%[^ ] $%x %[^:]:%[^ ] %n", mode, &low_addr, table, signal, &n) == 4) {
+    ok = 1;
+    high_addr = low_addr;
   }
 
   // Make sure bit order is ascending, to avoid problems
-  if (high_bit<low_bit) {
-    int temp=low_bit;
-    low_bit=high_bit;
-    high_bit=temp;
+  if (high_bit < low_bit) {
+    int temp = low_bit;
+    low_bit = high_bit;
+    high_bit = temp;
   }
 
   if (!ok) {
-    if (Warn) fprintf(stderr,
-    "ERROR: @IO line missing TABLE:SIGNAL descriptor or otherwise mal-formed\n");
+    if (Warn)
+      fprintf(stderr, "ERROR: @IO line missing TABLE:SIGNAL descriptor or otherwise mal-formed\n");
     return -1;
   }
 
-  description=&line[n];
+  description = &line[n];
 
   // Make sure TABLE has no spaces, which would indicate a mal-formed entry
-  for(int i=0;table[i];i++)
-    if (table[i]==' ') {
-      if (Warn) fprintf(stderr,
-      "ERROR: @IO line missing TABLE:SIGNAL descriptor\n");
+  for (int i = 0; table[i]; i++)
+    if (table[i] == ' ') {
+      if (Warn)
+        fprintf(stderr, "ERROR: @IO line missing TABLE:SIGNAL descriptor\n");
       return -1;
     }
 
-  mode_num=-1;
-  if (!strcmp(mode,"C64")) mode_num=MODE_C64;
-  if (!strcmp(mode,"C65")) mode_num=MODE_C65;
-  if (!strcmp(mode,"GS")) mode_num=MODE_MEGA65;
-  if (mode_num==-1) {
-    fprintf(stderr,"ERROR: Could not parse machine mode '%s'\n",mode);
+  mode_num = -1;
+  if (!strcmp(mode, "C64"))
+    mode_num = MODE_C64;
+  if (!strcmp(mode, "C65"))
+    mode_num = MODE_C65;
+  if (!strcmp(mode, "GS"))
+    mode_num = MODE_MEGA65;
+  if (mode_num == -1) {
+    fprintf(stderr, "ERROR: Could not parse machine mode '%s'\n", mode);
     return -1;
   }
 
   // Search for existing table
-  int table_num=0;
-  for(;table_num<table_count;table_num++)
-    {
-      if ((!strcmp(reg_tables[table_num]->name,table))
-	  &&(mode_num==reg_tables[table_num]->mode)) {
-	break;
-      }
+  int table_num = 0;
+  for (; table_num < table_count; table_num++) {
+    if ((!strcmp(reg_tables[table_num]->name, table)) && (mode_num == reg_tables[table_num]->mode)) {
+      break;
     }
-  if (table_num>=table_count) {
-    if (table_num>=MAX_TABLES) {
-      fprintf(stderr,"ERROR: Too many tables. Fix or increase MAX_TABLES.\n");
+  }
+  if (table_num >= table_count) {
+    if (table_num >= MAX_TABLES) {
+      fprintf(stderr, "ERROR: Too many tables. Fix or increase MAX_TABLES.\n");
       return -1;
     }
-    reg_tables[table_num]=calloc(sizeof(struct reg_table),1);
+    reg_tables[table_num] = calloc(sizeof(struct reg_table), 1);
     if (!reg_tables[table_num]) {
-      fprintf(stderr,"ERROR: Could not allocate new register table.\n");
+      fprintf(stderr, "ERROR: Could not allocate new register table.\n");
       return -1;
     }
-    reg_tables[table_num]->name=strdup(table);
-    reg_tables[table_num]->mode=mode_num;
+    reg_tables[table_num]->name = strdup(table);
+    reg_tables[table_num]->mode = mode_num;
     table_count++;
   }
 
   // Add entry to table
-  if (reg_tables[table_num]->reg_count>=MAX_ENTRIES) {
-    fprintf(stderr,"ERROR: Too many entries in register table '%s' for mode '%s'\n",
-	    table,mode);
+  if (reg_tables[table_num]->reg_count >= MAX_ENTRIES) {
+    fprintf(stderr, "ERROR: Too many entries in register table '%s' for mode '%s'\n", table, mode);
     return -1;
   }
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_address=low_addr;
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_address=high_addr;
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_bit=low_bit;
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_bit=high_bit;
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal=strdup(signal);
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description=strdup(description);
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_address = low_addr;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_address = high_addr;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_bit = low_bit;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_bit = high_bit;
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal = strdup(signal);
+  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description = strdup(description);
 
   reg_tables[table_num]->reg_count++;
 
   return 0;
 }
 
-int scan_vhdl_file(char *file)
+int scan_vhdl_file(char* file)
 {
-  int retVal=0;
-  int error_count=0;
+  int retVal = 0;
+  int error_count = 0;
 
-  struct info_block *current_info_block=NULL;
+  struct info_block* current_info_block = NULL;
 
   do {
     char line[8192];
-    int line_num=0;
-    FILE *f=fopen(file,"r");
+    int line_num = 0;
+    FILE* f = fopen(file, "r");
     if (!f) {
-      fprintf(stderr,"Could not open input file '%s' for reading.\n",file);
+      fprintf(stderr, "Could not open input file '%s' for reading.\n", file);
       perror("fopen()");
-      retVal=-1; break;
+      retVal = -1;
+      break;
     }
-    line[0]=0; fgets(line,8192,f);
-    while(line[0]) {
-      int offset=0;
+    line[0] = 0;
+    fgets(line, 8192, f);
+    while (line[0]) {
+      int offset = 0;
 
       line_num++;
 
       // Skip over leading white space
-      while(line[offset]==' '||line[offset]=='\t') offset++;
+      while (line[offset] == ' ' || line[offset] == '\t')
+        offset++;
       // Trim CRLF
-      while((line[strlen(line)-1]=='\r')||(line[strlen(line)-1]=='\n'))
-	line[strlen(line)-1]=0;
+      while ((line[strlen(line) - 1] == '\r') || (line[strlen(line) - 1] == '\n'))
+        line[strlen(line) - 1] = 0;
 
       // Look for comments beginning anywhere in the lin
-      int is_comment=0;
-      for (;line[offset]&&line[offset+1];offset++) {
-	if (line[offset]=='-'&&line[offset+1]=='-') {
-	  // It's a comment, so do something!
+      int is_comment = 0;
+      for (; line[offset] && line[offset + 1]; offset++) {
+        if (line[offset] == '-' && line[offset + 1] == '-') {
+          // It's a comment, so do something!
 
-	  is_comment=1;
-	  if (!strncmp(&line[offset],"-- @IO:",7))  {
-	    // Register short description
-	    if (parse_io_line(&line[offset])) {
-         if (Warn) {
-	        fprintf(stderr,"%s:%d: ",file,line_num);
-	        fprintf(stderr,"Error parsing @IO comment: '%s'\n",&line[offset]);
-         }
-	      error_count++;
-	    }
-	  } else if (!strncmp(&line[offset],"-- @INFO:",9))  {
-	    // Beginning of an info block
-	    char table[8192],signal[8192];
-	    int n;
-	    if (sscanf(&line[offset],"-- @INFO:%[^:]:%[^: ]%n",table,signal,&n)==2) {
-	      if (line[offset+n]) {
-		fprintf(stderr,"%s:%d: ",file,line_num);
-		fprintf(stderr,"Malformed @INFO: line: '%s'\n",line);
-		retVal=-1; break;
-	      }
-	      // We have a valid info block.
-	      // Check if it is a duplicate
-	      int info_block_num=0;
-	      struct reg_table *rt=NULL;
-	      int table_num=0;
-	      for(table_num=0;table_num<table_count;table_num++) {
-		if (!strcmp(reg_tables[table_num]->name,table)) break;
-	      }
-	      if (table_num>=table_count) {
-		// Need to allocate new table
-		if (table_count>=MAX_TABLES) {
-		  fprintf(stderr,"%s:%d: ",file,line_num);
-		  fprintf(stderr,"Too many register tables defined.  Fix or increase MAX_TABLES.\n");
-		  retVal=-1; break;
-		}
-		else {
-		  reg_tables[table_num]=calloc(sizeof(struct reg_table),1);
-		  if (!reg_tables[table_num]) {
-		    fprintf(stderr,"%s:%d: ",file,line_num);
-		    fprintf(stderr,"Failed to allocate new reg_table structure\n");
-		    retVal=-1; break;
-		  }
-		  reg_tables[table_num]->name=strdup(table);
-		  reg_tables[table_num]->reg_count=0;
-		  reg_tables[table_num]->info_count=0;
-		  table_count++;
-		}
-	      }
-	      rt=reg_tables[table_num];
+          is_comment = 1;
+          if (!strncmp(&line[offset], "-- @IO:", 7)) {
+            // Register short description
+            if (parse_io_line(&line[offset])) {
+              if (Warn) {
+                fprintf(stderr, "%s:%d: ", file, line_num);
+                fprintf(stderr, "Error parsing @IO comment: '%s'\n", &line[offset]);
+              }
+              error_count++;
+            }
+          }
+          else if (!strncmp(&line[offset], "-- @INFO:", 9)) {
+            // Beginning of an info block
+            char table[8192], signal[8192];
+            int n;
+            if (sscanf(&line[offset], "-- @INFO:%[^:]:%[^: ]%n", table, signal, &n) == 2) {
+              if (line[offset + n]) {
+                fprintf(stderr, "%s:%d: ", file, line_num);
+                fprintf(stderr, "Malformed @INFO: line: '%s'\n", line);
+                retVal = -1;
+                break;
+              }
+              // We have a valid info block.
+              // Check if it is a duplicate
+              int info_block_num = 0;
+              struct reg_table* rt = NULL;
+              int table_num = 0;
+              for (table_num = 0; table_num < table_count; table_num++) {
+                if (!strcmp(reg_tables[table_num]->name, table))
+                  break;
+              }
+              if (table_num >= table_count) {
+                // Need to allocate new table
+                if (table_count >= MAX_TABLES) {
+                  fprintf(stderr, "%s:%d: ", file, line_num);
+                  fprintf(stderr, "Too many register tables defined.  Fix or increase MAX_TABLES.\n");
+                  retVal = -1;
+                  break;
+                }
+                else {
+                  reg_tables[table_num] = calloc(sizeof(struct reg_table), 1);
+                  if (!reg_tables[table_num]) {
+                    fprintf(stderr, "%s:%d: ", file, line_num);
+                    fprintf(stderr, "Failed to allocate new reg_table structure\n");
+                    retVal = -1;
+                    break;
+                  }
+                  reg_tables[table_num]->name = strdup(table);
+                  reg_tables[table_num]->reg_count = 0;
+                  reg_tables[table_num]->info_count = 0;
+                  table_count++;
+                }
+              }
+              rt = reg_tables[table_num];
 
-	      for(info_block_num=0;info_block_num<rt->info_count;info_block_num++) {
-		if (!strcmp(signal,rt->info_blocks[info_block_num].signal)) {
-		  // Found the block
-		  break;
-		}
-	      }
-	      if (info_block_num>=rt->info_count) {
-		// New info block, so allocate it
-		if (info_block_num>=MAX_ENTRIES) {
-		  fprintf(stderr,"%s:%d: ",file,line_num);
-		  fprintf(stderr,"Too many information blocks defined in table '%s'.  Fix or increase MAX_ENTRIES.\n",
-			  table);
-		  retVal=-1; break;
-		}
-		rt->info_blocks[info_block_num].signal=strdup(signal);
-		rt->info_blocks[info_block_num].line_count=0;
-		rt->info_count++;
-	      }
-	      // Set current info block to which we record comments
-	      current_info_block=&rt->info_blocks[info_block_num];
-	    }
-	  } else {
-	    // NOT an @IO: comment block
-	    if (current_info_block) {
-	      // Append comment line to info block
-	      if (current_info_block->line_count>=MAX_LINES) {
-		fprintf(stderr,"%s:%d: ",file,line_num);
-		fprintf(stderr,"Too many lines in info block '%s'.  Fix or increase MAX_LINES.\n",
-			current_info_block->signal);
-		retVal=-1; break;
-	      }
-	      current_info_block->lines[current_info_block->line_count++]=strdup(&line[offset+3]);
-	    }
-	  }
-	  break;
-	}
+              for (info_block_num = 0; info_block_num < rt->info_count; info_block_num++) {
+                if (!strcmp(signal, rt->info_blocks[info_block_num].signal)) {
+                  // Found the block
+                  break;
+                }
+              }
+              if (info_block_num >= rt->info_count) {
+                // New info block, so allocate it
+                if (info_block_num >= MAX_ENTRIES) {
+                  fprintf(stderr, "%s:%d: ", file, line_num);
+                  fprintf(
+                      stderr, "Too many information blocks defined in table '%s'.  Fix or increase MAX_ENTRIES.\n", table);
+                  retVal = -1;
+                  break;
+                }
+                rt->info_blocks[info_block_num].signal = strdup(signal);
+                rt->info_blocks[info_block_num].line_count = 0;
+                rt->info_count++;
+              }
+              // Set current info block to which we record comments
+              current_info_block = &rt->info_blocks[info_block_num];
+            }
+          }
+          else {
+            // NOT an @IO: comment block
+            if (current_info_block) {
+              // Append comment line to info block
+              if (current_info_block->line_count >= MAX_LINES) {
+                fprintf(stderr, "%s:%d: ", file, line_num);
+                fprintf(
+                    stderr, "Too many lines in info block '%s'.  Fix or increase MAX_LINES.\n", current_info_block->signal);
+                retVal = -1;
+                break;
+              }
+              current_info_block->lines[current_info_block->line_count++] = strdup(&line[offset + 3]);
+            }
+          }
+          break;
+        }
       }
       if (!is_comment) {
-	// It's not a comment. So do nothing, except for mark the end of
-	// a multi-line info block, if required.
-	current_info_block=NULL;
+        // It's not a comment. So do nothing, except for mark the end of
+        // a multi-line info block, if required.
+        current_info_block = NULL;
       }
 
-      if (retVal) break;
+      if (retVal)
+        break;
 
-      line[0]=0; fgets(line,8192,f);
+      line[0] = 0;
+      fgets(line, 8192, f);
     }
 
     fclose(f);
 
-  } while(0);
+  } while (0);
 
   if (error_count) {
-    fprintf(stderr,"WARNING: Encountered %3d errors while parsing '%s'\n",error_count,file);
+    fprintf(stderr, "WARNING: Encountered %3d errors while parsing '%s'\n", error_count, file);
   }
 
   return retVal;
 }
 
-int main(int argc,char **argv)
+int main(int argc, char** argv)
 {
   int i = 1;
-  if (!strcmp(argv[1],"-q")) // option -q = quiet
+  if (!strcmp(argv[1], "-q")) // option -q = quiet
   {
     Warn = 0;
-    i    = 2;
+    i = 2;
   }
-  for(;i<argc;i++)
+  for (; i < argc; i++)
     scan_vhdl_file(argv[i]);
 
-  fprintf(stderr,"%d tables defined.\n",table_count);
+  fprintf(stderr, "%d tables defined.\n", table_count);
 
   // Now emit the tables
-  for(int t=0;t<table_count;t++)
-    {
-      char filename[1024];
-      snprintf(filename,1024,"regtable_%s.%s.tex",
-	       reg_tables[t]->name,describe_mode(reg_tables[t]->mode));
-      FILE *f=fopen(filename,"w");
-      if (!f) {
-	fprintf(stderr,"ERROR: Could not write to latex file '%s'\n",filename);
-	continue;
-      }
-
-      clear_table_output();
-      for(int reg=0;reg<reg_tables[t]->reg_count;reg++)
-	{
-	  table_output_add_reg(&reg_tables[t]->regs[reg]);
-	}
-      emit_table_output(f);
-
-
-      if (0) fprintf(f,"\\section{%s (%s)}\n",
-		     reg_tables[t]->name,
-		     describe_mode(reg_tables[t]->mode));
-      fclose(f);
+  for (int t = 0; t < table_count; t++) {
+    char filename[1024];
+    snprintf(filename, 1024, "regtable_%s.%s.tex", reg_tables[t]->name, describe_mode(reg_tables[t]->mode));
+    FILE* f = fopen(filename, "w");
+    if (!f) {
+      fprintf(stderr, "ERROR: Could not write to latex file '%s'\n", filename);
+      continue;
     }
+
+    clear_table_output();
+    for (int reg = 0; reg < reg_tables[t]->reg_count; reg++) {
+      table_output_add_reg(&reg_tables[t]->regs[reg]);
+    }
+    emit_table_output(f);
+
+    if (0)
+      fprintf(f, "\\section{%s (%s)}\n", reg_tables[t]->name, describe_mode(reg_tables[t]->mode));
+    fclose(f);
+  }
 
   return 0;
 }
-

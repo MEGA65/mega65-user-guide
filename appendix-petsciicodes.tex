@@ -1,4 +1,3 @@
-
 \chapter{Special Keyboard Controls and Sequences}
 
 
@@ -6,14 +5,17 @@
 
 \label{appendix:asciicodes}
 
-You can use the \screentext{PRINT CHR\$(X)} statement to print a character.
+In BASIC,  \screentext{PRINT CHR\$(X)} can be used to print a character from a PETSCII code.
 Below is the full table of PETSCII codes you can print by index.  For example, by
 using index 65 from the table below as: \screentext{PRINT CHR\$(65)} you will
-print the letter \screentext{A}.
+print the letter \screentext{A}. You can read more about {\bf CHR\$} on page \pageref{chrcommand}.
 
 You can also do the reverse with the ASC statement.  For example:
 \screentext{PRINT ASC("A")} will output \screentext{65}, which matches with the
 code in the table.
+
+NOTE: Function key (F1-F14 + HELP) values in this table are not intended to be printed via CHR\$(),
+but rather to allow function-key input to be assessed in BASIC programs via the GET / GETKEY commands.
 
 \begin{adjustwidth}{}{-2cm}
 \begin{multicols}{4}
@@ -26,25 +28,27 @@ code in the table.
     \item [5]   \small{WHITE}
     \item [6]
     \item [7]   \small{BELL}
-    \item [8]   \footnotesize{DISABLE \specialkey{SHIFT}\megasymbolkey}
-    \item [9]   \footnotesize{ENABLE \specialkey{SHIFT}\megasymbolkey}
+    \item [8]
+    \item [9]   \megakey{TAB}
     \item [10]  \small{LINEFEED}
-    \item [11]
-    \item [12]
-    \item [13]  \megakey{RETURN}
+%   \item [11]  \footnotesize{DISABLE \specialkey{SHIFT}\megasymbolkey}
+    \item [11]  DISABLE \\ \specialkey{SHIFT}\megasymbolkey
+%   \item [12]  \footnotesize{ENABLE \specialkey{SHIFT}\megasymbolkey}
+    \item [12]  ENABLE \\ \specialkey{SHIFT}\megasymbolkey
+    \item [13]  \specialkey{RETURN}
     \item [14]  \small{LOWER CASE}
-    \item [15]  \small{BLINK ON}
-    \item [16]
+    \item [15]  \small{BLINK/FLASH ON}
+    \item [16]  F9
     \item [17]  \megakey{$\downarrow$}
     \item [18]  \specialkey{RVS ON}
     \item [19]  \specialkey{CLR HOME}
     \item [20]  \specialkey{INST DEL}
-    \item [21]
-    \item [22]
-    \item [23]
-    \item [24]
-    \item [25]
-    \item [26]
+    \item [21]  F10 / BACK WORD
+    \item [22]  F11
+    \item [23]  F12 / NEXT WORD
+    \item [24]  SET/CLEAR TAB
+    \item [25]  F13
+    \item [26]  F14 / BACK TAB
     \item [27]  \small{ESCAPE}
     \item [28]  \small{RED}
     \item [29]  \megakey{$\rightarrow$}
@@ -150,7 +154,7 @@ code in the table.
     \item [129] \small{ORANGE}
     \item [130] \small{UNDERLINE OFF}
     \item [131]
-    \item [132]
+    \item [132] HELP
     \item [133] F1
     \item [134] F3
     \item [135] F5
@@ -159,14 +163,14 @@ code in the table.
     \item [138] F4
     \item [139] F6
     \item [140] F8
-    \item [141] \specialkey{SHIFT}\megakey{RETURN}
+    \item [141] \specialkey{SHIFT}\specialkey{RETURN}
     \item [142] \small{UPPERCASE}
-    \item [143] \small{BLINK OFF}
+    \item [143] \small{BLINK/FLASH OFF}
     \item [144] \small{BLACK}
     \item [145] \megakey{$\uparrow$}
     \item [146] \specialkey{RVS OFF}
-    \item [147] \specialkey{CLR HOME}
-    \item [148] \specialkey{INST DEL}
+    \item [147] \specialkey{SHIFT}\specialkey{CLR HOME}
+    \item [148] \specialkey{SHIFT}\specialkey{INST DEL}
     \item [149] \small{BROWN}
     \item [150] \small{LT. RED}
     \item [151] \small{DK. GRAY}
@@ -213,9 +217,8 @@ code in the table.
 \end{description}
 \end{multicols}
 \end{adjustwidth}
-NOTE: Codes for 192 to 223 are the equal to 96-127. Codes 224 to 254 equal to 160-190 and code 255 equal to 126.
-\newpage
-
+NOTE: Codes from 192 to 223 are the equal to 96 to 127. Codes from 224 to 254 are equal to 160 to 190,
+and code 255 is equal to 126.
 
 
 \section{Control codes}
@@ -225,74 +228,116 @@ NOTE: Codes for 192 to 223 are the equal to 96-127. Codes 224 to 254 equal to 16
 \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
 \begin{longtable}{c|L{5.5cm}}
 	\textbf{Keyboard Control} & \textbf{Function}\\
-   \hline
+   \hhline{==}
 	\endhead
 
-\megakey{CTRL} + \megakey{1} to \megakey{8} &
-Choose from the first range of colours.\\
+  \multicolumn{2}{l}{\textbf{Colours}} \\
+  \hhline{==}
+\specialkey{CTRL} + \megakey{1} to \megakey{8} &
+Choose from the first range of colours. More information on the colours
+    available is under the BASIC {\bf BACKGROUND} command on page \pageref{colourtable}.\\
+\hline
+\megasymbolkey + \megakey{1} to \megakey{8} &
+Choose from the second range of colours.  \\
+\hline
+\specialkey{CTRL} + \megakey{E} &
+Restores the colour of the cursor back to the default (white).\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Tabs}} \\
+  \hhline{==}
+\specialkey{CTRL} + \megakey{Z} &
+Tabs the cursor to the left. If there are no tab positions remaining, the cursor will remain at the start of the line.\\
+\hline
+\specialkey{CTRL} + \megakey{I} &
+Tabs the cursor to the right. If there are no tab positions remaining, the cursor will remain at the end of the line.\\
+\hline
+\specialkey{CTRL} + \megakey{X} &
+Sets or clears the current screen column as a tab position.
+ Use \specialkey{CTRL} +\megakey{Z} and \megakey{I}  to jump back and forth to all positions set with \megakey{X}.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Movement}} \\
+  \hhline{==}
+\specialkey{CTRL} + \megakey{Q} &
+Moves the cursor down one line at a time. Equivalent to the \megakey{$\downarrow$} key.\\
+\hline
+\specialkey{CTRL} + \megakey{J} &
+Moves the cursor down a position. If you are on a long line of BASIC code that has extended to two lines, then the cursor will move down two rows to be on the next line.\\
+\hline
+\specialkey{CTRL} + \megakey{]} &
+Equivalent to the \megakey{$\rightarrow$} key.\\
+\hline
+\specialkey{CTRL} + \megakey{T} &
+Backspace the character immediately to the left and to shift all rightmost characters one position to the left. This is equivalent to the \specialkey{INST DEL} key.\\
+\hline
+\specialkey{CTRL} + \megakey{M} &
+Performs a carriage return, equivalent to the \specialkey{RETURN} key.\\
 
-\megakey{CTRL} + \megakey{T} &
-Backspace the character immediately to the left and to shift all rightmost characters one position to the left. This is the same function as the Backspace key.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Word movement}} \\
+  \hhline{==}
 
-\megakey{CTRL} + \megakey{Z} &
-Tabs the cursor to the left.\\
+\specialkey{CTRL} + \megakey{U} &
+Moves the cursor back to the start of the previous word. If there are no words
+between the current cursor position and the start of the line, the cursor will move to the first column of the current line.\\
+\hline
+\specialkey{CTRL} + \megakey{W} &
+Advances the cursor forward to the start of the next word. If there are no words between the cursor and the end of the line,
+the cursor will move to the first column of the next line.\\
 
-\megakey{CTRL} + \megakey{E} &
-Restores the colour of the cursor back to the default white.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Scrolling}} \\
+  \hhline{==}
 
-\megakey{CTRL} + \megakey{Q} &
-moves the cursor down one line at a time. This is the same function produced by the Cursor Down key.\\
+\specialkey{CTRL} + \megakey{P} &
+Scroll BASIC listing down one line. Equivalent to the \megakey{F9} key.\\
+\hline
+\specialkey{CTRL} + \megakey{V} &
+Scroll BASIC listing up one line. Equivalent to the \megakey{F11} key.\\
+\hline
+\specialkey{CTRL} + \megakey{S} &
+Equivalent to the \specialkey{NO\\SCROLL} key.\\
 
-\megakey{CTRL} + \megakey{G} &
-produces a bell tone.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Formatting}} \\
+  \hhline{==}
 
-\megakey{CTRL} + \megakey{J} &
-is a line feed and moves the cursor down one row. This is the same function produced by the \megakey{$\downarrow$} key.\\
+\specialkey{CTRL} + \megakey{B} &
+Enables underline text mode. You can disable underline mode by pressing \specialkey{ESC}, then \megakey{O}.\\
+\hline
+\specialkey{CTRL} + \megakey{O} &
+Enables flashing text mode. You can disable flashing mode by pressing \specialkey{ESC}, then \megakey{O}.\\
+\hline
 
-\megakey{CTRL} + \megakey{U} &
-backs up to the start of the previous word, or unbroken string of characters. If there are no characters between the current cursor position and the start of the line, the cursor will move to the first column of the current line.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Casing}} \\
+  \hhline{==}
 
-\megakey{CTRL} + \megakey{W} &
-advances forward to the start of the next word, or unbroken string of characters. If there are no characters between the current cursor position and the end of the line, the cursor will move to the first column of the next line.\\
+\specialkey{CTRL} + \megakey{N} &
+Changes the text case mode from uppercase to lowercase.\\
+\hline
+\specialkey{CTRL} + \megakey{K} &
+Locks the uppercase/lowercase mode switch usually performed with \megasymbolkey and \specialkey{SHIFT} keys.\\
+\hline
+\specialkey{CTRL} + \megakey{L} &
+Enables the uppercase/lowercase mode switch that is performed with the \megasymbolkey and \specialkey{SHIFT} keys.\\
 
-\megakey{CTRL} + \megakey{B} &
-turns on underline text mode. Turn off underline mode by pressing \megakey{ESC} then \megakey{O}.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Miscellaneous}} \\
+  \hhline{==}
 
-\megakey{CTRL} + \megakey{N} &
-changes the text case mode from uppercase to lowercase.\\
-
-\megakey{CTRL} + \megakey{M} &
-is the carriage return. This is the same function as the \megakey{Return} key.\\
-
-\megakey{CTRL} + \megakey{]} &
-is the same function as \megakey{$\rightarrow$}.\\
-
-\megakey{CTRL} + \megakey{I} &
-tabs forward to the right.\\
-
-\megakey{CTRL} + \megakey{X} &
-sets or clears the current screen column as a tab position.
- \megakey{CTRL} + \megakey{I} or \megakey{Z} will jump to all positions set with \megakey{X}. When there are no more tab positions, the cursor will stay at the end of the line with \megakey{CTRL} and \megakey{I}, or move to the start of the line in the case of \megakey{CTRL} and \megakey{Z}.\\
-
-\megakey{CTRL} + \megakey{K} &
-locks the uppercase/lowercase mode switch usually performed with \megasymbolkey and \megakey{Shift} keys.\\
-
-\megakey{CTRL} + \megakey{L} &
-enables the uppercase/lowercase mode switch that is performed with the \megasymbolkey and \megakey{Shift} keys.\\
-
-\megakey{CTRL} + \megakey{[} &
-is the same as pressing the \megakey{ESC} key.\\
-
-\megakey{CTRL} + \megakey{*} &
-enters the Matrix Mode Debugger.\\
-
+\specialkey{CTRL} + \megakey{G} &
+Produces a bell tone.\\
+\hline
+\specialkey{CTRL} + \megakey{[} &
+Equivalent to pressing the \specialkey{ESC} key.\\
+\hline
+\specialkey{CTRL} + \megakey{*} &
+Enters the Matrix Mode Debugger.\\
+\hline
 
 \end{longtable}
 \end{center}
 
-
-
-\newpage
 
 \section{Shifted codes}
 \label{appendix:shiftedcodes}
@@ -301,116 +346,145 @@ enters the Matrix Mode Debugger.\\
 \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
 \begin{longtable}{c|L{5.5cm}}
 	\textbf{Keyboard Control} & \textbf{Function}\\
-   \hline
+  \hhline{==}
 	\endhead
 
-\megakey{Shift} + \specialkey{INST DEL} &
-Insert a character in the current cursor position and move all characters to the right by one position.\\
-
-\megakey{Shift} + \specialkey{HOME} &
-Clear home, clear the entire screen and move the cursor to the home position.\\
-
+\specialkey{SHIFT} + \specialkey{INST DEL} &
+Insert a character at the current cursor position and move all characters to the right by one position.\\
+\hline
+\specialkey{SHIFT} + \specialkey{HOME} &
+Clear home, clear the entire screen, and move the cursor to the home position.\\
+\hline
 
 \end{longtable}
 \end{center}
-
-
-\newpage
 
 
 
 \section{Escape Sequences}
 \label{appendix:escapesequences}
 
-To perform an Escape Sequence, press and release the \megakey{ESC} key. Then press one of the following keys to perform the sequence:
+To perform an Escape Sequence, press and release the \specialkey{ESC} key, then press one of the following keys to perform
+the sequence:
 
 \begin{center}
 \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
-\begin{longtable}{C{2cm}|L{5.5cm}}
+\begin{longtable}{c|L{5.5cm}}
 	\textbf{Key} & \textbf{Sequence}\\
-   \hline
+  \hhline{==}
 	\endhead
 
-\megakey{X} &
-Clears the screen and toggles between 40 and 80 column modes.\\
+  \multicolumn{2}{l}{\textbf{Editor behaviour}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{X} &
+Clears the screen and toggles between 40 and 80-column modes.\\
+\hline
+\specialkey{ESC} \megakey{@} &
+%TODO the megakey with @ shows the label far smaller than any other key. Perhaps it needs more styling?
+Clears a region of the screen, starting from the current cursor position, to the end of the screen.\\
+\hline
+\specialkey{ESC} \megakey{O} &
+Cancels the quote, reverse, underline, and flash modes.\\
 
-\megakey{@} &
-Clears the screen starting from the cursor to the end of the screen.\\
-
-\megakey{A} &
-Enables the auto-insert mode. Any keys pressed will insert before other characters.\\
-
-\megakey{B} &
-Sets the bottom-right window area of the screen at the cursor position. All typed characters and screen activity will be restricted to the area. Also see \megakey{ESC} then \megakey{T}.\\
-
-\megakey{C} &
-Disables auto-insert mode, going back to overwrite mode.\\
-
-\megakey{D} &
-Deletes the current line and moves other lines up one position.\\
-
-\megakey{E} &
-Sets the cursor to non-flashing mode.\\
-
-\megakey{F} &
-Sets the cursor to regular flashing mode.\\
-
-\megakey{G} &
-Enables the bell which can be sounded using \megakey{CTRL} and \megakey{G}.\\
-
-\megakey{H} &
-Disable the bell so that pressing \megakey{CTRL} and \megakey{G} will have no effect.\\
-
-\megakey{I} &
-Inserts an empty line in the current cursor position and moves all subsequent lines down one position.\\
-
-\megakey{J} &
-Moves the cursor to start of current line.\\
-
-\megakey{K} &
-Move to end of the last non-white-space character on the current line.\\
-
-\megakey{L} &
-Enables scrolling when the cursor down key is pressed at the bottom of the screen.\\
-
-\megakey{M} &
-Disables scrolling. When pressing the cursor down key at the bottom on the screen, the cursor will move to the top of the screen. The cursor is restricted at the top of the screen with the Cursor up key.\\
-
-\megakey{O} &
-Cancels the quote, reverse, underline and flash modes.\\
-
-\megakey{P} &
-Erases all characters from the cursor to the start of current line.\\
-
-\megakey{Q} &
-Erases all characters from the cursor to the end of current line.\\
-
-\megakey{S} &
-Switches the VIC-IV to colour range 16-31. These colours can be accessed with \megakey{CTRL} and keys \megakey{1} to \megakey{8} or \megasymbolkey and keys \megakey{1} to \megakey{8}.\\
-
-\megakey{T} &
-Set top-left window area of the screen at the cursor position. All typed characters and screen activity will be restricted to the area. Also see \megakey{ESC} then \megakey{B}.\\
-
-\megakey{U} &
-Switches the VIC-IV to colour range 0-15. These colours can be accessed with \megakey{CTRL} and keys \megakey{1} to \megakey{8} or \megasymbolkey and keys \megakey{1} to \megakey{8}.\\
-
-\megakey{V} &
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Scrolling}} \\
+  \hhline{==}
+% TODO for some reason this doesn't leave enough space (the keys overlap with the hhline)
+\specialkey{ESC} \megakey{V} &
 Scrolls the entire screen up one line.\\
-
-\megakey{W} &
+\hline
+\specialkey{ESC} \megakey{W} &
 Scrolls the entire screen down one line.\\
+\hline
+\specialkey{ESC} \megakey{L} &
+Enables scrolling when \megakey{$\downarrow$} is pressed at the bottom of the screen.\\
+\hline
+\specialkey{ESC} \megakey{M} &
+Disables scrolling. When pressing \megakey{$\downarrow$} at the bottom of the screen, the cursor will move to the top of the
+screen. However, when pressing \megakey{$\uparrow$} at the top of the screen, the cursor will remain on the first line.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Insertion and deletion}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{I} &
+Inserts an empty line at the current cursor position and moves all subsequent lines down one position.\\
+\hline
+\specialkey{ESC} \megakey{D} &
+Deletes the current line and moves lines below the cursor up one position.\\
+\hline
+\specialkey{ESC} \megakey{P} &
+Erases all characters from the cursor to the start of the current line.\\
+\hline
+\specialkey{ESC} \megakey{Q} &
+Erases all characters from the cursor to the end of the current line.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Movement}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{J} &
+Moves the cursor to the start of the current line.\\
+\hline
+\specialkey{ESC} \megakey{K} &
+Moves the cursor to the last non-whitespace character on the current line.\\
+\hline
+\specialkey{ESC} \megakey{$\uparrow$} &
+Saves the current cursor position. Use \specialkey{ESC} \megakey{$\leftarrow$} (next to \megakey{1}) to move it back
+to the saved position. Note that the \megakey{$\uparrow$} used here is next to \widekey{RESTORE}.\\
+\hline
+\specialkey{ESC} \megakey{$\leftarrow$} &
+Restores the cursor position to the position stored via a prior a press of the \specialkey{ESC} \megakey{$\uparrow$}
+(next to \widekey{RESTORE}) key sequence. Note that the \megakey{$\leftarrow$} used here is next to \megakey{1}.\\
 
-\megakey{X} &
-Toggles the 40/80 column display. The screen will also clear home.\\
-
-\megakey{Y} &
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Windowing}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{T} &
+Sets the top-left corner of the windowed area.
+All typed characters and screen activity will be restricted to the area. Also see \specialkey{ESC} \megakey{B}.
+Windowed mode can be disabled by pressing \specialkey{CLR HOME} twice. \\
+\hline
+\specialkey{ESC} \megakey{B} &
+Sets the bottom right corner of the windowed area.
+All typed characters and screen activity will be restricted to the area. Also see \specialkey{ESC} \megakey{T}.
+Windowed mode can be disabled by pressing \specialkey{CLR HOME} twice.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Cursor behaviour}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{A} &
+Enables auto-insert mode. Any keys pressed will be inserted at the current cursor position, shifting all characters
+on the current line after the cursor to the right by one position.\\
+\hline
+\specialkey{ESC} \megakey{C} &
+Disables auto-insert mode, reverting back to overwrite mode.\\
+\hline
+\specialkey{ESC} \megakey{E} &
+Sets the cursor to non-flashing mode.\\
+\hline
+\specialkey{ESC} \megakey{F} &
+Sets the cursor to regular flashing mode.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Bell behaviour}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{G} &
+Enables the bell which can be sounded using \specialkey{CTRL} and \megakey{G}.\\
+\hline
+\specialkey{ESC} \megakey{H} &
+Disable the bell so that pressing \specialkey{CTRL} and \megakey{G} will have no effect.\\
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Colours}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{S} &
+Switches the VIC-IV to colour range 16-31. These colours can be accessed with \specialkey{CTRL} and keys \megakey{1} to \megakey{8} or \megasymbolkey and keys \megakey{1} to \megakey{8}.\\
+\hline
+\specialkey{ESC} \megakey{U} &
+Switches the VIC-IV to colour range 0-15. These colours can be accessed with \specialkey{CTRL} and keys \megakey{1} to \megakey{8} or \megasymbolkey and keys \megakey{1} to \megakey{8}.\\
+\hline
+  \hhline{==}
+  \multicolumn{2}{l}{\textbf{Tabs}} \\
+  \hhline{==}
+\specialkey{ESC} \megakey{Y} &
 Set the default tab stops (every 8 spaces) for the entire screen.\\
-
-\megakey{Z} &
-Clears all the tab stops. Any tabbing with \megakey{CTRL} and \megakey{I} will move the cursor to the end of the line.\\
-
-\megakey{1} to \megakey{8} &
-Choose from the second range of colours.\\
-
+\hline
+\specialkey{ESC} \megakey{Z} &
+Clears all tab stops. Any tabbing with \specialkey{CTRL} and \megakey{I} will move the cursor to the end of the line.\\
+\hline
 \end{longtable}
 \end{center}

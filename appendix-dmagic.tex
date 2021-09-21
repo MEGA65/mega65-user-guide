@@ -6,10 +6,10 @@ Unlike in the C65, where the DMA controller exists as a separate
 chip, it is part of the 45GS02 processor in the MEGA65.  However, as the
 use of the DMA controller is a logically separate topic, it is documented
 separately in this appendix.
- 
+
 The MEGA65's DMA controller provides several important improvements over the
 F018/F018A DMAgic chips of the C65:
- 
+
 \begin{itemize}
 \item{\bf Speed} The MEGA65 performs DMA operations at 40MHz, allowing filling 40MiB or copying 20MiB
   per second.  For example, it is possible to copy a complete 8KiB C64-style bitmap display in
@@ -28,7 +28,7 @@ F018/F018A DMAgic chips of the C65:
 
 \item{\bf Background Audio DMA}
   The MEGA65 includes background audio DMA capabilities similar to the Amiga\texttrademark series of computers.
-  Key differences are that the MEGA65 can use either 8 or 16 bit samples, supports very high sample rates
+  Key differences are that the MEGA65 can use either 8 or 16-bit samples, supports very high sample rates
   up to approximately 1 MHz, has 256 volume settings per channel, and no inter-channel modulation.
 
 \end{itemize}
@@ -41,16 +41,16 @@ and then write the address of this list into the DMA address registers.  The DMA
 the ADDRLSBTRIG register (\$D700).  For this reason you must write the MSB and bank number of the DMA list inti \$D701 and \$D702 first,
 and the LSB only after having set these other two registers.  If you wish to execute multiple DMA jobs using the same
 list structure in memory, you can simply write to ADDRLSBTRIG again after updating the list contents -- provided that
-no other programme has modified the contents of \$D701 or \$D702.  Note that BASIC 10 uses the DMA controller to
+no other program has modified the contents of \$D701 or \$D702.  Note that BASIC 65 uses the DMA controller to
 scroll the screen, so it is usually safest to always write to all three registers.
 
 When ADDRLSBTRIG has been written to, the DMA job completes immediately.  Unlike on the C65, the DMA controller is part
 of the processor of the MEGA65. This means that the processor stops trying to execute instructions {\em or fetching audio samples for DMA audio playback} until the DMA job
-has completed.  It also means that, unlike on the C65, DMA jobs cannot be interrupted. If your programme has sensitive timing
+has completed.  It also means that, unlike on the C65, DMA jobs cannot be interrupted. If your program has sensitive timing
 requirements, you may need to break larger DMA jobs into several smaller jobs.  This is somewhat mitigated by the high
 speed of the MEGA65's DMA, which is able to fill memory at 40.5MiB per second and copy memory at 20.25MiB per second, compared
 with circa 3.5 MiB and 1.7 MiB per second on a C65. This allows larger DMA jobs to be executed, without needing to worry about
-the impact on real-time elements of a programme. For example, it is possible to fill an 80 column 50 row text screen using the
+the impact on real-time elements of a program. For example, it is possible to fill an 80 column 50 row text screen using the
 MEGA65's DMA controller in just 200 microseconds.
 
 \subsection{F018 DMA Job List Format}
@@ -62,7 +62,7 @@ C65 prototypes.  The main difference is the addition of a second command byte, a
 It is important to know which style the DMA controller is expecting.  The MEGA65's Hypervisor sets the mode based on
 the detected version of C65 ROM, if one is running. If it is an older one, then the F018 style is expected, otherwise
 the newer F018B style is expected.  You can check which style has been selected by querying bit 0 of \$D703: If it is
-a 1, then the newer F018B 12-byte list format is expected. If it is a 0, then the older F018 11-byte list format is expected.
+a 1, then the newer F018B 12 byte list format is expected. If it is a 0, then the older F018 11 byte list format is expected.
 The expected style can be set by writing to this register.
 
 Unless you are writing software that must also run
@@ -70,7 +70,7 @@ on a C65 prototype, you should most probably use the MEGA65's Enhanced DMA Jobs,
 in the list itself.  As the Enhanced DMA Jobs are an extension of the F018/F018B DMA jobs, you should still read the following,
 unless you are already familiar with the behaviour of the F018 DMA controller.
 
-\subsubsection{F018 11-byte DMA List Structure}
+\subsubsection{F018 11 byte DMA List Structure}
 
 \begin{tabular}{|c|l|}
   \hline
@@ -82,9 +82,9 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
   \$03 & Source Address LSB  \\
   \$04 & Source Address MSB \\
   \$05 & Source Address BANK and FLAGS \\
-  \$06 & Source Address LSB  \\
-  \$07 & Source Address MSB \\
-  \$08 & Source Address BANK and FLAGS \\
+  \$06 & Destination Address LSB  \\
+  \$07 & Destination Address MSB \\
+  \$08 & Destination Address BANK and FLAGS \\
   \$09 & Modulo LSB \\
   \$0a & Modulo MSB \\
   \hline
@@ -92,7 +92,7 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
 
 \end{tabular}
 
-\subsubsection{F018B 12-byte DMA List Structure}
+\subsubsection{F018B 12 byte DMA List Structure}
 
 \begin{tabular}{|c|l|}
   \hline
@@ -104,16 +104,16 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
   \$03 & Source Address LSB  \\
   \$04 & Source Address MSB \\
   \$05 & Source Address BANK and FLAGS \\
-  \$06 & Source Address LSB  \\
-  \$07 & Source Address MSB \\
-  \$08 & Source Address BANK and FLAGS \\
+  \$06 & Destination Address LSB  \\
+  \$07 & Destination Address MSB \\
+  \$08 & Destination Address BANK and FLAGS \\
   \$09 & Command MSB \\
   \$0a & Modulo LSB / Mode \\
   \$0b & Modulo MSB / Mode \\
   \hline
 \end{tabular}
 
-The structure of the command word is as follows: 
+The structure of the command word is as follows:
 
 \begin{tabular}{|c|l|}
   \hline
@@ -141,7 +141,7 @@ The command field take the following four values:
   \%00 (0) & Copy \\
   \%01 (1) & Mix (via MINTERMs) \\
   \%10 (2) & Swap \\
-  \%11 (3) & Fill \\  
+  \%11 (3) & Fill \\
   \hline
   \multicolumn{2}{l}{* Only Copy and Fill are implemented at the time of writing.}
 \end{tabular}
@@ -155,7 +155,7 @@ The addressing mode fields take the following four values:
   \%00 (0) & Linear (normal) addressing \\
   \%01 (1) & Modulo (rectangular) addressing \\
   \%10 (2) & Hold (constant address) \\
-  \%11 (3) & XY MOD (bitmap rectangular) addressing \\  
+  \%11 (3) & XY MOD (bitmap rectangular) addressing \\
   \hline
   \multicolumn{2}{l}{* Only Linear, Modulo and Hold are implemented at the time of writing.}
 \end{tabular}
@@ -178,7 +178,7 @@ The BLANKS and FLAGS field has the following structure:
 
 \subsubsection{Performing Simple DMA Operations}
 
-For information on using the DMA controller from BASIC 10, refer to the \stw{DMA} BASIC command in Appendix \ref{BASIC 10 Commands!DMA}.
+For information on using the DMA controller from BASIC 65, refer to the \stw{DMA} BASIC command in \bookvref{BASIC 65 Commands!DMA}.
 
 To use the DMA controller from assembly language, set up a data structure with the DMA list, and then
 set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65 mode by filling
@@ -188,10 +188,10 @@ it with spaces, the following routine could be used:
 \verbatimfont{\codefont}
 \begin{verbatim}
   LDA #$00       ; DMA list exists in BANK 0
-  STA $D702     
+  STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
-  STA $D701 
-  LDA #>dmalist  ; Set LSB of DMA list address, and execute DMA
+  STA $D701
+  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
 
@@ -202,23 +202,23 @@ dmalist:
   .byte $00   ; Source bank (ignored with FILL operation)
   .word $0800 ; Destination address where screen lives
   .byte $00   ; Screen is in bank 0
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 \end{verbatim}
 \end{tcolorbox}
 
 It is also possible to execute more than one DMA job at the same time, by setting the CHAIN
-bit in the low-byte of the command word. For example to clear the screen as above, and
+bit in the low byte of the command word. For example to clear the screen as above, and
 also clear the colour RAM for the screen, you could use something like:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
   LDA #$00       ; DMA list exists in BANK 0
-  STA $D702     
+  STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
-  STA $D701 
-  LDA #>dmalist  ; Set LSB of DMA list address, and execute DMA
+  STA $D701
+  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
 
@@ -229,7 +229,7 @@ dmalist:
   .byte $00   ; Source bank (ignored with FILL operation)
   .word $0800 ; Destination address where screen lives
   .byte $00   ; Screen is in bank 0
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 
   ; Second DMA job immediately follows the first
@@ -237,9 +237,9 @@ dmalist:
   .word 2000  ; Count: 80x25 = 2000 bytes
   .word $0001 ; Fill with value $01 = white
   .byte $00   ; Source bank (ignored with FILL operation)
-  .word $F800 ; Destination address where colour RAM lives 
+  .word $F800 ; Destination address where colour RAM lives
   .byte $01   ; colour RAM is in bank 1 ($1F800-$1FFFF)
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 \end{verbatim}
 \end{tcolorbox}
@@ -253,10 +253,10 @@ to \$5000, you could use something like:
 \verbatimfont{\codefont}
 \begin{verbatim}
   LDA #$00       ; DMA list exists in BANK 0
-  STA $D702     
+  STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
-  STA $D701 
-  LDA #>dmalist  ; Set LSB of DMA list address, and execute DMA
+  STA $D701
+  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
   STA $D700
   RTS
 
@@ -267,7 +267,7 @@ dmalist:
   .byte $02   ; Source bank = $02 for $2xxxx
   .word $5000 ; Destination address where screen lives
   .byte $00   ; Screen is in bank 0
-  .byte $00   ; Command high byte 
+  .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
 \end{verbatim}
 \end{tcolorbox}
@@ -299,12 +299,12 @@ that uses a linear memory layout -- at the cost of consuming all of the processo
 during the active part of the display.
 
 The following example does this to draw vertical raster bars on the screen.
-This programme assumes that the MEGA65 is set to PAL.  For NTSC, the size of the DMA transfer
-would need to be decreased a little.  The other thing to note with this programme, is that
-it uses MEGA65 Enhanced DMA Job option \$81 to set the destination mega-byte in memory to
+This program assumes that the MEGA65 is set to PAL.  For NTSC, the size of the DMA transfer
+would need to be decreased a little.  The other thing to note with this program, is that
+it uses MEGA65 Enhanced DMA Job option \$81 to set the destination megabyte in memory to
 \$FFxxxxx, and the bank is set to \$D, and the destination address to \$0021, to form the
 complete address \$FFD0021.  This is the true location of the VIC-IV's border colour register.
-The programme is written using ACME-compatible syntax.
+The program is written using ACME-compatible syntax.
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -315,7 +315,7 @@ basicheader:
 	!byte $9e,$32,$30,$36,$31,0,0,0
 
 	;; Actual code begining at $080d = 2061
-main:	
+main:
 	sei
 	lda #$47        	; enable MEGA65 IO
 	sta $D02f
@@ -335,11 +335,11 @@ raster_sync:	  		; before beginning loop for horizontal alignment
 loop:
 	jsr triggerdma
 	jmp loop
-	
-triggerdma:	
+
+triggerdma:
 	lda #0			; make sure F018 list format
 	sta $d703
-	
+
 	lda #0     		; dma list bank
 	sta $d702
 	lda #>rasterdmalist
@@ -396,26 +396,37 @@ rastercolours:
 
 The MEGA65's implementation of the DMAgic supports significantly
 enhanced DMA jobs.  An enhanced DMA job is indicated by writing the
-low-byte of the DMA list address to \$D705 instead of to \$D700.  The
+low byte of the DMA list address to \$D705 instead of to \$D700.  The
 MEGA65 will then look for one or more {\em job option tokens} at the
 start of the DMA list.  Those tokens will be interpretted, before
 executing the DMA job which immediately follows the {\em end of job
-  options} token (\$00).  Job option tokens which take an argument have the
+  options} token (\$00).
+
+Job option tokens that take an argument have the
 most-significant bit set, and always take a 1 byte option.  Job option
 tokens that take no argument have the most-significant-bit clear.
 Unsupported job option tokens are simply ignored.
 This allows for future revisions of the DMAgic to add support for
 additional options, without breaking backward compatibility.
 
+These options are also used to achieve advanced features, such as hardware
+texture scaling at up to 20Mpixels per second, and hardware line drawing
+at up to 40Mpixels per second. These advanced functions are implemented
+by allowing complex calculations to be made to the source and/or destination
+address of DMA jobs as they execute.
+
 The list of valid job option tokens is:
 
-\begin{tabular}{|c|l|}
+\index{Line Drawing}
+\index{Line Drawing!DMA Option Bytes}
+\begin{tabular}{|c|p{10cm}|}
   \hline
   \$00 & End of job option list \\
-  \$06 & Enable use of transparent value \\
-  \$07 & Disable use of transparent value \\
-  \$0A & Use 11-byte F011A DMA list format \\
-  \$0B & Use 12-byte F011B DMA list format \\
+  \$06 & Disable use of transparent value \\
+  \$07 & Enable use of transparent value \\
+  \$0A & Use 11 byte F011A DMA list format \\
+  \$0B & Use 12 byte F011B DMA list format \\
+  \$53 & Enable `Shallan Spiral' Mode \\
   \$80 & Source address bits 20 -- 27 \\
   \$81 & Destination address bits 20 -- 27 \\
   \$82 & Source skip rate (256\textsuperscript{ths} of bytes) \\
@@ -423,12 +434,74 @@ The list of valid job option tokens is:
   \$84 & Destination skip rate (256\textsuperscript{ths} of bytes) \\
   \$85 & Destination skip rate (whole bytes) \\
   \$86 & Transparent value (bytes with matching value are not written) \\
+  \$87 & Set X column bytes (LSB) for line drawing destination address \\
+  \$88 & Set X column bytes (MSB) for line drawing destination address \\
+  \$89 & Set Y row bytes (LSB) for line drawing destination address \\
+  \$8A & Set Y row bytes (MSB) for line drawing destination address \\
+  \$8B & Slope (LSB) for line drawing destination address \\
+  \$8C & Slope (MSB) for line drawing destination address \\
+  \$8D & Slope accumulator initial fraction (LSB) for line drawing destination address \\
+  \$8E & Slope accumulator initial fraction (MSB) for line drawing destination address \\
+  \$8F & Line Drawing Mode enable and options for destination address (set in argument byte): Bit 7 = enable line mode, Bit 6 = select X or Y direction, Bit 5 = slope is negative. \\
+  \$97 & Set X column bytes (LSB) for line drawing source address \\
+  \$98 & Set X column bytes (MSB) for line drawing source address \\
+  \$99 & Set Y row bytes (LSB) for line drawing source address \\
+  \$9A & Set Y row bytes (MSB) for line drawing source address \\
+  \$9B & Slope (LSB) for line drawing source address \\
+  \$9C & Slope (MSB) for line drawing source address \\
+  \$9D & Slope accumulator initial fraction (LSB) for line drawing source address \\
+  \$9E & Slope accumulator initial fraction (MSB) for line drawing source address \\
+  \$9F & Line Drawing Mode enable and options for source address (set in argument byte): Bit 7 = enable line mode, Bit 6 = select X or Y direction, Bit 5 = slope is negative. \\
+  
   \hline
 \end{tabular}
 
+\section{Texture Scaling and Line Drawing}
+\index{Texture Scaling}
+
+The DMAgic supports an advanced internal address calculator that allows it to draw scaled textures and draw
+lines with arbitrary slopes on VIC-IV FCM video displays.
+
+For texture scaling, the FCM screen must be arranged
+vertically, as shown below:
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/illustrations/char-tile-grid-vertical-numbered}
+\end{center}
+
+By lining the characters into vertical columns like this, advancing vertically by one pixel adds a constant 8 bytes each time, as shown below:
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/illustrations/char-tile-grid-vertical-addressed}
+\end{center}
+
+
+The source and destination
+skip rates also allow setting the scaling factors.  A skip rate of \$0100 this corresponds to stepping \$01.00 pixels.
+To use the vertically stacked FCM layout as the target for copying vertical lines of textrures, then the destination
+skip rate should be \$0800, i.e., 8.0 bytes per pixel.  This would copy a vertical line of texture data without scaling.
+By setting the source stepping to < \$0100 will cause some pixels to be repeated, effectively zooming the texture in,
+while setting the source stepping to > \$0100 will cause some pixels to be skipped, effectively zooming the texture out.
+The destination stepping does not ordinary need to be adjusted.  Note that the texture data must be stored with each
+vertical stripe stored contiguously, so that this mode can be used.
+
+For line drawing, the DMA controller needs to know the screen layout, specifically, what number must be added to the
+address of a rightmost pixel in one column of FCM characters in order to calculate the address of the pixel appearing
+immediately to its right. Similarly, it must also know how much must be added to the address of a bottom most pixel in
+one row of FCM characters in order to calculate the address of the pixel appearing immediately below it.  This allows
+for flexible screen layout options, and arbitrary screen sizes.  You must then also specify the slope of the line, and
+whether the line has the X or Y as its major axis, and whether the slope is positive or negative.
+
+The file {\tt test\_290.c}
+in the \url{https://github.com/mega65/mega65-tools} repository provides an example of using these facilities to
+implement hardware accelerated line drawing. This is {\em very} fast, as it draws lines at the full DMA fill speed,
+i.e., approximately 40,500,000 pixels per second.
 
 \section{Audio DMA}
-
+\index{Digital Audio}
+\index{DMA Audio}
+\index{Amiga(tm) style audio}
+\index{MOD-file style audio}
 The MEGA65 includes four channels of DMA-driven audio playback that can be used in place of the direct digital
 audio registers at \$D6F8-\$D6FB.  That is, you must select which of these two sources to feed to the audio
 cross-bar mixer.  This is selected via the AUDEN signal (\$D711 bit 7), which simultaneously enables the audio DMA
@@ -445,7 +518,7 @@ enable audio DMA.
 Two channels form the left digital audio channel, and the other two
 channels form the right digital audio channel. It is these left and
 right channels that are then fed into the MEGA65's audio cross-bar
-mixer.   
+mixer.
 
 As the DMA controller is part of the processor of the MEGA65, and the MEGA65 does not have reserved bus slots
   for multi-media operations, the MEGA65 uses idle CPU cycles to perform background DMA. This requires that the
@@ -479,7 +552,7 @@ if it has reached the end of a sample.  In practice, this means that
 samples cannot be more than 64KB in size.  If the sample contains a
 section that should be repeated, then the start address of the
 repeating part should be loaded into \$D721 -- \$D723, and the CH0LOOP
-bit should be set (\$D720 bit 6).  
+bit should be set (\$D720 bit 6).
 
 You can determine the current sample address at any time by reading
 the registers at \$D72A -- \$D72C. But beware: These registers are not
@@ -499,7 +572,7 @@ there are insufficient idle CPU cycles, and distorted audio will
 result.  Even below this, care must be taken to ensure that idle
 cycles come sufficiently often and dispersed throughout the
 processor's instruction stream to prevent distortion.  At typical
-sample rates below 16KHz and using 8 bit samples these effects are
+sample rates below 16KHz and using 8-bit samples these effects are
 typically negligible for normal instruction streams, and so no special
 action is normally required for typical audio playback.
 
@@ -522,9 +595,9 @@ to produce various effects.
 \subsection{Pure Sine Wave}
 
 Where it is necessary to produce a stable sine wave, especially at
-higher frequencies, 
+higher frequencies,
 there is a special mode to support this. By setting the CH0SINE
-signal, the audio channel will play a 32-byte 16-bit sine wave
+signal, the audio channel will play a 32 byte 16-bit sine wave
 pattern.  The sample addresses still need to be set, as though the
 sine wave table were located in the bottom 64 bytes of memory, as the
 normal address generation logic is used in this mode. However, no
@@ -535,7 +608,7 @@ cycles in the processor's instruction stream.
 This can be used to produce sine waves in both the audible range, as
 well as well into the ultrasonic range, at frequencies exceeding
 60,000Hz, provided that the MEGA65 is connected to an appropriately
-speaker arrangement. 
+speaker arrangement.
 
 \subsection{Sample playback control}
 
@@ -570,7 +643,7 @@ character modes and stepped and fractional DMA address incrementing
 which allows efficient texture copying and scaling. Also there exists
 no known software which ever used this facility, and it remains
 uncertain if it was ever implemented in any revision of the DMAgic
-chip used in C65 prototypes. 
+chip used in C65 prototypes.
 
 The memory-swap
 operation is intended to be implemented, but can be worked around in

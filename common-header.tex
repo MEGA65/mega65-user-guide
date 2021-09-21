@@ -66,6 +66,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{caption}
+\usepackage{pdfpages}
 \usepackage{tikzpagenodes}
 \usepackage{imakeidx}
 \usepackage[pagestyles,raggedright]{titlesec}
@@ -81,6 +82,29 @@
 \usepackage{needspace}
 \usepackage{verbatim}
 \usepackage{ean13isbn}
+\usepackage{setspace}
+
+% Use CHAPTER-PAGE page numbering to make it easier to modify chapters
+% later, without messing up page number of the rest of the book.
+\usepackage[auto]{chappg}
+
+% Allow cross-references between the various books to the big The MEGA65 Book
+\usepackage{xr}
+\usepackage{varioref}
+\usepackage{xparse}
+\externaldocument[M65Book-]{mega65-book}
+% And a \ref alternative that checks if it needs to be a cross-reference to the
+% MEGA65 Book instead.
+\makeatletter
+\newcommand{\bookref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em the MEGA65 Book}, \nameref{M65Book-#1} (\autoref{M65Book-#1})}{\autoref{#1}}%
+}
+\newcommand{\bookvref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em the MEGA65 Book}, \nameref{M65Book-#1} (\autoref{M65Book-#1})}{Chapter/Appendix \vref{#1}}%
+}
+\makeatother
 
 % For fixed-width columns in register maps
 \usepackage{array}
@@ -140,7 +164,7 @@
 
 \setcounter{tocdepth}{5}
 
-% 3.0 cm is the distance from left of page to bullet point.
+% 1.0 cm is the distance from left of page to bullet point.
 % 2.8 cm is a fudge-factor to make multi-line section names be correctly lined up.
 % \@B{〈length〉} is the amount to indent prior to〈sec-num >
 % \@F{〈fmt〉} is the formatting for the title heading
@@ -148,15 +172,18 @@
 
 \TOCLevels{chapter}{section}
 \begin{minitocfmt}{\chapmtoc}
-\declaretocfmt{section}{\@F{\color{white}\hspace{3.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
-\declaretocfmt{section*}{\@F{\color{white}\hspace{3.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
+\declaretocfmt{section}{\@F{\color{white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
+\declaretocfmt{section*}{\@F{\color{white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
 \end{minitocfmt}
 
 \input{fonts}
 
 % Set margins for inner and outer pages in A5 book format
-\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1cm,outer=0.5cm, footskip = 1cm]{geometry}
-
+\ifdefined\printmanual
+\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1.8cm,outer=0.8cm, footskip = 1cm]{geometry}
+\else
+\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1.0cm,outer=1.0cm, footskip = 1cm]{geometry}
+\fi
 % Some Computer Society conferences also require the compsoc mode option,
 % but others use the standard conference format.
 %
@@ -174,6 +201,7 @@
 \pagestyle{empty}
 
 \begin{document}
+\raggedbottom
 
 % relax word wrapping with sloppy
 \sloppy

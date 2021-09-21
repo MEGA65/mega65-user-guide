@@ -15,12 +15,12 @@
 int UpperCase = 0; // command line option -u
 int Debug = 1;
 
-struct TokenStruct
-{
-   int Token;
-   const char *Name;
+struct TokenStruct {
+  int Token;
+  const char* Name;
 };
 
+// clang-format off
 struct TokenStruct TokenTab[] =
 {
    {  0x80,"end"      },
@@ -205,9 +205,11 @@ struct TokenStruct TokenTab[] =
    {0xfe26,"slow"     }
 
 };
+// clang-format on
 
 #define TOKENS (sizeof(TokenTab) / sizeof(struct TokenStruct))
 
+// clang-format off
 struct TokenStruct ControlTab[] =
 {
    {0x02,"und_on"   }, // ctrl b  c5a2
@@ -272,12 +274,13 @@ struct TokenStruct ControlTab[] =
    {0xdd,"ver"      },  // vertical
    {0xff,"pi"       }   // pi
 };
+// clang-format on
 
 #define CONTROLS (sizeof(ControlTab) / sizeof(struct TokenStruct))
 
-FILE *ap;
-FILE *bp;
-FILE *tp;
+FILE* ap;
+FILE* bp;
+FILE* tp;
 
 char A_file[256]; // ASCII file ".txt"
 char B_file[256]; // BASIC file ".prg"
@@ -291,6 +294,7 @@ unsigned short Numb;        // line #
 
 int BASIC_Version;
 
+// clang-format off
 struct TokenStruct BasicVersion[] =
 {
    {0x0401,"BASIC 4.0 [PET/CBM]"},
@@ -298,15 +302,18 @@ struct TokenStruct BasicVersion[] =
    {0x1001,"BASIC 3.5 [+4/C16]"},
    {0x1c01,"BASIC 7.0 [C128]"}
 };
+// clang-format on
 
 #define BVERSIONS (sizeof(BasicVersion) / sizeof(struct TokenStruct))
 
 unsigned char Ascii(unsigned char c)
 {
-   if (c >= 'A' && c <= 'Z') return tolower(c);
-   if (c >= 'A'+0x80 && c <= 'Z'+0x80) return c & 0x7f;
+  if (c >= 'A' && c <= 'Z')
+    return tolower(c);
+  if (c >= 'A' + 0x80 && c <= 'Z' + 0x80)
+    return c & 0x7f;
 
-   return c;
+  return c;
 }
 
 // **********
@@ -315,55 +322,53 @@ unsigned char Ascii(unsigned char c)
 
 void DeTokenize(void)
 {
-   int i;
-   int Token;
-   int bi = 0; // Buf index
-   int di = 0; // Det index
+  int i;
+  int Token;
+  int bi = 0; // Buf index
+  int di = 0; // Det index
 
-   memset(Det,0,sizeof(Det));
+  memset(Det, 0, sizeof(Det));
 
-   while (bi < sizeof(Buf) && Buf[bi])
-   {
-           if (Buf[bi] == 0x8f) // rem token
-      {
-         strcpy((char *)Det+di,"rem");
-         bi++;
-         di = strlen((char *)Det);
-         do Det[di++] = Ascii(Buf[bi++]);
-         while (Buf[bi] && bi < sizeof(Buf)-1 && di < sizeof(Det)-1);
+  while (bi < sizeof(Buf) && Buf[bi]) {
+    if (Buf[bi] == 0x8f) // rem token
+    {
+      strcpy((char*)Det + di, "rem");
+      bi++;
+      di = strlen((char*)Det);
+      do
+        Det[di++] = Ascii(Buf[bi++]);
+      while (Buf[bi] && bi < sizeof(Buf) - 1 && di < sizeof(Det) - 1);
+    }
+    else if (Buf[bi] == '\"') // start of string
+    {
+      do
+        Det[di++] = Ascii(Buf[bi++]);
+      while (Buf[bi] && Buf[bi] != '\"' && bi < sizeof(Buf) - 1 && di < sizeof(Det) - 1);
+      if (Buf[bi] == '\"')
+        Det[di++] = Buf[bi++];
+    }
+    else if (Buf[bi] & 0x80) // token
+    {
+      Token = Buf[bi++];
+      if (Token == 0xce || Token == 0xfe)
+        Token = (Token << 8) | Buf[bi++];
+      for (i = 0; i < TOKENS; ++i) {
+        if (Token == TokenTab[i].Token) {
+          strcat((char*)Det, TokenTab[i].Name);
+          break;
+        }
+        if (i == TOKENS) {
+          printf("*** unknown token %x ***\n", Token);
+          exit(1);
+        }
       }
-      else if (Buf[bi] == '\"') // start of string
-      {
-         do Det[di++] = Ascii(Buf[bi++]);
-         while (Buf[bi] && Buf[bi] != '\"' &&
-                bi < sizeof(Buf)-1 && di < sizeof(Det)-1);
-         if (Buf[bi] == '\"') Det[di++] = Buf[bi++];
-      }
-      else if (Buf[bi] & 0x80) // token
-      {
-         Token = Buf[bi++];
-         if (Token == 0xce || Token == 0xfe)
-             Token = (Token << 8) | Buf[bi++];
-         for (i=0 ; i < TOKENS ; ++i)
-         {
-            if (Token == TokenTab[i].Token)
-            {
-               strcat((char *)Det,TokenTab[i].Name);
-               break;
-            }
-            if (i == TOKENS)
-            {
-               printf("*** unknown token %x ***\n",Token);
-               exit(1);
-            }
-         }
-         di = strlen((char *)Det);
-      }
-      else // normal text
-      {
-         Det[di++] = Ascii(Buf[bi++]);
-      }
-   }
+      di = strlen((char*)Det);
+    }
+    else // normal text
+    {
+      Det[di++] = Ascii(Buf[bi++]);
+    }
+  }
 }
 
 // *************
@@ -372,24 +377,23 @@ void DeTokenize(void)
 
 int ReadBasicLine(void)
 {
-   unsigned char  c;
-   int l=0; // length
+  unsigned char c;
+  int l = 0; // length
 
-   memset(Buf,0,sizeof(Buf));
+  memset(Buf, 0, sizeof(Buf));
 
-   fread(&Link,sizeof(Link),1,bp);
-   if (!Link)  return 0; // end of program
-   fread(&Numb,sizeof(Numb),1,bp);
+  fread(&Link, sizeof(Link), 1, bp);
+  if (!Link)
+    return 0; // end of program
+  fread(&Numb, sizeof(Numb), 1, bp);
 
-   do
-   {
-      fread(&c,1,1,bp);
-      Buf[l++] = c;
-   }
-   while (c && l < sizeof(Buf)-1 && !feof(bp));
+  do {
+    fread(&c, 1, 1, bp);
+    Buf[l++] = c;
+  } while (c && l < sizeof(Buf) - 1 && !feof(bp));
 
-   DeTokenize();
-   return !feof(bp);
+  DeTokenize();
+  return !feof(bp);
 }
 
 // ******
@@ -401,19 +405,21 @@ int ReadBasicLine(void)
 
 void PutSeq(int m, int c)
 {
-   int i;
+  int i;
 
-   for (i=0 ; i < CONTROLS ; ++i)
-   {
-      if (c == ControlTab[i].Token)
-      {
-         if (m > 1) fprintf(ap,"{%d %s}",m,ControlTab[i].Name);
-         else       fprintf(ap,   "{%s}"  ,ControlTab[i].Name);
-         return;
-      }
-   }
-   if (m > 1) fprintf(ap,"{%d $%2.2x}",m,c);
-   else       fprintf(ap,   "{$%2.2x}"  ,c);
+  for (i = 0; i < CONTROLS; ++i) {
+    if (c == ControlTab[i].Token) {
+      if (m > 1)
+        fprintf(ap, "{%d %s}", m, ControlTab[i].Name);
+      else
+        fprintf(ap, "{%s}", ControlTab[i].Name);
+      return;
+    }
+  }
+  if (m > 1)
+    fprintf(ap, "{%d $%2.2x}", m, c);
+  else
+    fprintf(ap, "{$%2.2x}", c);
 }
 
 // **************
@@ -422,26 +428,24 @@ void PutSeq(int m, int c)
 
 void PrintAsciiLine(void)
 {
-   unsigned int i;
-   int c,m;
+  unsigned int i;
+  int c, m;
 
-   fprintf(ap,"%5d ",Numb);
-   for (i=0 ; i < strlen((char *)Det) ; ++i)
-   {
-      c = Det[i];
-      if (c < 0x20 || c > 'z' || c == 0x5c)
-      {
-         m = 1;
-         while (Det[i] == Det[i+1])
-         {
-           ++m;
-           ++i;
-         }
-         PutSeq(m,c);
+  fprintf(ap, "%5d ", Numb);
+  for (i = 0; i < strlen((char*)Det); ++i) {
+    c = Det[i];
+    if (c < 0x20 || c > 'z' || c == 0x5c) {
+      m = 1;
+      while (Det[i] == Det[i + 1]) {
+        ++m;
+        ++i;
       }
-      else fputc(c,ap);
-   }
-   fputc('\n',ap);
+      PutSeq(m, c);
+    }
+    else
+      fputc(c, ap);
+  }
+  fputc('\n', ap);
 }
 
 // ************
@@ -450,46 +454,47 @@ void PrintAsciiLine(void)
 
 void PrintLatexLC(void)
 {
-   int c,i;
+  int c, i;
 
-   fprintf(tp,"%d ",Numb);
-   for (i=0 ; i < strlen((char *)Det) ; ++i)
-   {
-      c = Det[i];
-      if (c == 0xff) fputc('~',tp);   // pi
-      else if (c == 0x60)             // horizontal bar
-      {
-         fputc(0xc4,tp);
-         fputc(0x80,tp);
-      }
-      else if (c >= 0x7b && c < 0x80) // mapped to c49b -> c49f
-      {                               // pi, triangle
-         fputc(0xc4  ,tp);
-         fputc(0x20+c,tp);
-      }
-      else if (c  < 0x20)             // mapped to 6a0 -> c5bf
-      {                               // reverse graphics set 1
-         fputc(0xc5  ,tp);
-         fputc(0xa0+c,tp);
-      }
-      else if (c >= 0x80 && c < 0xa0) // mapped to c6a0 -> c6bf
-      {
-         fputc(0xc6  ,tp);
-         fputc(0x20+c,tp);
-      }
-      else if (c >= 0xa0 && c < 0xc0) // mapped to c4a0 -> c4bf
-      {
-         fputc(0xc4,tp);
-         fputc(c   ,tp);
-      }
-      else if (c >= 0xc0 && c < 0xe0) // mapped to c4a0 -> c4bf
-      {
-         fputc(  0xc4,tp);
-         fputc(c-0x40,tp);
-      }
-      else fputc(c,tp);
-   }
-   fputc('\n',tp);
+  fprintf(tp, "%d ", Numb);
+  for (i = 0; i < strlen((char*)Det); ++i) {
+    c = Det[i];
+    if (c == 0xff)
+      fputc('~', tp);   // pi
+    else if (c == 0x60) // horizontal bar
+    {
+      fputc(0xc4, tp);
+      fputc(0x80, tp);
+    }
+    else if (c >= 0x7b && c < 0x80) // mapped to c49b -> c49f
+    {                               // pi, triangle
+      fputc(0xc4, tp);
+      fputc(0x20 + c, tp);
+    }
+    else if (c < 0x20) // mapped to 6a0 -> c5bf
+    {                  // reverse graphics set 1
+      fputc(0xc5, tp);
+      fputc(0xa0 + c, tp);
+    }
+    else if (c >= 0x80 && c < 0xa0) // mapped to c6a0 -> c6bf
+    {
+      fputc(0xc6, tp);
+      fputc(0x20 + c, tp);
+    }
+    else if (c >= 0xa0 && c < 0xc0) // mapped to c4a0 -> c4bf
+    {
+      fputc(0xc4, tp);
+      fputc(c, tp);
+    }
+    else if (c >= 0xc0 && c < 0xe0) // mapped to c4a0 -> c4bf
+    {
+      fputc(0xc4, tp);
+      fputc(c - 0x40, tp);
+    }
+    else
+      fputc(c, tp);
+  }
+  fputc('\n', tp);
 }
 
 // ************
@@ -498,55 +503,56 @@ void PrintLatexLC(void)
 
 void PrintLatexUC(void)
 {
-   int c,i;
+  int c, i;
 
-   fprintf(tp,"%d ",Numb);
-   for (i=0 ; i < strlen((char *)Det) ; ++i)
-   {
-      c = Det[i];
-           if (c == 0xff) fputc('~',tp); // checker board
-      else if (c == 0x60)                // horizontal bar
-      {
-         fputc(0xc4,tp);
-         fputc(0x80,tp);
-      }
-      else if (c >= 0x7b && c < 0x80)    // mapped to c49b -> c49f
-      {
-         fputc(0xc4  ,tp);
-         fputc(0x20+c,tp);
-      }
-      else if (c  < 0x20)                // mapped to c5a0 -> c5bf
-      {                                  // A-Z reverse
-         fputc(0xc5  ,tp);
-         fputc(0xa0+c,tp);
-      }
-      else if (c >= 0x80 && c < 0xa0) // mapped to c6a0 -> c6bf
-      {
-         fputc(0xc6  ,tp);
-         fputc(0x20+c,tp);
-      }
-      else if (c >= 0xa0 && c < 0xc0) // mapped to c4a0 -> c4bf
-      {
-         fputc(0xc4,tp);
-         fputc(c   ,tp);
-      }
-      else if (c >= 0xc0 && c < 0xe0) // mapped to c4a0 -> c4bf
-      {
-         fputc(  0xc4,tp);
-         fputc(c-0x40,tp);
-      }
-      else if (c >= 'a' && c <= 'z') // mapped to A -> Z
-      {
-         fputc(c-0x20,tp);
-      }
-      else if (c >= 'A' && c <= 'Z') // mapped to c481 -> c49a
-      {
-         fputc(  0xc4,tp);
-         fputc(c+0x40,tp);
-      }
-      else fputc(c,tp);
-   }
-   fputc('\n',tp);
+  fprintf(tp, "%d ", Numb);
+  for (i = 0; i < strlen((char*)Det); ++i) {
+    c = Det[i];
+    if (c == 0xff)
+      fputc('~', tp);   // checker board
+    else if (c == 0x60) // horizontal bar
+    {
+      fputc(0xc4, tp);
+      fputc(0x80, tp);
+    }
+    else if (c >= 0x7b && c < 0x80) // mapped to c49b -> c49f
+    {
+      fputc(0xc4, tp);
+      fputc(0x20 + c, tp);
+    }
+    else if (c < 0x20) // mapped to c5a0 -> c5bf
+    {                  // A-Z reverse
+      fputc(0xc5, tp);
+      fputc(0xa0 + c, tp);
+    }
+    else if (c >= 0x80 && c < 0xa0) // mapped to c6a0 -> c6bf
+    {
+      fputc(0xc6, tp);
+      fputc(0x20 + c, tp);
+    }
+    else if (c >= 0xa0 && c < 0xc0) // mapped to c4a0 -> c4bf
+    {
+      fputc(0xc4, tp);
+      fputc(c, tp);
+    }
+    else if (c >= 0xc0 && c < 0xe0) // mapped to c4a0 -> c4bf
+    {
+      fputc(0xc4, tp);
+      fputc(c - 0x40, tp);
+    }
+    else if (c >= 'a' && c <= 'z') // mapped to A -> Z
+    {
+      fputc(c - 0x20, tp);
+    }
+    else if (c >= 'A' && c <= 'Z') // mapped to c481 -> c49a
+    {
+      fputc(0xc4, tp);
+      fputc(c + 0x40, tp);
+    }
+    else
+      fputc(c, tp);
+  }
+  fputc('\n', tp);
 }
 
 // *******
@@ -555,89 +561,87 @@ void PrintLatexUC(void)
 
 void Convert(void)
 {
-   int i;
-   fread(&LoadAddress,sizeof(LoadAddress),1,bp);
-   printf("load address = $%4.4x  ",LoadAddress);
-   for (i=0 ; i < BVERSIONS ; ++i)
-      if (LoadAddress == BasicVersion[i].Token)
-         printf("%s",BasicVersion[i].Name);
-   printf("\n");
+  int i;
+  fread(&LoadAddress, sizeof(LoadAddress), 1, bp);
+  printf("load address = $%4.4x  ", LoadAddress);
+  for (i = 0; i < BVERSIONS; ++i)
+    if (LoadAddress == BasicVersion[i].Token)
+      printf("%s", BasicVersion[i].Name);
+  printf("\n");
 
-   fprintf(tp,"\\begin{tcolorbox}[colback=black,coltext=white]\n");
-   fprintf(tp,"\\verbatimfont{\\codefont}\n");
-   fprintf(tp,"\\begin{verbatim}\n");
-   while (ReadBasicLine())
-   {
-      PrintAsciiLine();
-      if (UpperCase) PrintLatexUC();
-      else           PrintLatexLC();
-   }
-   fprintf(tp,"\\end{verbatim}\n");
-   fprintf(tp,"\\end{tcolorbox}\n");
+  fprintf(tp, "\\begin{tcolorbox}[colback=black,coltext=white]\n");
+  fprintf(tp, "\\verbatimfont{\\codefont}\n");
+  fprintf(tp, "\\begin{verbatim}\n");
+  while (ReadBasicLine()) {
+    PrintAsciiLine();
+    if (UpperCase)
+      PrintLatexUC();
+    else
+      PrintLatexLC();
+  }
+  fprintf(tp, "\\end{verbatim}\n");
+  fprintf(tp, "\\end{tcolorbox}\n");
 }
 
 // ****
 // main
 // ****
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-   int l;
+  int l;
 
-   if (argc == 3 && !strcmp(argv[1],"-u")) UpperCase = 1;
-   if (argc < 2)
-   {
-      printf("\nUsage: prg2tex [-u] prog\n");
-      printf("reads <prog.prg> and writes <prog.tex> and <prog.txt>\n");
-      printf("the option '-u' selects upper case/graphics mode\n");
-      exit(1);
-   }
+  if (argc == 3 && !strcmp(argv[1], "-u"))
+    UpperCase = 1;
+  if (argc < 2) {
+    printf("\nUsage: prg2tex [-u] prog\n");
+    printf("reads <prog.prg> and writes <prog.tex> and <prog.txt>\n");
+    printf("the option '-u' selects upper case/graphics mode\n");
+    exit(1);
+  }
 
-   // input file must have the extension ".prg"
-   // add this extension if it is not specified
+  // input file must have the extension ".prg"
+  // add this extension if it is not specified
 
-   strncpy(B_file,argv[argc-1],sizeof(B_file));
-   l = strlen(B_file);
-   if (l < 5 || strcmp(B_file+l-4,".prg")) strcat(B_file,".prg");
-   l = strlen(B_file);
+  strncpy(B_file, argv[argc - 1], sizeof(B_file));
+  l = strlen(B_file);
+  if (l < 5 || strcmp(B_file + l - 4, ".prg"))
+    strcat(B_file, ".prg");
+  l = strlen(B_file);
 
-   // ASCII file gets the extension ".txt"
+  // ASCII file gets the extension ".txt"
 
-   strncpy(A_file,B_file,l-4);
-   strcat(A_file,".txt");
+  strncpy(A_file, B_file, l - 4);
+  strcat(A_file, ".txt");
 
-   // LaTeX file gets the extension ".tex"
+  // LaTeX file gets the extension ".tex"
 
-   strncpy(T_file,B_file,l-4);
-   strcat(T_file,".tex");
+  strncpy(T_file, B_file, l - 4);
+  strcat(T_file, ".tex");
 
-   bp = fopen(B_file,"rb");
-   if (!bp)
-   {
-      printf("\nCould not open input file <%s>\n",B_file);
-      exit(1);
-   }
+  bp = fopen(B_file, "rb");
+  if (!bp) {
+    printf("\nCould not open input file <%s>\n", B_file);
+    exit(1);
+  }
 
-   ap = fopen(A_file,"w");
-   if (!ap)
-   {
-      printf("\nCould not open output file <%s>\n",A_file);
-      exit(1);
-   }
+  ap = fopen(A_file, "w");
+  if (!ap) {
+    printf("\nCould not open output file <%s>\n", A_file);
+    exit(1);
+  }
 
-   tp = fopen(T_file,"wb");
-   if (!tp)
-   {
-      printf("\nCould not open output file <%s>\n",T_file);
-      exit(1);
-   }
+  tp = fopen(T_file, "wb");
+  if (!tp) {
+    printf("\nCould not open output file <%s>\n", T_file);
+    exit(1);
+  }
 
-   Convert();
+  Convert();
 
-   fclose(ap);
-   fclose(bp);
-   fclose(tp);
+  fclose(ap);
+  fclose(bp);
+  fclose(tp);
 
-   return 0;
+  return 0;
 }
-

@@ -1,48 +1,119 @@
-\chapter{Using a Nexys4DDR as a MEGA65}
+\chapter{Using Nexys4 boards as a MEGA65}
 
 \section{Building your own MEGA65 Compatible Computer}
 
-You can build your own MEGA65-compatible computer by using a Nexys4DDR (Nexys A7) FPGA development board.
-This appendix describes the process to setup a Nexys4DDR board for this purpose.
+You can build your own MEGA65-compatible computer by using either a Nexys4DDR (aka. Nexys A7) or the older Nexys4 (Non-DDR) FPGA development boards.
+This appendix describes the process to set up a Nexys4DDR (Nexys A7) board for this purpose (which is the newer, preferred board).
 The older non-DDR Nexys4 board is also supported, and the instructions are the same, except that
 you must use a bitstream designed for that board.
 Using a Nexys4DDR bitstream on a non-DDR Nexys4 board, or vice versa, may cause irreparable damage to your board, so make sure
 you have the correct bitstream to suit your board.
 
 
-DISCLAIMER: M.E.G.A cannot take any responsibility for any damage that may occur to your Nexys4DDR board.
+DISCLAIMER: M.E.G.A cannot take any responsibility for any damage that may occur to your Nexys4DDR/NexysA7/Nexys4 boards.
+
+\newpage
+
+\section{Working Nexys4 Boards}
+
+There are currently 3 Nexys FPGA boards which can be setup as a MEGA65:
+
+\begin{minipage}{\linewidth}
+  \subsection{The Nexys4 board}
+
+  No longer manufactured but still available for sale on some websites with old stock.
+
+  \begin{center}
+    \includegraphics[width=0.4\linewidth]{images/img001_nexys4_board.jpg}
+  \end{center}
+
+  Documentation:
+
+  \begin{itemize}
+    \item \url{https://reference.digilentinc.com/reference/programmable-logic/nexys-4/reference-manual}
+    \item \url{https://reference.digilentinc.com/\_media/reference/programmable-logic/nexys-4/nexys4\_rm.pdf}
+  \end{itemize}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  \subsection{The Nexys4DDR board}
+
+  No longer manufactured but still available for sale on some websites with old stock.
+
+  \begin{center}
+    \includegraphics[width=0.4\linewidth]{images/img002_nexys4_ddr_board.jpg}
+  \end{center}
+
+  Documentation:
+
+  \begin{itemize}
+    \item \url{https://reference.digilentinc.com/reference/programmable-logic/nexys-4-ddr/reference-manual}
+    \item \url{https://reference.digilentinc.com/\_media/reference/programmable-logic/nexys-4-ddr/nexys4ddr\_rm.pdf}
+  \end{itemize}
+\end{minipage}
+
+\begin{minipage}{\linewidth}
+  \subsection{The Nexys A7}
+
+  This is the re-branded version of the above Nexys4 DDR board:
+
+  \begin{center}
+    \includegraphics[width=0.4\linewidth]{images/img003_nexysA7_board.jpg}
+  \end{center}
+
+  Documentation:
+
+  \begin{itemize}
+    \item \url{https://reference.digilentinc.com/reference/programmable-logic/nexys-a7/reference-manual}
+    \item \url{https://reference.digilentinc.com/\_media/reference/programmable-logic/nexys-a7/nexys-a7\_rm.pdf}
+  \end{itemize}
+\end{minipage}
 
 \newpage
 
 \section{Power, Jumpers, Switches and Buttons}
 
-The Nexys4DDR board can be powered in two ways: using an external power supply, or from a standard USB port.
+This top-down picture highlights the key jumper positions of interest on the Nexys4 board:
+
+  \begin{center}
+    \includegraphics[width=0.9\linewidth]{images/nexys4_jumpers.png}
+  \end{center}
+
+The Nexys4 boards can be powered in two ways: using an external power supply, or from a standard USB port.
 
 \subsection{Micro-USB Power}
 
 \includegraphics[width=5cm]{images/illustrations/nexys-micro-usb-power.pdf}
 
-Connect your micro-usb cable to a USB port on a USB charger or PC to provide power. Connect the other end to the Nexys4DDR's micro-usb connector. Place the JP3 jumper on pins 1 and 2 to select USB power. Use the switch to turn on the Nexys4DDR.
+Connect your micro-usb cable to a USB port on a USB charger or PC to provide power. Connect the other end to the Nexys4's micro-usb connector. Place the JP3 jumper on pins 1 and 2 to select USB power. Use the switch to turn on the Nexys4.
 
 \subsection{External Power Supply}
 
 \hspace*{1.7cm}
 \includegraphics[width=3.2cm]{images/illustrations/nexys-power-supply.pdf}
 
-The MEGA65 core can consume a lot of power, and a standard USB port could potentionally be too little for the Nexys4DDR board. In particular, writing to the SD card might hang or perform odd behaviour. Therefore you should consider a 5V power supply.
+The MEGA65 core can consume a lot of power, and a standard USB port could potentionally be too little for the Nexys4 board. In particular, writing to the SD card might hang or perform odd behaviour. Therefore you should consider a 5V power supply.
 
-Digilent sell a power supply for the Nexys4DDR board, and we recommend you use this to ensure you avoid the risk of damage to your Nexys4DDR board. The chosen power supply should be center positive, 2.1mm internal diameter plug, and should deliver 4.5VDC to 5.5VDC rated at least 1 Amp.
+Digilent sell a power supply for the Nexys4 board, and we recommend you use this to ensure you avoid the risk of damage to your Nexys4 board. The chosen power supply should be center positive, 2.1mm internal diameter plug, and should deliver 4.5VDC to 5.5VDC rated at least 1 Amp.
 
-Connect the power supply cable to the supply plug of the Nexys4DDR. Place the JP3 jumper on pins 2 and 3 to select WALL power. Use the switch to turn on the Nexys4DDR.
+Connect the power supply cable to the supply plug of the Nexys4. Place the JP3 jumper on pins 2 and 3 to select WALL power. Use the switch to turn on the Nexys4.
 
 \subsection{Other Jumpers and Switches}
 
-Set the following jumpers on your Nexys4DDR board to the following positions:
+For your initial set up, we'd suggest you set the following jumpers on your Nexys4 board to these positions:
 
 \begin{itemize}
-\item{JP1} - USB/SD
-\item{JP2} - SD
+  \item{JP1} - USB/SD
+  \item{JP2} - SD
 \end{itemize}
+
+\begin{center}
+  \includegraphics[width=3.2cm]{images/illustrations/nexys-jumpers.pdf}
+\end{center}
+
+This will assure that the bitstream files will get loaded from your SD card on start-up.
+
+At some later stage, you may prefer to load the bitstream from the on-board QSPI flash, and at that point, you can revisit your JP1 jumper setting and adjust it to the QSPI position.
 
 % XXX - Image of board highlighting the jumpers
 
@@ -53,11 +124,26 @@ All 16 switches on the lower edge of the board must be set to the off position.
 
 \includegraphics[width=\linewidth]{images/illustrations/nexys-connectors.pdf}
 
-A USB keyboard can be connected to the USB port. Only a keyboard that lacks a USB hub will work with the Nexys4DDR board.  Generally extremely cheap keyboards will work, while more expensive keyboards tend to have a USB hub integrated, and will not work.  You may need to try several keyboards, before you find one that works.
+A USB keyboard can be connected to the USB port. Only a keyboard that lacks a USB hub will work with the Nexys4 board.  Generally, extremely cheap keyboards will work, while more expensive keyboards tend to have a USB hub integrated, and will not work.  You may need to try several keyboards before you find one that works.
 
 You can connect a VGA monitor to the VGA port.
 
 The mono audio-out jack can be connected to the line-in of an amplifier.
+
+
+\subsection{Communicating with your PC}
+
+There may be occasions where you wish to communicate with your Nexys4 board from your PC, in order to perform activities such as:
+
+\begin{itemize}
+  \item Flash your QSPI flash chip via Vivado
+  \item Upload bitstream files directly from your PC (via m65 tool)
+  \item Make use of support tools such as M65Connect, m65, mega65\_ftp, m65dbg, etc
+\end{itemize}
+
+On such occasions, you will need to connect your micro-usb cable up to your PC.
+
+\includegraphics[width=5cm]{images/illustrations/nexys-micro-usb-power.pdf}
 
 \subsection{Onboard buttons}
 
@@ -73,7 +159,7 @@ is slower, and does reset the contents of memory.
   \includegraphics[width=3.2cm]{images/illustrations/nexys-five-buttons.pdf}
 \end{center}
 
-Two of the five buttons in the cross arrangement can also be used:  BTND acts as though you have pressed the \megakey{RESTORE} key, while BTNC will trigger an IRQ, as though the IRQ line had been pulled to ground.
+Two of the five buttons in the cross arrangement can also be used:  BTND acts as though you have pressed the \widekey{RESTORE} key, while BTNC will trigger an IRQ, as though the IRQ line had been pulled to ground.
 
 \section{Keyboard}
 
@@ -83,7 +169,7 @@ This relationship assumes that your USB keyboard uses a US keyboard layout.
 
 To help you locate what the various MEGA65 keys are mapped to, the MEGA65 has a built-in virtual keyboard test feature. This can be accessed in two ways.
 
-The easiest way is to keep the \specialkey{ALT} key held in while turning on the Nexyx4, or resetting the Nexyx4 with the ``PROG'' button. The configure menu will be presented and by pressing 3, the virtual keyboard will be presented on a black background.
+The easiest way is to keep the \specialkey{ALT} key held in while turning on the Nexys4, or resetting the Nexys4 with the ``PROG'' button. The configure menu will be presented and by pressing 3, the virtual keyboard will be presented on a black background.
 
 \includegraphics[width=\linewidth]{images/illustrations/virtual-keyboard.pdf}
 
@@ -103,7 +189,7 @@ Hold \megasymbolkey and press \megakey{TAB} to exit Matrix Mode Debugger and ret
 
 \subsection{Some key mappings with a USB keyboard}
 
-The \megakey{RESTORE} key is mapped to the PAGE UP key.
+The \widekey{RESTORE} key is mapped to the PAGE UP key.
 
 The \specialkey{RUN STOP}  key is mapped to the ESC key.
 
@@ -113,45 +199,83 @@ The \specialkey{RUN STOP}  key is mapped to the ESC key.
 
 The MEGA65 requires an SDHC card of between 4GB and 64GB capacity.  Some SDXC cards may work, however, this is not officially supported.
 
-To prepare your SD card, you will need the following two separate files from the MEGA65 web site:
+Preparation steps for the Nexys4 board's SD card share much in common with the steps needed for real MEGA65 hardware, and as such, it is worth having a look over the \nameref{cha:configuring} chapter if you ever need details.
 
-\begin{itemize}
-\item{Bitstream} \url{http://mega65.org/assets/bitstream.7z}
-\item{Support Files} \url{http://mega65.org/assets/fileset.7z}
-\end{itemize}
+So in this section, we'll provide more details on the distinctive steps, and be more brief on the common steps.
 
-In addition, you will also need a C65 ROM.  There were many different versions created during the development of the Commodore 65,
-and the MEGA65 can use any of them.  However, we recommend you use 911001.bin, as this has the most complete BASIC and DOS implementations.
+One point of distinction between the Nexys board and the real MEGA65 hardware is that the latter already has a default bitstream/core provided, which permits you to format your SD card in the specific style required by the MEGA65.
+
+For Nexys4 board owners however, you have no such default bitstream, so
+see \nameref{sec:bitstreamfiles} for more details on where the appropriate "nexys4.bit" or "nexys4ddr-widget.bit" files for your device can be downloaded from.
+
+\subsection{Preparation Steps}
 
 The steps are:
 
 \begin{itemize}
-  \item{Format the SD card}  in a convenient computer using the FAT32 file-system.  The MEGA65 and Nexys4DDR boards do not understand other
+  \item{Format the SD card} in a convenient computer using the FAT32 file-system.  The MEGA65 and Nexys4 boards do not understand other
 file systems, especially the exFAT file system.
-\item{Unzip} the bitstream.7z file, and copy the file with name ending in ``.bit'' onto the SD card.
-\item{Insert} the SD card into the SD card slot on the under-side of the Nexys4DDR board.
-\item{Turn on} the Nexys4DDR board.
-\item{Enter the Utility Menu} by holding the \megakey{ALT} key down on the USB keyboard you have connected to the Nexys4DDR board.
+\item{Copy} your bitstream file (with name ending in ``.bit'') onto the SD card.
+\item{Insert} the SD card into the SD card slot on the under-side of the Nexys4 board.
+\item{Turn on} the Nexys4 board.
+\item{Enter the Utility Menu} by holding the \specialkey{ALT} key down on the USB keyboard you have connected to the Nexys4 board.
 \item{Enter the FDISK/FORMAT tool} by pressing 2 when the option appears on the MEGA65 boot screen.
-\item{Follow the prompts} in the FDISK/FORMAT program to again format the SD card for use by the MEGA65.
-  (The FDISK tool will partition your SD card into two partitions and format them.
-  One is type \$41 = MEGA65 System Partition, where the save slots, configuration data and other files live.
+\item{Follow the prompts} in the FDISK/FORMAT program to again format the SD card for use by the MEGA65. \\
+  \\
+  The FDISK tool will partition your SD card into two partitions and format them.
+  \begin{itemize}
+    \item One is type \$41 = MEGA65 System Partition, where the save slots, configuration data and other files live. \\
   (This partition is invisible in i.e. Win PCs).
-  and the other partition with type \$0C = VFAT32, where KERNEL, support files, games, and so on, will be copied to later.
+    \item The other partition with type \$0C = VFAT32, where KERNEL, support files, games, and so on, will be copied to later. \\
   (This partition is visible on i.e. Win PCs).
-\item{Once formatting is complete}, switch off the Nexys4DDR board and remove the microSDHC card from the Nexys board and put it back into your PC
-\item{Again copy} the bitstream back onto the SD card, as well as all the files from the other 7z file downloaded from the MEGA65 website.
-\item{Copy the 911001.bin} ROM file onto the SD card, and rename it to MEGA65.ROM
-\item{If you have any .D81 files}, copy them onto the SD card. Make sure that they have names that fit the old DOS 8.3 character limit, and are upper case.  This restriction will be removed in a future release.
-\item{Remove the SD card} and reinsert it into your Nexys4DDR board.
-\item{Power the Nexys4DDR} board back on.  The MEGA65 should boot within 15 seconds.
+  \end{itemize}
+\item{Once formatting is complete}, switch off the Nexys4 board and remove the microSDHC card from the Nexys board and put it back into your PC
+\item{This time, copy} the following items onto the SD card:
+  \begin{itemize}
+    \item The bitstream file
+    \item The extracted files from within either the "\textbf{SD essentials.rar}" or "\textbf{SD essentialsNoROM.rar}" file that you downloaded from the MEGA65 filehost. (See \nameref{sec:installingrometc} for more details).
+    \item{If you have sourced your own preferred ROM file} (e.g. "\textbf{911001.BIN}"), copy it onto the SD card also, and rename it to "\textbf{MEGA65.ROM}" (uppercase is essential).
+    \item{Any .D81 disk image files} you wish to make use of.
+      \begin{itemize}
+        \item Note that if a file named MEGA65.D81 is added to the SD card, it will be mounted automatically on startup.
+        \item Make sure that all .D81 files have names that fit the old DOS 8.3 character limit, and are upper case.  This restriction will be removed in a future release.
+      \end{itemize}
+  \end{itemize}
+\item{Remove the SD card} and reinsert it into your Nexys4 board.
+\item{Power the Nexys4} board back on.  The MEGA65 should boot within 15 seconds.
+\item On first start up, you will find yourself at the on-boarding screen, of which more details can be found in the \nameref{cha:configuring} chapter.
+
 \end{itemize}
 
-\quote{Congratulations. Your MEGA65 has been set up and is ready to use.}
+Congratulations. Your MEGA65 has been set up and is ready to use.
 
-Please note that the above method of copying the bitstream file to the SD card means that the bitstream is loaded into the Nexys FPGA each time on boot - which takes around 13 seconds for the system to start. The bitstream can also be flashed using Vivado software into the QSPI flash to deliver a boot up time of 0.3 seconds.  
+Please note that the above method of copying the bitstream file to the SD card means that the bitstream is loaded into the Nexys FPGA each time on boot - which takes around 13 seconds for the system to start. The bitstream can also be flashed using Vivado software into the QSPI flash to deliver a boot up time of 0.3 seconds. 
 
 For more detailed information on preparing and configuring your MEGA65, please refer to the \nameref{cha:configuring} chapter. 
+
+\section{Loading the bitstream from QSPI}
+
+While loading the bitstream from the SD card is the suggested (and well-trodden) path this document has chosen, of late, more nexys4 users have been exploring the alternative pathway of loading the bitstream from the QSPI flash. Some potential reasons they have chosen this pathway are:
+
+\begin{itemize}
+  \item Faster loading times (0.3 seconds versus 13 seconds)
+  \item Some people were interested in the possibility of flashing multiple cores onto their QSPI (via steps described in the \nameref{cha:cores} Chapter)
+  \item Some people have experienced niggling issues with the SD card pathway, such as:
+    \begin{itemize}
+      \item System unable to reboot from on-boarding screen
+      \item System unable to reboot from freeze-menu after switching between PAL/NTSC
+    \end{itemize}
+\end{itemize}
+
+In time, if this proves to be a more popular pathway, we can revise our documentation here to suit it. Here are some steps in brief.
+
+\subsection{Preparation Steps}
+
+For users that want to try this pathway, you will need to adjust the JP1 jumper setting to use QSPI and then follow the steps in the \nameref{cha:fpgacpldflashing} chapter in relation to \nameref{sec:installvivado} and \nameref{sec:mainfpgaflashing}.
+
+Be forewarned that the installation of Vivado is a lengthy process (both in terms of download time, and installation time).
+
+Once you have flashed Slot0 of your QSPI chip via Vivado, you can then follow the steps described in \nameref{cha:configuring} to perform the custom SD card formatting, installing of ROM and support files and on-boarding.
 
 \section{Useful Tips}
 
@@ -161,18 +285,17 @@ The following are some useful tips for getting familiar with the MEGA65:
 
 \item{Press \& hold \megasymbolkey (or the Commodore key if using a Commodore 64 or 65 keyboard) during boot to start up in C64 mode instead of C65 mode}
  \item{Press \& hold \specialkey{RUN STOP} during boot to enter the machine language monitor, instead of starting BASIC.}
-\item{Press the \megakey{RESTORE} key for approximately 1/2 - 1 second to enter the MEGA65 Freeze Menu.  From this menu
+\item{Press the \widekey{RESTORE} key for approximately 1/2 - 1 second to enter the MEGA65 Freeze Menu.  From this menu
   you have convenient tools to change the CPU speed, switch between PAL \& NTSC video mode, change Audio settings, manage freeze-states,
    select D81 disk images, examine and modify memory of the frozen program, among other features.  This is in many ways the heart of the MEGA65, so it is well worth exploring and getting familiar with.}
-\item{Press the \megakey{RESTORE} for about 2 seconds to reset the MEGA65.  This is a temporary feature that will be removed when the MEGA65 desktop computers with built-in reset button become available.}
 \item{Type \screentext{POKE0,65} in C64 mode to switch  the CPU to full speed (40MHz). Some software may behave incorrectly in this mode, while other software will work very well, and run many times faster than on a C64.}
 \item{Type \screentext{POKE0,64} in C64 mode to switch the CPU to 1MHz.}
 \item{Type \screentext{SYS58552} in C64 mode to switch to C65 mode.}
 \item{Type \screentext{GO64} in C65 mode and confirm, by pressing \screentext{Y}, to switch to C64 mode, just like on a C128.}
 \item{The C65 ROM makes device 8 the default, so you can normally leave off the \textbf{,8} from the end of LOAD and SAVE commands.}
-\item{Pressing \megakey{SHIFT} + \specialkey{RUN STOP} from either C64 or C65 mode will attempt to boot from disk.}
+\item{Pressing \specialkey{SHIFT} + \specialkey{RUN STOP} from either C64 or C65 mode will attempt to boot from disk.}
 \end{itemize}
 
 Have fun! The MEGA65 has been lovingly crafted over many years for your enjoyment. We hope you have as much fun using it as we have had creating it!
 
-The MEGA Museum of Electronic Games and Art welcomes your feedback, suggestions and contributions to this open-source digital heritage preservation project.
+The MEGA Museum of Electronic Games \& Art welcomes your feedback, suggestions and contributions to this open-source digital heritage preservation project.

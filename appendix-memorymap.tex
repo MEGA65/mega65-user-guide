@@ -34,9 +34,9 @@ address space.
 The MEGA65 uses a similar memory map to that of the C65 for the first
 MiB of memory, i.e., 16 memory banks of 64KiB each.
 This is because the C65's 4510 CPU can access only 1MiB
-of address space.  These banks can be accessed from BASIC 10 using the
-\stw{BANK}\index{BASIC 10 Commands!BANK},
-\stw{DMA}\index{BASIC 10 Commands!DMA}, \stw{PEEK} and \stw{POKE}
+of address space.  These banks can be accessed from BASIC 65 using the
+\stw{BANK}\index{BASIC 65 Commands!BANK},
+\stw{DMA}\index{BASIC 65 Commands!DMA}, \stw{PEEK} and \stw{POKE}
 commands.  The following table summarises the contents of the first
 16 banks:
 
@@ -90,18 +90,18 @@ commands.  The following table summarises the contents of the first
 \end{longtable}
 
 The key features of this address space are the 128KiB of RAM in the first two banks, which is also present on
-the C65. If you intend to write programmes which can also run on a C65, you should only use these two banks
+the C65. If you intend to write programs which can also run on a C65, you should only use these two banks
 of RAM.
 
 On all models it is possible to use all or part of the 128KiB of ``ROM'' space as RAM. To do this, you must first
 request that the Hypervisor removes the read-only protection on this area, before you will be able to change
-its contents.  If you are writing a programme which will start from C64 mode, or otherwise switch to using the C64
+its contents.  If you are writing a program which will start from C64 mode, or otherwise switch to using the C64
 part of the ROM, instead of the C65 part), then the second half of that space, i.e., BANK 3, can be safely used
-for your programmes. This gives a total of 192KiB of RAM, which is available on all models of the MEGA65.
+for your programs. This gives a total of 192KiB of RAM, which is available on all models of the MEGA65.
 
 On models that have 384KiB or more of chip RAM, BANK 4 and 5 are also available.  Similarly, models which provide
 1MiB or more of chip RAM will have BANK 6 through 15 also available, giving a total of 896KiB (or 960KiB, if only
-the C64 part of the ROM is required) of RAM available for your programmes.  Note that the MEGA65's built-in
+the C64 part of the ROM is required) of RAM available for your programs.  Note that the MEGA65's built-in
 freeze cartridge currently freezes only the first 384KiB of RAM.
 
 \subsection{Colour RAM}
@@ -114,7 +114,7 @@ mode of the processor.
 
 At the time of writing, the \stw{BANK} and \stw{DMA} commands cannot be used to access the rest of the colour RAM, because the
 colour RAM is not located in the first mega-byte of address space.  This may be corrected in a future revision of
-the MEGA65, allowing access to the full colour RAM via BANK 15 or an equivalent DMA job. 
+the MEGA65, allowing access to the full colour RAM via BANK 15 or an equivalent DMA job.
 
 \subsection{28-bit Address Space}
 
@@ -251,8 +251,8 @@ layout of this address space.
 
 The MEGA65 supports four different IO personalities.  These are
 selected by writing the appropriate values to the \$D02F KEY register,
-which is visible in all four IO personalities.  Refer to Chapter
-\ref{cha:modes} for more information about the use of the KEY
+which is visible in all four IO personalities.  There is more information in
+\bookvref{cha:modes} about the use of the KEY
 register.
 
 The following table shows which IO devices are visible in each of
@@ -409,10 +409,10 @@ same address.
 The C64 and C65 use ROM memories to hold the KERNAL and BASIC system.
 The MEGA65 is different: It uses 128KB of its 384KB fast chip RAM at
 \$20000 - \$3FFFF (banks 2 and 3) to
-hold these system programmes. This makes it possible to change or upgrade the
+hold these system programs. This makes it possible to change or upgrade the
 ``ROM'' that the MEGA65 is running, without having to open the
 computer. It is even possible to use the MEGA65's Freeze Menu to
-change the ``ROM'' being used while a programme is running.
+change the ``ROM'' being used while a program is running.
 
 The C64 and C65 memory banking methods use this 128KB of area when
 making ROM banks visible.  When the RAM banks are mapped, they are
@@ -421,7 +421,7 @@ access that address area, it is possible to write to it. For improved
 backward compatibility, the whole 128KB region of memory is normally
 set to read-only.
 
-A programme can, however, request read-write access to this
+A program can, however, request read-write access to this
 128KB area of memory, so that it can make full use of the MEGA65's
 384KB of chip RAM.  This is accomplished by triggering the {\em Toggle
   Rom Write-protect} system trap of the hypervisor.  The following
@@ -445,7 +445,7 @@ state can be tested by attempting to write to this area of memory.
 Also, you can examine and toggle the current state from in the MEGA65
 Freeze Menu.
 
-NOTE: If you are starting your programme from C65 mode, you must first make
+NOTE: If you are starting your program from C65 mode, you must first make
 sure that the IO area is visible at \$D000-\$DFFF.  The simplest way to do
 this is to use the {\tt MAP} instruction with all zero values in the registers.
 The following fragment demonstrates this, and also makes sure that the MEGA65 IO
@@ -480,18 +480,11 @@ context is active, so that the hypervisor trap will be able to trigger:
 
 The layout of the C65 compatibility 128KB ROM area is identical to that of the C65:
 
+{\ttfamily
 \setlength{\tabcolsep}{3pt}
-\begin{longtable}{|p{3cm}|p{6cm}|}
+\begin{tabular}{|l|l|}
 \hline
 {\bf{HEX}} & {\bf{Contents}} \\
-\hline
-\endfirsthead
-\multicolumn{1}{l@{}}{\ldots continued}\\
-\hline
-{\bf{HEX}} & {\bf{Contents}} \\
-\endhead
-\multicolumn{1}{l@{}}{continued \ldots}\\
-\endfoot
 \hline
 \$3E000 -- \$3FFFF & C65 KERNAL \\
 \hline
@@ -513,8 +506,8 @@ The layout of the C65 compatibility 128KB ROM area is identical to that of the C
 \hline
 \$20000 -- \$23FFF & DOS (gets mapped at \$8000 -- \$BFFF) \\
 \hline
-\endlastfoot
-\end{longtable}
+\end{tabular}
+}
 
 The INTERFACE program is a series of routines that are used by the C65
 to switch between C64 mode, C65 mode and the C65's built-in DOS.  The

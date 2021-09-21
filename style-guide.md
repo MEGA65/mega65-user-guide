@@ -4,9 +4,10 @@ In order for the suite of MEGA65 books to be easier to read and understand,
 it's important that the English in the manuals is well-written and
 consistent. To keep the MEGA65 style guide short, the team has chosen
 to rely on the [BBC News Style Guide](https://www.bbc.co.uk/newsstyleguide/)
-as much as possible for the basics. For computer specific terminology and spelling,
+as much as possible for the basics. For computer specific terminology and spelling, the
+[Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/welcome/) was used. And finally,
 the [Commodore 64 User Manual](http://www.zimmers.net/anonftp/pub/cbm/c64/manuals/C64_User_Manual_1984_2nd_Edition.pdf) 
-was used for inspiration.
+and was used as we're trying to replicate the look and feel of it.
 
 The intended audience for people reading (and contributing to) MEGA65 literature are people who are comfortable using 
 a computer, and have good English skills.
@@ -24,6 +25,9 @@ Below are some simple MEGA65 styling rules:
 * First and foremost, British English spelling is used.
     * Organise, not organize.
     * Colours, not colors.
+
+* If you're stuck on when to use commas and hyphens refer to the 
+  [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/commas).
 
 * You, not we. When describing steps a user can make in order to perform try to use
   the word "you", instead of "we". When describing the intention(s) of the MEGA65 team,
@@ -102,6 +106,8 @@ Some commonly used words, and their preferences (in alphabetical order):
 * 8-bit, not 8 bit. When referring to multiple bits, no hyphen is necessary. Example:
   * The C64 is an 8-bit computer with a 16-bit address space.
   * A byte consists of 8 bits.
+  * More information on the use on hyphens in general is available in the 
+    [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/dashes-hyphens/hyphens)
 
 
 ## Screenshots

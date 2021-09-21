@@ -14,7 +14,7 @@ a computer, and have good English skills.
 
 If you're thinking of contributing, you should be comfortable writing about electronics and computing in general.
 
-When writing content for the MEGA65 books, the intended audience in terms of readers are people who know they're way 
+When writing content for the MEGA65 books, the intended audience in terms of readers are people who know their way 
 around a computer, but don't assume they know how to program a computer or know how/why certain things work. The 
 manuals should be as user-friendly as possible, but also be
 [concise](https://docs.microsoft.com/en-us/style-guide/word-choice/use-simple-words-concise-sentences).

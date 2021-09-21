@@ -5,13 +5,18 @@ it's important that the English in the manuals is well-written and
 consistent. To keep the MEGA65 style guide short, the team has chosen
 to rely on the [BBC News Style Guide](https://www.bbc.co.uk/newsstyleguide/)
 as much as possible for the basics. For computer specific terminology and spelling,
-the [Commodore 64 User Manual](http://www.zimmers.net/anonftp/pub/cbm/c64/manuals/C64_User_Manual_1984_2nd_Edition.pdf) was used for inspiration.
+the [Commodore 64 User Manual](http://www.zimmers.net/anonftp/pub/cbm/c64/manuals/C64_User_Manual_1984_2nd_Edition.pdf) 
+was used for inspiration.
 
-The intended audience for people reading (and contributing to) MEGA65 literature are people who are comfortable using a computer, and have good English skills.
+The intended audience for people reading (and contributing to) MEGA65 literature are people who are comfortable using 
+a computer, and have good English skills.
 
 If you're thinking of contributing, you should be comfortable writing about electronics and computing in general.
 
-When writing content for the MEGA65 books, the intended audience in terms of readers are people who know they're way around a computer, but don't assume they know how to program a computer or know how/why certain things work. The manuals should be as user-friendly as possible, but also be concise.
+When writing content for the MEGA65 books, the intended audience in terms of readers are people who know they're way 
+around a computer, but don't assume they know how to program a computer or know how/why certain things work. The 
+manuals should be as user-friendly as possible, but also be
+[concise](https://docs.microsoft.com/en-us/style-guide/word-choice/use-simple-words-concise-sentences).
 
 ## Rules
 Below are some simple MEGA65 styling rules:
@@ -25,7 +30,8 @@ Below are some simple MEGA65 styling rules:
   we can be used. Examples:
     * You can try typing in RUN to see what happens next.
     * We believe that the MEGA65 is the best computer in the world.
-    * However, to keep the manual more user-friendly, the programming sections may use "we". This is also more in-line with the       C64 manual.
+    * However, to keep the manual more user-friendly, the programming sections may use "we". This is also more in-line 
+      with the C64 manual.
 
 * Can, not could. Similar to rule #2, and it's more polite.
 
@@ -48,12 +54,13 @@ Below are some simple MEGA65 styling rules:
 
 * When adding a note, use `NOTE:`, not `Note:`
 
-* There's a dedicated LaTeX tag used for signifying keys on the MEGA65 keyboard. So instead of using text such as `<RETURN>`,   use the `megakey`
-  or `specialkey` tag, for example: `\specialkey{RETURN}`, `megakey{X}`.
+* There's a dedicated LaTeX tag used for signifying keys on the MEGA65 keyboard. So instead of using text such 
+  as `<RETURN>`,   use the `megakey` or `specialkey` tag, for example: `\specialkey{RETURN}`, `megakey{X}`.
   * Only letter, number, function, and symbol keys should be using the `\megakey` tag. Everything else should 
     use `\specialkey`, for the MEGA key use `\megasymbolkey`. `RESTORE` needs to be `\widekey{RESTORE}`.
 
-* When pointing out on-screen text, the `screentext` tag should be used. Example: `\screentext{HELLO WORLD}`. Note that upper case letters were used, as that's what the MEGA65 uses by default.
+* When pointing out on-screen text, the `screentext` tag should be used. Example: `\screentext{HELLO WORLD}`. 
+  Note that upper case letters were used, as that's what the MEGA65 uses by default.
 
 * When quoting keywords, tokens, or any other values whilst documenting BASIC, use plain double quotes ("). However, 
   when quoting elsewhere (for example, "homebrew") please use ``homebrew'' syntax instead.
@@ -67,7 +74,9 @@ Below are some simple MEGA65 styling rules:
 ## A-Z of commonly used words and phrases
 Some commonly used words, and their preferences (in alphabetical order):
 
-* Adapter, not adaptor. See [here](https://english.stackexchange.com/questions/22537/which-is-the-proper-spelling-adapter-or-adaptor) for more information. 
+* Adapter, not adaptor. See 
+  [here](https://english.stackexchange.com/questions/22537/which-is-the-proper-spelling-adapter-or-adaptor)
+  for more information. 
 
 * Brackets is preferred over the word `parentheses`.
 
@@ -97,7 +106,7 @@ Some commonly used words, and their preferences (in alphabetical order):
 
 ## Screenshots
 When adding screenshots of the MEGA65 display, please crop title bars and shadows (when emulated).
-For screenshots used in the BASIC appendix, please use a black background and border colour, and ensure 
+For screenshots used in the BASIC appendix, please use a black background and border colour, and ensure     
 you leave a few pixels spare on all sides. This is so you can round off the corners. To do this in 
 [GIMP](https://www.gimp.org/):
   * Open or paste your screenshot as a new image.

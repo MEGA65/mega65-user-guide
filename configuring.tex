@@ -3,6 +3,11 @@
 
 \section{Preparing for First Use: Formatting SD Cards}
 
+\textbf{NOTE}: For your convenience, your MEGA65 comes with an SD card with all essential 
+files placed on it, so you may prefer to skip this section and jump to the on-boarding section 
+on page \pageref{onboarding}. Alternatively, you're welcome to read this section and familiarise 
+yourself on how your SD card was prepared.
+
 The MEGA65 has two SD card slots: A full-size SD card slot inside, next to
 the trap-door, and a microSD size slot on the rear.  The current version
 of the MEGA65 firmware only supports the use of one SD card at a time.
@@ -13,7 +18,7 @@ repair.
 Depending on the model, your MEGA65 may or may not come with a pre-configured SD card. If it doesn't, or if you wish to use a different SD card, e.g., with a
 larger capacity, you must first format it for use in the MEGA65.
 
-{\em This must be done in the MEGA65, not in a PC or other computer.}
+{\em This must be done on the MEGA65, not on a PC or other computer.}
 
 {\em Only use SDHC cards. Older SD cards (typically with
   a capacity of <4GB) will not work. Newer SDXC cards with
@@ -61,16 +66,16 @@ installed.
 For safety when formatting we {\em strongly} recommend
 that you remove any SD card or microSD card that you do not intend to
 format, so that you do not accidentally destroy any data.  This is
-because formatting an SD card in the MEGA65 cannot be undone, and
+because formatting an SD card on the MEGA65 cannot be undone, and
 all data currently on the SD card {\em will be lost}.  If you
 have files or data on the SD card that you wish to retain, you
-should first back this up.  The contents of the FAT32
+should first back them up.  The contents of the FAT32
 partition can be easily backed up by inserting the SD card into
 another computer.  The contents of the MEGA65 System Partition,
 including the contents of freeze slots requires the use of specialised
 software.
 
-You should aim to backup valuable data from your
+You should aim to back up valuable data from your
 MEGA65 on a regular basis, especially while the computer remains under
 development.  While we take every care to avoid data corruption or
 other mishaps, we cannot guarantee that the MEGA65 is free of bugs in
@@ -92,20 +97,20 @@ It is possible to attempt a recovery from a lost Master Boot Record error (``Boo
 
 As an end result, we want to have a correctly formatted SD card with the essential files stored on it for MEGA65 to boot from.
 
-This is how it works: When powering on, MEGA65 will search for- and boot these files:
+This is how it works: When powering on, MEGA65 will search for, and boot up with these files:
 \begin{itemize}
-\item {\tt FREEZER.M65}
-\item {\tt AUDIOMIX.M65}
-\item {\tt C64THUMB.M65}
-\item {\tt C65THUMB.M65}
-\item {\tt MEGA65.ROM}
+\item {\tt FREEZER.M65} (freeze menu program)
+\item {\tt AUDIOMIX.M65} (freeze menu's audio mixer utility)
+\item {\tt C64THUMB.M65} (C64 thumbnail image used in freezer)
+\item {\tt C65THUMB.M65} (C65 thumbnail image used in freezer)
+\item {\tt MEGA65.ROM}   (128KB ROM file)
 \item {\tt MEGA65.D81 (default disk image, automatically mounted)}
 \end{itemize}
 
-Straight out-of-the-box, MEGA65 will only have one SD card installed, located inside behind the trap-door. This SD card contains the essential files to properly boot from.
-When an external microSD card is inserted, MEGA65 consider the external one as higher priority and will try to boot from it.
-That means that the microSD card needs to have the essential files on it, otherwise MEGA65 cannot boot properly and will fall back into loading the OpenROM which does not support all the MEGA65 features.
-In general, if MEGA65 cannot boot properly and fall back to OpenROM, it will be shown in the power-up screen, similar to this:
+Straight out of the box, the MEGA65 will only have one internal SD card installed, accessible via the trap-door under the case. This SD card contains all essential files needed to properly boot up.
+If an external microSD card is also detected during boot up, the MEGA65 gives it higher priority and will try to boot from it instead.
+That means that the external microSD card needs to have the essential files on it, otherwise the MEGA65 will not boot up properly and will fall back to loading the OpenROM which does not support all MEGA65 features.
+In general, if your MEGA65 cannot boot properly and falls back to OpenROM, your power-up screen will look similar to this:
 
 \includegraphics[width=\linewidth]{images/mega65_OpenROM_boot_noSD.png}
 
@@ -113,26 +118,32 @@ In general, if MEGA65 cannot boot properly and fall back to OpenROM, it will be 
 \section{Installing ROM and Other Support Files}
 \label{sec:installingrometc}
 
-The MEGA65 FDISK/FORMAT utility will install a version of the
-open-source OpenROM project's C64-compatible ROMs as part of the
-formatting process.
-The default ROM however is read from the file MEGA65.ROM, which contains
+The MEGA65 FDISK/FORMAT utility will add a copy of the Open ROMs project's C64-compatible ROM 
+to your SD card, and will name it MEGA65.ROM.
+
+For MEGA65 owners, we have replaced this file with the latest ROM from the 'Closed ROMs'
+project. It provides many improvements over the original/incomplete C65 ROMs. It contains
 the operating system, BASIC 65, CBDOS and the machine language monitor BSMON.
 This ROM is developed especially for the MEGA65 and can be
 identified by the version number 92xxxx.
 
 However, you may have other ROMs that you wish to
-use on the MEGA65.
+use on your MEGA65.
 You can copy as many of these as you wish onto the
 SD card.  Make sure that they have the .ROM extension.  The default ROM
-should be called MEGA65.ROM.  These files
+should be called MEGA65.ROM. These files
 must be 128KB in size, and use the same internal format as ROMs
 intended for the C65.  This means that the C64-mode KERNAL must be
 placed at offset \$E000, a C65-mode BASIC at \$A000, and a suitable
 character set at \$D000.
 
+You can optionally name your alternate ROMs as 'MEGA65x.ROM', replacing 'x' with a number from 0 to 9.
+This allows you to quickly boot-up to your alternate ROMs by holding down a number from \megakey{0} to \megakey{9} prior 
+to powering on your MEGA65.
+
 Other important support files include FREEZER.M65 and AUDIOMIX.M65, which
-allow you to use the MEGA65's integrated freezer. More details provided below.
+allow you to use the MEGA65's integrated freezer. More details are provided in the 'Floppy Disks And D81 Images' 
+chapter on page \pageref{cha:freezer}.
 
 \subsection{ROM File}
 
@@ -141,27 +152,29 @@ allow you to use the MEGA65's integrated freezer. More details provided below.
 You may want to source your own separate C65 ROM via other means.
 There were many different versions created during the development of the Commodore 65,
 and the MEGA65 can use any of them.  However, they will not support the advanced
-features of the MEGA65 and are incomplete and buggy, because the development
-was stopped, before these C65 ROMs could be completed.
+features of the MEGA65, and are incomplete and buggy, as development on them ceased
+due to Commodore abandoning the C65 project.
 
-\textbf{MEGA65 ROMs}
+\textbf{MEGA65 Closed ROMs}
 
-There are newer versions of the \textbf{MEGA65 Closed ROM} actively under development also. These ROMs improve upon the original C65 ROMs and make better use of the extra hardware capabilities that the MEGA65 has over the original C65 hardware. These ROMs are available via the filehost also, but only to owners of the MEGA65, who will need to log into the filehost with their credentials in order to download it. It can be located by visiting the "\textbf{Files}" tab and searching for "\textbf{kernel rom}":
+There are also newer versions of the \textbf{MEGA65 Closed ROM} actively under development. These ROMs improve upon the original C65 ROMs and make better use of the extra hardware capabilities that the MEGA65 has over the original C65 hardware. These ROMs are available via the filehost (at \url{https://files.mega65.org}), but only to owners of the MEGA65, who will need to log into the filehost with their credentials in order to download it. It can be located by visiting the "\textbf{Files}" tab and searching for "\textbf{kernel rom}":
 
 \includegraphics[width=\linewidth]{images/latest_closed_rom.png}
 
 \textbf{MEGA65 ROM diff files}
 
-If you have sourced your own 911001.bin C65 ROM and would like to patch it to the latest MEGA65 ROM, we do provide patches, as the additional improvements we have made to the closed rom are open source. Those diff files are available here:
+If you have sourced your own 911001.bin C65 ROM and would like to patch it to the latest MEGA65 closed ROM, 
+we do provide patches, as the additional improvements we have made to the closed rom are open source. 
+Those diff files are available here:
 
-\url{https://files.mega65.org?id=fd2c40b9-f337-41f7-8a81-0254b1e09fb5}
+\url{http://mega65.org/rom-diffs}
 
-\textbf{MEGA65 OpenROMs}
+\textbf{MEGA65 Open ROMs}
 
-Another available option is to make use of \textbf{MEGA65 OpenROMs}. The latest version of this is always downloadable from either of the following urls:
+Another available option is to make use of \textbf{MEGA65 Open ROMs}. The latest version of this is always downloadable from either of the following urls:
 
 \begin{itemize}
-  \item \url{https://files.mega65.org?id=8aec2fba-3b0a-4677-80ae-7a7f5f4f0cb8}
+  \item \url{http://mega65.org/open-roms}
   \item \url{https://github.com/MEGA65/open-roms/raw/master/bin/mega65.rom}
 \end{itemize}
 
@@ -170,7 +183,7 @@ Another available option is to make use of \textbf{MEGA65 OpenROMs}. The latest 
 
 For official owners of the MEGA65 (both devkit and final product), visit the following url and log in with the user credentials you have been provided. This will take you to the MEGA65 Filehost location where the "\textbf{MEGA65 SD card essentials}" download page is located. Then click the "\textbf{Download}" link to retrieve the latest "\textbf{SD essentials.rar}" file.
 
-\url{https://files.mega65.org?id=a809e0ae-30ac-42f5-ab9c-766d72fd6331}
+\url{http://mega65.org/sdcard-files}
 
 \includegraphics[width=\linewidth]{images/latest_support_files_with_closedrom.png}
 
@@ -178,14 +191,15 @@ Note that this link is only available to official owners of the MEGA65 product, 
 
 For Nexys board owners in search of a similar fileset (without the ROM), visit the following url instead:
 
-\url{https://files.mega65.org/?id=0fb941fe-5c5f-4608-b0f1-32849d4a8dff}
+\url{http://mega65.org/sdcard-norom}
 
 This will take you to the MEGA65 Filehost location where the "\textbf{MEGA65 SD card essentials - No ROM}" download page is located. Click the "\textbf{Download}" link to retrieve the latest "\textbf{SD essentialsNoROM.rar}" file.
 
-Note that while this fileset does not contain a ROM, there are future plans for it to include the freely available OpenROM.
+Note that while this fileset does not contain a ROM, there are future plans for it to include the freely available ROM from the 'Open ROMs' project.
 
 \includegraphics[width=\linewidth]{images/latest_support_files.png}
 
+\label{onboarding}
 \section{On-boarding}
 
 On first launch of your MEGA65, you will see the on-boarding screen.

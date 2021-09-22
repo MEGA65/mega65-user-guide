@@ -35,7 +35,38 @@ so that you can easily switch the MEGA65's ``personality'' from being a MEGA65 t
 of these systems (once the cores are available), and back again.
 
 The remainder of this chapter describes how to select which core to run on the MEGA65, and
-how to store a core into one of the three (or for MEGA65R2, seven) slots in the flash memory storage.
+how to store a core into one of the seven slots in the flash memory storage.
+
+\subsection{Model types}
+
+The retail model you have purchased is referred to as the MEGA65R3A (revision 3A). Throughout the course of development of the MEGA65, there have been several other model variants used by developers, each with differing specifications and available core slots, so they will be listed here, just to raise awareness of them.
+
+\begin{minipage}{\linewidth}
+\begin{center}
+  \begin{longtable}{|C{2.5cm}|C{2cm}|C{2cm}|C{2cm}|C{2cm}|}
+    \hhline{|=|=|=|=|=|}
+    {\textbf{Model}} & {\textbf{FPGA type}} & {\textbf{QSPI size}} & {\textbf{\#slots}} & {\textbf{slot size}} \\
+    \hhline{|=|=|=|=|=|}
+    \multirow{2}{*}{\textbf{MEGA65R3A}} & \multicolumn{4}{l|}{The retail/release version of the MEGA65} \\
+      \cline{2-5}
+      & A200T & 64MB & 8 & 8MB \\
+    \hhline{|=|=|=|=|=|}
+    \multirow{2}{*}{\textbf{MEGA65R3}} & \multicolumn{4}{l|}{The DevKit model} \\
+      \cline{2-5}
+      & A200T & 32MB & 4 & 8MB \\
+    \hhline{|=|=|=|=|=|}
+    \multirow{2}{*}{\textbf{MEGA65R2}} & \multicolumn{4}{l|}{An earlier MEGA65 model} \\
+      \cline{2-5}
+      & A100T & 32MB & 8 & 4MB \\
+    \hhline{|=|=|=|=|=|}
+    \multirow{2}{*}{\textbf{Nexys4}} & \multicolumn{4}{l|}{FPGA development boards used early in the project} \\
+      \cline{2-5}
+      & A100T & 16MB & 4 & 4MB \\
+    \hline
+  \end{longtable}
+\end{center}
+\end{minipage}
+
 
 \section{Bitstream files}
 \label{sec:bitstreamfiles}
@@ -47,7 +78,7 @@ Firstly, there are a variety of files related to the project's bitstreams/cores 
 \index{.bit files}\index{.mcs files}\index{.prm files}\index{.cor files}
 \begin{center}
   \begin{longtable}{|R{2.2cm}|p{10cm}|}
-    \hline
+    \hhline{|=|=|}
     {\textbf{File-type}} & {\textbf{Purpose}} \\
     \hhline{|=|=|}
     {.cor} & {The MEGA65 project's custom bitstream file format, containing extra header information to help identity the bitstream and the specific MEGA65 target device it is intended for. The MEGA65's flashing utility makes use of this additional information to ensure you don't accidentally flash the bitstream of a different device} \\
@@ -74,10 +105,10 @@ Click the 'Files' tab, and in the search-bar, type '.cor' and press Enter.
 For the purposes of this chapter on core-flashing, download the desired .cor file that suits your target device:
 
 \begin{itemize}
-  \item{\textbf{nexys4-dev.cor} (for Nexys4 PSRAM boards)}
-  \item{\textbf{nexys4ddr-widget-dev.cor} (for Nexys4 DDR boards)}
+  \item{\textbf{mega65r3-dev.cor} (for MEGA65R3 boards, both Release and DevKits)}
   \item{\textbf{mega65r2-dev.cor} (for MEGA65R2 boards)}
-  \item{\textbf{mega65r3-dev.cor} (for MEGA65R3 boards, aka DevKits)}
+  \item{\textbf{nexys4ddr-widget-dev.cor} (for Nexys4 DDR boards)}
+  \item{\textbf{nexys4-dev.cor} (for Nexys4 PSRAM boards)}
   \item{You can also find .bit, .mcs and .prm files located here too.}
 \end{itemize}
 
@@ -90,7 +121,7 @@ But once again, for the purposes of this chapter on core-flashing, you will only
 \phantomsection
 \section{Selecting a core}
 
-To operate the MEGA65 using an alternative core, turn off the power to the MEGA65, and then hold the
+To operate the MEGA65 using an alternate core, turn off the power to the MEGA65, and then hold the
 \specialkey{NO SCROLL} key down while turning the power back on.  This instructs the MEGA65 to enter the
 flash and core menu, instead of booting normally. Upon booting like this, you should see a display like the following:
 
@@ -129,7 +160,7 @@ internal SD card. To avoid this, simply copy the core file(s) from the internal 
 card to the external microSD card, or temporarily remove the external
 microSD card from the rear of your MEGA65, so that the flash menu will
 be able to find the core files.  Also note that the flash menu
-currently supports only DOS-style 8.3 character filenames. If your
+currently supports only DOS-style 8.3 character filenames in UPPERCASE. If your
 core files have a longer name, you will need to rename them when
 copying them onto your microSD or SD card.
 

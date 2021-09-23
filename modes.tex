@@ -3,7 +3,28 @@
 
 The MEGA65, like the C65 and the C128, has multiple operating modes,
 however there are important differences between the MEGA65 and both
-of these earlier computers.  For people familiar with the C128,
+of these earlier computers.
+
+At default the file {\bf MEGA65.ROM} boots to MEGA65 mode
+(including BASIC 65) and
+provides a method to switch to C64 mode via {\bf GO 64}.
+
+But it is possible to copy an original C65 ROM (version 91xxxx.BIN)
+to the file {\bf MEGA65.ROM}. Then the computer starts in C65 mode
+with BASIC 10, but provides the same possibility to switch to C64 mode.
+
+So dependent on your boot ROM choice, you have:
+
+\begin{tabular}{|l|l|l|l|}
+\hline
+Boot Mode & ROM version & BASIC & C64 Mode \\
+\hline
+MEGA65    & 92xxxx      & BASIC 65 & GO 64 \\
+C65       & 91xxxx      & BASIC 10 & GO 64 \\
+\hline
+\end{tabular}
+
+For people familiar with the C128,
 the most important difference is that all of the MEGA65's new features
 can be accessed from every mode, and you can even switch back and forth
 between the different modes, or create hybrid modes that combine different
@@ -17,15 +38,19 @@ from one mode to another.
 \phantomsection
 \section{Switching Modes from BASIC}
 
-At the time of writing, there is no MEGA65 Mode BASIC. The MEGA65 is used either
-in C64 mode (running BASIC 2), or C65 mode (running BASIC 65).  However, various MEGA65
-features can be accessed from both C64 and C65 mode.  All MEGA65 features are available
+The MEGA65 is used either
+in C64 mode (running BASIC 2),
+or C65 mode (running BASIC 10) for ROM versions 91xxxx
+or MEGA65 mode (running BASIC 65) for ROM versions 92xxxx.
+
+However, various MEGA65
+features can be accessed from all modes.  All MEGA65 features are available
 to programs written in assembly language / machine code.  The information required
 to write such programs can be found in the various appendices.
 
-\subsection{From C65 to C64 Mode}
+\subsection{From MEGA65/C65 to C64 Mode}
 
-To switch from C65 to C64 Mode, use the familiar GO 64 command, which is identical to switching to C64
+To switch from MEGA65/C65 to C64 Mode, use the familiar GO 64 command, which is identical to switching to C64
 mode on a C128:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -41,9 +66,9 @@ Note that, just like on the C128, any programs in memory will be lost in the pro
 Alternatively, you can hold down the MEGA key when pressing the reset button or turning the computer on. Again,
 this is the same as on the C128.
 
-\subsection{From C64 to C65 Mode}
+\subsection{From C64 to MEGA65/C65 Mode}
 
-To switch from C64 to C65 mode, use the following command. {\bf Note that this command does not ask you for
+To switch from C64 to MEGA65/C65 mode, use the following command. {\bf Note that this command does not ask you for
 confirmation}!
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -53,7 +78,7 @@ SYS 58552
 \end{verbatim}
 \end{tcolorbox}
 
-Alternatively, you can switch back to C65 mode by pressing the reset
+Alternatively, you can switch back to MEGA65/C65 mode by pressing the reset
 button on the left side of the computer, or simply by turning the
 computer off and on again.
 
@@ -66,7 +91,7 @@ lost in the process of switching modes.
 \subsection{Entering Machine Code Monitor Mode}
 
 The machine code monitor can be entered by typing either the MONITOR
-command from BASIC 65 in C65 mode, or by holding the RUN/STOP key
+command from BASIC 65/10 or by holding the RUN/STOP key
 down, and then pressing the reset button on the left side of the
 computer.
 
@@ -218,7 +243,7 @@ by looking through
 
 \subsection{Traps to look out for}
 
-In both C64 and C65 mode, the DOS for the internal 3.5'' disk drive (including when you use D81 disk images from
+In all modes, the DOS for the internal 3.5'' disk drive (including when you use D81 disk images from
 an SD card) resets the KEY register to C64 / VIC-II mode whenever it is accessed. This means if you perform actions,
 such as check the drive status, or LOAD or SAVE a file, the KEY register will be reset, and only the C64 / VIC-II registers
 will be enabled. You can of course enable the C65 or MEGA65 registers by POKEing the correct values
@@ -227,10 +252,13 @@ to the KEY register again.
 \phantomsection
 \section{Accessing Memory from BASIC 65}
 
-The C65's BASIC 65 contains powerful memory banking and Direct Memory Access (DMA) commands that can be used to read,
+The BASIC 65 contains powerful memory banking and Direct Memory Access (DMA) commands that can be used to read,
 fill, copy, and write areas of memory beyond the C65's 128KB of RAM.  The MEGA65 has 384KB of main memory. Of this,
 the first 128KB (BANK 0 and BANK 1) acts as the C65's normal 128KB RAM. The second 128KB (BANK 2 and BANK 3) is normally
-write-protected, and is used to hold the C65's ROM image.  The last 128KB (BANK 4 and BANK 5) is however completely free.
+write-protected, and is used to hold the C65's ROM image.
+The last 128KB (BANK 4 and BANK 5) are used for all graphic routines
+in BASIC 65 for high resolution bitplane graphics.
+BASIC 10 doesn't use banks 4 and 5.
 
 Using the BANK, PEEK and POKE commands, this region of memory can be easily accessed, for example:
 
@@ -261,9 +289,6 @@ DMA 0, 2000, 0, 4, 2048, 0, : REM SCREEN TEXT FROM BANK 4
 DMA 0, 2000, 2000, 4, DEC("F800"), 1 : REM COPY COLOUR RAM FROM BANK 4
 \end{verbatim}
 \end{tcolorbox}
-
-Note that there is currently no way to tell BASIC 65 to put graphics screen, variables,
-arrays or program text in these extra banks of RAM.
 
 \phantomsection
 \section{The MAP Instruction}

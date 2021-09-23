@@ -305,15 +305,17 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0E
 \item [Format:]
-  {\bf APPEND\# lfn, filename [,D drive] [,U unit] }
+  {\bf APPEND\# channel, filename [,D drive] [,U unit] }
 \item [Usage:]
    Opens an existing sequential file of type
-   {\bf SEQ} or {\bf USR} for writing and positions the write pointer
+   {\bf SEQ} or {\bf USR} for writing, and positions the write pointer
    at the end of the file.
 
-   {\bf lfn} {\bf l}ogical {\bf f}ile {\bf n}umber \\
-   1 <= lfn <= 127: line terminator is CR \\
-   128 <= lfn <= 255: line terminator is CR LF
+    {\bf channel} number, where:
+    \begin{itemize}
+        \item 1 <= channel <= 127 line terminator is CR.
+        \item 128 <= channel <= 255 line terminator is CR LF.
+    \end{itemize}
 
    \filenamedefinition
 
@@ -1390,10 +1392,10 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A0
 \item [Format:] {\bf CLOSE channel}
-\item [Usage:] Closes an input or output
-               channel, that has previously been established by {\bf OPEN}.
+\item [Usage:] Closes an input or output channel.
 
-               {\bf channel} is a value in the range of 0 - 255.
+               {\bf channel} number, which was given to a previous
+               call of commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
 
 \item [Remarks:] Closing files that have previously been opened
                before a program has completed is
@@ -1427,9 +1429,9 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \item [Token:] \$9C
 \item [Format:] {\bf CLR}        \\
                 {\bf CLR V}
-               are used for management of BASIC variables, arrays
-               and strings. The run-time stack pointers are reset
-               and the table of open channels is also reset
+               Used for management of BASIC variables, arrays
+               and strings. The run-time stack pointers,
+               and the table of open channels is reset
                After executing a {\bf CLR} all variables and arrays will be undeclared.
                {\bf RUN} performs {\bf CLR} automatically.
 
@@ -1468,22 +1470,23 @@ RUN
 \item [Token:] \$9D
 \item [Format:] {\bf CMD channel [,string]}
 \item [Usage:] Redirects the standard output
-               from screen to the channel. This enables you to
-               print listings and directories or other output channels.
+               from screen to a channel. This enables you to
+               print listings and directories to other output channels.
                It is also possible to redirect this output to a disk file,
                or a modem.
 
-               {\bf channel} must be opened by {\bf OPEN}.
+               {\bf channel} number, which was given to a previous
+               call of commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
 
                The optional {\bf string} is sent to the channel
                before the redirection begins and can be used,
                for example, for printer or modem setup escape sequences.
 
-\item [Remarks:] The {\bf CMD} mode is stopped by a {\bf PRINT\# channel},
-                 or by closing the channel with {\bf CLOSE channel}.
-                 It is recommended to use {\bf PRINT\# channel}
+\item [Remarks:] The {\bf CMD} mode is stopped by a {\bf PRINT\#},
+                 or by closing the channel with {\bf CLOSE}.
+                 It is recommended to use {\bf PRINT\#}
                  before closing, to make sure that the output buffer
-                 is flushed.
+                 has been flushed.
 
 \item [Example:] Using {\bf CMD} to print a program listing:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1915,7 +1918,7 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 
    The DOS of the disk drive will close all open files,
    clear all channels, free buffers and re-read the BAM.
-   All open channels on the computer will be closed too.
+   All open channels on the computer will also be closed.
 
 \item [Examples:] Using {\bf DCLEAR}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1943,7 +1946,8 @@ N-POINT GAUSSLEGENDRE FACTORS E1
    Closes a single file or
    all files for the specified unit.
 
-   {\bf channel} = channel \# assigned with the {\bf DOPEN} statement.
+    {\bf channel} number, which was given to a previous
+    call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
 
    \unitdefinition
 
@@ -2470,13 +2474,15 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0D
 \item [Format:]
-  {\bf DOPEN\# lfn, filename [,L[reclen]] [,W] [,D drive] [,U unit] }
+  {\bf DOPEN\# channel, filename [,L[reclen]] [,W] [,D drive] [,U unit] }
 \item [Usage:]
-   Opens a file for reading, or writing.
+    Opens a file for reading or writing.
 
-   {\bf lfn} {\bf l}ogical {\bf f}ile {\bf n}umber \\
-   1 <= lfn <= 127: line terminator is CR \\
-   128 <= lfn <= 255: line terminator is CR LF
+    {\bf channel} number, where:
+    \begin{itemize}
+        \item 1 <= channel <= 127 line terminator is CR.
+        \item 128 <= channel <= 255 line terminator is CR LF.
+    \end{itemize}
 
    {\bf L} indicates, that the file is a relative file, which
    is opened for read/write, as well as random access. The reclength
@@ -3003,11 +3009,11 @@ where the error line is taken from {\bf EL}.
                waiting for keyboard input.
 
 \item [Remarks:]
-               {\bf END} does {\bf not} clear channels or close files.
+               {\bf END} does {\bf not} clear channels nor close files.
                Also, variable definitions are still valid after {\bf END}.
                The program may be continued with the {\bf CONT}
                statement. After executing the last line of a
-               program, {\bf END} is executed automatically.
+               program, {\bf END} is automatically executed.
 
 
 \item [Example:]
@@ -3645,6 +3651,10 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Usage:] Reads {\bf size} bytes from {\bf channel} to memory
                starting at the 32-bit address {\bf pointer}.
 
+               {\bf channel} number, which was given to a previous
+               call to commands such as {\bf DOPEN}, or {\bf OPEN}.
+
+
                Care must be taken not to overwrite memory
                that is used by the system or the interpreter.
 
@@ -3707,6 +3717,9 @@ POINTER(XY) returns the address of the scalar variable XY.
 \item [Format:] {\bf FWRITE\#channel, pointer, size}
 \item [Usage:] Writes {\bf size} bytes to {\bf channel} from memory
                starting at the 32-bit address {\bf pointer}.
+
+               {\bf channel} number, which was given to a previous
+               call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
 
                It is recommended to use the {\bf POINTER} statement
                for the pointer argument and compute the size parameter
@@ -3803,6 +3816,10 @@ POINTER(XY) returns the address of the scalar variable XY.
                to numeric variables.
                This is useful for reading characters (or bytes) from
                an input stream one byte at a time.
+
+               {\bf channel} number, which was given to a previous
+               call to commands such as {\bf DOPEN}, or {\bf OPEN}.
+
 
 \item [Remarks:] All values from 0 to 255 are valid, so {\bf GET}
                  can also be used to read binary data.
@@ -4313,8 +4330,9 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
                and assigns the data
                to the variables in the list.
 
-               {\bf channel} channel number assigned
-               by {\bf DOPEN} or {\bf OPEN}.
+               {\bf channel} number, which was given to a previous
+               call to commands such as {\bf DOPEN}, or {\bf OPEN}.
+
 
                {\bf variable list} list of one or more
                variables, that receive the input.
@@ -4751,8 +4769,8 @@ A=5      :REM SHORTER AND FASTER
                Therefore, an empty line consisting of only the {\bf RETURN} character
                will result in an empty string being assigned.
 
-               {\bf channel} channel number assigned
-               by {\bf DOPEN} or {\bf OPEN}.
+               {\bf channel} number, which was given to a previous
+               call to commands such as {\bf DOPEN}, or {\bf OPEN}.
 
                {\bf variable list} list of one or more
                variables, that receive the input.
@@ -5663,14 +5681,15 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9F
 \item [Format:]
-  {\bf OPEN lfn, first address [,secondary address [,filename]]}
+  {\bf OPEN channel, first address [,secondary address [,filename]]}
 \item [Usage:]
-   Opens an input/output channel for
-   a device.
+   Opens an input/output channel for a device.
 
-   {\bf lfn} {\bf l}ogical {\bf f}ile {\bf n}umber \\
-   1 <= lfn <= 127: line terminator is CR \\
-   128 <= lfn <= 255: line terminator is CR LF
+    {\bf channel} number, where: \\
+    \begin{itemize}
+        \item 1 <= channel <= 127 line terminator is CR.
+        \item 128 <= channel <= 255 line terminator is CR LF.
+    \end{itemize}
 
    {\bf first address} device number.
    For IEC devices the unit number is the primary address.
@@ -6485,6 +6504,9 @@ Results in:
                 argument type. For user controlled formatting
                 see {\bf PRINT\# USING}.
 
+                {\bf channel} number, which was given to a previous
+                call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
+
                 The following argument types are evaluated:
                 \begin{itemize}
                     \item {\bf numeric} The printout starts with a space
@@ -6546,8 +6568,8 @@ Results in:
                 The formatting of the resulting output is directed
                 by the format string.
 
-                {\bf channel} : must be opened for output by
-                an {\bf OPEN} or {\bf DOPEN} statement.
+                {\bf channel} number, which was given to a previous
+                call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
                 If no channel is specified, the output goes to the screen.
 
                 {\bf format} : A string variable or a string constant
@@ -6789,10 +6811,11 @@ RUN
 \index{BASIC 65 Commands!RECORD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$12
-\item [Format:] {\bf RECORD\#lfn, record, [,byte]}
+\item [Format:] {\bf RECORD\#channel, record, [,byte]}
 \item [Usage:]  Positions the read/write pointer of a relative file.
 
-                {\bf lfn} {\bf l}ogical {\bf f}ile {\bf n}umber
+                {\bf channel} number, which was given to a previous
+                call of commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
 
                 {\bf record} target record (1-65535).
 
@@ -9066,8 +9089,8 @@ READY.
                 The formatting of the resulting output is directed
                 by the format string.
 
-                {\bf channel} : must be opened for output by
-                an {\bf OPEN} or {\bf DOPEN} statement.
+                {\bf channel} number, which was given to a previous
+                call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
                 If no channel is specified, the output goes to the screen.
 
                 {\bf format} : A string variable or a string constant

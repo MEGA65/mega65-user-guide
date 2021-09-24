@@ -876,7 +876,7 @@ BOOT
    It also becomes the load address,
    which is stored in the first two bytes of the {\bf PRG} file.
 
-   {\bf end} is the address, where the saving stops.
+   {\bf end} is the address where saving stops.
    {\bf end-1} is the last address to be used for saving.
 
    \drivedefinition
@@ -1051,7 +1051,7 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
    (for {\bf P}RG, {\bf S}EQ, {\bf U}SR, {\bf R}EL) filters the
    output to that filetype.
 
-   The shortcut symbol {\bf \$} can be used in direct mode only.
+   The shortcut symbol {\bf \$} can only be used in direct mode.
 
 \item [Examples:] Using {\bf CATALOG}
 
@@ -1176,7 +1176,7 @@ width=28mm,height=3mm,valign=center]
    However \screentext{CHANGE \&LOOP\& TO \&OOPS\&} will
    find and replace it (possibly causing SYNTAX ERRORs).
 
-   Used in direct mode only.
+   Can only be used in direct mode.
 
 \item [Examples:] Using {\bf CHANGE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1795,7 +1795,7 @@ CONT
 
 \item [Remarks:] An argument in units of {\bf degrees}
                  can be converted to {\bf radians}
-               by multiplication with $\pi/180$.
+               by multiplying it with $\pi/180$.
 \item [Examples:] Using {\bf COS}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -2193,7 +2193,7 @@ RUN
    (for {\bf P}RG, {\bf S}EQ, {\bf U}SR, {\bf R}EL) filters the
    output to that filetype.
 
-   The shortcut symbol {\bf \$} can be used in direct mode only.
+   The shortcut symbol {\bf \$} can only be used in direct mode.
 
 \item [Examples:] Using {\bf DIR}
 
@@ -2283,7 +2283,7 @@ on page \pageref{3columndirlisting}.
 
    Using {\bf DISK} with no parameters prints the disk status.
 
-   The shortcut symbol {\bf @}  can be used in direct mode only.
+   The shortcut symbol {\bf @} can only be used in direct mode.
 
 \item [Examples:] Using {\bf DISK}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2562,7 +2562,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DS}
 \index{BASIC 65 System Variables!DS}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DS} is a reserved system variable
+\item [Format:] {\bf DS} is a reserved system variable.
 \item [Usage:]  {\bf DS} holds the status of the last disk operation.
                 It is a volatile variable.
                 Each use triggers the reading of the disk status
@@ -3301,7 +3301,7 @@ PRINT EXP(LOG(2))
 \item [Format:] {\bf FAST}
 \item [Usage:] Set CPU clock to 1 MHz, 3.5 MHz or 40 MHz.
 \item [Remarks:] Any numeric parameter that is not 1.X or 3.X
-                 is discarded and the speed is set to maximum.
+                 is discarded and the speed is set to 40MHz.
 
                  {\bf FAST} is a synonym of {\bf SPEED}.
 
@@ -3374,8 +3374,8 @@ FILTER 1,1023,0,0,1,10 :REM HIGH PASS
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2B
 \item [Format:] {\bf FIND {\bf delimiter} string {\bf delimiter} [,from-to]}
-\item [Usage:]  {\bf FIND} is an editor command that can be used
-                in direct mode only. It searches a given line range
+\item [Usage:]  {\bf FIND} is an editor command that can only be used
+                in direct mode. It searches a given line range
                 (if specified), otherwise the entire BASIC program is searched.
                 At each occurrence of the "find string" the line is
                 listed with the string highlighted.
@@ -3541,9 +3541,9 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 
                {\bf start} is used to initialise the index.
 
-               {\bf end} is used at the end of the loop,
-               and controls whether the next iteration will be executed,
-               or the loop exited.
+               {\bf end} is checked at the end of an iteration,
+               and determines whether another iteration will be performed,
+               or if the loop will exit.
 
                {\bf step} defines the change applied to
                to the index variable at the end of an iteration.
@@ -3555,7 +3555,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
                {\bf end} must be less than or equal to {\bf start}.
 
                It is bad programming practice to change the value
-               of the index variable inside the loop or to
+               of the {\bf index} variable inside the loop or to
                jump into or out of a loop body with {\bf GOTO}.
 
 \item [Examples:] Using {\bf FOR}
@@ -4911,7 +4911,7 @@ Characters before and after the file name double quotes (") will be ignored.
    {\bf LOAD} is implemented in BASIC 65 to keep it backwards
    compatible with BASIC V2.
 
-   The shortcut symbol {\bf /} can be used in direct mode only.
+   The shortcut symbol {\bf /} can only be used in direct mode.
 
    By default the C64 uses {\bf unit} 1, which is assigned to datasette
    tape recorders connected to the cassette port. However the MEGA65
@@ -6962,7 +6962,7 @@ RECORD # 4 RECORD # 2
                in statements that use {\bf GOSUB}, {\bf GOTO},
                {\bf RESTORE}, {\bf RUN}, {\bf TRAP}, etc.
 
-               {\bf RENUMBER} can be executed in direct mode only.
+               {\bf RENUMBER} can only be executed in direct mode.
                If it detects a problem such as memory overflow,
                unresolved references or line number overflow
                (more than than 64000 lines), it will stop with an error
@@ -7622,15 +7622,15 @@ DRAW PEN COLOUR =  1
    \unitdefinition
 
    {\bf RUN} first resets all internal pointers to their
-   starting values. Therefore, there will be no variables, arrays
-   or strings defined, the run-time stack is reset, and the
+   default values. Therefore, there will be no variables, arrays
+   or strings defined. The run-time stack is also reset, and the
    table of open files is cleared.
 
 \item [Remarks:]
-   In order to start or continue program execution without
-   resetting everything, use {\bf GOTO}.
+   To start or continue program execution without
+   resetting everything, use {\bf GOTO} instead.
 
-\item [Example:] Using {\bf RUN}
+\item [Examples:] Using {\bf RUN}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -7655,17 +7655,20 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$09
 \item [Format:] {\bf RWINDOW(n)}
-\item [Usage:]  Returns information regarding the current text window
+\item [Usage:]  Returns information regarding the current text window.
 
-                {\bf n} 0 : get width of current text window.
+                {\bf n} the screen parameter to retrieve.
 
-                {\bf n} 1 : get height of current text window.
+                \begin{itemize}
+                    \item {\bf 0} width of current text window.
+                    \item {\bf 1} height of current text window.
+                    \item {\bf 2} number of columns on screen (40 or 80).
+                \end{itemize}
 
-                {\bf n} 2 : get width of screen (40 or 80).
-
-\item [Remarks:] See also {\bf WINDOW}. \\
-                 Older versions of {\bf RWINDOW} reported
-                 the width-1 and the height-1 for the arguments 0 and 1.
+\item [Remarks:] Older versions of {\bf RWINDOW} reported
+                 the width - 1 and the height - 1 for arguments 0 and 1.\\
+                 \\
+                 Refer to the {\bf WINDOW} command for more information.
 
 \item [Example:] Using {\bf RWINDOW}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -7695,26 +7698,27 @@ DRAW PEN COLOUR =  1
 \item [Format:] {\bf SAVE filename [,unit] }
                 {\bf $\leftarrow$ filename [,unit] }
 \item [Usage:]
-   "Saves a BASIC program to a file of type {\bf PRG}.
+   Saves a BASIC program to a file of type {\bf PRG}.
 
    \filenamedefinition
+
    The maximum length of the filename is 16 characters,
    not counting the optional save and replace character '@'
-   and the in-file drive definition..
-   If the first character of the filename is an at sign '@' it
+   and the in-file drive definition.
+   If the first character of the filename is an at sign '@', it
    is interpreted as a "save and replace" operation. It is not recommended
    to use this option on 1541 and 1571 drives, as they
    contain a "save and replace bug" in their DOS.
    The filename may be preceded by the drive number definition
-   "0:" or "1:" which is only relevant for dual drive disk units.
+   "0:" or "1:", which is only relevant for dual drive disk units.
 
    \unitdefinition
 
 \item [Remarks:] {\bf SAVE} is obsolete, implemented only for backwards compatibility.
                  {\bf DSAVE} should be used instead.
-                 The shortcut symbol {\bf $\leftarrow$} can be used in direct mode only.
+                 The shortcut symbol {\bf $\leftarrow$} (next to the \megakey{1} key). Can only be used in direct mode.
 
-\item [Example:] Using {\bf SAVE}
+\item [Examples:] Using {\bf SAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -7743,7 +7747,7 @@ DRAW PEN COLOUR =  1
                occupies the whole screen.
 
                {\bf SCNCLR colour} clears the graphic screen by
-               filling it it with the {\bf colour}.
+               filling it with the given {\bf colour}.
 
 \item [Example:] Using {\bf SCNCLR}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -7783,27 +7787,28 @@ DRAW PEN COLOUR =  1
 
    \unitdefinition
 
-   {\bf R} Recover a previously erased file.
-   This will only work, if there were no write operations
+   {\bf R} recover a previously erased file.
+   This will only work if there were no write operations
    between erasure and recovery, which may have altered the
    contents of the file.
 
-\item [Remarks:] {\bf SCRATCH filename} works similarly to
-                 {\bf ERASE filename}.
+\item [Remarks:] {\bf SCRATCH} works similarly to
+                 {\bf ERASE}.
 
                  The success and the number of erased files can
                  be examined by printing or using the system
-                 variable DS\$. The second last number, which
-                 reports the track number in case of an disk error,
-                 now reports the number of successfully erased files.
+                 variable {\bf DS\$}. The second last number, which
+                 normally reports the track number in case of a disk error,
+                 instead reports the number of successfully erased files.
 
-\item [Example:] Using {\bf SCRATCH}
+\item [Examples:] Using {\bf SCRATCH}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
   SCRATCH "DRM",U9 :REM SCRATCH FILE DRM ON UNIT 9
   PRINT DS$
   01, FILES SCRATCHED,01,00
+
   SCRATCH "OLD*"   :REM SCRATCH ALL FILES BEGINNING WITH "OLD"
   PRINT DS$
   01, FILES SCRATCHED,04,00
@@ -7828,16 +7833,16 @@ DRAW PEN COLOUR =  1
                 {\bf SCREEN OPEN [screen]} \\
                 {\bf SCREEN CLOSE [screen]}
 
-\item [Usage:] There are two approaches available in preparing the screen for
-               drawing of graphics: simplified approach, and detailed approach.
-
+\item [Usage:] There are two approaches available when preparing the screen for the
+               drawing of graphics: a simplified approach, and a detailed approach.
+\\
     \underline{{\bf Simplified approach}}:
 
                The first version of {\bf SCREEN} (which has pixel
                units for width and height) is the easiest
-               way to start a graphics screen and is the preferred
-               method, if only one single screen is needed (i.e., no need
-               for two screens to double-buffer). This does all
+               way to start a graphics screen, and is the preferred
+               method if only a single screen is needed (i.e., a second screen
+               isn't needed double buffering). This does all of the
                preparatory work for you, and will call commands such as
                {\bf GRAPHIC CLR}, {\bf SCREEN CLR}, {\bf SCREEN DEF},
                {\bf SCREEN OPEN} and, {\bf SCREEN SET}
@@ -7860,27 +7865,28 @@ DRAW PEN COLOUR =  1
                for width (320) and height (200)
                if the parsed argument is not valid.
 
-               This version of SCREEN starts with a predefined
-               palette and sets the background to black and the pen to white.
-               So the drawing can start immediately using the default setup
-               or palette and pen can be changed. For the detailed approach,
-               it will require the setting of palette colours and pen colour
+               This version of {\bf SCREEN} starts with a predefined
+               palette and sets the background to black, and the pen to white,
+               so the drawing can start immediately using the default setup.
+
+               On the other hand, the detailed approach
+               will require the setting of palette colours and pen colour
                before any drawing can be done.
 
-               The colour value must be in the range of 0 to 15.
+               The {\bf colour} value must be in the range of 0 to 15.
                Refer to the colour table under {\bf BACKGROUND} on page
-               \pageref{colourtable} for the {\bf colour} values and their corresponding colours.
+               \pageref{colourtable} for the colour values and their corresponding colours.
 
                When you are finished with your graphics screen, simply call
-               {\bf SCREEN CLOSE [screen]} to return to the text screen.
-
-  \underline{{\bf Detailed approach}}:
+               {\bf SCREEN CLOSE [screen]} to return to the text screen.\\
+%TODO there isn't enough spacing here and i dont know how to add some. \\ isn't working
+        \underline{{\bf Detailed approach}}:
 
                The other versions of
-               {\bf SCREEN} perform special actions, used for
-               advanced graphics programs, that open multiple screens
+               {\bf SCREEN} perform special actions used for
+               advanced graphics programs, that open multiple screens,
                or require double buffering. If you have chosen the simplified
-               approach, you will not require any of these versions below,
+               approach, you will not require any of the versions below,
                apart from {\bf SCREEN CLOSE}.
 
                 {\bf SCREEN CLR colour} (or {\bf SCNCLR colour}) \\
@@ -7888,13 +7894,13 @@ DRAW PEN COLOUR =  1
 
                 {\bf SCREEN DEF screen, width flag, height flag, depth} \\
                 Defines resolution parameters for the chosen
-                screen. The width flag and height flag indicate,
+                screen. The width flag and height flag indicate
                 whether high resolution (1) or low resolution (0) is chosen.
 
                 \begin{itemize}
                   \item {\bf screen} screen number 0-3
-                  \item {\bf width flag} 0-1 (0:320, 1:640 pixel)
-                  \item {\bf height flag} 0-1 (0:200, 1:400 pixel)
+                  \item {\bf width flag} 0-1 (0:320, 1:640 pixels)
+                  \item {\bf height flag} 0-1 (0:200, 1:400 pixels)
                   \item {\bf depth} 1-8 (2 - 256 colours)
                 \end{itemize}
 
@@ -7903,24 +7909,24 @@ DRAW PEN COLOUR =  1
 
                 {\bf SCREEN SET drawscreen, viewscreen} \\
                 Sets screen numbers
-                ( 0-3 ) for the drawing and the viewing screen. I.e.,
+                ( 0-3 ) for drawing and viewing. I.e.,
                 while one screen is being viewed, you can draw on a
-                separate screen and then later flip between them
-                (double-buffering).
+                separate screen and then later flip between them. This
+                is what's known as "double buffering".
 
-                {\bf SCREEN OPEN screen} \\
+                {\bf SCREEN OPEN screen [,variable]} \\
                 Allocates resources and
                 initialises the graphics context for the selected
-                screen (0-3). An optional variable name as
-                a further argument, gets the result of the
+                {\bf screen} (0-3). An optional {\bf variable} name as
+                a further argument gets the result of the
                 command that can be tested afterwards for success.
 
                 {\bf SCREEN CLOSE [screen] } \\
-                Closes screen (0-3) and frees resources. If no value given,
+                Closes {\bf screen} (0-3) and frees resources. If no value is given,
                 defaults to 0. Also note that upon closing screen 0,
                 {\bf PALETTE RESTORE} is automatically performed for you.
 
-\item [Example:] Using {\bf SCREEN}:
+\item [Examples:] Using {\bf SCREEN}:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -7967,7 +7973,7 @@ DRAW PEN COLOUR =  1
                 {\bf SET VERIFY ON|OFF}
 \item [Usage:]  {\bf SET DEF unit} redefines the default unit
                 for disk access, which is initialised to 8 by
-                the DOS. Commands, that do not explicitly
+                the DOS. Commands that do not explicitly
                 specify a unit, will use this default unit.
 
                 {\bf SET DISK old to new} is used to change
@@ -7980,7 +7986,7 @@ DRAW PEN COLOUR =  1
 \item [Remarks:] These settings are valid until a reset
                  or shutdown.
 
-\item [Example:] Using {\bf SET}:
+\item [Examples:] Using {\bf SET}:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -8006,12 +8012,14 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B4
 \item [Format:] {\bf SGN(numeric expression)}
-\item [Usage:] The {\bf SGN} function extracts the sign from
+\item [Usage:] Extracts the sign from
                the argument and returns it as a number:
 
-               -1 for a negative argument \\
-                0 for a zero              \\
-                1 for a positive, non-zero argument
+                \begin{itemize}
+                    \item {\bf -1} negative argument.
+                    \item {\bf -0} zero.
+                    \item {\bf 1} positive, non-zero argument.
+                \end{itemize}
 
 \item [Example:] Using {\bf SGN}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8034,15 +8042,14 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BF
 \item [Format:] {\bf SIN(numeric expression)}
-\item [Usage:] The {\bf SIN} function returns the sine of the
-               argument.
-               The argument is expected in units of {\bf [radians]}.
+\item [Usage:] Returns the sine of the {\bf numeric expression}.
+               The argument is expected in units of radians.
                The result is in the range (-1.0 to +1.0)
 
-\item [Remarks:] An argument in units of {\bf [degrees]}
-                 can be converted to {\bf [radians]}
-               by multiplication with $\pi/180$.
-\item [Example:] Using {\bf SIN}
+\item [Remarks:] An argument in units of degrees
+                 can be converted to radians
+               by multiplying it with $\pi/180$.
+\item [Examples:] Using {\bf SIN}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -8066,11 +8073,10 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0B
 \item [Format:] {\bf SLEEP seconds}
-\item [Usage:] {\bf SLEEP} pauses the execution
-               for the given duration. The argument is a
+\item [Usage:] Pauses execution for the given duration. The argument is a
                positive floating point number.
                The precision is 1 microsecond.
-\item [Remarks:] Pressing the {\bf STOP} key interrupts the sleep.
+\item [Remarks:] Pressing the \specialkey{RUN STOP} key interrupts the sleep.
 
 \item [Example:] Using {\bf SLEEP}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8098,7 +8104,7 @@ DRAW PEN COLOUR =  1
 \item [Format:] {\bf SOUND voice, freq, dur
                 [,dir ,min, sweep, wave, pulse]}
 
-\item [Usage:] plays a sound effect.
+\item [Usage:] Plays a sound effect.
 
                {\bf voice} voice number (1-6).
 
@@ -8112,20 +8118,20 @@ DRAW PEN COLOUR =  1
 
                {\bf sweep} sweep range (0-65535).
 
-               {\bf wave} waveform (0:triangle, 1:saw, 2:square,
+               {\bf wave} waveform (0:triangle, 1:sawtooth, 2:square,
                3:noise).
 
                {\bf pulse} pulse width (0-5095).
 
-For details on sound programming, read the {\bf SOUND} chapter.
+               Refer to the {\bf SOUND} command for more information.
 
 \item [Remarks:] {\bf SOUND} starts playing the sound
                effect and immediately continues with the execution
                of the next BASIC statement, while the sound effect
-               is played. This enables showing graphics or text
+               is played. This enables the showing of graphics or text
                and playing sounds simultaneously.
 
-\item [Example:] Using {\bf SOUND}
+\item [Examples:] Using {\bf SOUND}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -8148,15 +8154,15 @@ For details on sound programming, read the {\bf SOUND} chapter.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A6
 \item [Format:] {\bf SPC(columns)}
-\item [Usage:] The {\bf SPC} function skips {\bf columns}. \\
-               The effect is similar to printing {\bf column}
-               times a {\bf cursor right character}.
+\item [Usage:] Skips {\bf columns}. \\
+               The effect is similar to pressing \megakey{$\rightarrow$}
+               {\bf column} times.
 
 \item [Remarks:] The name of this function is derived from
                  {\bf SPACES}, which is misleading.
-                 The function prints {\bf cursor right characters}
-                 not {\bf SPACES}. The contents of those character
-                 cells, that are skipped, will not be changed.
+                 The function prints {\bf cursor right characters},
+                 not spaces. The contents of those character
+                 cells that are skipped, will not be changed.
 
 \item [Example:] Using {\bf SPC}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8188,10 +8194,10 @@ RUN
 \item [Format:] {\bf SPEED}
 \item [Usage:] Set CPU clock to 1 MHz, 3.5 MHz or 40 MHz.
 \item [Remarks:] Any numeric parameter, that is not 1.X or 3.X
-                 is discarded and the speed is set to maximum.
+                 is discarded and the speed is set to 40MHz.
 
-                 {\bf SPEED} has no effect, if {\bf POKE 0,65}
-                 was used before to force the speed to maximum.
+                {\bf SPEED} has no effect if {\bf POKE 0,65}
+                has previously been used to enable the highest speed (40MHz).
 
 \item [Example:] Using {\bf SPEED}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8219,10 +8225,10 @@ RUN
 \item [Usage:]  Sets multi-colour sprite colours.
 
                 {\bf SPRITE}, which sets the
-                attributes of a sprite, sets only the foreground
-                colour. For the setting of the  additional two colours,
+                attributes of a sprite, only sets the foreground
+                colour. For the setting of the additional two colours
                 of multi-colour sprites, {\bf SPRCOLOR} has
-                to be used.
+                to be used instead.
 
 \item [Remarks:] See also {\bf SPRITE}.
 
@@ -8249,9 +8255,9 @@ RUN
 \item [Format:] {\bf SPRITE CLR} \\
                 {\bf SPRITE LOAD filename [,D drive] [,U unit]} \\
                 {\bf SPRITE SAVE filename [,D drive] [,U unit]} \\
-                {\bf SPRITE no [switch, colour, prio, expx, expy, mode]}
+                {\bf SPRITE num [switch, colour, prio, expx, expy, mode]}
 \item [Usage:]  {\bf SPRITE CLR} clears all sprite data and sets all pointers
-                and attributes to default values.
+                and attributes to their default values.
 
                 {\bf SPRITE LOAD } loads sprite data from {\bf filename}
                 to sprite memory.
@@ -8261,25 +8267,25 @@ RUN
 
                 \filenamedefinition
 
-                The last form switches a sprite on or off and sets its attributes.
+                The last form switches a sprite on or off and sets its attributes:
 
-                {\bf no} sprite number
+                {\bf num} sprite number
 
-                {\bf switch} 1:ON, 0:OFF
+                {\bf switch} 1:on, 0:off
 
                 {\bf colour} sprite foreground colour
 
-                {\bf prio} sprite(1) or screen(0) priority
+                {\bf prio} sprite (1) or screen (0) priority
 
                 {\bf expx} 1:sprite X expansion
 
                 {\bf expy} 1:sprite Y expansion
 
-                {\bf mode} 1:multi colour sprite
+                {\bf mode} 1:multi-colour sprite
 
 \item [Remarks:] {\bf SPRCOLOR} must be used to set
                 additional colours
-                for multi colour sprites (mode = 1)
+                for multi-colour sprites (mode = 1).
 
 \item [Example:] Using {\bf SPRITE}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8314,15 +8320,15 @@ RUN
 
                 {\bf destination} sprite number or string variable.
 
-\item [Remarks:] Both, source and destination can be either
-                a sprite number or a string variable.
-                But they must not be both a string variable.
+\item [Remarks:] Source and destination can either be
+                a sprite number or a string variable,
+                but both cannot be a string variable at the same time.
                 A simple string assignment can be used for such
                 cases.
 
                 {\bf SPRSAV} can be used with the basic form of sprites
                 (C64 compatible) only. These sprites have a size of 64 bytes,
-                the length of the strings is 67.
+                and the amount of memory they consume is 67 bytes.
 
                 The extended sprites and the variable height sprites
                 cannot be used with {\bf SPRSAV}.
@@ -8351,8 +8357,7 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BA
 \item [Format:] {\bf SQR(numeric expression)}
-\item [Usage:] The {\bf SQR} function returns the square root
-               of the argument.
+\item [Usage:] Returns the square root of the numeric expression.
 
 \item [Remarks:] The argument must not be negative.
 \item [Example:] Using {\bf SQR}
@@ -8375,8 +8380,8 @@ RUN
 \index{BASIC 65 System Variables!ST}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf ST} is a reserved system variable.
-\item [Usage:]  {\bf ST} holds the status of the last input/output operation.
-                ST is set to zero, if there was no error, otherwise
+\item [Usage:]  {\bf ST} holds the status of the last I/O operation.
+                If {\bf ST} is zero, there was no error, otherwise
                 it is set to a device dependent error code.
 
 \item [Example:] Using {\bf ST}
@@ -8410,18 +8415,18 @@ RUN
                {\bf FOR} loop.
 
                The {\bf index} variable may be incremented or decremented
-               by a constant value on each iteration. The default
+               by a constant value after each iteration. The default
                is to increment the variable by 1.
                The index variable must be a real variable.
 
-               The {\bf start} value is used to initialise the index.
+               {\bf start} initial value of the index.
 
-               The {\bf end} value is used at the end of the loop
-               and controls, whether the next iteration will be started
-               or the loop exited.
+               {\bf end} is checked at the end of an iteration,
+               and determines whether another iteration will be performed,
+               or if the loop will exit.
 
-               The {\bf step} value defines the change applied to
-               to the index variable at the end of the loop.
+               {\bf step} defines the change applied to
+               to the {\bf index} at the end of a loop iteration.
                Positive step values increment it, while negative values
                decrement it. It defaults to 1.0 if not specified.
 
@@ -8429,9 +8434,9 @@ RUN
                or equal than {\bf start}, for negative increments
                {\bf end} must be less or equal than {\bf start}.
 
-               It is bad programming style to change the value
-               of the index variable inside the loop or to
-               jump into or out of the loop body with {\bf GOTO}.
+               It is bad programming practice to change the value
+               of the {\bf index} variable inside the loop or to
+               jump into or out of a loop body with {\bf GOTO}.
 
 \item [Example:] Using {\bf STEP}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8458,18 +8463,17 @@ RUN
 \item [Format:] {\bf STOP}
 \item [Usage:] Stops the execution
                of the BASIC program.
-               A message tells the line number of the break.
-               The {\bf READY.} prompt
-               appears and the computer goes into direct mode
+               A message will be displayed showing the line number of the break.
+               The \screentext{READY.} prompt
+               appears and the computer goes into direct mode,
                waiting for keyboard input.
-               The program execution can be resumed with {\bf CONT}.
 
 \item [Remarks:]
                All variable definitions are still valid after {\bf STOP}.
-               They may be inspected or altered and the
+               They may be inspected or altered, and the
                program may be continued with the {\bf CONT}
-               statement. Every editing of the program source
-               makes continuation impossible, however.
+               statement. However, any editing of the program source
+               makes continuation impossible.
 
 \item [Example:] Using {\bf STOP}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8494,7 +8498,7 @@ RUN
 \item [Format:] {\bf STR\$(numeric expression)}
 \item [Usage:] Returns a string
                containing the formatted value of the argument,
-               as if it were printed to the string.
+               as if it were {\bf PRINT}ed to the string.
 
 \item [Example:] Using {\bf STR\$}:
 \begin{tcolorbox}[colback=black,coltext=white]

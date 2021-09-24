@@ -153,7 +153,7 @@ string                  &    \$    & length = 0 .. 255 & AB\$ = "TEXT" \\
 
 Each array consumes the number of elements multiplied by the item size
 plus the size of the header (6 + 2 * dimensions) in memory.
-For example an array
+For example the array
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1023,7 +1023,7 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]  \$FE \$0C
 \item [Format:] {\bf CATALOG [filepattern] [,W] [,R] [,D drive] [,U unit] }
-\item [Format:] {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
+                {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file catalog/directory of the specified disk.
 
    The {\bf W} (Wide) parameter lists the directory three columns wide
@@ -1943,7 +1943,7 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \index{BASIC 65 Commands!DCLOSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0F
-\item [Format:] {\bf DCLOSE [\#channel] [,U unit] }
+\item [Format:] {\bf DCLOSE [\# channel] [,U unit] }
 \item [Usage:]
    Closes a single file or
    all files for the specified unit.
@@ -2164,8 +2164,8 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EE (DIR) \$FE \$29 (ECTORY)
 \item [Format:] {\bf DIR [filepattern] [,W] [,R] [,D drive] [,U unit] }
-\item [Format:] {\bf DIRECTORY [filepattern] [,W] [,R] [,D drive] [,U unit] }
-\item [Format:] {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
+                {\bf DIRECTORY [filepattern] [,W] [,R] [,D drive] [,U unit] }
+                {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file directory/catalog of the specified disk.
 
    The {\bf W} (Wide) parameter lists the directory three columns wide
@@ -2267,7 +2267,7 @@ on page \pageref{3columndirlisting}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$40
 \item [Format:] {\bf DISK command [,U unit] }
-\item [Format:] {\bf @ command [,U unit] }
+                {\bf @ command [,U unit] }
 \item [Usage:]
 
    Sends a command string to the specified disk unit.
@@ -2472,7 +2472,6 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \newpage
 \subsection{DOPEN}
 \index{DOPEN}
-\index{BASIC 65 Commands!DOPEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0D
 \item [Format:]
@@ -2593,16 +2592,17 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DS\$}
 \index{BASIC 65 System Variables!DS\$}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DS\$} is a reserved system variable
+\item [Format:] {\bf DS\$}
 \item [Usage:]  {\bf DS\$} holds the status of the last disk operation
                 in text form of the format:
                 Code,Message,Track,Sector.
 
                 {\bf DS\$} is coupled to the numeric variable {\bf DS}
-                It is updated, when {\bf DS} is used.
+                It is updated when {\bf DS} is used.
                 DS\$ is set to "00,OK,00,00", if there was no error, otherwise
                 it is set to a DOS error message (listed in the
                 disk manuals).
+\item[Remarks:] {\bf DS\$} is a reserved system variable.
 
 \item [Example:] Using {\bf DS\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2665,12 +2665,13 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{DT\$}
 \index{BASIC 65 System Variables!DT\$}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf DT\$} is a reserved system variable
+\item [Format:] {\bf DT\$}
 \item [Usage:]  {\bf DT\$} holds the current date and is updated before
                 each usage from the RTC (Real Time Clock).
                 The RTC can be set in the CONFIGURE menu.
                 The string {\bf DT\$} is formatted as:
                 "DD-MON-YYYY", for example: "04-APR-2021".
+\item[Remarks:] {\bf DT\$} is a reserved system variable.
 
 \item [Example:] Using {\bf DT\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2861,10 +2862,11 @@ EDMA 0, 80*25, 2048, $8000800 :REM COPY SCREEN TO ATTIC RAM
 \index{EL}
 \index{BASIC 65 System Variables!EL}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf EL} is a reserved system variable.
+\item [Format:] {\bf EL}
 \item [Usage:]  {\bf EL} has the value of the line where
                the most recent BASIC error occurred,
                 or the value -1 if there was no error.
+\item [Remarks:] {\bf EL} is a reserved system variable.
 
 This variable is typically used in a TRAP routine,
 where the error line is taken from {\bf EL}.
@@ -2894,8 +2896,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ELLIPSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$30
-\item [Format:] {\bf ELLIPSE xcentre, ycentre,
-                xradius, yradius, [,solid]}
+\item [Format:] {\bf ELLIPSE xcentre, ycentre, xradius, yradius, [,solid]}
 \item [Usage:] Draws an ellipse.
 
                {\bf xcentre} x coordinate of centre in pixels.
@@ -2950,7 +2951,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ELSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D5
-\item [Format:] {\bf IF expression THEN true clause ELSE false clause}
+\item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
 \item [Usage:] {\bf ELSE} is part of an {\bf IF}
                statement.
 
@@ -3039,8 +3040,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ENVELOPE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0A
-\item [Format:] {\bf ENVELOPE n, [attack,decay,sustain,release,
-                waveform,pw]}
+\item [Format:] {\bf ENVELOPE n, [attack, vdecay, vsustain, vrelease, vwaveform, vpw]}
 \item [Usage:] Used to define
                the parameters for the synthesis of a musical
                instrument.
@@ -3155,9 +3155,10 @@ where the error line is taken from {\bf EL}.
 \index{ER}
 \index{BASIC 65 System Variables!ER}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf ER} is a reserved system variable.
+\item [Format:] {\bf ER}.
 \item [Usage:]  {\bf ER} has the value of the most recent BASIC error that has
                occurred, or -1 if there was no error.
+\item [Remarks:] {\bf ER} is a reserved system variable.
 
 This variable is typically used in a TRAP routine,
 where the error number is taken from {\bf ER}.
@@ -3649,7 +3650,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \index{BASIC 65 Functions!FREAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1C
-\item [Format:] {\bf FREAD\#channel, pointer, size}
+\item [Format:] {\bf FREAD\# channel, pointer, size}
 \item [Usage:] Reads {\bf size} bytes from {\bf channel} to memory
                starting at the 32-bit address {\bf pointer}.
 
@@ -3716,7 +3717,7 @@ POINTER(XY) returns the address of the scalar variable XY.
 \index{BASIC 65 Functions!FWRITE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1E
-\item [Format:] {\bf FWRITE\#channel, pointer, size}
+\item [Format:] {\bf FWRITE\# channel, pointer, size}
 \item [Usage:] Writes {\bf size} bytes to {\bf channel} from memory
                starting at the 32-bit address {\bf pointer}.
 
@@ -3894,7 +3895,7 @@ POINTER(XY) returns the address of the scalar variable XY.
 \item [Token:] \$CB \$36 \$34 (GO token and 64 )
 \item [Format:] {\bf GO64}
 \item [Usage:] Switches the
-               MEGA65 to C64 compatible mode. If you're in direct
+               MEGA65 to C64-compatible mode. If you're in direct
                mode, a security prompt \screentext{ARE YOU SURE?}
                is displayed, which must be responded with \screentext{Y} to
                continue. \screentext{SYS58552} can be used to switch back
@@ -4214,7 +4215,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \index{BASIC 65 Commands!IF}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$8B
-\item [Format:] {\bf IF expression THEN true clause ELSE false clause}
+\item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
 \item [Usage:] Starts a conditional execution
                statement.
 
@@ -4870,7 +4871,7 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$93
 \item [Format:] {\bf LOAD filename [unit [,flag]]}
-\item [Format:] {\bf / filename [ unit [,flag]]}
+                {\bf / filename [ unit [,flag]]}
 \item [Usage:]
 
    A common use of the shortcut symbol {\bf /} is to quickly load
@@ -5443,7 +5444,7 @@ the {\bf MEGA65 Book}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A2
 \item [Format:] {\bf NEW}
-\item [Format:] {\bf NEW RESTORE}
+                {\bf NEW RESTORE}
 \item [Usage:]  Resets all BASIC parameters to their default values.
                 Since {\bf NEW} resets parameters and pointers,
                 (but does not overwrite the address
@@ -5682,8 +5683,7 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 \index{BASIC 65 Commands!OPEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9F
-\item [Format:]
-  {\bf OPEN channel, first address [,secondary address [,filename]]}
+\item [Format:] {\bf OPEN channel, first address [,secondary address [,filename]]}
 \item [Usage:]
    Opens an input/output channel for a device.
 
@@ -6807,7 +6807,7 @@ RUN
 \index{BASIC 65 Commands!RECORD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$12
-\item [Format:] {\bf RECORD\#channel, record, [,byte]}
+\item [Format:] {\bf RECORD\# channel, record, [,byte]}
 \item [Usage:]  Positions the read/write pointer of a relative file.
 
                 {\bf channel} number, which was given to a previous
@@ -7690,7 +7690,7 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$94
 \item [Format:] {\bf SAVE filename [,unit] }
-\item [Format:] {\bf $\leftarrow$ filename [,unit] }
+                {\bf $\leftarrow$ filename [,unit] }
 \item [Usage:]
    "Saves a BASIC program to a file of type {\bf PRG}.
 
@@ -8715,7 +8715,7 @@ RUN
 \index{BASIC 65 Commands!THEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A7
-\item [Format:] {\bf IF expression THEN true clause ELSE false clause}
+\item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
 \item [Usage:] {\bf THEN} is part of an {\bf IF} statement.
 
                {\bf expression} is a logical or numeric expression.
@@ -8766,7 +8766,7 @@ RUN
 \index{TI}
 \index{BASIC 65 System Variables!TI}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf TI} is a reserved system variable.
+\item [Format:] {\bf TI}
 \item [Usage:]  {\bf TI} is a high precision timer with
                 the unit seconds and the
                 resolution of 1 micro second.
@@ -8774,6 +8774,7 @@ RUN
                 It is started or reset with
                 {\bf CLR TI} and can be accessed in the same way as any
                 other variable in expressions.
+\item [Remarks:] {\bf TI} is a reserved system variable.
 
 \item [Example:] Using {\bf TI}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8796,7 +8797,7 @@ RUN
 \index{TI\$}
 \index{BASIC 65 System Variables!TI\$}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf TI\$} is a reserved system variable.
+\item [Format:] {\bf TI\$}
 \item [Usage:]  {\bf TI\$} holds the time information of the RTC
                 (Real Time Clock)
                 in text form of the format:
@@ -8810,6 +8811,8 @@ RUN
                 The RTC can be set in the CONFIGURE menu.
 
 \item [Remarks:]
+                {\bf TI\$} is a reserved system variable.\\
+                \\
                 It is possible to access the RTC registers directly
                 via PEEK. The start address of the registers is at
                 \$FFD7110. For example:
@@ -9435,7 +9438,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \item [Format:] {\bf WINDOW left, top, right, bottom [,clear]}
 \item [Usage:] Sets the text screen window.
 
-                 {\bf left} = left column
+                 {\bf left} left column
 
                  {\bf top} top row
 

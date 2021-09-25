@@ -2955,20 +2955,20 @@ where the error line is taken from {\bf EL}.
 \item [Usage:] {\bf ELSE} is part of an {\bf IF}
                statement.
 
-               {\bf expression} a logical or numeric expression.
-               A numeric expression is evaluated as {\bf FALSE}
-               if the value is zero and {\bf TRUE} for any non-zero
-               value.
+                {\bf expression} a logical or numeric expression.
+                A numeric expression is evaluated as {\bf FALSE}
+                if the value is zero and {\bf TRUE} for any non-zero
+                value.
 
-               {\bf true clause} one or more statements starting
-               directly after {\bf THEN} on the same line.
-               A line number after {\bf THEN} performs a
-               {\bf GOTO} to that line instead.
+                {\bf true clause} one or more statements starting
+                directly after {\bf THEN} on the same line.
+                A line number after {\bf THEN} performs a
+                {\bf GOTO} to that line instead.
 
-               {\bf false clause} one or more statements starting
-               directly after {\bf ELSE} on the same line.
-               A linenumber after {\bf ELSE} performs a
-               {\bf GOTO} to that line instead.
+                {\bf false clause} one or more statements starting
+                directly after {\bf ELSE} on the same line.
+                A linenumber after {\bf ELSE} performs a
+                {\bf GOTO} to that line instead.
 
 \item [Remarks:]
                The standard {\bf IF ... THEN ... ELSE} structure
@@ -4227,20 +4227,20 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Usage:] Starts a conditional execution
                statement.
 
-               {\bf expression} is a logical or numeric expression.
-               A numeric expression is evaluated as {\bf FALSE}
-               if the value is zero and {\bf TRUE} for any non-zero
-               value.
+                {\bf expression} a logical or numeric expression.
+                A numeric expression is evaluated as {\bf FALSE}
+                if the value is zero and {\bf TRUE} for any non-zero
+                value.
 
-               {\bf true clause} are one or more statements starting
-               directly after {\bf THEN} on the same line.
-               A linenumber after {\bf THEN} performs a
-               {\bf GOTO} to that line.
+                {\bf true clause} one or more statements starting
+                directly after {\bf THEN} on the same line.
+                A line number after {\bf THEN} performs a
+                {\bf GOTO} to that line instead.
 
-               {\bf false clause} are one or more statements starting
-               directly after {\bf ELSE} on the same line.
-               A linenumber after {\bf ELSE} performs a
-               {\bf GOTO} to that line.
+                {\bf false clause} one or more statements starting
+                directly after {\bf ELSE} on the same line.
+                A linenumber after {\bf ELSE} performs a
+                {\bf GOTO} to that line instead.
 
 \item [Remarks:]
                The standard {\bf IF ... THEN ... ELSE} structure
@@ -8535,75 +8535,51 @@ THE VALUE OF PI IS 3.14159265
 \item [Token:] \$9E
 \item [Format:] {\bf SYS address [, areg, xreg, yreg, zreg, sreg]}
 \item [Usage:]  Calls a machine language subroutine.
-                This can be a ROM resident kernel or BASIC subroutine
-                or a routine in RAM, which was loaded or poked
-                to RAM before.
+                This can be a ROM-resident kernel or BASIC subroutine,
+                or any other routine which has previously been loaded or {\bf POKE}d
+                to RAM.
 
-               The CPU registers are loaded with the arguments,
-               if specified. Then a subroutine call {\bf JSR address}
-               is performed. The called routine should exit with
-               a {\bf RTS} instruction. Then the register contents
-               will be saved and the execution of the BASIC program
-               continues.
+               The CPU registers are loaded with the arguments
+               (if they're specified), then a subroutine call ({\bf JSR address})
+               is performed. {\bf JSR} is an assembly language instruction that is short
+               for {\bf J}ump to {\bf S}ub{\bf R}outine. The called routine should exit with
+               an {\bf RTS} instruction. {\bf RTS} is another assembly language instruction that is
+               short for {\bf R}eturn from {\bf S}ub{\bf R}outine. After the subroutine has returned,
+               the register contents will be saved, and the execution of the BASIC program will
+               continue.
 
                {\bf address} start address of the subroutine.
 
-               {\bf areg} variable gets accumulator value.
+               {\bf areg} CPU accumulator value.
 
-               {\bf xreg} variable gets X register value.
+               {\bf xreg} CPU X register value.
 
-               {\bf yreg} variable gets Y register value.
+               {\bf yreg} CPU Y register value.
 
-               {\bf zreg} variable gets Z register value.
+               {\bf zreg} CPU Z register value.
 
-               {\bf sreg} variable gets status register value.
+               {\bf sreg} Status register value.
 
-                 {\bf SYS} uses the current bank
-                 as set with {\bf BANK}.
+
 
 \item [Remarks:] The register values after a {\bf SYS} call are stored
-                 in system memory. This enables the
-                 {\bf RREG} to retrieve these values.
+                 in system memory. {\bf RREG} can be used to retrieve these values.
 
-\item [Remarks:] The system leaves the memory setup in a somewhat
-  strange state, which may or may not be a bug in BASIC 65.
-  If you want to write an assembly routine that can
-  access an entire memory bank, but with I/O mapped, you need to set
-  the CPU register \$01, as you would on the C64, and then also use the 4510's
-  MAP instruction to set the memory map.  For BANK 0, you could use
-  the following sequence:
+                 {\bf SYS} uses the current bank, which has been set with {\bf BANK}.
 
-\newpage
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  ; Disable interrupts, because the C65 ROM won't be visible to
-  ; handle them.
-  SEI
-  ; Make IO visible
-  LDA #$37
-  STA $01
-  ; Prepare for MAP operation that resets memory map to BANK 0
-  LDA #$00
-  TAX
-  TAY
-  TAZ
-  MAP
-  ; End MAPing sequence
-  NOP
-  ; Now comes your routine!
-loop:
-  INC $D020
-  JMP loop
-\end{verbatim}
-\end{tcolorbox}
+                 The {\bf SYS} instruction on the MEGA65 is completely different to the
+                 well known {\bf SYS} command on the C64. It is not possible to jump
+                 to an address after the BASIC program text in bank 0 (and execute
+                 a machine language subroutine there), as bank 0 is 64K of
+                 RAM with no I/O or kernel mapped in.\\
+                 \\
+                 Using {\bf SYS} properly (i.e. without corrupting BASIC RAM, and having
+                 access to kernel routines and I/O) requires
+                 some technical skill, which is out of scope of the User's Guide.
+                 However, if you would like to learn more, there is a lot more
+                 information and examples in the MEGA65 Developer Guide.
 
-\item [Remarks:] You can alternatively use BANK 128, and place your
-  routine in the lower-half of RAM, e.g., in the unallocated memory
-  area at \$1600 -- \$1FFF
 
-\item [Remarks:] {\bf RREG} can be useful for reading the
-  register values when your routine completes.
 
 
 \item [Example:] Using {\bf SYS}:
@@ -8632,9 +8608,9 @@ loop:
 \item [Token:] \$A3
 \item [Format:] {\bf TAB(column)}
 \item [Usage:] Positions the cursor at {\bf column}. \\
-               This is only done, if the target column is right
-               of the current cursor column, otherwise nothing
-               happens. The column count starts with 0 for the
+               This is only done if the target column is {\it right}
+               of the current cursor column, otherwise the cursor
+               will not move. The column count starts with 0 being the
                left most column.
 
 \item [Remarks:] This function must not be confused with the
@@ -8676,10 +8652,11 @@ RUN
 \item [Usage:] Returns the tangent of the
                argument.
                The argument is expected in units of {\bf [radians]}.
+               The result is in the range (-1.0 to +1.0)
 
-\item [Remarks:] An argument in units of {\bf [degrees]}
-                 can be converted to {\bf [radians]}
-               by multiplication with $\pi/180$.
+\item [Remarks:] An argument in units of degrees
+                 can be converted to radians
+                 by multiplying it with $\pi/180$.
 \item [Example:] Using {\bf TAN}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -8737,20 +8714,20 @@ RUN
 \item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
 \item [Usage:] {\bf THEN} is part of an {\bf IF} statement.
 
-               {\bf expression} is a logical or numeric expression.
-               A numeric expression is evaluated as {\bf FALSE}
-               if the value is zero and {\bf TRUE} for any non-zero
-               value.
+                {\bf expression} is a logical or numeric expression.
+                A numeric expression is evaluated as {\bf FALSE}
+                if the value is zero and {\bf TRUE} for any non-zero
+                value.
 
-               {\bf true clause} are one or more statements starting
-               directly after {\bf THEN} on the same line.
-               A linenumber after {\bf THEN} performs a
-               {\bf GOTO} to that line.
+                {\bf true clause} one or more statements starting
+                directly after {\bf THEN} on the same line.
+                A line number after {\bf THEN} performs a
+                {\bf GOTO} to that line instead.
 
-               {\bf false clause} are one or more statements starting
-               directly after {\bf ELSE} on the same line.
-               A linenumber after {\bf ELSE} performs a
-               {\bf GOTO} to that line.
+                {\bf false clause} one or more statements starting
+                directly after {\bf ELSE} on the same line.
+                A linenumber after {\bf ELSE} performs a
+                {\bf GOTO} to that line instead.
 
 \item [Remarks:]
                The standard {\bf IF ... THEN ... ELSE} structure
@@ -8787,13 +8764,13 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf TI}
 \item [Usage:]  {\bf TI} is a high precision timer with
-                the unit seconds and the
-                resolution of 1 micro second.
+                a resolution of 1 micro second.
 
                 It is started or reset with
-                {\bf CLR TI} and can be accessed in the same way as any
+                {\bf CLR TI}, and can be accessed in the same way as any
                 other variable in expressions.
-\item [Remarks:] {\bf TI} is a reserved system variable.
+\item [Remarks:] {\bf TI} is a reserved system variable. The value in {\bf TI}
+                 is the number of seconds (with 6 decimal places) since it was last restarted.
 
 \item [Example:] Using {\bf TI}
 \begin{tcolorbox}[colback=black,coltext=white]

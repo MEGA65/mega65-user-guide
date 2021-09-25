@@ -2435,7 +2435,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                the start of a BASIC loop.
                Using {\bf DO} and {\bf LOOP} alone without any
-               modifiers creates an infinite loop, which can only be left
+               modifiers creates an infinite loop, which can only be exited
                by the {\bf EXIT} statement. The loop can be
                controlled by adding {\bf UNTIL} or {\bf WHILE}
                after the {\bf DO} or {\bf LOOP}.
@@ -2667,7 +2667,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf DT\$}
 \item [Usage:]  {\bf DT\$} holds the current date and is updated before
-                each usage from the RTC (Real Time Clock).
+                each usage from the RTC (Real-Time Clock).
                 The RTC can be set in the CONFIGURE menu.
                 The string {\bf DT\$} is formatted as:
                 "DD-MON-YYYY", for example: "04-APR-2021".
@@ -5098,7 +5098,7 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
-                modifiers creates an infinite loop, which can only be left
+                modifiers creates an infinite loop, which can only be exited
                 by the {\bf EXIT} statement. The loop can be
                 controlled by adding {\bf UNTIL} or {\bf WHILE}
                 after the {\bf DO} or {\bf LOOP}.
@@ -6478,7 +6478,7 @@ Results in:
                     arguments of the list. Other than the comma character,
                     it does not insert any additional characters.
                     A semicolon at the end of the argument list suppresses
-                    the automatic return (newline) character.
+                    the automatic return (carriage return) character.
                 \end{itemize}
 \item [Remarks:] The {\bf SPC} and {\bf TAB} functions
                  may be used in the argument list
@@ -6538,7 +6538,7 @@ Results in:
                     arguments of the list. Other than the comma character,
                     it does not insert any additional characters.
                     A semicolon at the end of the argument list suppresses
-                    the automatic return (newline) character.
+                    the automatic return (carriage return) character.
                 \end{itemize}
 
 \item [Remarks:] The {\bf SPC} and {\bf TAB} functions
@@ -6582,7 +6582,7 @@ Results in:
                 call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
                 If no channel is specified, the output goes to the screen.
 
-                {\bf format} a string variable or a string constant
+                {\bf format} string variable or a string constant
                 which defines the rules for formatting.
                 When using a number as the {\bf argument}, formatting can be done in either
                 CBM style, providing a pattern such as {\ttfamily \#\#\#.\#\#}
@@ -8797,21 +8797,23 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf TI\$}
 \item [Usage:]  {\bf TI\$} stores the time information of the RTC
-                (Real Time Clock) in text form, using the format:
+                (Real-Time Clock) in text form, using the format:
                 "hh:mm:ss". It is updated with every use.
 
                 {\bf TI\$} is a read-only variable, which
                 reads the registers of the RTC and formats the values
                 to a string.
 
-                The RTC can be set in the CONFIGURE menu, which
-
 \item [Remarks:]
                 {\bf TI\$} is a reserved system variable.\\
                 \\
                 It is possible to access the RTC registers directly
-                via PEEK. The start address of the registers is at
+                via {\bf PEEK}. The start address of the registers is at
                 \$FFD7110. For example:
+
+                For more information on how to set the Real-Time Clock,
+                refer to the Configuring Utility section on page
+                \pageref{sec:configuration-utility}.
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -8884,15 +8886,17 @@ PRINT DT$;TI$
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D7
 \item [Format:] {\bf TRAP [line number]}
-\item [Usage:]  {\bf TRAP} with a valid line number activates the
-                BASIC error handler with following consequences:
-                In case of an error the BASIC interpreter does not
-                stop with an error message, but saves execution
-                pointer and line number, places the error number into the
-                system variable {\bf ER} and jumps to the line number
-                of {\bf TRAP}. The trapping routine can examine
-                {\bf ER} and decide, whether to {\bf STOP}
-                 or {\bf RESUME} execution.
+\item [Usage:]  {\bf TRAP} with a valid line number registers the
+                BASIC error handler. When a program has an error handler, the
+                run-time behaviour changes. Normally, BASIC will exit the program
+                and display an error message.\\
+                \\
+                However, if a BASIC error handler has been registered, BASIC will
+                instead save the execution pointer and line number, place the
+                error number into the system variable {\bf ER}, and {\bf GOTO}
+                the line number of {\bf TRAP}. The trapping routine can examine
+                {\bf ER} and process the error. From this, the {\bf TRAP} error
+                handler can then decide whether to {\bf STOP} or {\bf RESUME} execution.
 
                 {\bf TRAP} with no argument disables the error handler.
                 Errors will be handled by the normal system routines.
@@ -8916,6 +8920,7 @@ PRINT DT$;TI$
 % TROFF
 % *****
 
+%TODO can someone pleaes document what trace mode is?
 \newpage
 \subsection{TROFF}
 \index{TROFF}
@@ -8993,8 +8998,8 @@ READY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$27
 \item [Format:] {\bf TYPE filename [,D drive] [,U unit] }
-\item [Usage:] types the contents of a file containing
-      text in PETSCII code.
+\item [Usage:] Prints the contents of a file containing
+               text encoded as PETSCII.
 
    \filenamedefinition
 
@@ -9003,12 +9008,13 @@ READY.
    \unitdefinition
 
 \item [Remarks:] {\bf TYPE} cannot be used to type
-                 BASIC programs. Use {\bf LIST} for programs.
+                 BASIC programs. Use {\bf LIST} for programs instead.
                  {\bf TYPE} can only process {\bf SEQ} or {\bf USR} files
                  containing records of PETSCII text, delimited
-                 by the {\bf CR} = CHR\$(13) character.
-                 Refer to the {\bf CHR\$} command on page \pageref{chrcommand}
-                 for more information.
+                 by the CR character.
+
+                 The CR character is also knows as carriage return, and can
+                 be created by using {\bf CHR\$(13)} .
 
 \item [Example:] Using {\bf TYPE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9037,14 +9043,14 @@ READY.
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
-                modifiers creates an infinite loop, which can only be left
+                modifiers creates an infinite loop, which can only be exited
                 by the {\bf EXIT} statement. The loop can be
                 controlled by adding {\bf UNTIL} or {\bf WHILE}
                 after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
                exits the current loop only.
-\item [Example:] Using {\bf DO} and {\bf LOOP}.
+\item [Examples:] Using {\bf DO} and {\bf LOOP}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -9078,48 +9084,42 @@ READY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FB
 \item [Format:] {\bf PRINT [\# channel,] USING format;argument}
-\item [Usage:]  Parses the format string and evaluates the argument.
+\item [Usage:]  Parses the {\bf format} string and evaluates the argument.
                 The argument can be either a string or a numeric value.
-                The formatting of the resulting output is directed
-                by the format string.
+                The format of the resulting output is directed
+                by the {\bf format} string.
 
                 {\bf channel} number, which was given to a previous
                 call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
                 If no channel is specified, the output goes to the screen.
 
-                {\bf format} : A string variable or a string constant
+                {\bf format} string variable or a string constant
                 which defines the rules for formatting.
                 When using a number as the {\bf argument}, formatting can be done in either
-                CBM style providing a pattern such as
-                    {\ttfamily "\#\#\#.\#\#"}
-                or in C style using <width.precision> specifier such as
-                    {\ttfamily \%3D \%7.2F \%4X }.
+                CBM style, providing a pattern such as {\ttfamily \#\#\#.\#\#}
+                or in C style using a <width.precision> specifier, such as {\ttfamily \%3D \%7.2F \%4X }.
 
-                {\bf numeric argument} The number to be formatted.
+                {\bf argument} the number to be formatted. If the argument does not fit into the format
+                e.g. trying to print a 4 digit variable into {\ttfamily \#\#\#}
+                a series of asterisks will replace the format character.
 
-                If the argument does not fit into the format
-                e.g. trying to print a 4 digit varaible into "\#\#\#"
-                a series of asterisks fills the format character.
-
-                {\bf string argument} : The string may consist of printable
+                {\bf argument} may consist of printable
                 characters and control codes. Printable characters
                 are printed to the cursor position, while control
                 codes are executed.
-                The number of '\#' characters sets the width of the output.
+                The number of {\ttfamily \#} characters sets the width of the output.
                 If the first character of the format string
-                is a '=' sign, the argument string is centered within
-                the width.
+                is an equals '=' sign, the argument string is centered.
                 If the first character of the format string
-                is a '>' sign, the argument string is right justified within
-                the width.
+                is a greater than '>' sign, the argument string is right justified.
 
-\item [Remarks:] The format string is applied for one argument only.
-                 But it is possible to append more than one
-                 USING format;argument sequence.
+\item [Remarks:] The format string is applied for one argument only,
+                 but it is possible to append more
+                 {\bf USING format;argument} sequences.
 
 
 \newpage
-\item [Example:] Using {\bf PRINT\# USING}
+\item [Example:] {\bf USING} with a corresponding {\bf PRINT\#}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -9156,18 +9156,21 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B7
 \item [Format:] {\bf USR(numeric expression)}
-\item [Usage:]  Using the function {\bf USR(X)} in a numeric
-                expression, puts the argument into the
-                floating point accumulator 1 and jumps to the
-                address \$02F7 expecting the address of the
-                machine language user routine in \$02F8 - \$02F9.
-                After executing the user routine, BASIC returns
-                the contents of the floating point accumulator 1,
-                which should be set by the user routine..
+\item [Usage:] Invokes an assembly language routine whose memory
+               address is stored at  \$02F8 - \$02F9. The
+               result of the {\bf numeric expression}
+               is written to floating point accumulator 1.
+
+               After executing the assembly routine, BASIC returns
+               the contents of the floating point accumulator 1.
 
 \item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
                  Banks greater than 127 are used to access I/O, and the underlying SYSTEM hardware such as the
                  VIC, SID, FDC, etc.
+
+                 If you would like to learn more, there is a lot more
+                 information and examples in the MEGA65 Developer Guide.
+
 \item [Example:] Using {\bf USR}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9198,8 +9201,8 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 
                This function acts in the same way as reading from a string.
 
-\item [Remarks:] A string containing not a valid number
-                 will not produce an error but return 0 as result.
+\item [Remarks:] A string containing an invalid number
+                 will not produce an error, but return 0 as the result instead.
 
 \item [Example:] Using {\bf VAL}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9231,22 +9234,18 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$95
 \item [Format:] {\bf VERIFY filename [,unit [,binflag]] }
-\item [Usage:]
-   {\bf VERIFY} is obsolete in BASIC 65, where the commands
-   {\bf DVERIFY} and {\bf BVERIFY} are better alternatives.
+\item [Usage:] {\bf VERIFY} with no {\bf binflag} compares a BASIC program
+                in memory with a disk file of type {\bf PRG}.
+                It does the same as {\bf DVERIFY}, but the syntax is different.
 
-   {\bf VERIFY} with no {\bf binflag} compares a BASIC program
-   in memory with a disk file of type {\bf PRG}.
-   It does the same as {\bf DVERIFY}, but with a different syntax.
+               {\bf VERIFY} with {\bf binflag} compares a binary file
+               in memory with a disk file of type {\bf PRG}.
+               It does the same as {\bf BVERIFY}, but the syntax is different.
 
-   {\bf VERIFY} with {\bf binflag} compares a binary file
-   in memory with a disk file of type {\bf PRG}.
-   It does the same as {\bf BVERIFY}, but with a different syntax.
+               {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
+               a string expression.
 
-   {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
-   a string expression.
-
-   \unitdefinition
+               \unitdefinition
 
 \item [Remarks:]
    {\bf VERIFY} can only test for equality. It gives no information
@@ -9254,7 +9253,11 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
     {\bf VERIFY} exits with either the message \screentext{OK}
    or with \screentext{VERIFY ERROR}.
 
-\item [Example:] Using {\bf VERIFY}
+   {\bf VERIFY} is obsolete in BASIC 65. It is only here for backwards
+    compatibility. It is recommended to use {\bf DVERIFY} and {\bf BVERIFY} instead.
+
+
+\item [Examples:] Using {\bf VERIFY}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -9276,18 +9279,16 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$31
 \item [Format:] {\bf VIEWPORT <CLR|DEF> X, Y, DX, DY}
-\item [Usage:]
-   {\bf VIEWPORT} must be followed either by
-   {\bf CLR} or {\bf DEF}, and four integer parameters.
+\item [Usage:] {\bf VIEWPORT DEF} defines a clipping region with the origin
+               (upper left position) set to {\bf X,Y} and the width {\bf DX}
+               and the height {\bf DY}.
+               All following graphics commands are limited to the {\bf VIEWPORT}
+               region.\\
+               \\
+               {\bf VIEWPORT CLR} resets the clipping region to full screen.
 
 \item [Remarks:]
-   {\bf VIEWPORT DEF} defines a clipping region wit the origin
-   (upper left position) set to {\bf X,Y} and the width {\bf DX}
-   and the height {\bf DY}.
-   All following graphics commands are limited to the {\bf VIEWPORT}
-   region.
-
-   {\bf VIEWPORT CLR} resets the clipping region to full screen.
+   {\bf VIEWPORT} must be followed either by {\bf CLR} or {\bf DEF}, and four integer parameters.
 
 \item [Example:] Using {\bf VIEWPORT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9347,22 +9348,23 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
                {\bf address} the address at the current memory
                bank, which is read.
 
-               {\bf andmask} and mask applied.
+               {\bf andmask} AND mask applied.
 
-               {\bf xormask} xor mask applied.
+               {\bf xormask} XOR mask applied.
 
                {\bf WAIT} reads the byte value from {\bf address}
                and applies the masks: \\
-               result = PEEK(address) AND andmask XOR xormask
+               {\bf result = PEEK(address) AND andmask XOR xormask}.
 
                The pause ends if the result is non-zero, otherwise
-               the reading is repeated. This may hang the computer
-               infinitely, if the condition is never met.
+               reading is repeated. This may hang the computer
+               indefinitely if the condition is never met.
 
 \item [Remarks:] {\bf WAIT} is typically used to examine hardware
                registers or system variables
                and wait for an event, e.g. joystick event,
-               mouse event, keyboard press or a special raster line.
+               mouse event, keyboard press or a speficic raster line
+               is about to be drawn to the screen.
 
 \item [Example:] Using {\bf WAIT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9391,14 +9393,14 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
-                modifiers creates an infinite loop, which can only be left
+                modifiers creates an infinite loop, which can only be exited
                 by the {\bf EXIT} statement. The loop can be
                 controlled by adding {\bf UNTIL} or {\bf WHILE}
                 after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
                exits the current loop only.
-\item [Example:] Using {\bf DO} and {\bf LOOP}
+\item [Examples:] Using {\bf DO} and {\bf LOOP}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -9444,15 +9446,14 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 
                  {\bf clear} clear text window flag
 
-                 The row values count from 0 to 24.
+\item [Remarks:] The row values count from 0 to 24.
+                 The column values count from 0 to either 39 or 79.
+                 This depends on the screen mode.
 
-                 The column values count from 0 to 79 or 39
-                 depending on the screen mode.
-
-\item [Remarks:] There can be only one window on the screen.
-                 Pressing the HOME key twice or printing
-                 CHR\$(19)CHR\$(19) will reset the window
-                 to the default full screen.
+                 There can be only one window on the screen.
+                 Pressing \specialkey{CLR HOME} twice or {\bf PRINT}ing
+                 {\bf CHR\$(19)CHR\$(19)} will reset the window
+                 to the default (full screen).
 
 \item [Example:] Using {\bf WINDOW}
 \begin{tcolorbox}[colback=black,coltext=white]

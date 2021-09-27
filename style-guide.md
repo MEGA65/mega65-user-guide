@@ -49,8 +49,8 @@ Below are some simple MEGA65 styling rules:
   * The external microSD slot works similarly to the internal SD card slot. Not `external microSD slot works like the 
     internal SD card slot`.
 
-* Turn on, not power up or switch on. This is how it's worded in the C64 User Manual.
-    * When you turn on your MEGA65, the following screen will appear.
+* Switch on, not power up or turn on.
+    * When you switch on your MEGA65, the following screen will appear.
 
 * Will, not should. Saying that the MEGA65 _should_ do something implies that it might
   not do it. Saying will is more confident.

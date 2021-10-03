@@ -862,6 +862,24 @@ BOOT
 \item [Usage:]
    "Binary SAVE" saves a memory range to a file of type {\bf PRG}.
 
+   {\bf BSAVE} has two modes:
+   The flat memory address mode can be used to save a memory block
+   in the 28-bit (256 MB) address range where RAM is installed.
+   This includes the standard RAM banks 0 to 5, but also
+   the 8MB so called "attic RAM" at address \$8000000.
+
+   This mode is triggered by specifying addresses for the start
+   and end parameter P, that are
+   larger than \$FFFF. The bank parameter is ignored in this mode.
+   This flat memory mode allows saving ranges greater than 64K.
+
+   For compatibility reasons with older BASIC versions, {\bf BSAVE}
+   accepts the syntax with 16-bit addresses at P and a bank number at B as well.
+   The attic RAM is out of range for this compatibility mode.
+   This mode cannot cross bank boundaries, start and end address
+   are supposed to refer to the same bank.
+
+
    \filenamedefinition
    If the first character of the filename is an at sign '@', it
    is interpreted as a "save and replace" operation. It is not recommended

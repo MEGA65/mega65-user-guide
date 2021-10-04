@@ -907,6 +907,13 @@ BOOT
    number, it must be set in parenthesis, as shown
    in the third and fourth line of the examples.
 
+   The {\bf PRG} file format, that is used by {\bf BSAVE}
+   requires the load address to be written to the first two bytes.
+   If the saving is done with a bank number, that is not zero
+   or a start address higher than \$FFFF, this information does not
+   fit. For compatibility reasons, only the the two low order bytes
+   are written. Loading the file with the {\bf BLOAD} command
+   requires then the full specification of the load address as parameter.
 
 \item [Examples:] Using {\bf BSAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1743,7 +1750,7 @@ CONT
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F4
 \item [Format:] {\bf COPY source [,D drive] [,U unit] TO
-                target [,D drive] [,U unit] }
+                [target] [,D drive] [,U unit] }
 \item [Usage:]
    Copies the contents of
    {\bf source} to {\bf target}.
@@ -1762,13 +1769,13 @@ CONT
 
    If none or one unit number is given, or the unit numbers before and after
    the TO token are equal, {\bf COPY} is executed on the disk drive
-   itself, and the source and target files are will be on the same disk.
+   itself, and the source and target files will be on the same disk.
 
    If the source unit (before TO) is different to the target unit (after TO),
    {\bf COPY} is executed in MEGA65 BASIC by reading the source
    files into a RAM buffer and writing to the target unit. In this case,
    the target file name cannot be chosen, it will be the same as the
-   destination filename. The extended unit-to-unit copy mode allows the copying of
+   source filename. The extended unit-to-unit copy mode allows the copying of
    single files, pattern matching files or all files of a disk.
    Any combination of units is allowed, internal floppy, SD card images,
    IEC floppy drives such as the 1541, 1571, 1581, or CMD floppy and hard drives.

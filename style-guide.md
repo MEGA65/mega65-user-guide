@@ -107,6 +107,7 @@ Some commonly used words, and their preferences (in alphabetical order):
 * 8-bit, not 8 bit. When referring to multiple bits, no hyphen is necessary. Example:
   * The C64 is an 8-bit computer with a 16-bit address space.
   * A byte consists of 8 bits.
+  * A half byte (4 bits) should be referred to as a `nibble`. Please refrain from using half-byte, nybl, nybble, etc.
   * More information on the use on hyphens in general is available in the 
     [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/dashes-hyphens/hyphens)
 

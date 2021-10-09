@@ -3085,7 +3085,7 @@ where the error line is taken from {\bf EL}.
       {\bf pw} pulse width (0-4095) for waveform.
 
 \label{envelopetable}
-               There are 10 slots for storing melodies,
+               There are 10 slots for storing instrument parameters,
                preset with following values:
 \begin{center}
 \ttfamily
@@ -3113,11 +3113,10 @@ where the error line is taken from {\bf EL}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
-20 VOL 8
-30 TEMPO 100
-40 PLAY "C D E F G A B"
-50 PLAY "U5 V1 C D E F G A B"
+10 ENVELOPE 9,10,5,10,5,2,4000
+20 VOL 9
+30 TEMPO 30
+40 PLAY "T9O4Q CDEFGAB U3T8 CDEFGAB L","T5O3Q H CGEQG T7 HCGEQG L"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3389,9 +3388,20 @@ PRINT EXP(LOG(2))
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-FILTER 1,1023,1,0,0,10 :REM LOW PASS
-FILTER 1,1023,0,1,0,10 :REM BAND PASS
-FILTER 1,1023,0,0,1,10 :REM HIGH PASS
+10 PLAY "T7X1O3P9C"
+15 SLEEP 0.02
+20 PRINT "LOW PASS SWEEP" :L=1:B=0:H=0:GOSUB 100
+30 PRINT "BAND PASS SWEEP":L=0:B=1:H=0:GOSUB 100
+40 PRINT "HIGH PASS SWEEP":L=0:B=0:H=1:GOSUB 100
+50 GOTO 20
+100 REM *** SWEEP ***
+110 FOR F = 50 TO 1950 STEP 50
+120 IF F >= 1000 THEN FF = 2000-F : ELSE FF = F
+130 FILTER 1,FF,L,B,H,15
+140 PLAY "X1"
+150 SLEEP 0.02
+160 NEXT F
+170 RETURN
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6135,16 +6145,23 @@ Embedded directives consist of a letter, followed by a digit:
 \hline
  char  & directive & argument range \\
 \hline
-  O & octave        & 0 - 6 \\
-  T & tune envelope & 0 - 9 \\
-  U & volume        & 0 - 9 \\
-  X & filter        & 0 - 1 \\
+  O & octave              & 0 - 6 \\
+  T & instrument envelope & 0 - 9 \\
+  U & volume              & 0 - 9 \\
+  X & filter              & 0 - 1 \\
+  M & modulation          & 0 - 9 \\
+  P & portamento          & 0 - 9 \\
+  L & loop                & N/A   \\
 \hline
 \end{tabular}
 }
 \end{center}
 
-  Add an {\bf L} directive at the end of your string if you would like it to loop back to the
+  The modulation directive will modulate your note by the magnitude you specify (1-9), or use 0 to turn this feature off.
+
+    Similarly, the portamento directive will gently slide between consecutive notes at the speed you specify (1-9), or use 0 to turn this feature off. Note that the gate-off behaviour of notes is disabled while portamento is enabled, and to re-enable it, you must turn off portamento (P0).
+
+    Add an {\bf L} directive (no argument needed) at the end of your string if you would like it to loop back to the
   beginning of your string upon completion.
 
   You have a lot of flexibility on which voice channels you choose to play your melodies on.
@@ -6179,8 +6196,8 @@ Embedded directives consist of a letter, followed by a digit:
   strings, then use {\bf RPLAY(voice)} to assess when your first string has finished and then
   play the next string.
 
-The envelope slots may be changed using the {\bf ENVELOPE}
-statement. The default settings for the envelopes are on
+  Instrument envelope slots may be modified by using the {\bf ENVELOPE}
+  statement. The default settings for the envelopes are on
 page \pageref{envelopetable}.
 
 \item [Remarks:] The {\bf PLAY} statement makes use of an interrupt
@@ -6194,10 +6211,23 @@ page \pageref{envelopetable}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+ 5 REM *** SIMPLE LOOPING EXAMPLE ***
 10 ENVELOPE 9,10,5,10,5,0,300
 20 VOL 8
 30 TEMPO 30
 40 PLAY "O5T9HCIDCDEHCG IGAGFEFDEWCL", "O2T0QCGEGCGEG DBGB CGEGL"
+\end{verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 5 REM *** MODULATION + PORTAMENTO EXAMPLE ***
+10 TEMPO 20
+20 M$ = "M5 T2O5P0QD P5FP0RP5QG .AI#AQA HGQE.C IDQE HFQD .DI#CQD HEQ#CQO4HA"
+30 M$ = M$ + "O5QDHFQG.AI#AQA HGQE.C IDQEFED#CO4BO5#C DO4AFD P0R L"
+40 B$ = "T0QRO2H.D.F.CO1.A.#A.G.A QAIO2AGFE H.D.F.CO1.A.#A.AO2 .D DL"
+50 PLAY M$,B$
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8705,18 +8735,20 @@ RUN
 
                {\bf speed} 1-255.
 
-               The duration of a whole note is computed with
+               The duration (in seconds) of a whole note is computed with
                $ duration = 24 / speed $.
 
 \item [Example:] Using {\bf TEMPO}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
-20 VOL 8
-30 TEMPO 24      :REM PLAY EACH NOTE FOR ONE SECOND
-40 PLAY "C D E F G A B"
-50 PLAY "U5 V1 C D E F G A B"
+10 VOL 8
+20 FOR T = 24 TO 18 STEP -2
+30 TEMPO T
+40 PLAY "T0M3O4QGAGFED","T2O4M5P0H.DP5GB","T5O3IGAGAGAABABAB"
+50 IF RPLAY(1) THEN GOTO 50
+60 NEXT T
+70 PLAY "T0O5QCO4GEH.C","T2O5IEFEDEDCEGO6P8CP0R","T5O3ICDCDEFEDCO4C"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9339,11 +9371,13 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
-20 VOL 8
-30 TEMPO 100
-40 PLAY "C D E F G A B"
-50 PLAY "U5 V1 C D E F G A B"
+10 TEMPO 22
+20 FOR V = 2 TO 8 STEP 2
+30 VOL V
+40 PLAY "T0M3O4QGAGFED","T2O4M5P0H.DP5GB","T5O3IGAGAGAABABAB"
+50 IF RPLAY(1) THEN GOTO 50
+60 NEXT V
+70 PLAY "T0O5QCO4GEH.C","T2O5IEFEDEDCEGO6P9CP0R","T5O3ICDCDEFEDCO4C"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

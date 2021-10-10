@@ -20,7 +20,7 @@ In this part of the book, we want to examine the MEGA65's graphics modes by walk
 \begin{itemize}
 	\item Bitmap graphics
 	\item Graphics based on character sets
-	\item Bitplanes		
+	\item Bitplanes
 \end{itemize}
 
 
@@ -31,12 +31,12 @@ In bitmap graphics every pixel of a graphic is stored separately. The way the pi
 \setlength\minrowclearance{4pt}
 \begin{tabular}{m{22pt}|m{60pt}}
 	Index & Color \\\hline
-	\blk & Black \\	
-	\bwn & Brown \\	
-	\ora & Orange \\	
-	\red & Light Red \\	
-	\lgr & Light Grey \\			
-	\yel & Yellow \\		
+	\blk & Black \\
+	\bwn & Brown \\
+	\ora & Orange \\
+	\red & Light Red \\
+	\lgr & Light Grey \\
+	\yel & Yellow \\
 \end{tabular}-
 
 The color values, by the way, are exact the same as the color values from the standard C64 color palette. Next we design the "A". Each pixel references a value from the color table above.
@@ -45,20 +45,20 @@ The color values, by the way, are exact the same as the color values from the st
 \setlength\minrowclearance{4pt}
 \begin{tabular}{m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}}
 	& 1 & 2 & 3& 4& 5& 6& 7& 8 &\\\hline
-	
-	1 & \blk & \blk & \blk & \blk & \blk & \blk & \blk & \blk & \\	
-	2 & \red & \lgr & \yel & \lgr & \red & \ora & \blk & \blk & \\	
-	3 & \lgr & \lgr & \blk & \blk & \ora & \red & \blk & \blk & \\	
-	4 & \yel & \yel & \blk & \blk & \ora & \red & \blk & \blk & \\	
-	5 & \yel & \lgr & \lgr & \red & \red & \red & \blk & \blk & \\	
-	6 & \lgr & \red & \blk & \blk & \ora & \red & \blk & \blk & \\	
-	7 & \red & \red & \blk & \blk & \red & \red & \blk & \blk & \\	
-	8 & \ora & \bwn & \blk & \blk & \ora & \red & \blk & \blk & \\	
+
+	1 & \blk & \blk & \blk & \blk & \blk & \blk & \blk & \blk & \\
+	2 & \red & \lgr & \yel & \lgr & \red & \ora & \blk & \blk & \\
+	3 & \lgr & \lgr & \blk & \blk & \ora & \red & \blk & \blk & \\
+	4 & \yel & \yel & \blk & \blk & \ora & \red & \blk & \blk & \\
+	5 & \yel & \lgr & \lgr & \red & \red & \red & \blk & \blk & \\
+	6 & \lgr & \red & \blk & \blk & \ora & \red & \blk & \blk & \\
+	7 & \red & \red & \blk & \blk & \red & \red & \blk & \blk & \\
+	8 & \ora & \bwn & \blk & \blk & \ora & \red & \blk & \blk & \\
 
 	&&&&&&&&&
 \end{tabular}
 
-But how much memory does this little graphic use XXX? 
+But how much memory does this little graphic use XXX?
 
 If we create an one-dimensional array, we will get an array with 64 elements, because our graphic consists of 8x8 pixels = 64 color values that have to be saved. If we transfer that to the memory of the MEGA65, it means that we have 64 bytes to store in memory. However, full-screen graphics are made up of far more pixels. On the C64 and of course also on the MEGA65, 320x200 pixels are required to generate a graphic that fills the entire screen. If we transfer this to our array, we would have a total of 64,000 entries. Converted to the memory of the MEGA65, that is 64,000 bytes or nearly 64 kilobytes of data! If we now also consider that the good old C64 only had 64K of RAM available, we recognize the Drama! That's just too much data! We need strategies to reduce our bitmap data. On the C64 we had to two types of bitmap graphics and both come with its own concepts to use as less memory as possible.
 
@@ -85,22 +85,22 @@ First, a bitmap is divided into blocks of 8x8 pixels each. In order to achieve t
    7 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
    8 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
    9 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
-  10 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  11 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  12 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  13 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  14 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  15 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                          
-  16 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  17 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  18 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                 
-  19 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  20 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                
-  21 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                          
-  22 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                          
-  23 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                          
-  24 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                          
-  25 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline                          
+  10 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  11 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  12 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  13 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  14 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  15 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  16 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  17 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  18 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  19 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  20 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  21 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  22 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  23 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  24 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
+  25 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
 \end{tabular}
 
 \end{adjustbox}
@@ -110,30 +110,31 @@ Splitting into blocks makes sense because this gives us the chance to reduce the
 \setlength\minrowclearance{4pt}
 \begin{tabular}{m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{70pt}}
 	& 1 & 2 & 3& 4& 5& 6& 7& 8 &\\\hline
-	
-	1 & \blk  & \blk  & \blk  & \blk  & \blk  & \blk  & \blk & \blk & = 0 \to\ \$00 \\	
-	2 & \blk  & \redb & \redb & \redb & \redb & \blk  & \blk & \blk & = 120 \to\ \$78 \\	
-	3 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\	
-	4 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\	
-	5 & \redb & \redb & \redb & \redb & \redb & \redb & \blk & \blk & = 252 \to\ \$FC \\	
-	6 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\	
-	7 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\	
-	8 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\	
-	
+
+	1 & \blk  & \blk  & \blk  & \blk  & \blk  & \blk  & \blk & \blk & = 0 \to\ \$00 \\
+	2 & \blk  & \redb & \redb & \redb & \redb & \blk  & \blk & \blk & = 120 \to\ \$78 \\
+	3 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
+	4 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
+	5 & \redb & \redb & \redb & \redb & \redb & \redb & \blk & \blk & = 252 \to\ \$FC \\
+	6 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
+	7 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
+	8 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
+
 \end{tabular}
 
+\setlength\minrowclearance{0}
 
 As shown above now you can easily convert the bits of each line to its hex value and you finally get 8 bytes of data. This is the central idea in hires graphics and with this concept you save a lot of memory. Here in this example it's 8 Bytes versus 64 Bytes if you have to manage all the color references.
-Let's count it up for a full screen picture: We have 40x25 Blocks, that is 1000 blocks in total. Each block is 8 Bytes or 1 Kilobyte, so we'll result in "only" 10K for a full screen picture.\\ 
+Let's count it up for a full screen picture: We have 40x25 Blocks, that is 1000 blocks in total. Each block is 8 Bytes or 1 Kilobyte, so we'll result in "only" 10K for a full screen picture.\\
 
 This is a brilliant solution, but now have a problem: We lost the colors!\\
 
 If you look at the first figure, it was very colorful. But do we really need so many colors? This is the second important concept in hires bitmap graphics: Less colors means less memory. In fact hires mode limits you to \textbf{two colors} per 8x8 pixel block. This information is stored in the Screen-RAM, not in the Color-RAM as one might assume. And again the idea why is really clever: In Screen-RAM you can hold values between \$00 and \$FF whereas in the Color-RAM it makes only sense to store values between \$0 and \$0F to reference one specific color from the C64 color palette which consists of 16 colors (\$0-\$F). On the MEGA65 you can have even more colors and you are able to tweak the default colors, but this will be explained later.\\
- 
+
 Back to the Screen-RAM. Here you store \textbf{two colors} for each 8x8 block. If you split the byte into its Hi-Byte and Low-Byte you have the chance to put a background and a foreground color into it! The value \$0a for example can be seen as \$0 and \$a. This way we'll get a black background and light red for the pixels in the block. In the end this means, a fullscreen hires bitmap will consume not 10 but 20 Kilobytes. 10K for the raw bitmap data as mentioned earlier and another 10K for the colors inside the Screen-RAM.\\
 
 
 \subsection*{Programming simple Hires Bitmaps}
 
 Let's code!
- 
+

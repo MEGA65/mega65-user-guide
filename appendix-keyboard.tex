@@ -3,7 +3,7 @@
 
 The MEGA65 has a full mechanical keyboard which is compatible with the C65 and
 C64 keyboards, and features four distinct cursor keys which work in both C64 and
-C65 mode, as well as eleven new C65 keys that normally work only in C65 mode.
+C65-mode, as well as eleven new C65 keys that normally work only in C65-mode.
 
 \section{Hardware Accelerated Keyboard Scanning}
 
@@ -22,11 +22,11 @@ The use of ASCII or Latin-1 symbols not present in the PETSCII character set
 requires the use  of a font that contains these symbols, and software which supports them.
 
 The hardware accelerated keyboard scanner is very simple to use: First, make sure
-that you have the MEGA65 IO context activated, then read memory location \$D610
+that you have the MEGA65 I/O context activated, then read memory location \$D610
 (decimal 54800). If the register contains zero, no key has been pressed.  Otherwise the
 value will be the ASCII code of the most recent key or key-combination that has
 been pressed.  Reading \$D610 again will continue to read the same value until
-you POKE any value into \$D610. This clears the key from the input buffer.
+you {\bf POKE} any value into \$D610. This clears the key from the input buffer.
 
 The hardware accelerated keyboard scanner also provides a register that
 indicates which of the modifier keys are currently being held down.  This is
@@ -95,6 +95,7 @@ The C65 keyboard matrix layout is as follows:
 {\ttfamily
 {
 \setlength{\def\arraystretch{1.5}\tabcolsep}{1mm}
+\begin{center}
 \begin{tabular}{|c*{9}{|C{1.02cm}}|}
 \hline
 & \bf{0} & \bf{1} & \bf{2} & \bf{3} & \bf{4} & \bf{5} & \bf{6} & \bf{7} & \bf{8} \\
@@ -116,11 +117,12 @@ The C65 keyboard matrix layout is as follows:
 \small  \bf{7} & \megakey{$\downarrow$} & \specialkey{SHIFT\\left} & X & V & N & , & / & \specialkey{RUN\\STOP} & \specialkey{ESC} \\
 \hline
 \end{tabular}
+\end{center}
 }}
 
 Note that the keyboard matrix is identical to the C64 keyboard matrix, except for the addition of one extra column
 on the right-hand side.  The cursor left and up keys on the MEGA65 and C65 are implemented as cursor right and down, but
-with the right shift key applied.  This enables them to work in C64 mode.  \specialkey{CAPS\\LOCK} is not
+with the right shift key applied.  This enables them to work in C64-mode.  \specialkey{CAPS\\LOCK} is not
 part of the matrix, but has its own dedicated line.  Its status can be read from bit 6 of register \$D611 (decimal 54801):
 
 The numbers across the top indicate the columns of the matrix, and the numbers down the left indicate the rows.

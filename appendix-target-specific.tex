@@ -12,7 +12,7 @@ devices in a more graceful way. For example, you may enable touch-screen input, 
 on-screen selections to be large enough to be easily activated by a finger.
 
 The simple way to detect which model of MEGA65 your program is running on, is to check the
-\$D629 register (but don't forget to enable the MEGA65 IO personality first, via \$D02F).
+\$D629 register (but don't forget to enable the MEGA65 I/O personality first, via \$D02F).
 This contains an 8-bit hardware identifier.  The following values are currently defined:
 
 \begin{description}[align=left,labelwidth=0.2cm]
@@ -49,7 +49,7 @@ that retains its value, even if the computer is turned off and disconnected from
 for as long as the internal battery has sufficient charge.  This battery also powers the Real-Time Clock (RTC) itself, which includes
 a 100 year calendar spanning the years 2000 -- 2099.
 
-The main trick with accessing the RTC from BASIC, is that we will need to use a MEGA65 Enhanced DMA operation to fetch the RTC registers, because the RTC registers sit above the 1MB barrier, which is the limit of the C65's normal DMA operations.  The easiest way to do this is to construct a little DMA list in memory somewhere, and make an assembly language routine that uses it.  Something like this (using BASIC 65 in C65 mode):
+The main trick with accessing the RTC from BASIC, is that we will need to use a MEGA65 Enhanced DMA operation to fetch the RTC registers, because the RTC registers sit above the 1MB barrier, which is the limit of the C65's normal DMA operations.  The easiest way to do this is to construct a little DMA list in memory somewhere, and make an assembly language routine that uses it.  Something like this (using BASIC 65 in C65-mode):
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -71,7 +71,7 @@ The main trick with accessing the RTC from BASIC, is that we will need to use a 
 \end{tcolorbox}
 
 
-This program works by setting up a DMA list in memory at 1,024 (hex \$0400) (unused normally on the C65), followed by a routine at 1,042 (hex \$0412) which ensures we have MEGA65 registers un-hidden, and then sets the DMA controller registers appropriately to trigger the DMA job, and then returns.  The rest of the BASIC code PEEKs out the RTC registers that the DMA job copied to 1,024 - 1,032 (hex \$0400 -- \$0407), and interprets them appropriately to print the time.
+This program works by setting up a DMA list in memory at 1,024 ( \$0400) (unused normally on the C65), followed by a routine at 1,042 ( \$0412) which ensures we have MEGA65 registers un-hidden, and then sets the DMA controller registers appropriately to trigger the DMA job, and then returns.  The rest of the BASIC code PEEKs out the RTC registers that the DMA job copied to 1,024 - 1,032 ( \$0400 -- \$0407), and interprets them appropriately to print the time.
 
 The curious can use the MONITOR command, and then D1012 to see the routine.
 
@@ -103,8 +103,8 @@ NOTE: These registers are not yet fully documented.
 
 The MEGAphone revision 1 and 2 contain a Real-Time Clock (RTC), however this RTC does not include a non-volatile memory (NVRAM)
 area.  Other specific features of the MEGAphone revisions 1 and 2 include a 3-axis accelerometer, including analog to digital
-converters (ADCs), amplifier controller for loud speakers, and several I2C IO expanders, that are used to connect the joy-pad and other peripherals. The IO expanders are
-fully integrated into the MEGAphone design, and thus there should be no normal need to read these registers directly.  The IO
+converters (ADCs), amplifier controller for loud speakers, and several I2C I/O expanders, that are used to connect the joy-pad and other peripherals. The I/O expanders are
+fully integrated into the MEGAphone design, and thus there should be no normal need to read these registers directly.  The I/O
 expanders are, however, also responsible for power control of the various sub-systems of the MEGAphone.
 
 NOTE: These registers are not yet fully documented.

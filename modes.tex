@@ -1,56 +1,60 @@
 \chapter {C64, C65 and MEGA65 Modes}
 \label{cha:modes}
 
-The MEGA65, like the C65 and the C128, has multiple operating modes,
-however there are important differences between the MEGA65 and both
+The MEGA65, like the C65 and the C128, has multiple operating modes.
+However, there are important differences between the MEGA65 and both
 of these earlier computers.
 
-At default the file {\bf MEGA65.ROM} boots to MEGA65 mode
-(including BASIC 65) and
-provides a method to switch to C64 mode via {\bf GO 64}.
+By default, the {\bf MEGA65.ROM} file boots to MEGA65 mode
+(including BASIC 65), and
+provides a method to switch to C64-mode via the {\bf GO 64} command.
+However, it is also possible to use an original C65 ROM (version 91xxxx.BIN)
+named as {\bf MEGA65.ROM}, making the MEGA65 start in C65-mode
+with BASIC 10. This also provides the same functionality to switch to C64-mode.
 
-But it is possible to copy an original C65 ROM (version 91xxxx.BIN)
-to the file {\bf MEGA65.ROM}. Then the computer starts in C65 mode
-with BASIC 10, but provides the same possibility to switch to C64 mode.
+Therefore, dependent on your boot ROM choice, you have:
 
-So dependent on your boot ROM choice, you have:
-
+\begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Boot Mode & ROM version & BASIC & C64 Mode \\
+Boot Mode & ROM version & BASIC & C64-mode \\
 \hline
-MEGA65    & 92xxxx      & BASIC 65 & GO 64 \\
-C65       & 91xxxx      & BASIC 10 & GO 64 \\
+MEGA65    & 92xxxx      & BASIC 65 & {\bf GO 64} \\
+C65       & 91xxxx      & BASIC 10 & {\bf GO 64} \\
 \hline
 \end{tabular}
-
-For people familiar with the C128,
+\end{center}
+For readers familiar with the C128,
 the most important difference is that all of the MEGA65's new features
 can be accessed from every mode, and you can even switch back and forth
-between the different modes, or create hybrid modes that combine different
-features from the different modes -- all you need is the MAP and KEY.
+between the different modes. It's also possible to create hybrid modes that combine different
+features from the different modes -- all you need is {\bf MAP} and the KEY register address,
+which is 53295 (\$D02F).
 
-This chapter explains the different modes, the MAP instruction and
-the KEY register, that allows you to change the mode of operation of the computer,
-as well instructions on how to use BASIC commands to completely switch
-from one mode to another.
+This chapter explains the different modes, the {\bf MAP} instruction, and
+the KEY register, which allows you to change the mode of operation of the MEGA65.
+This chapter also explains how to use BASIC commands to switch from one mode to another.
 
 \phantomsection
 \section{Switching Modes from BASIC}
 
 The MEGA65 is used either
-in C64 mode (running BASIC 2),
-or C65 mode (running BASIC 10) for ROM versions 91xxxx
+in C64-mode (running BASIC 2),
+or C65-mode (running BASIC 10) for ROM versions 91xxxx,
 or MEGA65 mode (running BASIC 65) for ROM versions 92xxxx.
 
 However, various MEGA65
 features can be accessed from all modes.  All MEGA65 features are available
-to programs written in assembly language / machine code.  The information required
-to write such programs can be found in the various appendices.
+to programs written in assembly language / machine code.
+\ifdefined\printmanual
+For more information on how to write such programs, refer to the {\bf MEGA65 Book}.
+\else
+More information on how to write such programs can be found in the various appendices.
+\fi
 
-\subsection{From MEGA65/C65 to C64 Mode}
+\subsection{From MEGA65/C65 to C64-mode}
 
-To switch from MEGA65/C65 to C64 Mode, use the familiar GO 64 command, which is identical to switching to C64
+To switch from MEGA65/C65 to C64-mode, use the familiar {\bf GO 64} command, which is identical to switching to C64
 mode on a C128:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -61,14 +65,14 @@ ARE YOU SURE? Y
 \end{verbatim}
 \end{tcolorbox}
 
-Note that, just like on the C128, any programs in memory will be lost in the process of switching modes.
+Note that any programs in memory will be lost in the process of switching modes. This is the same as the C128.
 
-Alternatively, you can hold \megasymbolkey down when pressing the reset button or turning the computer on. Again,
-this is the same as on the C128.
+Alternatively, you can hold \megasymbolkey down while pressing the reset button or turning the MEGA65 on. Again,
+this is the same as the C128.
 
-\subsection{From C64 to MEGA65/C65 Mode}
+\subsection{From C64 to MEGA65/C65-mode}
 
-To switch from C64 to MEGA65/C65 mode, use the following command. {\bf Note that this command does not ask you for
+To switch from C64 to MEGA65/C65-mode, use the following command. {\bf Note that this command does not ask you for
 confirmation}!
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -78,22 +82,21 @@ SYS 58552
 \end{verbatim}
 \end{tcolorbox}
 
-Alternatively, you can switch back to MEGA65/C65 mode by pressing the reset
-button on the left side of the computer, or simply by turning the
-computer off and on again.
+Alternatively, you can switch back to MEGA65/C65-mode by pressing the reset
+button on the left-hand side of the MEGA65, or by turning the
+MEGA65 off and on again.
 
 Another option is to long-press \widekey{RESTORE}, and then press \megakey {F5}
 from the Freeze Menu.  This simulates pressing the reset button.
 
-Note that, just like on the C128, any programs in memory will be
-lost in the process of switching modes.
+Note that any programs in memory will be lost in the process of switching modes. This is the same as the C128.
 
 \subsection{Entering Machine Code Monitor Mode}
 
-The Machine Code Monitor can be entered by typing either the MONITOR
-command from BASIC 65/10 or by holding the RUN/STOP key
-down, and then pressing the reset button on the left side of the
-computer.
+The Machine Code Monitor can be entered by typing either the {\bf MONITOR}
+command from BASIC 65/10, or by holding \specialkey{RUN STOP}
+down, and then pressing the reset button on the left-hand side of the
+MEGA65.
 
 \phantomsection
 \section{The KEY Register}
@@ -101,12 +104,12 @@ computer.
 The MEGA65 has a VIC-IV video controller chip instead of the C64's VIC-II or
 the C65's VIC-III.  Just as the VIC-III has extra registers compared to the
 VIC-II, the VIC-IV has even more registers.  If these were visible all the time,
-software that was made for the C64 and it's VIC-II may accidentally use the
+software that was made for the C64 and VIC-II may use these
 new registers, resulting in unexpected behaviour.  Therefore, the
 creators of the C65 created a way to hide the extra VIC-III registers from old
-C64 programs. This is called the KEY register. For more information
-about which registers are disabled, and enabled in each of the
-VIC-II, VIC-III and VIC-IV IO modes, refer to
+C64 programs. Enabling and disabling the extra registers is done via the KEY register. For more information
+about which registers are disabled and enabled in each of the
+VIC-II, VIC-III and VIC-IV I/O modes, refer to
 \ifdefined\printmanual
  the {\bf MEGA65 Book}.
 \else
@@ -115,20 +118,20 @@ VIC-II, VIC-III and VIC-IV IO modes, refer to
 
 % iopersonalities results in ?? (??) when building on my machine
 
-The KEY register at address 53295 (hex \$D02F) is an unused register of the VIC-II, which you can POKE to and
-PEEK from, like other registers.  But the KEY register has a special function: If
+The KEY register is an unused register of the VIC-II, which you can {\bf POKE} to and
+ {\bf PEEK} from, similar to other registers. But the KEY register has a special function: If
 you write two certain values to it in quick succession, you can tell the VIC-IV
-to stop hiding the VIC-III or VIC-IV registers from the rest of the computer.
+to stop hiding the VIC-III or VIC-IV registers from the rest of the MEGA65.
 
 \subsection{Exposing Extra C65 Registers}
 
-For example, to enable the VIC-III's new registers when in C64 mode, you must POKE the values 165 and 150
+For example, to enable the VIC-III's new registers when in C64-mode, you must {\bf POKE} the values 165 and 150
 into the KEY register. The easiest way to do this is to switch your MEGA65 off and on again, and type GO 64
-and answer YES to enter C64 mode.
+and answer Y to enter C64-mode.
 
-If you do this while already in C65 mode, the computer may not function correctly.
+If you do this while already in C65-mode, the MEGA65 may not function correctly.
 
-Once you are in C64 mode, try typing the following commands:
+Once you are in C64-mode, try typing the following commands:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -137,17 +140,17 @@ POKE 53295,165: POKE 53295,150
 \end{verbatim}
 \end{tcolorbox}
 
-When you enter these commands, the computer returns a \screentextwide{READY.} prompt, and seemingly nothing else has
-happened.  This is expected, because the computer has only enabled the VIC-III's new registers (and some other
-C65 mode features). The C64 BASIC and KERNAL will still function as normal, and it may appear
+When you enter these commands, the MEGA65 returns a \screentextwide{READY.} prompt, and seemingly nothing else has
+happened.  This is expected, because the MEGA65 has only enabled the VIC-III's new registers (and some other
+C65-mode features). The C64 BASIC and KERNAL will still function as normal, and it may appear
 that nothing has changed... But things \textit{have} changed.
 
-As an example, you can do something that the C64 and its VIC-II can't do: smoothly change one colour to another.
+For example, you can do something that the C64 and its VIC-II can't do: smoothly change one colour to another.
 The VIC-III has registers that allow you to change the red, green and blue components of the colours. Now that the VIC-III
 registers are enabled, it's possible to change the colour of the background progressively from blue to purple, by increasing
 the red component of the colour that is normally blue on the C64.  The red component value registers are at
-53504 -- 53759 (hex \$D100 -- \$D1FF). Blue is colour 6, so a change to register 53504 + 6 = 53510 (hex \$D106) is required.
-An example BASIC listing below includes a FOR loop to change the colour:
+53504 -- 53759 (\$D100 -- \$D1FF). Blue is colour 6, so a change to register 53510 (53504 + 6, or \$D106) is required.
+An example BASIC listing below includes a {\bf FOR} loop to change the colour:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -156,11 +159,11 @@ FOR I = 0 TO 15 STEP 0.2 : POKE 53510,I : NEXT
 \end{verbatim}
 \end{tcolorbox}
 
-Once the program has been entered, type RUN on a new line. This will make the background of the screen fade from
-blue to purple.  If you would like to make the effect progress faster, increase the 0.2 to a larger number, such as 0.5, or to
-make it slower, change it to a smaller number, such as 0.02. You can also change the red component by adding a
-different number to 53504, the green component at 53760 -- 54015 (hex \$D200 -- \$D2FF), or the
-blue component at 54016 -- 54271 (hex \$D300 -- \$D3FF).  For example, to have
+Once the program has been entered, type {\bf RUN} on a new line. This will make the background of the screen fade from
+blue to purple.  If you would like to make the effect progress faster, increase the 0.2 to a larger number such as 0.5. To
+make it slower, change it to a smaller number such as 0.02. You can also change the red component by adding a
+different number to 53504 – 53759 (\$D100 – \$D1FF), the green component at 53760 -- 54015 (\$D200 -- \$D2FF), or the
+blue component at 54016 -- 54271 (\$D300 -- \$D3FF).  For example, to have
 the border and text (since they are both normally ``light blue'') fade from blue to green, you can try:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -172,7 +175,7 @@ POKE 53518,0 : FOR I = 0 TO 15 STEP 0.1 : POKE 53774,I : POKE 54030,15-I : NEXT
 
 \subsection{Disabling the C65/MEGA65 Extra Registers}
 
-You can also disable the VIC-III registers again by POKEing any number you like into the KEY register, e.g.:
+You can also disable the VIC-III registers again by {\bf POKE}ing any number into the KEY register, e.g.:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -181,15 +184,15 @@ POKE 53295,0
 \end{verbatim}
 \end{tcolorbox}
 
-If you RUN the examples above again, the colours won't change because
+If you {\bf RUN} the examples above again, the colours won't change because
 the registers are disabled. Instead, writing to those addresses changes some of the VIC-II's registers,
 as on a C64 they appear several times over.  Fortunately for the above example, the registers used have no obvious
 side-effects. This is because the modified registers in the examples above on a standard VIC-II are used to change the
-sprite positions. As there are no sprites on the screen, you won't see any problems.
+sprite positions. Since there are no sprites on the screen, you won't see anything change.
 
 \subsection{Enabling MEGA65 Extra Registers}
 
-The MEGA65 has \textit{even more} registers than the C65.  To enable these in C64 mode, it's required to POKE another
+The MEGA65 has \textit{even more} registers than the C65.  To enable these in C64-mode, it's required to {\bf POKE} another
 two values into the KEY register:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -199,11 +202,11 @@ POKE 53295,71: POKE 53295,83
 \end{verbatim}
 \end{tcolorbox}
 
-Again, you won't see any immediate difference, just like when enabling the C65 / VIC-III registers.  However, now the computer
-can access not only the C64 / VIC-II, and C65 / VIC-III registers, but also the MEGA65 / VIC-IV registers.  If you like,
-you can try the examples from earlier in this chapter, to see that the C65 / VIC-III registers are accessible again.
+Again, you won't see any immediate difference, which is similar to when enabling the VIC-III registers.  However, now the
+MEGA65 can access not only the VIC-II and VIC-III registers, but also the VIC-IV registers.  If you like,
+you can try the examples from earlier in this chapter to see that the VIC-III registers are accessible again.
 But now you can also do MEGA65 specific things. For example, if you wanted to move the start of the top border higher
-on the screen, you can try something like:
+on the screen, you can try something such as:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -212,7 +215,7 @@ POKE 53320,60
 \end{verbatim}
 \end{tcolorbox}
 
-Or you can have some fun, and animate the screen borders, by having them move closer and further apart:
+Alternatively, you can have some fun and animate the screen borders, by having them move closer and further apart:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -222,13 +225,13 @@ FOR I = 255 TO 0 STEP -1 : POKE 53320,I : POKE 53322, 255 - I : NEXT
 \end{tcolorbox}
 
 The above example has the loop count backwards (from 255 to 0), so that your don't end up with only a
-tiny sliver of the text visible. You can make it go forwards if you like. If you do get stuck with a sliver
-of the screen, you can press RUN/STOP and RESTORE. You might be wondering: Why does RUN/STOP
-and RESTORE work when these are MEGA65 / VIC-IV registers that the C64-mode BASIC and KERNAL
+tiny sliver of the text visible. You can make it go forwards if you like. If you do get stuck with only a sliver
+of the screen, you can press \specialkey{RUN STOP} and \widekey{RESTORE}. You might be wondering: Why does \specialkey{RUN STOP}
+and \widekey{RESTORE} work when these are VIC-IV registers that the C64-mode BASIC and KERNAL
 don't know about?  The reason is the VIC-IV has a feature called ``hot registers'',
 where certain C64 and C65 registers cause some MEGA65 registers to be reset to the C64 or
-C65 mode defaults. In this particular case, it is the KERNAL resetting the VIC-II screen using
-53265 (hex \$D011), which adjusts the vertical border size in C64/C65 mode, and is thus a ``hot register''
+C65-mode defaults. In this particular case, it is the KERNAL resetting the VIC-II screen using
+53265 (\$D011), which adjusts the vertical border size in C64/C65-mode, and is thus a ``hot register''
 for the MEGA65's vertical border position registers.
 
 See if you can instead make the screen shake around by changing the TEXTXPOS and TEXTYPOS registers of
@@ -244,23 +247,25 @@ by looking through
 \subsection{Traps to look out for}
 
 In all modes, the DOS for the internal 3.5'' disk drive (including when you use D81 disk images from
-an SD card) resets the KEY register to C64 / VIC-II mode whenever it is accessed. This means if you perform actions,
-such as check the drive status, or LOAD or SAVE a file, the KEY register will be reset, and only the C64 / VIC-II registers
-will be enabled. You can of course enable the C65 or MEGA65 registers by POKEing the correct values
+an SD card) resets the KEY register to VIC-II mode whenever it is accessed. This means if you perform actions
+such as check the drive status, or {\bf LOAD} or {\bf SAVE} a file, the KEY register will be reset, and only the VIC-II registers
+will be enabled. You can of course enable the C65 or MEGA65 registers by {\bf POKE}ing the correct values
 to the KEY register again.
 
 \phantomsection
 \section{Accessing Memory from BASIC 65}
 
-The BASIC 65 contains powerful memory banking and Direct Memory Access (DMA) commands that can be used to read,
-fill, copy, and write areas of memory beyond the C65's 128KB of RAM.  The MEGA65 has 384KB of main memory. Of this,
-the first 128KB (BANK 0 and BANK 1) acts as the C65's normal 128KB RAM. The second 128KB (BANK 2 and BANK 3) is normally
-write-protected, and is used to hold the C65's ROM image.
-The last 128KB (BANK 4 and BANK 5) are used for all graphic routines
-in BASIC 65 for high resolution bitplane graphics.
-BASIC 10 doesn't use banks 4 and 5.
+BASIC 65 contains powerful memory banking and Direct Memory Access (DMA) commands that can be used to read,
+fill, copy, and write areas of memory beyond the C65's 128KB of RAM.  The MEGA65 has 384KB of main memory, split into 6
+banks of 64KB each. They are:
+\begin{itemize}
+ \item BANK 0 and BANK 1 - acts as the C65's normal 128KB RAM.
+ \item BANK 2 and BANK 3 - normally write-protected, and contains the C65's ROM image.
+ \item BANK 4 and BANK 5 - used for all graphic routines in BASIC 65 for high resolution bitplane graphics.
+       BASIC 10 doesn't use banks 4 and 5.
+\end{itemize}
 
-Using the BANK, PEEK and POKE commands, this region of memory can be easily accessed, for example:
+Using the {\bf BANK}, {\bf PEEK} and {\bf POKE} commands, this region of memory can be easily accessed, for example:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -270,7 +275,7 @@ BANK 4: PRINT PEEK(0): REM SHOW CONTENTS OF LOCATION $40000
 \end{verbatim}
 \end{tcolorbox}
 
-Or, by using the DMA command, you can copy the current contents of the screen and colour RAM into BANK 4 with:
+Or, by using the {\bf DMA} command, you can copy the current contents of the screen and colour RAM into BANK 4 with:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -280,7 +285,7 @@ DMA 0, 2000, DEC("F800"), 1, 2000, 4 : REM COPY COLOUR RAM TO BANK 4
 \end{verbatim}
 \end{tcolorbox}
 
-You can then put something else on the screen, and then copy it back with:
+You can then put something else on the screen, and copy it back with:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -293,10 +298,10 @@ DMA 0, 2000, 2000, 4, DEC("F800"), 1 : REM COPY COLOUR RAM FROM BANK 4
 \phantomsection
 \section{The MAP Instruction}
 
-The above methods can be used from BASIC. In contrast, the MAP instruction is an assembly
+The above methods can be used from BASIC. In contrast, the {\bf MAP} instruction is an assembly
 language instruction that can be used to rearrange the memory that the MEGA65 uses.
 It is used by the C65 ROM and BASIC 65 to manage what memory it can use at any particular
-point in time.  For further explanation of the MAP instruction,
+point in time.  For further explanation of the {\bf MAP} instruction,
 refer to the relevant section of
 \ifdefined\printmanual
  the {\bf MEGA65 Book}.

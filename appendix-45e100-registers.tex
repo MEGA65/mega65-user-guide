@@ -129,14 +129,14 @@ Unlike on the RR-NET, the 45E100's ethernet frame buffers are able to be memory 
 or through assembly language programs.  It is also possible to access the buffers from BASIC with some care.
 
 The frame buffers can either be accessed from their natural location in the MEGA65's extended address space at address
-\$FFDE800 -- \$FFDEFFF, or they can be mapped into the normal C64/C65 \$D000 IO address space.  Care must be
-taken as mapping the ethernet frame buffers into the \$D000 IO address space causes all other IO devices to unavailable
+\$FFDE800 -- \$FFDEFFF, or they can be mapped into the normal C64/C65 \$D000 I/O address space.  Care must be
+taken as mapping the ethernet frame buffers into the \$D000 I/O address space causes all other I/O devices to unavailable
 during this time.  Therefore CIA-based interrupts MUST be disabled before doing so, whether using BASIC or machine code.  Therefore
 when programming in assembly language or machine code, it is recommended to use the natural location, and to access this
 memory area using one of the three mechanisms for accessing extended address space, which are described in \bookvref{sec:extended-memory}.
 
 The method of
-disabling interrupts differs depending on the context in which a program is being written. For programs being written using C64 mode's BASIC 2, the following will work:
+disabling interrupts differs depending on the context in which a program is being written. For programs being written using C64-mode's BASIC 2, the following will work:
 
 \begin{screenoutput}
   POKE56333,127: REM DISABLE CIA TIMER IRQS
@@ -148,7 +148,7 @@ While for MEGA65's BASIC 65, the following must instead be used, because a VIC-I
 POKE53274,0: REM DISABLE VIC-II/III/IV RASTER IRQS
 \end{screenoutput}
 
-Once this has been done, the IO context for the ethernet controller can be activated by writing \$45 (69 in decimal, equal to the character 'E' in PETSCII)) and \$54 (84 in decimal, equal to the character 'T' in PETSCII) into the VIC-IV's KEY register (\$D02F, 53295 in decimal), for example:
+Once this has been done, the I/O context for the ethernet controller can be activated by writing \$45 (69 in decimal, equal to the character 'E' in PETSCII)) and \$54 (84 in decimal, equal to the character 'T' in PETSCII) into the VIC-IV's KEY register (\$D02F, 53295 in decimal), for example:
 
 \begin{screenoutput}
 POKE53295,ASC("E"):POKE53295,ASC("T")
@@ -156,19 +156,19 @@ POKE53295,ASC("E"):POKE53295,ASC("T")
 
 At this point, the ethernet RX buffer can be read beginning at location \$D000 (53248 in decimal), and the TX buffer can be written to at the same address.  Refer to `Theory of Operation: Receiving Frames' above for further explanation on this.
 
-Once you have finished accessing the ethernet frame buffer, you can restore the normal C64, C65 or MEGA65 IO context by writing to the VIC-III/IV's KEY register.  In most cases, it will make the most sense to revert to the MEGA65's IO context by writing \$47 (71 decimal) in and \$53 (83 in decimal) to the KEY register, for example:
+Once you have finished accessing the ethernet frame buffer, you can restore the normal C64, C65 or MEGA65 I/O context by writing to the VIC-III/IV's KEY register.  In most cases, it will make the most sense to revert to the MEGA65's I/O context by writing \$47 (71 decimal) in and \$53 (83 in decimal) to the KEY register, for example:
 
 \begin{screenoutput}
 POKE53295,ASC("G"):POKE53295,ASC("S")
 \end{screenoutput}
 
-Finally, you should then re-enable interrupts, which will again depend on whether you are programming from C64 or C65 mode.  For C64 mode:
+Finally, you should then re-enable interrupts, which will again depend on whether you are programming from C64 or C65-mode.  For C64-mode:
 
 \begin{screenoutput}
 POKE56333,129
 \end{screenoutput}
 
-For C65 mode it would be:
+For C65-mode it would be:
 
 \begin{screenoutput}
 POKE53274,129
@@ -245,7 +245,7 @@ primarily intended for development.
 \section{Memory Mapped Registers}
 
 The 45E100 Fast Ethernet controller is a MEGA65-specific feature.
-It is therefore only available in the MEGA65 IO context.
+It is therefore only available in the MEGA65 I/O context.
 This is enabled by writing \$53 and then \$47 to VIC-IV register \$D02F.
 If programming in BASIC, this can be done with:
 
@@ -260,7 +260,7 @@ The 45E100 Fast Ethernet controller has the following registers
 \subsection{COMMAND register values}
 
 The following values can be written to the COMMAND register to perform the described functions.
-In normal operation only the STARTTX command is required, for example, by performing the following POKE:
+In normal operation only the STARTTX command is required, for example, by performing the following {\bf POKE}:
 
 \begin{screenoutput}
 POKE55012,1

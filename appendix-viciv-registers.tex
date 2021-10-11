@@ -71,11 +71,11 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
 
  \subsection{Detecting VIC-II/III/IV}
 
- Detecting which generation of the VIC-II/III/IV a machine is fitted with can be important for programs that support only particular generations, or that wish to vary their graphical display based on the capabilities of the machine.  While there are many possibilities for this, the following is a simple and effective method.  It relies on the fact that the VIC-III and VIC-IV do not repeat the VIC-II registers throughout the IO address space.  Thus while \$D000 and \$D100 are synonymous when a VIC-II is present (or a VIC-III/IV is hiding their additional registers), this is not the case when a VIC-III or VIC-IV is making all of its registers visible.  Therefore presence of a VIC-III/IV can be determined by testing whether these two locations are aliases for the same register, or represent separate registers.
- The detection sequence consists of using the KEY register to attempt to make either VIC-IV or VIC-III additional registers visible. If either succeeds, then we can assume that the corresponding generation of VIC is installed. As the VIC-IV supports the VIC-III KEY knocks, we must first test for the presence of a VIC-IV.  Also, we assume that the MEGA65 starts in VIC-IV mode, even when running C65 BASIC.  Thus the test can be done in BASIC from either C64 or C65 mode as follows:
+ Detecting which generation of the VIC-II/III/IV a machine is fitted with can be important for programs that support only particular generations, or that wish to vary their graphical display based on the capabilities of the machine.  While there are many possibilities for this, the following is a simple and effective method.  It relies on the fact that the VIC-III and VIC-IV do not repeat the VIC-II registers throughout the I/O address space.  Thus while \$D000 and \$D100 are synonymous when a VIC-II is present (or a VIC-III/IV is hiding their additional registers), this is not the case when a VIC-III or VIC-IV is making all of its registers visible.  Therefore presence of a VIC-III/IV can be determined by testing whether these two locations are aliases for the same register, or represent separate registers.
+ The detection sequence consists of using the KEY register to attempt to make either VIC-IV or VIC-III additional registers visible. If either succeeds, then we can assume that the corresponding generation of VIC is installed. As the VIC-IV supports the VIC-III KEY knocks, we must first test for the presence of a VIC-IV.  Also, we assume that the MEGA65 starts in VIC-IV mode, even when running C65 BASIC.  Thus the test can be done in BASIC from either C64 or C65-mode as follows:
 
 \begin{screenoutput}
-0 REM IN C65 MODE WE CANNOT SAFELY WRITE TO $D02F, SO WE TEST A DIFFERENT WAY
+0 REM IN C65-MODE WE CANNOT SAFELY WRITE TO $D02F, SO WE TEST A DIFFERENT WAY
 10 IF PEEK($D018) AND 32 THEN GOTO 65
 20 POKE $D000,1:POKE $D02F,71:POKE $D02F,83
 30 POKE $D000+256,0:IF PEEK($D000)=1 THEN PRINT"VIC-IV PRESENT":END
@@ -93,7 +93,7 @@ As the screen on the C64 is located at 1KiB, this test will fail, and execution
 will continue to line 20.  Line 20 writes 1 to one of the VIC-II sprite position
 registers, 53248, before writing the MEGA65 knock to the key register, 53295.
 Line 30 writes to 53248 + 256, which on the C64 is a mirror of 53248, but on a
-MEGA65 with VIC-IV IO enabled will be one of the red palette registers.
+MEGA65 with VIC-IV I/O enabled will be one of the red palette registers.
 After writing to 53248 + 256, the program checks if the register at 53248 has
 been modified by the write to 53248 + 256.  If it has, then the two addresses
 point to the same register.  This will happen on either a C64 or C65, but not on
@@ -198,7 +198,7 @@ To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the F
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 REM ENABLE C65+MEGA65 IO
+10 REM ENABLE C65+MEGA65 I/O
 20 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 30 REM CHECK NTSC BIT
 40 NTSC=PEEK($D06F) AND 128
@@ -272,7 +272,7 @@ To use the additional memory for screen RAM, the screen RAM start address can be
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-REM ENABLE C65+MEGA65 IO
+REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 POKE $D060,$45:POKE $D061,$23:POKE $D062,$1
 \end{verbatim}
@@ -289,7 +289,7 @@ subtract 4$\times$65,536 = 262,144 from the address (the 4 is determined by calc
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-REM ENABLE C65+MEGA65 IO
+REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 REM HEX $41200 IS EASILY DIVIDED IN ITS 3 BYTES $00, $12, $4
 REM BUT YOU CAN ALSO USE MATH TO EXTRACT THE PARTS
@@ -307,7 +307,7 @@ The area of colour RAM being used can be similarly set using the COLPTR register
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-REM ENABLE C65+MEGA65 IO
+REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 REM SET COLPTR TO $4000, SPLITS INTO $00 LSB and $40 MSB
 POKE $D064,$00
@@ -327,7 +327,7 @@ For example, to position the sprite pointers at location 800 -- 815, you could u
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-REM ENABLE C65+MEGA65 IO
+REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 POKE $D06C,(800-INT(800/65536)*65536) AND 255
 POKE $D06D,INT(800/256) AND 255
@@ -441,13 +441,13 @@ among the particular modes.  The default is as follows:
 \endlastfoot
 \small Screen RAM byte 0 & {\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
 \small Screen RAM byte 1, bits 0 - 4 & {\small Upper 5 bits of character number, allowing addressing of 8,192 unique characters }\\
-\small Screen RAM byte 1, bits 5 -- 7 & {\small Trim pixels from right side of character (bits 0 -- 2) {\em or} Set character data Y offset if GOTOX set set (bits 0 -- 2) }\\
+\small Screen RAM byte 1, bits 5 -- 7 & {\small Trim pixels from right-hand side of character (bits 0 -- 2) {\em or} Set character data Y offset if GOTOX set set (bits 0 -- 2) }\\
 \small Colour RAM byte 0, bit 7 & {\small Vertically flip the character {\em or} enable transparency for subsequent characters if GOTOX is set }\\
 \small Colour RAM byte 0, bit 6 & {\small Horizontally flip the character }\\
 \small Colour RAM byte 0, bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
 \small Colour RAM byte 0, bit 4 & {\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later), must be set to 0 for displaying characters }\\
-\small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
-\small Colour RAM byte 0, bits 2 & {\small Trim pixels from right side of character (bit 3) {\em or} Set character data Y offset if GOTOX set set (bit 3) }\\
+\small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right-hand side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
+\small Colour RAM byte 0, bits 2 & {\small Trim pixels from right-hand side of character (bit 3) {\em or} Set character data Y offset if GOTOX set set (bit 3) }\\
 \small Colour RAM byte 0, bits 0 -- 1 & {\small Number of pixels to trim from top or bottom of character }\\
 \small Colour RAM byte 1, bits 0 -- 3 & {\small Low 4 bits of colour of character }\\
 \small Colour RAM byte 1, bits 4 -- 7 & {\small Upper 4 bits of colour of character (if VIC-II multi-colour mode is enabled) }\\
@@ -504,7 +504,7 @@ Many effects are possible due to Super-Extended Attribute Mode.  A few possibili
 
 Super-Extended Attribute Mode requires double the screen RAM and colour RAM as the VIC-II/III text modes. This is because two bytes of each are required to define each character, instead of one.  The screen RAM can be located anywhere in the 384KiB of main memory using registers \$D060 -- \$D062 (53344 -- 53346 decimal).  The colour RAM can be located anywhere in the 32KiB colour RAM.  Only the first 1 or 2 KiB of the colour RAM is visible at \$D800 -- \$DBFF or \$D800 -- \$DFFF (if the {\em CRAM2K} signal is set in bit 0 of \$D030, 53296 decimal). Thus if using a screen larger than 40$\times$25 characters use of the DMA controller or some other means may be required to access the full amount of colour RAM.  Thus we will initially discuss using Super-Extender Attribute Mode with a 40x25 character display, so that the use of DMA or other means to access the additional colour RAM.
 
-The first step is to enable the Super-Extended Attribute Mode by asserting the {\em FCLRHI} and {\em CHR16} signals, by setting bits 2 and 0 of \$D054 (53332 decimal).  As this is a VIC-IV register, we must first enable the VIC-IV IO mode.  The VIC-IV must also be configured to 40 column mode, by clearing the {\em H640} signal by clearing bit 7 of \$D031 (53297 decimal).  This is because each pair of characters will be used to form a single character on screen, with one character requiring two screen RAM bytes, thus 80 screen RAM bytes are required to display 40 characters.  Similarly 80 colour RAM bytes are required as well.
+The first step is to enable the Super-Extended Attribute Mode by asserting the {\em FCLRHI} and {\em CHR16} signals, by setting bits 2 and 0 of \$D054 (53332 decimal).  As this is a VIC-IV register, we must first enable the VIC-IV I/O mode.  The VIC-IV must also be configured to 40 column mode, by clearing the {\em H640} signal by clearing bit 7 of \$D031 (53297 decimal).  This is because each pair of characters will be used to form a single character on screen, with one character requiring two screen RAM bytes, thus 80 screen RAM bytes are required to display 40 characters.  Similarly 80 colour RAM bytes are required as well.
 
 To understand this visually, it is helpful to first consider the normal C64 screen memory layout:
 
@@ -519,7 +519,7 @@ There are two things to notice in the above table: First, the address advances b
 
 \includegraphics[width=\linewidth]{images/illustrations/screen-40x25-addresses16-80.pdf}
 
-It is possible to use Super-Extended Attribute Mode from C65 mode, by setting the screen to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM, and this automatically sets \$D058 and \$D059 to the correct value for 40$\times$2 = 80 bytes per screen line.  The user need only to treat each character pair as a single Super-Extended Attribute character, and to enable Super-Extended Attribute Mode, as described above.
+It is possible to use Super-Extended Attribute Mode from C65-mode, by setting the screen to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM, and this automatically sets \$D058 and \$D059 to the correct value for 40$\times$2 = 80 bytes per screen line.  The user need only to treat each character pair as a single Super-Extended Attribute character, and to enable Super-Extended Attribute Mode, as described above.
 
 Because pairs of colour RAM and screen RAM bytes are used to define each character, care must be taken to initialise and manipulate the screen.
 A good approach is to set the text colour to black, because this is colour code 0, and then to fill the screen with @ characters, because that is
@@ -691,11 +691,11 @@ Because Full-Colour Sprite Mode requires four bits per pixel, sprites will be on
 for a sprite, in which case the sprite will be 16 pixels wide.  Tiled Mode also works with Full-Colour Sprite Mode, and will result in the
 16 full-colour pixels of the sprite being repeated until the end of the raster line.
 
-The following BASIC program draws a Full-Colour Sprite in either C64 or C65 mode:
+The following BASIC program draws a Full-Colour Sprite in either C64 or C65-mode:
 
 \begin{screenoutput}
 10 PRINT CHR$(147)
-20 REM C65/C64 MODE DETECT
+20 REM C65/C64-MODE DETECT
 30 IF PEEK(53272) AND 32 THEN GOTO 100
 40 POKE 53295,ASC("G"):POKE 53295,ASC("S")
 100 REM SETUP SPRITE

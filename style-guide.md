@@ -27,6 +27,10 @@ Below are some simple MEGA65 styling rules:
     * Organise, not organize.
     * Colours, not colors.
 
+* **Clean as you go!** If you're changing certain properties/using commands of LaTeX to have your tables/images/text 
+  appear in a particular way, remember to reset anything you have changed back to the default. These especially include
+  `setlength`.  
+
 * If you're stuck on when to use commas and hyphens refer to the 
   [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/commas).
 
@@ -88,6 +92,8 @@ Some commonly used words, and their preferences (in alphabetical order):
 * Command, see Keyword.
 
 * Disk, not disc. See [here](https://en.wikipedia.org/wiki/Spelling_of_disc#UK_vs._US) for more information.
+
+* Input/Output. Please use slashes here, same goes for the initials. i.e: I/O, not IO.
 
 * Keyword. When documenting BASIC, there's no need to add the word `keyword` before a BASIC keyword, as they
   should already be in bold (`{\bf LOAD`), so the fact that it's a keyword is already implied.

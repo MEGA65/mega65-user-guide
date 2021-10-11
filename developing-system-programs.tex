@@ -15,7 +15,7 @@ In one sense, the easiest way to test new versions of these utilities is to gene
 However, synthesising a new bitstream is very time consuming, typically taking an hour on a reasonably fast computer.
 Therefore this chapter explains the procedure for loading an alternate version of each of these system programs, as well as
 providing some useful information about these programs, how the operate, and the environment in which they operate compared
-with normal C64 or C65 mode programs.
+with normal C64 or C65-mode programs.
 
 \section{Flash Menu}
 
@@ -78,7 +78,7 @@ m65 -c COLOURRAM.BIN
 \end{verbatim}
 \end{tcolorbox}
 
-You can now hold \specialkey{ALT} down, and press the reset button on the left side of the MEGA65, which should
+You can now hold \specialkey{ALT} down, and press the reset button on the left-hand side of the MEGA65, which should
 again present
 the utility menu,
 but this time with your modified format/fdisk utility in place.
@@ -107,7 +107,7 @@ The Hypervisor is normally built as HICKUP.M65, a 16KiB file that contains the c
 
 \begin{itemize}
 	\item 1. Place the updated HICKUP.M65 file on the FAT32 file system of the SD card, and then power the MEGA65 off and on.  This works because the Hypervisor contains code that checks for an updated version of itself, and if found, loads it. However this approach is problematic in that if you install a newer bitstream, it will still downgrade the Hypervisor to whatever version is found in the HICKUP.M65 file on the SD card.  This method is only recommended for developers who have a need to test their modified Hypervisor code from a cold start. Even then, it is recommended to remove the HICKUP.M65 file immediately after testing to avoid unexpected down-grading in the future.
-	\item 2. Use the m65 command's {\\t -k} option to replace the Hypervisor in place, and then reset the MEGA65 using the reset button on the left side of the case.  This should be done when the Hypervisor is {\em not} active, so that corruption of current execution cannot occur. However, it must also occur before any ROM has been loaded to replace the default OpenROM image.  This is because the Hypervisor will attempt to call into the ROM on first-boot in prepration for calling the flash menu, and assumes that the OpenROM is present, because it uses a special OpenROM-specific call to initialise parts of the system state for the flash menu.  This is best done by using a command like {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} to load both a new Hypervisor program and re-load an OpenROM image.
+	\item 2. Use the m65 command's {\\t -k} option to replace the Hypervisor in place, and then reset the MEGA65 using the reset button on the left-hand side of the case.  This should be done when the Hypervisor is {\em not} active, so that corruption of current execution cannot occur. However, it must also occur before any ROM has been loaded to replace the default OpenROM image.  This is because the Hypervisor will attempt to call into the ROM on first-boot in prepration for calling the flash menu, and assumes that the OpenROM is present, because it uses a special OpenROM-specific call to initialise parts of the system state for the flash menu.  This is best done by using a command like {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} to load both a new Hypervisor program and re-load an OpenROM image.
 \end{itemize}
 
 \section{OpenROM}

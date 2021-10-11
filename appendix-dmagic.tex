@@ -71,7 +71,7 @@ in the list itself.  As the Enhanced DMA Jobs are an extension of the F018/F018B
 unless you are already familiar with the behaviour of the F018 DMA controller.
 
 \subsubsection{F018 11 byte DMA List Structure}
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Offset & Contents \\
@@ -91,9 +91,10 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
   \multicolumn{2}{l}{* The Command MSB is \$00 when using this list format.}
 
 \end{tabular}
+\end{center}
 
 \subsubsection{F018B 12 byte DMA List Structure}
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Offset & Contents \\
@@ -112,9 +113,10 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
   \$0b & Modulo MSB / Mode \\
   \hline
 \end{tabular}
+\end{center}
 
 The structure of the command word is as follows:
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Bit(s) & Contents \\
@@ -131,9 +133,10 @@ The structure of the command word is as follows:
   12 -- 15 & RESESRVED. Always set to 0's \\
   \hline
 \end{tabular}
+\end{center}
 
 The command field take the following four values:
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Value & Contents \\
@@ -145,7 +148,7 @@ The command field take the following four values:
   \hline
   \multicolumn{2}{l}{* Only Copy and Fill are implemented at the time of writing.}
 \end{tabular}
-
+\end{center}
 
 The addressing mode fields take the following four values:
 
@@ -172,7 +175,7 @@ The BANK and FLAGS field has the following structure:
   4 & HOLD, i.e., do not change the address \\
   5 & MODULO, i.e., apply the MODULO field to wrap-around within a limited memory space \\
   6 & DIRECTION. If set, then the address is decremented instead of incremented. \\
-  7 & I/O. If set, then IO registers are visible during the DMA controller at \$D000 -- \$DFFF. \\
+  7 & I/O. If set, then I/O registers are visible during the DMA controller at \$D000 -- \$DFFF. \\
   \hline
 \end{tabular}
 
@@ -181,7 +184,7 @@ The BANK and FLAGS field has the following structure:
 For information on using the DMA controller from BASIC 65, refer to the \stw{DMA} BASIC command in \bookvref{BASIC 65 Commands!DMA}.
 
 To use the DMA controller from assembly language, set up a data structure with the DMA list, and then
-set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65 mode by filling
+set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65-mode by filling
 it with spaces, the following routine could be used:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -274,7 +277,7 @@ dmalist:
 
 It is also possible to perform a DMA operation from BASIC 2 in C64
 mode by POKEing the necessary values, after first making sure that
-MEGA65 or C65 IO mode has been selected by writing the appropriate
+MEGA65 or C65 I/O mode has been selected by writing the appropriate
 values to \$D02F (53295). For example, to clear the screen in C64 BASIC 2
 using the DMA controller, you could use something like:
 
@@ -285,9 +288,9 @@ the screen again, all you would need to do would be to \stw{POKE 55040,0} again,
 assuming that the DMA list and DMA controller registers had not been modified
 since the previous time the DMA job had been run.
 
-The HOLD, IO and other options can also be used to create interesting effects.
+The HOLD, I/O and other options can also be used to create interesting effects.
 For example, to write a new value to the screen background colour very quickly,
-you could copy a region of memory to \$D021, with the IO flag set to make the IO
+you could copy a region of memory to \$D021, with the I/O flag set to make the I/O
 register visible for writing in the DMA job, and the HOLD flag set, so that the
 same address gets written to repeatedly. This will write to the background colour
 at a rate of 20.5MHz, which is almost as fast as the video pixel clock (27MHz).
@@ -317,7 +320,7 @@ basicheader:
 	;; Actual code begining at $080d = 2061
 main:
 	sei
-	lda #$47        	; enable MEGA65 IO
+	lda #$47        	; enable MEGA65 I/O
 	sta $D02f
 	lda #$53
 	sta $d02f
@@ -585,7 +588,7 @@ with the value \$FF, while a value of \$00 will effectively mute the
 channel.  The first two audio channels are normally allocated to the
 left, and the second two to the right.  However, the MEGA65 includes
 separate volume controls for the opposite channels. For example, to
-play audio DMA channel 0 at full volume on both left and right sides
+play audio DMA channel 0 at full volume on both left and right-hand sides
 of the audio output, set both \$D729 and \$D71C to \$FF.  This allows
 panning of the four audio DMA channels.
 

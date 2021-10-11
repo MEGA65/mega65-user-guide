@@ -259,8 +259,8 @@ void emit_table_output(FILE* f)
 
   if (table_uses_bits) {
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
-    fprintf(f, "\\setlength{\\tabcolsep}{3pt}\n"
-               "\\begin{longtable}{|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|}\n"
+    fprintf(f, "\\setlength{\\tabcolsep}{0pt}\n"
+               "\\begin{longtable}{|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|}\n"
                "\\hline\n"
                "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
                "{\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
@@ -273,7 +273,8 @@ void emit_table_output(FILE* f)
   }
   else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
-    fprintf(f, "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}\n"
+    fprintf(f, "\\setlength{\\tabcolsep}{3pt}\n"
+               "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}\n"
                "\\hline\n"
                "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
                "\\hline\n"

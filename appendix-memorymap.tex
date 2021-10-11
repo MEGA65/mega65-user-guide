@@ -11,16 +11,16 @@ compatibility mode; and (5) MEGA65 mode, or one of the other modes,
 where the programmer has made use of MEGA65 enhanced features.
 
 It is important to understand that, unlike the C128, the C65 and
-MEGA65 allow access to all enhanced features from C64 mode, if the
+MEGA65 allow access to all enhanced features from C64-mode, if the
 programmer wishes to do so.  This means that while we frequently talk
-about ``C64 Mode,'' ``C65 Mode'' and ``MEGA65 Mode,'' these are simply
+about ``C64-mode,'' ``C65-mode'' and ``MEGA65 Mode,'' these are simply
 terms of convenience for the MEGA65 with its memory map (and sometimes
 other features) configured to provide an environment that matches
 the appropriate mode.  The heart of this is the MEGA65's flexible
 memory map.
 
 In this appendix, we will begin by describing the MEGA65's native
-memory map, that is, where all of the memory, IO devices and other
+memory map, that is, where all of the memory, I/O devices and other
 features appear in the 28-bit address space. We will then explain how
 C64 and C65 compatible memory maps are accessed from this 28-bit
 address space.
@@ -55,13 +55,13 @@ commands.  The following table summarises the contents of the first
 \hline
 \endlastfoot
 \hline
-\small 0 & \small 0 & \$0xxxx & \multicolumn{1}{p{6cm}|}{First 64KB RAM. This is the RAM visible in C64 mode.}\\
+\small 0 & \small 0 & \$0xxxx & \multicolumn{1}{p{6cm}|}{First 64KB RAM. This is the RAM visible in C64-mode.}\\
 \hline
 \small 1 & \small 1 & \$1xxxx & \multicolumn{1}{p{6cm}|}{Second 64KB RAM. This is the 2nd 64KB of RAM present on a C65.}\\
 \hline
-\small 2 & \small 2 & \$2xxxx & \multicolumn{1}{p{6cm}|}{First half of C65 ROM (C64 mode and shared components) {\em or} RAM}\\
+\small 2 & \small 2 & \$2xxxx & \multicolumn{1}{p{6cm}|}{First half of C65 ROM (C64-mode and shared components) {\em or} RAM}\\
 \hline
-\small 3 & \small 3 & \$3xxxx & \multicolumn{1}{p{6cm}|}{Second half of C65 ROM (C65 mode components) {\em or} RAM}\\
+\small 3 & \small 3 & \$3xxxx & \multicolumn{1}{p{6cm}|}{Second half of C65 ROM (C65-mode components) {\em or} RAM}\\
 \hline
 \small 4 & \small 4 & \$4xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (384KB or larger chip-RAM models)}\\
 \hline
@@ -95,7 +95,7 @@ of RAM.
 
 On all models it is possible to use all or part of the 128KB of ``ROM'' space as RAM. To do this, you must first
 request that the Hypervisor removes the read-only protection on this area, before you will be able to change
-its contents.  If you are writing a program which will start from C64 mode, or otherwise switch to using the C64
+its contents.  If you are writing a program which will start from C64-mode, or otherwise switch to using the C64
 part of the ROM, instead of the C65 part), then the second half of that space, i.e., BANK 3, can be safely used
 for your programs. This gives a total of 192KB of RAM, which is available on all models of the MEGA65.
 
@@ -137,10 +137,10 @@ layout of this address space.
 \hline
 \endlastfoot
 \hline
-\small 0000000 & \small 0 & 1 & \multicolumn{1}{p{6cm}|}{CPU IO Port Data
+\small 0000000 & \small 0 & 1 & \multicolumn{1}{p{6cm}|}{CPU I/O Port Data
   Direction Register}\\
 \hline
-\small 0000001 & \small 1 & 1 & \multicolumn{1}{p{6cm}|}{CPU IO Port Data}\\
+\small 0000001 & \small 1 & 1 & \multicolumn{1}{p{6cm}|}{CPU I/O Port Data}\\
 \hline
 \small 0000002 -- 005FFFF & \small 2 -- 384KB & 384KB &
 \multicolumn{1}{p{6cm}|}{Fast chip RAM (40MHz)}\\
@@ -165,7 +165,7 @@ layout of this address space.
 \multicolumn{1}{p{6cm}|}{Reserved for future expansion RAM}\\
 \hline
 \small F000000 -- FF7DFFF & \small 240MB -- 255.49MB & 15.49MB &
-\multicolumn{1}{p{6cm}|}{Reserved for future IO expansion}\\
+\multicolumn{1}{p{6cm}|}{Reserved for future I/O expansion}\\
 \hline
 \small FF7E000 -- FF7EFFF & \small 255.49MB -- 255.49MB & 4KB &
 \multicolumn{1}{p{6cm}|}{VIC-IV Character ROM (write only)}\\
@@ -186,16 +186,16 @@ layout of this address space.
 \multicolumn{1}{p{6cm}|}{Emulated C1541 ROM}\\
 \hline
 \small FFD0000 -- FFD0FFF & \small 255.81MB -- 255.81MB & 4KB &
-\multicolumn{1}{p{6cm}|}{C64 \$Dxxx IO Personality}\\
+\multicolumn{1}{p{6cm}|}{C64 \$Dxxx I/O Personality}\\
 \hline
 \small FFD1000 -- FFD1FFF & \small 255.81MB -- 255.82MB & 4KB &
-\multicolumn{1}{p{6cm}|}{C65 \$Dxxx IO Personality}\\
+\multicolumn{1}{p{6cm}|}{C65 \$Dxxx I/O Personality}\\
 \hline
 \small FFD2000 -- FFD2FFF & \small 255.82MB -- 255.82MB & 4KB &
-\multicolumn{1}{p{6cm}|}{MEGA65 \$Dxxx Ethernet IO Personality}\\
+\multicolumn{1}{p{6cm}|}{MEGA65 \$Dxxx Ethernet I/O Personality}\\
 \hline
 \small FFD3000 -- FFD3FFF & \small 255.82MB -- 255.82MB & 4KB &
-\multicolumn{1}{p{6cm}|}{MEGA65 \$Dxxx Normal IO Personality}\\
+\multicolumn{1}{p{6cm}|}{MEGA65 \$Dxxx Normal I/O Personality}\\
 \hline
 \small FFD4000 -- FFD5FFF & \small 255.82MB -- 255.83MB & 8KB &
 \multicolumn{1}{p{6cm}|}{Reserved}\\
@@ -246,18 +246,18 @@ layout of this address space.
 \hline
 \end{longtable}
 
-\section{\$D000 -- \$DFFF IO Personalities}
+\section{\$D000 -- \$DFFF I/O Personalities}
 \label{sec:iopersonalities}
 
-The MEGA65 supports four different IO personalities.  These are
+The MEGA65 supports four different I/O personalities.  These are
 selected by writing the appropriate values to the \$D02F KEY register,
-which is visible in all four IO personalities.  There is more information in
+which is visible in all four I/O personalities.  There is more information in
 \bookvref{cha:modes} about the use of the KEY
 register.
 
-The following table shows which IO devices are visible in each of
-these IO modes, as well as the KEY register values that are used to
-select the IO personality.
+The following table shows which I/O devices are visible in each of
+these I/O modes, as well as the KEY register values that are used to
+select the I/O personality.
 
 \newpage
 \setlength{\tabcolsep}{3pt}
@@ -272,10 +272,10 @@ select the IO personality.
 \endhead
 \multicolumn{3}{l@{}}{continued \ldots}\\
 \endfoot
-\multicolumn{5}{p{10.2cm}}{{$^1$} In the C64 IO personality, \$D030 behaves as on C128, allowing toggling
+\multicolumn{5}{p{10.2cm}}{{$^1$} In the C64 I/O personality, \$D030 behaves as on C128, allowing toggling
   between 1MHz and 2MHz CPU speed.}\\
 \multicolumn{5}{p{10.2cm}}{{$^2$} The additional MEGA65 SIDs are visible in
-  all IO personalities.}\\
+  all I/O personalities.}\\
 \multicolumn{5}{p{10.2cm}}{{$^3$} Some models may replace the repeated images
   of the first four SIDs with four additional SIDs, for a total of 8 SIDs.}\\
 \endlastfoot
@@ -340,7 +340,7 @@ Registers & HyperTrap Registers \\
 \hline
 \small \$DC00 -- \$DDFF & \small CIAs & CIAs / COLOUR RAM & ETHERNET Buffer & CIAs / COLOUR RAM \\
 \hline
-\small \$DE00 -- \$DFFF & \small CART IO & CART IO & ETHERNET Buffer & CART IO / SD SECTOR \\
+\small \$DE00 -- \$DFFF & \small CART I/O & CART I/O & ETHERNET Buffer & CART I/O / SD SECTOR \\
 \hline
 \end{longtable}
 
@@ -362,7 +362,7 @@ existing the MEGA65:
 It is important to understand that these different banking modes have
 a priority order: If a higher priority form of banking is being used,
 it takes priority over a lower priority form.  The C65 banking methods
-take priority of the C64 mode banking methods.  So, for example, if
+take priority of the C64-mode banking methods.  So, for example, if
 the 45GS10 MAP instruction has been used to provide a particular
 memory layout, the C64-style \$00 / \$01 banking will not be visible.
 
@@ -372,17 +372,17 @@ start by considering the effects of C64 memory banking, and then if
 any C65 MAP instruction memory banking is enabled, using that to override the
 C64-style memory banking. Then if any C65 \$D030 memory banking is
 used, that overrides both the C64 and C65 MAP instruction memory
-banking. Finally, if IO is banked, or if there are any cartridges
+banking. Finally, if I/O is banked, or if there are any cartridges
 inserted and active, their effects are made.
 
 The following diagram shows the different types of banking that can
 apply to the different areas of the 64KB that the CPU can see.  The
 higher layers take priority over the lower layers, as described in the
 previous paragraph.
-
+\begin{center}
 \begin{tabular}{rccccccc}
 \cline{4-5} \cline{7-8}
-\rowcolor[HTML]{C0C0C0} IO/CART &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMLO\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMHI\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{F8A102}IO}                                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART \\ ROMHI\end{tabular}} \\ \cline{4-8}
+\rowcolor[HTML]{C0C0C0} I/O/CART &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMLO\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMHI\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{F8A102}I/O}                                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART \\ ROMHI\end{tabular}} \\ \cline{4-8}
 \rowcolor[HTML]{EFEFEF}
 C65                                                 &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}\begin{tabular}[c]{@{}c@{}}INTER-\\ FACE\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                   & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}KERNAL}                                                \\ \cline{2-8}
 \rowcolor[HTML]{34FF34}
@@ -394,6 +394,7 @@ C64                                                 &                           
 \rowcolor[HTML]{EFEFEF}
                                                     & \multicolumn{2}{c}{\cellcolor[HTML]{EFEFEF}\begin{tabular}[c]{@{}c@{}}\$0000 --\\ \$7FFF\end{tabular}}        & \begin{tabular}[c]{@{}c@{}}\$8000 --\\ \$9FFF\end{tabular}                                        & \begin{tabular}[c]{@{}c@{}}\$A000 --\\ \$BFFF\end{tabular}                                        & \begin{tabular}[c]{@{}c@{}}\$C000 --\\ \$CFFF\end{tabular}                                         & \begin{tabular}[c]{@{}c@{}}\$D000 --\\ \$DFFF\end{tabular}                                      & \begin{tabular}[c]{@{}c@{}}\$E000 --\\ \$FFFF\end{tabular}
 \end{tabular}
+\end{center}
 
 (There are actually a few further complications. For example, if the
 cartridge selects the UltiMAX(tm) game mode, then only the first 4KB
@@ -437,7 +438,7 @@ will re-activate the write-protection.
 This fragment works by
 calling sub-function \$70 (toggle ROM write-protect) of Hypervisor
 trap \$00. Note that the \screentext{NOP} is mandatory. The MEGA65
-IO personality must be first selected, so that the \$D640 register is
+I/O personality must be first selected, so that the \$D640 register is
 un-hidden.
 
 The current write-protection
@@ -445,10 +446,10 @@ state can be tested by attempting to write to this area of memory.
 Also, you can examine and toggle the current state from in the MEGA65
 Freeze Menu.
 
-NOTE: If you are starting your program from C65 mode, you must first make
-sure that the IO area is visible at \$D000-\$DFFF.  The simplest way to do
+NOTE: If you are starting your program from C65-mode, you must first make
+sure that the I/O area is visible at \$D000-\$DFFF.  The simplest way to do
 this is to use the {\tt MAP} instruction with all zero values in the registers.
-The following fragment demonstrates this, and also makes sure that the MEGA65 IO
+The following fragment demonstrates this, and also makes sure that the MEGA65 I/O
 context is active, so that the hypervisor trap will be able to trigger:
 
 \begin{screenoutput}
@@ -459,10 +460,10 @@ context is active, so that the hypervisor trap will be able to trigger:
   TAY
   TAZ
   MAP
-  ; Bank IO in via C64 mechanism
+  ; Bank I/O in via C64 mechanism
   LDA #$35
   STA $01
-  ; Do MEGA65 / VIC-IV IO knock
+  ; Do MEGA65 / VIC-IV I/O knock
   LDA #$47
   STA $D02F
   LDA #$53
@@ -510,7 +511,7 @@ The layout of the C65 compatibility 128KB ROM area is identical to that of the C
 }
 
 The INTERFACE program is a series of routines that are used by the C65
-to switch between C64 mode, C65 mode and the C65's built-in DOS.  The
+to switch between C64-mode, C65-mode and the C65's built-in DOS.  The
 DOS is located in the lower-eighth of the ROM.
 
 

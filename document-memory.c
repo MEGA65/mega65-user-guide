@@ -260,7 +260,7 @@ void emit_table_output(FILE* f)
   if (table_uses_bits) {
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
     fprintf(f, "\\setlength{\\tabcolsep}{3pt}\n"
-               "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|c|c|c|c|c|c|c|c|}\n"
+               "\\begin{longtable}{|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|C{10.5mm}|}\n"
                "\\hline\n"
                "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
                "{\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
@@ -291,24 +291,24 @@ void emit_table_output(FILE* f)
              "\\endlastfoot\n");
 
   for (int row = 0; row < table_len; row++) {
-    fprintf(f, "\\small ");
+    fprintf(f, "\\footnotesize ");
     if (table_stuff[row].low_addr < 0x0100) {
       if (table_stuff[row].low_addr != table_stuff[row].high_addr)
-        fprintf(f, " %02X -- %02X\\index{\\$%02X (%s)}\\index{%s} & \\small %d -- %d ", table_stuff[row].low_addr,
+        fprintf(f, " %02X -- %02X\\index{\\$%02X (%s)}\\index{%s} & \\footnotesize %d -- %d ", table_stuff[row].low_addr,
             table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].bit_signals[0],
             table_stuff[row].bit_signals[0], table_stuff[row].low_addr, table_stuff[row].high_addr);
       else
-        fprintf(f, " %02X\\index{\\$%02X (%s)}\\index{%s} & \\small %d ", table_stuff[row].low_addr,
+        fprintf(f, " %02X\\index{\\$%02X (%s)}\\index{%s} & \\footnotesize %d ", table_stuff[row].low_addr,
             table_stuff[row].low_addr, table_stuff[row].bit_signals[0], table_stuff[row].bit_signals[0],
             table_stuff[row].low_addr);
     }
     else {
       if (table_stuff[row].low_addr != table_stuff[row].high_addr)
-        fprintf(f, " %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X}\\index{Registers!%d -- %d} & \\small %d -- %d ",
+        fprintf(f, " %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X}\\index{Registers!%d -- %d} & \\footnotesize %d -- %d ",
             table_stuff[row].low_addr, table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].high_addr,
             table_stuff[row].low_addr, table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].high_addr);
       else
-        fprintf(f, " %04X\\index{Registers!\\$%04X}\\index{Registers!%d} & \\small %d ", table_stuff[row].low_addr,
+        fprintf(f, " %04X\\index{Registers!\\$%04X}\\index{Registers!%d} & \\footnotesize %d ", table_stuff[row].low_addr,
             table_stuff[row].low_addr, table_stuff[row].low_addr, table_stuff[row].low_addr);
     }
 
@@ -326,10 +326,10 @@ void emit_table_output(FILE* f)
             break;
         }
         if (bit_count == 1) {
-          fprintf(f, "& \\small %s ", table_stuff[row].bit_signals[bit] ? table_stuff[row].bit_signals[bit] : "--");
+          fprintf(f, "& \\footnotesize %s ", table_stuff[row].bit_signals[bit] ? table_stuff[row].bit_signals[bit] : "--");
         }
         else {
-          fprintf(f, "& \\multicolumn{%d}{c|}{\\small %s", bit_count,
+          fprintf(f, "& \\multicolumn{%d}{c|}{\\footnotesize %s", bit_count,
               table_stuff[row].bit_signals[bit] ? table_stuff[row].bit_signals[bit] : "--");
           if (table_stuff[row].bit_signals[bit])
             fprintf(f, "\\index{Registers!%s}", table_stuff[row].bit_signals[bit]);

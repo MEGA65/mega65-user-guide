@@ -27,6 +27,10 @@ Below are some simple MEGA65 styling rules:
     * Organise, not organize.
     * Colours, not colors.
 
+* **Clean as you go!** If you're changing certain properties/using commands of LaTeX to have your tables/images/text 
+  appear in a particular way, remember to reset anything you have changed back to the default. These especially include
+  `setlength`.  
+
 * If you're stuck on when to use commas and hyphens refer to the 
   [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/commas).
 

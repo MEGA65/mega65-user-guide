@@ -193,7 +193,7 @@ The NTSC frame is constructed from 526 physical raster lines, consisting of 858 
 
 As these HDTV video modes are not supported by all VGA monitors, a compatibility mode is included that provides a 640$\times$480 VGA-style mode. However, as the pixel clock of the MEGA65 is fixed at 27MHz, this mode runs at 63Hz.  Nonetheless, this should work on the vast majority of VGA monitors.  There should be no problem with the PAL / NTSC modes when using the digital video output of the MEGA65 with the vast majority of IMDH\texttrademark-enabled monitors and TVs.
 
-To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the freeze menu, which displays the current video mode, or from a program you can check the PALNTSC signal (bit 7 of \$D06F, 53359 decimal). If this bit is set, then the machine is operating in NTSC mode, and clear if operating in PAL mode. This bit can be modified to change between the modes, e.g.:
+To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the Freeze Menu, which displays the current video mode, or from a program you can check the PALNTSC signal (bit 7 of \$D06F, 53359 decimal). If this bit is set, then the machine is operating in NTSC mode, and clear if operating in PAL mode. This bit can be modified to change between the modes, e.g.:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -547,9 +547,10 @@ normally be used with Super-Extended Attribute Mode (SEAM), so that more than 25
 the selection of 8,192 unique characters, this allows FCM character data to be placed anywhere in the first 512KiB of chip RAM (but
 note that most models of the MEGA65 have only 384KiB of chip RAM).
 
-\subsection{Nybl-colour (16 colours per character) Text Mode (NCM)}
+\subsection{Nibble-colour (16 colours per character) Text Mode (NCM)}
 
-The Nybl-Colour Mode (NCM) for text is similar to Full-Colour Text Mode, except that each byte of data describes two pixels using 4 bits each. This makes the NCM unique, because the characters will be 16 pixels wide, instead of the usual 8 pixels wide. This can be used to create colourful displays, without using as much memory as FCM, because fewer characters are required to cover the screen.  Unlike the VIC-II's MCM, this mode does not result in a loss of horizontal resolution.
+The Nibble-Colour Mode (NCM) for text is similar to Full-Colour Text Mode, except that each byte of data describes two
+pixels using 4 bits each. This makes the NCM unique, because the characters will be 16 pixels wide, instead of the usual 8 pixels wide. This can be used to create colourful displays, without using as much memory as FCM, because fewer characters are required to cover the screen.  Unlike the VIC-II's MCM, this mode does not result in a loss of horizontal resolution.
 
 In NCM the lower four bits of the pixel colour comes from the upper or lower four bits of the pixel data.  The upper four bits of the colour code come from the colour RAM data for the displayed character.  This makes it possible to use all palette entries in NCM, although the limitation of 16 colours per character remains.
 
@@ -695,64 +696,71 @@ The following BASIC program draws a Full-Colour Sprite in either C64 or C65 mode
 \begin{screenoutput}
 10 PRINT CHR$(147)
 20 REM C65/C64 MODE DETECT
-30 IF PEEK($D018) AND 32 THEN GOTO 100
-40 POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
+30 IF PEEK(53272) AND 32 THEN GOTO 100
+40 POKE 53295,ASC("G"):POKE 53295,ASC("S")
 100 REM SETUP SPRITE
-110 AD=$0E00:        REM $0E00 SPRITE
-120 TC=10:           REM TRANSPARENT COLOUR
-130 FOR I=AD TO AD+168:POKE I,TC+TC*16:NEXT
-140 POKE $ff8,AD/64: REM SET SPRITE NUMBER
-150 POKE 53269,1:    REM ENABLE SPRITE 0
-160 POKE 53248,100:  REM PUT SPRITE
-170 POKE 53249,100:  REM ON SCREEN
-180 POKE 53355,1:    REM MAKE SPRITE 0 16-COLOUR
-190 POKE 53335,1:    REM MAKE SPRITE 0 USE 16 X 4-BIT PIXELS
-200 POKE 53287,TC:   REM SET TRANSPARENT COLOUR
-210 GOSUB 900:       REM READ MULTI-COLOUR SPRITE
-220 END
+110 AD=4096                         :REM $1000 SPRITE ADDR
+120 TC=10                           :REM TRANSPARENT COLOUR
+130 SPR=PEEK(53356)+PEEK(53357)*256 :REM GET SPRITE TABLE ADDRESS
+140 POKE SPR,AD/64                  :REM SET SPRITE ADDRESS
+150 FOR I=AD TO AD+168              :REM CLEAR SPRITE WITH TC
+160 POKE I,TC+TC*16                 :REM ONE BYTE = 2 PIXEL
+170 NEXT
+180 POKE 53287,TC                   :REM SET TRANSPARENT COLOUR
+190 POKE 53248,100                  :REM PUT SPRITE...
+200 POKE 53249,100                  :REM ON SCREEN AT 100,100
+210 POKE 53355,1                    :REM MAKE SPRITE 0 16-COLOUR
+220 POKE 53335,1                    :REM MAKE SPRITE 0 USE 16X4-BITS
+230 POKE 53269,1                    :REM ENABLE SPRITE 0
+240 GOSUB 900                       :REM READ MULTI-COLOUR SPRITE
+250 END
 
 900 REM LOAD SPRITE FROM DATA
 910 READ N$:IF N$="END" THEN RETURN
-920 GOSUB 1000
+920 GOSUB 1000                      :REM DECODE LINE
 930 GOTO 910
 
-1000 REM DECODE STRING OF NIBBLES IN N$ AT ADDRESS AD
-1010 IF LEN(N$)<>16 THEN BEGIN:PRINT "ILLEGAL SPR DATA!":END:BEND
-1020 FOR I=1 TO 16 STEP 2
-1030 N=(ASC(MID$(N$,I,1))-ASC("@")) AND 15  : REM HIGH NYB
-1040 M=(ASC(MID$(N$,I+1,1))-ASC("@")) AND 15: REM LOW NYB
-1050 POKE AD,N*16+M
-1060 AD=AD+1
-1070 NEXT I
-1080 RETURN
 \end{screenoutput}
 
 \begin{screenoutput}
+1000 REM DECODE STRING OF NIBBLES IN N$ AT ADDRESS AD
+1010 IF LEN(N$)<>16 THEN BEGIN:PRINT "ILLEGAL SPR DATA!":END:BEND
+1020 FOR I=1 TO 16 STEP 2
+1030 N=(ASC(MID$(N$,I,1))-ASC("@"))    :REM HIGH NYB
+1040 IF N<0 THEN N=TC                  :REM . IS TRANSPARENT
+1050 M=(ASC(MID$(N$,I+1,1))-ASC("@"))  :REM LOW NYB
+1060 IF M<0 THEN M=TC                  :REM . IS TRANSPARENT
+1070 POKE AD,(N AND 15)*16 + (M AND 15):REM SET 2 PIXELS
+1080 AD=AD+1                           :REM ADVANCE AD
+1090 NEXT I
+1100 RETURN
+
 1998 REM SPRITE DATA
-1999 REM J = TRANSPARENT, @-O = COLOURS 0 TO 15
-2000 DATA "JJAAFFJJJHHCCJJJ"
-2010 DATA "JAAFFJJJJJHHCCJJ"
-2020 DATA "AAFFJJJJJJJHHCCJ"
-2030 DATA "AFFJJJ@@@JJJHHCJ"
-2040 DATA "FFJJ@@GGG@@JJHHJ"
-2050 DATA "JJ@@GGGGGGG@@JJJ"
-2060 DATA "J@GGGGGGGGGGG@JJ"
-2070 DATA "J@GGGGGGGGGGG@JJ"
-2080 DATA "@GGG@@GGG@@GGG@J"
-2090 DATA "@GG@GGGGGGG@GG@J"
-2100 DATA "@GGGGGGGGGGGGG@J"
-2110 DATA "@GGGGGBGBGGGGG@J"
-2120 DATA "@GGGBBBBBBBGGG@J"
-2130 DATA "J@GGGGBBBGGGG@JJ"
-2140 DATA "J@GGGGGBGGGGG@JJ"
-2150 DATA "JJ@@GGGGGGG@@JJJ"
-2160 DATA "IIJJ@@GGG@@JJKKJ"
-2170 DATA "DIIJJJ@@@JJJKKEJ"
-2180 DATA "DDIIJJJJJJJKKEEJ"
-2190 DATA "JDDIIJJJJJKKEEJJ"
-2200 DATA "JJDDIIJJJKKEEJJJ"
+1999 REM . = TRANSPARENT, @-O = COLOURS 0 TO 15
+2000 DATA "..AAFF...HHCC..."
+2010 DATA ".AAFF.....HHCC.."
+2020 DATA "AAFF.......HHCC."
+2030 DATA "AFF...@@@...HHC."
+2040 DATA "FF..@@GGG@@..HH."
+2050 DATA "..@@GGGGGGG@@..."
+2060 DATA ".@GGGGGGGGGGG@.."
+2070 DATA ".@GGGGGGGGGGG@.."
+2080 DATA "@GGG@@GGG@@GGG@."
+2090 DATA "@GG@GGGGGGG@GG@."
+2100 DATA "@GGGGGGGGGGGGG@."
+2110 DATA "@GGGGGBGBGGGGG@."
+2120 DATA "@GGGBBBBBBBGGG@."
+2130 DATA ".@GGGGBBBGGGG@.."
+2140 DATA ".@GGGGGBGGGGG@.."
+2150 DATA "..@@GGGGGGG@@..."
+2160 DATA "II..@@GGG@@..KK."
+2170 DATA "DII...@@@...KKE."
+2180 DATA "DDII.......KKEE."
+2190 DATA ".DDII.....KKEE.."
+2200 DATA "..DDII...KKEE..."
 2210 DATA "END"
 \end{screenoutput}
+\clearpage
 
 \section{VIC-II / C64 Registers}
 

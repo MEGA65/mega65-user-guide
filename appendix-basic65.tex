@@ -324,13 +324,13 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
    \unitdefinition
 
 \item [Remarks:]
-   \screentext{APPEND\#} works similarly to \screentext{DOPEN\#},
-   except that if the file already
-   exists, the existing content of the file will be retained, and any
-   \screentext{PRINT\#}s made to the
-   open file will cause the file to increase in size.
+   \screentext{APPEND\#} works similarly to \screentext{DOPEN\#... ,W},
+   except that the file must exist already.
+   The content of the file is retained, and all printed text
+   is appended to the end.
+   Trying to {\bf APPEND} to a non existing file reports a DOS error.
 
-\item [Examples:] Open file in append mode:
+\item [Examples:] Open existing file in append mode:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -421,7 +421,7 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
   {\bf AUTO [step]}
 \item [Usage:] Enables faster typing of BASIC programs.
   After submitting a new program line to the BASIC editor with
-  the \specialkey{RETURN} key, the AUTO function generates a new BASIC line
+  \specialkey{RETURN}, the AUTO function generates a new BASIC line
   number for the entry of the next line. The new number is
   computed by adding {\bf step} to the current line number.
 
@@ -862,15 +862,33 @@ BOOT
 \item [Usage:]
    "Binary SAVE" saves a memory range to a file of type {\bf PRG}.
 
+   {\bf BSAVE} has two modes:
+   The flat memory address mode can be used to save a memory block
+   in the 28-bit (256 MB) address range where RAM is installed.
+   This includes the standard RAM banks 0 to 5, but also
+   the 8MB so called "attic RAM" at address \$8000000.
+
+   This mode is triggered by specifying addresses for the start
+   and end parameter P, that are
+   larger than \$FFFF. The bank parameter is ignored in this mode.
+   This flat memory mode allows saving ranges greater than 64K.
+
+   For compatibility reasons with older BASIC versions, {\bf BSAVE}
+   accepts the syntax with 16-bit addresses at P and a bank number at B as well.
+   The attic RAM is out of range for this compatibility mode.
+   This mode cannot cross bank boundaries, start and end address
+   are supposed to refer to the same bank.
+
+
    \filenamedefinition
    If the first character of the filename is an at sign '@', it
    is interpreted as a "save and replace" operation. It is not recommended
    to use this option on 1541 and 1571 drives, as they
    contain a "save and replace bug" in their DOS.
 
-   {\bf start} address where saving begins from.
-   It also becomes the load address,
-   which is stored in the first two bytes of the {\bf PRG} file.
+    {\bf start} is the first address, where the saving begins.
+    It also becomes the load address,
+    which is stored in the first two bytes of the {\bf PRG} file.
 
    {\bf end} address where the saving ends.
    {\bf end-1} is the last address to be used for saving.
@@ -889,6 +907,13 @@ BOOT
    number, it must be set in parenthesis, as shown
    in the third and fourth line of the examples.
 
+   The {\bf PRG} file format, that is used by {\bf BSAVE}
+   requires the load address to be written to the first two bytes.
+   If the saving is done with a bank number, that is not zero
+   or a start address higher than \$FFFF, this information does not
+   fit. For compatibility reasons, only the the two low order bytes
+   are written. Loading the file with the {\bf BLOAD} command
+   requires then the full specification of the load address as parameter.
 
 \item [Examples:] Using {\bf BSAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1689,7 +1714,7 @@ CLOSE 1
 \item [Usage:] Used to resume
                program execution after a break or stop caused by
                an {\bf END} or {\bf STOP} statement, or by pressing
-               the {\bf STOP KEY}.
+               \specialkey{RUN\\STOP}.
                This is a useful debugging tool. The BASIC program may be stopped
                and variables can be examined, and even changed.
                The {\bf CONT} statement resumes execution.
@@ -1725,7 +1750,7 @@ CONT
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F4
 \item [Format:] {\bf COPY source [,D drive] [,U unit] TO
-                target [,D drive] [,U unit] }
+                [target] [,D drive] [,U unit] }
 \item [Usage:]
    Copies the contents of
    {\bf source} to {\bf target}.
@@ -1744,13 +1769,13 @@ CONT
 
    If none or one unit number is given, or the unit numbers before and after
    the TO token are equal, {\bf COPY} is executed on the disk drive
-   itself, and the source and target files are will be on the same disk.
+   itself, and the source and target files will be on the same disk.
 
    If the source unit (before TO) is different to the target unit (after TO),
    {\bf COPY} is executed in MEGA65 BASIC by reading the source
    files into a RAM buffer and writing to the target unit. In this case,
    the target file name cannot be chosen, it will be the same as the
-   destination filename. The extended unit-to-unit copy mode allows the copying of
+   source filename. The extended unit-to-unit copy mode allows the copying of
    single files, pattern matching files or all files of a disk.
    Any combination of units is allowed, internal floppy, SD card images,
    IEC floppy drives such as the 1541, 1571, 1581, or CMD floppy and hard drives.
@@ -1795,7 +1820,7 @@ CONT
 
 \item [Remarks:] An argument in units of {\bf degrees}
                  can be converted to {\bf radians}
-               by multiplying it with $\pi/180$.
+                 by multiplying it with $\pi/180$.
 \item [Examples:] Using {\bf COS}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -1855,8 +1880,8 @@ X=60:PRINT COS(X * ~ / 180)
                in a program. Numbers and strings are allowed, but expressions are not.
                Items are separated by commas.
                Strings containing commas, colons or spaces must be placed
-               in quotes. \\
-               \\
+               in quotes.
+
                {\bf RUN} initialises the data pointer
                to the first item of the first {\bf DATA} statement
                and advances it for every read item. It is the
@@ -1865,8 +1890,8 @@ X=60:PRINT COS(X * ~ / 180)
                statement match. Empty items with no constant
                between commas are allowed and will be interpreted as
                zero for numeric variables and an empty string for
-               string variables. \\
-               \\
+               string variables.
+
                {\bf RESTORE} may be used to set the
                data pointer to a specific line for subsequent
                reads.
@@ -2435,7 +2460,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                the start of a BASIC loop.
                Using {\bf DO} and {\bf LOOP} alone without any
-               modifiers creates an infinite loop, which can only be left
+               modifiers creates an infinite loop, which can only be exited
                by the {\bf EXIT} statement. The loop can be
                controlled by adding {\bf UNTIL} or {\bf WHILE}
                after the {\bf DO} or {\bf LOOP}.
@@ -2667,8 +2692,8 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf DT\$}
 \item [Usage:]  {\bf DT\$} holds the current date and is updated before
-                each usage from the RTC (Real Time Clock).
-                The RTC can be set in the CONFIGURE menu.
+                each usage from the RTC (Real-Time Clock).
+                The RTC can be set in the Configure Menu.
                 The string {\bf DT\$} is formatted as:
                 "DD-MON-YYYY", for example: "04-APR-2021".
 \item[Remarks:] {\bf DT\$} is a reserved system variable.
@@ -2916,7 +2941,7 @@ where the error line is taken from {\bf EL}.
 \item [Example:] Using {\bf ELLIPSE}
 
 
-\item \begin{center}\includegraphics[width=\linewidth]{images/ellipse.png}\end{center}
+\item \begin{center}\includegraphics[width=0.7\linewidth]{images/ellipse.png}\end{center}
 
 \newpage
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3040,7 +3065,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ENVELOPE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0A
-\item [Format:] {\bf ENVELOPE n, [attack, vdecay, vsustain, vrelease, vwaveform, vpw]}
+\item [Format:] {\bf ENVELOPE n, [attack, decay, sustain, release, waveform, pw]}
 \item [Usage:] Used to define
                the parameters for the synthesis of a musical
                instrument.
@@ -3060,7 +3085,7 @@ where the error line is taken from {\bf EL}.
       {\bf pw} pulse width (0-4095) for waveform.
 
 \label{envelopetable}
-               There are 10 slots for storing melodies,
+               There are 10 slots for storing instrument parameters,
                preset with following values:
 \begin{center}
 \ttfamily
@@ -3088,11 +3113,10 @@ where the error line is taken from {\bf EL}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
-20 VOL 8
-30 TEMPO 100
-40 PLAY "C D E F G A B"
-50 PLAY "U5 V1 C D E F G A B"
+10 ENVELOPE 9,10,5,10,5,2,4000
+20 VOL 9
+30 TEMPO 30
+40 PLAY "T9O4Q CDEFGAB U3T8 CDEFGAB L","T5O3Q H CGEQG T7 HCGEQG L"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3311,10 +3335,10 @@ PRINT EXP(LOG(2))
                  with any real number, the precision part (the decimal point
                  and any digits after it), will be ignored.
 
-    {\bf FAST} is a synonym of {\bf SPEED}.
+                 {\bf FAST} is a synonym of {\bf SPEED}.
 
-    {\bf FAST} has no effect if {\bf POKE 0,65}
-    has previously been used to set the CPU to 40MHz.
+                 {\bf FAST} has no effect if {\bf POKE 0,65}
+                 has previously been used to set the CPU to 40MHz.
 
 \item [Example:] Using {\bf FAST}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3364,9 +3388,20 @@ PRINT EXP(LOG(2))
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-FILTER 1,1023,1,0,0,10 :REM LOW PASS
-FILTER 1,1023,0,1,0,10 :REM BAND PASS
-FILTER 1,1023,0,0,1,10 :REM HIGH PASS
+10 PLAY "T7X1O3P9C"
+15 SLEEP 0.02
+20 PRINT "LOW PASS SWEEP" :L=1:B=0:H=0:GOSUB 100
+30 PRINT "BAND PASS SWEEP":L=0:B=1:H=0:GOSUB 100
+40 PRINT "HIGH PASS SWEEP":L=0:B=0:H=1:GOSUB 100
+50 GOTO 20
+100 REM *** SWEEP ***
+110 FOR F = 50 TO 1950 STEP 50
+120 IF F >= 1000 THEN FF = 2000-F : ELSE FF = F
+130 FILTER 1,FF,L,B,H,15
+140 PLAY "X1"
+150 SLEEP 0.02
+160 NEXT F
+170 RETURN
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3387,7 +3422,7 @@ FILTER 1,1023,0,0,1,10 :REM HIGH PASS
                 (if specified), otherwise the entire BASIC program is searched.
                 At each occurrence of the "find string" the line is
                 listed with the string highlighted.
-                The \specialkey{NO\\SCROLL} key can be used to pause the output.
+                \specialkey{NO\\SCROLL} can be used to pause the output.
 
 \item [Remarks:] Any un-shifted character that is not part of
                  the string can be used as delimiter.
@@ -3551,7 +3586,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 
                {\bf end} is checked at the end of an iteration,
                and determines whether another iteration will be performed,
-               or if the loop is exited.
+               or if the loop will exit.
 
                {\bf step} defines the change applied to
                to the index variable at the end of an iteration.
@@ -3988,19 +4023,15 @@ ARE YOU SURE?
 \item [Usage:] Continues program
                execution at the given BASIC line number.
 
-\item [Remarks:] The new {\bf line} number will be searched by scanning
-               the BASIC source, upwards (in other words, it will scan
-               {\it down} the screen, scanning lines with higher line numbers).
-               If the target {\bf line} number is higher than the current line number, the
-               search starts from the current line, working it's way upwards.
+\item [Remarks:] If the target {\bf line} number is higher than the current line number, the
+               search starts from the current line, proceeding to higher line numbers.
                If the target {\bf line} number is lower, the search starts
-               from the start of the program.
-               By keeping this behaviour in mind, it is possible to optimise
+               at the first {\bf line} number of the program.
+               It is possible to optimise
                the run-time speed of the program by grouping often used targets at the
                start (with lower line numbers).
 
-               {\bf GOTO} (written as a single
-               word) executes faster than {\bf GO TO}.
+               {\bf GOTO} (written as a single word) executes faster than {\bf GO TO}.
 
 \item [Example:] Using {\bf GOTO}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4227,20 +4258,20 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Usage:] Starts a conditional execution
                statement.
 
-               {\bf expression} is a logical or numeric expression.
-               A numeric expression is evaluated as {\bf FALSE}
-               if the value is zero and {\bf TRUE} for any non-zero
-               value.
+                {\bf expression} a logical or numeric expression.
+                A numeric expression is evaluated as {\bf FALSE}
+                if the value is zero and {\bf TRUE} for any non-zero
+                value.
 
-               {\bf true clause} are one or more statements starting
-               directly after {\bf THEN} on the same line.
-               A linenumber after {\bf THEN} performs a
-               {\bf GOTO} to that line.
+                {\bf true clause} one or more statements starting
+                directly after {\bf THEN} on the same line.
+                A line number after {\bf THEN} performs a
+                {\bf GOTO} to that line instead.
 
-               {\bf false clause} are one or more statements starting
-               directly after {\bf ELSE} on the same line.
-               A linenumber after {\bf ELSE} performs a
-               {\bf GOTO} to that line.
+                {\bf false clause} one or more statements starting
+                directly after {\bf ELSE} on the same line.
+                A linenumber after {\bf ELSE} performs a
+                {\bf GOTO} to that line instead.
 
 \item [Remarks:]
                The standard {\bf IF ... THEN ... ELSE} structure
@@ -4282,8 +4313,8 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
                flashes the cursor and waits for user input
                from the keyboard.
 
-               {\bf prompt} string expression to be printed
-               as the prompt. It may be omitted. \\
+               {\bf prompt} optional string expression to be printed
+               as the prompt.
                If the separator between {\bf prompt} and {\bf variable list}
                is a comma, the cursor is placed directly after
                the prompt. If the separator is a semicolon,
@@ -4297,11 +4328,13 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Remarks:] The user must take care to enter the correct
                type of input, so it matches the {\bf variable list} types.
                Also, the number of input items must match the number
-               of variables.
+               of variables. A surplus of input items will be ignored,
+               too few input items trigger another request for input
+               with the prompt ??.
                Typing non numeric characters for integer or real
                variables will produce a TYPE MISMATCH ERROR.
                Strings for string variables must be in double quotes (")
-               if they contain spaces or commas. \\
+               if they contain spaces or commas.
                Many programs that need a safe input routine use
                {\bf LINE INPUT} and a custom parser, in order
                to avoid program errors by wrong user input.
@@ -5098,7 +5131,7 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
-                modifiers creates an infinite loop, which can only be left
+                modifiers creates an infinite loop, which can only be exited
                 by the {\bf EXIT} statement. The loop can be
                 controlled by adding {\bf UNTIL} or {\bf WHILE}
                 after the {\bf DO} or {\bf LOOP}.
@@ -5494,7 +5527,7 @@ the {\bf MEGA65 Book}.
 
                {\bf end} is checked at the end of an iteration,
                and determines whether another iteration will be performed,
-               or if the loop is exited.
+               or if the loop will exit.
 
                {\bf step} defines the change applied to
                to the index variable at the end of every iteration.
@@ -5628,7 +5661,6 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 \item [Token:] \$91
 \item [Format:] {\bf ON expression GOSUB line list} \\
                 {\bf ON expression GOTO line list}  \\
-                {\bf ON expression GOSUB line list} \\
                 {\bf keyword} {\bf ON}
 \item [Usage:]  {\bf ON} calls
                 either a computed {\bf GOSUB} or {\bf GOTO} statement.
@@ -6113,16 +6145,23 @@ Embedded directives consist of a letter, followed by a digit:
 \hline
  char  & directive & argument range \\
 \hline
-  O & octave        & 0 - 6 \\
-  T & tune envelope & 0 - 9 \\
-  U & volume        & 0 - 9 \\
-  X & filter        & 0 - 1 \\
+  O & octave              & 0 - 6 \\
+  T & instrument envelope & 0 - 9 \\
+  U & volume              & 0 - 9 \\
+  X & filter              & 0 - 1 \\
+  M & modulation          & 0 - 9 \\
+  P & portamento          & 0 - 9 \\
+  L & loop                & N/A   \\
 \hline
 \end{tabular}
 }
 \end{center}
 
-  Add an {\bf L} directive at the end of your string if you would like it to loop back to the
+  The modulation directive will modulate your note by the magnitude you specify (1-9), or use 0 to turn this feature off.
+
+    Similarly, the portamento directive will gently slide between consecutive notes at the speed you specify (1-9), or use 0 to turn this feature off. Note that the gate-off behaviour of notes is disabled while portamento is enabled, and to re-enable it, you must turn off portamento (P0).
+
+    Add an {\bf L} directive (no argument needed) at the end of your string if you would like it to loop back to the
   beginning of your string upon completion.
 
   You have a lot of flexibility on which voice channels you choose to play your melodies on.
@@ -6152,19 +6191,13 @@ Embedded directives consist of a letter, followed by a digit:
   is a value from 1 to 6 indicating the voice channel. It will return either 1 (playing),
   or 0 (not playing).
 
-  One caveat to be aware of is that BASIC's garbage collection may be called during the
-  execution of your program and may shuffle the positions of your strings in memory.
-  So for best performance, define your music strings as variables early in your program,
-  and call {\bf FRE(1)} immediately afterwards to force an early garbage collection yourself.
-  This will ensure that your music string memory locations won't move about later.
-
-  Another caveat to be aware of is that BASIC strings have a maximum length of 255 bytes.
+  One caveat to be aware of is that BASIC strings have a maximum length of 255 bytes.
   If your melody needs to exceed this length, consider breaking up your melody into several
   strings, then use {\bf RPLAY(voice)} to assess when your first string has finished and then
   play the next string.
 
-The envelope slots may be changed using the {\bf ENVELOPE}
-statement. The default settings for the envelopes are on
+  Instrument envelope slots may be modified by using the {\bf ENVELOPE}
+  statement. The default settings for the envelopes are on
 page \pageref{envelopetable}.
 
 \item [Remarks:] The {\bf PLAY} statement makes use of an interrupt
@@ -6178,10 +6211,23 @@ page \pageref{envelopetable}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
+ 5 REM *** SIMPLE LOOPING EXAMPLE ***
 10 ENVELOPE 9,10,5,10,5,0,300
 20 VOL 8
 30 TEMPO 30
 40 PLAY "O5T9HCIDCDEHCG IGAGFEFDEWCL", "O2T0QCGEGCGEG DBGB CGEGL"
+\end{verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 5 REM *** MODULATION + PORTAMENTO EXAMPLE ***
+10 TEMPO 20
+20 M$ = "M5 T2O5P0QD P5FP0RP5QG .AI#AQA HGQE.C IDQE HFQD .DI#CQD HEQ#CQO4HA"
+30 M$ = M$ + "O5QDHFQG.AI#AQA HGQE.C IDQEFED#CO4BO5#C DO4AFD P0R L"
+40 B$ = "T0QRO2H.D.F.CO1.A.#A.G.A QAIO2AGFE H.D.F.CO1.A.#A.AO2 .D DL"
+50 PLAY M$,B$
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6478,7 +6524,7 @@ Results in:
                     arguments of the list. Other than the comma character,
                     it does not insert any additional characters.
                     A semicolon at the end of the argument list suppresses
-                    the automatic return (newline) character.
+                    the automatic return (carriage return) character.
                 \end{itemize}
 \item [Remarks:] The {\bf SPC} and {\bf TAB} functions
                  may be used in the argument list
@@ -6538,7 +6584,7 @@ Results in:
                     arguments of the list. Other than the comma character,
                     it does not insert any additional characters.
                     A semicolon at the end of the argument list suppresses
-                    the automatic return (newline) character.
+                    the automatic return (carriage return) character.
                 \end{itemize}
 
 \item [Remarks:] The {\bf SPC} and {\bf TAB} functions
@@ -6582,7 +6628,7 @@ Results in:
                 call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
                 If no channel is specified, the output goes to the screen.
 
-                {\bf format} a string variable or a string constant
+                {\bf format} string variable or a string constant
                 which defines the rules for formatting.
                 When using a number as the {\bf argument}, formatting can be done in either
                 CBM style, providing a pattern such as {\ttfamily \#\#\#.\#\#}
@@ -6730,7 +6776,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \item [Usage:]  Returns the current cursor column and row.
 
 \item [Remarks:] The row and column values start at zero, where
-                 the left most column is zero, and the top row is zero.
+                 the left-most column is zero, and the top row is zero.
 
 \item [Example:] Using {\bf RCURSOR}
 
@@ -6768,8 +6814,8 @@ RUN
                strings) can be read, but not expressions.
                Items are separated by commas.
                Strings containing commas, colons or spaces must be put
-               in quotes. \\
-               \\
+               in quotes.
+
                {\bf RUN} initialises the data pointer
                to the first item of the first {\bf DATA} statement
                and advances it for every read item. It is the
@@ -6778,8 +6824,8 @@ RUN
                statement match. Empty items with no constant
                between commas are allowed and will be interpreted as
                zero for numeric variables and an empty string for
-               string variables. \\
-               \\
+               string variables.
+
                {\bf RESTORE} may be used to set the
                data pointer to a specific line for subsequent
                readings.
@@ -7402,11 +7448,13 @@ DRAW PEN COLOUR =  1
 \item [Format:] {\bf RPLAY(voice)}
 \item [Usage:] Returns a value of 1 or 0, to indicate whether a melody is playing on the given voice channel or not.
 
+               {\bf voice} the voice channel to assess, ranging from 1 to 6.
+
 \item [Example:] Using {\bf RPLAY}:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 PLAY "O4ICDEFGABO5C","O2QCGEGCO1GC"
+ 10 PLAY "O4ICDEFGABO5CR","O2QCGEGCO1GCR"
  30 IF RPLAY(1) OR RPLAY(2) THEN GOTO 30: REM WAIT FOR END OF SONG
 \end{verbatim}
 \end{tcolorbox}
@@ -7503,8 +7551,7 @@ DRAW PEN COLOUR =  1
 
 \item [Remarks:] {\bf RSPEED(n)} will not return the correct value if {\bf POKE 0,65}
                  has previously been used to enable the highest speed (40MHz).
-                 \\
-                 \\
+
                  Refer to the {\bf SPEED} command for more information.
 
 \item [Example:] Using {\bf RSPEED}:
@@ -7675,8 +7722,8 @@ DRAW PEN COLOUR =  1
                 \end{itemize}
 
 \item [Remarks:] Older versions of {\bf RWINDOW} reported
-                 the width - 1 and the height - 1 for arguments 0 and 1.\\
-                 \\
+                 the width - 1 and the height - 1 for arguments 0 and 1.
+
                  Refer to the {\bf WINDOW} command for more information.
 
 \item [Example:] Using {\bf RWINDOW}:
@@ -7725,7 +7772,7 @@ DRAW PEN COLOUR =  1
 
 \item [Remarks:] {\bf SAVE} is obsolete, implemented only for backwards compatibility.
                  {\bf DSAVE} should be used instead.
-                 The shortcut symbol {\bf $\leftarrow$} (next to the \megakey{1} key). Can only be used in direct mode.
+                 The shortcut symbol {\bf $\leftarrow$} (next to \megakey{1}). Can only be used in direct mode.
 
 \item [Examples:] Using {\bf SAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -7796,13 +7843,13 @@ DRAW PEN COLOUR =  1
 
    \unitdefinition
 
-   {\bf R} recover a previously erased file.
-   This will only work if there were no write operations
+   {\bf R} Recover a previously erased file.
+   This will only work, if there were no write operations
    between erasure and recovery, which may have altered the
    contents of the file.
 
-\item [Remarks:] {\bf SCRATCH} works similarly to
-                 {\bf ERASE}.
+\item [Remarks:] {\bf SCRATCH filename} works similarly to
+                 {\bf ERASE filename}.
 
                  The success and the number of erased files can
                  be examined by printing or using the system
@@ -7884,18 +7931,18 @@ DRAW PEN COLOUR =  1
 
                The {\bf colour} value must be in the range of 0 to 15.
                Refer to the colour table under {\bf BACKGROUND} on page
-               \pageref{colourtable} for the colour values and their corresponding colours.
+               \pageref{colourtable} for the {\bf colour} values and their corresponding colours.
 
                When you are finished with your graphics screen, simply call
-               {\bf SCREEN CLOSE [screen]} to return to the text screen.\\
-%TODO there isn't enough spacing here and i dont know how to add some. \\ isn't working
+               {\bf SCREEN CLOSE [screen]} to return to the text screen.
+
         \underline{{\bf Detailed approach}}:
 
                The other versions of
-               {\bf SCREEN} perform special actions used for
-               advanced graphics programs, that open multiple screens,
+               {\bf SCREEN} perform special actions, used for
+               advanced graphics programs, that open multiple screens
                or require double buffering. If you have chosen the simplified
-               approach, you will not require any of the versions below,
+               approach, you will not require any of these versions below,
                apart from {\bf SCREEN CLOSE}.
 
                 {\bf SCREEN CLR colour} (or {\bf SCNCLR colour}) \\
@@ -7906,10 +7953,12 @@ DRAW PEN COLOUR =  1
                 screen. The width flag and height flag indicate
                 whether high resolution (1) or low resolution (0) is chosen.
 
-                {\bf screen} screen number 0-3
-                {\bf width flag} 0-1 (0:320, 1:640 pixels)
-                {\bf height flag} 0-1 (0:200, 1:400 pixels)
-                {\bf depth} 1-8 (2 - 256 colours)
+                \begin{itemize}
+                  \item {\bf screen} screen number 0-3
+                  \item {\bf width flag} 0-1 (0:320, 1:640 pixel)
+                  \item {\bf height flag} 0-1 (0:200, 1:400 pixel)
+                  \item {\bf depth} 1-8 (2 - 256 colours)
+                \end{itemize}
 
                 Note that the width and height values here are {\bf flags},
                 and {\bf not pixel units}.
@@ -7924,11 +7973,13 @@ DRAW PEN COLOUR =  1
                 {\bf SCREEN OPEN screen} \\
                 Allocates resources and
                 initialises the graphics context for the selected
-                {\bf screen} (0-3).
+                {\bf screen} (0-3).  An optional variable name as
+                a further argument, gets the result of the
+                command that can be tested afterwards for success.
 
                 {\bf SCREEN CLOSE [screen] } \\
                 Closes {\bf screen} (0-3) and frees resources. If no value is given,
-                defaults to 0. Also note that upon closing screen 0,
+                it will default to 0. Also note that upon closing screen 0,
                 {\bf PALETTE RESTORE} is automatically performed for you.
 
 \item [Examples:] Using {\bf SCREEN}:
@@ -8081,7 +8132,7 @@ DRAW PEN COLOUR =  1
 \item [Usage:] Pauses execution for the given duration. The argument is a
                positive floating point number.
                The precision is 1 microsecond.
-\item [Remarks:] Pressing the \specialkey{RUN STOP} key interrupts the sleep.
+\item [Remarks:] Pressing \specialkey{RUN STOP} interrupts the sleep.
 
 \item [Example:] Using {\bf SLEEP}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8159,7 +8210,7 @@ DRAW PEN COLOUR =  1
 \item [Format:] {\bf SPC(columns)}
 \item [Usage:] Skips {\bf columns}. \\
                The effect is similar to pressing \megakey{$\rightarrow$}
-               {\bf column} times.
+               {\bf <column>} times.
 
 \item [Remarks:] The name of this function is derived from
                  {\bf SPACES}, which is misleading.
@@ -8239,10 +8290,11 @@ RUN
 
                 {\bf SPRITE}, which sets the
                 attributes of a sprite, only sets the foreground
-                colour. For the setting of the additional two colours
+                colour. For the setting the additional two colours
                 of multi-colour sprites, use {\bf SPRCOLOR} instead.
 
-\item [Remarks:] See also {\bf SPRITE}.
+\item [Remarks:] The colours used with {\bf SPRCOLOR} will affect all sprites.
+                 Refer to the {\bf SPRITE} command for more information.
 
 \item [Example:] Using {\bf SPRCOLOR}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8435,7 +8487,7 @@ RUN
 
                {\bf end} is checked at the end of an iteration,
                and determines whether another iteration will be performed,
-               or if the loop is exited.
+               or if the loop will exit.
 
                {\bf step} defines the change applied to
                to the {\bf index} at the end of a loop iteration.
@@ -8475,7 +8527,7 @@ RUN
 \item [Format:] {\bf STOP}
 \item [Usage:] Stops the execution
                of the BASIC program.
-               A message will be displayed showing the line number of the break.
+               A message will be displayed showing the line number where the program stopped.
                The \screentext{READY.} prompt
                appears and the computer goes into direct mode,
                waiting for keyboard input.
@@ -8486,6 +8538,9 @@ RUN
                program may be continued with {\bf CONT}.
                However, any editing of the program source
                will disallow any further continuation.
+
+               Program execution can be resumed with {\bf CONT}.
+
 
 \item [Example:] Using {\bf STOP}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8535,76 +8590,47 @@ THE VALUE OF PI IS 3.14159265
 \item [Token:] \$9E
 \item [Format:] {\bf SYS address [, areg, xreg, yreg, zreg, sreg]}
 \item [Usage:]  Calls a machine language subroutine.
-                This can be a ROM resident kernel or BASIC subroutine
-                or a routine in RAM, which was loaded or poked
-                to RAM before.
+                This can be a ROM-resident kernel routine, a BASIC subroutine,
+                or any other routine which has previously been loaded or {\bf POKE}d
+                to RAM.
 
-               The CPU registers are loaded with the arguments,
-               if specified. Then a subroutine call {\bf JSR address}
-               is performed. The called routine should exit with
-               a {\bf RTS} instruction. Then the register contents
-               will be saved and the execution of the BASIC program
-               continues.
+               The CPU registers are loaded with the arguments
+               (if they're specified), then a subroutine call ({\bf JSR address})
+               is performed. {\bf JSR} is an assembly language instruction that is short
+               for {\bf J}ump to {\bf S}ub{\bf R}outine. The called routine should exit with
+               an {\bf RTS} instruction. {\bf RTS} is another assembly language instruction that is
+               short for {\bf R}eturn from {\bf S}ub{\bf R}outine. After the subroutine has returned,
+               the register contents will be saved, and the execution of the BASIC program will
+               continue.
 
                {\bf address} start address of the subroutine.
 
-               {\bf areg} variable gets accumulator value.
+               {\bf areg} CPU accumulator value.
 
-               {\bf xreg} variable gets X register value.
+               {\bf xreg} CPU X register value.
 
-               {\bf yreg} variable gets Y register value.
+               {\bf yreg} CPU Y register value.
 
-               {\bf zreg} variable gets Z register value.
+               {\bf zreg} CPU Z register value.
 
-               {\bf sreg} variable gets status register value.
-
-                 {\bf SYS} uses the current bank
-                 as set with {\bf BANK}.
+               {\bf sreg} Status register value.
 
 \item [Remarks:] The register values after a {\bf SYS} call are stored
-                 in system memory. This enables the
-                 {\bf RREG} to retrieve these values.
+                 in system memory. {\bf RREG} can be used to retrieve these values.
 
-\item [Remarks:] The system leaves the memory setup in a somewhat
-  strange state, which may or may not be a bug in BASIC 65.
-  If you want to write an assembly routine that can
-  access an entire memory bank, but with I/O mapped, you need to set
-  the CPU register \$01, as you would on the C64, and then also use the 4510's
-  MAP instruction to set the memory map.  For BANK 0, you could use
-  the following sequence:
+                 {\bf SYS} uses the current bank, which has been set with {\bf BANK}.
 
-\newpage
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  ; Disable interrupts, because the C65 ROM won't be visible to
-  ; handle them.
-  SEI
-  ; Make IO visible
-  LDA #$37
-  STA $01
-  ; Prepare for MAP operation that resets memory map to BANK 0
-  LDA #$00
-  TAX
-  TAY
-  TAZ
-  MAP
-  ; End MAPing sequence
-  NOP
-  ; Now comes your routine!
-loop:
-  INC $D020
-  JMP loop
-\end{verbatim}
-\end{tcolorbox}
-
-\item [Remarks:] You can alternatively use BANK 128, and place your
-  routine in the lower-half of RAM, e.g., in the unallocated memory
-  area at \$1600 -- \$1FFF
-
-\item [Remarks:] {\bf RREG} can be useful for reading the
-  register values when your routine completes.
-
+                 The {\bf SYS} instruction on the MEGA65 is completely different to the
+                 well known {\bf SYS} command on the C64. It is not possible to jump
+                 to an address after the BASIC program text in bank 0 (and execute
+                 a machine language subroutine there), as bank 0 is 64K of
+                 RAM with no I/O or kernel mapped in.\\
+                 \\
+                 Using {\bf SYS} properly (i.e. without corrupting BASIC RAM, and having
+                 access to kernel routines and I/O) requires
+                 some technical skill, which is out of scope of the User's Guide.
+                 However, if you would like to learn more, there is a lot more
+                 information and examples in the MEGA65 Developer Guide.
 
 \item [Example:] Using {\bf SYS}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8632,13 +8658,13 @@ loop:
 \item [Token:] \$A3
 \item [Format:] {\bf TAB(column)}
 \item [Usage:] Positions the cursor at {\bf column}. \\
-               This is only done, if the target column is right
-               of the current cursor column, otherwise nothing
-               happens. The column count starts with 0 for the
-               left most column.
+               This is only done if the target column is {\it right}
+               of the current cursor column, otherwise the cursor
+               will not move. The column count starts with 0 being the
+               left-most column.
 
-\item [Remarks:] This function must not be confused with the
-               {\bf TAB} key, which advances the cursor to the next
+\item [Remarks:] This function shouldn't be confused with
+               {\specialkey TAB}, which advances the cursor to the next
                tab-stop.
 
 \item [Example:] Using {\bf TAB}
@@ -8676,10 +8702,11 @@ RUN
 \item [Usage:] Returns the tangent of the
                argument.
                The argument is expected in units of {\bf [radians]}.
+               The result is in the range (-1.0 to +1.0)
 
-\item [Remarks:] An argument in units of {\bf [degrees]}
-                 can be converted to {\bf [radians]}
-               by multiplication with $\pi/180$.
+\item [Remarks:] An argument in units of degrees
+                 can be converted to radians
+                 by multiplying it with $\pi/180$.
 \item [Example:] Using {\bf TAN}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -8708,18 +8735,20 @@ RUN
 
                {\bf speed} 1-255.
 
-               The duration of a whole note is computed with
+               The duration (in seconds) of a whole note is computed with
                $ duration = 24 / speed $.
 
 \item [Example:] Using {\bf TEMPO}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
-20 VOL 8
-30 TEMPO 24      :REM PLAY EACH NOTE FOR ONE SECOND
-40 PLAY "C D E F G A B"
-50 PLAY "U5 V1 C D E F G A B"
+10 VOL 8
+20 FOR T = 24 TO 18 STEP -2
+30 TEMPO T
+40 PLAY "T0M3O4QGAGFED","T2O4M5P0H.DP5GB","T5O3IGAGAGAABABAB"
+50 IF RPLAY(1) THEN GOTO 50
+60 NEXT T
+70 PLAY "T0O5QCO4GEH.C","T2O5IEFEDEDCEGO6P8CP0R","T5O3ICDCDEFEDCO4C"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8737,20 +8766,20 @@ RUN
 \item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
 \item [Usage:] {\bf THEN} is part of an {\bf IF} statement.
 
-               {\bf expression} is a logical or numeric expression.
-               A numeric expression is evaluated as {\bf FALSE}
-               if the value is zero and {\bf TRUE} for any non-zero
-               value.
+                {\bf expression} is a logical or numeric expression.
+                A numeric expression is evaluated as {\bf FALSE}
+                if the value is zero and {\bf TRUE} for any non-zero
+                value.
 
-               {\bf true clause} are one or more statements starting
-               directly after {\bf THEN} on the same line.
-               A linenumber after {\bf THEN} performs a
-               {\bf GOTO} to that line.
+                {\bf true clause} one or more statements starting
+                directly after {\bf THEN} on the same line.
+                A line number after {\bf THEN} performs a
+                {\bf GOTO} to that line instead.
 
-               {\bf false clause} are one or more statements starting
-               directly after {\bf ELSE} on the same line.
-               A linenumber after {\bf ELSE} performs a
-               {\bf GOTO} to that line.
+                {\bf false clause} one or more statements starting
+                directly after {\bf ELSE} on the same line.
+                A linenumber after {\bf ELSE} performs a
+                {\bf GOTO} to that line instead.
 
 \item [Remarks:]
                The standard {\bf IF ... THEN ... ELSE} structure
@@ -8787,13 +8816,13 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf TI}
 \item [Usage:]  {\bf TI} is a high precision timer with
-                the unit seconds and the
-                resolution of 1 micro second.
+                a resolution of 1 micro second.
 
                 It is started or reset with
-                {\bf CLR TI} and can be accessed in the same way as any
+                {\bf CLR TI}, and can be accessed in the same way as any
                 other variable in expressions.
-\item [Remarks:] {\bf TI} is a reserved system variable.
+\item [Remarks:] {\bf TI} is a reserved system variable. The value in {\bf TI}
+                 is the number of seconds (to 6 decimal places) since it was last cleared or started.
 
 \item [Example:] Using {\bf TI}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -8817,24 +8846,24 @@ RUN
 \index{BASIC 65 System Variables!TI\$}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf TI\$}
-\item [Usage:]  {\bf TI\$} holds the time information of the RTC
-                (Real Time Clock)
-                in text form of the format:
-                "hh:mm:ss".
-                It is updated on every usage.
+\item [Usage:]  {\bf TI\$} stores the time information of the RTC
+                (Real-Time Clock) in text form, using the format:
+                "hh:mm:ss". It is updated with every use.
 
-                {\bf TI\$} is a read-only variable, that just
-                reads the registers of the RTC and puts the values
-                formatted into a string.
-
-                The RTC can be set in the CONFIGURE menu.
+                {\bf TI\$} is a read-only variable, which
+                reads the registers of the RTC and formats the values
+                to a string.
 
 \item [Remarks:]
-                {\bf TI\$} is a reserved system variable.\\
-                \\
+                {\bf TI\$} is a reserved system variable.
+
                 It is possible to access the RTC registers directly
-                via PEEK. The start address of the registers is at
+                via {\bf PEEK}. The start address of the registers is at
                 \$FFD7110. For example:
+
+                For more information on how to set the Real-Time Clock,
+                refer to the Configuring Utility section on page
+                \pageref{sec:configuration-utility}.
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -8907,15 +8936,17 @@ PRINT DT$;TI$
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D7
 \item [Format:] {\bf TRAP [line number]}
-\item [Usage:]  {\bf TRAP} with a valid line number activates the
-                BASIC error handler with following consequences:
-                In case of an error the BASIC interpreter does not
-                stop with an error message, but saves execution
-                pointer and line number, places the error number into the
-                system variable {\bf ER} and jumps to the line number
-                of {\bf TRAP}. The trapping routine can examine
-                {\bf ER} and decide, whether to {\bf STOP}
-                 or {\bf RESUME} execution.
+\item [Usage:]  {\bf TRAP} with a valid line number registers the
+                BASIC error handler. When a program has an error handler, the
+                run-time behaviour changes. Normally, BASIC will exit the program
+                and display an error message.
+
+                However, if a BASIC error handler has been registered, BASIC will
+                instead save the execution pointer and line number, place the
+                error number into the system variable {\bf ER}, and {\bf GOTO}
+                the line number of {\bf TRAP}. The trapping routine can examine
+                {\bf ER} and process the error. From this, the {\bf TRAP} error
+                handler can then decide whether to {\bf STOP} or {\bf RESUME} execution.
 
                 {\bf TRAP} with no argument disables the error handler.
                 Errors will be handled by the normal system routines.
@@ -8939,6 +8970,7 @@ PRINT DT$;TI$
 % TROFF
 % *****
 
+%TODO can someone pleaes document what trace mode is?
 \newpage
 \subsection{TROFF}
 \index{TROFF}
@@ -9016,8 +9048,8 @@ READY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$27
 \item [Format:] {\bf TYPE filename [,D drive] [,U unit] }
-\item [Usage:] types the contents of a file containing
-      text in PETSCII code.
+\item [Usage:] Prints the contents of a file containing
+               text encoded as PETSCII.
 
    \filenamedefinition
 
@@ -9026,12 +9058,13 @@ READY.
    \unitdefinition
 
 \item [Remarks:] {\bf TYPE} cannot be used to type
-                 BASIC programs. Use {\bf LIST} for programs.
+                 BASIC programs. Use {\bf LIST} for programs instead.
                  {\bf TYPE} can only process {\bf SEQ} or {\bf USR} files
                  containing records of PETSCII text, delimited
-                 by the {\bf CR} = CHR\$(13) character.
-                 Refer to the {\bf CHR\$} command on page \pageref{chrcommand}
-                 for more information.
+                 by the CR vcharacter.
+
+                 The CR character is also knows as carriage return, and can
+                 be created by using {\bf CHR\$(13)} .
 
 \item [Example:] Using {\bf TYPE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9060,14 +9093,14 @@ READY.
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
-                modifiers creates an infinite loop, which can only be left
+                modifiers creates an infinite loop, which can only be exited
                 by the {\bf EXIT} statement. The loop can be
                 controlled by adding {\bf UNTIL} or {\bf WHILE}
                 after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
                exits the current loop only.
-\item [Example:] Using {\bf DO} and {\bf LOOP}.
+\item [Examples:] Using {\bf DO} and {\bf LOOP}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -9101,48 +9134,42 @@ READY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FB
 \item [Format:] {\bf PRINT [\# channel,] USING format;argument}
-\item [Usage:]  Parses the format string and evaluates the argument.
+\item [Usage:]  Parses the {\bf format} string and evaluates the argument.
                 The argument can be either a string or a numeric value.
-                The formatting of the resulting output is directed
-                by the format string.
+                The format of the resulting output is directed
+                by the {\bf format} string.
 
                 {\bf channel} number, which was given to a previous
                 call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
                 If no channel is specified, the output goes to the screen.
 
-                {\bf format} : A string variable or a string constant
+                {\bf format} string variable or a string constant
                 which defines the rules for formatting.
                 When using a number as the {\bf argument}, formatting can be done in either
-                CBM style providing a pattern such as
-                    {\ttfamily "\#\#\#.\#\#"}
-                or in C style using <width.precision> specifier such as
-                    {\ttfamily \%3D \%7.2F \%4X }.
+                CBM style, providing a pattern such as {\ttfamily \#\#\#.\#\#}
+                or in C style using a <width.precision> specifier, such as {\ttfamily \%3D \%7.2F \%4X }.
 
-                {\bf numeric argument} The number to be formatted.
+                {\bf argument} the number to be formatted. If the argument does not fit into the format
+                e.g. trying to print a 4 digit variable into {\ttfamily \#\#\#}
+                a series of asterisks will replace the format character.
 
-                If the argument does not fit into the format
-                e.g. trying to print a 4 digit varaible into "\#\#\#"
-                a series of asterisks fills the format character.
-
-                {\bf string argument} : The string may consist of printable
+                {\bf argument} may consist of printable
                 characters and control codes. Printable characters
                 are printed to the cursor position, while control
                 codes are executed.
-                The number of '\#' characters sets the width of the output.
+                The number of {\ttfamily \#} characters sets the width of the output.
                 If the first character of the format string
-                is a '=' sign, the argument string is centered within
-                the width.
+                is an equals '=' sign, the argument string is centered.
                 If the first character of the format string
-                is a '>' sign, the argument string is right justified within
-                the width.
+                is a greater than '>' sign, the argument string is right justified.
 
-\item [Remarks:] The format string is applied for one argument only.
-                 But it is possible to append more than one
-                 USING format;argument sequence.
+\item [Remarks:] The format string is only applied for one argument,
+                 but it is possible to append more than one
+                 {\bf USING format;argument} sequences.
 
 
 \newpage
-\item [Example:] Using {\bf PRINT\# USING}
+\item [Example:] {\bf USING} with a corresponding {\bf PRINT\#}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -9179,18 +9206,21 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B7
 \item [Format:] {\bf USR(numeric expression)}
-\item [Usage:]  Using the function {\bf USR(X)} in a numeric
-                expression, puts the argument into the
-                floating point accumulator 1 and jumps to the
-                address \$02F7 expecting the address of the
-                machine language user routine in \$02F8 - \$02F9.
-                After executing the user routine, BASIC returns
-                the contents of the floating point accumulator 1,
-                which should be set by the user routine..
+\item [Usage:] Invokes an assembly language routine whose memory
+               address is stored at  \$02F8 - \$02F9. The
+               result of the {\bf numeric expression}
+               is written to floating point accumulator 1.
+
+               After executing the assembly routine, BASIC returns
+               the contents of the floating point accumulator 1.
 
 \item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
                  Banks greater than 127 are used to access I/O, and the underlying SYSTEM hardware such as the
                  VIC, SID, FDC, etc.
+
+                 If you would like to learn more, there is a lot more
+                 information and examples in the MEGA65 Developer Guide.
+
 \item [Example:] Using {\bf USR}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9221,8 +9251,8 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 
                This function acts in the same way as reading from a string.
 
-\item [Remarks:] A string containing not a valid number
-                 will not produce an error but return 0 as result.
+\item [Remarks:] A string containing an invalid number
+                 will not produce an error, but return 0 as the result instead.
 
 \item [Example:] Using {\bf VAL}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9254,22 +9284,18 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$95
 \item [Format:] {\bf VERIFY filename [,unit [,binflag]] }
-\item [Usage:]
-   {\bf VERIFY} is obsolete in BASIC 65, where the commands
-   {\bf DVERIFY} and {\bf BVERIFY} are better alternatives.
+\item [Usage:] {\bf VERIFY} with no {\bf binflag} compares a BASIC program
+                in memory with a disk file of type {\bf PRG}.
+                It does the same as {\bf DVERIFY}, but the syntax is different.
 
-   {\bf VERIFY} with no {\bf binflag} compares a BASIC program
-   in memory with a disk file of type {\bf PRG}.
-   It does the same as {\bf DVERIFY}, but with a different syntax.
+               {\bf VERIFY} with {\bf binflag} compares a binary file
+               in memory with a disk file of type {\bf PRG}.
+               It does the same as {\bf BVERIFY}, but the syntax is different.
 
-   {\bf VERIFY} with {\bf binflag} compares a binary file
-   in memory with a disk file of type {\bf PRG}.
-   It does the same as {\bf BVERIFY}, but with a different syntax.
+               {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
+               a string expression.
 
-   {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
-   a string expression.
-
-   \unitdefinition
+               \unitdefinition
 
 \item [Remarks:]
    {\bf VERIFY} can only test for equality. It gives no information
@@ -9277,7 +9303,11 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
     {\bf VERIFY} exits with either the message \screentext{OK}
    or with \screentext{VERIFY ERROR}.
 
-\item [Example:] Using {\bf VERIFY}
+   {\bf VERIFY} is obsolete in BASIC 65. It is only here for backwards
+    compatibility. It is recommended to use {\bf DVERIFY} and {\bf BVERIFY} instead.
+
+
+\item [Examples:] Using {\bf VERIFY}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -9299,18 +9329,15 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$31
 \item [Format:] {\bf VIEWPORT <CLR|DEF> X, Y, DX, DY}
-\item [Usage:]
-   {\bf VIEWPORT} must be followed either by
-   {\bf CLR} or {\bf DEF}, and four integer parameters.
+\item [Usage:] {\bf VIEWPORT DEF} defines a clipping region with the origin
+               (upper left position) set to {\bf X,Y} and the width {\bf DX}
+               and the height {\bf DY}.
+               All following graphics commands are limited to the {\bf VIEWPORT}
+               region.
 
-\item [Remarks:]
-   {\bf VIEWPORT DEF} defines a clipping region wit the origin
-   (upper left position) set to {\bf X,Y} and the width {\bf DX}
-   and the height {\bf DY}.
-   All following graphics commands are limited to the {\bf VIEWPORT}
-   region.
+\item [Remarks:] {\bf VIEWPORT} must be followed by either{\bf CLR} or {\bf DEF}, and four integer parameters.
 
-   {\bf VIEWPORT CLR} resets the clipping region to full screen.
+                 {\bf VIEWPORT CLR} resets the clipping region to the entire screen.
 
 \item [Example:] Using {\bf VIEWPORT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9344,11 +9371,13 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 ENVELOPE 9,10,5,10,5,2,4000:PLAY "T9"
-20 VOL 8
-30 TEMPO 100
-40 PLAY "C D E F G A B"
-50 PLAY "U5 V1 C D E F G A B"
+10 TEMPO 22
+20 FOR V = 2 TO 8 STEP 2
+30 VOL V
+40 PLAY "T0M3O4QGAGFED","T2O4M5P0H.DP5GB","T5O3IGAGAGAABABAB"
+50 IF RPLAY(1) THEN GOTO 50
+60 NEXT V
+70 PLAY "T0O5QCO4GEH.C","T2O5IEFEDEDCEGO6P9CP0R","T5O3ICDCDEFEDCO4C"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9370,22 +9399,23 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
                {\bf address} the address at the current memory
                bank, which is read.
 
-               {\bf andmask} and mask applied.
+               {\bf andmask} {\bf AND} mask applied.
 
-               {\bf xormask} xor mask applied.
+               {\bf xormask} {\bf XOR} mask applied.
 
                {\bf WAIT} reads the byte value from {\bf address}
                and applies the masks: \\
-               result = PEEK(address) AND andmask XOR xormask
+               {\bf result = PEEK(address) AND andmask XOR xormask}.
 
                The pause ends if the result is non-zero, otherwise
-               the reading is repeated. This may hang the computer
-               infinitely, if the condition is never met.
+               reading is repeated. This may hang the computer
+               indefinitely if the condition is never met.
 
 \item [Remarks:] {\bf WAIT} is typically used to examine hardware
                registers or system variables
                and wait for an event, e.g. joystick event,
-               mouse event, keyboard press or a special raster line.
+               mouse event, keyboard press or a specific raster line
+               is about to be drawn to the screen.
 
 \item [Example:] Using {\bf WAIT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9414,14 +9444,14 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
-                modifiers creates an infinite loop, which can only be left
+                modifiers creates an infinite loop, which can only be exited
                 by the {\bf EXIT} statement. The loop can be
                 controlled by adding {\bf UNTIL} or {\bf WHILE}
                 after the {\bf DO} or {\bf LOOP}.
 
 \item [Remarks:] {\bf DO} loops may be nested. An {\bf EXIT} statement
                exits the current loop only.
-\item [Example:] Using {\bf DO} and {\bf LOOP}
+\item [Examples:] Using {\bf DO} and {\bf LOOP}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -9467,15 +9497,14 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 
                  {\bf clear} clear text window flag
 
-                 The row values count from 0 to 24.
+\item [Remarks:] The row values count from 0 to 24.
+                 The column values count from 0 to either 39 or 79.
+                 This depends on the screen mode.
 
-                 The column values count from 0 to 79 or 39
-                 depending on the screen mode.
-
-\item [Remarks:] There can be only one window on the screen.
-                 Pressing the HOME key twice or printing
-                 CHR\$(19)CHR\$(19) will reset the window
-                 to the default full screen.
+                 There can be only one window on the screen.
+                 Pressing \specialkey{CLR HOME} twice or {\bf PRINT}ing
+                 {\bf CHR\$(19)CHR\$(19)} will reset the window
+                 to the default (full screen).
 
 \item [Example:] Using {\bf WINDOW}
 \begin{tcolorbox}[colback=black,coltext=white]

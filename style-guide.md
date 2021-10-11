@@ -49,8 +49,8 @@ Below are some simple MEGA65 styling rules:
   * The external microSD slot works similarly to the internal SD card slot. Not `external microSD slot works like the 
     internal SD card slot`.
 
-* Turn on, not power up or switch on. This is how it's worded in the C64 User Manual.
-    * When you turn on your MEGA65, the following screen will appear.
+* Switch on, not power up or turn on.
+    * When you switch on your MEGA65, the following screen will appear.
 
 * Will, not should. Saying that the MEGA65 _should_ do something implies that it might
   not do it. Saying will is more confident.
@@ -107,6 +107,7 @@ Some commonly used words, and their preferences (in alphabetical order):
 * 8-bit, not 8 bit. When referring to multiple bits, no hyphen is necessary. Example:
   * The C64 is an 8-bit computer with a 16-bit address space.
   * A byte consists of 8 bits.
+  * A half byte (4 bits) should be referred to as a `nibble`. Please refrain from using half-byte, nybl, nybble, etc.
   * More information on the use on hyphens in general is available in the 
     [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/dashes-hyphens/hyphens)
 

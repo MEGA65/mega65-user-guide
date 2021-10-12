@@ -126,6 +126,9 @@ Some commonly used words, and their preferences (in alphabetical order):
 
 * SD card/microSD and not sd-card.
 
+* Trademarks and Registered notation. Refrain from using `(tm)`, `(R)`, etc. There are special sequences you can use for
+  ™ and ®, namely `\texttrademark` and `\textregistered`.
+
 * 8-bit, not 8 bit. When referring to multiple bits, no hyphen is necessary. Example:
   * The C64 is an 8-bit computer with a 16-bit address space.
   * A byte consists of 8 bits.

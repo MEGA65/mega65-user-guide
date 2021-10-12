@@ -77,7 +77,23 @@ Below are some simple MEGA65 styling rules:
 * If you're documenting BASIC, ensure that every mention of a BASIC command is in bold and uppercase. For example,
   __DATA__, __DIR__, __PRINT__. Same goes for file types __PRG__,__USR__,__REL__,__SEQ__,__DEL__.
 
-* When using tables, please center them on the page by using `\begin{center}` and `\end{center}`.
+* When using tables, please center them on the page by using `\begin{center}` and `\end{center}`. Ensure column 
+  headings **are in bold**. Separate everything with **a single horizontal line only**. This keeps them in-line with 
+  the 
+  C64 User Manual. An example of a table is:
+```text
+\begin{center}
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+            {\textbf{Boot Mode}} & {\textbf{ROM version}} & {\textbf{BASIC}} & {\textbf{C64-mode}} \\
+        \hline
+            MEGA65    & 92xxxx      & BASIC 65 & {\bf GO 64} \\
+            C65       & 91xxxx      & BASIC 10 & {\bf GO 64} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+```
 
 
 ## A-Z of commonly used words and phrases

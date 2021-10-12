@@ -55,7 +55,7 @@ error codes are:
 \item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
 \item \$81 (129) -- The supplied filename was too long.
 \item \$82 (130) -- A Hypervisor call was made to a function that is not implemented. 
-\item \$83 (131) -- An attempt was made to load a file into memory that is longer than 16MiB.
+\item \$83 (131) -- An attempt was made to load a file into memory that is longer than 16MB.
 \item \$84 (132) -- Too many files are open, and no free file descriptor could be obtained for the requested operation.
 \item \$85 (133) -- The supplied cluster number is invalid.
 \item \$86 (134) -- An attempt was made to operate on a directory, where a normal file was expected.
@@ -76,7 +76,7 @@ Setup the transfer area for various hypervisor calls. The page number of the tra
 This page must be between \$00 (0) and \$7E (126), thus indicating a transfer area starting between \$0000 and \$7E00 (0 and 32,256).
 The transfer area is
 256 bytes long for most calls.  Note that the transfer area is indicated using the processor's current memory mapping at
-the time that a function is called.  However, it is good practice to always place it in the bottom 32KiB of main memory.
+the time that a function is called.  However, it is good practice to always place it in the bottom 32KB of main memory.
 
 \begin{itemize}
   \item Y = Page number of the transfer area (\$00 -- \$7E).
@@ -175,7 +175,7 @@ This call can result in the following error codes:
 \subsection{\$00:\$2E -- Set the current filename (setname)}
 
 Sets the current Hypervisor filename to the ASCIIZ string stored at \$YYXX. The provided address
-must be in the first 31KiB of main memory.  Addresses at \$7F00 or above will result in errors.
+must be in the first 31KB of main memory.  Addresses at \$7F00 or above will result in errors.
 
 The filename indicates a file in the current working directory of the SD card's FAT file system.
 This call will {\em not} work with names of files that are stored on floppy disks or floppy disk
@@ -187,20 +187,20 @@ images.
 \subsection{\$00:\$36 -- Load a File into Main Memory (loadfile)}
 
 On success, this call loads the file specified by the setname Hypervisor call into the specified
-address in main (chip) memory.  It is limited to files of 16MiB size, and the first 16MiB of 
+address in main (chip) memory.  It is limited to files of 16MB size, and the first 16MB of
 the address space.  The load address will be \$00ZZYYXX.
 
-Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
+Addresses during loading will wrap around within the same 16MB region of memory, i.e., the most
 significant address byte will not be incremented during loading.
 
 \subsection{\$00:\$3C -- Change Working Directory to Root Directory of Selected Partition}
 \subsection{\$00:\$3E -- Load a File into Attic Memory (loadfile\_attic)}
 
 On success, this call loads the file specified by the setname Hypervisor call into the specified
-address in the Attic RAM memory.  It is limited to files of 16MiB size, and the first 16MiB of 
+address in the Attic RAM memory.  It is limited to files of 16MB size, and the first 16MB of
 the attic RAM address space.  The load address will be \$08ZZYYXX.
 
-Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
+Addresses during loading will wrap around within the same 16MB region of memory, i.e., the most
 significant address byte will not be incremented during loading.
 
 \section{Disk Image Management}

@@ -36,7 +36,7 @@ The key differences between normal and supervisor mode on the MEGA65, are that i
 supervisor mode:
 
 \begin{itemize}
-\item A special 16KiB memory area is mapped to \$8000 - \$BFFF, which is
+\item A special 16KB memory area is mapped to \$8000 - \$BFFF, which is
  used to contain both
  the program and data of the Hypervisor / supervisor program.
  This is normally the Hyppo program.
@@ -322,7 +322,7 @@ enhancements to this, refer to \bookvref{cha:dmagic}
 \subsection{Accessing memory beyond the 1MB point}
 \label{sec:extended-memory}
 
-The MEGA65 can support up to 256MiB of memory. This is more than the 1MiB address space of the CSG4510
+The MEGA65 can support up to 256MB of memory. This is more than the 1MB address space of the CSG4510
 on which it is based. There are several ways of performing this.
 
 \subsubsection{Using the MAP instruction to access >1MB}
@@ -605,7 +605,7 @@ available.
 \subsection{Reset}
 
 On power-up or reset, the MEGA65 starts up in hypervisor mode, and expects to find a program in the
-16KiB hypervisor memory, and begins executing instructions at address \$8100.  Normally a JMP instruction
+16KB hypervisor memory, and begins executing instructions at address \$8100.  Normally a JMP instruction
 will be located at this address, that will jump into a reset routine. That is, the 45GS02
 does not use the normal 6502 reset vector. It's function is emulated by the Hyppo hypervisor program,
 which fetches the address from the 6502 reset vector in the loaded client operating system when
@@ -650,7 +650,7 @@ typically hundreds to tens of thousands of cycles \cite{soares2010flexsc}.
 
 \subsection{Hypervisor Memory Layout}
 
-The hypervisor memory is 16KiB in size.  The first 512 bytes are
+The hypervisor memory is 16KB in size.  The first 512 bytes are
 reserved for SYSCALL and system trap entry
 points, with four bytes for each.  For example, the reset entry point is
 at \$8100 - \$8100 + 3 = \$8100 - \$8103.
@@ -821,7 +821,7 @@ The full list of SYSCALLs and traps is:
 \hline
 \end{longtable}
 
-The remainder of the 16KiB hypervisor memory is available for use by the programmer, but
+The remainder of the 16KB hypervisor memory is available for use by the programmer, but
 will typically use the last 512 bytes for the stack and zero-page, giving an overall memory map as follows:
 
 \begin{longtable}{|L{1.2cm}|L{1.1cm}|L{8cm}|}
@@ -875,7 +875,7 @@ hypervisor mode quite easily through the use of a linker definition file with th
 \end{verbatim}
 \end{tcolorbox}
 
-This file instructs KickC's assembler to create a 16KiB file with the 512 byte SYSCALL/trap entry point region at the start,
+This file instructs KickC's assembler to create a 16KB file with the 512 byte SYSCALL/trap entry point region at the start,
 followed by code and data areas, and then the stack and zero-page areas. It enforces the size and location of these fields, and
 will give an error during compilation if anything is too big to fit.
 

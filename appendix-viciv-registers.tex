@@ -88,8 +88,8 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
 90 GOTO 40
 \end{screenoutput}
 
-Line 10 of this program checks whether the screen is a multiple of 2KiB.
-As the screen on the C64 is located at 1KiB, this test will fail, and execution
+Line 10 of this program checks whether the screen is a multiple of 2KB.
+As the screen on the C64 is located at 1KB, this test will fail, and execution
 will continue to line 20.  Line 20 writes 1 to one of the VIC-II sprite position
 registers, 53248, before writing the MEGA65 knock to the key register, 53295.
 Line 30 writes to 53248 + 256, which on the C64 is a mirror of 53248, but on a
@@ -502,7 +502,7 @@ Many effects are possible due to Super-Extended Attribute Mode.  A few possibili
 
 \subsection{Using Super-Extended Attribute Mode}
 
-Super-Extended Attribute Mode requires double the screen RAM and colour RAM as the VIC-II/III text modes. This is because two bytes of each are required to define each character, instead of one.  The screen RAM can be located anywhere in the 384KiB of main memory using registers \$D060 -- \$D062 (53344 -- 53346 decimal).  The colour RAM can be located anywhere in the 32KiB colour RAM.  Only the first 1 or 2 KiB of the colour RAM is visible at \$D800 -- \$DBFF or \$D800 -- \$DFFF (if the {\em CRAM2K} signal is set in bit 0 of \$D030, 53296 decimal). Thus if using a screen larger than 40$\times$25 characters use of the DMA controller or some other means may be required to access the full amount of colour RAM.  Thus we will initially discuss using Super-Extender Attribute Mode with a 40x25 character display, so that the use of DMA or other means to access the additional colour RAM.
+Super-Extended Attribute Mode requires double the screen RAM and colour RAM as the VIC-II/III text modes. This is because two bytes of each are required to define each character, instead of one.  The screen RAM can be located anywhere in the 384KB of main memory using registers \$D060 -- \$D062 (53344 -- 53346 decimal).  The colour RAM can be located anywhere in the 32KB colour RAM.  Only the first 1 or 2KB of the colour RAM is visible at \$D800 -- \$DBFF or \$D800 -- \$DFFF (if the {\em CRAM2K} signal is set in bit 0 of \$D030, 53296 decimal). Thus if using a screen larger than 40$\times$25 characters use of the DMA controller or some other means may be required to access the full amount of colour RAM.  Thus we will initially discuss using Super-Extender Attribute Mode with a 40x25 character display, so that the use of DMA or other means to access the additional colour RAM.
 
 The first step is to enable the Super-Extended Attribute Mode by asserting the {\em FCLRHI} and {\em CHR16} signals, by setting bits 2 and 0 of \$D054 (53332 decimal).  As this is a VIC-IV register, we must first enable the VIC-IV IO mode.  The VIC-IV must also be configured to 40 column mode, by clearing the {\em H640} signal by clearing bit 7 of \$D031 (53297 decimal).  This is because each pair of characters will be used to form a single character on screen, with one character requiring two screen RAM bytes, thus 80 screen RAM bytes are required to display 40 characters.  Similarly 80 colour RAM bytes are required as well.
 
@@ -519,7 +519,7 @@ There are two things to notice in the above table: First, the address advances b
 
 \includegraphics[width=\linewidth]{images/illustrations/screen-40x25-addresses16-80.pdf}
 
-It is possible to use Super-Extended Attribute Mode from C65 mode, by setting the screen to 80 columns, as the C65 ROM sets up 2KiB for both the screen RAM and colour RAM, and this automatically sets \$D058 and \$D059 to the correct value for 40$\times$2 = 80 bytes per screen line.  The user need only to treat each character pair as a single Super-Extended Attribute character, and to enable Super-Extended Attribute Mode, as described above.
+It is possible to use Super-Extended Attribute Mode from C65 mode, by setting the screen to 80 columns, as the C65 ROM sets up 2KB for both the screen RAM and colour RAM, and this automatically sets \$D058 and \$D059 to the correct value for 40$\times$2 = 80 bytes per screen line.  The user need only to treat each character pair as a single Super-Extended Attribute character, and to enable Super-Extended Attribute Mode, as described above.
 
 Because pairs of colour RAM and screen RAM bytes are used to define each character, care must be taken to initialise and manipulate the screen.
 A good approach is to set the text colour to black, because this is colour code 0, and then to fill the screen with @ characters, because that is
@@ -544,8 +544,8 @@ To do this, each character now requires 64 bytes of data. The address of the dat
 of the character set address.
 FCM should
 normally be used with Super-Extended Attribute Mode (SEAM), so that more than 256 unique characters can be address. As SEAM allows
-the selection of 8,192 unique characters, this allows FCM character data to be placed anywhere in the first 512KiB of chip RAM (but
-note that most models of the MEGA65 have only 384KiB of chip RAM).
+the selection of 8,192 unique characters, this allows FCM character data to be placed anywhere in the first 512KB of chip RAM (but
+note that most models of the MEGA65 have only 384KB of chip RAM).
 
 \subsection{Nibble-colour (16 colours per character) Text Mode (NCM)}
 

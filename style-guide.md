@@ -7,7 +7,7 @@ to rely on the [BBC News Style Guide](https://www.bbc.co.uk/newsstyleguide/)
 as much as possible for the basics. For computer specific terminology and spelling, the
 [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/welcome/) was used. And finally,
 the [Commodore 64 User Manual](http://www.zimmers.net/anonftp/pub/cbm/c64/manuals/C64_User_Manual_1984_2nd_Edition.pdf) 
-was used, as we're trying to replicate the look and feel of it.
+and was used, as we're trying to replicate the look and feel of it.
 
 The intended audience for people reading (and contributing to) MEGA65 literature are people who are comfortable using 
 a computer, and have good English skills.
@@ -117,6 +117,9 @@ Some commonly used words, and their preferences (in alphabetical order):
   * More information on the use on hyphens in general is available in the 
     [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/dashes-hyphens/hyphens)
 
+* More bits and bytes. When referring to kilobytes, megabytes, gigabytes, etc. please use KB, MB, GB. Not KiB, MiB, 
+  GiB. When using the term after a number, don't leave a space.
+  * `64KB`. Not `64kb`, `64Kb`, or `64 KB`, etc.  
 
 ## Screenshots
 When adding screenshots of the MEGA65 display, please crop title bars and shadows (when emulated).

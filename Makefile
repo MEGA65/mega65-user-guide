@@ -4,6 +4,7 @@ BOOKS=	mega65-book.pdf \
 	mega65-userguide.pdf \
 	mega65-developer-guide.pdf \
 	mega65-chipset-reference.pdf \
+	mega65-assembly-reference.pdf \
 	mega65-basic65-reference.pdf \
 	mega65-basic-programming.pdf \
 
@@ -68,6 +69,11 @@ mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
+
+mega65-assembly-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+	./getgitinfo
+	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-assembly-reference.tex
 
 mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo

@@ -63,7 +63,7 @@ and then directly accessing the sector buffer located at \$FFD6C00 --
 \$FFD6DFF. Care should be taken to ensure that the BUFSEL signal (bit 7 of \$D689) is
 cleared, so that the floppy sector buffer is visible, rather than the
 SD card sector buffer for programs other than the Hypervisor. This
-is because only the Hypervisor has access to the full 4KiB SD
+is because only the Hypervisor has access to the full 4KB SD
 controller buffer space: Normal programs see either the floppy
 sector buffer or the SD card sector buffer repeated 8 times between
 \$FFD6000 and \$FFD6FFF.
@@ -79,7 +79,7 @@ or the SD card sector buffer is visible, for software not running in
 Hypervisor mode.  Note that if you use the Matrix Mode / serial monitor
 interface to inspect the contents of the sector buffer, that this occurs
 in the Hypervisor context, and so the BUFSEL signal will be ignored,
-and the full 4KiB buffer will be visible.
+and the full 4KB buffer will be visible.
 
 The memory-mapped sector buffer has the advantage that it can be
 accessed via DMA, allowing for very efficient copies.  Also, it allows
@@ -156,10 +156,10 @@ order. This can result in transfer rates as low as 5 sectors per second,
 compared with the optimal case of 50 sectors per second.
 Thus with either correct sector order, or using the target any mode,
 it is possible to read approximately two full tracks per second,
-i.e., two sides $\times$ two tracks, or approximately 20KiB/second on
-DD disks, or double that on HD disks, at around 40KiB/second.  This
+i.e., two sides $\times$ two tracks, or approximately 20KB/second on
+DD disks, or double that on HD disks, at around 40KB/second.  This
 compares very favourably with the C65 DOS loading speed, which is
-typically nearer 1KiB/sec in C64-mode.
+typically nearer 1KB/sec in C64-mode.
 
 \subsection{Disk Layout and 1581 Logical Sectors}
 
@@ -221,14 +221,14 @@ floppy disk into their computer!
 
 The standard high-density (HD) disk format is ``1.44MB'', using 18 sectors per track over 80 tracks.
 This results in 80 tracks $\times$ 18 sectors $\times$ 2 sides = 2,880 sectors. As each sector
-is 512 bytes, this corresponds to 1,440 KiB.  This leads us into the interesting wonderland of
+is 512 bytes, this corresponds to 1,440KB.  This leads us into the interesting wonderland of
 ``floppy disk marketing megabytes,'' a phenomena which long predates SD card and hard drive
 manufacturers using 1,000,000 byte megabytes.
 
-Curiously for floppy disks, the 1,024,000 byte ``megabyte'' was used, i.e., ``1MB'' = 1 KiB $\times$ 1 KB,
+Curiously for floppy disks, the 1,024,000 byte ``megabyte'' was used, i.e., ``1MB'' = 1KB $\times$ 1KB,
 that is a strange hybrid of binary and decimal conventions.  Perhaps it was because the previous standard
-was 720KB, and they thought people would thing it odd if double 720KB was 1.41MiB, and complain about the
-missing kilo-bytes.  We will continue to use the 1,024KB = 1,000KiB floppy disk marketing mega-byte for
+was 720KB, and they thought people would thing it odd if double 720KB was 1.41MB, and complain about the
+missing kilo-bytes.  We will continue to use the 1,024KB = 1,000KB floppy disk marketing mega-byte for
 consistency with this historical inconsistency.
 
 However, HD floppy disks are fundamentally capable of holding much more than 1.44MB. For example, the FD2000
@@ -395,10 +395,10 @@ it were being used, providing considerable atmosphere and sense of
 realism, even when using disk images.
 
 The 45IO27 supports both 800KB standard D81 disk images, as well as
-64MiB ``MEGA Images''.  While an operating system may impose
+64MB ``MEGA Images''.  While an operating system may impose
 restrictions based on the name of a file, the 45IO27 is blind to these
-requirements. Instead, it requires only that a {\tt contiguous} 800KiB
-or 64MiB of the SD card is used to contain a disk image.
+requirements. Instead, it requires only that a {\tt contiguous} 800KB
+or 64MB of the SD card is used to contain a disk image.
 
 When a disk image is enabled, the corresponding set of sectors on the
 SD card are effectively placed under user control, and the operating
@@ -417,8 +417,8 @@ controll whether an access will go to the real floppy drive or to the
 disk image by respectively clearing or setting the appropriate
 signal.  For drive 0, this is D0IMG, and for drive 1, it is D1IMG.
 
-There are also signals to control whether a disk image is an 800KiB
-D81 image or a 64MiB MEGA Disk image, and whether a disk image is
+There are also signals to control whether a disk image is an 800KB
+D81 image or a 64MB MEGA Disk image, and whether a disk image is
 present, and whether it is write protected. These are all located in
 the \$D68B register. Because of the ability of manipulation of these
 registers to corrupt or improperly access data, these signals are all
@@ -460,7 +460,7 @@ supplied disk image has a C65 auto-boot function, then it should
 automatically start booting.
 
 This function works very well if the host computer runs Linux, and
-will allow loading at a speed of around 60KiB per second.  However, it
+will allow loading at a speed of around 60KB per second.  However, it
 may be much slower on Windows or Apple OSX-based systems.
 
 Of course to use this, you will also need an interface module and/or
@@ -475,13 +475,13 @@ found in \bookvref{cha:transfer-and-debug-tools}.
 
 The 45IO27 contains a high-speed dual-bus SD card controller.  This
 controller operates in SPI x1 mode at a clock speed of 20MHz,
-providing a maximum throughput of approximately 2MiB/sec.  The quality
+providing a maximum throughput of approximately 2MB/sec.  The quality
 of the SD card makes a signficant difference to performance, with some
-cards routinely delivering 1.7MiB/sec, while others 1MiB/sec or
+cards routinely delivering 1.7MB/sec, while others 1MB/sec or
 less. Generally speaking, newer cards marketted as being suitable for
 video recording perform better.  The controller supports SDHC cards,
 and has experimental support for SDXC cards.  Legacy SD cards with a
-capacity of 2GiB or less are not supported, as these use a different
+capacity of 2GB or less are not supported, as these use a different
 addressing mode.
 
 The SD controller itself is very simple to drive: Supply the sector

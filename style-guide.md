@@ -111,6 +111,9 @@ Some commonly used words, and their preferences (in alphabetical order):
 
 * Input/Output. Please use slashes here, same goes for the initials. i.e: I/O, not IO.
 
+* Kernal, not kernel. Yes, we know it's not the correct spelling for the context it's used in. However this is how 
+  Commodore spelt it, and we're sticking with it!
+
 * Keyword. When documenting BASIC, there's no need to add the word `keyword` before a BASIC keyword, as they
   should already be in bold (`{\bf LOAD`), so the fact that it's a keyword is already implied.
   * Enter `{\bf LOAD}`, not enter the keyword LOAD. 

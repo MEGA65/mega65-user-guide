@@ -16,7 +16,7 @@ being emulated. As far as the MEGA65 is concerned, it's using a real drive.
 
 This allows you to use modern media to read and write your programs, and in some cases can drastically reduce
 read and write times. These files usually have the extension {\bf .d64} (named after the C64), which are files that
-represent a single side of a 5.25" disk, or {\bf .d81}, which represents an entire 3.5" disk (named after the
+represent a {\it single} side of a 5.25" disk, or {\bf .d81}, which represents an entire 3.5" disk (named after the
 1581 floppy disk drive).
 
 The MEGA65 can use either real disks and drives, {\bf .d81} files, or a combination of both.
@@ -24,7 +24,7 @@ The MEGA65 can use either real disks and drives, {\bf .d81} files, or a combinat
 \subsection{Disk Drive Terminology}
 Before you get to know how to use the various disk drives that work with the MEGA65, it's important to be aware
 of some specific terminology which CBM computers and the MEGA65 uses. This includes {\bf BASIC} commands (such as
-{\bf LOAD} and {\bf SAVE}), and {\bf CBDOS}, which use the following:
+{\bf LOAD} and {\bf SAVE}), and {\bf CBDOS} (Computer Based Disk Operating System), which use the following:
 
 {\bf UNIT} is a device number in the range of 0-31.
 The numbers from 0 to 11 are reserved for the following device types:
@@ -41,13 +41,17 @@ The numbers from 0 to 11 are reserved for the following device types:
 3        & SCREEN   & Input/Output     \\
 4-5      & IEC PRINTER  & Output     \\
 6-7      & IEC PLOTTER  & Output     \\
-8-9      & CBDOS drives\footnotemark & Floppy drive or disk image \\
+8-9      & CBDOS drives\footnotemark{} & Internal floppy drive, 1565\footnotemark{}, or disk image \\
 10-11    & IEC drives   & 1541, 1571, 1581, FD-2000 \\
 \hline
 \end{tabular}
 \end{center}
-
-\footnotetext{IEC drives can be assigned to devices 8-9, by moving the built-in MEGA65 devices to 10-11 first.}
+\addtocounter{footnote}{-2}
+\stepcounter{footnote}\footnotetext{IEC drives can be assigned to devices 8-9, by moving the built-in MEGA65 devices
+                                    to 10-11 first. Once the drives have been reassigned, the IEC drives can be
+                                    powered on.}
+\stepcounter{footnote}\footnotetext{The 1565 was a prototype external C65 disk drive that never made it to production.
+                                    The internal MEGA65 drive is a reproduction of this prototype.}
 
 {\bf DRIVE} is the drive number of a {\bf UNIT}:
 
@@ -94,17 +98,16 @@ is given back to the original program.
 
 The {\bf FREEZER} is invoked by pressing \widekey{RESTORE} for approximately half to one second.
 The current status of the computer is frozen and the freezer menu,
-similar to the picture below is displayed.
-Most options are self explanatory, or will be covered in detail in
-online documentation. This chapter focuses on how to assign disk images, and how to configure the
-the internal floppy disk drive.
+similar to the picture below is displayed. This chapter focuses on how to assign disk images, and how to configure the
+the internal floppy disk drive, but the other options in the freezer are self explanatory, or will be covered in detail in
+online documentation.
 
 \begin{center}
 \includegraphics[trim= 10mm 20mm 10mm 20mm,clip,width=0.7\linewidth]{images/freezer.jpg}
 \end{center}
 
 The bottom-right part of the freezer screen shows the current disk drive assignments.
-The internal CBDOS (Computer Based Disk Operating System) which the MEGA65 uses supports up to two
+The internal CBDOS which the MEGA65 uses supports up to two
 3.5" disk drives and .d81 images, in any combination.
 Drive 0 can be assigned to the internal floppy disk drive or a .d81 disk image,
 whereas Drive 1 can be assigned to an external floppy disk drive (connected to the

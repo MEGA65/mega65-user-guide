@@ -1,8 +1,8 @@
-\usepackage{colortbl}
-\usepackage{adjustbox}
+%\usepackage{colortbl}
+%\usepackage{adjustbox}
 
 
-\newcommand{\blk}{\cellcolor[rgb]{0,0,0}\textcolor{white} 0 }
+\newcommand{\blkb}{\cellcolor[rgb]{0,0,0}\textcolor{white} 0 }
 \newcommand{\bwn}{\cellcolor[rgb]{.26,.22,0}\textcolor{white} 9 }
 \newcommand{\ora}{\cellcolor[rgb]{.44,.31,.15} 8 }
 \newcommand{\red}{\cellcolor[rgb]{.6,.4,.35} A }
@@ -28,41 +28,44 @@ In this part of the book, we want to examine the MEGA65's graphics modes by walk
 
 In bitmap graphics every pixel of a graphic is stored separately. The way the pixels are hold in memory varies from system to system and in most cases depends on the performance of the hardware. If memory would be unlimited, the easiest way to remember a pixel is to save its RGB-values in three separate bytes. Example: 0xFFFFFF for white would result in three values to be stored: \$FF, \$FF and \$FF. To be honest, this is too simple and not really efficient. Let’s think about another way. Why not defining a color table (or color palette) and store the RGB values once and finally only reference the color by its index in the table? This will save us a lot of memory! Let's imagine we would create a colorful 8x8 bitmap to represent an "A" on the screen. Colourful means, we want it in some brownish colors. The color table for it may look like this:
 
-\setlength\minrowclearance{4pt}
+%\setlength\minrowclearance{4pt}
 \begin{center}
-\begin{tabular}{m{22pt}|m{60pt}}
-	Index & Color \\\hline
-	\blk & Black \\
+\begin{tabular}{|m{22pt}|m{60pt}|}
+\hline
+	Index & Color \\
+\hline
+	\blkb & Black \\
 	\bwn & Brown \\
 	\ora & Orange \\
 	\red & Light Red \\
 	\lgr & Light Grey \\
 	\yel & Yellow \\
+\hline
 \end{tabular}
 \end{center}
 
 The color values, by the way, are exact the same as the color values from the standard C64 color palette. Next we design the "A". Each pixel references a value from the color table above.
 
 
-\setlength\minrowclearance{4pt}
+%\setlength\minrowclearance{4pt}
 \begin{center}
-\begin{tabular}{m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}}
-	& 1 & 2 & 3& 4& 5& 6& 7& 8 &\\\hline
-
-	1 & \blk & \blk & \blk & \blk & \blk & \blk & \blk & \blk & \\
-	2 & \red & \lgr & \yel & \lgr & \red & \ora & \blk & \blk & \\
-	3 & \lgr & \lgr & \blk & \blk & \ora & \red & \blk & \blk & \\
-	4 & \yel & \yel & \blk & \blk & \ora & \red & \blk & \blk & \\
-	5 & \yel & \lgr & \lgr & \red & \red & \red & \blk & \blk & \\
-	6 & \lgr & \red & \blk & \blk & \ora & \red & \blk & \blk & \\
-	7 & \red & \red & \blk & \blk & \red & \red & \blk & \blk & \\
-	8 & \ora & \bwn & \blk & \blk & \ora & \red & \blk & \blk & \\
-
-	&&&&&&&&&
+\begin{tabular}{|m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}|}
+\hline
+	& 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\hline
+	0 & \blkb & \blkb & \blkb & \blkb & \blkb & \blkb & \blkb & \blkb \\
+	1 & \red & \lgr & \yel & \lgr & \red & \ora & \blkb & \blkb \\
+	2 & \lgr & \lgr & \blkb & \blkb & \ora & \red & \blkb & \blkb \\
+	3 & \yel & \yel & \blkb & \blkb & \ora & \red & \blkb & \blkb \\
+	4 & \yel & \lgr & \lgr & \red & \red & \red & \blkb & \blkb \\
+	5 & \lgr & \red & \blkb & \blkb & \ora & \red & \blkb & \blkb \\
+	6 & \red & \red & \blkb & \blkb & \red & \red & \blkb & \blkb \\
+	7 & \ora & \bwn & \blkb & \blkb & \ora & \red & \blkb & \blkb \\
+\hline
 \end{tabular}
 \end{center}
 
-But how much memory does this little graphic use XXX?
+But how much memory does this little graphic use?
 
 If we create an one-dimensional array, we will get an array with 64 elements, because our graphic consists of 8x8 pixels = 64 color values that have to be saved. If we transfer that to the memory of the MEGA65, it means that we have 64 bytes to store in memory. However, full-screen graphics are made up of far more pixels. On the C64 and of course also on the MEGA65, 320x200 pixels are required to generate a graphic that fills the entire screen. If we transfer this to our array, we would have a total of 64,000 entries. Converted to the memory of the MEGA65, that is 64,000 bytes or nearly 64 kilobytes of data! If we now also consider that the good old C64 only had 64K of RAM available, we recognize the Drama! That's just too much data! We need strategies to reduce our bitmap data. On the C64 we had to two types of bitmap graphics and both come with its own concepts to use as less memory as possible.
 
@@ -78,8 +81,12 @@ First, a bitmap is divided into blocks of 8x8 pixels each. In order to achieve t
 
 \begin{adjustbox}{width=\textwidth,center}
 \begin{center}
-\begin{tabular}[h]{m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|m{5pt}|}
-  & 1 & 2 & 3& 4& 5& 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 & 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32 & 33 & 34 & 35 & 36 & 37 & 38 & 39 & 40 \\\hline
+\begin{footnotesize}
+\begin{tabular}[h]{|C{10pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|}
+\hline
+  &   &   &  &  &  &   &   &   &   & 1  & 1  & 1  & 1  & 1  & 1  & 1  & 1  & 1  & 1  & 2  & 2  & 2  & 2  & 2  & 2  & 2  & 2  & 2  & 2  & 3  & 3  & 3  & 3  & 3  & 3  & 3  & 3  & 3  & 3  & 4  \\
+  & 1 & 2 & 3& 4& 5& 6 & 7 & 8 & 9 &  0 & 1  &  2 &  3 &  4 &  5 &  6 &  7 &  8 &  9 &  0 &  1 &  2 &  3 &  4 &  5 &  6 &  7 &  8 &  9 &  0 &  1 &  2 &  3 &  4 &  5 &  6 &  7 &  8 &  9 &  0 \\
+\hline
    1 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
    2 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
    3 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
@@ -106,30 +113,32 @@ First, a bitmap is divided into blocks of 8x8 pixels each. In order to achieve t
   24 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
   25 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
 \end{tabular}
+\end{footnotesize}
 \end{center}
 
 \end{adjustbox}
 
 Splitting into blocks makes sense because this gives us the chance to reduce the data drastically. Each line of a 8x8 block are 8 bits, so why not forget the color indexes and just say each pixel set represents a "1" in the line and each pixel not set corresponds to "0".
 
-\setlength\minrowclearance{4pt}
+%\setlength\minrowclearance{4pt}
 \begin{center}
-\begin{tabular}{m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{70pt}}
-	& 1 & 2 & 3& 4& 5& 6& 7& 8 &\\\hline
-
-	1 & \blk  & \blk  & \blk  & \blk  & \blk  & \blk  & \blk & \blk & = 0 \to\ \$00 \\
-	2 & \blk  & \redb & \redb & \redb & \redb & \blk  & \blk & \blk & = 120 \to\ \$78 \\
-	3 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
-	4 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
-	5 & \redb & \redb & \redb & \redb & \redb & \redb & \blk & \blk & = 252 \to\ \$FC \\
-	6 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
-	7 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
-	8 & \redb & \redb & \blk  & \blk  & \redb & \redb & \blk & \blk & = 204 \to\ \$CC \\
-
+\begin{tabular}{|m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}|m{6pt}R{20pt}m{20pt}{18pt}|}
+\hline
+	& 7 & 6 & 5& 4& 3&  2& 1& 0 & & & & \\
+\hline
+0 & \blkb & \blkb  & \blkb  & \blkb  & \blkb  & \blkb  & \blkb & \blkb & = & 0 & \to & \$00 \\
+1 & \blkb & \redb & \redb & \redb & \redb & \blkb  & \blkb & \blkb & = & 120 & \to & \$78 \\
+2 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
+3 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
+4 & \redb & \redb & \redb & \redb & \redb & \redb & \blkb & \blkb & = & 252 & \to & \$FC \\
+5 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
+6 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
+7 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
+\hline
 \end{tabular}
 \end{center}
 
-\setlength\minrowclearance{0}
+%\setlength\minrowclearance{0}
 
 As shown above now you can easily convert the bits of each line to its hex value and you finally get 8 bytes of data. This is the central idea in hires graphics and with this concept you save a lot of memory. Here in this example it's 8 Bytes versus 64 Bytes if you have to manage all the color references.
 Let's count it up for a full screen picture: We have 40x25 Blocks, that is 1000 blocks in total. Each block is 8 Bytes or 1 Kilobyte, so we'll result in "only" 10K for a full screen picture.\\

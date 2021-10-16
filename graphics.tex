@@ -28,9 +28,8 @@ In this part of the book, we want to examine the MEGA65's graphics modes by walk
 
 In bitmap graphics every pixel of a graphic is stored separately. The way the pixels are hold in memory varies from system to system and in most cases depends on the performance of the hardware. If memory would be unlimited, the easiest way to remember a pixel is to save its RGB-values in three separate bytes. Example: 0xFFFFFF for white would result in three values to be stored: \$FF, \$FF and \$FF. To be honest, this is too simple and not really efficient. Let’s think about another way. Why not defining a color table (or color palette) and store the RGB values once and finally only reference the color by its index in the table? This will save us a lot of memory! Let's imagine we would create a colorful 8x8 bitmap to represent an "A" on the screen. Colourful means, we want it in some brownish colors. The color table for it may look like this:
 
-%\setlength\minrowclearance{4pt}
 \begin{center}
-\begin{tabular}{|m{22pt}|m{60pt}|}
+\begin{tabular}{|l|l|}
 \hline
 	Index & Color \\
 \hline
@@ -47,7 +46,6 @@ In bitmap graphics every pixel of a graphic is stored separately. The way the pi
 The color values, by the way, are exact the same as the color values from the standard C64 color palette. Next we design the "A". Each pixel references a value from the color table above.
 
 
-%\setlength\minrowclearance{4pt}
 \begin{center}
 \begin{tabular}{|m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}|}
 \hline
@@ -80,7 +78,6 @@ If we create an one-dimensional array, we will get an array with 64 elements, be
 First, a bitmap is divided into blocks of 8x8 pixels each. In order to achieve the full resolution of 320x200 pixels, 40 of such blocks next to each other builds up a line. If we now build up 25 lines, we arrive at a graphic that fills the complete screen.
 
 \begin{adjustbox}{width=\textwidth,center}
-\begin{center}
 \begin{footnotesize}
 \begin{tabular}[h]{|C{10pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|C{5pt}|}
 \hline
@@ -114,31 +111,26 @@ First, a bitmap is divided into blocks of 8x8 pixels each. In order to achieve t
   25 & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & & \\\hline
 \end{tabular}
 \end{footnotesize}
-\end{center}
-
 \end{adjustbox}
 
 Splitting into blocks makes sense because this gives us the chance to reduce the data drastically. Each line of a 8x8 block are 8 bits, so why not forget the color indexes and just say each pixel set represents a "1" in the line and each pixel not set corresponds to "0".
 
-%\setlength\minrowclearance{4pt}
 \begin{center}
-\begin{tabular}{|m{4pt}|m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}m{4pt}|m{6pt}R{20pt}m{20pt}{18pt}|}
+\begin{tabular}{|C{12pt}|C{12pt}C{12pt}C{12pt}C{12pt}C{12pt}C{12pt}C{12pt}C{12pt}|R{24pt}|R{24pt}|}
 \hline
-	& 7 & 6 & 5& 4& 3&  2& 1& 0 & & & & \\
+	& 7 & 6 & 5& 4& 3&  2& 1& 0 & dec & hex \\
 \hline
-0 & \blkb & \blkb  & \blkb  & \blkb  & \blkb  & \blkb  & \blkb & \blkb & = & 0 & \to & \$00 \\
-1 & \blkb & \redb & \redb & \redb & \redb & \blkb  & \blkb & \blkb & = & 120 & \to & \$78 \\
-2 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
-3 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
-4 & \redb & \redb & \redb & \redb & \redb & \redb & \blkb & \blkb & = & 252 & \to & \$FC \\
-5 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
-6 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
-7 & \redb & \redb & \blkb  & \blkb  & \redb & \redb & \blkb & \blkb & = & 204 & \to & \$CC \\
+0 & \blkb & \blkb & \blkb & \blkb & \blkb & \blkb & \blkb & \blkb &   0 & 00 \\
+1 & \blkb & \redb & \redb & \redb & \redb & \blkb & \blkb & \blkb & 120 & 78 \\
+2 & \redb & \redb & \blkb & \blkb & \redb & \redb & \blkb & \blkb & 204 & CC \\
+3 & \redb & \redb & \blkb & \blkb & \redb & \redb & \blkb & \blkb & 204 & CC \\
+4 & \redb & \redb & \redb & \redb & \redb & \redb & \blkb & \blkb & 252 & FC \\
+5 & \redb & \redb & \blkb & \blkb & \redb & \redb & \blkb & \blkb & 204 & CC \\
+6 & \redb & \redb & \blkb & \blkb & \redb & \redb & \blkb & \blkb & 204 & CC \\
+7 & \redb & \redb & \blkb & \blkb & \redb & \redb & \blkb & \blkb & 204 & CC \\
 \hline
 \end{tabular}
 \end{center}
-
-%\setlength\minrowclearance{0}
 
 As shown above now you can easily convert the bits of each line to its hex value and you finally get 8 bytes of data. This is the central idea in hires graphics and with this concept you save a lot of memory. Here in this example it's 8 Bytes versus 64 Bytes if you have to manage all the color references.
 Let's count it up for a full screen picture: We have 40x25 Blocks, that is 1000 blocks in total. Each block is 8 Bytes or 1 Kilobyte, so we'll result in "only" 10K for a full screen picture.\\

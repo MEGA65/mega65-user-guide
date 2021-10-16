@@ -133,9 +133,9 @@ void latex_escape(char* target, char* source)
       }
     }
 
-    // escape underline or at sign
+    // escape underline or at sign or hash sign
 
-    else if (*source == '_' || *source == '@') {
+    else if (*source == '_' || *source == '@' || *source == '#') {
       if (prev != '\\')
         *target++ = '\\';
       *target++ = *source;

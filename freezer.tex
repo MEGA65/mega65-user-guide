@@ -1,4 +1,4 @@
-\chapter{Floppy Disks, D81 Images, and the Freezer}
+\chapter{Floppy Disks, the Freezer, and D81 Images}
 \label{cha:freezer}
 
 \phantomsection
@@ -170,7 +170,7 @@ When you do this, the file browser will appear:
 \includegraphics[trim= 10mm 20mm 10mm 20mm,clip,width=0.7\linewidth]{images/d81-file-browser.png}
 \end{center}
 
-The file browser will list all D81 images on the microSD card. The MEGA65 prioritises the microSD card, so if you
+The file browser will list all D81 images on the microSD card. The MEGA65 prioritises the external microSD card, so if you
 prefer to use an image on the internal SD card, the microSD card should be removed (when doing this, the MEGA65 needs
 to be reset as well).
 
@@ -193,6 +193,13 @@ Now that the file has been mounted, you can use
 the {\bf DIR} command to list the files in the image, or any of the {\bf LOAD}, and {\bf SAVE} commands, like you
 would on a physical disk.
 
+You may have noticed that the file browser has a \screentext{ - NO DISK - } and \screentext{ - INTERNAL 3.5" - }
+entry. These are used for un-mounting a D81 image - but with a difference. \screentext{ - NO DISK - } is used to tell
+the MEGA65 that no disk is inserted, and to not try and find one when performing a disk-based operation. On the other
+hand, \screentext{ - INTERNAL 3.5" - } is used when using a physical 3.5" disk in the internal drive. If no disk is
+inserted and a disk-based operation is performed with the \screentext{ - INTERNAL 3.5" - } option, the MEGA65 will
+try and find a disk, which could take a few seconds.
+
 
 \subsection{Auto booting from a D81 file}
 If you would like the MEGA65 to automatically perform any BASIC commands upon startup, you can create an
@@ -200,7 +207,7 @@ If you would like the MEGA65 to automatically perform any BASIC commands upon st
 as changing the {\bf BACKGROUND}, {\bf BORDER}, or {\bf FOREGROUND} colours, or even {\bf LOAD} a program.
 
 For example, to change the background and border colours to black, and load a program called \screentext{MYPROGRAM}
-automatically, create a BASIC listing like the following, then {\bf SAVE} it.
+automatically, create a BASIC listing like the following, then {\bf SAVE} it:
 
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -212,3 +219,18 @@ automatically, create a BASIC listing like the following, then {\bf SAVE} it.
 SAVE "AUTOBOOT.C65"
 \end{verbatim}
 \end{tcolorbox}
+
+\subsection{Saving D81 file settings}
+
+The D81 settings are temporary, and will be reset to their defaults after power down. You can change the default settings
+in the {\bf CONFIGURE} menu. When opening the Configure menu, press the \megakey{F1} and \megakey{F2} keys
+to reach the \screentext{CHIPSET} section, then navigate to the \screentext{F011 DISK CONTROLLER} options.
+Select the \screentext{USES SDCARD DISK IMAGE} setting, then enter the name of the disk image you wish to have mounted
+by default in the \screentext{DEFAULT DISK IMAGE} field. A screenshot showing these settings with
+\screentext{MEGA65.D81} as the default D81 disk image is shown below:
+
+\begin{center}
+\includegraphics[width=0.7\linewidth]{images/ss-m65config-2.png}
+\end{center}
+
+You can read more about the Configure menu on page \pageref{sec:configuration-utility}.

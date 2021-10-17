@@ -31,6 +31,11 @@ Below are some simple MEGA65 styling rules:
   appear in a particular way, remember to reset anything you have changed back to the default. These especially include
   `setlength`.  
 
+* Fonts. When referring to buttons, or elements of a webpage, you can highlight them with bold text. When referring 
+  to filenames that the MEGA65 uses (either on a disk or on an SD card), please use the fixed-width font using 
+ `{\tt <your text here}` syntax. If you're referring to a part of a MEGA65 screen (regardless if it's text in the 
+  editor or in a configuration screen), please use `\screentext{<your text here>}` syntax instead.
+
 * If you're stuck on when to use commas and hyphens refer to the 
   [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/commas).
 

@@ -1,4 +1,4 @@
-\chapter{Floppy Disks, D81 Images, and the Freezer}
+\chapter{Floppy Disks, the Freezer, and D81 Images}
 \label{cha:freezer}
 
 \phantomsection
@@ -91,21 +91,21 @@ The MEGA65 {\bf FREEZER} is a tool for changing system parameters at any time,
 regardless of the currently running program. It's very similar to the Freezer that many popular cartridges
 for the C64 included, such as the Action Replay cartridge, and The Final cartridge. Freezers generally work by
 taking over the CPU whilst leaving RAM intact. This way you can perform functions and change configuration
-settings without affecting the currently running program. Once you have finished using the freezer, CPU control
+settings without affecting the currently running program. Once you have finished using the Freezer, CPU control
 is given back to the original program.
 
 
-The {\bf FREEZER} is invoked by pressing \widekey{RESTORE} for approximately half to one second.
-The current status of the computer is frozen and the freezer menu,
+The Freezer is invoked by pressing \widekey{RESTORE} for approximately half to one second.
+The current status of the computer is frozen and the Freezer menu,
 similar to the picture below is displayed. This chapter focuses on how to assign disk images and how to configure the
-the internal floppy disk drive, but the other options in the freezer are self explanatory, or will be covered in detail in
+the internal floppy disk drive, but the other options in the Freezer are self explanatory, or will be covered in detail in
 online documentation.
 
 \begin{center}
 \includegraphics[trim= 10mm 20mm 10mm 20mm,clip,width=0.7\linewidth]{images/freezer.jpg}
 \end{center}
 
-The bottom-right part of the freezer screen shows the current disk drive assignments.
+The bottom-right part of the Freezer screen shows the current disk drive assignments.
 The internal CBDOS which the MEGA65 uses supports up to two
 3.5" disk drives and .d81 images, in any combination.
 Drive 0 can be assigned to the internal floppy disk drive or a .d81 disk image,
@@ -151,11 +151,87 @@ In this case, the internal drive assignment can be switched to an alternative un
 to avoid conflict. To do this, press \megakey{8} to toggle the unit assignment of drive 0
 between 8 and 10, and \megakey{9} to toggle the unit assignment of drive 1, between 9 and 11.
 
-After setting the preferences, the {\bf FREEZER} can be exited
-with \megakey{F3}. The {\bf FREEZER} restores the screen and
+After setting the preferences, the Freezer can be exited
+with \megakey{F3}. The Freezer restores the screen and
 returns to the interrupted program.
 
 Note: The drive and unit assignments are temporary, and will be reset to their defaults
 after power down or reset. For permanent settings, use the {\bf CONFIGURE}
 menu. You can read more about this menu on page \pageref{configuring-chipset}.
 
+\section{Using D81 images}
+As previously mentioned, the MEGA65 allows the use of D81 files instead of using physical disks. The MEGA65 includes a
+built-in file browser, which allows you to choose which D81 file to mount. To do this, enter the Freezer menu,
+then press \megakey{0} or \megakey{1}, to choose the drive to mount it to.
+
+When you do this, the file browser will appear:
+
+\begin{center}
+\includegraphics[trim= 10mm 20mm 10mm 20mm,clip,width=0.7\linewidth]{images/d81-file-browser.png}
+\end{center}
+
+The file browser will list all D81 images on the microSD card. The MEGA65 prioritises the external microSD card, so if you
+prefer to use an image on the internal SD card, the microSD card should be removed (when doing this, the MEGA65 needs
+to be reset as well).
+
+Press the cursor keys to choose a file. If the currently selected file isn't a valid D81, the border will be red,
+otherwise it will be blue, as shown above. Whilst browsing for D81 files, the list of files within the currently
+selected D81 file will be shown on the right-hand side.
+
+When you find the D81 file you wish to mount, press \specialkey{RETURN}.
+This will take you back to the Freezer menu, and the selected D81 file will be shown under the selected drive.
+In the screenshot below, the  \screentext{MEGA65.D81} file has been mounted to drive 0:
+
+\begin{center}
+\includegraphics[trim= 10mm 20mm 10mm 20mm,clip,width=0.7\linewidth]{images/freezer-chosen-d81.png}
+\end{center}
+
+Next, press \megakey{F3} to exit the Freezer menu and return to the currently running program. Alternatively,
+pressing \megakey{F5} will exit the Freezer, and reset the MEGA65 as well.
+
+Now that the file has been mounted, you can use
+the {\bf DIR} command to list the files in the image, or any of the {\bf LOAD}, and {\bf SAVE} commands, like you
+would on a physical disk.
+
+You may have noticed that the file browser has a \screentext{ - NO DISK - } and \screentext{ - INTERNAL 3.5" - }
+entry. \screentext{ - NO DISK - } is used to tell
+the MEGA65 that no disk is inserted, and to not try and find one when performing a disk-based operation. On the other
+hand, \screentext{ - INTERNAL 3.5" - } is used when using a physical 3.5" disk in the internal drive. If no disk is
+inserted and a disk-based operation is performed with the \screentext{ - INTERNAL 3.5" - } option, the MEGA65 will
+try and find a disk, which could take a few seconds. Any previously mounted D81 files will be unmounted when using
+these options.
+
+
+\subsection{Auto booting from a disk}
+If you would like the MEGA65 to automatically perform any BASIC commands upon startup, you can create an
+\screentext{AUTOBOOT.C65} PRG file on your disk/image. In this file, you can write BASIC programs to do things such
+as changing the {\bf BACKGROUND}, {\bf BORDER}, or {\bf FOREGROUND} colours, or even {\bf LOAD} a program.
+
+For example, to change the background and border colours to black, and load a program called \screentext{MYPROGRAM}
+automatically, create a BASIC listing like the following, then {\bf SAVE} it:
+
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 BACKGROUND 0
+20 BORDER 0
+30 LOAD "MYPROGRAM.PRG"
+SAVE "AUTOBOOT.C65"
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{Saving D81 file settings}
+
+The D81 settings are temporary, and will be reset to their defaults after power down. You can change the default settings
+in the {\bf CONFIGURE} menu. When opening the Configure menu, press the \megakey{F1} and \megakey{F2} keys
+to reach the \screentext{CHIPSET} section, then navigate to the \screentext{F011 DISK CONTROLLER} options.
+Select the \screentext{USES SDCARD DISK IMAGE} setting, then enter the name of the disk image you wish to have mounted
+by default in the \screentext{DEFAULT DISK IMAGE} field. A screenshot showing these settings with
+\screentext{MEGA65.D81} as the default D81 disk image is shown below:
+
+\begin{center}
+\includegraphics[width=0.7\linewidth]{images/ss-m65config-2.png}
+\end{center}
+
+You can read more about the Configure menu on page \pageref{sec:configuration-utility}.

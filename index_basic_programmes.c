@@ -168,7 +168,7 @@ int main(int argc, char** argv)
       for (int i = 0; i < cmd_count; i++) {
         if (cmd_used[i]) {
           fprintf(stderr, "  '%s'\n", commands[i]);
-          fprintf(stdout, "\\index{BASIC 65!%s!Examples}\n", commands[i]);
+          fprintf(stdout, "\\index{BASIC 65 Examples!%s!Examples}\n", commands[i]);
         }
       }
 

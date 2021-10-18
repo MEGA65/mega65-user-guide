@@ -62,8 +62,16 @@ void parse_basic_text(char* s)
   }
 }
 
+const char *Keytext[3] =
+{
+   "\\index{BASIC 65 Commands!",
+   "\\index{BASIC 65 Functions!",
+   "\\index{BASIC 65 Operators!"
+};
+
 int main(int argc, char** argv)
 {
+  int k;
   FILE* f = fopen(argv[1], "r");
 
   if (!f) {
@@ -77,14 +85,15 @@ int main(int argc, char** argv)
   char line[8192];
 
   /*
-    Pass 1: Find list of BASIC 10 commands
+    Pass 1: Find list of BASIC 65 commands
    */
   line[0] = 0;
   fgets(line, 8192, f);
-  while (line[0]) {
-    if (!strncmp("\\index{BASIC 65 Commands!", line, strlen("\\index{BASIC 65 Commands!"))) {
+  while (line[0]) for (k=0 ; k < 3 ; ++k) {
+
+    if (!strncmp(Keytext[k], line, strlen(Keytext[k]))) {
       char command[8192];
-      strcpy(command, &line[strlen("\\index{BASIC 65 Commands!")]);
+      strcpy(command, &line[strlen(Keytext[k])]);
       for (int i = 0; command[i]; i++) {
         if (!isalnum(command[i])) {
           command[i] = 0;
@@ -150,7 +159,7 @@ int main(int argc, char** argv)
       // Skip any existing index entries
       line[0] = 0;
       fgets(line, 8192, f);
-      while (!strncmp("\\index{BASIC 65 Commands!", line, strlen("\\index{BASIC 65 Commands!"))) {
+      while (!strncmp("\\index{BASIC 65 ", line, strlen("\\index{BASIC 65 "))) {
         line[0] = 0;
         fgets(line, 8192, f);
       }
@@ -159,7 +168,7 @@ int main(int argc, char** argv)
       for (int i = 0; i < cmd_count; i++) {
         if (cmd_used[i]) {
           fprintf(stderr, "  '%s'\n", commands[i]);
-          fprintf(stdout, "\\index{BASIC 65 Commands!%s!Examples}\n", commands[i]);
+          fprintf(stdout, "\\index{BASIC 65!%s!Examples}\n", commands[i]);
         }
       }
 

@@ -70,7 +70,7 @@ const char *Keytext[5] =
    "\\index{BASIC 65 Functions!",
    "\\index{BASIC 65 Operators!",
    "\\index{BASIC 65 System Commands!",
-   "\\index{BASIC 65 System Variables!",
+   "\\index{BASIC 65 System Variables!"
 };
 
 int main(int argc, char** argv)

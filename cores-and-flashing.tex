@@ -281,7 +281,13 @@ The process is shown in the following figure:
 
 The booting process is governed by two facilities:
 \begin{itemize}
-  \item The Hypervisor (also known as HYPPO), which operates at a level above the Kernal. One of its responsibilities is to manage aspects of the boot process. For more details on the Hypervisor, refer to the {\bf MEGA65 Book}. In the diagram, activities performed by the Hypervisor have been highlighted in green.
+  \item The Hypervisor (also known as HYPPO), which operates at a level above the Kernal. One of its responsibilities is to manage aspects of the boot process. For more details on the Hypervisor, refer to  
+\ifdefined\printmanual
+the {\bf MEGA65 Book}.
+\else
+ \bookvref{sec:hypervisor-mode}.
+\fi
+    In the diagram, activities performed by the Hypervisor have been highlighted in green.
   \item The Flash Menu program (also known as MegaFlash), which provides a list of available core slots to choose from. In the diagram, activities performed by MegaFlash have been highlighted in blue.
 \end{itemize}
 
@@ -291,9 +297,9 @@ When the MEGA65 is powered on, it does the following:
   HYPPO Hypervisor starts.
 \item If it is the first boot since power-on (which implies that we are running from slot 0), HYPPO starts the Flash Menu program (aka MegaFlash) -- but note that the Flash Menu in
       this mode may not show anything on the screen to indicate that it is running!
-\item The Flash Menu then checks if \specialkey{NO SCROLL} is being held.
+\item The Flash Menu then checks if \specialkey{NO SCROLL} is being held down.
 \item If it is, the Flash Menu program shows its display, allowing you to select or re-flash a core.
-\item If \specialkey{NO SCROLL} is \underline{not} being pressed, the Flash Menu program checks if Flash Slot 1 contains a valid
+\item If \specialkey{NO SCROLL} is \underline{not} being held down, the Flash Menu program checks if Flash Slot 1 contains a valid
       core.
 \item If it does, then the Flash Menu program attempts to load that core.
 \item If it succeeds, then the system reconfigures itself for that core, after which the behaviour of the system is

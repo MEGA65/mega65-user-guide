@@ -64,7 +64,7 @@ void parse_basic_text(char* s)
   }
 }
 
-const char *Keytext[4] =
+const char *Keytext[5] =
 {
    "\\index{BASIC 65 Commands!",
    "\\index{BASIC 65 Functions!",

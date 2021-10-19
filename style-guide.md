@@ -69,7 +69,8 @@ Below are some simple MEGA65 styling rules:
     use `\specialkey`, for the MEGA key use `\megasymbolkey`. `RESTORE` needs to be `\widekey{RESTORE}`.
 
 * When pointing out on-screen text, the `screentext` tag should be used. Example: `\screentext{HELLO WORLD}`. 
-  Note that upper case letters were used, as that's what the MEGA65 uses by default.
+  Note that upper case letters were used, as that's what the MEGA65 uses by default. If the font on the screenshot
+  is using the traditional C64 style font, use `screentextwide` instead.
 
 * When quoting keywords, tokens, or any other values whilst documenting BASIC, use plain double quotes ("). However, 
   when quoting elsewhere (for example, "homebrew") please use ``homebrew'' syntax instead.

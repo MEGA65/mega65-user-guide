@@ -4927,8 +4927,8 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 \index{BASIC 65 Commands!LOAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$93
-\item [Format:] {\bf LOAD filename [unit [,flag]]}
-                {\bf / filename [ unit [,flag]]}
+\item [Format:] {\bf LOAD filename [,unit [,flag]]}
+                {\bf / filename [,unit [,flag]]}
 \item [Usage:]
 
    A common use of the shortcut symbol {\bf /} is to quickly load
@@ -4996,7 +4996,7 @@ Characters before and after the file name double quotes (") will be ignored.
 \index{BASIC 65 Commands!LOADIFF}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$43
-\item [Format:] {\bf LOADIFF filename [unit ]}
+\item [Format:] {\bf LOADIFF filename [,unit ]}
 \item [Usage:]
 
    Loads an IFF file into graphics memory.
@@ -7747,6 +7747,56 @@ DRAW PEN COLOUR =  1
   SAVE "ADVENTURE"
   SAVE "ZORK-I",8
   SAVE "1:DUNGEON",9
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *******
+% SAVEIFF
+% *******
+
+\newpage
+\subsection{SAVEIFF}
+\index{BASIC 65 Commands!SAVEIFF}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$44
+\item [Format:] {\bf SAVEIFF filename [,unit ][,drive]}
+\item [Usage:]
+
+   Saves a picture from memory to a disk file in {\bf IFF} format.
+   The IFF (Interchange File Format) is supported by many different applications
+   and operating systems. {\bf SAVEIFF} saves the image, the palette
+   and resolution parameters.
+
+   \filenamedefinition
+   The maximum length of the filename is 16 characters.
+   If the first character of the filename is an at sign '@' it
+   is interpreted as a "save and replace" operation. It is not recommended
+   to use this option on 1541 and 1571 drives, as they
+   contain a "save and replace bug" in their DOS.
+
+   \drivedefinition
+
+   \unitdefinition
+
+
+\item [Remarks:]
+   Files saved with {\bf SAVEIFF} can be loaded with {\bf LOADIFF}.
+   Tools are available to convert popular image formats to IFF. These tools
+   are available on several operating systems, such as AMIGA OS, macOS, Linux, and Windows.
+   For example, {\bf ImageMagick} is a free graphics package that includes a tool
+   called {\bf convert}, which can be used to create IFF files in conjunction
+   with the {\bf ppmtoilbm} tool from the {\bf Netbpm} package.
+
+\item [Example:] Using {\bf SAVEIFF}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 SCREEN 320,200,2          :REM SCREEN #0 320 X 200 X 2
+20 PEN 1                     :REM DRAWING PEN COLOR 1 (WHITE)
+30 LINE 25,25,295,175        :REM DRAW LINE
+40 SAVEIFF "LINE-EXAMPLE",U8 :REM SAVE CURRENT VIEW TO FILE
+50 SCREEN CLOSE              :REM CLOSE SCREEN AND RESTORE PALETTE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

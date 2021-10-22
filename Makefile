@@ -150,6 +150,8 @@ appendix-basic65-condensed.tex: appendix-basic65-indexed.tex generate_condensed
 
 clean:
 	latexmk -CA
+
+realclean: clean
 	rm -f gitinfo.tex
 	rm -f $(GENERATED_TEX_FILES)
 	rm -f $(COMPILED_BINARIES)

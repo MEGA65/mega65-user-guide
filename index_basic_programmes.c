@@ -9,8 +9,6 @@
 char* commands[MAX_COMMANDS];
 int cmd_count = 0;
 
-char* types[MAX_COMMANDS];
-
 int cmd_used[MAX_COMMANDS];
 
 void reset_cmd_usage(void)
@@ -64,13 +62,11 @@ void parse_basic_text(char* s)
   }
 }
 
-const char *Keytext[5] =
+const char *Keytext[3] =
 {
    "\\index{BASIC 65 Commands!",
    "\\index{BASIC 65 Functions!",
-   "\\index{BASIC 65 Operators!",
-   "\\index{BASIC 65 System Commands!",
-   "\\index{BASIC 65 System Variables!"
+   "\\index{BASIC 65 Operators!"
 };
 
 int main(int argc, char** argv)
@@ -93,7 +89,6 @@ int main(int argc, char** argv)
    */
   line[0] = 0;
   fgets(line, 8192, f);
-  // TODO fix this. change k < 3 to k < 5 to index more things, but it has a segmentation fault
   while (line[0]) for (k=0 ; k < 3 ; ++k) {
 
     if (!strncmp(Keytext[k], line, strlen(Keytext[k]))) {
@@ -112,8 +107,7 @@ int main(int argc, char** argv)
       }
       if (i == cmd_count) {
         if (isalpha(command[0]))
-          commands[cmd_count] = strdup(command);
-          types[cmd_count++] = strdup(Keytext[k]);
+          commands[cmd_count++] = strdup(command);
       }
     }
 
@@ -174,7 +168,7 @@ int main(int argc, char** argv)
       for (int i = 0; i < cmd_count; i++) {
         if (cmd_used[i]) {
           fprintf(stderr, "  '%s'\n", commands[i]);
-          fprintf(stdout, "%s%s!Examples}\n", types[i], commands[i]);
+          fprintf(stdout, "\\index{BASIC 65 Examples!%s!Examples}\n", commands[i]);
         }
       }
 

@@ -815,10 +815,10 @@ BOOT
 \index{BASIC 65 Commands!BOX}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E1
-\item [Format:] {\bf BOX X0,Y0, X2,Y2 [,SOLID]} \\
-                {\bf BOX X0,Y0, X1,Y1, X2,Y2, X3,Y3 [,SOLID]}
+\item [Format:] {\bf BOX x0,y0, x2,y2 [,solid]} \\
+                {\bf BOX x0,y0, x1,y1, x2,y2, x3,y3 [,solid]}
 \item [Usage:] The first form of {\bf BOX} with
-               two coordinate pairs and an optional {\bf SOLID} parameter
+               two coordinate pairs and an optional {\bf solid} parameter
                draws a simple rectangle, assuming that the
                coordinate pairs declare two diagonally opposite corners.
 
@@ -829,7 +829,7 @@ BOOT
 
                The quadrangle is drawn using the current drawing context
                set with SCREEN, PALETTE and PEN.
-               The quadrangle is filled if the parameter {\bf SOLID}
+               The quadrangle is filled if the parameter {\bf solid}
                is not 0.
 
 \item [Remarks:] {\bf BOX} can be used with four coordinate pairs
@@ -893,7 +893,7 @@ BOOT
 \index{BASIC 65 Commands!BSAVE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$10
-\item [Format:] {\bf BSAVE filename ,P start TO P end
+\item [Format:] {\bf BSAVE filename, P start TO P end
                 [,B bank] [,D drive] [,U unit] }
 \item [Usage:]
    "Binary SAVE" saves a memory range to a file of type {\bf PRG}.
@@ -1080,8 +1080,8 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
 \index{BASIC 65 Commands!CATALOG}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]  \$FE \$0C
-\item [Format:] {\bf CATALOG [filepattern] [,W] [,R] [,D drive] [,U unit] }
-                {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf CATALOG [filepattern] [,W] [,R] [,D drive] [,U unit] } \\
+		{\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file catalog/directory of the specified disk.
 
    The {\bf W} (Wide) parameter lists the directory three columns wide
@@ -1209,10 +1209,11 @@ width=28mm,height=3mm,valign=center]
 \index{BASIC 65 Commands!CHANGE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2C
-\item [Format:] {\bf CHANGE "findstring" TO "replacestring" [,from-to]}
+\item [Format:] {\bf CHANGE /findstring/ TO /replacestring/ [,line range]} \\
+		{\bf CHANGE "findstring" TO "replacestring" [,line range]}
 \item [Usage:]  {\bf CHANGE} performs a {\bf find and replace} of the BASIC program
                 that is currently in memory.
-   An optional line range {\bf from-to} limits the search to this range,
+   An optional {\bf line range} limits the search to this range,
    otherwise the whole BASIC program is searched.
    At each oc\-cur\-rence of the {\bf findstring}, the line is
    listed and the user is prompted for an action:
@@ -1222,15 +1223,15 @@ width=28mm,height=3mm,valign=center]
       \item \megakey{*} \specialkey{RETURN} replace the current and all following matches
       \item \specialkey{RETURN} exit the command, and don't replace the current match
     \end{itemize}
-\item [Remarks:] Any character may be used except the
-   double quote (\screentext{"}) character in the
-   the {\bf findstring} and {\bf replacestring}.
-   Using the double quote character finds text strings that are
+\item [Remarks:] Any un-shifted character that is not part of the string can be
+   used instead of {\bf /}.
+
+   However using the double quote character finds text strings that are
    not tokenised, and therefore not part of a keyword. \\
    For example, \screentext{CHANGE "LOOP" TO "OOPS"} will not find
    the BASIC keyword \screentext{LOOP}, because the
    keyword is stored as a token and not as text.
-   However \screentext{CHANGE \&LOOP\& TO \&OOPS\&} will
+   However \screentext{CHANGE /LOOP/ TO /OOPS/} will
    find and replace it (possibly causing SYNTAX ERRORs).
 
    Can only be used in direct mode.
@@ -1240,6 +1241,7 @@ width=28mm,height=3mm,valign=center]
 \verbatimfont{\codefont}
 \begin{verbatim}
 CHANGE "XX$" TO "UU$", 2000-2700
+CHANGE /IN/ TO /OUT/
 CHANGE &IN& TO &OUT&
 \end{verbatim}
 \end{tcolorbox}
@@ -1255,7 +1257,7 @@ CHANGE &IN& TO &OUT&
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E0
 \item [Format:] {\bf CHAR column, row, height, width, direction, string
-                [, address of character set]}
+                [,address of character set]}
 \item [Usage:]  Displays text on a graphic screen.
                 It can be used in all resolutions.
 
@@ -1386,7 +1388,7 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \index{BASIC 65 Commands!CIRCLE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E2
-\item [Format:] {\bf CIRCLE xcentre, ycentre, radius, [,solid]}
+\item [Format:] {\bf CIRCLE xcentre, ycentre, radius [,solid]}
 \item [Usage:] A special case of
                {\bf ELLIPSE}, using the same value for
                horizontal and vertical radius.
@@ -1482,7 +1484,7 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \item [Token:] \$9C
 \item [Format:] {\bf CLR}        \\
                 {\bf CLR V}
-               Used for management of BASIC variables, arrays
+\item [Usage:] Used for management of BASIC variables, arrays
                and strings. The run-time stack pointers,
                and the table of open channels is reset
                After executing a {\bf CLR} all variables and arrays will be undeclared.
@@ -1868,7 +1870,8 @@ X=60:PRINT COS(X * ~ / 180)
 \index{BASIC 65 Commands!CURSOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 %\item [Token:] \$??
-\item [Format:] {\bf CURSOR [<ON/OFF>] [,column] [,row] [,style]}
+\item [Format:] {\bf CURSOR <ON | OFF> [,[column] [,[row] [,style]]]} \\
+		{\bf CURSOR [column] [,[row] [,style]]}
 \item [Usage:] Moves the text cursor to
                the specified position on the current text screen.
 
@@ -1878,12 +1881,26 @@ X=60:PRINT COS(X * ~ / 180)
 
                {\bf style} defines a solid (1) or flashing (0) cursor.
 
+ 		The format without {\bf ON} or {\bf OFF} requires at least one
+ 		of {\bf column}, {\bf row} or {\bf style}.
 %\item [Remarks:]
 \item [Example:] Using {\bf CURSOR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 CURSOR ON,1,2,1 :REM SET SOLID CURSOR AT COLUMN 1, ROW 2
+10  SCNCLR
+20  CURSOR ON,1,2,1         :REM DISPLAY A SOLID CURSOR AT COLUMN 1, ROW 2
+30  PRINT "A"; : SLEEP 1
+40  CURSOR ,,0              :REM CHANGE TO A FLASHING CURSOR
+50  PRINT "B"; : SLEEP 1
+60  CURSOR OFF              :REM HIDE THE CURSOR
+70  PRINT "C"; : SLEEP 1
+80  CURSOR 20,10            :REM MOVE THE CURSOR TO COLUMN 20, ROW 10
+90  PRINT "D"; : SLEEP 1
+100 CURSOR ,50              :REM MOVE THE CURSOR TO ROW 5 BUT DO NOT CHANGE THE COLUMN
+110 PRINT "E"; : SLEEP 1
+100 CURSOR 0                :REM MOVE THE CURSOR TO THE START OF THE ROW
+110 PRINT "F"; : SLEEP 1
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -2151,7 +2168,7 @@ RUN
 \index{BASIC 65 Commands!DIM}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$86
-\item [Format:] {\bf DIM name(limits) [,name(limits)]...}
+\item [Format:] {\bf DIM name(limits) [,name(limits) [...]]}
 \item [Usage:] Declares the shape,
                the bounds and the type of a BASIC array.
                As a declaration statement, it must be executed
@@ -2203,9 +2220,9 @@ RUN
 \index{BASIC 65 Commands!DIR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EE (DIR) \$FE \$29 (ECTORY)
-\item [Format:] {\bf DIR [filepattern] [,W] [,R] [,D drive] [,U unit] }
-                {\bf DIRECTORY [filepattern] [,W] [,R] [,D drive] [,U unit] }
-                {\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
+\item [Format:] {\bf DIR [filepattern] [,W] [,R] [,D drive] [,U unit] } \\
+		{\bf DIRECTORY [filepattern] [,W] [,R] [,D drive] [,U unit] } \\
+		{\bf \$ [filepattern] [,W] [,R] [,D drive] [,U unit] }
 \item [Usage:]  Prints a file directory/catalog of the specified disk.
 
    The {\bf W} (Wide) parameter lists the directory three columns wide
@@ -2305,8 +2322,8 @@ on page \pageref{3columndirlisting}.
 \index{BASIC 65 Commands!DISK}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$40
-\item [Format:] {\bf DISK command [,U unit] }
-                {\bf @ command [,U unit] }
+\item [Format:] {\bf DISK command [,U unit] } \\
+		{\bf @ command [,U unit] }
 \item [Usage:]
 
    Sends a command string to the specified disk unit.
@@ -2390,7 +2407,7 @@ on page \pageref{3columndirlisting}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1F
 \item [Format:] {\bf DMA command [,length, source address,
-                 source bank, target address, target bank, sub]}
+                 source bank, target address, target bank [,sub]]}
 \item [Usage:]
    {\bf DMA} ("Direct Memory Access") is obsolete,
    and has been replaced by {\bf EDMA}.
@@ -2435,7 +2452,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{BASIC 65 Commands!DMODE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$35
-\item [Format:] {\bf DMODE jam,complement,inverse,stencil,style,thick}
+\item [Format:] {\bf DMODE jam, complement, inverse, stencil, style, thick}
 \item [Usage:]
    "Display MODE" sets several parameters of the graphics context, which is used by drawing commands.
 
@@ -2464,9 +2481,9 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EB
 \item [Format:] {\bf DO} ... {\bf LOOP} \\
-                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expression>] \\
+                {\bf DO} [<{\bf UNTIL} | {\bf WHILE}> logical expression] \\
                 . . . statements [{\bf EXIT}] \\
-                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expression>]
+                {\bf LOOP} [<{\bf UNTIL} | {\bf WHILE}> logical expression]
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                the start of a BASIC loop.
                Using {\bf DO} and {\bf LOOP} alone without any
@@ -2509,7 +2526,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0D
 \item [Format:]
-  {\bf DOPEN\# channel, filename [,L[reclen]] [,W] [,D drive] [,U unit] }
+  {\bf DOPEN\# channel, filename [,L [reclen]] [,W] [,D drive] [,U unit] }
 \item [Usage:]
     Opens a file for reading or writing.
 
@@ -2847,8 +2864,8 @@ ok.
 \index{BASIC 65 Commands!EDMA}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$21
-\item [Format:] {\bf EDMA command ,length, source,
-                 target [, sub , mod]}
+\item [Format:] {\bf EDMA command, length, source,
+                 target [,sub, mod]}
 \item [Usage:]
    {\bf EDMA} ("Extended Direct Memory Access") is the fastest method
    to manipulate memory areas using the DMA controller.
@@ -2920,7 +2937,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ELLIPSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$30
-\item [Format:] {\bf ELLIPSE xcentre, ycentre, xradius, yradius, [,solid]}
+\item [Format:] {\bf ELLIPSE xcentre, ycentre, xradius, yradius [,solid]}
 \item [Usage:] Draws an ellipse.
 
                {\bf xcentre} x coordinate of centre in pixels.
@@ -2974,7 +2991,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ELSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D5
-\item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
+\item [Format:] {\bf IF expression THEN true clause ELSE false clause}
 \item [Usage:] {\bf ELSE} is part of an {\bf IF}
                statement.
 
@@ -3061,7 +3078,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ENVELOPE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0A
-\item [Format:] {\bf ENVELOPE n, [attack, decay, sustain, release, waveform, pw]}
+\item [Format:] {\bf ENVELOPE n [,[attack] [,[decay] [,[sustain] [,[release] [,[waveform] [,pw]]]]]]}
 \item [Usage:] Used to define
                the parameters for the synthesis of a musical
                instrument.
@@ -3412,7 +3429,7 @@ numeric expression will no longer address your intended line numbers.
 \index{BASIC 65 Commands!FILTER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$03
-\item [Format:] {\bf FILTER sid [,freq, lp, bp, hp, res]}
+\item [Format:] {\bf FILTER sid [,[freq] [,[lp] [,[bp] [,[hp] [,res]]]]]}
 \item [Usage:] Sets the parameters for a SID sound filter.
 
       {\bf sid} 1 : right SID, 2 : left SID
@@ -3464,7 +3481,8 @@ numeric expression will no longer address your intended line numbers.
 \index{BASIC 65 Commands!FIND}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2B
-\item [Format:] {\bf FIND {\bf delimiter} string {\bf delimiter} [,from-to]}
+\item [Format:] {\bf FIND /string/ [,line range]} \\
+		{\bf FIND "string" [,line range]}
 \item [Usage:]  {\bf FIND} is an editor command that can only be used
                 in direct mode. It searches a given line range
                 (if specified), otherwise the entire BASIC program is searched.
@@ -3473,7 +3491,7 @@ numeric expression will no longer address your intended line numbers.
                 \specialkey{NO\\SCROLL} can be used to pause the output.
 
 \item [Remarks:] Any un-shifted character that is not part of
-                 the string can be used as delimiter.
+                 the string can be used instead of {\bf /}.
 
                  However, using double quotes {\bf "} as a delimiter has a special effect:
                  The search text is not tokenised.
@@ -3540,7 +3558,7 @@ RUN
 \index{BASIC 65 Commands!FONT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$46
-\item [Format:] {\bf FONT [A|B|C]}
+\item [Format:] {\bf FONT <A | B | C>}
 \item [Usage:] {\bf FONT} is used to switch between fonts,
                and the code pages PETSCII, and enhanced PETSCII.
                The enhanced PETSCII includes all ASCII symbols that
@@ -4137,7 +4155,7 @@ ARE YOU SURE?
 \index{BASIC 65 Commands!HEADER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F1
-\item [Format:] {\bf HEADER diskname [,Iid] [,D drive] [,U unit] }
+\item [Format:] {\bf HEADER diskname [,I id] [,D drive] [,U unit] }
 \item [Usage:]
    Used to format (or clear) a disk.
 
@@ -4283,7 +4301,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \index{BASIC 65 Commands!IF}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$8B
-\item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
+\item [Format:] {\bf IF expression THEN true clause ELSE false clause}
 \item [Usage:] Starts a conditional execution
                statement.
 
@@ -4616,24 +4634,27 @@ down   &  6 &    5  & 4 \\
 \index{BASIC 65 Commands!KEY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F9
-\item [Format:] {\bf KEY [ ON | OFF | LOAD | SAVE | number, string]}
+\item [Format:] {\bf KEY } \\
+		{\bf KEY <ON | OFF>} \\
+		{\bf KEY <LOAD | SAVE> filename} \\
+		{\bf KEY number, string}
 \item [Usage:] Reads the state of the function keys.
                The function keys can either send their key code
                when pressed, or a string assigned to the key.
                After power up or reset this feature is activated
                and the keys have their default assignments.
 
-               {\bf KEY OFF} switch off function key strings.
-               The keys will send their character code if pressed.
+               {\bf KEY} list current assignments.
 
                {\bf KEY ON} switch on function key strings.
                The keys will send assigned strings if pressed.
 
+               {\bf KEY OFF} switch off function key strings.
+               The keys will send their character code if pressed.
+
                {\bf KEY LOAD} loads key definitions from file.
 
                {\bf KEY SAVE} saves key definitions to file.
-
-               {\bf KEY} list current assignments.
 
                {\bf KEY number, string} assigns the string to
                the key with the given number.
@@ -4780,7 +4801,7 @@ A=5      :REM SHORTER AND FASTER
 \index{BASIC 65 Commands!LINE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E5
-\item [Format:] {\bf LINE xbeg,ybeg [[,xnext1,ynext1], [\dots]] }
+\item [Format:] {\bf LINE xbeg, ybeg [,xnext1, ynext1 [\dots]] }
 \item [Usage:] Draws a pixel at (xbeg/ybeg), if only one
                coordinate pair is given.
 
@@ -4884,7 +4905,7 @@ A=5      :REM SHORTER AND FASTER
 
 \item [Format:] {\bf LIST [P] filename [,U unit]}
 
-               Used to list a BASIC program directly from {\bf unit},
+\item [Usage:] Used to list a BASIC program directly from {\bf unit},
                which by default is 8.
 
 \item [Remarks:]
@@ -4927,7 +4948,7 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 \index{BASIC 65 Commands!LOAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$93
-\item [Format:] {\bf LOAD filename [,unit [,flag]]}
+\item [Format:] {\bf LOAD filename [,unit [,flag]]} \\
                 {\bf / filename [,unit [,flag]]}
 \item [Usage:]
 
@@ -4996,7 +5017,7 @@ Characters before and after the file name double quotes (") will be ignored.
 \index{BASIC 65 Commands!LOADIFF}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$43
-\item [Format:] {\bf LOADIFF filename [,unit ]}
+\item [Format:] {\bf LOADIFF filename [,unit]}
 \item [Usage:]
 
    Loads an IFF file into graphics memory.
@@ -5137,9 +5158,9 @@ PRINT LOG10(100);LOG(10);LOG(0.1);LOG(0.01)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EC
 \item [Format:] {\bf DO} ... {\bf LOOP} \\
-                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expression>] \\
+                {\bf DO} [<{\bf UNTIL} | {\bf WHILE}> logical expression] \\
                 . . . statements [{\bf EXIT}] \\
-                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expression>]
+                {\bf LOOP} [<{\bf UNTIL} | {\bf WHILE}> logical expression]
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
@@ -5300,7 +5321,7 @@ MEGA+65
 \index{BASIC 65 Functions!MOD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$NN
-\item [Format:] {\bf MOD(dividend,divisor)}
+\item [Format:] {\bf MOD(dividend, divisor)}
 \item [Usage:] The {\bf MOD} function returns the remainder of the
       division.
 \item [Remarks:] In other programming languages such C, this function
@@ -5488,7 +5509,7 @@ the {\bf MEGA65 Book}.
 \index{BASIC 65 Commands!NEW}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A2
-\item [Format:] {\bf NEW}
+\item [Format:] {\bf NEW} \\
                 {\bf NEW RESTORE}
 \item [Usage:]  Resets all BASIC parameters to their default values.
                 Since {\bf NEW} resets parameters and pointers,
@@ -5899,7 +5920,8 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \index{BASIC 65 Commands!PALETTE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$34
-\item [Format:] {\bf PALETTE [screen,|COLOR] colour, red, green, blue} \\
+\item [Format:] {\bf PALETTE screen, colour, red, green, blue} \\
+		{\bf PALETTE COLOR colour, red, green, blue} \\
                 {\bf PALETTE RESTORE}
 \item [Usage:]  {\bf PALETTE} can be used to change an
                 entry of the system colour palette, or the palette
@@ -6761,7 +6783,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \index{BASIC 65 Commands!RCURSOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$42
-\item [Format:] {\bf RCURSOR [colvar],[rowvar]}
+\item [Format:] {\bf RCURSOR [colvar] [,rowvar]}
 \item [Usage:]  Returns the current cursor column and row.
 
 \item [Remarks:] The row and column values start at zero, where
@@ -6848,7 +6870,7 @@ RUN
 \index{BASIC 65 Commands!RECORD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$12
-\item [Format:] {\bf RECORD\# channel, record, [,byte]}
+\item [Format:] {\bf RECORD\# channel, record [,byte]}
 \item [Usage:]  Positions the read/write pointer of a relative file.
 
                 {\bf channel} number, which was given to a previous
@@ -6981,7 +7003,7 @@ RECORD # 4 RECORD # 2
 \index{BASIC 65 Commands!RENUMBER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F8
-\item [Format:] {\bf RENUMBER [new [,inc [range]]]}
+\item [Format:] {\bf RENUMBER [new [,inc [,range]]]}
 \item [Usage:] Used to renumber all, or
                a range of lines of a BASIC program.
 
@@ -7153,7 +7175,7 @@ RENUMBER 100,5,120-180   :REM RENUMBER LINES 120-180 TO 100,105,...
 \index{BASIC 65 Functions!RGRAPHIC}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CC
-\item [Format:] {\bf RGRAPHIC(screen,parameter)}
+\item [Format:] {\bf RGRAPHIC(screen, parameter)}
 \item [Usage:]  Return graphic screen status and parameters
 
 \begin{center}
@@ -7443,7 +7465,7 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Commands!RREG}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$09
-\item [Format:] {\bf RREG areg, xreg, yreg, zreg, sreg}
+\item [Format:] {\bf RREG [[areg] [,[xreg] [,[yreg] [,[zreg] [,sreg]]]]]}
 \item [Usage:] Reads the values that were in the CPU registers
                after a {\bf SYS} call, into the specified variables.
 
@@ -7547,7 +7569,7 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Functions!RSPPOS}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$05
-\item [Format:] {\bf RSPPOS(sprite,n)}
+\item [Format:] {\bf RSPPOS(sprite, n)}
 \item [Usage:]  Returns a sprite's position and speed
 
                 {\bf sprite} sprite number.
@@ -7583,7 +7605,7 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Functions!RSPRITE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$06
-\item [Format:] {\bf RSPRITE(sprite,n)}
+\item [Format:] {\bf RSPRITE(sprite, n)}
 \item [Usage:]  Returns a sprite's parameter.
 
                 {\bf sprite} sprite number (0-7).
@@ -7717,7 +7739,7 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Commands!SAVE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$94
-\item [Format:] {\bf SAVE filename [,unit] }
+\item [Format:] {\bf SAVE filename [,unit] } \\
                 {\bf $\leftarrow$ filename [,unit] }
 \item [Usage:]
    Saves a BASIC program to a file of type {\bf PRG}.
@@ -7760,7 +7782,7 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Commands!SAVEIFF}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$44
-\item [Format:] {\bf SAVEIFF filename [,unit ][,drive]}
+\item [Format:] {\bf SAVEIFF filename [,unit] [,drive]}
 \item [Usage:]
 
    Saves a picture from memory to a disk file in {\bf IFF} format.
@@ -8036,8 +8058,8 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2D
 \item [Format:] {\bf SET DEF unit} \\
-                {\bf SET DISK old to new} \\
-                {\bf SET VERIFY ON|OFF}
+                {\bf SET DISK old TO new} \\
+                {\bf SET VERIFY <ON | OFF>}
 \item [Usage:]  {\bf SET DEF unit} redefines the default unit
                 for disk access, which is initialised to 8 by
                 the DOS. Commands that do not explicitly
@@ -8165,7 +8187,7 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$DA
 \item [Format:] {\bf SOUND voice, freq, dur
-                [,dir ,min, sweep, wave, pulse]}
+                [,dir, min, sweep, wave [,pulse]]}
 
 \item [Usage:] Plays a sound effect.
 
@@ -8322,7 +8344,7 @@ RUN
 \item [Format:] {\bf SPRITE CLR} \\
                 {\bf SPRITE LOAD filename [,D drive] [,U unit]} \\
                 {\bf SPRITE SAVE filename [,D drive] [,U unit]} \\
-                {\bf SPRITE num [,switch, colour, prio, expx, expy, mode]}
+                {\bf SPRITE num [,[switch] [,[colour] [,[prio] [,[expx] [,[expy] [,mode]]]]]]}
 \item [Usage:]  {\bf SPRITE CLR} clears all sprite data and sets all pointers
                 and attributes to their default values.
 
@@ -8584,7 +8606,7 @@ THE VALUE OF PI IS 3.14159265
 \index{BASIC 65 Commands!SYS}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9E
-\item [Format:] {\bf SYS address [, areg, xreg, yreg, zreg, sreg]}
+\item [Format:] {\bf SYS address [,[areg] [,[xreg] [,[yreg] [,[zreg] [,sreg]]]]]}
 \item [Usage:]  Calls a machine language subroutine.
                 This can be a ROM-resident kernal routine, a BASIC subroutine,
                 or any other routine which has previously been loaded or {\bf POKE}d
@@ -8755,7 +8777,7 @@ RUN
 \index{BASIC 65 Commands!THEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A7
-\item [Format:] {\bf IF expression THEN <true clause> ELSE <false clause>}
+\item [Format:] {\bf IF expression THEN true clause ELSE false clause}
 \item [Usage:] {\bf THEN} is part of an {\bf IF} statement.
 
                 {\bf expression} is a logical or numeric expression.
@@ -9071,9 +9093,9 @@ READY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FC
 \item [Format:] {\bf DO} ... {\bf LOOP} \\
-                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expr.>] \\
+                {\bf DO} [<{\bf UNTIL} | {\bf WHILE}> logical expression] \\
                 . . . statements [{\bf EXIT}] \\
-                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expr.>]
+                {\bf LOOP} [<{\bf UNTIL} | {\bf WHILE}> logical expression]
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any
@@ -9307,14 +9329,15 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \index{BASIC 65 Commands!VIEWPORT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$31
-\item [Format:] {\bf VIEWPORT <CLR|DEF> X, Y, DX, DY}
+\item [Format:] {\bf VIEWPORT CLR} \\
+		{\bf VIEWPORT DEF x, y, dx, dy}
 \item [Usage:] {\bf VIEWPORT DEF} defines a clipping region with the origin
-               (upper left position) set to {\bf X,Y} and the width {\bf DX}
-               and the height {\bf DY}.
+               (upper left position) set to {\bf x, y} and the width {\bf dx}
+               and the height {\bf dy}.
                All following graphics commands are limited to the {\bf VIEWPORT}
                region.
 
-\item [Remarks:] {\bf VIEWPORT} must be followed by either{\bf CLR} or
+\item [Remarks:] {\bf VIEWPORT} must be followed by either {\bf CLR} or
                  {\bf DEF} and four integer parameters.
                  {\bf VIEWPORT CLR} resets the clipping region to the entire screen.
 
@@ -9373,7 +9396,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \index{BASIC 65 Commands!WAIT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$92
-\item [Format:] {\bf WAIT address, andmask [, xormask]}
+\item [Format:] {\bf WAIT address, andmask [,xormask]}
 \item [Usage:] Pauses the BASIC program until a requested
                bit pattern is read from the given address.
 
@@ -9418,9 +9441,9 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$ED
 \item [Format:] {\bf DO} ... {\bf LOOP} \\
-                {\bf DO} [ <{\bf UNTIL | WHILE}> <logical expr.>] \\
+                {\bf DO} [<{\bf UNTIL} | {\bf WHILE}> logical expression] \\
                 . . . statements [{\bf EXIT}] \\
-                {\bf LOOP} [ <{\bf UNTIL | WHILE}> <logical expr.>]
+                {\bf LOOP} [<{\bf UNTIL} | {\bf WHILE}> logical expression]
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                 the start of a BASIC loop.
                 Using {\bf DO} and {\bf LOOP} alone without any

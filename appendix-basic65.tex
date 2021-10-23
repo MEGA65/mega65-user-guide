@@ -1868,7 +1868,8 @@ X=60:PRINT COS(X * ~ / 180)
 \index{BASIC 65 Commands!CURSOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 %\item [Token:] \$??
-\item [Format:] {\bf CURSOR [ON | OFF] [,[column] [,[row] [,style]]]}
+\item [Format:] {\bf CURSOR <ON | OFF> [,[column] [,[row] [,style]]]} \\
+		{\bf CURSOR [column] [,[row] [,style]]}
 \item [Usage:] Moves the text cursor to
                the specified position on the current text screen.
 
@@ -1878,12 +1879,26 @@ X=60:PRINT COS(X * ~ / 180)
 
                {\bf style} defines a solid (1) or flashing (0) cursor.
 
+ 		The format without {\bf ON} or {\bf OFF} requires at least one
+ 		of {\bf column}, {\bf row} or {\bf style}.
 %\item [Remarks:]
 \item [Example:] Using {\bf CURSOR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 CURSOR ON,1,2,1 :REM SET SOLID CURSOR AT COLUMN 1, ROW 2
+10  SCNCLR
+20  CURSOR ON,1,2,1         :REM DISPLAY A SOLID CURSOR AT COLUMN 1, ROW 2
+30  PRINT "A"; : SLEEP 1
+40  CURSOR ,,0              :REM CHANGE TO A FLASHING CURSOR
+50  PRINT "B"; : SLEEP 1
+60  CURSOR OFF              :REM HIDE THE CURSOR
+70  PRINT "C"; : SLEEP 1
+80  CURSOR 20,10            :REM MOVE THE CURSOR TO COLUMN 20, ROW 10
+90  PRINT "D"; : SLEEP 1
+100 CURSOR ,50              :REM MOVE THE CURSOR TO ROW 5 BUT DO NOT CHANGE THE COLUMN
+110 PRINT "E"; : SLEEP 1
+100 CURSOR 0                :REM MOVE THE CURSOR TO THE START OF THE ROW
+110 PRINT "F"; : SLEEP 1
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

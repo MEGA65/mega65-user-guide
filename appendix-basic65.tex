@@ -1209,10 +1209,11 @@ width=28mm,height=3mm,valign=center]
 \index{BASIC 65 Commands!CHANGE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2C
-\item [Format:] {\bf CHANGE "findstring" TO "replacestring" [,from-to]}
+\item [Format:] {\bf CHANGE /findstring/ TO /replacestring/ [,line range]} \\
+		{\bf CHANGE "findstring" TO "replacestring" [,line range]}
 \item [Usage:]  {\bf CHANGE} performs a {\bf find and replace} of the BASIC program
                 that is currently in memory.
-   An optional line range {\bf from-to} limits the search to this range,
+   An optional {\bf line range} limits the search to this range,
    otherwise the whole BASIC program is searched.
    At each oc\-cur\-rence of the {\bf findstring}, the line is
    listed and the user is prompted for an action:
@@ -1222,15 +1223,15 @@ width=28mm,height=3mm,valign=center]
       \item \megakey{*} \specialkey{RETURN} replace the current and all following matches
       \item \specialkey{RETURN} exit the command, and don't replace the current match
     \end{itemize}
-\item [Remarks:] Any character may be used except the
-   double quote (\screentext{"}) character in the
-   the {\bf findstring} and {\bf replacestring}.
-   Using the double quote character finds text strings that are
+\item [Remarks:] Any un-shifted character that is not part of the string can be
+   used instead of {\bf /}.
+
+   However using the double quote character finds text strings that are
    not tokenised, and therefore not part of a keyword. \\
    For example, \screentext{CHANGE "LOOP" TO "OOPS"} will not find
    the BASIC keyword \screentext{LOOP}, because the
    keyword is stored as a token and not as text.
-   However \screentext{CHANGE \&LOOP\& TO \&OOPS\&} will
+   However \screentext{CHANGE /LOOP/ TO /OOPS/} will
    find and replace it (possibly causing SYNTAX ERRORs).
 
    Can only be used in direct mode.
@@ -1240,6 +1241,7 @@ width=28mm,height=3mm,valign=center]
 \verbatimfont{\codefont}
 \begin{verbatim}
 CHANGE "XX$" TO "UU$", 2000-2700
+CHANGE /IN/ TO /OUT/
 CHANGE &IN& TO &OUT&
 \end{verbatim}
 \end{tcolorbox}

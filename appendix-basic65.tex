@@ -326,6 +326,16 @@ You must choose one option. The options are separated by |. \\
 You can choose one option. The options are separated by |.
 You can also choose no option by leave it out. \\
 \hline
+\{ , \} &
+Between \{ and \} are a series of expressions separated by commas.
+The expressions are optional and you can leave them out, but you must include
+at least one expression. You keep the commas to the left of the last expression
+you're leaving in. \\
+\hline
+[\{ , \}] &
+This is like \{ , \} except the you can leave out all of the expressions.
+When you do, you also leave out all of the commas. \\
+\hline
 
 \end{longtable}
 \end{center}
@@ -1988,8 +1998,8 @@ X=60:PRINT COS(X * ~ / 180)
 \index{BASIC 65 Commands!CURSOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 %\item [Token:] \$??
-\item [Format:] {\bf CURSOR <ON | OFF> [,[column] [,[row] [,style]]]} \\
-		{\bf CURSOR [column] [,[row] [,style]]}
+\item [Format:] {\bf CURSOR <ON | OFF> [\{,column, row, style\}]} \\
+		{\bf CURSOR \{column, row, style\}}
 \item [Usage:] Moves the text cursor to
                the specified position on the current text screen.
 
@@ -1998,9 +2008,6 @@ X=60:PRINT COS(X * ~ / 180)
                {\bf column} and {\bf row} specify the new position.
 
                {\bf style} defines a solid (1) or flashing (0) cursor.
-
- 		The format without {\bf ON} or {\bf OFF} requires at least one
- 		of {\bf column}, {\bf row} or {\bf style}.
 %\item [Remarks:]
 \item [Example:] Using {\bf CURSOR}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3196,7 +3203,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ENVELOPE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0A
-\item [Format:] {\bf ENVELOPE n [,[attack] [,[decay] [,[sustain] [,[release] [,[waveform] [,pw]]]]]]}
+\item [Format:] {\bf ENVELOPE n [\{,attack, decay, sustain, release, waveform, pw\}]}
 \item [Usage:] Used to define
                the parameters for the synthesis of a musical
                instrument.
@@ -3547,7 +3554,7 @@ numeric expression will no longer address your intended line numbers.
 \index{BASIC 65 Commands!FILTER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$03
-\item [Format:] {\bf FILTER sid [,[freq] [,[lp] [,[bp] [,[hp] [,res]]]]]}
+\item [Format:] {\bf FILTER sid [\{,freq, lp, bp, hp, res\}]}
 \item [Usage:] Sets the parameters for a SID sound filter.
 
       {\bf sid} 1 : right SID, 2 : left SID
@@ -5503,7 +5510,7 @@ the {\bf MEGA65 Book}.
 \index{BASIC 65 Commands!MOUSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$3E
-\item [Format:] {\bf MOUSE ON [,port [,sprite [,pos]]]} \\
+\item [Format:] {\bf MOUSE ON [\{,port, sprite, pos\}]} \\
                 {\bf MOUSE OFF}
 \item [Usage:]  Enables the mouse driver
                 and connects the mouse at the specified port
@@ -6243,7 +6250,7 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \index{BASIC 65 Commands!PLAY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$04
-\item [Format:] {\bf PLAY [string1 [,string2 [,string3 [,string4 [,string5 [,string6]]]]]]}
+\item [Format:] {\bf PLAY [\{string1, string2, string3, string4, string5, string6\}]}
 \item [Usage:] {\bf PLAY} without any arguments will cause all voices to be silenced,
                and all of BASIC's music-system variables to be reset (E.g. {\bf TEMPO}).
 
@@ -6511,7 +6518,7 @@ HELLO
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2F
 \item [Format:] {\bf POLYGON x, y, xrad, yrad, sides
-                [,drawsides [,subtend [,angle [,solid]]]]}
+                [\{,drawsides, subtend, angle, solid\}]}
 
 \item [Usage:] Draws a regular {\bf n}-sided polygon.
                The polygon is drawn using the current drawing context
@@ -6901,7 +6908,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \index{BASIC 65 Commands!RCURSOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$42
-\item [Format:] {\bf RCURSOR [colvar] [,rowvar]}
+\item [Format:] {\bf RCURSOR \{colvar, rowvar\}}
 \item [Usage:]  Returns the current cursor column and row.
 
 \item [Remarks:] The row and column values start at zero, where
@@ -7121,7 +7128,7 @@ RECORD # 4 RECORD # 2
 \index{BASIC 65 Commands!RENUMBER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F8
-\item [Format:] {\bf RENUMBER [new [,inc [,range]]]}
+\item [Format:] {\bf RENUMBER [\{new, inc, range\}]}
 \item [Usage:] Used to renumber all, or
                a range of lines of a BASIC program.
 
@@ -7583,7 +7590,7 @@ DRAW PEN COLOUR =  1
 \index{BASIC 65 Commands!RREG}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$09
-\item [Format:] {\bf RREG [[areg] [,[xreg] [,[yreg] [,[zreg] [,sreg]]]]]}
+\item [Format:] {\bf RREG [\{areg, xreg, yreg, zreg, sreg\}]}
 \item [Usage:] Reads the values that were in the CPU registers
                after a {\bf SYS} call, into the specified variables.
 
@@ -8429,7 +8436,7 @@ RUN
 \index{BASIC 65 Commands!SPRCOLOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$08
-\item [Format:] {\bf SPRCOLOR [mc1] [,mc2]}
+\item [Format:] {\bf SPRCOLOR [\{mc1, mc2\}]}
 \item [Usage:]  Sets multi-colour sprite colours.
 
                 {\bf SPRITE}, which sets the
@@ -8462,7 +8469,7 @@ RUN
 \item [Format:] {\bf SPRITE CLR} \\
                 {\bf SPRITE LOAD filename [,D drive] [,U unit]} \\
                 {\bf SPRITE SAVE filename [,D drive] [,U unit]} \\
-                {\bf SPRITE num [,[switch] [,[colour] [,[prio] [,[expx] [,[expy] [,mode]]]]]]}
+                {\bf SPRITE num [\{,switch, colour, prio, expx, expy, mode\}]}
 \item [Usage:]  {\bf SPRITE CLR} clears all sprite data and sets all pointers
                 and attributes to their default values.
 
@@ -8724,7 +8731,7 @@ THE VALUE OF PI IS 3.14159265
 \index{BASIC 65 Commands!SYS}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9E
-\item [Format:] {\bf SYS address [,[areg] [,[xreg] [,[yreg] [,[zreg] [,sreg]]]]]}
+\item [Format:] {\bf SYS address [\{,areg, xreg, yreg, zreg, sreg\}]}
 \item [Usage:]  Calls a machine language subroutine.
                 This can be a ROM-resident kernal routine, a BASIC subroutine,
                 or any other routine which has previously been loaded or {\bf POKE}d

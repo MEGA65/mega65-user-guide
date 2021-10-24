@@ -2,114 +2,217 @@
 \hypersetup{bookmarksdepth=2}
 \chapter{BASIC 65 Command Reference}
 
-This appendix describes each of the commands, functions and other
-callable elements of BASIC 65, which is an enhanced version of BASIC 10.
-Some of these can take one or more arguments, which are pieces of input
-that you provide as part of the command or function call.
-Some also require that you use special keywords.
-Here is an example of how commands, functions and operators will be
-described in this appendix:
+You use BASIC 65 to give commands to your MEGA65. BASIC 65 gives you commands
+for loading programs ({\bf DLOAD}), playing music ({\bf PLAY}) and drawing
+lines ({\bf LINE}). BASIC 65 also has functions. Unlike commands which do
+things, functions give you information. BASIC 65 has functions that will give
+you the state of the joystick ({\bf JOY}), the colour of a pixel on the screen
+({\bf PIXEL}) and the cosine of an angle ({\bf COS}). BASIC 65 has many more
+commands and functions than these, and this appendix describes each of them.
 
-{\bf KEY <numeric expression>,<string expression> }
+The commands and functions in BASIC 65 have to be given in a particular format
+and you may have to give additional information. If you want to draw a line,
+for example, you need to add the starting and ending coordinates to the
+{\bf LINE} command. In the following pages, each command and function is listed
+under its heading in alphabetical order and tells you its format, what
+additional information you need to give, and how to use it, including
+examples.
 
-In this case, KEY is what we call a \textbf{keyword}. That just means
-a special word that BASIC understands.
-Keywords are always written in CAPITALS, so that you can easily
-recognise them.
+Although, this appendix is not a tutorial. It's a place you quickly look up a
+command or function when you know you need to use it. If you've never used or
+programmed BASIC before, this is not an appropriate place to start learning.
+However, if you've used BASIC 2 on the C64, you're well on your way to using
+BASIC 65. BASIC 65 is an enhancement to BASIC 2, and to BASIC 10 that was on the
+C65.
 
-The {\bf <} and {\bf >} signs mean that whatever is between them must
-be there for the command, function or operator to work.
-In this case, it tells us that we need to have a
-{\bf numeric expression} in one place, and a {\bf string expression}
-in another place.
-We'll explain what they are a bit more in a few moments.
+On page \pageref{LINE} you will see the {\bf LINE} command and its format,
+showing you how to add the starting and ending coordinates. The format for
+{\bf LINE} has square brackets and words like xbeg and ybeg. But in the
+example, there are no square brackets, and there are numbers instead of words.
+This is because there are parts of a format that you type as they appear, there
+are parts you replace with things like numbers and strings, and there's some
+parts you don't put in at all.
 
-You might also see square brackets around something. For example,
-{\bf [,numeric expression]}.
-This means that whatever appears between the square brackets is
-optional, that is, you can include it if you need to, but
-that the command, function or operator will work just fine without it.
-For example, the {\bf CIRCLE} command has
-an optional numeric argument to indicate if the circle should be filled
-when being drawn.
+It turns out the format for {\bf LINE} is a little more complex than you might
+expect because it can draw dots as well as lines. So, to get started with
+understanding formats let's look at a simpler command, {\bf KEY}. The
+description for {\bf KEY} starts on page \pageref{KEY}. The first thing you'll
+notice about {\bf KEY} is that it has not one, but four different formats.
+{\bf KEY} controls the function keys, and you can use it in different ways. This
+is why it has different formats. After the formats, the usage tells you what
+each of the formats does.
 
-The comma, and some other symbols and punctuation marks just represent themselves.
-In this case, it means that there must be a comma between the
-{\bf numeric expression} and the {\bf string expression}.
-This is what we call syntax: If you miss something out, or put the
-wrong thing in the wrong place, it is called a
-syntax error, and the computer will tell you if you have a syntax error
-by giving a \screentext{?SYNTAX ERROR} message.
+The first format is:
 
-There is nothing to worry about if you get an error from the computer.
-Instead, it is just the computer's way of telling you that something
-isn't quite right, so that you can more easily
-find and fix the problem.
-Error messages such as this won't hurt the computer or cause any damage to your program,
-so there is nothing to worry about.
-For example, if we accidentally left the comma out, or replaced it with
-a full stop, the computer will respond with
-a SYNTAX ERROR, similar to what's shown below:
+\begin{description}
+\item [Format:] {\bf KEY}
+\end{description}
 
-\newpage
+This is just the word KEY in bold. You type words and symbols in bold just as
+they appear in the format. So, you use this first format just by typing in the
+word {\bf KEY}. You can do that from the \screentextwide{READY.} prompt. After
+you press \specialkey{RETURN}, {\bf KEY} lists the current function key
+assignments.
+
+That's it. You've just read your first format.
+
+\filbreak
+The next format is:
+
+\begin{description}
+\item [Format:] {\bf KEY} <{\bf ON} | {\bf OFF}>
+\end{description}
+
+This has the words KEY, ON and OFF in bold, so these are words you type as they
+appear. But before you do, notice the < before ON, the | between ON and OFF and
+the > after OFF. These are not in bold, so you don't type them in. They're
+telling you something else. They're telling you that what you can type in is
+either {\bf KEY ON} or {\bf KEY OFF}. But not both, you can't type {\bf KEY ON
+OFF}. If you try to do that you'll get a \screentextwide{?SYNTAX ERROR}
+message. These formats are also known as syntax. This message is saying what
+you entered doesn't follow one of the formats.
+
+The next format is:
+
+\begin{description}
+\item [Format:] {\bf KEY} <{\bf LOAD} | {\bf SAVE}> filename
+\end{description}
+
+This is like the format before. So you know you can type {\bf KEY LOAD} or
+{\bf KEY SAVE}. If you type just that you'll get a \screentextwide{?SYNTAX
+ERROR}. This is because the command isn't complete. After the > in the format is
+the word filename. It too is not in bold so you don't type it in as it appears.
+You need to do something else instead.
+
+This format of {\bf KEY} loads or saves the function key assignments to disk.
+For {\bf KEY} to do that, it needs to know what the name of the file is. The
+additional information you give a command or function are called arguments. The
+name of the file goes into the filename argument. The word filename in the
+format tells you where you put the filename argument. A complete command for
+this format would then be {\bf KEY LOAD "MY KEY SET"} or {\bf KEY SAVE "MY KEY
+SET"} if you wanted to use the MY KEY SET file.
+
+If you've been paying attention, you'll be asking yourself where the double
+quotation marks ({\bf"}) came from because they're not in the format. You use
+something called an expression when you put values into arguments. The simplest
+kind of expressions are constants. {\bf "MY KEY SET"} is an example of a string
+constant and the table on page \pageref{constants} shows you that string
+constants have {\bf"} around them. This is where the double quotation marks
+came from.
+
+The last format for {\bf KEY} is:
+
+\begin{description}
+\item [Format:] {\bf KEY} number{\bf,} string
+\end{description}
+
+This format has KEY in bold. It also has a comma in bold. You type both the word
+KEY and the comma as they appear. There is also the words number and string,
+which aren't in bold. Like the previous format, this is where you put
+arguments: a number argument and a string argument. Importantly you put the
+number argument between KEY and the comma, and you put the string argument
+after the comma.
+
+This format of {\bf KEY} assigns something to a function key. The usage for
+{\bf KEY} tells you that the number argument is the number of the function key,
+and the string argument is the something that will be assigned to the function
+key. Using constant expressions for the arguments, a complete command for this
+format could be {\bf KEY 8, "FISH"} with {\bf 8} being the number argument and
+{\bf "FISH"} being the string argument.
+
+You don't have to use just constants. If you want to use what's in a variable as
+an argument, you put the name of the variable. Let's pretend we have the
+variable K and the variable X\$. You could type in {\bf KEY K, X\$} and you
+would be using what's in the variable K for the number argument, and what's in
+the variable X\$ for the string argument.
+
+If you swapped the order of those variables around by typing in {\bf KEY X\$, K}
+you will get a \screentextwide{?TYPE MISMATCH ERROR}. {\bf X\$} and
+{\bf "FISH"} are both examples of string expressions. {\bf K} and {\bf 8} are
+examples of number expressions. The type of an expression has to match the type
+of the argument. By swapping the arguments, we tried to put a string expression
+into a numeric argument and a number expression into a string argument. This is
+a type mismatch, actually two type mismatches. The description of a command or
+function will tell you what the types of the arguments are.
+
+Congratulations! You've just read all four of the formats for {\bf KEY}.
+
+Now let's have a proper look at the format for {\bf LINE}.
+
+\begin{description}
+\item [Format:] {\bf LINE} xbeg{\bf,} ybeg [{\bf,} xnext1{\bf,} ynext1 ...]
+\end{description}
+
+This is a bit like the last format for {\bf KEY}. There are arguments you need
+to give and there are commas you need to type between the arguments. The command
+starts with {\bf LINE} instead of {\bf KEY}. But there are also square brackets
+and an ellipsis (...), which weren't in any of the formats for {\bf KEY}.
+
+The square brackets mean that whatever appears between them is optional. You can
+include it if you need to, but you can also leave it out entirely. The usage
+for the command or function will tell you what it means to include it or leave
+it out. For {\bf LINE}, if you leave out the optional part and type {\bf LINE
+25, 25}, then {\bf LINE} will draw just the pixel at the coordinates 25, 25. If
+you include the optional part and type {\bf LINE 25, 25, 295, 175}, then
+{\bf LINE} will draw a line starting at the coordinates 25, 25 and finishing at
+the coordinates 295, 175.
+
+The ellipsis (...) means you can repeat everything inside the brackets. You can
+repeat as many times as you need to. You can also not repeat at all. For
+{\bf LINE}, the ellipsis means {\bf LINE 25, 25, 295, 175, 25, 175} is valid
+and so is {\bf LINE 25, 25, 295, 175, 25, 175, 295, 25, 25, 25}. However
+{\bf LINE 1, 2, 3, 4, 5} is not valid because if you repeat you must repeat
+both xnext1 and ynext1.
+
+There's just one more thing, and then you will be able to understand the
+formats.
+
+\filbreak
+The format for {\bf ENVELOPE} is:
+
+\begin{description}
+\item [Format:] {\bf ENVELOPE} n [\{{\bf,} attack{\bf,} decay{\bf,}
+                sustain{\bf,} release{\bf,} waveform{\bf,} pw\}]
+\end{description}
+
+{\bf ENVELOPE} defines the parameters for the synthesis of a musical instrument.
+Use the example for {\bf ENVLOPE} on page \pageref{ENVELOPE example} if you want
+to experiment with it.
+
+The curly brackets \{\} are new. They tell you that each of the arguments are
+optional. You can include any of them or all of them. The square brackets also
+tell you that you can leave them all out. If the square brackets weren't in the
+format, you would have needed to include at least one of them.
+
+The curly brackets are best explained with some examples. Here are valid
+{\bf ENVELOPE} commands. We added a {\bf REM} to show which arguments are being
+included. The colon and the {\bf REM} are not part of the format for
+{\bf ENVELOPE}.
+
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-KEY 8"FISH"
-
-?SYNTAX ERROR
-
-KEY 8."FISH"
-
-?SYNTAX ERROR
+ENVELOPE 9                                          : REM n
+ENVELOPE 9, 10                                      : REM n and attack
+ENVELOPE 9, 10, 5, 10, 5, 2                         : REM all except pw
+ENVELOPE 9, 10, 5, 10, 5, 2, 4000                   : REM all
+ENVELOPE 9, 10, , 10                                : REM n, attack and sustain
+ENVELOPE 9, , , 10                                  : REM n and sustain
+ENVELOPE 9, , , , , 2                               : REM n and waveform
+ENVELOPE 9, , 5, , , , 4000                         : REM n, decay and pw
 \end{verbatim}
 \end{tcolorbox}
 
+With arguments between curly brackets, you can stop at any point. You can also
+leave out arguments in the middle, but you leave in the commas when you do that.
+Finally, you leave out any trailing commas at the end of the command.
 
-It is very common for commands, functions and operators to use one or
-more {\bf``expressions''}.
-An expression is just a fancy name for something that has a value.
-This could be a string (\screentext{"HELLO"}), a number
-(\screentext{23.7}), or a calculation that might include
-one or more functions or operators (\screentext{LEN("HELLO") * (3 XOR 7)}).
-Generally speaking, expressions can result in either a string or a numeric result.
-In this case we call the expressions either string expressions or numeric expressions.
-For example, \screentext{"HELLO"} is a {\bf string expression}, while
-\screentext{23.7} is a {\bf numeric expression}.
-
-It is important to use the correct type of expression when writing your programs.
-If you accidentally use the wrong type, the computer will give you a
-\screentext{?TYPE MISMATCH ERROR}, to say that the type
-of expression you gave doesn't match what it expected. For example, we will get a
-\screentext{?TYPE MISMATCH ERROR} if we type the following command,
-because \screentext{"POTATO"} is a string expression instead of a numeric expression:
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  KEY "POTATO","SOUP"
-\end{verbatim}
-\end{tcolorbox}
-
-If you wish, you can try typing this in yourself.
-
-Commands are statements that you can use directly from the {\bf READY.}
-prompt, or from within a program, for example:
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  PRINT "HELLO"
-  HELLO
-
-  10 PRINT "HELLO"
-  RUN
-  HELLO
-\end{verbatim}
-\end{tcolorbox}
+There's a table on page \pageref{meta-syntax} which summarises all of this
+introduction.
 
 \newpage
 \section{BASIC 65 constants}
+\label{constants}
 
 {\ttfamily
 \setlength{\tabcolsep}{1mm}
@@ -404,6 +507,7 @@ low & OR XOR\\
 \newpage
 \section{BASIC command reference}
 
+\label{meta-syntax}
 \begin{center}
 \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
 \begin{longtable}{c|L{8cm}}
@@ -3357,6 +3461,7 @@ where the error line is taken from {\bf EL}.
 \end{center}
 \item [Example:]
                 Using {\bf ENVELOPE}
+\label{ENVELOPE example}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -4869,6 +4974,7 @@ down   &  6 &    5  & 4 \\
 
 \newpage
 \subsection{KEY}
+\label{KEY}
 \index{BASIC 65 Commands!KEY}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F9
@@ -5036,6 +5142,7 @@ A=5      :REM SHORTER AND FASTER
 
 \newpage
 \subsection{LINE}
+\label{LINE}
 \index{BASIC 65 Commands!LINE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E5

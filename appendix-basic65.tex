@@ -8432,8 +8432,8 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$DA
 \item [Format:] {\bf SOUND} voice{\bf,} freq{\bf,} dur
-                [{\bf,} dir{\bf,} min{\bf,} sweep{\bf,} wave
-                [{\bf,} pulse]]
+                [\{{\bf,} dir{\bf,} min{\bf,} sweep{\bf,} wave
+                {\bf,} pulse\}]
 
 \item [Usage:] Plays a sound effect.
 
@@ -8441,7 +8441,9 @@ DRAW PEN COLOUR =  1
 
                {\bf freq} frequency (0-65535).
 
-               {\bf dur} duration (0-32767) .
+               {\bf dur} duration in jiffies (0-32767).
+                The duration of a jiffy depends on the display standard.
+                There are 50 jiffies per second with PAL, 60 per second with NTSC.
 
                {\bf dir} direction (0:up, 1:down, 2:oscillate).
 
@@ -8464,13 +8466,14 @@ DRAW PEN COLOUR =  1
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- SOUND 1, 7382, 60   :REM PLAY SQUARE WAVE ON VOICE 1 FOR 1 SECOND
- SOUND 2,  800, 3600 :REM PLAY SQUARE WAVE ON VOICE 2 FOR 1 MINUTE
- SOUND 3, 4000, 120, 2, 2000, 400, 1
- REM PLAY SWEEPING SAWTOOTH WAVE AT VOICE 3
+ IF PEEK($D06F) AND $80 THEN J = 60: ELSE J = 50 :REM J IS JIFFIES PER SECOND
+ SOUND 1, 7382, J                    :REM PLAY SQUARE WAVE ON VOICE 1 FOR 1 SECOND
+ SOUND 2,  800, J*60                 :REM PLAY SQUARE WAVE ON VOICE 2 FOR 1 MINUTE
+ SOUND 3, 4000, 120, 2, 2000, 400, 1 :REM PLAY SWEEPING SAWTOOTH WAVE ON VOICE 3
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
+
 
 % ***
 % SPC

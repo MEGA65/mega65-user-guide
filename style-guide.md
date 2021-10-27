@@ -88,8 +88,8 @@ Below are some simple MEGA65 styling rules:
         \hline
             {\textbf{Boot Mode}} & {\textbf{ROM version}} & {\textbf{BASIC}} & {\textbf{C64-mode}} \\
         \hline
-            MEGA65    & 92xxxx      & BASIC 65 & {\bf GO 64} \\
-            C65       & 91xxxx      & BASIC 10 & {\bf GO 64} \\
+            MEGA65    & \screentext{92XXXX}      & BASIC 65 & {\bf GO 64} \\
+            C65       & \screentext{91XXXX}      & BASIC 10 & {\bf GO 64} \\
         \hline
     \end{tabular}
 \end{center}

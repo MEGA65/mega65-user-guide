@@ -3249,11 +3249,17 @@ where the error line is taken from {\bf EL}.
                {\bf GOTO} to that line instead.
 
 \item [Remarks:]
+               There must be a colon before {\bf ELSE}.
+               There cannot be a colon or end-of-line after {\bf ELSE}.
+
                The standard {\bf IF ... THEN ... ELSE} structure
                is restricted to a single line. But the {\bf true clause}
                or {\bf false clause} may be expanded to several lines
                using a compound statement surrounded with
                {\bf BEGIN} and {\bf BEND}.
+
+               When the {\bf true clause} does not use {\bf BEGIN} and {\bf BEND},
+               {\bf ELSE} must be on the same line as {\bf IF}.
 \item [Example:]
                 Using {\bf ELSE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3268,6 +3274,21 @@ where the error line is taken from {\bf EL}.
 160 INPUT "END PROGRAM:(Y/N)";A$
 170 IF A$="Y" THENEND
 180 IF A$="N" THEN120:ELSE160
+\end{verbatim}
+\end{tcolorbox}
+                Using {\bf ELSE} with {\bf BEGIN} and {\bf BEND}.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+100 A = 0 : GOSUB 200
+110 A = 1 : GOSUB 200
+120 END
+200 IF A = 0 THEN BEGIN
+210 PRINT "HELLO"
+220 BEND : ELSE BEGIN
+230 PRINT "GOODBYE"
+240 BEND
+250 RETURN
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

@@ -4,18 +4,18 @@
 
 \section{Commands, Functions and Operators}
 
-This appendix describes each of the commands, functions and other callable
+This appendix describes each of the commands, functions, and other callable
 elements of BASIC 65, which is an enhanced version of BASIC 10. Some of these
 can take one or more arguments, which are pieces of input that you provide as
-part of the command or function call. Some also require that you use special
-words.
+part of the command or function call, to help describe what you want to achieve.
+Some also require that you use special words.
 
-Below is an example of how commands, functions and operators will be
-described in this appendix.
+Below is an example of how commands, functions, and operators
+(all of which are also known as keywords) will be described in this appendix.
 
 {\bf KEY} number{\bf,} string
 
-Here, {\bf KEY} is what we call a keyword. That just means a special word that
+Here, {\bf KEY} is a keyword. Keywords are special words that
 BASIC understands. Keywords are always written in {\bf BOLD CAPITALS}, so that
 you can easily recognise them.
 
@@ -36,22 +36,19 @@ include it if you need to, but the command, function or operator will also work
 just fine without it. For example, the {\bf CIRCLE} command has an optional
 numeric argument to indicate if the circle should be filled when being drawn.
 
-See the table starting on page \pageref{meta-syntax table} for the meaning of
-the symbols not in bold.
-
-This arrangement of keywords, expressions and symbols is what we call syntax. If
+This arrangement of keywords, expressions and symbols is what's called syntax. If
 you miss something out, or put the wrong thing in the wrong place, it is called
-a syntax error. The computer will tell you you have a syntax error by giving
+a syntax error. The computer will tell you that you have a syntax error by displaying
 a \screentext{?SYNTAX ERROR} message.
 
-There is nothing to worry about if you get an error from the computer.
-Instead, it is just the computer's way of telling you that something
+There is nothing to worry about if you get an error from the MEGA65.
+Instead, it is just the MEGA65's way of telling you that something
 isn't quite right, so that you can more easily
 find and fix the problem.
 Error messages such as this won't hurt the computer or cause any damage to your program,
 so there is nothing to worry about.
 For example, if we accidentally left the comma out, or replaced it with
-a full stop, the computer will respond with
+a full stop, the MEGA65 will respond with
 a \screentext{?SYNTAX ERROR}, similar to what's shown below:
 
 \newpage
@@ -71,17 +68,17 @@ KEY 8."FISH"
 
 It is very common for commands, functions and operators to use one or
 more {\bf``expressions''}.
-An expression is just a fancy name for something that has a value.
-This could be a string (\screentext{"HELLO"}), a number
-(\screentext{23.7}), or a calculation that might include
+An expression is just a fancy name for something that has, or equates to a value.
+This could be as simple as a string (\screentext{"HELLO"}), a number
+(\screentext{23.7}), or a complex calculation that might include
 one or more functions or operators (\screentext{LEN("HELLO") * (3 XOR 7)}).
 Generally speaking, expressions can result in either a string or a numeric result.
-In this case we call the expressions either string expressions or numeric expressions.
+In this case we call the expressions string expressions or numeric expressions.
 For example, \screentext{"HELLO"} is a {\bf string expression}, while
 \screentext{23.7} is a {\bf numeric expression}.
 
 It is important to use the correct type of expression when writing your programs.
-If you accidentally use the wrong type, the computer will give you a
+If you accidentally use the wrong type, the MEGA65 will display a
 \screentext{?TYPE MISMATCH ERROR}, to say that the type
 of expression you gave doesn't match what it expected. For example, we will get a
 \screentext{?TYPE MISMATCH ERROR} if we type the following command,
@@ -114,10 +111,46 @@ prompt, or from within a program, for example:
 \subsection{Direct Mode Commands}
 \index{BASIC 65 Commands!Direct Mode}
 Note that some commands are said to only work in {\bf direct mode}. This means that the command can't be part of a BASIC
-program, but can be entered directly to the screen.
+program, but can be entered directly to the screen. In the two {\bf PRINT} examples above, the first was entered in
+direct mode, whereas the second one wasn't. The examples above would work since {\bf PRINT} works in both direct and indirect mode.
+
+
+The table below describes what the other symbols found in this appendix mean.
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|c|L{8cm}|}
+        \hline
+        \textbf{Symbol} & \textbf{Meaning}\\
+        \hline
+        \endhead
+        \dots &
+        The bracket can be repeated zero or more times \\
+        \hline
+        [ ] &
+        Optional \\
+        \hline
+        < | > &
+        Include one of the choices \\
+        \hline
+        [ | ] &
+        You can choose one option. The options are separated by |.
+        You can also choose no option by omitting it. \\
+        \hline
+        \{ , \} &
+        One or more of the arguments is required. The commas to the left of the last
+        argument included are required. Trailing commas must be omitted. See
+        {\bf CURSOR} for an example.\\
+        \hline
+        [\{ , \}] &
+        Similar to \{ , \} but all arguments can be omitted\\
+        \hline
+
+    \end{longtable}
+\end{center}
 
 \subsection{Fonts}
-Finally, whenever there's a piece of text in this appendix that reflects some logic, something you can type,
+Whenever there's a piece of text in this appendix that reflects some logic, something you can type,
 or something the MEGA65 could display, the text will \screentext{WILL USE THIS FONT}. This helps make it easier
 to for you to distinguish between these things and the written text.
 
@@ -145,21 +178,21 @@ String                  &  \screentext{"X"}   & \screentext{"TEXT"}   \\
 
 Each scalar variable consumes 8 bytes of storage in memory.
 The reserved area in bank 0 from \$F700-\$FEFF can store 256 variables.
-Variables don't need to be declared, the type is determined by an appended
-character. All variables without an appended character are regarded as REAL by default.
-The storage is claimed at their first usage and they are initialised to zero,
-string variables are initialised as an empty string "".
+Variables don't need to be declared, and their the type is determined by an appended
+character. All variables without an appended character are regarded as REAL by default,
+and storage is claimed at their first usage. They are also initialised to zero,
+whereas string variables are initialised as an empty string "".
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-{\bf Type}                   & {\bf Appended Character} & {\bf Range}    & {\bf Example}  \\
+{\bf Type}              & {\bf Appended Character} & {\bf Range}       & {\bf Example}  \\
 \hline
-Byte                    & \screentext{\&} & 0 .. 255          & \screentext{BY\& = 23}    \\
-Integer                 & \screentext{\%} & -32768 .. 32767   & \screentext{I\% = 5}      \\
-Real                    & none                & -1E37 .. 1E37     & \screentext{XY = 1/3}     \\
-String                  & \screentext{\$} & length = 0 .. 255 & \screentext{AB\$ = "TEXT"}\\
+Byte                    & \screentext{\&}          & 0 .. 255          & \screentext{BY\& = 23}    \\
+Integer                 & \screentext{\%}          & -32768 .. 32767   & \screentext{I\% = 5}      \\
+Real                    & none                     & -1E37 .. 1E37     & \screentext{XY = 1/3}     \\
+String                  & \screentext{\$}          & length = 0 .. 255 & \screentext{AB\$ = "TEXT"}\\
 \hline
 \end{tabular}
 \end{center}
@@ -167,51 +200,52 @@ String                  & \screentext{\$} & length = 0 .. 255 & \screentext{AB\$
 \subsection{BASIC 65 Arrays}
 \index{BASIC 65 Arrays}
 
-Each array consumes the number of elements multiplied by the item size
+Each array consumes the number of elements multiplied by the item size,
 plus the size of the header (6 + 2 * dimensions) in memory.
 For example the array
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 DIM X(8,2,3) :REM (0..8, 0..2, 0..3)
+100 DIM X(8,2,3)
 \end{verbatim}
 \end{tcolorbox}
-has 3 dimensions and 9 x 3 x 4 = 108 items.
-The size for real items is 5, so the data of that array occupies 540 bytes.
-The header size is 6 + 2 * 3 = 12 bytes.
-So the total length in memory is 552 bytes.
+has 3 dimensions and 108 (9 x 3 x 4) items. You might be asking: Why is it 9 x 3 x 4,
+when the program uses 8, 2, and 3? This is because array indexes start at 0, not 1.
+
+The size for real items is 5, so the data of that array above would occupy 540 (5 x 108) bytes.
+The header size is 12 bytes (6 + 2 * 3), so the total length in memory is 552 bytes (540 + 12).
 
 Arrays are stored in bank 1 starting at address \$2000 and expand upwards.
-They share the available memory (\$2000 .. \$F6FF) with the string area,
-which starts in bank 1 at address \$F6FF and expand downwards.
-Each of the above scalar variable types can be used as an array by declaring
-them with a DIM statement. The arrays are initialised to zero for all
+They share the available memory at \$2000 .. \$F6FF with the string area,
+which starts in bank 1 at address \$F6FF, and expand \textit{downwards}.
+Each of the above scalar variable types can be used as an array, by declaring
+them with a {\bf DIM} statement. The arrays are initialised to zero for all
 elements on declaration. If an undeclared array element is used,
-an automatic implicit declaration is done, which sets the upper  boundary
+an automatic implicit declaration is performed, which sets the upper boundary
 for each dimension to 10. For example, the usage of an undeclared element
-AB(3,5) would automatically perform a "DIM AB(10,10)".
-The lower boundary for each dimension is always 0 (zero),
-so an array initialised with DIM AB(10) consists of 11 elements and accepts indexes from
+\screentext{AB(3,5)} would automatically perform a \screentext{DIM AB(10,10)}.
+As noted previously, the lower boundary for each dimension is always 0 (zero),
+so an array initialised with \screentext{DIM AB(10)} consists of 11 elements and accepts indexes from
 0 to 10.
 
-String arrays are, more precisely expressed, arrays of string
-descriptors. Each item consists of three bytes, which hold
-the values: length of the string and the address (low/high byte)
-of the assigned string in string memory.
-The usage of the BASIC function POINTER with a string or
+String arrays are more precisely expressed as \textit{arrays of string
+descriptors}. Each item consists of three bytes, which hold
+these values: The length of the string, and the 2 byte address (low/high byte)
+of the string in string memory.
+The usage of the BASIC function {\bf POINTER} with a string or
 string array element as the argument, returns the address of the descriptor, not the string itself.
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-\multicolumn{2}{|c|}{\bf Type \& Item Size} & {\bf Appended}  & {\bf Range}    & {\bf Example}  \\
-\multicolumn{2}{|c|}{}                  & {\bf Character} &          &          \\
+\multicolumn{2}{|c|}{\bf Type \& Item Size}  & {\bf Appended}    & {\bf Range}         & {\bf Example}  \\
+\multicolumn{2}{|c|}{}                      & {\bf Character}   &                     &                \\
 \hline
-Byte     Array &  1     &    \screentext{\&}    & 0 .. 255          & \screentext{BY\&(5,6) = 23}   \\
-Integer  Array &  2     &    \screentext{\%}    & -32768 .. 32767   & \screentext{I\%(0,10) = 5}    \\
-Real     Array &  5     &   none                    & -1E37 .. 1E37     & \screentext{XY(I\%) = 1/3}    \\
-String   Array &  3     &    \screentext{\$}    & length = 0 .. 255 & \screentext{AB\$(X) = "TEXT"} \\
+Byte     Array &  1                         &    \screentext{\&} & 0 .. 255            & \screentext{BY\&(5,6) = 23}   \\
+Integer  Array &  2                         &    \screentext{\%} & -32768 .. 32767     & \screentext{I\%(0,10) = 5}    \\
+Real     Array &  5                         &   none            & -1E37 .. 1E37       & \screentext{XY(I\%) = 1/3}    \\
+String   Array &  3                         &    \screentext{\$} & 0 .. 255 characters & \screentext{AB\$(X) = "TEXT"} \\
 \hline
 \end{tabular}
 \end{center}
@@ -220,17 +254,17 @@ String   Array &  3     &    \screentext{\$}    & length = 0 .. 255 & \screentex
 \subsection{BASIC 65 Operators}
 \index{BASIC 65 Operators}
 
-BASIC 65 provides a set of operators, that is typical for most BASIC
+BASIC 65 provides a set of operators that is typical for most BASIC
 programming languages. The usage and precedences of these operators is documented in this section.
 
 The \screentext{=} symbol is used both as an assignment operator, and as a relational
 operator for testing equality. For example, in the statement
-\screentext{A = B = 5}, the first equal sign is the assignment operator,
+\screentext{A = (B = 5)}, the first equal sign is the assignment operator,
 while the second is a logical operator, comparing the variable \screentext{B} with \screentext{5}.
 The value of \screentext{A} will either be assigned the value \screentext{-1} (for {\bf TRUE}), or
 the value \screentext{0} (for {\bf FALSE}).
 You may have noticed that the value of \screentext{-1} for {\bf TRUE} is different to
-other programming languages, such as {\bf C}, where the value of {\bf 1}
+other programming languages, such as {\bf C}, where the value of \screentext{1}
 is used for {\bf TRUE} instead.
 
 The \screentext{+} symbol can be used as a positive sign for numerical expressions,
@@ -245,8 +279,8 @@ The operators \screentext{NOT, AND, OR} and \screentext{XOR} can be used both as
 logical operators, or as boolean operators.
 
 \begin{itemize}
-  \item {\bf Logical Operator Example}: \screentext{IF A>B AND A<0}
-  \item {\bf Boolean Operator Example}: \screentext{A = B AND \$7F}
+  \item Logical Operator Example: \screentext{IF A>B AND A<0}
+  \item Boolean Operator Example: \screentext{A = B AND \$7F}
 \end{itemize}
 
 Both examples always produce an integer result internally, which can be interpreted
@@ -261,7 +295,8 @@ and store the result in \screentext{A}.
 The result of logical operations can be used in numerical expressions as well,
 for example,
 \screentext{A = A - (B > 7)}
-will increment \screentext{A} by 1 if the result of \screentext{(B > 7)} is {\bf TRUE} (-1).
+will increment \screentext{A} by 1 if the result of \screentext{(B > 7)} is {\bf TRUE} (-1). This is because
+the mathematical expression of \screentext{A = A - (-1)} is the same as \screentext{A = A + 1}.
 
 The operators have precedences, which are listed in the tables below.
 In the statement \screentext{A * A - B * B}
@@ -277,7 +312,7 @@ Parentheses are used to change the precedence, for example
 \hline
 {\bf Symbol} & {\bf Description} & {\bf Examples}\\
 \hline
- =   & assignment & \screentext{A = 42, A\$ ="HELLO", A = B < 42}\\
+ =           & Assignment        & \screentext{A = 42}, \screentext{A\$ ="HELLO"}, \screentext{A = B < 42}\\
 \hline
 \end{tabular}
 \end{center}
@@ -288,10 +323,10 @@ Parentheses are used to change the precedence, for example
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-{\bf Name} & {\bf Symbol} & {\bf Description} & {\bf Example}\\
+{\bf Name} & {\bf Symbol}   & {\bf Description} & {\bf Example}\\
 \hline
-plus  & \screentext{+} & Positive sign & \screentext{A = +42} \\
-minus & \screentext{-} & Negative sign & \screentext{B = -42} \\
+Plus       & \screentext{+} & Positive sign     & \screentext{A = +42} \\
+Minus      & \screentext{-} & Negative sign     & \screentext{B = -42} \\
 \hline
 \end{tabular}
 \end{center}
@@ -302,16 +337,18 @@ minus & \screentext{-} & Negative sign & \screentext{B = -42} \\
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-{\bf Name} & {\bf Symbol} & {\bf Description} & {\bf Example}\\
+{\bf Name}     & {\bf Symbol}     & {\bf Description} & {\bf Example}\\
 \hline
-Plus           & \screentext{+}   & Addition       & \screentext{A = B + 42}\\
-Minus          & \screentext{-}   & Subtraction    & \screentext{B = A - 42}\\
-Asterisk       & \screentext{*}   & Multiplication & \screentext{C = A * B}\\
-Slash          & \screentext{/}   & Division       & \screentext{D = B / 13}\\
-Up Arrow       & \screentext{$\uparrow$} & exponentiation & \screentext{E = 2 $\uparrow$ 10}\\
+Plus           & \screentext{+}   & Addition          & \screentext{A = B + 42}\\
+Minus          & \screentext{-}   & Subtraction       & \screentext{B = A - 42}\\
+Asterisk       & \screentext{*}   & Multiplication    & \screentext{C = A * B}\\
+Slash          & \screentext{/}   & Division          & \screentext{D = B / 13}\\
+Up Arrow       & \screentext{$\uparrow$} & Exponentiation    & \screentext{E = 2 $\uparrow$ 10}\\
 \hline
 \end{tabular}
 \end{center}
+
+Note that the \screentext{$\uparrow$} character used for exponentiation is entered with \megakeywhite{$\uparrow$}, which is next to \widekey{RESTORE}.\\
 
 \subsection{Relational Operators}
 
@@ -319,12 +356,12 @@ Up Arrow       & \screentext{$\uparrow$} & exponentiation & \screentext{E = 2 $\
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-{\bf Symbol} & {\bf Description}  & {\bf Example}\\
+{\bf Symbol}    & {\bf Description}        & {\bf Example}\\
 \hline
-\screentext{>}  & Greater than             & \screentext{A > 42}  \\
-\screentext{>=} & Greater than or equal to & \screentext{B >= 42} \\
-\screentext{<}  & Less than                & \screentext{A < 42}  \\
-\screentext{<=} & Less than or equal to    & \screentext{B <= 42} \\
+\screentext{>}  & Greater Than             & \screentext{A > 42}  \\
+\screentext{>=} & Greater Than or Equal To & \screentext{B >= 42} \\
+\screentext{<}  & Less Than                & \screentext{A < 42}  \\
+\screentext{<=} & Less Than or Equal To    & \screentext{B <= 42} \\
 \screentext{=}  & Equal                    & \screentext{A = 42}  \\
 \screentext{<>} & Not Equal                & \screentext{B <> 42} \\
 \hline
@@ -337,12 +374,12 @@ Up Arrow       & \screentext{$\uparrow$} & exponentiation & \screentext{E = 2 $\
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-{\bf Keyword} & {\bf Description} & {\bf Example}\\
+{\bf Keyword}     & {\bf Description} & {\bf Example}\\
 \hline
-\screentext{AND}  & And              & \screentext{A > 42 AND A < 84} \\
-\screentext{OR}   & Or               & \screentext{A > 42 OR  A = 0} \\
-\screentext{XOR}  & Exclusive Or     & \screentext{A > 42 XOR B > 42} \\
-\screentext{NOT}  & Negation         & \screentext{C = NOT A > B} \\
+\screentext{AND}  & And               & \screentext{A > 42 AND A < 84} \\
+\screentext{OR}   & Or                & \screentext{A > 42 OR  A = 0} \\
+\screentext{XOR}  & Exclusive Or      & \screentext{A > 42 XOR B > 42} \\
+\screentext{NOT}  & Negation          & \screentext{C = NOT A > B} \\
 \hline
 \end{tabular}
 \end{center}
@@ -354,12 +391,12 @@ Up Arrow       & \screentext{$\uparrow$} & exponentiation & \screentext{E = 2 $\
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-{\bf Keyword} & {\bf Description} & {\bf Example}\\
+{\bf Keyword}     & {\bf Description} & {\bf Example}\\
 \hline
-\screentext{AND}  & And              & \screentext{A = B AND \$FF} \\
-\screentext{OR}   & Or               & \screentext{A = B OR \$80} \\
-\screentext{XOR}  & Exclusive Or     & \screentext{A = B XOR 1} \\
-\screentext{NOT}  & Negation         & \screentext{A = NOT 22} \\
+\screentext{AND}  & And               & \screentext{A = B AND \$FF} \\
+\screentext{OR}   & Or                & \screentext{A = B OR \$80} \\
+\screentext{XOR}  & Exclusive Or      & \screentext{A = B XOR 1} \\
+\screentext{NOT}  & Negation          & \screentext{A = NOT 22} \\
 \hline
 \end{tabular}
 \end{center}
@@ -370,9 +407,9 @@ Up Arrow       & \screentext{$\uparrow$} & exponentiation & \screentext{E = 2 $\
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-{\bf Name} & {\bf Symbol} & {\bf Description} & {\bf Operand type} & {\bf Example}\\
+{\bf Name} & {\bf Symbol}   & {\bf Description}    & {\bf Operand type} & {\bf Example}\\
 \hline
-Plus & \screentext{+} & Concatenates strings & string & \screentext{A\$ = B\$ + ".PRG"} \\
+Plus       & \screentext{+} & Concatenates Strings & String             & \screentext{A\$ = B\$ + ".PRG"} \\
 \hline
 \end{tabular}
 \end{center}
@@ -385,14 +422,14 @@ Plus & \screentext{+} & Concatenates strings & string & \screentext{A\$ = B\$ + 
 \hline
 {\bf Precedence} & {\bf Operators}\\
 \hline
-High & \screentext{$\uparrow$} \\
-& \screentext{+ -} signs \\
-& \screentext{* /} \\
-& \screentext{+ -} \\
-& \screentext{< <= > >= = <>} \\
-& \screentext{NOT} \\
-& \screentext{AND} \\
-Low & \screentext{OR XOR}\\
+High             & \screentext{$\uparrow$} \\
+                 & \screentext{+ -} signs \\
+                 & \screentext{* /} \\
+                 & \screentext{+ -} \\
+                 & \screentext{< <= > >= = <>} \\
+                 & \screentext{NOT} \\
+                 & \screentext{AND} \\
+Low              & \screentext{OR XOR}\\
 \hline
 \end{tabular}
 \end{center}
@@ -401,39 +438,6 @@ Low & \screentext{OR XOR}\\
 
 \newpage
 \section{BASIC Command Reference}
-
-\label{meta-syntax table}
-\begin{center}
-\setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
-\begin{longtable}{|c|L{8cm}|}
-\hline
-\textbf{Symbol} & \textbf{Meaning}\\
-\hline
-\endhead
-\dots &
-The bracket can be repeated zero or more times \\
-\hline
-[ ] &
-Optional \\
-\hline
-< | > &
-Include one of the choices \\
-\hline
-[ | ] &
-You can choose one option. The options are separated by |.
-You can also choose no option by leaving it out. \\
-\hline
-\{ , \} &
-One or more of the arguments is required. The commas to the left of the last
-argument included are required. Trailing commas must be omitted. See
-{\bf CURSOR} for an example.\\
-\hline
-[\{ , \}] &
-Similar to \{ , \} but all arguments can be omitted \\
-\hline
-
-\end{longtable}
-\end{center}
 
 
 % =======================================

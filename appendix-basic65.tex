@@ -2448,7 +2448,7 @@ RUN
                The lower bound of a dimension is always zero,
                while the upper bound is as declared. The rules for
                variable names apply for array names as well.
-               There are integer arrays, real arrays and string arrays.
+               You can create byte arrays, integer arrays, real arrays and string arrays.
                It is legal to use the same identifier for scalar
                variables and array variables. The left parenthesis
                after the name identifies array names.
@@ -4260,7 +4260,7 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
 \item [Usage:] Gets the next character (or byte value of the next character)
                from the keyboard queue. If the queue is empty,
                the program will wait until a key has been pressed.
-               After a key has been pressed the variable will be set
+               After a key has been pressed, the variable will be set
                and program execution will continue. When used with
                a string variable, a one character string is created and assigned.
                Otherwise if the variable is of type numeric, the byte value
@@ -4458,6 +4458,8 @@ ARE YOU SURE?
 \item [Usage:]
    Used to format (or clear) a disk.
 
+   {\bf I} The disk ID.
+
    {\bf diskname} is either a quoted string, e.g. \screentext{"DATA"} or
    a string expression in brackets, e.g. \screentext{(DN\$)}.
    The maximum length of {\bf diskname} is 16 characters.
@@ -4469,11 +4471,11 @@ ARE YOU SURE?
 \item [Remarks:]
    For new disks which have not already been formatted,
    it is necessary to specify the disk ID with the
-   {\bf Iid} parameter. This switches the format command to
+   {\bf I} parameter. This switches the format command to
    full format, which writes sector IDs and erases all contents.
    This takes some time, as every block on the disk will
    be written. \\
-   If the {\bf Iid} parameter is omitted, a quick format will
+   If the {\bf I} parameter is omitted, a quick format will
    be performed. This is only possible if the disk has already been formatted.
    A quick format writes the new disk name and clears the
    block allocation map, marking all blocks as free.
@@ -4570,7 +4572,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Token:] \$FE \$3D
 \item [Format:] {\bf HIGHLIGHT} colour [{\bf,} mode]
 \item [Usage:] Sets the colours used for highlighting. Different colours can be
-                set for system messages, REM statements and BASIC 65 keywords.
+                set for system messages, {\bf REM} statements and BASIC 65 keywords.
 
                 {\bf colour} is one of the first 16 colours in the current palette.
                 Refer to page \pageref{colourtable} for the colours in the
@@ -4578,14 +4580,14 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 
                 {\bf mode} indicates what the colour will be used for.
                 \begin{itemize}
-                    \item {\bf 0} system messages (also if mode is omitted)
-                    \item {\bf 1} REM statements
+                    \item {\bf 0} system messages (the default mode)
+                    \item {\bf 1} {\bf REM} statements
                     \item {\bf 2} BASIC keywords
                 \end{itemize}
 
 \item [Remarks:] The system messages colour is used when displaying error
-                messages and in the output of {\bf CHANGE}, {\bf FIND}, and
-                {\bf HELP}. The colours for REM statements and BASIC keywords
+                messages, and in the output of {\bf CHANGE}, {\bf FIND}, and
+                {\bf HELP}. The colours for {\bf REM} statements and BASIC keywords
                 are used by {\bf LIST}.
 \item [Example:] Using {\bf HIGHLIGHT} to change the color of BASIC keywords to red.
 \item \begin{center}\includegraphics[width=0.8\linewidth]{images/highlight-example.png}\end{center}
@@ -4623,7 +4625,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Remarks:]
                The standard {\bf IF ... THEN ... ELSE} structure
                is restricted to a single line. But the {\bf true clause}
-               or {\bf false clause} may be expanded to several lines
+               and {\bf false clause} may be expanded to several lines
                using a compound statement surrounded with
                {\bf BEGIN} and {\bf BEND}.
 \item [Example:]
@@ -4676,8 +4678,8 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
                type of input, so it matches the {\bf variable list} types.
                Also, the number of input items must match the number
                of variables. A surplus of input items will be ignored,
-               too few input items trigger another request for input
-               with the prompt ??.
+               whereas too few input items trigger another request for input
+               with the prompt \screentext{??}.
                Typing non numeric characters for integer or real
                variables will produce a TYPE MISMATCH ERROR.
                Strings for string variables must be in double quotes (")
@@ -4816,8 +4818,8 @@ TYPE "CBM-PEOPLE"
                The pound sign is not part of the search but enables the use
                of the {\bf '.'} (dot) as a wildcard character, which matches any
                character. The second special pattern character is
-               the {\bf '*'} (asterisk). The asterisk in the search string indicates
-               that the preceding character may appear never, once or repeated
+               the {\bf '*'} (asterisk) character. The asterisk in the search string indicates
+               that the preceding character may never appear, appear once, or repeatedly
                in order to be considered as a match.
 
                The optional argument {\bf start} is an integer
@@ -4987,7 +4989,7 @@ KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
 \item [Remarks:] The sum of the lengths of all assigned strings
                  must not exceed 240 characters.
                  Special characters such as RETURN or QUOTE are entered
-                 using their codes with the CHR\$(code) function.
+                 using their codes with the {\bf CHR\$} command.
                  Refer to {\bf CHR\$} on page \pageref{chrcommand}
                  for more information.
 
@@ -9097,7 +9099,7 @@ RUN
 \item [Remarks:]
                The standard {\bf IF ... THEN ... ELSE} structure
                is restricted to a single line. But the {\bf true clause}
-               or {\bf false clause} may be expanded to several lines
+               and {\bf false clause} may be expanded to several lines
                using a compound statement surrounded with
                {\bf BEGIN} and {\bf BEND}.
 \item [Example:]

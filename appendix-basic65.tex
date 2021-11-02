@@ -1928,8 +1928,9 @@ CLOSE 1
 \index{BASIC 65 Commands!COLOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E7
-\item [Format:] {\bf COLOR} <{\bf ON} | {\bf OFF}>
-\item [Usage:] Enables or disables
+\item [Format:] {\bf COLOR} <{\bf ON} | {\bf OFF}>\\
+                {\bf COLOR} colour
+\item [Usage:] The first format enables or disables
                handling of character attributes on screen.
                If {\bf COLOR} is {\bf ON}, the screen routines
                take care of both character RAM and attribute RAM (or colour RAM).
@@ -1940,6 +1941,13 @@ CLOSE 1
                for screen characters. This speeds up screen
                handling, which could be useful when moving characters with different colours is
                not required.
+
+               The second format works in the same way as the {\bf FOREGROUND}, i.e: sets the foreground colour
+               (text colour) of the screen to the colour argument, which must be in the range of 0 to 31. Refer to the table
+               under {\bf BACKGROUND} on \pageref{colourtable} for the colour values and their corresponding colours.
+\item
+\item which is documented
+               on page \pageref{foregroundcommand}.
 \item [Example:] \screentext{COLOR ON} - with colour/attribute handling \\
                  \screentext{COLOR OFF} - no colour/attribute handling
 
@@ -2674,7 +2682,7 @@ on page \pageref{3columndirlisting}.
    {\bf DMA} ("Direct Memory Access") is obsolete,
    and has been replaced by {\bf EDMA}.
 
-   {\bf command} 0 = copy, 1 = mix, 2 = swap, 3 = fill
+   {\bf command} 0: copy, 1: mix, 2: swap, 3: fill
 
    {\bf length} number of bytes
 
@@ -2978,10 +2986,12 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Format:] {\bf DT\$}
 \item [Usage:]  {\bf DT\$} holds the current date and is updated before
                 each usage from the RTC (Real-Time Clock).
-                The RTC can be set in the Configure Menu.
                 The string {\bf DT\$} is formatted as:
                 "DD-MON-YYYY", for example: "04-APR-2021".
 \item[Remarks:] {\bf DT\$} is a reserved system variable.
+                For more information on how to set the Real-Time Clock,
+                refer to the Configuring Utility section on page
+                \pageref{sec:configuration-utility}.
 
 \item [Example:] Using {\bf DT\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3039,15 +3049,15 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf EDIT} <{\bf ON} | {\bf OFF}>
 
-\item [Usage:]  {\bf EDIT} switches the builtin editor
-               either to text mode {\bf EDIT ON}
-               or BASIC program editor {\bf EDIT OFF}.
+\item [Usage:]  {\bf EDIT} switches the built-in editor
+               either to text mode with {\bf EDIT ON},
+               or ot the BASIC program editor with{\bf EDIT OFF}.
 
                After power up or reset, the editor
                is initialised as BASIC program editor.
 
                After setting the editor to text mode with
-               {\bf EDIT ON}, the diffences to program mode are:
+               {\bf EDIT ON}, the differences to program mode are:
 
                The editor does no tokenising/parsing.
                All text entered after a linenumber remains pure text,
@@ -3058,18 +3068,18 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                sorting, deleting, listing etc.
                When the text is saved to file with {\bf DSAVE},
                a sequential file (type {\bf SEQ}) is written, not a
-               program ({\bf PRG}) file, which is what happens whilst in program mode.
+               program ({\bf PRG}) file, which is how they're written whilst in program mode.
                Line numbers are not written to the file.
 
                {\bf DLOAD} in text mode can load only sequential files.
                Line numbers are automatically generated for editing purposes.
 
                The mode of the editor can be recognised by looking at the prompt:
-               In program mode, the prompt is: \screentext{READY.}, whilst in text mode
-               the prompt is: {\bf OK}.
+               In program mode, the prompt is \screentext{READY.}, whilst in text mode
+               the prompt is \screentext{OK}.
 
-               The text mode affects entered lines with leading number only,
-               lines with no linenumber are executed as BASIC commands,
+               The text mode affects entered lines with leading numbers only,
+               lines with no line number are executed as BASIC commands,
                as usual.
 
                Sequential files, created with the text editor, can be displayed
@@ -3096,7 +3106,7 @@ ok.
 catalog
 
 0 "demoempty       " 00 3d
-1    "example"          seq
+1 "example"          seq
 3159 blocks free
 
 ok.
@@ -3134,7 +3144,7 @@ ok.
    {\bf EDMA} ("Extended Direct Memory Access") is the fastest method
    to manipulate memory areas using the DMA controller.
 
-   {\bf command} 0 = copy, 1 = mix, 2 = swap, 3 = fill.
+   {\bf command} 0: copy, 1: mix, 2: swap, 3: fill.
 
    {\bf length} number of bytes (maximum = 65535).
 
@@ -3142,9 +3152,9 @@ ok.
 
    {\bf target} 28-bit address of write area.
 
-   {\bf sub} sub command (see chapter on DMA controller).
+   {\bf sub} sub command (see chapter on DMA controller in the MEGA65 Complete Compendium).
 
-   {\bf mod} modifier (see chapter on DMA controller).
+   {\bf mod} modifier (see chapter on DMA controller in the MEGA65 Complete Compendium).
 
 \item [Remarks:]
 {\bf EDMA} can access the entire 256MB address range,
@@ -3174,7 +3184,7 @@ EDMA 0, 80*25, 2048, $8000800 :REM COPY SCREEN TO ATTIC RAM
                 or the value -1 if there was no error.
 \item [Remarks:] {\bf EL} is a reserved system variable.
 
-This variable is typically used in a TRAP routine,
+This variable is typically used in a {\bf TRAP} routine,
 where the error line is taken from {\bf EL}.
 
 \item [Example:] Using {\bf EL}
@@ -3282,7 +3292,7 @@ where the error line is taken from {\bf EL}.
 
                The standard {\bf IF ... THEN ... ELSE} structure
                is restricted to a single line. But the {\bf true clause}
-               or {\bf false clause} may be expanded to several lines
+               and {\bf false clause} may be expanded to several lines
                using a compound statement surrounded with
                {\bf BEGIN} and {\bf BEND}.
 
@@ -3381,13 +3391,13 @@ where the error line is taken from {\bf EL}.
 
       {\bf release} release rate (0-15).
 
-      {\bf waveform} 0:triangle, 1:sawtooth, 2:square/pulse, 3:noise, 4:ring modulation.
+      {\bf waveform} 0: triangle, 1: sawtooth, 2: square/pulse, 3: noise, 4: ring modulation.
 
       {\bf pw} pulse width (0-4095) for waveform.
 
 \label{envelopetable}
                There are 10 slots for storing instrument parameters,
-               preset with following values:
+               preset with the following default values:
 \begin{center}
 {\setlength{\tabcolsep}{1mm}
 \begin{tabular}{*{6}{|R{5mm}}|R{9mm}|l|}
@@ -3446,7 +3456,7 @@ where the error line is taken from {\bf EL}.
    between erasing and recovery, which may have altered the
    contents of the file.
 
-\item [Remarks:] {\bf ERASE filename} works similarly to {\bf SCRATCH filename}.
+\item [Remarks:] {\bf ERASE} works similarly to {\bf SCRATCH}.
 
                  The success and the number of erased files can
                  be examined by printing or using the system
@@ -3482,7 +3492,7 @@ where the error line is taken from {\bf EL}.
                occurred, or -1 if there was no error.
 \item [Remarks:] {\bf ER} is a reserved system variable.
 
-This variable is typically used in a TRAP routine,
+This variable is typically used in a {\bf TRAP} routine,
 where the error number is taken from {\bf ER}.
 
 \item [Example:] Using {\bf ER}
@@ -3515,7 +3525,7 @@ where the error number is taken from {\bf ER}.
 
    {\bf number} is a BASIC error number (1-41).
 
-This function is typically used in a TRAP routine,
+This function is typically used in a {\bf TRAP} routine,
 where the error number is taken from the reserved variable {\bf ER}.
 
 \item [Remarks:] Arguments out of range (1-41) will
@@ -3720,17 +3730,17 @@ numeric expression will no longer address your intended line numbers.
 		hp{\bf,} res\}]
 \item [Usage:] Sets the parameters for a SID sound filter.
 
-      {\bf sid} 1 : right SID, 2 : left SID
+      {\bf sid} 1: right SID, 2: left SID
 
-      {\bf freq} filter cut off frequency (0 -> 2047)
+      {\bf freq} filter cut off frequency (0 - 2047)
 
-      {\bf lp} low pass filter (0:off, 1:on)
+      {\bf lp} low pass filter (0: off, 1: on)
 
-      {\bf bp} band pass filter (0:off, 1:on)
+      {\bf bp} band pass filter (0: off, 1: on)
 
-      {\bf hp} high pass filter (0:off, 1:on)
+      {\bf hp} high pass filter (0: off, 1: on)
 
-      {\bf resonance} resonance (0 -> 15)
+      {\bf resonance} resonance (0 - 15)
 
 \item [Remarks:] Missing parameters keep their current value.
                  The effective filter is the sum of
@@ -3977,6 +3987,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 % **********
 
 \newpage
+\label{foregroundcommand}
 \subsection{FOREGROUND}
 \index{BASIC 65 Commands!FOREGROUND}
 \begin{description}[leftmargin=2cm,style=nextline]
@@ -3988,7 +3999,8 @@ FONT C :REM COMMODORE FONT (DEFAULT)
                range of 0 to 31.
                Refer to the table under
                {\bf BACKGROUND} on page \pageref{colourtable}
-               for the {\bf colour} values and their corresponding colours.
+               for the colour values and their corresponding colours.
+\item [Remarks:] {\bf FOREGROUND} is a synonym of {\bf COLOR}.
 
 \item [Example:] Using {\bf FOREGROUND}
 \item \begin{center}\includegraphics[width=0.7\linewidth]{images/foreground-example.png}\end{center}
@@ -4013,7 +4025,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
                {\bf FRE(1)} returns the number of free bytes in
                bank 1, which is the bank for BASIC variables, arrays
                and strings. {\bf FRE(1)} also triggers
-               "garbage collection", which is a process that collects
+               ``garbage collection'', which is a process that collects
                used strings at the top of the bank, thereby
                defragmenting string memory.
 
@@ -4077,8 +4089,8 @@ It is not recommended to use {\bf FREAD} for strings or string arrays
 unless you are fully aware on how to handle the string storage internals.
 
 Also, ensure that you always specify an index if you use an array.
-The start address of array XY() is POINTER(XY(0)).
-POINTER(XY) returns the address of the scalar variable XY.
+The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
+\screentext{POINTER(XY)} returns the address of the scalar variable \screentext{XY}.
 
 \item [Example:] Using {\bf FREAD}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4127,9 +4139,9 @@ It is not recommended to use {\bf FWRITE} for strings or string arrays
 unless you are fully aware on how to handle the string storage internals.
 
 
-Also ensure that you always specify an index if you use an array.
-The start address of array XY() is POINTER(XY(0)).
-POINTER(XY) returns the address of the scalar variable XY.
+Also, ensure that you always specify an index if you use an array.
+The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
+\screentext{POINTER(XY)} returns the address of the scalar variable \screentext{XY}.
 
 
 \item [Example:] Using {\bf FWRITE}:
@@ -4200,9 +4212,8 @@ POINTER(XY) returns the address of the scalar variable XY.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1 '\#'
 \item [Format:] {\bf GET\#} channel{\bf,} variable [{\bf,} variable \dots]
-\item [Usage:] Reads as many bytes
-               as necessary from the channel argument
-               and assigns strings of length one to
+\item [Usage:] Reads a single byte from the channel argument
+               and assigns single character strings to
                string variables, or an 8-bit binary value
                to numeric variables.
                This is useful for reading characters (or bytes) from
@@ -5759,7 +5770,7 @@ the {\bf MEGA65 Book}.
                 {\bf yrel} relative screen coordinate pixel.
 
                 {\bf angle} compass direction for sprite movement [degrees].
-                0 = up, 90 = right, 180 = down, 270 = left, 45 upper right, etc.
+                0: up, 90: right, 180: down, 270: left, 45 upper right, etc.
 
                 {\bf speed} speed of movement, configured as a floating point number in the
                 range of 0.0-127.0, in pixels per frame.

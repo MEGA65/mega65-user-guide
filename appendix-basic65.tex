@@ -609,7 +609,7 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
                but the returned value is in fact the so-called PETSCII code.
 \item [Remarks:]
                {\bf ASC} returns zero for an empty string, whose behaviour
-               is different to BASIC 2, where ASC("") gave an error.
+               is different to BASIC 2, where \screentext{ASC("")} gave an error.
                The inverse function to {\bf ASC} is {\bf CHR\$}.
                Refer to the {\bf CHR\$} command on page \pageref{chrcommand}
                for more information.
@@ -674,7 +674,7 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
 
   {\bf step} line number increment
 
-  Typing {\bf AUTO} with no argument switches this function off.
+  Typing {\bf AUTO} with no argument disables it.
 
 \item [Examples:] Using {\bf AUTO}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -705,9 +705,7 @@ AUTO     : SWITCH AUTO OFF
 
 \item [Colours:] {\bf Index and RGB values of colour palette}
 \begin{center}
-\label{colourtable}
 {\setlength{\tabcolsep}{1mm}
-\begin{center}
 \begin{tabular}{*{4}{|R{1.2cm}}|l|}
 \hline
 {\bf Index}  & {\bf Red} & {\bf Green} & {\bf Blue} & {\bf Colour} \\
@@ -747,9 +745,9 @@ AUTO     : SWITCH AUTO OFF
  31 &   15  &   3   &   6  & Hot Tamales\\
 \hline
 \end{tabular}
-\end{center}
 }
 \end{center}
+\label{colourtable}
 \item [Example:] Using {\bf BACKGROUND}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -856,7 +854,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
                This overcomes the single line limitation of the
                standard {\bf IF} ... {\bf THEN} ... {\bf ELSE} clause.
 \item [Remarks:] Do not jump with {\bf GOTO} or {\bf GOSUB} into a
-                 compound statement. It may lead to unexpected
+                 compound statement, as it may lead to unexpected
                  results.
 \item [Example:] Using {\bf BEGIN} and {\bf BEND}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -892,7 +890,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
                  of the compound statement.
                  If the condition evaluates to {\bf FALSE}, execution
                  does not resume right after {\bf BEND} as it should,
-                 but at the beginning of next line.
+                 but at the beginning of the next line.
                  Test this behaviour with the following program:
 \item [Example:] Using {\bf BEGIN} and {\bf BEND}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -923,10 +921,10 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
    {\bf BLOAD} has two modes:
    The flat memory address mode can be used to load a program to any
    address in the 28-bit (256MB) address range where RAM is installed.
-   This includes the standard RAM banks 0 to 5, but also
+   This includes the standard RAM banks 0 to 5, as well as
    the 8MB of "attic RAM" at address \$8000000.
 
-   This mode is triggered by specifying an address at parameter P,
+   This mode is triggered by specifying an address at parameter P
    that is larger than \$FFFF. The bank parameter is ignored in this mode.
 
    For compatibility reasons with older BASIC versions, {\bf BLOAD}
@@ -941,9 +939,9 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 
    {\bf bank} specifies the RAM bank to be used.
    If not specified, the current bank, as set with the last
-   {\bf BANK} statement, will be used.
+   {\bf BANK} statement will be used.
 
-   {\bf address} can be used to override the load address,
+   {\bf address} can be used to override the load address
    that is stored in the first two bytes of the {\bf PRG} file.
 
    \drivedefinition
@@ -951,7 +949,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
    \unitdefinition
 
 \item [Remarks:]
-   The {\bf BLOAD} cannot cross bank boundaries.
+   {\bf BLOAD} cannot cross bank boundaries.
 
 {\bf BLOAD} uses the load address from the file, if no P parameter is given.
 
@@ -1010,7 +1008,7 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
 \item [Remarks:]
    {\bf BOOT SYS} copies the contents of one physical sector
    (two logical sectors) = 512 bytes from disk to RAM,
-   filling RAM from \$0400 to \$05ff.
+   filling RAM from \$0400 to \$05FF.
 
 \item [Examples:] Using {\bf BOOT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1068,12 +1066,12 @@ BOOT
                coordinate pairs declare two diagonally opposite corners.
 
                The second form with four coordinate pairs declares a
-               path of four points, which will be connected by lines.
-               The path is closed by connecting the last point with the
-               first one.
+               path of four points, which will be connected with lines.
+               The path is closed by connecting the last coordinate with the
+               first.
 
                The quadrangle is drawn using the current drawing context
-               set with SCREEN, PALETTE and PEN.
+               set with {\bf SCREEN}, {\bf PALETTE} and {\bf PEN}.
                The quadrangle is filled if the parameter {\bf solid}
                is not 0.
 
@@ -1146,8 +1144,8 @@ BOOT
    {\bf BSAVE} has two modes:
    The flat memory address mode can be used to save a memory block
    in the 28-bit (256MB) address range where RAM is installed.
-   This includes the standard RAM banks 0 to 5, but also
-   the 8MB so called "attic RAM" at address \$8000000.
+   This includes the standard RAM banks 0 to 5, as well as
+   the 8MB of "attic RAM" at address \$8000000.
 
    This mode is triggered by specifying addresses for the start
    and end parameter P, that are
@@ -1157,8 +1155,8 @@ BOOT
    For compatibility reasons with older BASIC versions, {\bf BSAVE}
    accepts the syntax with 16-bit addresses at P and a bank number at B as well.
    The attic RAM is out of range for this compatibility mode.
-   This mode cannot cross bank boundaries, start and end address
-   are supposed to refer to the same bank.
+   This mode cannot cross bank boundaries, so start and end address
+   must be in the same bank.
 
 
    \filenamedefinition
@@ -1188,13 +1186,13 @@ BOOT
    number, it must be set in parenthesis, as shown
    in the third and fourth line of the examples.
 
-   The {\bf PRG} file format, that is used by {\bf BSAVE}
+   The {\bf PRG} file format that is used by {\bf BSAVE}
    requires the load address to be written to the first two bytes.
-   If the saving is done with a bank number, that is not zero
-   or a start address higher than \$FFFF, this information does not
+   If the saving is done with a bank number that is not zero,
+   or a start address greater than \$FFFF, this information will not
    fit. For compatibility reasons, only the the two low order bytes
-   are written. Loading the file with the {\bf BLOAD} command
-   requires then the full specification of the load address as parameter.
+   are written. Loading the file with the {\bf BLOAD} command will then
+   require the full 16-bit range of the load address as a parameter.
 
 \item [Examples:] Using {\bf BSAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1220,13 +1218,13 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 \item [Format:] {\bf BUMP(}type{\bf )}
 \item [Usage:] Used to detect
                sprite-sprite (type=1) or sprite-data (type=2) collisions.
-               the return value is an 8-bit mask with
+               The return value is an 8-bit mask with
                one bit per sprite. The bit position corresponds to the
                sprite number.
-               Each bit set in the return value indicates that the
+               Each bit set in the returned value indicates that the
                sprite for its position was involved in a collision
                since the last call of {\bf BUMP}.
-               Calling {\bf BUMP} resets the collision mask, so you
+               Calling {\bf BUMP} resets the collision mask, so you will
                always get a summary of collisions encountered since
                the last call of {\bf BUMP}.
 
@@ -1338,8 +1336,8 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
    directory which are flagged as deleted but still
    recoverable.
 
-   {\bf filepattern} is either a quoted string, for example: {\bf "da*"} or
-   a string expression in brackets, e.g. {\bf (DI\$)}
+   {\bf filepattern} is either a quoted string, for example: \screentext{"DA*"} or
+   a string expression in brackets, e.g. \screentext{(DI\$)}
 
    \drivedefinition
 
@@ -1347,7 +1345,7 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
 
 \item [Remarks:]
    {\bf CATALOG} is a synonym for {\bf DIRECTORY}
-   or {\bf DIR} and produces the same listing.
+   and {\bf DIR}, and produces the same listing.
    The {\bf filepattern} can be used to filter the listing.
    The wildcard characters {\bf *} and {\bf ?} may be used.
    Adding {\bf ,T=} to the pattern string, with {\bf T} specifying
@@ -1460,8 +1458,8 @@ width=28mm,height=3mm,valign=center]
 \item [Usage:]  {\bf CHANGE} performs a {\bf find and replace} of the BASIC program
                 that is currently in memory.
    An optional {\bf line range} limits the search to this range,
-   otherwise the whole BASIC program is searched.
-   At each oc\-cur\-rence of the {\bf findstring}, the line is
+   otherwise the entire BASIC program is searched.
+   At each occurrence of the {\bf findstring}, the line is
    listed and the user is prompted for an action:
     \begin{itemize}
       \item \megakey{Y} \specialkey{RETURN} perform the replace and find the next string
@@ -1472,7 +1470,7 @@ width=28mm,height=3mm,valign=center]
 \item [Remarks:] Any un-shifted character that is not part of the string can be
    used instead of {\bf /}.
 
-   However using the double quote character finds text strings that are
+   However, using the double quote character finds text strings that are
    not tokenised, and therefore not part of a keyword. \\
    For example, \screentext{CHANGE "LOOP" TO "OOPS"} will not find
    the BASIC keyword \screentext{LOOP}, because the
@@ -1508,18 +1506,18 @@ CHANGE &IN& TO &OUT&
                 It can be used in all resolutions.
 
                 {\bf column} (in units of character positions) is the
-                start position of the output in horizontally.
+                start position of the output horizontally.
                 As each column unit is 8 pixels wide, a screen width of 320
                 has a column range of 0-39, while a screen width of 640
                 has a column range of 0-79.
 
                 {\bf row} (in pixel units) is the start position of the output
-                in vertically. In contrast to the column parameter,
-                its unit are in pixels (not character positions), with the top
-                row having the value 0.
+                vertically. In contrast to the column parameter,
+                its unit is in pixels (not character positions), with the top
+                row having the value of 0.
 
                 {\bf height} is a factor applied to the vertical
-                size of the characters, where 1 is normal size (8 pixels)
+                size of the characters, where 1 is normal size (8 pixels),
                 2 is double size (16 pixels), and so on.
 
                 {\bf width} is a factor applied to the horizontal
@@ -1527,10 +1525,16 @@ CHANGE &IN& TO &OUT&
                 2 is double size (16 pixels), and so on.
 
                 {\bf direction} controls the printing direction: \\
-                1: up     \\
-                2: right  \\
-                4: down   \\
-                8: left
+                    \begin{center}
+                    \begin{tabular}{|c|l|}
+                        \hline
+                        1	& Up \\
+                        2	& Right \\
+                        4	& Down \\
+                        8	& Left \\
+                        \hline
+                    \end{tabular}
+                    \end{center}
 
                 The optional {\bf address of character set} can be used
                 to select a character set, different to the default
@@ -1539,9 +1543,15 @@ CHANGE &IN& TO &OUT&
 
                 Three character sets (see also {\bf FONT}) are available:
 
-                \$29000 Font A (ASCII) \\
-                \$3D000 Font B (Bold)  \\
-                \$2D000 Font C (CBM)
+              \begin{center}
+                    \begin{tabular}{|c|l|}
+                        \hline
+                        \$29000 & Font A (ASCII) \\
+                        \$3D000 & Font B (Bold)  \\
+                        \$2D000 & Font C (CBM) \\
+                        \hline
+                    \end{tabular}
+                \end{center}
 
                 The first part of the font (upper case / graphics) is stored at \$xx000 - \$xx7FF.
 
@@ -1649,10 +1659,10 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \item [Remarks:] {\bf CIRCLE} is used to draw circles on
                screens with an aspect ratio of 1:1 (for example: 320 x 200
                or 640 x 400). Whilst using other resolutions (such as 640 x 200),
-               the shape will instead be an ellipse.
+               the shape will be an ellipse instead.
 
                The example program uses the random number function
-               \screentextwide{RND} for circle colour, size and position.
+               {\bf RND} for circle colour, size and position.
                So it shows a different picture for each run.
 
 \item \begin{center}\includegraphics[width=\linewidth]{images/circle.png}\end{center}
@@ -1735,8 +1745,8 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
                 {\bf CLR} variable
 \item [Usage:] Used for management of BASIC variables, arrays
                and strings. The run-time stack pointers,
-               and the table of open channels is reset
-               After executing a {\bf CLR} all variables and arrays will be undeclared.
+               and the table of open channels is reset.
+               After executing {\bf CLR} all variables and arrays will be undeclared.
                {\bf RUN} performs {\bf CLR} automatically.
 
                {\bf CLR variable} clears (zeroes) the variable.
@@ -1745,7 +1755,7 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 
 \item [Remarks:] {\bf CLR} should not be used inside loops or
                subroutines, as it destroys the return address.
-               After a {\bf CLR}, all variables are unknown and will
+               After {\bf CLR}, all variables are unknown and will
                be initialised when they are next used.
 
 \item [Example:] Using {\bf CLR}
@@ -1785,10 +1795,10 @@ RUN
                before the redirection begins and can be used,
                for example, for printer or modem setup escape sequences.
 
-\item [Remarks:] The {\bf CMD} mode is stopped by a {\bf PRINT\#},
+\item [Remarks:] The {\bf CMD} mode is stopped with {\bf PRINT\#},
                  or by closing the channel with {\bf CLOSE}.
                  It is recommended to use {\bf PRINT\#}
-                 before closing, to make sure that the output buffer
+                 before closing to make sure that the output buffer
                  has been flushed.
 
 \item [Example:] Using {\bf CMD} to print a program listing:
@@ -1854,34 +1864,38 @@ CLOSE 1
 \item [Format:] {\bf COLLISION} type [{\bf,} line number]
 \item [Usage:]  Enables or disables
                 a user-programmed interrupt handler.
-                A call without the linenumber argument disables the handler,
-                while a call with linenumber enables it.
+                A call without the line number argument disables the handler,
+                while a call with line number enables it.
                 After the execution of {\bf COLLISION} with
-                linenumber, a sprite collision of the same type,
+                line number, a sprite collision of the same type,
                 (as specified in the {\bf COLLISION} call)
                 interrupts the BASIC program and performs a {\bf GOSUB}
-                to {\bf linenumber}, which is expected to contain
+                to {\bf line number}, which is expected to contain
                 the user code for handling sprite collisions.
-                This handler must give control back with a {\bf RETURN}.
+                This handler must give control back with {\bf RETURN}.
 
                 {\bf type} specifies the collision type for
                 this interrupt handler:
-                    \begin{longtable}{ c | l}
-                    1	& 	sprite - sprite collision \\
-                    2	& 	sprite - data - collision \\
-                    3	& 	light pen \\
-                    \end{longtable}
+                    \begin{center}
+                    \begin{tabular}{|c | l|}
+                    \hline
+                    1	& 	Sprite - Sprite Collision \\
+                    2	& 	Sprite - Data - Collision \\
+                    3	& 	Light Pen \\
+                    \hline
+                    \end{tabular}
+                    \end{center}
 
                 {\bf linenumber} must point to a subroutine
                 which has code for handling sprite collision
-                and ends with a {\bf RETURN}.
+                and ends with {\bf RETURN}.
 
 \item [Remarks:] It is possible to enable the interrupt handler for
                all types, but only one can execute at any time.
                An interrupt handler cannot be interrupted by another
                interrupt handler.
-               Functions such as {\bf BUMP}, {\bf RSPPOS} and
-               {\bf LPEN} may be used for evaluation of the sprites
+               Functions such as {\bf BUMP}, {\bf LPEN} and
+               {\bf RSPPOS} may be used for evaluation of the sprites
                which are involved, and their positions.
 
 \item [Info:] {\bf COLLISION} wasn't completed in BASIC 10, and
@@ -1925,7 +1939,7 @@ CLOSE 1
                is fixed and only character movement is performed
                for screen characters. This speeds up screen
                handling, which could be useful when moving characters with different colours is
-               not intended.
+               not required.
 \item [Example:] \screentext{COLOR ON} - with colour/attribute handling \\
                  \screentext{COLOR OFF} - no colour/attribute handling
 
@@ -1948,11 +1962,11 @@ CLOSE 1
    contains the contents of both files, while {\bf appendfile}
    remains unchanged.
 
-   {\bf appendfile} is either a quoted string, for example: {\bf "data"} or
-   a string expression in brackets, for example: {\bf (FI\$)}
+   {\bf appendfile} is either a quoted string, for example: \screentext{"DATA"} or
+   a string expression in brackets, for example: \screentext{(FI\$)}
 
-   {\bf targetfile} is either a quoted string, for example: {\bf "safe"} or
-   a string expression in brackets, for example: {\bf (FS\$)}
+   {\bf targetfile} is either a quoted string, for example: \screentext{"SAFE"} or
+   a string expression in brackets, for example: \screentext{(FS\$)}
 
    If the disk unit has dual drives, it is possible to apply
    {\bf CONCAT} to files which are stored on different
@@ -1996,8 +2010,8 @@ CLOSE 1
                This is a useful debugging tool. The BASIC program may be stopped
                and variables can be examined, and even changed.
                The {\bf CONT} statement resumes execution.
-\item [Remarks:] {\bf CONT} cannot be used, if a program has stopped because
-               of an error. Also ,any editing of a program
+\item [Remarks:] {\bf CONT} cannot be used if a program has stopped because
+               of an error. Also, any editing of a program
                inhibits continuation. Stopping and continuation
                can spoil the screen output, and can also interfere with
                input/output operations.
@@ -2034,11 +2048,11 @@ CONT
    It is used to copy either single files or, by using
    wildcard characters, multiple files.
 
-   {\bf source} is either a quoted string, e.g. {\bf "data"} or
-   a string expression in brackets, e.g. {\bf (FI\$)}.
+   {\bf source} is either a quoted string, e.g. \screentext{"DATA"} or
+   a string expression in brackets, e.g. \screentext{(FI\$)}.
 
-   {\bf target} is either a quoted string, e.g. {\bf "backup"} or
-   a string expression in brackets, e.g. {\bf (FS\$)}
+   {\bf target} is either a quoted string, e.g. \screentext{"BACKUP"} or
+   a string expression in brackets, e.g. \screentext{(FS\$)}
 
    \drivedefinition
 
@@ -2054,7 +2068,7 @@ CONT
    the target file name cannot be chosen, it will be the same as the
    source filename. The extended unit-to-unit copy mode allows the copying of
    single files, pattern matching files or all files of a disk.
-   Any combination of units is allowed, internal floppy, SD card images,
+   Any combination of units is allowed, internal floppy, D81 disk images,
    IEC floppy drives such as the 1541, 1571, 1581, or CMD floppy and hard drives.
 
 \item [Remarks:]
@@ -2062,7 +2076,7 @@ CONT
    If source and target are on the same disk, the target filename
    must be different from the source file name.
 
-   {\bf COPY} cannot copy {\bf DEL} files, that are commonly used
+   {\bf COPY} cannot copy {\bf DEL} files, which are commonly used
    as titles or separators in disk directories. These do not conform to
    Commodore DOS rules and cannot be accessed by standard {\bf OPEN} routines.
 
@@ -2130,6 +2144,7 @@ X=60:PRINT COS(X * ~ / 180)
 
                {\bf style} defines a solid (1) or flashing (0) cursor.
 %\item [Remarks:]
+% Ignore line 100's REM statement indentation. Needed to be there to be aligned in the PDF - Impakt
 \item [Example:] Using {\bf CURSOR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -2143,7 +2158,7 @@ X=60:PRINT COS(X * ~ / 180)
 70  PRINT "C"; : SLEEP 1
 80  CURSOR 20,10            :REM MOVE THE CURSOR TO COLUMN 20, ROW 10
 90  PRINT "D"; : SLEEP 1
-100 CURSOR ,50              :REM MOVE THE CURSOR TO ROW 5 BUT DO NOT CHANGE THE COLUMN
+100 CURSOR ,50                  :REM MOVE THE CURSOR TO ROW 5 BUT DO NOT CHANGE THE COLUMN
 110 PRINT "E"; : SLEEP 1
 100 CURSOR 0                :REM MOVE THE CURSOR TO THE START OF THE ROW
 110 PRINT "F"; : SLEEP 1
@@ -2296,9 +2311,8 @@ N-POINT GAUSSLEGENDRE FACTORS E1
                The argument range is "0000" to "FFFF" (0 to 65535 in decimal).
                The argument must have 1-4 hex digits.
 
-\item [Remarks:] Allowed digits in uppercase/graphics mode are: \\
-                 0123456789ABCDEF and in lowercase/uppercase mode: \\
-                 0123456789abcdef.
+\item [Remarks:] Allowed digits in uppercase/graphics mode are 0-9 and A-Z (\screentext{0123456789ABCDEF})
+                 and in lowercase/uppercase mode are 0-9 and a-z (\screentext{0123456789abcdef}).
 
 \item [Example:] Using {\bf DEC}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2368,7 +2382,7 @@ RUN
 \item [Format:] {\bf DELETE} [line range] \\
                 {\bf DELETE} filename [{\bf,D} drive] [{\bf,U} unit] [{\bf,R}]
 \item [Usage:] Used to either delete
-               a range of lines from the BASIC program or to delete file from disk.
+               a range of lines from the BASIC program or to delete a file from disk.
 
                {\bf line range} consists of the first and last
                line to delete, or a single line number.
@@ -2377,8 +2391,8 @@ RUN
                The second number in the range specifier defaults
                to the last BASIC line.
 
-   {\bf filename} is either a quoted string, for example: {\bf "safe"} or
-   a string expression in brackets, for example: {\bf (FS\$)}
+   {\bf filename} is either a quoted string, for example: \screentext{"SAFE""} or
+   a string expression in brackets, for example: \screentext{(FS\$)}
 
    \drivedefinition
 
@@ -2389,7 +2403,7 @@ RUN
    between deletion and recovery, which may have altered the
    contents of the file.
 
-\item [Remarks:] {\bf DELETE filename} works similar to
+\item [Remarks:] {\bf DELETE filename} works similarly to
                  {\bf SCRATCH filename}.
 
 \item [Examples:] Using {\bf DELETE}
@@ -2417,16 +2431,16 @@ RUN
 \item [Token:] \$86
 \item [Format:] {\bf DIM} name{\bf(}limits{\bf)} [{\bf,} name{\bf(}limits{\bf)} ...]
 \item [Usage:] Declares the shape,
-               the bounds and the type of a BASIC array.
+               bounds and the type of a BASIC array.
                As a declaration statement, it must be executed
                only once and before any usage of the declared arrays.
                An array can have one or more dimensions.
                One dimensional arrays are often called vectors
                while two or more dimensions define a matrix.
                The lower bound of a dimension is always zero,
-               while the upper bound is declared. The rules for
+               while the upper bound is as declared. The rules for
                variable names apply for array names as well.
-               There are integer arrays, real arrays and string arrays.
+               You can createinteger arrays, real arrays and string arrays.
                It is legal to use the same identifier for scalar
                variables and array variables. The left parenthesis
                after the name identifies array names.
@@ -2480,8 +2494,8 @@ RUN
    directory, which are flagged as deleted but are still
    recoverable.
 
-   {\bf filepattern} is either a quoted string, for example: {\bf "da*"} or
-   a string expression in brackets, e.g. {\bf (DI\$)}
+   {\bf filepattern} is either a quoted string, for example: \screentext{"DA*"} or
+   a string expression in brackets, e.g. \screentext{(DI\$)}
 
    \drivedefinition
 
@@ -2489,7 +2503,7 @@ RUN
 
 \item [Remarks:]
    {\bf DIR} is a synonym for {\bf CATALOG}
-   or {\bf DIRECTORY}, and produces the same listing.
+   and {\bf DIRECTORY}, and produces the same listing.
    The {\bf filepattern} can be used to filter the listing.
    The wildcard characters {\bf *} and {\bf ?} may be used.
    Adding {\bf ,T=} to the pattern string, with {\bf T} specifying
@@ -2570,7 +2584,7 @@ on page \pageref{3columndirlisting}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$40
 \item [Format:] {\bf DISK} command [{\bf,U} unit] \\
-		{\bf @} command [{\bf,U} unit]
+                \megakey{@} command [{\bf,U} unit]
 \item [Usage:]
 
    Sends a command string to the specified disk unit.
@@ -2586,7 +2600,7 @@ on page \pageref{3columndirlisting}.
 
    Using {\bf DISK} with no parameters prints the disk status.
 
-   The shortcut symbol {\bf @} can only be used in direct mode.
+   The shortcut key \megakey{@} can only be used in direct mode.
 
 \item [Examples:] Using {\bf DISK}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4434,8 +4448,8 @@ ARE YOU SURE?
 \item [Usage:]
    Used to format (or clear) a disk.
 
-   {\bf diskname} is either a quoted string, e.g. {\bf "data"} or
-   a string expression in brackets, e.g. {\bf (DN\$)}.
+   {\bf diskname} is either a quoted string, e.g. \screentext{"DATA"} or
+   a string expression in brackets, e.g. \screentext{(DN\$)}.
    The maximum length of {\bf diskname} is 16 characters.
 
    \drivedefinition
@@ -5241,7 +5255,7 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 Characters before and after the file name double quotes (") will be ignored.
    This applies to {\bf PRG} files only.
 
-   {\bf filename} is either a quoted string, e.g. {\bf "prog"}, or
+   {\bf filename} is either a quoted string, e.g. \screentext{"PROG"}, or
    a string expression.
 
    The unit number is optional.
@@ -6051,7 +6065,7 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
    IEC disk units, 0:load, 1:save, 15:command channel.
    The values 2-14 may be used for disk files.
 
-   {\bf filename} is either a quoted string, e.g. {\bf "data"} or
+   {\bf filename} is either a quoted string, e.g. \screentext{"DATA"} or
    a string expression. The syntax is different to {\bf DOPEN\#},
    since the {\bf filename} for {\bf OPEN} includes all
    file attributes, for example "0:data,s,w".
@@ -7237,11 +7251,11 @@ RECORD # 4 RECORD # 2
 \item [Format:] {\bf RENAME} old {\bf TO} new [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:] Renames a disk file.
 
-   {\bf old} is either a quoted string, e.g. {\bf "data"} or
-   a string expression in brackets, e.g. {\bf (FI\$)}.
+   {\bf old} is either a quoted string, e.g. \screentext{"DATA"} or
+   a string expression in brackets, e.g. \screentext{(FI\$)}.
 
-   {\bf new} is either a quoted string, e.g. {\bf "backup"} or
-   a string expression in brackets, e.g. {\bf (FS\$)}
+   {\bf new} is either a quoted string, e.g. \screentext{"BACKUP"} or
+   a string expression in brackets, e.g. \screentext{(FS\$)}
 
    \drivedefinition
 
@@ -7926,8 +7940,8 @@ DRAW PEN COLOUR =  1
 
    {\bf line number} an existing line number of the program in memory to run from.
 
-   {\bf filename} either a quoted string, e.g. {\bf "prog"} or
-   a string expression in brackets, e.g. {\bf (PR\$)}.
+   {\bf filename} either a quoted string, e.g. \screentext{"PROG"} or
+   a string expression in brackets, e.g. \screentext{(PR\$)}.
    The filetype must be {\bf PRG}.
 
    \drivedefinition
@@ -9146,7 +9160,7 @@ RUN
 
                 It is possible to access the RTC registers directly
                 via {\bf PEEK}. The start address of the registers is at
-                \$FFD7110. For example:
+                \$FFD7110.
 
                 For more information on how to set the Real-Time Clock,
                 refer to the Configuring Utility section on page
@@ -9569,7 +9583,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
                in memory with a disk file of type {\bf PRG}.
                It does the same as {\bf BVERIFY}, but the syntax is different.
 
-               {\bf filename} is either a quoted string, e.g. {\bf "prog"} or
+               {\bf filename} is either a quoted string, e.g. \screentext{"PROG"} or
                a string expression.
 
                \unitdefinition

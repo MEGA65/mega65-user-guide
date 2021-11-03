@@ -255,7 +255,7 @@ string array element as the argument, returns the address of the descriptor, not
 \hline
 Byte     Array &  1                         &    \screentext{\&} & 0 .. 255            & \screentext{BY\&(5,6) = 23}   \\
 Integer  Array &  2                         &    \screentext{\%} & -32768 .. 32767     & \screentext{I\%(0,10) = 5}    \\
-Real     Array &  5                         &   none            & -1E37 .. 1E37       & \screentext{XY(I\%) = 1/3}    \\
+Real     Array &  5                         &    none            & -1E37 .. 1E37       & \screentext{XY(I\%) = 1/3}    \\
 String   Array &  3                         &    \screentext{\$} & 0 .. 255 characters & \screentext{AB\$(X) = "TEXT"} \\
 \hline
 \end{tabular}
@@ -323,7 +323,7 @@ Parentheses are used to change the precedence, for example
 \hline
 {\bf Symbol} & {\bf Description} & {\bf Examples}\\
 \hline
- =           & Assignment        & \screentext{A = 42}, \screentext{A\$ ="HELLO"}, \screentext{A = B < 42}\\
+\screentext{=}           & Assignment        & \screentext{A = 42}, \screentext{A\$ ="HELLO"}, \screentext{A = B < 42}\\
 \hline
 \end{tabular}
 \end{center}
@@ -507,7 +507,7 @@ Low              & \screentext{OR XOR}\\
                 and \$0000 (decimal 0) for FALSE.
 \begin{center}
     \setlength{\tabcolsep}{1mm}
-    \begin{tabular}{|l|l|l|}
+    \begin{tabular}{|c|c|}
         \hline
         {\bf Expression} & {\bf Result}  \\
         \hline
@@ -1296,8 +1296,8 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 \item [Remarks:]
    {\bf BVERIFY} can only test for equality. It gives no information
    about the number, or position of different valued bytes.
-   In direct mode {\bf BVERIFY} exits either with the message {\bf OK}
-   or with {\bf VERIFY ERROR}. In program mode, a {\bf VERIFY ERROR}
+   In direct mode {\bf BVERIFY} exits either with the message \screentext{OK}
+   or with \screentext{VERIFY ERROR}. In program mode, a VERIFY ERROR
    either stops execution or enters the {\bf TRAP} error handler,
    if active.
 
@@ -1476,7 +1476,7 @@ width=28mm,height=3mm,valign=center]
    the BASIC keyword \screentext{LOOP}, because the
    keyword is stored as a token and not as text.
    However \screentext{CHANGE /LOOP/ TO /OOPS/} will
-   find and replace it (possibly causing SYNTAX ERRORs).
+   find and replace it (possibly causing \screentext{SYNTAX ERROR}s).
 
    Can only be used in direct mode.
 
@@ -1523,18 +1523,13 @@ CHANGE &IN& TO &OUT&
                 {\bf width} is a factor applied to the horizontal
                 size of the characters, where 1 is normal size (8 pixels)
                 2 is double size (16 pixels), and so on.
-
                 {\bf direction} controls the printing direction: \\
-                    \begin{center}
-                    \begin{tabular}{|c|l|}
-                        \hline
-                        1	& Up \\
-                        2	& Right \\
-                        4	& Down \\
-                        8	& Left \\
-                        \hline
-                    \end{tabular}
-                    \end{center}
+                \begin{itemize}
+                    \item {\bf 1}: up
+                    \item {\bf 2}: right
+                    \item {\bf 4}: down
+                    \item {\bf 8}: left
+                \end{itemize}
 
                 The optional {\bf address of character set} can be used
                 to select a character set, different to the default
@@ -1542,16 +1537,11 @@ CHANGE &IN& TO &OUT&
                 characters.
 
                 Three character sets (see also {\bf FONT}) are available:
-
-              \begin{center}
-                    \begin{tabular}{|c|l|}
-                        \hline
-                        \$29000 & Font A (ASCII) \\
-                        \$3D000 & Font B (Bold)  \\
-                        \$2D000 & Font C (CBM) \\
-                        \hline
-                    \end{tabular}
-                \end{center}
+                \begin{itemize}
+                    \item {\bf \$29000}: Font A (ASCII)
+                    \item {\bf \$3D000}: Font B (Bold)
+                    \item {\bf \$2D000}: Font C (CBM)
+                \end{itemize}
 
                 The first part of the font (upper case / graphics) is stored at \$xx000 - \$xx7FF.
 
@@ -1565,13 +1555,15 @@ CHANGE &IN& TO &OUT&
                {\setlength{\tabcolsep}{1mm}
                 \begin{tabular}{|l|l|l|}
                   \hline
-                  \screentext{CHR\$(6)}       &  CTRL+F         &  Flip Character \\
-                  \screentext{CHR\$(18)}      &  RVSON          &  Reverse  \\
-                  \screentext{CHR\$(146)}     &  RVSOFF         &  Reverse Off \\
-                  \screentext{CHR\$(21)}      &  CTRL+U         &  Underline\\
-                  \screentext{CHR\$(25)+"-"}  &  CTRL+Y + "-"   &  Rotate Left\\
-                  \screentext{CHR\$(25)+"+"}  &  CTRL+Y + "+"   &  Rotate Right\\
-                  \screentext{CHR\$(26)}      &  CTRL+Z         &  Mirror\\
+                  {\bf Expression}            & {\bf Keyboard Shortcut} & {\bf Description}\\
+                  \hline
+                  \screentext{CHR\$(6)}       &  CTRL+F                 &  Flip Character \\
+                  \screentext{CHR\$(18)}      &  RVSON                  &  Reverse  \\
+                  \screentext{CHR\$(146)}     &  RVSOFF                 &  Reverse Off \\
+                  \screentext{CHR\$(21)}      &  CTRL+U                 &  Underline\\
+                  \screentext{CHR\$(25)+"-"}  &  CTRL+Y + "-"           &  Rotate Left\\
+                  \screentext{CHR\$(25)+"+"}  &  CTRL+Y + "+"           &  Rotate Right\\
+                  \screentext{CHR\$(26)}      &  CTRL+Z                 &  Mirror\\
                   \hline
                   \end{tabular}
                 }
@@ -1877,7 +1869,9 @@ CLOSE 1
                 {\bf type} specifies the collision type for
                 this interrupt handler:
                     \begin{center}
-                    \begin{tabular}{|c | l|}
+                    \begin{tabular}{|r|l|}
+                    \hline
+                    {\bf Type} & {\bf Description}\\
                     \hline
                     1	& 	Sprite - Sprite Collision \\
                     2	& 	Sprite - Data - Collision \\
@@ -2724,6 +2718,8 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 
 \begin{center}
 \begin{tabular}{|l|l|}
+\hline
+   {\bf Mode} & {\bf Values}\\
 \hline
    {\bf jam}        &  0 - 1 \\
    {\bf complement} &  0 - 1 \\
@@ -3596,7 +3592,7 @@ where the error number is taken from the reserved variable {\bf ER}.
                argument.
 
 \item [Remarks:] An argument greater than 88 produces
-                 an OVERFLOW ERROR:
+                 an \screentext{OVERFLOW ERROR}.
 \item [Examples:] Using {\bf EXP}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -3933,8 +3929,8 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Token:] \$81
 \item [Format:] {\bf FOR} index {\bf=} start {\bf TO} end
 		[{\bf STEP} step] ... {\bf NEXT} [index]
-\item [Usage:] {\bf FOR} statements start the definition
-               of a BASIC loop with an index variable.
+\item [Usage:] {\bf FOR} statements start
+               a BASIC loop with an index variable.
 
                {\bf index} may be incremented or decremented
                by a constant value on each iteration. The default
@@ -4068,7 +4064,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \begin{center}
 \label{freadtable}
 \setlength{\tabcolsep}{1mm}
-\begin{tabular}{|l|l|}
+\begin{tabular}{|l|c|}
 \hline
 {\bf Type}          & {\bf Item Size} \\
 \hline
@@ -4677,7 +4673,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
                whereas too few input items trigger another request for input
                with the prompt \screentext{??}.
                Typing non numeric characters for integer or real
-               variables will produce a TYPE MISMATCH ERROR.
+               variables will produce a \screentext{TYPE MISMATCH ERROR}.
                Strings for string variables must be in double quotes (")
                if they contain spaces or commas.
                Many programs that need a safe input routine use
@@ -4732,7 +4728,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Remarks:] The type and number of data in a record must
                match the variable list.
                Reading non numeric characters for integer or real
-               variables will produce a FILE DATA ERROR.
+               variables will produce a \screentext{FILE DATA ERROR}.
                Strings for string variables have to be put in quotes
                if they contain spaces or commas. \\
                {\bf LINE INPUT\#} may be used to
@@ -5023,7 +5019,7 @@ KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
 
                {\bf n} a numeric expression (0-255).
 
-\item [Remarks:] Empty strings and zero lengths are legal values.
+\item [Remarks:] Empty strings and zero length strings are legal values.
 
 \item [Example:] Using {\bf LEFT\$}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5159,7 +5155,7 @@ A=5      :REM SHORTER AND FASTER
 
 \item [Remarks:] Only string variables or string array elements
                  can be used in the variable list.
-                 Unlike other INPUT commands, {LINE INPUT\#} does
+                 Unlike other INPUT commands, {\bf LINE INPUT\#} does
                  not interpret or remove quote characters in the input.
                  They are accepted as data, as all other characters.
 
@@ -5211,7 +5207,7 @@ A=5      :REM SHORTER AND FASTER
 
                 The optional parameter {\bf P} enables page mode.
                 After listing 24 lines, the listing will stop and display
-                the prompt {\bf [MORE]} at the bottom of the screen.
+                the prompt \screentext{[MORE]} at the bottom of the screen.
                 Pressing {\bf Q} quits page mode, while any other key
                 triggers the listing of the next page.
 
@@ -5326,7 +5322,7 @@ Characters before and after the file name double quotes (") will be ignored.
    Supported resolutions are:
 \begin{center}
 \setlength{\tabcolsep}{1mm}
-\begin{tabular}{|l|l|l|l|l|}
+\begin{tabular}{|c|c|l|l|l|}
 \hline
 {\bf Width}             & {\bf Height} & {\bf Bitplanes} & {\bf Colours} & {\bf Memory} \\
 \hline
@@ -5355,7 +5351,7 @@ To use {\bf convert} and {\bf ppmtoilbm} for converting a JPG file to an IFF fil
 
 \begin{verbatim}
 convert <myImage.jpg> <myImage.ppm>
-ppmtoilbm -aga <myImage.pbm> > <myImage.iff>
+ppmtoilbm -aga <myImage.ppm> > <myImage.iff>
 \end{verbatim}
 
 \item [Example:] Using {\bf LOADIFF}
@@ -5548,7 +5544,7 @@ only exits the current loop.
    \unitdefinition
 
 \item [Remarks:]
-   The load address, stored in the first two bytes
+   The load address, which is stored in the first two bytes
    of the file is ignored. The loaded program does not
    replace a program in memory (which is what {\bf DLOAD} does),
    but is appended to a program in memory.
@@ -5838,8 +5834,10 @@ the {\bf MEGA65 Book}.
 \item [Token:] \$82
 \item [Format:] {\bf FOR} index {\bf =} start {\bf TO} end
 		[{\bf STEP} step] ... {\bf NEXT} [index]
-\item [Usage:] Terminates the definition
-               of a BASIC loop with an index variable.
+\item [Usage:] Marks the end of the BASIC loop associated with the given index variable. When
+               a BASIC loop is declared with {\bf FOR}, it must end with
+               {\bf NEXT}.
+
 
                The {\bf index} variable may be incremented or decremented
                by a constant value {\bf step} on each iteration. The default
@@ -5860,12 +5858,11 @@ the {\bf MEGA65 Book}.
 \item [Remarks:] The {\bf index} variable after {\bf NEXT} is
                optional. If it is omitted, the variable
                for the current loop is assumed.
-               % i dont understand this part ^^ - impakt
                Several consecutive {\bf NEXT} statements may be
                combined by specifying the indexes in a comma
                separated list. The statements
-               {\bf NEXT I:NEXT J:NEXT K} and
-               {\bf NEXT I,J,K} are equivalent.
+               \screentext{NEXT I:NEXT J:NEXT K} and
+               \screentext{NEXT I,J,K} are equivalent.
 
 \item [Example:] Using {\bf NEXT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5905,7 +5902,7 @@ the {\bf MEGA65 Book}.
 
 \begin{center}
 \setlength{\tabcolsep}{1mm}
-    \begin{tabular}{|l|l|l|}
+    \begin{tabular}{|c|c|}
     \hline
         {\bf Expression} & {\bf Result}  \\
     \hline
@@ -5998,7 +5995,7 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 
 \item [Remarks:] Negative values for {\bf expression} will stop
                  the program with an error message.
-                 The {\bf line list} specifies the targets for values
+                 The {\bf line number list} specifies the targets for values
                  of 1, 2, 3, etc. \\
                  An expression result of zero, or a result that is greater
                  than the number of target lines will not do anything, and the
@@ -6058,25 +6055,25 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 \hline
 {\bf Unit}  & {\bf Device} \\
 \hline
-\screentext{0}    & Keyboard \\
-\screentext{1}    & System Default \\
-\screentext{2}    & RS232 Serial Connection \\
-\screentext{3}    & Screen \\
-\screentext{4-7}  & IEC Printer and Plotter \\
-\screentext{8-31} & IEC Disk Drives \\
+0    & Keyboard \\
+1    & System Default \\
+2    & RS232 Serial Connection \\
+3    & Screen \\
+4-7  & IEC Printer and Plotter \\
+8-31 & IEC Disk Drives \\
 \hline
 \end{tabular}
 }
 \end{center}
 
    The {\bf secondary address} has some reserved values for
-   IEC disk units, 0:load, 1:save, 15:command channel.
+   IEC disk units, 0: load, 1: save, 15: command channel.
    The values 2-14 may be used for disk files.
 
    {\bf filename} is either a quoted string, e.g. \screentext{"DATA"} or
    a string expression. The syntax is different to {\bf DOPEN\#},
    since the {\bf filename} for {\bf OPEN} includes all
-   file attributes, for example "0:data,s,w".
+   file attributes, for example: \screentext{"0:DATA,S,W"}.
 
 \item [Remarks:]
    For IEC disk units the usage of {\bf DOPEN\#} is recommended.
@@ -6120,7 +6117,7 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 
 \begin{center}
 \setlength{\tabcolsep}{1mm}
-    \begin{tabular}{|l|l|l|}
+    \begin{tabular}{|c|c|}
         \hline
         {\bf Expression} & {\bf Result}  \\
         \hline
@@ -6286,7 +6283,7 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
 \item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
-                 Banks greater than 127 are used to access I/O, and the underlying SYSTEM hardware such as the
+                 Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
 \item [Example:] Using {\bf PEEK}
 
@@ -6323,7 +6320,7 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 
 
 \item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
-                 Banks greater than 127 are used to access I/O, and the underlying SYSTEM hardware such as the
+                 Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
 \item [Example:] Using {\bf PEEKW}
 
@@ -6432,7 +6429,7 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                Possible modifiers are:
 \begin{center}
 {\setlength{\tabcolsep}{1mm}
-\begin{tabular}{*{1}{|l}|l|}
+\begin{tabular}{*{1}{|c}|l|}
 \hline
 {\bf Character}  & {\bf Effect} \\
 \hline
@@ -6454,7 +6451,7 @@ Embedded directives consist of a letter, followed by a digit:
 
 \begin{center}
 {\setlength{\tabcolsep}{1mm}
-\begin{tabular}{*{1}{|R{9mm}}|l|l|}
+\begin{tabular}{*{1}{|C{9mm}}|l|l|}
 \hline
 {\bf Char}  & {\bf Directive} & {\bf Argument Range} \\
 \hline
@@ -6470,9 +6467,9 @@ Embedded directives consist of a letter, followed by a digit:
 }
 \end{center}
 
-  The modulation directive will modulate your note by the magnitude you specify (1-9), or use 0 to turn this feature off.
+  The modulation directive will modulate your note by the magnitude you specify (1-9), or use 0 to not use it.
 
-    Similarly, the portamento directive will gently slide between consecutive notes at the speed you specify (1-9), or use 0 to turn this feature off. Note that the gate-off behaviour of notes is disabled while portamento is enabled, and to re-enable it, you must turn off portamento (P0).
+    Similarly, the portamento directive will gently slide between consecutive notes at the speed you specify (1-9), or use 0 to not use it. Note that the gate-off behaviour of notes is disabled while portamento is enabled, and to re-enable it, you must disable portamento (P0).
 
     Add an {\bf L} directive (no argument needed) at the end of your string if you would like it to loop back to the
   beginning of your string upon completion.
@@ -6501,7 +6498,7 @@ Embedded directives consist of a letter, followed by a digit:
 
   If you wish to assess whether a melody is playing on a voice channel, you can
   find out by checking the value returned from {\bf RPLAY(voice)}, where the voice parameter
-  is a value from 1 to 6 indicating the voice channel. It will return either 1 (playing),
+  is a value from 1 to 6, indicating the voice channel. It will return either 1 (playing),
   or 0 (not playing).
 
   One caveat to be aware of is that BASIC strings have a maximum length of 255 bytes.
@@ -6617,7 +6614,7 @@ HELLO
 \item [Remarks:] The address is incremented for each data byte,
                  so a memory range can be written to with a single {\bf POKE}.
 
-                 Banks greater than 127 are used to access I/O, and the underlying SYSTEM hardware such as the
+                 Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
 
 
@@ -6660,7 +6657,7 @@ HELLO
 \item [Remarks:] The address is increased by two for each data word,
                  so a memory range can be written to with a single {\bf POKEW}.
 
-                Banks greater than 127 are used to access I/O, and the underlying SYSTEM hardware such as the
+                Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
                 VIC, SID, FDC, etc.
 \item [Example:] Using {\bf POKEW}
 
@@ -6686,7 +6683,7 @@ HELLO
 \item [Format:] {\bf POLYGON} x{\bf,} y{\bf,} xrad{\bf,} yrad{\bf,} sides
                 [\{{\bf,} drawsides{\bf,} subtend{\bf,} angle{\bf,} solid\}]
 
-\item [Usage:] Draws a regular {\bf n}-sided polygon.
+\item [Usage:] Draws a regular n-sided polygon.
                The polygon is drawn using the current drawing context
                set with {\bf SCREEN}, {\bf PALETTE}, and {\bf PEN}.
 
@@ -6824,9 +6821,9 @@ Results in:
                     are printed at the cursor position, while control
                     codes are executed.
 
-                    \item {\bf ","} a comma acts as a tabulator.
+                    \item \screentext{,} a comma acts as a tabulator.
 
-                    \item {\bf ";"} a semicolon acts as a separator between
+                    \item \screentext{;} a semicolon acts as a separator between
                     arguments of the list. Other than the comma character,
                     it does not insert any additional characters.
                     A semicolon at the end of the argument list suppresses
@@ -6883,9 +6880,9 @@ Results in:
                     are printed at the cursor position, while control
                     codes are executed.
 
-                    \item {\bf ","} a comma acts as a tabulator.
+                    \item \screentext{,} a comma acts as a tabulator.
 
-                    \item {\bf ";"} a semicolon acts as a separator between
+                    \item \screentext{;} a semicolon acts as a separator between
                     arguments of the list. Other than the comma character,
                     it does not insert any additional characters.
                     A semicolon at the end of the argument list suppresses
@@ -6939,8 +6936,12 @@ Results in:
                 or in C style using a <width.precision> specifier, such as \screentext{\%3D \%7.2F \%4X }.
 
                 {\bf argument} the number to be formatted. If the argument does not fit into the format
-                e.g. trying to print a 4 digit variable into \screentext{\#\#\#}
-                a series of asterisks will replace the format character.
+                e.g. trying to print a 4 digit variable into a series of three
+                hashes (\screentext{\#\#\#}), asterisks will be used instead.
+
+\item [Remarks:] The format string is applied for one argument only,
+                 but it is possible to append more with
+                 {\bf USING format;argument} sequences.
 
                 {\bf argument} may consist of printable
                 characters and control codes. Printable characters
@@ -6952,9 +6953,6 @@ Results in:
                 If the first character of the format string
                 is a greater than '>' sign, the argument string is right justified.
 
-\item [Remarks:] The format string is applied for one argument only,
-                 but it is possible to append more
-                 {\bf USING format;argument} sequences.
 
 
 \newpage
@@ -7181,7 +7179,7 @@ RUN
                which {\bf RECORD} is writing to,
                the file is expanded to the requested record count by adding
                empty records. When this occurs, the disk
-               status will give the message {\bf RECORD NOT PRESENT}, but
+               status will give the message RECORD NOT PRESENT, but
                this is not an error!
 
                after a call of {\bf INPUT\#} or {\bf PRINT\#}, the file pointer will proceed
@@ -7271,7 +7269,7 @@ RECORD # 4 RECORD # 2
 
 \item [Remarks:]
    {\bf RENAME} is executed in the DOS of the disk drive.
-   It can rename all regular file types ({\bf PRG}, {\bf SEQ}, {\bf USR}, {\bf REL}).
+   It can rename all regular file types ({\bf PRG}, {\bf REL}), {\bf SEQ}, {\bf USR}.
    The old file must exist, and the new file must not exist.
    Only single files can be renamed, wildcard characters such as
    '*' and '?' are not allowed. The file type cannot be changed.
@@ -7436,7 +7434,7 @@ RENUMBER 100,5,120-180   :REM RENUMBER LINES 120-180 TO 100,105,...
 
                 In the case of the {\bf COLLISION} handler,
                 the execution continues at the statement
-                where it left to call the handler.
+                where it left from to call the handler.
 
 \item [Example:] Using {\bf RETURN}
 
@@ -7471,21 +7469,21 @@ RENUMBER 100,5,120-180   :REM RENUMBER LINES 120-180 TO 100,105,...
 
 \begin{center}
 {\setlength{\tabcolsep}{1mm}
-\begin{tabular}{|l|l|}
+\begin{tabular}{|r|l|}
 \hline
 {\bf Parameter}  & {\bf Description} \\
 \hline
-\screentext{0}  & Open   (\screentext{1}), Closed (\screentext{0}), or Invalid (>1)  \\
-\screentext{1}  & Width  (\screentext{0}=320, \screentext{1}=640)  \\
-\screentext{2}  & Height (\screentext{0}=200, \screentext{1}=400)  \\
-\screentext{3}  & Depth (1-8 Bitplanes)  \\
-\screentext{4}  & Bitplanes Used  (Bitmask)  \\
-\screentext{5}  & Bank 4 Blocks Used (Bitmask)  \\
-\screentext{6}  & Bank 5 Blocks Used (Bitmask)  \\
-\screentext{7}  & Drawscreen \# (0-3)  \\
-\screentext{8}  & Viewscreen \# (0-3)  \\
-\screentext{9}  & Drawmodes  (Bitmask)  \\
-\screentext{10} & pattern type  (bitmask)  \\
+0  & Open   (1), Closed (0), or Invalid (>1)  \\
+1  & Width  (0=320, 1=640)  \\
+2  & Height (0=200, 1=400)  \\
+3  & Depth (1-8 Bitplanes)  \\
+4  & Bitplanes Used  (Bitmask)  \\
+5  & Bank 4 Blocks Used (Bitmask)  \\
+6  & Bank 5 Blocks Used (Bitmask)  \\
+7  & Drawscreen \# (0-3)  \\
+8  & Viewscreen \# (0-3)  \\
+9  & Drawmodes  (Bitmask)  \\
+10 & pattern type  (bitmask)  \\
 \hline
 \end{tabular}
 }
@@ -7578,10 +7576,10 @@ PRINT RIGHT$("MEGA-65",2)
 \hline
 {\bf Value}  & {\bf Status} \\
 \hline
-\screentext{0}   & No Button \\
-\screentext{1}   & Right Button \\
-\screentext{128} & Left Button \\
-\screentext{129} & Both Buttons \\
+0   & No Button \\
+1   & Right Button \\
+128 & Left Button \\
+129 & Both Buttons \\
 \hline
 \end{tabular}
 }
@@ -9451,8 +9449,12 @@ READY.
                 or in C style using a <width.precision> specifier, such as \screentext{\%3D \%7.2F \%4X }.
 
                 {\bf argument} the number to be formatted. If the argument does not fit into the format
-                e.g. trying to print a 4 digit variable into \screentext{\#\#\#}
-                a series of asterisks will replace the format character.
+                e.g. trying to print a 4 digit variable into a series of three
+                hashes (\screentext{\#\#\#}), asterisks will be used instead.
+
+\item [Remarks:] The format string is only applied for one argument,
+                 but it is possible to append more than one
+                 {\bf USING format;argument} sequences.
 
                 {\bf argument} may consist of printable
                 characters and control codes. Printable characters
@@ -9463,10 +9465,6 @@ READY.
                 is an equals '=' sign, the argument string is centered.
                 If the first character of the format string
                 is a greater than '>' sign, the argument string is right justified.
-
-\item [Remarks:] The format string is only applied for one argument,
-                 but it is possible to append more than one
-                 {\bf USING format;argument} sequences.
 
 
 \newpage
@@ -9515,7 +9513,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
                the contents of the floating point accumulator 1.
 
 \item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
-                 Banks greater than 127 are used to access I/O, and the underlying SYSTEM hardware such as the
+                 Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
 
                  If you would like to learn more, there is a lot more
@@ -9836,7 +9834,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 
 \begin{center}
 \setlength{\tabcolsep}{1mm}
-    \begin{tabular}{|l|l|l|}
+    \begin{tabular}{|c|c|}
     \hline
     {\bf Expression} & {\bf Result}  \\
     \hline

@@ -7,7 +7,7 @@ to rely on the [BBC News Style Guide](https://www.bbc.co.uk/newsstyleguide/)
 as much as possible for the basics. For computer specific terminology and spelling, the
 [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/welcome/) was used. And finally,
 the [Commodore 64 User Manual](http://www.zimmers.net/anonftp/pub/cbm/c64/manuals/C64_User_Manual_1984_2nd_Edition.pdf) 
-and was used, as we're trying to replicate the look and feel of it.
+was used, as we're trying to replicate the look and feel of it.
 
 The intended audience for people reading (and contributing to) MEGA65 literature are people who are comfortable using 
 a computer, and have good English skills.
@@ -26,6 +26,10 @@ Below are some simple MEGA65 styling rules:
   [British English spelling](https://www.bbc.co.uk/newsstyleguide/grammar-spelling-punctuation#spelling) is used.
     * Organise, not organize.
     * Colours, not colors.
+
+* **Clean as you go!** If you're changing certain properties/using commands of LaTeX to have your tables/images/text 
+  appear in a particular way, remember to reset anything you have changed back to the default. These especially include
+  `setlength`.  
 
 * If you're stuck on when to use commas and hyphens refer to the 
   [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/commas).
@@ -65,7 +69,8 @@ Below are some simple MEGA65 styling rules:
     use `\specialkey`, for the MEGA key use `\megasymbolkey`. `RESTORE` needs to be `\widekey{RESTORE}`.
 
 * When pointing out on-screen text, the `screentext` tag should be used. Example: `\screentext{HELLO WORLD}`. 
-  Note that upper case letters were used, as that's what the MEGA65 uses by default.
+  Note that upper case letters were used, as that's what the MEGA65 uses by default. If the font on the screenshot
+  is using the traditional C64 style font, use `screentextwide` instead.
 
 * When quoting keywords, tokens, or any other values whilst documenting BASIC, use plain double quotes ("). However, 
   when quoting elsewhere (for example, "homebrew") please use ``homebrew'' syntax instead.
@@ -73,7 +78,23 @@ Below are some simple MEGA65 styling rules:
 * If you're documenting BASIC, ensure that every mention of a BASIC command is in bold and uppercase. For example,
   __DATA__, __DIR__, __PRINT__. Same goes for file types __PRG__,__USR__,__REL__,__SEQ__,__DEL__.
 
-* When using tables, please center them on the page by using `\begin{center}` and `\end{center}`.
+* When using tables, please center them on the page by using `\begin{center}` and `\end{center}`. Ensure column 
+  headings **are in bold**. Separate everything with **a single horizontal line only**. This keeps them in-line with 
+  the 
+  C64 User Manual. An example of a table is:
+```text
+\begin{center}
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+            {\textbf{Boot Mode}} & {\textbf{ROM version}} & {\textbf{BASIC}} & {\textbf{C64-mode}} \\
+        \hline
+            MEGA65    & \screentext{92XXXX}      & BASIC 65 & {\bf GO 64} \\
+            C65       & \screentext{91XXXX}      & BASIC 10 & {\bf GO 64} \\
+        \hline
+    \end{tabular}
+\end{center}
+
+```
 
 
 ## A-Z of commonly used words and phrases
@@ -88,6 +109,11 @@ Some commonly used words, and their preferences (in alphabetical order):
 * Command, see Keyword.
 
 * Disk, not disc. See [here](https://en.wikipedia.org/wiki/Spelling_of_disc#UK_vs._US) for more information.
+
+* Input/Output. Please use slashes here, same goes for the initials. i.e: I/O, not IO.
+
+* Kernal, not kernel. Yes, we know it's not the correct spelling for the context it's used in. However this is how 
+  Commodore spelt it, and we're sticking with it!
 
 * Keyword. When documenting BASIC, there's no need to add the word `keyword` before a BASIC keyword, as they
   should already be in bold (`{\bf LOAD`), so the fact that it's a keyword is already implied.
@@ -104,6 +130,9 @@ Some commonly used words, and their preferences (in alphabetical order):
 
 * SD card/microSD and not sd-card.
 
+* Trademarks and Registered notation. Refrain from using `(tm)`, `(R)`, etc. There are special sequences you can use for
+  ™ and ®, namely `\texttrademark` and `\textregistered`.
+
 * 8-bit, not 8 bit. When referring to multiple bits, no hyphen is necessary. Example:
   * The C64 is an 8-bit computer with a 16-bit address space.
   * A byte consists of 8 bits.
@@ -111,6 +140,9 @@ Some commonly used words, and their preferences (in alphabetical order):
   * More information on the use on hyphens in general is available in the 
     [Microsoft style guide](https://docs.microsoft.com/en-us/style-guide/punctuation/dashes-hyphens/hyphens)
 
+* More bits and bytes. When referring to kilobytes, megabytes, gigabytes, etc. please use KB, MB, GB. Not KiB, MiB, 
+  GiB. When using the term after a number, don't leave a space.
+  * `64KB`. Not `64kb`, `64Kb`, or `64 KB`, etc.  
 
 ## Screenshots
 When adding screenshots of the MEGA65 display, please crop title bars and shadows (when emulated).

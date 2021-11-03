@@ -4,6 +4,7 @@ BOOKS=	mega65-book.pdf \
 	mega65-userguide.pdf \
 	mega65-developer-guide.pdf \
 	mega65-chipset-reference.pdf \
+	mega65-assembly-reference.pdf \
 	mega65-basic65-reference.pdf \
 	mega65-basic-programming.pdf \
 
@@ -14,8 +15,25 @@ GENERATED_TEX_FILES= 	document-memory \
 		 	api-conio.tex \
 			appendix-basic65-indexed.tex \
 			appendix-basic65-condensed.tex \
+			4510-cycles.tex \
+			4510-modes.tex \
+			4510-opcodes.tex \
+			45GS02-cycles.tex \
+			45GS02-modes.tex \
+			45GS02-opcodes.tex \
+			6502-cycles.tex \
+			6502-modes.tex \
+			6502-opcodes.tex \
+			examples/ledcycle.tex \
+			examples/ledcycle.txt \
 			#images/illustrations/screen-40x25-addresses16-80.pdf
 
+COMPILED_BINARIES= 	document-memory \
+			generate_condensed \
+			index_basic_programmes \
+			instruction_set \
+			libc-doc \
+			prg2tex
 
 .PHONY: $(BOOKS) all clean
 
@@ -68,6 +86,11 @@ mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
+
+mega65-assembly-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+	./getgitinfo
+	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-assembly-reference.tex
 
 mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
@@ -127,6 +150,11 @@ appendix-basic65-condensed.tex: appendix-basic65-indexed.tex generate_condensed
 
 clean:
 	latexmk -CA
+
+realclean: clean
+	rm -f gitinfo.tex
+	rm -f $(GENERATED_TEX_FILES)
+	rm -f $(COMPILED_BINARIES)
 
 format:
 	find . -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' | xargs clang-format --style=file -i

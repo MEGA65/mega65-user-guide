@@ -13,7 +13,7 @@ for the backwards-compatible operation of the 45GS02.
 
 This chapter will
 focus on the differences between the 45GS02 and the earlier 6502-class
-processors, and the documentation of the many built-in memory-mapped IO
+processors, and the documentation of the many built-in memory-mapped I/O
 registers of the 45GS02.
 
 \section{Differences to the 6502}
@@ -36,14 +36,14 @@ The key differences between normal and supervisor mode on the MEGA65, are that i
 supervisor mode:
 
 \begin{itemize}
-\item A special 16KiB memory area is mapped to \$8000 - \$BFFF, which is
+\item A special 16KB memory area is mapped to \$8000 - \$BFFF, which is
  used to contain both
  the program and data of the Hypervisor / supervisor program.
  This is normally the Hyppo program.
   This memory is not mappable by any means when the processor is in the
  normal mode (the chip-select
   line to it is inhibited), protecting it from accidental or malicious access.
-\item The 64 SYSCALL trap registers in the MEGA65 IO-mode at
+\item The 64 SYSCALL trap registers in the MEGA65 I/O-mode at
 \$D640 - \$D67F are replaced by the
   virtualisation control registers.  These registers allow complete
 control over the system, and
@@ -117,11 +117,11 @@ for all other uses of these instructions.
 
 The 45GS02 is able to run at ~1MHz, ~2MHz, ~3.5MHz and 40MHz,
 to support running software
-designed for the C64, C128 in C64 mode, C65 and MEGA65.
+designed for the C64, C128 in C64-mode, C65 and MEGA65.
 
 \subsubsection{Slow (1MHz -- 3.5MHz) Operation}
 In these modes, the 45GS02 processor slows down, so that the same number of instructions
-per video frame are executed as on a PAL or NTSC C64, C128 in C64 mode or C65 prototype.
+per video frame are executed as on a PAL or NTSC C64, C128 in C64-mode or C65 prototype.
 This is to allow existing software to run on the MEGA65 at the correct speed, and with
 minimal display problems.  The VIC-IV video controller provides cycle indication pulses
 to the 45GS02 that are used to keep time.
@@ -132,7 +132,7 @@ instruction are not guaranteed to occur in the same cycle as on a 1MHz 6502.  No
 the effect is that instructions complete faster, and the processor idles until the
 correct number of cycles have passed. This means that timing may be incorrect by up to
 7 micro-seconds.  This is not normally a problem, and even many C64 fast loaders will
-function correctly. For example, the GEOS\texttrademark \ Graphical Operating System for the C64
+function correctly. For example, the GEOS\texttrademark{} Graphical Operating System for the C64
 can be booted and used from a 1541 connected to the MEGA65's serial port.
 
 However, some advanced VIC-II graphics tricks, such as Variable Screen
@@ -158,7 +158,7 @@ than on even a C65 or C64 with an accelerator.
 
 \subsubsection{CPU Speed Fine-Tuning}
 It is also possible to more smoothly
-vary the CPU speed using the {\bf SPEEDBIAS} register located at \$D7FA (55290), when MEGA65 IO mode
+vary the CPU speed using the {\bf SPEEDBIAS} register located at \$D7FA (55290), when MEGA65 I/O mode
 is enabled.  The default value is \$80 (128), which means no bias on the CPU speed.  Higher values
 increase the CPU speed, with \$FF meaning $2\times$ the expected speed. Lower values slow
 the processor down, with \$00 bring the CPU to a complete stand-still.  Thus the speed can be
@@ -322,7 +322,7 @@ enhancements to this, refer to \bookvref{cha:dmagic}
 \subsection{Accessing memory beyond the 1MB point}
 \label{sec:extended-memory}
 
-The MEGA65 can support up to 256MiB of memory. This is more than the 1MiB address space of the CSG4510
+The MEGA65 can support up to 256MB of memory. This is more than the 1MB address space of the CSG4510
 on which it is based. There are several ways of performing this.
 
 \subsubsection{Using the MAP instruction to access >1MB}
@@ -605,7 +605,7 @@ available.
 \subsection{Reset}
 
 On power-up or reset, the MEGA65 starts up in hypervisor mode, and expects to find a program in the
-16KiB hypervisor memory, and begins executing instructions at address \$8100.  Normally a JMP instruction
+16KB hypervisor memory, and begins executing instructions at address \$8100.  Normally a JMP instruction
 will be located at this address, that will jump into a reset routine. That is, the 45GS02
 does not use the normal 6502 reset vector. It's function is emulated by the Hyppo hypervisor program,
 which fetches the address from the 6502 reset vector in the loaded client operating system when
@@ -622,12 +622,12 @@ Entering the Hypervisor occurs whenever any of the following events occurs:
 \begin{itemize}
 \item{\bf Power-on} When the MEGA65 is first powered on.
 \item{\bf Reset} If the reset line is lowered, or a watch-dog triggered reset occurs.
-\item{\bf SYSCALL register accessed} The registers \$D640 - \$D67F in the MEGA65 IO context trigger SYSCALLs when accessed.
+\item{\bf SYSCALL register accessed} The registers \$D640 - \$D67F in the MEGA65 I/O context trigger SYSCALLs when accessed.
   This is intended to be the mechanism by which a client operating system or process requests the attention of the hypervisor or operating system.
 \item{\bf Page Fault} On MEGA65s that feature virtual memory, a page fault will cause a trap to hypervisor mode.
 \item{\bf Certain keyboard events} Pressing \widekey{RESTORE} for >0.5 seconds, or the \specialkey{ALT} and
 \specialkey{TAB} key combination traps to the hypervisor.  Typically the first is used to launch the Freeze Menu an the second to toggle the display of debug interface.
-\item{\bf Accessing virtualised IO devices} For example, if the F011 (internal 3.5'' disk drive controller) has been virtualised, then attempting to read or write sectors using this device will cause traps to the hypervisor.
+\item{\bf Accessing virtualised I/O devices} For example, if the F011 (internal 3.5'' disk drive controller) has been virtualised, then attempting to read or write sectors using this device will cause traps to the hypervisor.
   \item{\bf Executing an instruction that would lock up the CPU} A number of undocumented opcodes on the 6502 will cause the CPU to lockup.  On the MEGA65, instead of locking up, the computer will trap to the hypervisor.  This could be used to implement alternative instruction behaviours, or simply to tell the user that something bad has happened.
   \item{\bf Certain special events} Some devices can generate hypervisor-level interrupts. These are implemented as traps to the hypervisor.
 \end{itemize}
@@ -650,7 +650,7 @@ typically hundreds to tens of thousands of cycles \cite{soares2010flexsc}.
 
 \subsection{Hypervisor Memory Layout}
 
-The hypervisor memory is 16KiB in size.  The first 512 bytes are
+The hypervisor memory is 16KB in size.  The first 512 bytes are
 reserved for SYSCALL and system trap entry
 points, with four bytes for each.  For example, the reset entry point is
 at \$8100 - \$8100 + 3 = \$8100 - \$8103.
@@ -821,7 +821,7 @@ The full list of SYSCALLs and traps is:
 \hline
 \end{longtable}
 
-The remainder of the 16KiB hypervisor memory is available for use by the programmer, but
+The remainder of the 16KB hypervisor memory is available for use by the programmer, but
 will typically use the last 512 bytes for the stack and zero-page, giving an overall memory map as follows:
 
 \begin{longtable}{|L{1.2cm}|L{1.1cm}|L{8cm}|}
@@ -875,7 +875,7 @@ hypervisor mode quite easily through the use of a linker definition file with th
 \end{verbatim}
 \end{tcolorbox}
 
-This file instructs KickC's assembler to create a 16KiB file with the 512 byte SYSCALL/trap entry point region at the start,
+This file instructs KickC's assembler to create a 16KB file with the 512 byte SYSCALL/trap entry point region at the start,
 followed by code and data areas, and then the stack and zero-page areas. It enforces the size and location of these fields, and
 will give an error during compilation if anything is too big to fit.
 

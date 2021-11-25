@@ -2164,6 +2164,47 @@ X=60:PRINT COS(X * ~ / 180)
 \end{tcolorbox}
 \end{description}
 
+% ***
+% CUT
+% ***
+
+\newpage
+\subsection{CUT}
+\index{BASIC 65 Commands!CUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$E4
+\item [Format:] {\bf CUT} x{\bf,} y{\bf,} width{\bf,} height
+\item [Usage:] {\bf CUT} copies the content of the specified rectangle
+               with upper left position {\bf x, y} and the {\bf width}
+               and {\bf height} to a buffer and fills the region
+               afterwards with the colour of the currently selected pen.
+
+               The cut out can be inserted at any position with the
+               command {\bf PASTE}.
+
+\item [Remarks:] The size of the rectangle is limited by the 1K size of
+                 the cut/copy/paste buffer. The memory requirement for
+                 a cut out region is width * height * number of bitplanes / 8.
+                 It must not equal or exceed 1024 byte.
+                 For a 4-bitplane screen for example, a 45 x 45 region
+                 needs 1012.5 byte.
+
+\item [Example:] Using {\bf CUT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 SCREEN 320,200,2
+20 BOX 60,60,300,180,1  :REM DRAW A WHITE BOX
+30 PEN 2                :REM SELECT RED PEN
+40 CUT  140,80,40,40    :REM CUT OUT A 40 * 40 REGION
+50 PASTE 10,10,40,40    :REM PASTE IT TO NEW POSITION
+60 GETKEY A$                  :REM WAIT FOR KEYPRESS
+70 SCREEN CLOSE
+\end{verbatim}
+\end{tcolorbox}
+\item \begin{center}\includegraphics[width=0.7\linewidth]{images/cut.png}\end{center}
+\end{description}
+
 % ****
 % DATA
 % ****

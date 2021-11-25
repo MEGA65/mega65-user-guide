@@ -9626,26 +9626,30 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$31
 \item [Format:] {\bf VIEWPORT CLR} \\
-		{\bf VIEWPORT DEF} x{\bf,} y{\bf,} dx{\bf,} dy
+		{\bf VIEWPORT DEF} x{\bf,} y{\bf,} width{\bf,} height
 \item [Usage:] {\bf VIEWPORT DEF} defines a clipping region with the origin
-               (upper left position) set to {\bf x, y} and the width {\bf dx}
-               and the height {\bf dy}.
+               (upper left position) set to {\bf x, y} and the {\bf width}
+               and {\bf height}.
                All following graphics commands are limited to the {\bf VIEWPORT}
                region.
 
-\item [Remarks:] {\bf VIEWPORT} must be followed by either {\bf CLR}, or
-                 {\bf DEF} with four integer parameters.
-                 {\bf VIEWPORT CLR} resets the clipping region to the entire screen.
+               {\bf VIEWPORT CLR} fills the clipping region
+               with the color of the drawing pen.
 
-\item [Info:] {\bf VIEWPORT} wasn't completed in BASIC 10, and
-              a working implementation will be available in a future BASIC 65 update.
+\item [Remarks:] The clipping region can be reset to full screen by the command\\
+                 \screentext{VIEWPORT DEF 0,0,WIDTH,HEIGHT}
+                using the same values for WIDHTH and HEIGHT as in the SCREEN command.
 
 \item [Example:] Using {\bf VIEWPORT}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-  VIEWPORT DEF 20,20,100,100 :REM REGION 20->119, 20->119
-  VIEWPORT CLR               :REM FULL SCREEN
+10 SCREEN 320,200,2
+20 VIEWPORT DEF 20,30,100,120 :REM REGION 20->119, 30->149
+30 PEN 1                      :REM SELECT COLOUR 1
+40 VIEWPORT CLR               :REM FILL REGION WITH COLOUR OF PEN
+50 GETKEY A$                  :REM WAIT FOR KEYPRESS
+60 SCREEN CLOSE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

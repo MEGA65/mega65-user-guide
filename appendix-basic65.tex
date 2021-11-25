@@ -2174,7 +2174,8 @@ X=60:PRINT COS(X * ~ / 180)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E4
 \item [Format:] {\bf CUT} x{\bf,} y{\bf,} width{\bf,} height
-\item [Usage:] {\bf CUT} copies the content of the specified rectangle
+\item [Usage:] {\bf CUT} is used on graphic screens and copies the content
+               of the specified rectangle
                with upper left position {\bf x, y} and the {\bf width}
                and {\bf height} to a buffer and fills the region
                afterwards with the colour of the currently selected pen.
@@ -2198,7 +2199,7 @@ X=60:PRINT COS(X * ~ / 180)
 30 PEN 2                :REM SELECT RED PEN
 40 CUT  140,80,40,40    :REM CUT OUT A 40 * 40 REGION
 50 PASTE 10,10,40,40    :REM PASTE IT TO NEW POSITION
-60 GETKEY A$                  :REM WAIT FOR KEYPRESS
+60 GETKEY A$            :REM WAIT FOR KEYPRESS
 70 SCREEN CLOSE
 \end{verbatim}
 \end{tcolorbox}
@@ -6302,6 +6303,44 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 150 SCREEN CLOSE 1          :REM END GRAPHICS
 \end{verbatim}
 \end{tcolorbox}
+\end{description}
+
+% *****
+% PASTE
+% *****
+
+\newpage
+\subsection{PASTE}
+\index{BASIC 65 Commands!PASTE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$E3
+\item [Format:] {\bf PASTE} x{\bf,} y{\bf,} width{\bf,} height
+\item [Usage:] {\bf PASTE} is used on graphic screens and pastes the content
+               of the cut/copy/paste buffer into the screen.
+               The arguments upper left position {\bf x, y} and the {\bf width}
+               and {\bf height} specify the paste position on the screen.
+
+\item [Remarks:] The size of the rectangle is limited by the 1K size of
+                 the cut/copy/paste buffer. The memory requirement for
+                 region is width * height * number of bitplanes / 8.
+                 It must not equal or exceed 1024 byte.
+                 For a 4-bitplane screen for example, a 45 x 45 region
+                 needs 1012.5 byte.
+
+\item [Example:] Using {\bf PASTE}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 SCREEN 320,200,2
+20 BOX 60,60,300,180,1  :REM DRAW A WHITE BOX
+30 PEN 2                :REM SELECT RED PEN
+40 CUT  140,80,40,40    :REM CUT OUT A 40 * 40 REGION
+50 PASTE 10,10,40,40    :REM PASTE IT TO NEW POSITION
+60 GETKEY A$            :REM WAIT FOR KEYPRESS
+70 SCREEN CLOSE
+\end{verbatim}
+\end{tcolorbox}
+\item \begin{center}\includegraphics[width=0.7\linewidth]{images/cut.png}\end{center}
 \end{description}
 
 % ****

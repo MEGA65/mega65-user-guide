@@ -4196,6 +4196,45 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
 \end{tcolorbox}
 \end{description}
 
+% *****
+% GCOPY
+% *****
+
+\newpage
+\subsection{GCOPY}
+\index{BASIC 65 Commands!GCOPY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$32
+\item [Format:] {\bf GCOPY} x{\bf,} y{\bf,} width{\bf,} height
+\item [Usage:] {\bf GCOPY} is used on graphic screens and copies the content
+               of the specified rectangle
+               with upper left position {\bf x, y} and the {\bf width}
+               and {\bf height} to the cut/copy/paste buffer.
+
+               The copied region can be inserted at any position with the
+               command {\bf PASTE}.
+
+\item [Remarks:] The size of the rectangle is limited by the 1K size of
+                 the cut/copy/paste buffer. The memory requirement for
+                 a region is width * height * number of bitplanes / 8.
+                 It must not equal or exceed 1024 byte.
+                 For a 4-bitplane screen for example, a 45 x 45 region
+                 needs 1012.5 byte.
+
+\item [Example:] Using {\bf GCOPY} (see also {\bf CUT}).
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 SCREEN 320,200,2
+20 BOX 60,60,300,180,1  :REM DRAW A WHITE BOX
+30 GCOPY 140,80,40,40   :REM COPY A 40 * 40 REGION
+40 PASTE 10,10,40,40    :REM PASTE IT TO NEW POSITION
+50 GETKEY A$            :REM WAIT FOR KEYPRESS
+60 SCREEN CLOSE
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % GET
 % ***

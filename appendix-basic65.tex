@@ -7425,6 +7425,15 @@ RECORD # 4 RECORD # 2
                {\bf range } line range to renumber.
                The default values are from first to last line.
 
+               {\bf RENUMBER} executes in either space conserving mode
+               or optimisation mode. The optimisation mode removes space
+               characters before linenumbers, such reducing code size
+               and decreasing execution time, while the space conserving
+               mode does what it says. Optimisation mode is triggered
+               by typing the first argument, the new starting number,
+               adjacent to the keyword {\bf RENUMBER} with no space
+               between.
+
                {\bf RENUMBER} changes all line numbers in
                the chosen range and also changes all references
                in statements that use {\bf GOSUB}, {\bf GOTO},
@@ -7446,10 +7455,19 @@ RECORD # 4 RECORD # 2
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-RENUMBER                 :REM NUMBERS WILL BE 10,20,30,...
-RENUMBER 100,5           :REM NUMBERS WILL BE 100,105,110,115,...
-RENUMBER 601,1,500       :REM RENUMBER STARTING AT 500 TO 601,602,...
-RENUMBER 100,5,120-180   :REM RENUMBER LINES 120-180 TO 100,105,...
+RENUMBER                 :REM SPACE CONSERVING, NUMBERS WILL BE 10,20,30,...
+RENUMBER 100,5           :REM SPACE CONSERVING, NUMBERS WILL BE 100,105,110,115,...
+RENUMBER601,1,500        :REM OPTIMISATION, RENUMBER STARTING AT 500 TO 601,602,...
+RENUMBER 100,5,120-180   :REM SPACE CONSERVING RENUMBER LINES 120-180 TO 100,105,...
+
+10 GOTO  20
+20 GOTO 10
+RENUMBER 100,10          :REM SPACE CONSERVING
+100 GOTO  110
+110 GOTO 100
+RENUMBER100,10           :REM OPTIMISATION
+100 GOTO110
+110 GOTO100
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

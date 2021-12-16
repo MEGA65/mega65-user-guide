@@ -4725,6 +4725,54 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \end{tcolorbox}
 \end{description}
 
+% ******
+% IMPORT
+% ******
+
+\newpage
+\subsection{IMPORT}
+\index{BASIC 65 Commands!IMPORT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$DD
+\item [Format:] {\bf IMPORT} filename [{\bf,D} drive] [{\bf,U} unit]
+\item [Usage:]
+   The {\bf IMPORT} command loads a BASIC program in text format and type
+   {\bf SEQ} into memory reserved for BASIC programs.
+
+   \filenamedefinition
+
+   \drivedefinition
+
+   \unitdefinition
+
+\item [Remarks:]
+   The program is loaded into BASIC memory and converted from text to the
+   tokenised form of {\bf PRG} files. This enables loading of BASIC programs
+   that were saved as plain text files as program listing.
+   After loading, the program is re-linked
+   and ready to be {\bf RUN} or edited.
+   It is possible to use {\bf IMPORT} for merging a program text file
+   from disk to a program already in memory.
+   Each line read from the file is processed in the same way,
+   as if typed from the user with the screen editor.
+
+   There is no {\bf EXPORT} counterpart, because this function is
+   already available. The sequence
+   \screentext{DOPEN\#1,"LISTING",W:CMD 1:LIST:DCLOSE\#1}
+   converts the program in memory to text and writes it to the
+   file, that is named in the {\bf DOPEN} statement.
+
+\item [Examples:] Using {\bf IMPORT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+  IMPORT "APOCALYPSE"
+  IMPORT "MEGA TOOLS",U9
+  IMPORT (FI$),U(UN%)
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % *****
 % INPUT
 % *****
@@ -5342,8 +5390,9 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
     \item Move the cursor to the desired line.
     \item type {\bf /} in the first column of the line, and press \specialkey{RETURN}.
     \end{enumerate}
-   After pressing \specialkey{RETURN}, the listed file on the line with the leading {\bf /} will be loaded.
-Characters before and after the file name double quotes (") will be ignored.
+   After pressing \specialkey{RETURN}, the listed file on the line
+    with the leading {\bf /} will be loaded.
+    Characters before and after the file name double quotes (") will be ignored.
    This applies to {\bf PRG} files only.
 
    {\bf filename} is either a quoted string, e.g. \screentext{"PROG"}, or

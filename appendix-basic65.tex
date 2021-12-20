@@ -5660,6 +5660,63 @@ only exits the current loop.
 \end{tcolorbox}
 \end{description}
 
+% ***
+% MEM
+% ***
+
+\newpage
+\subsection{MEM}
+\index{BASIC 65 Functions!MEM}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$23
+\item [Format:] {\bf MEM mask4,mask5}
+\item [Usage:]  {\bf mask4} and {\bf mask5} are byte values, that
+                are interpreted as mask of 8 bits. Each bit set to 1
+                reserves an 8K segment of memory in bank 4 for the first
+                argument and in bank 5 for the second argument..
+
+\texttt{
+\setlength{\tabcolsep}{1mm}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+bit & memory segment \\
+\hline
+0 & \$0000 - \$1FFF \\
+1 & \$2000 - \$3FFF \\
+2 & \$4000 - \$5FFF \\
+3 & \$6000 - \$7FFF \\
+4 & \$8000 - \$9FFF \\
+5 & \$A000 - \$BFFF \\
+6 & \$C000 - \$DFFF \\
+7 & \$E000 - \$FFFF \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\item [Remarks:] After reserving memory with {\bf MEM} the graphics
+                 library will not use the reserved areas, so it can
+                 be used for other purposes. Access to bank 4 and 5
+                 is possible with commands {\bf PEEK, PEEKW, POKE, POKEW}
+                 and {\bf EDMA}.
+
+                 If a graphics screen cannot be opened, because the
+                 remaining memory is not sufficient, the program
+                 stops with a \screentext{?OUT OF MEMORY ERROR}.
+
+\item [Example:] Using {\bf MEM}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 MEM 1,3        :REM RESERVE $40000 - $41FFF AND $50000 - $53FFF
+ 20 SCREEN 320,200 :REM SCREEN WILL NOT USE RESERVED SEGMENTS
+ 40 EDMA 3,$2000,0,$4000:REM FILL SEGMENT WITH ZEROES
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % *****
 % MERGE
 % *****

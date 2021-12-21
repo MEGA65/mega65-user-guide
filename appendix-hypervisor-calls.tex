@@ -1,3 +1,585 @@
+\newenvironment{hyppotrap}[3]
+{
+  \newcommand{\availablefrom}[1]{Available starting with Hypervisor ##1}
+  \newcommand{\errordesc}[3]{\textbf{\$##1 ##2} ##3\par}
+  \newcommand{\notimplemented}{\item[Remarks:]\textbf{NOT IMPLEMENTED}\par}
+  \newcommand{\register}[2]{\textbf{##1} ##2\par}
+  \newcommand{\TODO}{\textbf{\color{red}TODO}}
+  \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
+  \subsection{hdos\_#1}
+  \index{Hypervisor Services!\$#2 \$#3}
+  \begin{description}[leftmargin=2.7cm,style=nextline]
+  \item [Trap:] LDA \#\$#3 : STA \$#2 : CLV
+}
+{
+  \end{description}
+}
+
+\chapter{MEGA65 Hypervisor Services}
+\index{Hypervisor Services}
+
+\section{Introduction}
+The MEGA65's Hypervisor provides services you can use in your programs. This
+chapter describes these services.
+
+This chapter describes Hypervisor verson 1.2.
+
+New Hypervisor services may become available and existing Hypervisor services
+may change or be deprecated. A robust program will use the hdos\_getversion
+service to check whether the program is compatible with the Hypervisor in the
+MEGA65 system it's running on.
+
+% Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
+
+\subsection{Using}
+When you want to use a hypervisor service, you don't use JSR. This is because
+the Hypervisor exists in a space that's seperate from regular code. In order to
+access it, the CPU needs to switch into the Hypervisor.
+
+At addresses \$D640 -- \$D67F are set of hypervisor traps. Writing to these
+addresses are not like writing to other addresses. Instead of writing to memory
+or I/O, the CPU switches into the Hypervisor and starts a hypervisor service.
+How the CPU does this is described in \bookvref{cha:cpu}.
+
+Which hypervisor services starts depends on what value from the A register you
+write and which trap you write to. Each of the services described in this
+chapter tells you what value to write and which trap to use. You have to use the
+A register when triggering a trap. Writing the same value from another register
+won't work.
+
+When the hypervisor service finishes, the CPU will switch back to your program.
+Except for the registers a service uses to return values, the registers are
+otherwise preserved.
+
+\textbf{Important} The CPU may or may not execute the next byte in your program
+after the hypervisor service finishes. Put a CLV instruction after the STA.
+It shouldn't change the behaviour of your program if the CPU does or not does
+not actually execute the CLV instruction. If your program does rely on the V
+flag, you can use the NOP instruction instead. When you use NOP you must be
+mindful that the CPU might interpet the NOP as an prefix for the following
+instruction. For this reason, you should prefer using CLV over NOP.
+
+\subsection{Errors}
+
+If the service was successful, it will set the C flag.
+
+If the service was unsuccessful, it will clear the C flag and put an error code
+in the A register. Each of the services described in this chapter lists which
+error codes a services returns and why. There is also a table of error codes in
+the description for hdos\_geterrorcode.
+
+\subsection{Drives}
+
+% Jimbo - These should be named as what they are, partitions.
+%         This would resolve potential confusion when we do start referring
+%         to the virtual F011's drive 0 and 1 around mounting disk images.
+
+In the Hypervisor, drives are the partitions of the internal and external SD
+cards. They are not the drive 0 and drive 1 of the F011 floppy controller. They
+are also not the drive 0 and drive 1 of dual-drive disk units that attach to the
+serial bus.
+
+
+
+% ==============================================================================
+% General Services
+% ==============================================================================
+\newpage
+\section{General Services}
+
+% ******************************************************************************
+% geterrorcode
+% ******************************************************************************
+\begin{hyppotrap}{geterrorcode}{D640}{38}
+\item [Service:]
+  Returns the current error code from the Hypervisor.
+\item [Precondition:]
+  The previous service trapped cleared the C flag.
+\item [Outputs:]
+  \register{A}{The error code of the previously failed service.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The error code is only valid if the previous service cleared the C flag.
+  If the C flag was set there was no error and this error code is undefined.
+
+  The meanings here are generic. See the subsections for the individual services
+  for more specific meanings.
+\item [Error codes:] This is possibly not an exhaustive list.
+{
+  \setlength{\def\arraystretch{1.5}\tabcolsep}{3pt}
+  \begin{longtable}{|r|r|l|p{8cm}|}
+    \hline
+    \textbf{Hex} & \textbf{Dec} & \textbf{Name} & \textbf{Common meaning}\\
+    \hline
+    \endhead
+    1 & 1 & \makecell[tl]{partition not \\ interesting} &
+    An attempt to mount a partition was rejected because the partition was not
+    of a supported type
+    \\\hline
+    2 & 2 & bad signature &
+    The signature bytes at the end of a partition table or of the first sector
+    of a partition were missing or incorrect
+    \\\hline
+    3 & 3 & is small FAT &
+    An attempt was made to mount a FAT12 or FAT16 partition. Only FAT32
+    partitions are supported
+    \\\hline
+    4 & 4 & \makecell[tl]{too many reserved\\clusters} &
+    An attempt was made to mount a partition that has too many reserved sectors.
+    The number of reserved sectors must be less than 65,536
+    \\\hline
+    5 & 5 & not two FATs &
+    An attempt was made to mount a partition that does not have exactly two
+    copies of the FAT structure
+    \\\hline
+    6 & 6 & too few clusters &
+    An attempt was made to mount a partition that contains a partition with too
+    few clusters
+    \\\hline
+    7 & 7 & read timeout &
+    The read took long for the read rquest to be fulfilled
+    \\\hline
+    8 & 8 & partition error &
+    An unspecified error occurred while handling a partition
+    \\\hline
+    10 & 16 & invalid address &
+    An invalid address was supplied in an argument
+    \\\hline
+    11 & 17 & illegal value &
+    An illegal value was supplied in an argument
+    \\\hline
+    20 & 32 & read error &
+    An unspecified error occurred while reading
+    \\\hline
+    21 & 33 & write error &
+    An unspecified error occurred while writing
+    \\\hline
+    80 & 128 & no such drive &
+    An attempt was made to select or operate on a drive (SD card partition)
+    that does not exist
+    \\\hline
+    81 & 129 & name too long &
+    The supplied filename was too long
+    \\\hline
+    82 & 130 & not implemented &
+    The hypervisor service is not implemented
+    \\\hline
+    83 & 131 & file too long &
+    An attempt was made to load a file into memory that is longer than 16MB
+    \\\hline
+    84 & 132 & \makecell[tl]{too many\\open files} &
+    Too many files are open, and no free file descriptor could be obtained
+    \\\hline
+    85 & 133 & invalid cluster &
+    The supplied cluster number is invalid
+    \\\hline
+    86 & 134 & is a directory &
+    An attempt was made to operate on a directory, where a normal file was
+    expected
+    \\\hline
+    87 & 135 & not a directory &
+    An attempt was made to operate on a normal file, where a directory was
+    expected
+    \\\hline
+    88 & 136 & file not found &
+    The requested file could not be located in the current directory of the
+    current disk.
+    \\\hline
+    89 & 137 & \makecell[tl]{invalid file\\descriptor} &
+    An invalid file descriptor was supplied
+    \\\hline
+    8A & 138 & \makecell[tl]{image wrong\\length} &
+    A disk image file had the wrong length, and was rejected for this reason
+    \\\hline
+    8B & 139 & image fragmented &
+    A disk image could not be mounted because it is not stored contiguously
+    \\\hline
+    8C & 140 & no space &
+    The disk image or SD card has no free space for the requested operation
+    \\\hline
+    8D & 141 & file exists &
+    An attempt was made to create a file that already exists, or to rename a
+    file to have the name of a file that already exists
+    \\\hline
+    8E & 142 & directory full &
+    An attempt was made to create a file in a directory that cannot accommodate
+    any more entries
+    \\\hline
+    FF & 255 & eof &
+    The end of a file or directory was encountered
+    \\\hline
+  \end{longtable}
+}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getversion
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getversion}{D640}{00}
+\item [Service:]
+  Returns the version of the Hypervisor operating system and its HDOS.
+\item [Outputs:]
+  \register{A}{The major version number of the Hypervisor}
+  \register{X}{The major version number of the Hypervisor}
+  \register{Y}{The minor version number of HDOS}
+  \register{Z}{The major version number of HDOS}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The HDOS in the Hypervisor is not related to the CBDOS inside Kernal 65 or the
+  DOS in the disk drives attached to the serial port.
+\item [Example:]
+  Tests if the Hypervisor version is $\geq$ 1.2 and $<$ 2.0.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Get the version numbers
+    LDA #$00
+    STA $D640
+    CLV
+    ;; Test if the major version number of the Hypervisor is 1
+    CMP #1
+    BNE @incompatible
+    ;; Test if the minor version number of the Hypervisor is >= 2
+    TXA
+    CMP #2
+    BMI @incompatible
+    RTS
+@incompatible:
+    BRK
+\end{verbatim}
+\end{tcolorbox}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% setup_transfer_area
+%
+% Jimbo - What are the post-conditions for this? What services are affected by
+%         this?
+%       - Is this now redudant? So far everything I've used has the transfer
+%         area as a parameter.
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
+\item [Service:]
+  Sets up the area the hypervisor will use to transfer data to and from your
+  program.
+\item [Inputs:]
+  \register{Y}{The MSB of the transfer area's address}
+\item [Errors:]
+  \errordesc{10}{invalid address}{The transfer area address in Y is invalid.
+  It must be $\leq$ \$7E}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The transfer area must be between \$0000 and \$7E00. It must also begin on a
+  page boundary. The LSB of its address must be \$00.
+
+  The transfer area is 256 bytes long for most services.
+
+  The transfer area is indicated using the processor's current memory mapping at
+  the time that a service is called. However, it is good practice to always
+  place it in the bottom 32KB of bank 0.
+\item [Example:]
+  Reserves 256 bytes on a page boundary and sets it up as the transfer area.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    LDY #>transferarea
+    LDA #$3A
+    STA $D640
+    CLV
+    BCC @error
+    RTS
+@error:
+    BRK
+    !align 255, 0
+transferarea:
+    !skip 256
+\end{verbatim}
+\end{tcolorbox}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Disk/storage services
+% ==============================================================================
+\newpage
+\section{Drive/Storage Services}
+
+
+% ******************************************************************************
+% chdir
+% ******************************************************************************
+\begin{hyppotrap}{chdir}{D640}{0C}
+\item [Service:]
+  Changes the current working directory.
+\item [Preconditions:]
+  The FAT dir entry for the directory you want to change to has been
+  found. hdos\_findfile is typically used to find a FAT dir entry.
+  hdos\_findfirst, hdos\_findnext and hdos\_readdir can also be used.
+\item [Errors:]
+  \errordesc{87}{not a directory}{The FAT dir entry last found isn't for a
+  directory. Bit 4 of the FAT dir entry's attribute byte is set for
+  directories.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can move up to the parent directory by finding the .. FAT dir entry.
+
+  You cannot move up or down more than one directory at a time.
+
+  Use hdos\_cdrootdir to direcly change back to the root directory.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getcurrentdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getcurrentdrive}{D640}{04}
+\item [Service:]
+  Returns the number of the currently selected drive (SD card partition).
+\item [Outputs:]
+  \register{A}{The current drive number}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  hdos\_selectdrive changes the current drive number. hdos\_cdrootdir
+  can also change it.
+\item [Example:]
+  Prints the number of the currently selected drive in the top-left of the
+  screen. This example assumes that aren't more than 10 drives (drives 0 to 9).
+  It also assumes the screen memory hasn't been moved from \$000800.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Get the current drive
+    LDA #$04
+    STA $D640
+    CLV
+    BCC @error
+    ;; Convert the drive number in A into a screen code
+    STA @temp
+    LDA #$30
+    ADC @temp
+    LDA @temp
+    ;; Put the screen code into the top-left of screen memmory
+    STA $0800
+    RTS
+@error:
+    BRK
+@temp:
+    !skip 1
+\end{verbatim}
+\end{tcolorbox}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getcwd
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getcwd}{D640}{0A}
+\item [Service:]
+  Return information on the currently selected directory or sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getdefaultdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getdefaultdrive}{D640}{02}
+\item [Service:]
+  Returns the drive number (SD card partition) the Hypervisor selected while
+  booting.
+\item [Outputs:]
+  \register{A}{The default drive number}
+\item [History:]
+  \availablefrom{1.2}
+\item [Example:]
+  Selects the default drive.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Get the default drive
+    LDA #$02
+    STA $D640
+    CLV
+    BCC @error
+    ;; Transfer the drive number in A to X
+    TAX
+    ;; Select the default drive
+    LDA #$06
+    STA $D640
+    CLV
+    BCC @error
+    RTS
+@error:
+    BRK
+\end{verbatim}
+\end{tcolorbox}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getdrivesize
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getdrivesize}{D640}{08}
+\item [Service:]
+  Returns information on the size of the currently selected drive (SD card
+  partition).
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% mkdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{mkdir}{D640}{0E}
+\item [Service:]
+  Creates a sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% opendir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{opendir}{D640}{12}
+\item [Service:]
+  Opens the current working directory for reading the file entries in it.
+\item [Preconditions:]
+  The drive and directory you want to read have already been set up using
+  hdos\_selectdrive and hdos\_chdir if necessary.
+\item [Ouptuts:]
+  \register{A}{A file descriptor for reading the directory. You are responsible
+  for closing this file descriptor using hdos\_closedir.}
+\item [Postconditions:]
+  Using hdos\_readdir with this file descriptor returns reads the first FAT dir
+  entry in the directory.
+\item [Errors:]
+  \errordesc{7}{read timeout}{Reading the initial directory information took too
+  long}
+  \errordesc{8}{partition error}{An unspecified error occurred while handling
+  the currently selected partition}
+  \errordesc{10}{invalid address}{An invalid address was supplied in an argument} % Jimbo - How does this error occur? Is this part of the interface?
+  \errordesc{11}{illegal value}{An illegal value was supplied in an argument} % Jimbo - How does this error occur? Is this part of the interface?
+  \errordesc{20}{read error}{An unspecified error occurred while reading}
+  \errordesc{21}{write error}{An unspecified error occurred while writing} % Jimbo - How does this error occur? Is this part of the interface?
+  \errordesc{80}{no such drive}{An attempt was made to select or operate on a
+  drive (SD card partition) that does not exist} % Jimbo - How does this error occur? Is this part of the interface?
+  \errordesc{84}{too many open files}{All the file descriptors are in use.
+  hdos\_opendir and hdos\_openfile share the same very small pool of file
+  descriptors. Close some or all of the file descriptors using hdos\_closedir,
+  hdos\_closefile or hdos\_closeall.}
+\item [Example:]
+  Calls processdirentry for each FAT dir entry in the current working directory.
+  processdirentry is assumed to be defined elsewhere.
+
+  \TODO
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rmdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rmdir}{D640}{10}
+\item [Service:]
+  Removes a sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% selectdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{selectdrive}{D640}{06}
+\item [Service:]
+  Selects the currently selected drive (SD card partition).
+\item [Preconditions:]
+  The Hypervisor has assigned a drive number to the SD card partition.
+\item [Inputs:]
+  \register{X}{The drive number to become the new current drive}
+\item [Postconditions:]
+  getcurrentdrive returns the value that was in the X register.
+
+  The Hypervisor services operate on the newly selected drive.
+\item [Errors:]
+  \errordesc{80}{no such drive}{The drive in the X register does not exist.
+  The Hypervisor only assigns drive numbers to the SD card partitions it can
+  read.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Example:]
+  Tests if drive 2 exists by trying to select it. Returns with the C flag set if
+  drive 2 exists.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Preserve the current drive in Z so we can restore it later
+    LDA #$04
+    STA $D640
+    CLV
+    BCC @error
+    TAZ
+    ;; Try to select drive 2
+    LDX #2
+    LDA #$06
+    STA $D640
+    CLV
+    BCC @mightnotexist
+    ;; Transfer the previously selected drive number in Z to X
+    TZA
+    TAX
+    ;; Restore the previously selected drive
+    LDA #$06
+    STA $D640
+    CLV
+    BCC @error
+    ;; The C flag was already set by the Hypervisor service
+    RTS
+\end{verbatim}
+\end{tcolorbox}
+\ldots{} continues on the next page \ldots
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+@mightnotexist:
+    ;; If the error code in A is $80, the drive doesn't exist;
+    ;; otherwise some other kind of error occured
+    CMP #$80
+    BNE @error
+    ;; Clear the C flag because the drive doesn't exist
+    CLC
+    RTS
+@error:
+    BRK
+\end{verbatim}
+\end{tcolorbox}
+\end{hyppotrap}
+
+
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
+
+
 \chapter{MEGA65 Hypervisor Services (old)}
 
 The MEGA65's Hypervisor provides a number of services via Hypervisor Traps.

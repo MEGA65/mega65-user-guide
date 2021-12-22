@@ -159,7 +159,7 @@ serial bus.
     An attempt was made to select or operate on a drive (SD card partition)
     that does not exist
     \\\hline
-    81 & 129 & name too long &
+    81 & 129 & {name too long} &
     The supplied filename was too long
     \\\hline
     82 & 130 & not implemented &
@@ -184,7 +184,7 @@ serial bus.
     \\\hline
     88 & 136 & file not found &
     The requested file could not be located in the current directory of the
-    current disk.
+    current drive.
     \\\hline
     89 & 137 & \makecell[tl]{invalid file\\descriptor} &
     An invalid file descriptor was supplied
@@ -266,13 +266,12 @@ serial bus.
 \newpage
 \begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
 \item [Service:]
-  Sets up the area the hypervisor will use to transfer data to and from your
+  Sets up the area the Hypervisor will use to transfer data to and from your
   program.
 \item [Inputs:]
   \register{Y}{The MSB of the transfer area's address}
 \item [Errors:]
-  \errordesc{10}{invalid address}{The transfer area address in Y is invalid.
-  It must be $\leq$ \$7E}
+  \errordesc{10}{invalid address}{The transfer area address in Y $>$ \$7E}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
@@ -335,6 +334,217 @@ transferarea:
   You cannot move up or down more than one directory at a time.
 
   Use hdos\_cdrootdir to direcly change back to the root directory.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closeall
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closeall}{D640}{22}
+\item [Service:]
+  Closes all the file descriptors.
+\item [Postconditions:]
+  Using any file descriptor with hdos\_closedir or hdos\_closefile succeeds.
+
+  Using any file descriptor with hdos\_readdir or hdos\_readfile fails.
+
+  hdos\_opendir and hdos\_openfile reuse the file descriptor.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can also close individual file descriptors using hdos\_closedir or
+  hdos\_closefile.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closedir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closedir}{D640}{16}
+\item [Service:]
+  Closes a file descriptor for a directory.
+\item [Preconditions:]
+  The file descriptor given in the X register was opened using hdos\_opendir.
+\item [Inputs:]
+  \register{A}{A file descriptor for the directory}
+\item [Postconditions:]
+  Using the file descriptor again with hdos\_closedir succeeds.
+
+  Using the file descriptor again with hdos\_readdir fails.
+
+  hdos\_opendir and hdos\_openfile reuse the file descriptor.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can also close all the open file descriptors using hdos\_closeall.
+\item [Example:]
+  See the examples in hdos\_opendir and hdos\_readdir.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closefile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closefile}{D640}{20}
+\item [Service:]
+  Closes a file descriptor for a file.
+\item [Preconditions:]
+  The file descriptor given in the X register was opened using hdos\_openfile.
+\item [Inputs:]
+  \register{A}{A file descriptor for the file}
+\item [Postconditions:]
+  Using the file descriptor again with hdos\_closefile succeeds.
+
+  Using the file descriptor again with hdos\_readfile fails.
+
+  hdos\_opendir and hdos\_openfile reuse the file descriptor.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can also close all the open file descriptors using hdos\_closeall.
+\item [Example:]
+  See the example in hdos\_openfile.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% filedate
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{filedate}{D640}{2C}
+\item [Service:]
+  Sets time stamp of a file.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findfile
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findfile}{D640}{34}
+\item [Service:]
+  Finds the first file whose filename matches the current Hypervisor filename.
+\item [Preconditions:]
+  The current Hypervisor filename has been set using hdos\_setname.
+\item [Postconditions:]
+  No additional file descriptors are open.
+\item [Errors:]
+  \errordesc{88}{file not found}{A matching file was not found in the current
+  directory of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  % Jimbo - Why does the Hypervisor do this and create this restriction?
+  The Hypervisor will only find files whose long filename is all in uppercase.
+  The Hypervisor converts the current filename to ASCII uppercase before trying
+  to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
+
+  The Hypervisor does not yet support the wildcard characters * and ?. Support
+  for that is planned in a future version.
+
+  This only finds the first matching file. You can find multiple matches by
+  using hdos\_findfirst and hdos\_findnext.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findfirst
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findfirst}{D640}{30}
+\item [Service:]
+  Finds the first file whose filename matches the current Hypervisor filename.
+\item [Preconditions:]
+  The current Hypervisor filename has been set using hdos\_setname.
+\item [Outputs:]
+  \register{A}{A file descriptor for reading the current working directory. You
+  might be responsible for closing this file descriptor using hdos\_closedir.
+  See the remarks.}
+\item [Postconditions:]
+  hdos\_firstnext find the next matching file or fails with a file not found
+  error.
+\item [Side effects:]
+  Sets the current file descriptor.
+\item [Errors:]
+  \errordesc{88}{file not found}{A matching file was not found in the current
+  directory of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  If the Hypervisor finds an initial matching file, it will set the C flag and
+  return a file descriptor in the A register. This is a file descriptor for
+  reading the current working directory. You are reponsible for closing it using
+  hdos\_closedir. It's a standard directory file descriptor. You can use
+  hdos\_readdir to read the FAT dir entries after the file that was found.
+
+  If the Hypervisor doesn't find any mathcing files, it will fail with a file
+  not found error. In this case they Hypervisor will have already closed the
+  file descriptor and you don't close it.
+
+  % Jimbo - Why does the Hypervisor do this and create this restriction?
+  The Hypervisor will only find files whose long filename is all in uppercase.
+  The Hypervisor converts the current filename to ASCII uppercase before trying
+  to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
+
+  The Hypervisor does not yet support the wildcard characters * and ?. Support
+  for that is planned in a future version.
+
+  If you are only interested in the first match, you can use hdos\_findfile
+  instead. hdos\_findfile always closes the file descriptor for you. But you
+  can't use it to find multiple matching files.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findnext
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findnext}{D640}{32}
+\item [Service:]
+  Finds a subsequent file whose filename matches the current Hypervisor
+  filename.
+\item [Preconditions:]
+  The current Hypervisor filename has been set using hdos\_setname.
+
+  The first matching file has already been found successfully using
+  hdos\_findfirst.
+\item [Postconditions:]
+  Using hdos\_firstnext again finds the next matching file or fails with a file
+  not found error.
+\item [Errors:]
+  \errordesc{88}{file not found}{A subsequnt matching file was not found in the
+  current directory of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  If the Hypervisor doesn't find a subsequent mathcing file, it will fail with a
+  file not found error. The Hypervisor will also close the file descriptor it
+  output in hdos\_findfirst.
+
+  If you don't exhaust the search by using hdos\_findnext until it fails with a
+  file not found error, you are required to close the file descriptor yourself
+  using hdos\_closedir.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% fstat
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{fstat}{D640}{28}
+\item [Service:]
+  Returns information about a file.
+\notimplemented
 \end{hyppotrap}
 
 
@@ -442,12 +652,82 @@ transferarea:
 
 
 % ******************************************************************************
+% loadfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{loadfile}{D640}{36}
+\item [Service:]
+  Loads a file into chip memory.
+\item [Preconditions:]
+  The name of the file to load has been set using using hdos\_setname.
+\item [Inputs:]
+  \register{X}{The LSB of the address to start loading from}
+  \register{Y}{The middle byte of the address to start loading from}
+  \register{Z}{The MSB of the address to start loading from}
+\item [Postconditions:]
+  No additional file descriptors are open.
+\item [Errors:]
+  \errordesc{88}{file not found}{The file was not found in the current directory
+  of the current drive.}
+\item [Remarks:]
+  This service can load files up to 16MB in size into the first 16MB of chip
+  memory. Chip memory is the 384KB or more of memory inside the CPU module.
+
+  Loading will start at 28-bit address \$00ZZYYXX. If loading tries to go beyond
+  \$00FFFFFF, the loading will wrap around and continue at \$00000000.
+
+  You can use hdos\_loadfile\_attic to load a file into hyper memory. The hyper
+  memory is the 8MB or more of memory in the external RAM chips.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% loadfile_attic
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{loadfile\_attic}{D640}{36}
+\item [Service:]
+  Loads a file into hyper memory.
+\item [Preconditions:]
+  The name of the file to load has been set using using hdos\_setname.
+\item [Inputs:]
+  \register{X}{The LSB of the address to start loading from}
+  \register{Y}{The middle byte of the address to start loading from}
+  \register{Z}{The MSB of the address to start loading from}
+\item [Postconditions:]
+  No additional file descriptors are open.
+\item [Errors:]
+  \errordesc{88}{file not found}{The file was not found in the current directory
+  of the current drive.}
+\item [Remarks:]
+  This service can load files up to 16MB in size into the first 16MB of hyper
+  memory. Hyper memory is the 8MB or more of memory in the external RAM chips.
+
+  Loading will start at 28-bit address \$08ZZYYXX. If loading tries to go beyond
+  \$08FFFFFF, the loading will wrap around and continue at \$08000000.
+
+  You can use hdos\_loadfile to load a file into chip memory. The chip memory is
+  the 384KB or more of memory inside the CPU module.
+\end{hyppotrap}
+
+
+% ******************************************************************************
 % mkdir
 % ******************************************************************************
 \newpage
 \begin{hyppotrap}{mkdir}{D640}{0E}
 \item [Service:]
   Creates a sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% mkfile
+% ******************************************************************************
+\begin{hyppotrap}{mkfile}{D640}{1E}
+\item [Service:]
+  Creates a file.
 \notimplemented
 \end{hyppotrap}
 
@@ -466,23 +746,14 @@ transferarea:
   \register{A}{A file descriptor for reading the directory. You are responsible
   for closing this file descriptor using hdos\_closedir.}
 \item [Postconditions:]
-  Using hdos\_readdir with this file descriptor returns reads the first FAT dir
-  entry in the directory.
+  hdos\_readdir reads the first FAT dir entry in the directory.
 \item [Errors:]
-  \errordesc{7}{read timeout}{Reading the initial directory information took too
-  long}
-  \errordesc{8}{partition error}{An unspecified error occurred while handling
-  the currently selected partition}
-  \errordesc{10}{invalid address}{An invalid address was supplied in an argument} % Jimbo - How does this error occur? Is this part of the interface?
-  \errordesc{11}{illegal value}{An illegal value was supplied in an argument} % Jimbo - How does this error occur? Is this part of the interface?
-  \errordesc{20}{read error}{An unspecified error occurred while reading}
-  \errordesc{21}{write error}{An unspecified error occurred while writing} % Jimbo - How does this error occur? Is this part of the interface?
-  \errordesc{80}{no such drive}{An attempt was made to select or operate on a
-  drive (SD card partition) that does not exist} % Jimbo - How does this error occur? Is this part of the interface?
   \errordesc{84}{too many open files}{All the file descriptors are in use.
   hdos\_opendir and hdos\_openfile share the same very small pool of file
   descriptors. Close some or all of the file descriptors using hdos\_closedir,
   hdos\_closefile or hdos\_closeall.}
+  \errordesc{87}{not a directory}{The FAT dir entry last found is for a file.
+  Use hdos\_openfile for files.}
 \item [Example:]
   Calls processdirentry for each FAT dir entry in the current working directory.
   processdirentry is assumed to be defined elsewhere.
@@ -492,12 +763,290 @@ transferarea:
 
 
 % ******************************************************************************
-% rmdir
+% openfile
 % ******************************************************************************
 \newpage
+\begin{hyppotrap}{openfile}{D640}{18}
+\item [Service:]
+  Opens a file on a drive.
+\item [Preconditions:]
+  The file has already been found. Files can be found using hdos\_findfile,
+  hdos\_findfirst and hdos\_findnext. hdos\_readdir can alse be used to find a
+  file.
+\item [Ouptuts:]
+  \register{A}{A file descriptor for accessing the file. You are responsible
+  for closing this file descriptor using hdos\_closefile.}
+\item [Postconditions:]
+  Using hdos\_readfile with this file descriptor reads the first sector of the
+  file.
+\item [Side effects:]
+  Sets the current file to the newly opened file. hdos\_readfile reads from the
+  current file.
+\item [Errors:]
+  \errordesc{84}{too many open files}{All the file descriptors are in use.
+  hdos\_opendir and hdos\_openfile share the same very small pool of file
+  descriptors. Close some or all of the file descriptors using hdos\_closedir,
+  hdos\_closefile or hdos\_closeall.}
+  \errordesc{86}{is a directory}{The FAT dir entry last found is for a
+  directory. Use hdos\_opendir for directories.}
+\item [Remarks:]
+  You cannot use this to open a file inside a disk image. To do that you use
+  hdos\_d81attach0 or hdos\_d81attach1 to attach the disk image and then use
+  either use the Kernal to read the file or program the virtualised F011 floppy
+  controller.
+\item [Example:]
+  Finds, opens and then closes the file CONFIG.DAT.
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Set the filename to CONFIG.DAT
+    LDY #>filename
+    LDA #$2E
+    STA $D640
+    CLV
+    BCC @error
+\end{verbatim}
+\end{tcolorbox}
+
+\ldots{} continues on the next page \ldots
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Find the file
+    LDA #$34
+    STA $D640
+    CLV
+    BCC @error
+    ;; Open the file
+    LDA #$18
+    STA $D640
+    CLV
+    BCC @error
+    ;; Transfer the file descriptor in A to X
+    TAX
+    ;; Close the file
+    LDA #$20
+    STA $D640
+    CLV
+    BCC @error
+    RTS
+@error:
+    BRK
+    ;; The filename must start on a 256 byte page boundary.
+    !align 255, 0
+filename:
+    !text "CONFIG.DAT", 0
+\end{verbatim}
+\end{tcolorbox}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{readdir}{D640}{14}
+\item [Service:]
+  Reads the next FAT dir entry.
+\item [Preconditions:]
+  The file descriptor given in the X register was opened using hdos\_opendir
+  and hdos\_closedir hasn't since been used to close it.
+\item [Inputs:]
+  \register{X}{A file descriptor for the directory.}
+  \register{Y}{The MSB of the address the Hypervisor will copy the FAT dir entry
+  into. It must be $\leq$ \$7E. This destination address must be on a page
+  boundary. It's LSB must be \$00. The destination area must be at least 87
+  bytes.}
+\item [Outputs:]
+  Starting at \$YY00, the FAT dir entry has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|l|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description}
+  \\\hline
+  00 & asciiz & The long file name
+  \\
+  40 & byte & The lenngth of long file name
+  \\
+  41 & ascii & The "8.3" file name. The name part is padded with spaces to make
+               it exactly 8 bytes. The 3 bytes of the extension follow. There is
+               no . between the name and the extension. There is no NULL byte.
+  \\
+  4E & dword & The cluster number where the file begins. For sub-directories,
+               this is where the FAT dir entries start for that sub-directory.
+  \\
+  52 & dword & The length of file in bytes.
+  \\
+  56 & dword & The type and attribute bits.
+  \\\hline
+  \end{tabular}
+  }
+
+  This is what the bits in the last byte mean. Bits 6 and 7 are undefined.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|l|}
+  \hline
+  \textbf{Bit} & \textbf{Meaning if bit is set} \\
+  \hline
+  0 & Read only         \\
+  1 & Hidden            \\
+  2 & systems           \\
+  3 & Volume label      \\
+  4 & Sub-directory     \\
+  5 & Archive           \\
+  \hline
+  \end{tabular}
+  }
+\item [Postconditions:]
+  Using hdos\_readdir again reads the next FAT dir entry in the directory.
+\item [Errors:]
+  \errordesc{7}{read timeout}{Reading the initial directory information took too
+  long}
+  \errordesc{8}{partition error}{An unspecified error occurred while handling
+  the currently selected partition}
+  \errordesc{10}{invalid address}{The address in Y is invalid. It must be
+  $\leq$ \$7E}
+  \errordesc{20}{read error}{An unspecified error occurred while reading}
+  \errordesc{85}{invalid cluster}{An attempt was made to read past the end of
+  the directory}
+\item [Remarks:]
+  If the long file name in the FAT dir entry is too long to copy into the
+  destinary area, the Hypervisor skips the entry entrirely.
+
+  The file names in FAT are encoded as UTF-16. The Hypervisor only reads the LSB
+  of each 16-bit character. The Hypervisor does not convert file names into
+  PETSCII.
+
+  See hdos\_setup\_transfer\_area for more details about the value for the Y
+  register.
+\item [History:]
+  \availablefrom{1.2}
+\item [Example:]
+  Checks if the file DIR1 is a sub-directory. Returns with the C flag set if it
+  is.
+
+  \TODO
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{readfile}{D640}{1A}
+\item [Service:]
+  Reads the next sector of the current file into the sector buffer.
+\item [Preconditions:]
+  There is a current file open. Files can be opened with hdos\_openfile.
+\item [Outputs:]
+  \register{X}{The LSB of the number of bytes read}
+  \register{Y}{The MSB of the number of bytes read}
+\item [Postconditions:]
+  The next call to hdos\_readfile will read the next sector of the current file
+  or signal the end of the file.
+\item [Errors:]
+  \TODO
+\item [Remarks:]
+  To access the data, you need to either:
+  \begin{itemize}
+    \item map the sector buffer into the 16-bit address space;
+    \item use an enhanced DMA transfer to copy the sector buffer (where? \TODO)
+          into a buffer already mapping into the 16-bit address space; or
+    \item use 32-bit load instructions to access the sector buffer directly.
+  \end{itemize}
+
+  If a full sector was read, Y:X will be \$0200. For the last sector of the
+  file, Y:X may be less than that. Any bytes in sector buffer after Y:X are
+  invalid and will not necessarily be zero.
+
+  If you read past the end of the last sector, Y:X will be \$0000, A will be
+  \$FF and the C flag will be set.
+
+  While multiple files can be opened simultaneously, only the current file can
+  be read. The current file is often the last file opened, but not always.
+\item [Example:]
+  Maps the sector buffer at \$DE00 and then reads each sector of the file calling
+  proccesssector for each sector read. proccesssector is assumed to be defined
+  elsewhere.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Unmap the colour RAM at $DC00
+    ;; because that will prevent us from mapping in the sector buffer
+    LDA #1
+    TRB $D030
+\end{verbatim}
+\end{tcolorbox}
+
+\ldots{} continues on the next page \ldots
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+    ;; Map the sector buffer at $DE00
+    LDA #$81
+    STA $D680
+@nextsector:
+    ;; Read the next sector
+    LDA #$1A
+    STA $D640
+    CLV
+    BCC @eoforerror
+    ;; Call processsector (assumed to be defined elsewhere)
+    JSR processsector
+    BRA @nextsector
+@eoforerror:
+    ;; If the error code in A is $FF we have reached the end of the file
+    ;; otherwise there's been an error
+    CMP #$FF
+    BNE @error
+    RTS
+@error:
+    BRK
+\end{verbatim}
+\end{tcolorbox}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rename
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rename}{D640}{2A}
+\item [Service:]
+  Renames a file or sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rmdir
+% ******************************************************************************
 \begin{hyppotrap}{rmdir}{D640}{10}
 \item [Service:]
   Removes a sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rmfile
+% ******************************************************************************
+\begin{hyppotrap}{rmfile}{D640}{10}
+\item [Service:]
+  Removes a files.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% seekfile
+% ******************************************************************************
+\begin{hyppotrap}{seekfile}{D640}{24}
+\item [Service:]
+  Seeks to a given sector in a file.
 \notimplemented
 \end{hyppotrap}
 
@@ -526,6 +1075,7 @@ transferarea:
 \item [Example:]
   Tests if drive 2 exists by trying to select it. Returns with the C flag set if
   drive 2 exists.
+
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -553,7 +1103,9 @@ transferarea:
     RTS
 \end{verbatim}
 \end{tcolorbox}
+
 \ldots{} continues on the next page \ldots
+
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -569,6 +1121,61 @@ transferarea:
     BRK
 \end{verbatim}
 \end{tcolorbox}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% setname
+%
+% Jimbo - Generally is this 8.3 or an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{setname}{D640}{2E}
+\item [Service:]
+  Sets the current Hypervisor filename.
+\item [Preconditions:]
+  The filename is stored in ASCII and ends with \$00 byte.
+
+  The filename starts on a page boundary between \$0000 and \$7E00.
+\item [Inputs:]
+  \register{Y}{The MSB of the filename address.}
+\item [Postconditions:]
+  The Hypervisor has copied the filename into it's own data area.
+
+  The hdos\_find* and hdos\_load* services use this filename.
+\item [Side effects:]
+  Sets the transfer area to \$YY00.
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+  \errordesc{81}{name too long}{The filename is longer than 63 characters.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The filename must be between \$0000 and \$7E00. It must also begin on a
+  page boundary. That is, its address must end with \$00. The current memory
+  mapping is used. However, it is good practice to place it in the bottom 32KB
+  of bank 0.
+
+  The filenames in FAT are encoded in UTF-16. The Hypervisor only reads the LSB
+  of each 16-bit character. The Hypervisor does not convert between ASCII and
+  PETSCII.
+
+  The Hypervisor accesses the files in the FAT file system on the internal and
+  external SD cards. It does not access files on disks in floppy drives or in
+  disk images.
+\item [Example:]
+  See the example in (where? \TODO).
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% writefile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{writefile}{D640}{1C}
+\item [Service:]
+  Writes the sector buffer to the current file.
+\notimplemented
 \end{hyppotrap}
 
 

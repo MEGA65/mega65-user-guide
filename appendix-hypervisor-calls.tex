@@ -1244,6 +1244,85 @@ filename:
 
 
 
+% ==============================================================================
+% Disk Image Services
+% ==============================================================================
+\newpage
+\section{Disk Image Services}
+
+The 45IO27 multi-function I/O controller includes a F011-compatible floppy
+controller. The internal floppy drive is attached to this as drive 0.
+
+The Hypervisor can virtualise the F011 floppy controller so that disk images
+can be attached instead of floppy drives. Once a disk image is attached, the
+Hypervisor traps the F011's I/O registers and emulates the commands on the disk
+image.
+
+You can use BASIC, the Kernal and the F011 I/O registers to operate on a disk
+image just as you would a real disk. This emulation does not behave the same as
+a floppy drive in all cases. If you intend for your program to work with both
+disk images and physical disks, be sure to test it with both.
+
+
+% ******************************************************************************
+% d81attach0
+% ******************************************************************************
+\begin{hyppotrap}{d81attach0}{D640}{40}
+\item [Service:]
+  Attach a D81 disk image to virtualised F011 drive 0.
+\item [Preconditions:]
+  The current Hypervisor filename has been set using hdos\_setname.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  Unless it's been changed, drive 0 of the virtualised F011 floppy controller is
+  unit 8.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81attach1
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{d81attach1}{D640}{46}
+\item [Service:]
+  Attach a D81 disk image to virtualised F011 drive 1.
+\item [Preconditions:]
+  The current Hypervisor filename has been set using hdos\_setname.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  Unless it's been changed, drive 1 of the virtualised F011 floppy controller is
+  unit 9.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81detach
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{d81detach}{D640}{42}
+\item [Service:]
+  Detachs any disk images from virtualised F011 drives 0 and 1.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81write_en
+%
+% Jimbo - hdos_d81attach* already write-enables the images.
+%         See https://github.com/MEGA65/mega65-core/issues/494
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{d81write\_en}{D640}{44}
+\item [Service:]
+  Detaches any disk images from virtualised F011 drives 0 and 1.
+\end{hyppotrap}
+
+
+
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------

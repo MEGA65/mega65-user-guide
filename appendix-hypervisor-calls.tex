@@ -133,17 +133,6 @@ in the A register. Each of the services described in this chapter lists which
 error codes a services returns and why. There is also a table of error codes in
 the description for hdos\_geterrorcode.
 
-\subsection{Drives}
-
-% Jimbo - These should be named as what they are, partitions.
-%         This would resolve potential confusion when we do start referring
-%         to the virtual F011's drive 0 and 1 around mounting disk images.
-
-In the Hypervisor, drives are the partitions of the internal and external SD
-cards. They are not the drive 0 and drive 1 of the F011 floppy controller. They
-are also not the drive 0 and drive 1 of dual-drive disk units that attach to the
-serial bus.
-
 
 
 % ==============================================================================
@@ -151,6 +140,7 @@ serial bus.
 % ==============================================================================
 \newpage
 \section{General Services}
+
 
 % ******************************************************************************
 % geterrorcode
@@ -375,6 +365,15 @@ transferarea:
 % ==============================================================================
 \newpage
 \section{Drive/Storage Services}
+
+% Jimbo - These should be named as what they are, partitions.
+%         This would resolve potential confusion when we do start referring
+%         to the virtual F011's drive 0 and 1 around mounting disk images.
+
+In the Hypervisor, drives are the partitions of the internal and external SD
+cards. They are not the drive 0 and drive 1 of the F011 floppy controller. They
+are also not the drive 0 and drive 1 of dual-drive disk units that attach to the
+serial bus.
 
 
 % ******************************************************************************
@@ -750,7 +749,7 @@ transferarea:
 % loadfile_attic
 % ******************************************************************************
 \newpage
-\begin{hyppotrap}{loadfile\_attic}{D640}{36}
+\begin{hyppotrap}{loadfile\_attic}{D640}{3E}
 \item [Service:]
   Loads a file into hyper memory.
 \item [Preconditions:]
@@ -927,24 +926,24 @@ filename:
 \item [Outputs:]
   Starting at \$YY00, the FAT dir entry has this structure.
   {\setlength{\tabcolsep}{2mm}
-  \begin{tabular}{|c|l|p{6.9cm}|}
+  \begin{tabular}{|c|c|p{6.9cm}|}
   \hline
   \textbf{Offset} & \textbf{Type} & \textbf{Description}
   \\\hline
-  00 & asciiz & The long file name
+  \$00 & asciiz & The long file name
   \\
-  40 & byte & The lenngth of long file name
+  \$40 & byte & The lenngth of long file name
   \\
-  41 & ascii & The "8.3" file name. The name part is padded with spaces to make
+  \$41 & ascii & The "8.3" file name. The name part is padded with spaces to make
                it exactly 8 bytes. The 3 bytes of the extension follow. There is
                no . between the name and the extension. There is no NULL byte.
   \\
-  4E & dword & The cluster number where the file begins. For sub-directories,
+  \$4E & dword & The cluster number where the file begins. For sub-directories,
                this is where the FAT dir entries start for that sub-directory.
   \\
-  52 & dword & The length of file in bytes.
+  \$52 & dword & The length of file in bytes.
   \\
-  56 & dword & The type and attribute bits.
+  \$56 & dword & The type and attribute bits.
   \\\hline
   \end{tabular}
   }
@@ -957,7 +956,7 @@ filename:
   \hline
   0 & Read only         \\
   1 & Hidden            \\
-  2 & systems           \\
+  2 & System            \\
   3 & Volume label      \\
   4 & Sub-directory     \\
   5 & Archive           \\
@@ -1099,7 +1098,7 @@ filename:
 % ******************************************************************************
 % rmfile
 % ******************************************************************************
-\begin{hyppotrap}{rmfile}{D640}{10}
+\begin{hyppotrap}{rmfile}{D640}{26}
 \item [Service:]
   Removes a files.
 \notimplemented

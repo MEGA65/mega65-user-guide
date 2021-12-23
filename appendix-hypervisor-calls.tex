@@ -1319,6 +1319,106 @@ disk images and physical disks, be sure to test it with both.
 \begin{hyppotrap}{d81write\_en}{D640}{44}
 \item [Service:]
   Detaches any disk images from virtualised F011 drives 0 and 1.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Task and Process Services
+% ==============================================================================
+\newpage
+\section{Task and Process Services}
+
+
+% ******************************************************************************
+% get_proc_desc
+% ******************************************************************************
+\begin{hyppotrap}{get\_proc\_desc}{D640}{42}
+\item [Service:]
+  Copies the current task block into a destination area.
+\item [Preconditions:]
+  The destination area starts on a page boundary between \$0000 and \$7E00 and
+  is at least 256 bytes.
+\item [Inputs:]
+  \register{Y}{The MSB of the destination area.}
+\item [Outputs:]
+  Starting at \$YY00, the current task block has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description}
+  \\\hline
+  \$00 & byte & The ID of the current task.
+  \\
+  \$01 & text & The name of the current task. A maximum of 16 characters.
+                Padded with \$00 bytes.
+                If it's 16 characters, there are no trailing \$00 bytes.
+  \\
+  \$11 & byte & Flags for the D81 disk image attached to drive 0 of the
+                virtualised F011 floppy controller.
+  \\
+  \$12 & byte & Same as above but for drive 1.
+  \\
+  \$13 & byte & The length of the D81 disk image filename attached to drive 0.
+  \\
+  \$14 & byte & Same as above but for drive 1.
+  \\
+  \$15 & text & The filename of the D81 disk image attached to drive 0.
+                A maximum of 32 characters. Padded with \$20 bytes.
+                There is no trailing \$00 byte.
+  \\
+  \$35 & text & Same as above but for drive 1.
+  \\
+  \$55 & & The meaning of these bytes are undefined and subject to change.
+  \\
+  \$80 & & File descriptor 0.
+  \\
+  \$A0 & & File descriptor 1.
+  \\
+  \$C0 & & File descriptor 2.
+  \\
+  \$E0 & & File descriptor 3.
+  \\\hline
+  \end{tabular}
+  }
+
+  Each of the file descriptors has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description}
+  \\\hline
+  \$00 & byte  & The number of the SD card partition where the file resides.
+                 \$FF means the file descriptor is closed.
+  \\\hline
+  \$01 & dword & The cluster where the file starts
+  \\\hline
+  \$05 & dword & The current cluster
+  \\\hline
+  \$09 & byte  & The current sector within the current cluster
+  \\\hline
+  \$0A & dword & The length of the file (what unit? \TODO)
+  \\\hline
+  \$0E & dword & The current position within the file's buffer
+  \\\hline
+  \$12 & dword & The cluster of the directory in which the file resides
+  \\\hline
+  \$16 & word  & The index of the file within its directory
+  \\\hline
+  \$18 & dword & The absolute 32-bit address of the file's buffer
+  \\\hline
+  \$1C & word  & The number of bytes used in the file's buffer
+  \\\hline
+  \$1E & word  & The current offset within the file's buffer
+  \\\hline
+  \end{tabular}
+  }
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+\item [History:]
+  \availablefrom{1.2}
 \end{hyppotrap}
 
 

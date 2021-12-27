@@ -1,14 +1,13 @@
 \newenvironment{hyppotrap}[3]
 {
   \newcommand{\availablefrom}[1]{Available starting with Hypervisor ##1}
-  \newcommand{\errordesc}[3]{\textbf{\$##1 ##2} ##3\par}
+  \newcommand{\errordesc}[3]{\index{Hypervisor Error Codes!\$##1}\textbf{\$##1 ##2} ##3\par}
   \newcommand{\notimplemented}{\item[Remarks:]\textbf{NOT IMPLEMENTED}\par}
   \newcommand{\register}[2]{\textbf{##1} ##2\par}
   \newcommand{\TODO}{\textbf{\color{red}TODO}}
   \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
   \subsection{hdos\_#1}
   \index{Hypervisor Services!\$#2 \$#3}
-  \index{Registers!\$#2}
   \begin{description}[leftmargin=2.7cm,style=nextline]
   \item [Trap:] LDA \#\$#3 : STA \$#2 : CLV
 }
@@ -85,14 +84,12 @@
 
 \section{Introduction}
 The MEGA65's Hypervisor provides services you can use in your programs. This
-chapter describes these services.
-
-This chapter describes Hypervisor verson 1.2.
+chapter describes the services available in Hypervisor 1.2.
 
 New Hypervisor services may become available and existing Hypervisor services
 may change or be deprecated. A robust program will use the hdos\_getversion
-service to check whether the program is compatible with the Hypervisor in the
-MEGA65 system it's running on.
+service to check whether it is compatible with the Hypervisor in the
+MEGA65 it's running on.
 
 % Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
 
@@ -101,12 +98,12 @@ When you want to use a hypervisor service, you don't use JSR. This is because
 the Hypervisor exists in a space that's seperate from regular code. In order to
 access it, the CPU needs to switch into the Hypervisor.
 
-At addresses \$D640 -- \$D67F are set of hypervisor traps. Writing to these
+At addresses \$D640 -- \$D67F are set of Hypervisor traps. Writing to these
 addresses are not like writing to other addresses. Instead of writing to memory
-or I/O, the CPU switches into the Hypervisor and starts a hypervisor service.
+or I/O, the CPU switches into the Hypervisor and starts a Hypervisor service.
 How the CPU does this is described in \bookvref{cha:cpu}.
 
-Which hypervisor services starts depends on what value from the A register you
+Which hypervisor service starts depends on what value from the A register you
 write and which trap you write to. Each of the services described in this
 chapter tells you what value to write and which trap to use. You have to use the
 A register when triggering a trap. Writing the same value from another register
@@ -121,17 +118,17 @@ after the hypervisor service finishes. Put a CLV instruction after the STA.
 It shouldn't change the behaviour of your program if the CPU does or not does
 not actually execute the CLV instruction. If your program does rely on the V
 flag, you can use the NOP instruction instead. When you use NOP you must be
-mindful that the CPU might interpet the NOP as an prefix for the following
+mindful of when the CPU interpets the NOP as an prefix for the following
 instruction. For this reason, you should prefer using CLV over NOP.
 
 \subsection{Errors}
+\index{Hypervisor Error Codes}
 
 If the service was successful, it will set the C flag.
 
 If the service was unsuccessful, it will clear the C flag and put an error code
-in the A register. Each of the services described in this chapter lists which
-error codes a services returns and why. There is also a table of error codes in
-the description for hdos\_geterrorcode.
+in the A register. This is a table of error codes in the description for
+hdos\_geterrorocde.
 
 
 
@@ -146,10 +143,11 @@ the description for hdos\_geterrorcode.
 % geterrorcode
 % ******************************************************************************
 \begin{hyppotrap}{geterrorcode}{D640}{38}
+\index{Hypervisor Error Codes}
 \item [Service:]
   Returns the current error code from the Hypervisor.
 \item [Precondition:]
-  The previous service trapped cleared the C flag.
+  The previous service uses cleared the C flag.
 \item [Outputs:]
   \register{A}{The error code of the previously failed service.}
 \item [History:]
@@ -158,111 +156,132 @@ the description for hdos\_geterrorcode.
   The error code is only valid if the previous service cleared the C flag.
   If the C flag was set there was no error and this error code is undefined.
 
-  The meanings here are generic. See the subsections for the individual services
-  for more specific meanings.
+  The meanings here are generic. See the sections for the services for more
+  specific meanings.
 \item [Error codes:] This is possibly not an exhaustive list.
 {
   \setlength{\def\arraystretch{1.5}\tabcolsep}{3pt}
-  \begin{longtable}{|r|r|l|p{8cm}|}
+  \begin{longtable}{|c|r|l|p{8cm}|}
     \hline
-    \textbf{Hex} & \textbf{Dec} & \textbf{Name} & \textbf{Common meaning}\\
+    \textbf{Hex} & \textbf{Dec} & \textbf{Name} & \textbf{General meaning}\\
     \hline
     \endhead
-    1 & 1 & \makecell[tl]{partition not \\ interesting} &
-    An attempt to mount a partition was rejected because the partition was not
-    of a supported type
+    \index{Hypervisor Error Codes!\$01}
+    \$01 & 1 & \makecell[tl]{partition not \\ interesting} &
+    The partition is not of a supported type.
     \\\hline
-    2 & 2 & bad signature &
+    \index{Hypervisor Error Codes!\$02}
+    \$02 & 2 & bad signature &
     The signature bytes at the end of a partition table or of the first sector
-    of a partition were missing or incorrect
+    of a partition were missing or incorrect.
     \\\hline
-    3 & 3 & is small FAT &
-    An attempt was made to mount a FAT12 or FAT16 partition. Only FAT32
-    partitions are supported
+    \index{Hypervisor Error Codes!\$03}
+    \$03 & 3 & is small FAT &
+    This is partition is FAT12 or FAT16 partition. Only FAT32 is supported.
     \\\hline
-    4 & 4 & \makecell[tl]{too many reserved\\clusters} &
-    An attempt was made to mount a partition that has too many reserved sectors.
-    The number of reserved sectors must be less than 65,536
+    \index{Hypervisor Error Codes!\$04}
+    \$04 & 4 & \makecell[tl]{too many reserved\\clusters} &
+    The partition has more than 65,535 reserved sectors.
     \\\hline
-    5 & 5 & not two FATs &
-    An attempt was made to mount a partition that does not have exactly two
-    copies of the FAT structure
+    \index{Hypervisor Error Codes!\$05}
+    \$05 & 5 & not two FATs &
+    The partition that does not have exactly two copies of the FAT structure.
     \\\hline
-    6 & 6 & too few clusters &
-    An attempt was made to mount a partition that contains a partition with too
-    few clusters
+    \index{Hypervisor Error Codes!\$06}
+    \$06 & 6 & too few clusters &
+    The partition contains too few clusters.
+    % Jimbo - What is the minimum?
     \\\hline
-    7 & 7 & read timeout &
-    The read took long for the read rquest to be fulfilled
+    \index{Hypervisor Error Codes!\$07}
+    \$07 & 7 & read timeout &
+    It took to long to read from the SD card.
+    % Jimbo - Is there a write timeout error code?
     \\\hline
-    8 & 8 & partition error &
-    An unspecified error occurred while handling a partition
+    \index{Hypervisor Error Codes!\$08}
+    \$08 & 8 & partition error &
+    An unspecified error occurred while handling a partition.
     \\\hline
-    10 & 16 & invalid address &
-    An invalid address was supplied in an argument
+    \index{Hypervisor Error Codes!\$10}
+    \$10 & 16 & invalid address &
+    An invalid address was supplied in an argument.
     \\\hline
-    11 & 17 & illegal value &
-    An illegal value was supplied in an argument
+    \index{Hypervisor Error Codes!\$11}
+    \$11 & 17 & illegal value &
+    An illegal value was supplied in an argument.
     \\\hline
-    20 & 32 & read error &
-    An unspecified error occurred while reading
+    \index{Hypervisor Error Codes!\$20}
+    \$20 & 32 & read error &
+    An unspecified error occurred while reading.
     \\\hline
-    21 & 33 & write error &
-    An unspecified error occurred while writing
+    \index{Hypervisor Error Codes!\$21}
+    \$21 & 33 & write error &
+    An unspecified error occurred while writing.
     \\\hline
-    80 & 128 & no such drive &
-    An attempt was made to select or operate on a drive (SD card partition)
-    that does not exist
+    \index{Hypervisor Error Codes!\$80}
+    \$80 & 128 & no such drive &
+    The supplied drive number does not exist.
     \\\hline
-    81 & 129 & {name too long} &
-    The supplied filename was too long
+    \index{Hypervisor Error Codes!\$81}
+    \$81 & 129 & {name too long} &
+    The supplied filename was too long.
     \\\hline
-    82 & 130 & not implemented &
-    The hypervisor service is not implemented
+    \index{Hypervisor Error Codes!\$82}
+    \$82 & 130 & not implemented &
+    The hypervisor service is not implemented.
     \\\hline
-    83 & 131 & file too long &
-    An attempt was made to load a file into memory that is longer than 16MB
+    \index{Hypervisor Error Codes!\$83}
+    \$83 & 131 & file too long &
+    The file is longer than 16MB.
     \\\hline
-    84 & 132 & \makecell[tl]{too many\\open files} &
-    Too many files are open, and no free file descriptor could be obtained
+    \index{Hypervisor Error Codes!\$84}
+    \$84 & 132 & \makecell[tl]{too many\\open files} &
+    All of the file descriptors are in use.
     \\\hline
-    85 & 133 & invalid cluster &
-    The supplied cluster number is invalid
+    \index{Hypervisor Error Codes!\$85}
+    \$85 & 133 & invalid cluster &
+    The supplied cluster number is invalid.
     \\\hline
-    86 & 134 & is a directory &
+    \index{Hypervisor Error Codes!\$86}
+    \$86 & 134 & is a directory &
     An attempt was made to operate on a directory, where a normal file was
-    expected
+    expected.
     \\\hline
-    87 & 135 & not a directory &
+    \index{Hypervisor Error Codes!\$87}
+    \$87 & 135 & not a directory &
     An attempt was made to operate on a normal file, where a directory was
-    expected
+    expected.
     \\\hline
-    88 & 136 & file not found &
-    The requested file could not be located in the current directory of the
-    current drive.
+    \index{Hypervisor Error Codes!\$88}
+    \$88 & 136 & file not found &
+    The file could not be located in the current directory of the current drive.
     \\\hline
-    89 & 137 & \makecell[tl]{invalid file\\descriptor} &
-    An invalid file descriptor was supplied
+    \index{Hypervisor Error Codes!\$89}
+    \$89 & 137 & \makecell[tl]{invalid file\\descriptor} &
+    An invalid or closed file descriptor was supplied.
     \\\hline
-    8A & 138 & \makecell[tl]{image wrong\\length} &
-    A disk image file had the wrong length, and was rejected for this reason
+    \index{Hypervisor Error Codes!\$8A}
+    \$8A & 138 & \makecell[tl]{image wrong\\length} &
+    The disk image file has the wrong length.
     \\\hline
-    8B & 139 & image fragmented &
-    A disk image could not be mounted because it is not stored contiguously
+    \index{Hypervisor Error Codes!\$8B}
+    \$8B & 139 & image fragmented &
+    The disk image is not stored contiguously.
     \\\hline
-    8C & 140 & no space &
-    The disk image or SD card has no free space for the requested operation
+    \index{Hypervisor Error Codes!\$8C}
+    \$8C & 140 & no space &
+    The SD card has no free space for the requested operation.
     \\\hline
-    8D & 141 & file exists &
-    An attempt was made to create a file that already exists, or to rename a
-    file to have the name of a file that already exists
+    \index{Hypervisor Error Codes!\$8D}
+    \$8D & 141 & file exists &
+    A file already exists with the given name.
     \\\hline
-    8E & 142 & directory full &
-    An attempt was made to create a file in a directory that cannot accommodate
-    any more entries
+    \index{Hypervisor Error Codes!\$8E}
+    \$8E & 142 & directory full &
+    The directory cannot accommodate any more entries.
     \\\hline
-    FF & 255 & eof &
-    The end of a file or directory was encountered
+    \index{Hypervisor Error Codes!\$FF}
+    \$FF & 255 & eof &
+    The end of a file or directory was encountered.
     \\\hline
   \end{longtable}
 }
@@ -321,7 +340,7 @@ the description for hdos\_geterrorcode.
 \newpage
 \begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
 \item [Service:]
-  Sets up the area the Hypervisor will use to transfer data to and from your
+  Sets up the area the Hypervisor uses to transfer data to and from your
   program.
 \item [Inputs:]
   \register{Y}{The MSB of the transfer area's address}
@@ -336,7 +355,7 @@ the description for hdos\_geterrorcode.
   The transfer area is 256 bytes long for most services.
 
   The transfer area is indicated using the processor's current memory mapping at
-  the time that a service is called. However, it is good practice to always
+  the time that a service is used. However, it is good practice to always
   place it in the bottom 32KB of bank 0.
 \item [Example:]
   Reserves 256 bytes on a page boundary and sets it up as the transfer area.
@@ -372,8 +391,8 @@ transferarea:
 
 In the Hypervisor, drives are the partitions of the internal and external SD
 cards. They are not the drive 0 and drive 1 of the F011 floppy controller. They
-are also not the drive 0 and drive 1 of dual-drive disk units that attach to the
-serial bus.
+are also not the drive 0 and drive 1 of dual-drive units attached to the serial
+bus.
 
 
 % ******************************************************************************
@@ -397,7 +416,7 @@ serial bus.
 
   You cannot move up or down more than one directory at a time.
 
-  Use hdos\_cdrootdir to direcly change back to the root directory.
+  Use hdos\_cdrootdir to directly change back to the root directory.
 \end{hyppotrap}
 
 
@@ -545,11 +564,11 @@ serial bus.
 \item [Remarks:]
   If the Hypervisor finds an initial matching file, it will set the C flag and
   return a file descriptor in the A register. This is a file descriptor for
-  reading the current working directory. You are reponsible for closing it using
-  hdos\_closedir. It's a standard directory file descriptor. You can use
+  reading the current working directory. You are responsible for closing it
+  using hdos\_closedir. It's a standard directory file descriptor. You can use
   hdos\_readdir to read the FAT dir entries after the file that was found.
 
-  If the Hypervisor doesn't find any mathcing files, it will fail with a file
+  If the Hypervisor doesn't find any matching files, it will fail with a file
   not found error. In this case they Hypervisor will have already closed the
   file descriptor and you don't close it.
 
@@ -586,12 +605,12 @@ serial bus.
   Using hdos\_firstnext again finds the next matching file or fails with a file
   not found error.
 \item [Errors:]
-  \errordesc{88}{file not found}{A subsequnt matching file was not found in the
-  current directory of the current drive.}
+  \errordesc{88}{file not found}{A subsequent matching file was not found in
+  the current directory of the current drive.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  If the Hypervisor doesn't find a subsequent mathcing file, it will fail with a
+  If the Hypervisor doesn't find a subsequent matching file, it will fail with a
   file not found error. The Hypervisor will also close the file descriptor it
   output in hdos\_findfirst.
 
@@ -661,7 +680,7 @@ serial bus.
 \newpage
 \begin{hyppotrap}{getcwd}{D640}{0A}
 \item [Service:]
-  Return information on the currently selected directory or sub-directory.
+  Returns information on the currently selected directory or sub-directory.
 \notimplemented
 \end{hyppotrap}
 
@@ -723,7 +742,7 @@ serial bus.
 \item [Service:]
   Loads a file into chip memory.
 \item [Preconditions:]
-  The name of the file to load has been set using using hdos\_setname.
+  The name of the file to load has been set using hdos\_setname.
 \item [Inputs:]
   \register{X}{The LSB of the address to start loading from}
   \register{Y}{The middle byte of the address to start loading from}
@@ -731,14 +750,19 @@ serial bus.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
+  \errordesc{84}{too many open files}{loadfilec uses one file descriptor
+  internally, but all the file descriptors are in use. Close some or all of the
+  file descriptors using hdos\_closedir, hdos\_closefile or hdos\_closeall.}
   \errordesc{88}{file not found}{The file was not found in the current directory
   of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
 \item [Remarks:]
   This service can load files up to 16MB in size into the first 16MB of chip
   memory. Chip memory is the 384KB or more of memory inside the CPU module.
 
   Loading will start at 28-bit address \$00ZZYYXX. If loading tries to go beyond
-  \$00FFFFFF, the loading will wrap around and continue at \$00000000.
+  \$00FFFFFF, it wraps around and continue at \$00000000.
 
   You can use hdos\_loadfile\_attic to load a file into hyper memory. The hyper
   memory is the 8MB or more of memory in the external RAM chips.
@@ -753,7 +777,7 @@ serial bus.
 \item [Service:]
   Loads a file into hyper memory.
 \item [Preconditions:]
-  The name of the file to load has been set using using hdos\_setname.
+  The name of the file to load has been set using hdos\_setname.
 \item [Inputs:]
   \register{X}{The LSB of the address to start loading from}
   \register{Y}{The middle byte of the address to start loading from}
@@ -761,8 +785,13 @@ serial bus.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
+  \errordesc{84}{too many open files}{loadfile\_attic uses one file descriptor
+  internally, but all the file descriptors are in use. Close some or all of the
+  file descriptors using hdos\_closedir, hdos\_closefile or hdos\_closeall.}
   \errordesc{88}{file not found}{The file was not found in the current directory
   of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
 \item [Remarks:]
   This service can load files up to 16MB in size into the first 16MB of hyper
   memory. Hyper memory is the 8MB or more of memory in the external RAM chips.
@@ -782,6 +811,10 @@ serial bus.
 \begin{hyppotrap}{mkdir}{D640}{0E}
 \item [Service:]
   Creates a sub-directory.
+\item [Errors:]
+  \errordesc{8D}{file exists}{A sub-directory or file already exists with the
+  current Hypervisor filename in the current working dirctory of the current
+  drive.}
 \notimplemented
 \end{hyppotrap}
 
@@ -792,6 +825,10 @@ serial bus.
 \begin{hyppotrap}{mkfile}{D640}{1E}
 \item [Service:]
   Creates a file.
+\item [Errors:]
+  \errordesc{8D}{file exists}{A sub-directory or file already exists with the
+  current Hypervisor filename in the current working dirctory of the current
+  drive.}
 \notimplemented
 \end{hyppotrap}
 
@@ -806,7 +843,7 @@ serial bus.
 \item [Preconditions:]
   The drive and directory you want to read have already been set up using
   hdos\_selectdrive and hdos\_chdir if necessary.
-\item [Ouptuts:]
+\item [Outputs:]
   \register{A}{A file descriptor for reading the directory. You are responsible
   for closing this file descriptor using hdos\_closedir.}
 \item [Postconditions:]
@@ -818,6 +855,8 @@ serial bus.
   hdos\_closefile or hdos\_closeall.}
   \errordesc{87}{not a directory}{The FAT dir entry last found is for a file.
   Use hdos\_openfile for files.}
+\item [History:]
+  \availablefrom{1.2}
 \item [Example:]
   Calls processdirentry for each FAT dir entry in the current working directory.
   processdirentry is assumed to be defined elsewhere.
@@ -837,7 +876,7 @@ serial bus.
   The file has already been found. Files can be found using hdos\_findfile,
   hdos\_findfirst and hdos\_findnext. hdos\_readdir can alse be used to find a
   file.
-\item [Ouptuts:]
+\item [Outputs:]
   \register{A}{A file descriptor for accessing the file. You are responsible
   for closing this file descriptor using hdos\_closefile.}
 \item [Postconditions:]
@@ -853,6 +892,8 @@ serial bus.
   hdos\_closefile or hdos\_closeall.}
   \errordesc{86}{is a directory}{The FAT dir entry last found is for a
   directory. Use hdos\_opendir for directories.}
+\item [History:]
+  \availablefrom{1.2}
 \item [Remarks:]
   You cannot use this to open a file inside a disk image. To do that you use
   hdos\_d81attach0 or hdos\_d81attach1 to attach the disk image and then use
@@ -932,7 +973,7 @@ filename:
   \\\hline
   \$00 & asciiz & The long file name
   \\
-  \$40 & byte & The lenngth of long file name
+  \$40 & byte & The length of long file name
   \\
   \$41 & ascii & The "8.3" file name. The name part is padded with spaces to make
                it exactly 8 bytes. The 3 bytes of the extension follow. There is
@@ -966,9 +1007,7 @@ filename:
 \item [Postconditions:]
   Using hdos\_readdir again reads the next FAT dir entry in the directory.
 \item [Errors:]
-  \errordesc{7}{read timeout}{Reading the initial directory information took too
-  long}
-  \errordesc{8}{partition error}{An unspecified error occurred while handling
+  \errordesc{08}{partition error}{An unspecified error occurred while handling
   the currently selected partition}
   \errordesc{10}{invalid address}{The address in Y is invalid. It must be
   $\leq$ \$7E}
@@ -977,7 +1016,7 @@ filename:
   the directory}
 \item [Remarks:]
   If the long file name in the FAT dir entry is too long to copy into the
-  destinary area, the Hypervisor skips the entry entrirely.
+  destination area, the Hypervisor skips the entry entrirely.
 
   The file names in FAT are encoded as UTF-16. The Hypervisor only reads the LSB
   of each 16-bit character. The Hypervisor does not convert file names into
@@ -1012,6 +1051,8 @@ filename:
   or signal the end of the file.
 \item [Errors:]
   \TODO
+\item [History:]
+  \availablefrom{1.2}
 \item [Remarks:]
   To access the data, you need to either:
   \begin{itemize}
@@ -1081,6 +1122,10 @@ filename:
 \begin{hyppotrap}{rename}{D640}{2A}
 \item [Service:]
   Renames a file or sub-directory.
+\item [Errors:]
+  \errordesc{8D}{file exists}{A sub-directory or file already exists with the
+  current Hypervisor filename in the current working dirctory of the current
+  drive.}
 \notimplemented
 \end{hyppotrap}
 
@@ -1127,7 +1172,7 @@ filename:
 \item [Inputs:]
   \register{X}{The drive number to become the new current drive}
 \item [Postconditions:]
-  getcurrentdrive returns the value that was in the X register.
+  hdos\_getcurrentdrive returns the value that was in the X register.
 
   The Hypervisor services operate on the newly selected drive.
 \item [Errors:]
@@ -1335,7 +1380,7 @@ disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 % get_proc_desc
 % ******************************************************************************
-\begin{hyppotrap}{get\_proc\_desc}{D640}{42}
+\begin{hyppotrap}{get\_proc\_desc}{D640}{48}
 \item [Service:]
   Copies the current task block into a destination area.
 \item [Preconditions:]

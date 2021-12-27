@@ -1,6 +1,6 @@
 \newenvironment{hyppotrap}[3]
 {
-  \newcommand{\availablefrom}[1]{Available starting with Hypervisor ##1}
+  \newcommand{\availablefrom}[1]{Available since Hypervisor ##1}
   \newcommand{\errordesc}[3]{\index{Hypervisor Error Codes!\$##1}\textbf{\$##1 ##2} ##3\par}
   \newcommand{\notimplemented}{\item[Remarks:]\textbf{NOT IMPLEMENTED}\par}
   \newcommand{\register}[2]{\textbf{##1} ##2\par}
@@ -83,13 +83,101 @@
 \index{Registers!\$D67F}
 
 \section{Introduction}
-The MEGA65's Hypervisor provides services you can use in your programs. This
-chapter describes the services available in Hypervisor 1.2.
+The Hypervisor is a software component of the Mega65. The Hypervisor:
+\begin{itemize}
+  \item Boots the Mega65. ({\textbf{\color{red}TODO}} refer to the start up sequence diagram)
+  \item Loads the ROMs and other files from the SD card.
+  \item Makes memory banks 2 and 3 ROM-like by proctecting them from being
+        written to.
+  \item Virtualises the floppy disk controller so you can use disk images.
+  \item Calls up various utilties like the freezer and the Matrix Mode
+        Debugger.
+  \item Provides services specific to the Mega65 that you can use in your
+        programmes.
+\end{itemize}
+
+If you know about hypervisors and virtual machines, the Hypervisor is a very
+limited hypervisor. Don't expect to be able to run multiple virtual machines
+concurrently with full isolation. The Hypervisor runs environments that are
+more akin to the task and processes of a modern operating system. The
+Hypervisor has a C64-like, a C65-like and a Mega65-native operating mode for
+running tasks and processes.
+
+\begin{itemize}
+  \item \textbf{The C64-like operating mode} runs C64 programmes and Mega65
+        programmes that run in the Mega65's C64 mode. When you boot with
+        \megasymbolkey pressed or use the \textbf{GO64} command, the Hypervisor
+        starts a process in the C64-like operating mode.
+  \item \textbf{The C65-like operating mode} is the Mega65's normal operating
+        mode. This is where regular Mega65 program run, including BASIC 65
+        programmes and 45GS02 machine-code programmes.
+  \item \textbf{The Mega65 operating mode} runs the Mega65's system programmes
+        like the freezer, the configuration utility and the Matrix Mode
+        Debugger. Maybe surprisingly, normal Mega65 programs do not run in the
+        Mega65 operating mode. They run in the C65-like operating mode. The
+        Mega65 operating mode is designed solely for the Mega65 and does not
+        attempt to be compatible with or even be similar to previous systems.
+\end{itemize}
+
+The Hypervisor provides very limited virtualisation of the Mega65's hardware.
+It can virtualise the floppy controller. There are plans to virtualise the
+serial bus so the Mega65 can use disk images for units like the 1541.
+
+There are some parts of the hardware that only the Hypervisor can access. It is
+the only component that can directly access the internal and external SD cards.
+You need to use the Hypervisor's services if you want to access the files and
+directories on the SD cards from within your programmes.
+
+\subsection{Terminology}
+
+When you start to learn about the Hypervisor, there can be some terminology that
+might be confusing if you already know about other parts of the Mega65.
+
+The Hypervisor has the nick-name HYPPO. In this appendix, we call it the
+Hypervisor. On the SD card there is likely to be a file called HICKUP.M65. This
+file updates the Hypervisor to new versions without having to install an
+upgraded core.
+
+There are 3 distinct disk operating systems in the Mega65.
+
+\begin{itemize}
+  \item Inside the Hypervisor is HYPPO DOS, or HDOS for short. HDOS is for
+        accessing the FAT32 file system on the SD cards. HDOS does not know
+        anything about Commodore file systems. It can attach an image of a
+        Commodore file system, but it does not understand what is inside
+        the image.
+  \item Inside the Kernal is CBDOS. CBDOS is for accessing 1581-like file
+        systems. CBDOS uses the 45IO27 multi-function I/O controller to access
+        the sectors of a physical disk. It uses the Hypervisor to access the
+        sectors of a disk image. CBDOS does not know anything about SD cards
+        and FAT32 file system on them.
+  \item The external disk units attached to the serial bus each have their own
+        DOS. They are used for access the file systems on their respective
+        physical disks.
+\end{itemize}
+
+The word drive means different things for each of these DOS's.
+
+\begin{itemize}
+  \item The drives in the Hypervisor are the partitions of the internal and
+        external SD cards. When the Mega65 boots, the Hypervisor assigns
+        numbers to the partitions it can read.
+  \item The drives in CBDOS are the physical disk drives attached to the 45IO27
+        multi-function I/O controller or the disk images attached via the
+        Hypervisor. The internal disk drive attaches to the 45IO27. The CBDOS
+        drives are normally seen as units 8 and 9.
+  \item The drives in an external disk unit attached to the serial bus are the
+        disk drives inside that unit.
+\end{itemize}
+
+\subsection{Versions}
+
+This chapter describes the services available in Hypervisor 1.2.
 
 New Hypervisor services may become available and existing Hypervisor services
-may change or be deprecated. A robust program will use the hdos\_getversion
-service to check whether it is compatible with the Hypervisor in the
-MEGA65 it's running on.
+may change or be deprecated. A robust programme will use the hdos\_getversion
+service to check whether it is compatible with the Hypervisor in the MEGA65
+it's running on.
 
 % Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
 
@@ -98,7 +186,7 @@ When you want to use a hypervisor service, you don't use JSR. This is because
 the Hypervisor exists in a space that's seperate from regular code. In order to
 access it, the CPU needs to switch into the Hypervisor.
 
-At addresses \$D640 -- \$D67F are set of Hypervisor traps. Writing to these
+At addresses \$D640 -- \$D67F are a set of Hypervisor traps. Writing to these
 addresses are not like writing to other addresses. Instead of writing to memory
 or I/O, the CPU switches into the Hypervisor and starts a Hypervisor service.
 How the CPU does this is described in \bookvref{cha:cpu}.
@@ -109,17 +197,17 @@ chapter tells you what value to write and which trap to use. You have to use the
 A register when triggering a trap. Writing the same value from another register
 won't work.
 
-When the hypervisor service finishes, the CPU will switch back to your program.
+When the hypervisor service finishes, the CPU will switch back to your programme.
 Except for the registers a service uses to return values, the registers are
 otherwise preserved.
 
-\textbf{Important} The CPU may or may not execute the next byte in your program
-after the hypervisor service finishes. Put a CLV instruction after the STA.
-It shouldn't change the behaviour of your program if the CPU does or not does
-not actually execute the CLV instruction. If your program does rely on the V
-flag, you can use the NOP instruction instead. When you use NOP you must be
-mindful of when the CPU interpets the NOP as an prefix for the following
-instruction. For this reason, you should prefer using CLV over NOP.
+\textbf{Important} The CPU may or may not execute the next byte in your programme
+after the Hypervisor service finishes. Put a CLV instruction after the STA.
+The CPU executing the CLV or not shouldn't matter to your programme. If your
+programme does rely on the V flag, you can use the NOP instruction instead. When
+you use NOP you must be mindful of when the CPU interpets the NOP as a prefix
+for the following instruction. For this reason, you should prefer using CLV
+over NOP.
 
 \subsection{Errors}
 \index{Hypervisor Error Codes}
@@ -127,7 +215,7 @@ instruction. For this reason, you should prefer using CLV over NOP.
 If the service was successful, it will set the C flag.
 
 If the service was unsuccessful, it will clear the C flag and put an error code
-in the A register. This is a table of error codes in the description for
+in the A register. There is a table of error codes in the description for
 hdos\_geterrorocde.
 
 
@@ -185,7 +273,7 @@ hdos\_geterrorocde.
     \\\hline
     \index{Hypervisor Error Codes!\$05}
     \$05 & 5 & not two FATs &
-    The partition that does not have exactly two copies of the FAT structure.
+    The partition does not have exactly two copies of the FAT structure.
     \\\hline
     \index{Hypervisor Error Codes!\$06}
     \$06 & 6 & too few clusters &
@@ -231,7 +319,7 @@ hdos\_geterrorocde.
     \\\hline
     \index{Hypervisor Error Codes!\$83}
     \$83 & 131 & file too long &
-    The file is longer than 16MB.
+    The file is larger than 16MB.
     \\\hline
     \index{Hypervisor Error Codes!\$84}
     \$84 & 132 & \makecell[tl]{too many\\open files} &
@@ -341,7 +429,7 @@ hdos\_geterrorocde.
 \begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
 \item [Service:]
   Sets up the area the Hypervisor uses to transfer data to and from your
-  program.
+  programme.
 \item [Inputs:]
   \register{Y}{The MSB of the transfer area's address}
 \item [Errors:]
@@ -451,7 +539,7 @@ bus.
 \item [Preconditions:]
   The file descriptor given in the X register was opened using hdos\_opendir.
 \item [Inputs:]
-  \register{A}{A file descriptor for the directory}
+  \register{A}{The file descriptor for the directory}
 \item [Postconditions:]
   Using the file descriptor again with hdos\_closedir succeeds.
 
@@ -477,7 +565,7 @@ bus.
 \item [Preconditions:]
   The file descriptor given in the X register was opened using hdos\_openfile.
 \item [Inputs:]
-  \register{A}{A file descriptor for the file}
+  \register{A}{The file descriptor for the file}
 \item [Postconditions:]
   Using the file descriptor again with hdos\_closefile succeeds.
 
@@ -548,9 +636,9 @@ bus.
 \item [Preconditions:]
   The current Hypervisor filename has been set using hdos\_setname.
 \item [Outputs:]
-  \register{A}{A file descriptor for reading the current working directory. You
-  might be responsible for closing this file descriptor using hdos\_closedir.
-  See the remarks.}
+  \register{A}{The file descriptor for reading the current working directory.
+  You might be responsible for closing this file descriptor using
+  hdos\_closedir. See the remarks.}
 \item [Postconditions:]
   hdos\_firstnext find the next matching file or fails with a file not found
   error.
@@ -569,8 +657,8 @@ bus.
   hdos\_readdir to read the FAT dir entries after the file that was found.
 
   If the Hypervisor doesn't find any matching files, it will fail with a file
-  not found error. In this case they Hypervisor will have already closed the
-  file descriptor and you don't close it.
+  not found error. In this case the Hypervisor will have already closed the
+  file descriptor and you don't have to close it.
 
   % Jimbo - Why does the Hypervisor do this and create this restriction?
   The Hypervisor will only find files whose long filename is all in uppercase.
@@ -647,8 +735,8 @@ bus.
   can also change it.
 \item [Example:]
   Prints the number of the currently selected drive in the top-left of the
-  screen. This example assumes that aren't more than 10 drives (drives 0 to 9).
-  It also assumes the screen memory hasn't been moved from \$000800.
+  screen. This example assumes that there aren't more than 10 drives (drives
+  0 to 9). It also assumes the screen memory hasn't been moved from \$000800.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -750,7 +838,7 @@ bus.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
-  \errordesc{84}{too many open files}{loadfilec uses one file descriptor
+  \errordesc{84}{too many open files}{hdos\_loadfile uses one file descriptor
   internally, but all the file descriptors are in use. Close some or all of the
   file descriptors using hdos\_closedir, hdos\_closefile or hdos\_closeall.}
   \errordesc{88}{file not found}{The file was not found in the current directory
@@ -785,7 +873,7 @@ bus.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
-  \errordesc{84}{too many open files}{loadfile\_attic uses one file descriptor
+  \errordesc{84}{too many open files}{hos\_loadfile\_attic uses one file descriptor
   internally, but all the file descriptors are in use. Close some or all of the
   file descriptors using hdos\_closedir, hdos\_closefile or hdos\_closeall.}
   \errordesc{88}{file not found}{The file was not found in the current directory
@@ -844,8 +932,8 @@ bus.
   The drive and directory you want to read have already been set up using
   hdos\_selectdrive and hdos\_chdir if necessary.
 \item [Outputs:]
-  \register{A}{A file descriptor for reading the directory. You are responsible
-  for closing this file descriptor using hdos\_closedir.}
+  \register{A}{The file descriptor for reading the directory. You are
+  responsible for closing this file descriptor using hdos\_closedir.}
 \item [Postconditions:]
   hdos\_readdir reads the first FAT dir entry in the directory.
 \item [Errors:]
@@ -877,7 +965,7 @@ bus.
   hdos\_findfirst and hdos\_findnext. hdos\_readdir can alse be used to find a
   file.
 \item [Outputs:]
-  \register{A}{A file descriptor for accessing the file. You are responsible
+  \register{A}{The file descriptor for accessing the file. You are responsible
   for closing this file descriptor using hdos\_closefile.}
 \item [Postconditions:]
   Using hdos\_readfile with this file descriptor reads the first sector of the
@@ -897,7 +985,7 @@ bus.
 \item [Remarks:]
   You cannot use this to open a file inside a disk image. To do that you use
   hdos\_d81attach0 or hdos\_d81attach1 to attach the disk image and then use
-  either use the Kernal to read the file or program the virtualised F011 floppy
+  either use the Kernal to read the file or programme the virtualised F011 floppy
   controller.
 \item [Example:]
   Finds, opens and then closes the file CONFIG.DAT.
@@ -1305,7 +1393,7 @@ image.
 
 You can use BASIC, the Kernal and the F011 I/O registers to operate on a disk
 image just as you would a real disk. This emulation does not behave the same as
-a floppy drive in all cases. If you intend for your program to work with both
+a floppy drive in all cases. If you intend for your programme to work with both
 disk images and physical disks, be sure to test it with both.
 
 

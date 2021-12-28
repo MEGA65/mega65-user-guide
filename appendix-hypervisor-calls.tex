@@ -1,15 +1,15 @@
 \newenvironment{hyppotrap}[3]
 {
-  \newcommand{\availablefrom}[1]{Available since HYPPO ##1}
+  \newcommand{\availablefrom}[1]{Available since Hyppo ##1}
   \newcommand{\deprecatedfrom}[1]{
     \textcolor{Orange}{
-      \textbf{DEPRECATED} since HYPPO ##1.
+      \textbf{DEPRECATED} since Hyppo ##1.
       This service may be removed in a future version. New programmes should
       not use this service.
     }
   }
   \newcommand{\errordesc}[3]{
-    \index{HYPPO Error Codes!\$##1}
+    \index{Hyppo Error Codes!\$##1}
     \textbf{\$##1 ##2} ##3\par
   }
   \newcommand{\hypporef}[1]{
@@ -22,7 +22,7 @@
   \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
   \subsection{hyppo\_#1}
   { \StrDel{hyppo:#1}{\_}[\reflbl] \label{\reflbl} }
-  \index{HYPPO Services!\$#2 \$#3}
+  \index{Hyppo Services!\$#2 \$#3}
   \begin{description}[leftmargin=2.7cm,style=nextline]
   \item [Trap:] LDA \#\$#3 : STA \$#2 : CLV
 }
@@ -30,8 +30,8 @@
   \end{description}
 }
 
-\chapter{MEGA65 HYPPO Services}
-\index{HYPPO Services}
+\chapter{MEGA65 Hyppo Services}
+\index{Hyppo Services}
 \index{Registers!\$D640}
 \index{Registers!\$D641}
 \index{Registers!\$D642}
@@ -98,7 +98,7 @@
 \index{Registers!\$D67F}
 
 \section{Introduction}
-A part of the Mega65 is the system program called HYPPO that:
+A part of the Mega65 is the system program called Hyppo that:
 \begin{itemize}
   \item Boots the Mega65. ({\textbf{\color{red}TODO}} refer to the start up sequence diagram)
   \item Loads the ROMs and other files from the SD card.
@@ -111,18 +111,18 @@ A part of the Mega65 is the system program called HYPPO that:
         programmes.
 \end{itemize}
 
-If you know about hypervisors and virtual machines, HYPPO is a very limited
+If you know about hypervisors and virtual machines, Hyppo is a very limited
 hypervisor. Don't expect to be able to run multiple virtual machines
-concurrently with full isolation. HYPPO runs things that are more akin to the
+concurrently with full isolation. Hyppo runs things that are more akin to the
 task and processes of a modern operating system than the virtual machines of a
 hypervisor as you might know it.
 
-HYPPO provides 3 operating modes.
+Hyppo provides 3 operating modes.
 
 \begin{itemize}
   \item \textbf{The C64-like operating mode} runs C64 programmes and Mega65
         programmes that run in the Mega65's C64 mode. When you boot with
-        \megasymbolkey pressed or use the \textbf{GO64} command, HYPPO
+        \megasymbolkey pressed or use the \textbf{GO64} command, Hyppo
         starts a process in the C64-like operating mode to run BASIC 2 or the
         Mega65 programme.
   \item \textbf{The C65-like operating mode} is the Mega65's normal operating
@@ -141,35 +141,35 @@ operating mode while it's is running, by simply enabling or disabling the
 various hardware features.
 
 \filbreak
-HYPPO provides very limited virtualisation of the Mega65's hardware. It can
+Hyppo provides very limited virtualisation of the Mega65's hardware. It can
 virtualise the floppy controller. There are plans to virtualise the serial bus
 so the Mega65 can use disk images for units like the 1541.
 
-There are some parts of the hardware that only HYPPO can access. It is the only
+There are some parts of the hardware that only Hyppo can access. It is the only
 component that can directly access the internal and external SD cards. You need
-to use HYPPO's services if you want to access the files and directories on the
+to use Hyppo's services if you want to access the files and directories on the
 SD cards from within your programmes.
 
 \subsection{Terminology}
 
-When you start to learn about HYPPO, there can be some terminology that might be
+When you start to learn about Hyppo, there can be some terminology that might be
 confusing if you already know about other parts of the Mega65.
 
 On the SD card there is likely to be a file called HICKUP.M65. This file updates
-HYPPO to new versions without having to install an upgraded core. You might find
-occasions where HYPPO might be called Hickup because of this strong association.
+Hyppo to new versions without having to install an upgraded core. You might find
+occasions where Hyppo might be called Hickup because of this strong association.
 
 There are 3 distinct disk operating systems in the Mega65.
 
 \begin{itemize}
-  \item Inside HYPPO is HYPPO DOS, or HDOS for short. HDOS is for accessing
+  \item Inside Hyppo is Hyppo DOS, or HDOS for short. HDOS is for accessing
         the FAT32 file system on the SD cards. HDOS does not know anything
         about Commodore file systems. It can attach an image of a Commodore
         file system, but it does not understand what is inside the image.
   \item Inside the Kernal is CBDOS. CBDOS is for accessing 1581-like file
         systems. CBDOS uses the 45IO27 multi-function I/O controller to access
         the sectors of a physical disk. CBDOS does not know anything about SD
-        cards and the FAT32 file system on them. HYPPO virtualises part of the
+        cards and the FAT32 file system on them. Hyppo virtualises part of the
         45IO27 so CBDOS can access disk images like they're physical disks.
   \item The external disk units attached to the serial bus each have their own
         DOS. They are used for accessing the file systems on their respective
@@ -179,8 +179,8 @@ There are 3 distinct disk operating systems in the Mega65.
 The word drive means different things for each of these DOS's.
 
 \begin{itemize}
-  \item The drives in HYPPO are the partitions of the internal and external SD
-        cards. When the Mega65 boots, HYPPO assigns numbers to the partitions
+  \item The drives in Hyppo are the partitions of the internal and external SD
+        cards. When the Mega65 boots, Hyppo assigns numbers to the partitions
         it can read.
   \item The drives in CBDOS are the physical disk drives attached to the 45IO27
         multi-function I/O controller --- such as the internal disk drive ---
@@ -193,37 +193,37 @@ The word drive means different things for each of these DOS's.
 \filbreak
 \subsection{Versions}
 
-This chapter describes the services available in HYPPO 1.2.
+This chapter describes the services available in Hyppo 1.2.
 
-New HYPPO services may become available and existing HYPPO services may change
+New Hyppo services may become available and existing Hyppo services may change
 or be deprecated. A robust programme will use the \nameref{hyppo:getversion}
-service to check whether it is compatible with the HYPPO in the MEGA65 it's
+service to check whether it is compatible with the Hyppo in the MEGA65 it's
 running on.
 
 % Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
 
 \subsection{Using}
-When you want to use a HYPPO service, you don't use JSR. This is because
-HYPPO exists in a space that's separate from regular code. In order to
+When you want to use a Hyppo service, you don't use JSR. This is because
+Hyppo exists in a space that's separate from regular code. In order to
 access it, the CPU needs to switch into its hypervisor mode.
 
 At addresses \$D640 -- \$D67F are a set of hypervisor traps. Writing to these
 addresses are not like writing to other addresses. Instead of writing to memory
-or I/O, the CPU switches into the hypervisor mode and starts a HYPPO service.
+or I/O, the CPU switches into the hypervisor mode and starts a Hyppo service.
 How the CPU does this is described in \bookvref{cha:cpu}.
 
-Which HYPPO service starts depends on what value from the A register you
+Which Hyppo service starts depends on what value from the A register you
 write and which trap you write to. Each of the services described in this
 chapter tells you what value to write and which trap to use. You have to use the
 A register when triggering a trap. Writing the same value from another register
 won't work.
 
-When the HYPPO service finishes, the CPU will switch back to your programme.
+When the Hyppo service finishes, the CPU will switch back to your programme.
 Except for the registers a service uses to return values, the registers are
 otherwise preserved.
 
 \textbf{Important} The CPU may or may not execute the next byte in your
-programme after the HYPPO service finishes. Put a CLV instruction after the STA.
+programme after the Hyppo service finishes. Put a CLV instruction after the STA.
 The CPU executing the CLV or not shouldn't matter to your programme. If your
 programme does rely on the V flag, you can use the NOP instruction instead. When
 you use NOP you must be mindful of when the CPU interprets the NOP as a prefix
@@ -231,7 +231,7 @@ for the following instruction. For this reason, you should prefer using CLV
 over NOP.
 
 \subsection{Errors}
-\index{HYPPO Error Codes}
+\index{Hyppo Error Codes}
 
 If the service was successful, it will set the C flag.
 
@@ -252,9 +252,9 @@ in the A register. There is a table of error codes in the description for
 % geterrorcode
 % ******************************************************************************
 \begin{hyppotrap}{geterrorcode}{D640}{38}
-\index{HYPPO Error Codes}
+\index{Hyppo Error Codes}
 \item [Service:]
-  Returns the current error code from HYPPO.
+  Returns the current error code from Hyppo.
 \item [Precondition:]
   The previous service used cleared the C flag.
 \item [Outputs:]
@@ -262,8 +262,8 @@ in the A register. There is a table of error codes in the description for
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  The error code is only valid if the previous HYPPO service cleared the C flag.
-  If the C flag was set there was no error and the HYPPO error code is
+  The error code is only valid if the previous Hyppo service cleared the C flag.
+  If the C flag was set there was no error and the Hyppo error code is
   undefined.
 
   The meanings here are generic. See the sections for the services for more
@@ -276,127 +276,127 @@ in the A register. There is a table of error codes in the description for
     \textbf{Hex} & \textbf{Dec} & \textbf{Name} & \textbf{General meaning}\\
     \hline
     \endhead
-    \index{HYPPO Error Codes!\$01}
+    \index{Hyppo Error Codes!\$01}
     \$01 & 1 & \makecell[tl]{partition not \\ interesting} &
     The partition is not of a supported type.
     \\\hline
-    \index{HYPPO Error Codes!\$02}
+    \index{Hyppo Error Codes!\$02}
     \$02 & 2 & bad signature &
     The signature bytes at the end of a partition table or of the first sector
     of a partition were missing or incorrect.
     \\\hline
-    \index{HYPPO Error Codes!\$03}
+    \index{Hyppo Error Codes!\$03}
     \$03 & 3 & is small FAT &
     This is partition is FAT12 or FAT16 partition. Only FAT32 is supported.
     \\\hline
-    \index{HYPPO Error Codes!\$04}
+    \index{Hyppo Error Codes!\$04}
     \$04 & 4 & \makecell[tl]{too many reserved\\clusters} &
     The partition has more than 65,535 reserved sectors.
     \\\hline
-    \index{HYPPO Error Codes!\$05}
+    \index{Hyppo Error Codes!\$05}
     \$05 & 5 & not two FATs &
     The partition does not have exactly two copies of the FAT structure.
     \\\hline
-    \index{HYPPO Error Codes!\$06}
+    \index{Hyppo Error Codes!\$06}
     \$06 & 6 & too few clusters &
     The partition contains too few clusters.
     % Jimbo - What is the minimum?
     \\\hline
-    \index{HYPPO Error Codes!\$07}
+    \index{Hyppo Error Codes!\$07}
     \$07 & 7 & read timeout &
     It took to long to read from the SD card.
     % Jimbo - Is there a write timeout error code?
     \\\hline
-    \index{HYPPO Error Codes!\$08}
+    \index{Hyppo Error Codes!\$08}
     \$08 & 8 & partition error &
     An unspecified error occurred while handling a partition.
     \\\hline
-    \index{HYPPO Error Codes!\$10}
+    \index{Hyppo Error Codes!\$10}
     \$10 & 16 & invalid address &
     An invalid address was supplied in an argument.
     \\\hline
-    \index{HYPPO Error Codes!\$11}
+    \index{Hyppo Error Codes!\$11}
     \$11 & 17 & illegal value &
     An illegal value was supplied in an argument.
     \\\hline
-    \index{HYPPO Error Codes!\$20}
+    \index{Hyppo Error Codes!\$20}
     \$20 & 32 & read error &
     An unspecified error occurred while reading.
     \\\hline
-    \index{HYPPO Error Codes!\$21}
+    \index{Hyppo Error Codes!\$21}
     \$21 & 33 & write error &
     An unspecified error occurred while writing.
     \\\hline
-    \index{HYPPO Error Codes!\$80}
+    \index{Hyppo Error Codes!\$80}
     \$80 & 128 & no such drive &
-    The supplied HYPPO drive number does not exist.
+    The supplied Hyppo drive number does not exist.
     \\\hline
-    \index{HYPPO Error Codes!\$81}
+    \index{Hyppo Error Codes!\$81}
     \$81 & 129 & {name too long} &
     The supplied filename was too long.
     \\\hline
-    \index{HYPPO Error Codes!\$82}
+    \index{Hyppo Error Codes!\$82}
     \$82 & 130 & not implemented &
-    The HYPPO service is not implemented.
+    The Hyppo service is not implemented.
     \\\hline
-    \index{HYPPO Error Codes!\$83}
+    \index{Hyppo Error Codes!\$83}
     \$83 & 131 & file too long &
     The file is larger than 16MB.
     \\\hline
-    \index{HYPPO Error Codes!\$84}
+    \index{Hyppo Error Codes!\$84}
     \$84 & 132 & \makecell[tl]{too many\\open files} &
     All of the file descriptors are in use.
     \\\hline
-    \index{HYPPO Error Codes!\$85}
+    \index{Hyppo Error Codes!\$85}
     \$85 & 133 & invalid cluster &
     The supplied cluster number is invalid.
     \\\hline
-    \index{HYPPO Error Codes!\$86}
+    \index{Hyppo Error Codes!\$86}
     \$86 & 134 & is a directory &
     An attempt was made to operate on a directory, where a normal file was
     expected.
     \\\hline
-    \index{HYPPO Error Codes!\$87}
+    \index{Hyppo Error Codes!\$87}
     \$87 & 135 & not a directory &
     An attempt was made to operate on a normal file, where a directory was
     expected.
     \\\hline
-    \index{HYPPO Error Codes!\$88}
+    \index{Hyppo Error Codes!\$88}
     \$88 & 136 & file not found &
     The file could not be located in the current directory of the current drive.
     \\\hline
-    \index{HYPPO Error Codes!\$89}
+    \index{Hyppo Error Codes!\$89}
     \$89 & 137 & \makecell[tl]{invalid file\\descriptor} &
     An invalid or closed file descriptor was supplied.
     \\\hline
-    \index{HYPPO Error Codes!\$8A}
+    \index{Hyppo Error Codes!\$8A}
     \$8A & 138 & \makecell[tl]{image wrong\\length} &
     The disk image file has the wrong length.
     \\\hline
-    \index{HYPPO Error Codes!\$8B}
+    \index{Hyppo Error Codes!\$8B}
     \$8B & 139 & image fragmented &
     The disk image is not stored contiguously on the SD card.
     \\\hline
-    \index{HYPPO Error Codes!\$8C}
+    \index{Hyppo Error Codes!\$8C}
     \$8C & 140 & no space &
     The SD card has no free space for the requested operation.
     \\\hline
-    \index{HYPPO Error Codes!\$8D}
+    \index{Hyppo Error Codes!\$8D}
     \$8D & 141 & file exists &
     A file already exists with the given name.
     \\\hline
-    \index{HYPPO Error Codes!\$8E}
+    \index{Hyppo Error Codes!\$8E}
     \$8E & 142 & directory full &
     The directory cannot accommodate any more entries.
     \\\hline
-    \index{HYPPO Error Codes!\$FF}
+    \index{Hyppo Error Codes!\$FF}
     \$FF & 255 & eof &
     The end of a file or directory was encountered.
     \\\hline
-    \index{HYPPO Error Codes!\$FF}
+    \index{Hyppo Error Codes!\$FF}
     \$FF & 255 & no such trap &
-    There is no HYPPO service available for the trap. The programme may be
-    incompatible with this version of HYPPO.
+    There is no Hyppo service available for the trap. The programme may be
+    incompatible with this version of Hyppo.
     \\\hline
   \end{longtable}
 }
@@ -409,19 +409,19 @@ in the A register. There is a table of error codes in the description for
 \newpage
 \begin{hyppotrap}{getversion}{D640}{00}
 \item [Service:]
-  Returns the version of HYPPO and HDOS.
+  Returns the version of Hyppo and HDOS.
 \item [Outputs:]
-  \register{A}{The major version number of HYPPO}
-  \register{X}{The major version number of HYPPO}
+  \register{A}{The major version number of Hyppo}
+  \register{X}{The major version number of Hyppo}
   \register{Y}{The minor version number of HDOS}
   \register{Z}{The major version number of HDOS}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  The HDOS in HYPPO is not related to the CBDOS inside the Kernal or the
+  The HDOS in Hyppo is not related to the CBDOS inside the Kernal or the
   DOS in the disk drive units attached to the serial port.
 \item [Example:]
-  Tests if HYPPO's version is $\geq$ 1.2 and $<$ 2.0.
+  Tests if Hyppo's version is $\geq$ 1.2 and $<$ 2.0.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -429,10 +429,10 @@ in the A register. There is a table of error codes in the description for
     LDA #$00
     STA $D640
     CLV
-    ;; Test if the major version number of HYPPO is 1
+    ;; Test if the major version number of Hyppo is 1
     CMP #1
     BNE @incompatible
-    ;; Test if the minor version number of HYPPO is >= 2
+    ;; Test if the minor version number of Hyppo is >= 2
     TXA
     CMP #2
     BMI @incompatible
@@ -455,7 +455,7 @@ in the A register. There is a table of error codes in the description for
 \newpage
 \begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
 \item [Service:]
-  Sets up the area HYPPO uses to transfer data to and from your programme.
+  Sets up the area Hyppo uses to transfer data to and from your programme.
 \item [Inputs:]
   \register{Y}{The MSB of the transfer area's address}
 \item [Errors:]
@@ -503,7 +503,7 @@ transferarea:
 %         This would resolve potential confusion when we do start referring
 %         to the virtual F011's drive 0 and 1 around mounting disk images.
 
-In HYPPO, drives are the partitions of the internal and external SD cards.
+In Hyppo, drives are the partitions of the internal and external SD cards.
 They are not the drive 0 and drive 1 of the F011 floppy controller. They
 are also not the drive 0 and drive 1 of dual-drive units attached to the serial
 bus.
@@ -631,9 +631,9 @@ bus.
 \newpage
 \begin{hyppotrap}{findfile}{D640}{34}
 \item [Service:]
-  Finds the first file whose filename matches the current HYPPO filename.
+  Finds the first file whose filename matches the current Hyppo filename.
 \item [Preconditions:]
-  The current HYPPO filename has been set using \hypporef{setname}.
+  The current Hyppo filename has been set using \hypporef{setname}.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
@@ -642,12 +642,12 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  % Jimbo - Why does HYPPO do this and create this restriction?
-  HYPPO will only find files whose long filename is all in uppercase.
-  HYPPO converts the current filename to ASCII uppercase before trying
+  % Jimbo - Why does Hyppo do this and create this restriction?
+  Hyppo will only find files whose long filename is all in uppercase.
+  Hyppo converts the current filename to ASCII uppercase before trying
   to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
 
-  HYPPO does not yet support the wildcard characters * and ?. Support
+  Hyppo does not yet support the wildcard characters * and ?. Support
   for that is planned in a future version.
 
   This only finds the first matching file. You can find multiple matches by
@@ -663,9 +663,9 @@ bus.
 \newpage
 \begin{hyppotrap}{findfirst}{D640}{30}
 \item [Service:]
-  Finds the first file whose filename matches the current HYPPO filename.
+  Finds the first file whose filename matches the current Hyppo filename.
 \item [Preconditions:]
-  The current HYPPO filename has been set using \hypporef{setname}.
+  The current Hyppo filename has been set using \hypporef{setname}.
 \item [Outputs:]
   \register{A}{The file descriptor for reading the current working directory.
   You might be responsible for closing this file descriptor using
@@ -681,23 +681,23 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  If HYPPO finds an initial matching file, it will set the C flag and
+  If Hyppo finds an initial matching file, it will set the C flag and
   return a file descriptor in the A register. This is a file descriptor for
   reading the current working directory. You are responsible for closing it
   using \hypporef{closedir}. It's a standard directory file descriptor. You
   can use \hypporef{readdir} to read the FAT dir entries after the file that
   was found.
 
-  If HYPPO doesn't find any matching files, it will fail with a file
-  not found error. In this case HYPPO will have already closed the
+  If Hyppo doesn't find any matching files, it will fail with a file
+  not found error. In this case Hyppo will have already closed the
   file descriptor and you don't have to close it.
 
-  % Jimbo - Why does HYPPO do this and create this restriction?
-  HYPPO will only find files whose long filename is all in uppercase.
-  HYPPO converts the current filename to ASCII uppercase before trying
+  % Jimbo - Why does Hyppo do this and create this restriction?
+  Hyppo will only find files whose long filename is all in uppercase.
+  Hyppo converts the current filename to ASCII uppercase before trying
   to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
 
-  HYPPO does not yet support the wildcard characters * and ?. Support
+  Hyppo does not yet support the wildcard characters * and ?. Support
   for that is planned in a future version.
 
   If you are only interested in the first match, you can use \hypporef{findfile}
@@ -714,9 +714,9 @@ bus.
 \newpage
 \begin{hyppotrap}{findnext}{D640}{32}
 \item [Service:]
-  Finds a subsequent file whose filename matches the current HYPPO filename.
+  Finds a subsequent file whose filename matches the current Hyppo filename.
 \item [Preconditions:]
-  The current HYPPO filename has been set using \hypporef{setname}.
+  The current Hyppo filename has been set using \hypporef{setname}.
 
   The first matching file has already been found successfully using
   \hypporef{findfirst}.
@@ -729,8 +729,8 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  If HYPPO doesn't find a subsequent matching file, it will fail with a
-  file not found error. HYPPO will also close the file descriptor it
+  If Hyppo doesn't find a subsequent matching file, it will fail with a
+  file not found error. Hyppo will also close the file descriptor it
   output in \hypporef{findfirst}.
 
   If you don't exhaust the search by using \hypporef{findnext} until it fails
@@ -810,7 +810,7 @@ bus.
 \newpage
 \begin{hyppotrap}{getdefaultdrive}{D640}{02}
 \item [Service:]
-  Returns the drive number (SD card partition) HYPPO selected while
+  Returns the drive number (SD card partition) Hyppo selected while
   booting.
 \item [Outputs:]
   \register{A}{The default drive number}
@@ -934,7 +934,7 @@ bus.
   Creates a sub-directory.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current HYPPO filename in the current working directory of the current
+  current Hyppo filename in the current working directory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -948,7 +948,7 @@ bus.
   Creates a file.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current HYPPO filename in the current working directory of the current
+  current Hyppo filename in the current working directory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -1081,7 +1081,7 @@ filename:
   \hypporef{opendir} and \hypporef{closedir} hasn't since been used to close it.
 \item [Inputs:]
   \register{X}{A file descriptor for the directory.}
-  \register{Y}{The MSB of the address HYPPO will copy the FAT dir entry
+  \register{Y}{The MSB of the address Hyppo will copy the FAT dir entry
   into. It must be $\leq$ \$7E. This destination address must be on a page
   boundary. It's LSB must be \$00. The destination area must be at least 87
   bytes.}
@@ -1137,10 +1137,10 @@ filename:
   the directory}
 \item [Remarks:]
   If the long file name in the FAT dir entry is too long to copy into the
-  destination area, HYPPO skips the entry entirely.
+  destination area, Hyppo skips the entry entirely.
 
-  The file names in FAT are encoded as UTF-16. HYPPO only reads the LSB
-  of each 16-bit character. HYPPO does not convert file names into
+  The file names in FAT are encoded as UTF-16. Hyppo only reads the LSB
+  of each 16-bit character. Hyppo does not convert file names into
   PETSCII.
 
   See \hypporef{setup\_transfer\_area} for more details about the value for the
@@ -1240,7 +1240,7 @@ filename:
   Renames a file or sub-directory.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current HYPPO filename in the current working directory of the current
+  current Hyppo filename in the current working directory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -1284,16 +1284,16 @@ filename:
 \item [Service:]
   Selects the currently selected drive (SD card partition).
 \item [Preconditions:]
-  HYPPO has assigned a drive number to the SD card partition.
+  Hyppo has assigned a drive number to the SD card partition.
 \item [Inputs:]
   \register{X}{The drive number to become the new current drive}
 \item [Postconditions:]
   \hypporef{getcurrentdrive} returns the value that was in the X register.
 
-  HYPPO services operate on the newly selected drive.
+  Hyppo services operate on the newly selected drive.
 \item [Errors:]
   \errordesc{80}{no such drive}{The drive in the X register does not exist.
-  HYPPO only assigns drive numbers to the SD card partitions it can
+  Hyppo only assigns drive numbers to the SD card partitions it can
   read.}
 \item [History:]
   \availablefrom{1.2}
@@ -1324,7 +1324,7 @@ filename:
     STA $D640
     CLV
     BCC @error
-    ;; The C flag was already set by HYPPO service
+    ;; The C flag was already set by Hyppo service
     RTS
 \end{verbatim}
 \end{tcolorbox}
@@ -1355,7 +1355,7 @@ filename:
 \newpage
 \begin{hyppotrap}{setname}{D640}{2E}
 \item [Service:]
-  Sets the current HYPPO filename.
+  Sets the current Hyppo filename.
 \item [Preconditions:]
   The filename is stored in ASCII and ends with \$00 byte.
 
@@ -1363,7 +1363,7 @@ filename:
 \item [Inputs:]
   \register{Y}{The MSB of the filename address.}
 \item [Postconditions:]
-  HYPPO has copied the filename into it's own data area.
+  Hyppo has copied the filename into it's own data area.
 
   The hyppo\_find* and hyppo\_load* services use this filename.
 \item [Side effects:]
@@ -1379,11 +1379,11 @@ filename:
   mapping is used. However, it is good practice to place it in the bottom 32KB
   of bank 0.
 
-  The filenames in FAT are encoded in UTF-16. HYPPO only reads the LSB
-  of each 16-bit character. HYPPO does not convert between ASCII and
+  The filenames in FAT are encoded in UTF-16. Hyppo only reads the LSB
+  of each 16-bit character. Hyppo does not convert between ASCII and
   PETSCII.
 
-  HYPPO accesses the files in the FAT file system on the internal and
+  Hyppo accesses the files in the FAT file system on the internal and
   external SD cards. It does not access files on disks in floppy drives or in
   disk images.
 \item [Example:]
@@ -1412,9 +1412,9 @@ filename:
 The 45IO27 multi-function I/O controller includes a F011-compatible floppy
 controller. The internal floppy drive is attached to this as drive 0.
 
-HYPPO can virtualise the F011 floppy controller so that disk images
+Hyppo can virtualise the F011 floppy controller so that disk images
 can be attached instead of floppy drives. Once a disk image is attached,
-HYPPO traps the F011's I/O registers and emulates the commands on the disk
+Hyppo traps the F011's I/O registers and emulates the commands on the disk
 image.
 
 You can use BASIC, the Kernal and the F011 I/O registers to operate on a disk
@@ -1430,7 +1430,7 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Attach a D81 disk image to virtualised F011 drive 0.
 \item [Preconditions:]
-  The current HYPPO filename has been set using \hypporef{setname}.
+  The current Hyppo filename has been set using \hypporef{setname}.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
@@ -1447,7 +1447,7 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Attach a D81 disk image to virtualised F011 drive 1.
 \item [Preconditions:]
-  The current HYPPO filename has been set using \hypporef{setname}.
+  The current Hyppo filename has been set using \hypporef{setname}.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
@@ -1497,7 +1497,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{create\_task\_c64}{D640}{66}
 \item [Service:]
-  Creates a HYPPO task in the C64-like operating mode.
+  Creates a Hyppo task in the C64-like operating mode.
 \notimplemented
 \end{hyppotrap}
 
@@ -1507,7 +1507,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{create\_task\_c65}{D640}{68}
 \item [Service:]
-  Creates a HYPPO task in the C65-like operating mode.
+  Creates a Hyppo task in the C65-like operating mode.
 \notimplemented
 \end{hyppotrap}
 
@@ -1517,7 +1517,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{create\_task\_native}{D640}{62}
 \item [Service:]
-  Creates a HYPPO task in the Mega65 operating mode.
+  Creates a Hyppo task in the Mega65 operating mode.
 \notimplemented
 \end{hyppotrap}
 
@@ -1527,7 +1527,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{exit\_and\_switch\_to\_task}{D640}{6A}
 \item [Service:]
-  Exits the current HYPPO task and switches context to another HYPPO task.
+  Exits the current Hyppo task and switches context to another Hyppo task.
 \notimplemented
 \end{hyppotrap}
 
@@ -1537,7 +1537,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{exit\_task}{D640}{6E}
 \item [Service:]
-  Exits the current HYPPO task. % Jimbo - And then what?
+  Exits the current Hyppo task. % Jimbo - And then what?
 \notimplemented
 \end{hyppotrap}
 
@@ -1678,7 +1678,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{gettasklist}{D640}{50}
 \item [Service:]
-  Gets the list of tasks in HYPPO.
+  Gets the list of tasks in Hyppo.
 \notimplemented
 \end{hyppotrap}
 
@@ -1688,7 +1688,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{load\_into\_task}{D640}{64}
 \item [Service:]
-  Loads a file from an SD card partition into the memory of a HYPPO task.
+  Loads a file from an SD card partition into the memory of a Hyppo task.
 \notimplemented
 \end{hyppotrap}
 
@@ -1698,7 +1698,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{readoutoftask}{D640}{58}
 \item [Service:]
-  Reads from the memory of another HYPPO task.
+  Reads from the memory of another Hyppo task.
 \notimplemented
 \end{hyppotrap}
 
@@ -1708,7 +1708,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{receivemessage}{D640}{54}
 \item [Service:]
-  Receives messages sent from other HYPPO tasks.
+  Receives messages sent from other Hyppo tasks.
 \notimplemented
 \end{hyppotrap}
 
@@ -1761,7 +1761,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{sendmessage}{D640}{52}
 \item [Service:]
-  Sends a message to another HYPPO task.
+  Sends a message to another Hyppo task.
 \notimplemented
 \end{hyppotrap}
 
@@ -1839,7 +1839,7 @@ with both disk images and physical disks, be sure to test it with both.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  You must take care when changing the memory mapping. HYPPO will not take any
+  You must take care when changing the memory mapping. Hyppo will not take any
   steps to ensure the instructions after the STA are executed regardless of the
   mapping. If you change the mapping of the block where the program counter
   points to, the CPU will resume with the instructions in the newly mapped
@@ -1859,7 +1859,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{switch\_to\_task}{D640}{6C}
 \item [Service:]
-  Switches context to another HYPPO task.
+  Switches context to another Hyppo task.
 \notimplemented
 \end{hyppotrap}
 
@@ -1869,7 +1869,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{terminateothertask}{D640}{60}
 \item [Service:]
-  Terminates another HYPPO task.
+  Terminates another Hyppo task.
 \notimplemented
 \end{hyppotrap}
 
@@ -1923,7 +1923,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{writeintotask}{D640}{56}
 \item [Service:]
-  Writes into the memory of another HYPPO task.
+  Writes into the memory of another Hyppo task.
 \notimplemented
 \end{hyppotrap}
 

@@ -1,13 +1,13 @@
 \newenvironment{hyppotrap}[3]
 {
-  \newcommand{\availablefrom}[1]{Available since Hypervisor ##1}
-  \newcommand{\errordesc}[3]{\index{Hypervisor Error Codes!\$##1}\textbf{\$##1 ##2} ##3\par}
+  \newcommand{\availablefrom}[1]{Available since HYPPO ##1}
+  \newcommand{\errordesc}[3]{\index{HYPPO Error Codes!\$##1}\textbf{\$##1 ##2} ##3\par}
   \newcommand{\notimplemented}{\item[Remarks:]\textbf{NOT IMPLEMENTED}\par}
   \newcommand{\register}[2]{\textbf{##1} ##2\par}
   \newcommand{\TODO}{\textbf{\color{red}TODO}}
   \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
   \subsection{hdos\_#1}
-  \index{Hypervisor Services!\$#2 \$#3}
+  \index{HYPPO Services!\$#2 \$#3}
   \begin{description}[leftmargin=2.7cm,style=nextline]
   \item [Trap:] LDA \#\$#3 : STA \$#2 : CLV
 }
@@ -15,8 +15,8 @@
   \end{description}
 }
 
-\chapter{MEGA65 Hypervisor Services}
-\index{Hypervisor Services}
+\chapter{MEGA65 HYPPO Services}
+\index{HYPPO Services}
 \index{Registers!\$D640}
 \index{Registers!\$D641}
 \index{Registers!\$D642}
@@ -83,34 +83,35 @@
 \index{Registers!\$D67F}
 
 \section{Introduction}
-The Hypervisor is a software component of the Mega65. The Hypervisor:
+A part of the Mega65 is the system program called HYPPO that:
 \begin{itemize}
   \item Boots the Mega65. ({\textbf{\color{red}TODO}} refer to the start up sequence diagram)
   \item Loads the ROMs and other files from the SD card.
   \item Makes memory banks 2 and 3 ROM-like by proctecting them from being
         written to.
   \item Virtualises the floppy disk controller so you can use disk images.
-  \item Calls up various utilties like the freezer and the Matrix Mode
-        Debugger.
+  \item Runs various utilties like the freezer and the Matrix Mode Debugger.
   \item Provides services specific to the Mega65 that you can use in your
         programmes.
 \end{itemize}
 
-If you know about hypervisors and virtual machines, the Hypervisor is a very
-limited hypervisor. Don't expect to be able to run multiple virtual machines
-concurrently with full isolation. The Hypervisor runs environments that are
-more akin to the task and processes of a modern operating system. The
-Hypervisor has a C64-like, a C65-like and a Mega65-native operating mode for
-running tasks and processes.
+If you know about hypervisors and virtual machines, HYPPO is a very limited
+hypervisor. Don't expect to be able to run multiple virtual machines
+concurrently with full isolation. HYPPO runs things that are more akin to the
+task and processes of a modern operating system than the virtual machines of a
+hypervisor as you might know it.
+
+HYPPO provides 3 operating modes.
 
 \begin{itemize}
   \item \textbf{The C64-like operating mode} runs C64 programmes and Mega65
         programmes that run in the Mega65's C64 mode. When you boot with
-        \megasymbolkey pressed or use the \textbf{GO64} command, the Hypervisor
-        starts a process in the C64-like operating mode.
+        \megasymbolkey pressed or use the \textbf{GO64} command, HYPPO
+        starts a process in the C64-like operating mode to run BASIC 2 or the
+        Mega65 programme.
   \item \textbf{The C65-like operating mode} is the Mega65's normal operating
         mode. This is where regular Mega65 program run, including BASIC 65
-        programmes and 45GS02 machine-code programmes.
+        programmes.
   \item \textbf{The Mega65 operating mode} runs the Mega65's system programmes
         like the freezer, the configuration utility and the Matrix Mode
         Debugger. Maybe surprisingly, normal Mega65 programs do not run in the
@@ -119,38 +120,36 @@ running tasks and processes.
         attempt to be compatible with or even be similar to previous systems.
 \end{itemize}
 
-The Hypervisor provides very limited virtualisation of the Mega65's hardware.
-It can virtualise the floppy controller. There are plans to virtualise the
-serial bus so the Mega65 can use disk images for units like the 1541.
+HYPPO provides very limited virtualisation of the Mega65's hardware. It can
+virtualise the floppy controller. There are plans to virtualise the serial bus
+so the Mega65 can use disk images for units like the 1541.
 
-There are some parts of the hardware that only the Hypervisor can access. It is
-the only component that can directly access the internal and external SD cards.
-You need to use the Hypervisor's services if you want to access the files and
-directories on the SD cards from within your programmes.
+There are some parts of the hardware that only HYPPO can access. It is the only
+component that can directly access the internal and external SD cards. You need
+to use HYPPO's services if you want to access the files and directories on the
+SD cards from within your programmes.
 
 \subsection{Terminology}
 
-When you start to learn about the Hypervisor, there can be some terminology that
-might be confusing if you already know about other parts of the Mega65.
+When you start to learn about HYPPO, there can be some terminology that might be
+confusing if you already know about other parts of the Mega65.
 
-The Hypervisor has the nick-name HYPPO. In this appendix, we call it the
-Hypervisor. On the SD card there is likely to be a file called HICKUP.M65. This
-file updates the Hypervisor to new versions without having to install an
-upgraded core.
+On the SD card there is likely to be a file called HICKUP.M65. This file updates
+HYPPO to new versions without having to install an upgraded core. You might find
+occations where HYPPO might be called Hickup because of this strong association.
 
 There are 3 distinct disk operating systems in the Mega65.
 
 \begin{itemize}
-  \item Inside the Hypervisor is HYPPO DOS, or HDOS for short. HDOS is for
-        accessing the FAT32 file system on the SD cards. HDOS does not know
-        anything about Commodore file systems. It can attach an image of a
-        Commodore file system, but it does not understand what is inside
-        the image.
+  \item Inside HYPPO is HYPPO DOS, or HDOS for short. HDOS is for accessing
+        the FAT32 file system on the SD cards. HDOS does not know anything
+        about Commodore file systems. It can attach an image of a Commodore
+        file system, but it does not understand what is inside the image.
   \item Inside the Kernal is CBDOS. CBDOS is for accessing 1581-like file
         systems. CBDOS uses the 45IO27 multi-function I/O controller to access
-        the sectors of a physical disk. It uses the Hypervisor to access the
-        sectors of a disk image. CBDOS does not know anything about SD cards
-        and FAT32 file system on them.
+        the sectors of a physical disk. CBDOS does not know anything about SD
+        cards and the FAT32 file system on them. HYPPO virtualises part of the
+        45IO27 so CBDOS can access disk images like they're physical disks.
   \item The external disk units attached to the serial bus each have their own
         DOS. They are used for access the file systems on their respective
         physical disks.
@@ -159,50 +158,49 @@ There are 3 distinct disk operating systems in the Mega65.
 The word drive means different things for each of these DOS's.
 
 \begin{itemize}
-  \item The drives in the Hypervisor are the partitions of the internal and
-        external SD cards. When the Mega65 boots, the Hypervisor assigns
-        numbers to the partitions it can read.
+  \item The drives in HYPPO are the partitions of the internal and external SD
+        cards. When the Mega65 boots, HYPPO assigns numbers to the partitions
+        it can read.
   \item The drives in CBDOS are the physical disk drives attached to the 45IO27
-        multi-function I/O controller or the disk images attached via the
-        Hypervisor. The internal disk drive attaches to the 45IO27. The CBDOS
-        drives are normally seen as units 8 and 9.
-  \item The drives in an external disk unit attached to the serial bus are the
+        multi-function I/O controller --- such as the internal disk drive ---
+        or the disk images attached to the virtualised 45IO27. The CBDOS drives
+        are normally seen as units 8 and 9.
+  \item The drives in an external unit attached to the serial bus are the
         disk drives inside that unit.
 \end{itemize}
 
 \subsection{Versions}
 
-This chapter describes the services available in Hypervisor 1.2.
+This chapter describes the services available in HYPPO 1.2.
 
-New Hypervisor services may become available and existing Hypervisor services
-may change or be deprecated. A robust programme will use the hdos\_getversion
-service to check whether it is compatible with the Hypervisor in the MEGA65
-it's running on.
+New HYPPO services may become available and existing HYPPO services may change
+or be deprecated. A robust programme will use the hdos\_getversion service to
+check whether it is compatible with the HYPPO in the MEGA65 it's running on.
 
 % Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
 
 \subsection{Using}
-When you want to use a hypervisor service, you don't use JSR. This is because
-the Hypervisor exists in a space that's seperate from regular code. In order to
-access it, the CPU needs to switch into the Hypervisor.
+When you want to use a HYPPO service, you don't use JSR. This is because
+HYPPO exists in a space that's seperate from regular code. In order to
+access it, the CPU needs to switch into its hypervisor mode.
 
-At addresses \$D640 -- \$D67F are a set of Hypervisor traps. Writing to these
+At addresses \$D640 -- \$D67F are a set of hypervisor traps. Writing to these
 addresses are not like writing to other addresses. Instead of writing to memory
-or I/O, the CPU switches into the Hypervisor and starts a Hypervisor service.
+or I/O, the CPU switches into the hypervisor mode and starts a HYPPO service.
 How the CPU does this is described in \bookvref{cha:cpu}.
 
-Which hypervisor service starts depends on what value from the A register you
+Which HYPPO service starts depends on what value from the A register you
 write and which trap you write to. Each of the services described in this
 chapter tells you what value to write and which trap to use. You have to use the
 A register when triggering a trap. Writing the same value from another register
 won't work.
 
-When the hypervisor service finishes, the CPU will switch back to your programme.
+When the HYPPO service finishes, the CPU will switch back to your programme.
 Except for the registers a service uses to return values, the registers are
 otherwise preserved.
 
-\textbf{Important} The CPU may or may not execute the next byte in your programme
-after the Hypervisor service finishes. Put a CLV instruction after the STA.
+\textbf{Important} The CPU may or may not execute the next byte in your
+programme after the HYPPO service finishes. Put a CLV instruction after the STA.
 The CPU executing the CLV or not shouldn't matter to your programme. If your
 programme does rely on the V flag, you can use the NOP instruction instead. When
 you use NOP you must be mindful of when the CPU interpets the NOP as a prefix
@@ -210,7 +208,7 @@ for the following instruction. For this reason, you should prefer using CLV
 over NOP.
 
 \subsection{Errors}
-\index{Hypervisor Error Codes}
+\index{HYPPO Error Codes}
 
 If the service was successful, it will set the C flag.
 
@@ -231,18 +229,19 @@ hdos\_geterrorocde.
 % geterrorcode
 % ******************************************************************************
 \begin{hyppotrap}{geterrorcode}{D640}{38}
-\index{Hypervisor Error Codes}
+\index{HYPPO Error Codes}
 \item [Service:]
-  Returns the current error code from the Hypervisor.
+  Returns the current error code from HYPPO.
 \item [Precondition:]
-  The previous service uses cleared the C flag.
+  The previous service used cleared the C flag.
 \item [Outputs:]
   \register{A}{The error code of the previously failed service.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  The error code is only valid if the previous service cleared the C flag.
-  If the C flag was set there was no error and this error code is undefined.
+  The error code is only valid if the previous HYPPO service cleared the C flag.
+  If the C flag was set there was no error and the HYPPO error code is
+  undefined.
 
   The meanings here are generic. See the sections for the services for more
   specific meanings.
@@ -254,120 +253,120 @@ hdos\_geterrorocde.
     \textbf{Hex} & \textbf{Dec} & \textbf{Name} & \textbf{General meaning}\\
     \hline
     \endhead
-    \index{Hypervisor Error Codes!\$01}
+    \index{HYPPO Error Codes!\$01}
     \$01 & 1 & \makecell[tl]{partition not \\ interesting} &
     The partition is not of a supported type.
     \\\hline
-    \index{Hypervisor Error Codes!\$02}
+    \index{HYPPO Error Codes!\$02}
     \$02 & 2 & bad signature &
     The signature bytes at the end of a partition table or of the first sector
     of a partition were missing or incorrect.
     \\\hline
-    \index{Hypervisor Error Codes!\$03}
+    \index{HYPPO Error Codes!\$03}
     \$03 & 3 & is small FAT &
     This is partition is FAT12 or FAT16 partition. Only FAT32 is supported.
     \\\hline
-    \index{Hypervisor Error Codes!\$04}
+    \index{HYPPO Error Codes!\$04}
     \$04 & 4 & \makecell[tl]{too many reserved\\clusters} &
     The partition has more than 65,535 reserved sectors.
     \\\hline
-    \index{Hypervisor Error Codes!\$05}
+    \index{HYPPO Error Codes!\$05}
     \$05 & 5 & not two FATs &
     The partition does not have exactly two copies of the FAT structure.
     \\\hline
-    \index{Hypervisor Error Codes!\$06}
+    \index{HYPPO Error Codes!\$06}
     \$06 & 6 & too few clusters &
     The partition contains too few clusters.
     % Jimbo - What is the minimum?
     \\\hline
-    \index{Hypervisor Error Codes!\$07}
+    \index{HYPPO Error Codes!\$07}
     \$07 & 7 & read timeout &
     It took to long to read from the SD card.
     % Jimbo - Is there a write timeout error code?
     \\\hline
-    \index{Hypervisor Error Codes!\$08}
+    \index{HYPPO Error Codes!\$08}
     \$08 & 8 & partition error &
     An unspecified error occurred while handling a partition.
     \\\hline
-    \index{Hypervisor Error Codes!\$10}
+    \index{HYPPO Error Codes!\$10}
     \$10 & 16 & invalid address &
     An invalid address was supplied in an argument.
     \\\hline
-    \index{Hypervisor Error Codes!\$11}
+    \index{HYPPO Error Codes!\$11}
     \$11 & 17 & illegal value &
     An illegal value was supplied in an argument.
     \\\hline
-    \index{Hypervisor Error Codes!\$20}
+    \index{HYPPO Error Codes!\$20}
     \$20 & 32 & read error &
     An unspecified error occurred while reading.
     \\\hline
-    \index{Hypervisor Error Codes!\$21}
+    \index{HYPPO Error Codes!\$21}
     \$21 & 33 & write error &
     An unspecified error occurred while writing.
     \\\hline
-    \index{Hypervisor Error Codes!\$80}
+    \index{HYPPO Error Codes!\$80}
     \$80 & 128 & no such drive &
-    The supplied drive number does not exist.
+    The supplied HYPPO drive number does not exist.
     \\\hline
-    \index{Hypervisor Error Codes!\$81}
+    \index{HYPPO Error Codes!\$81}
     \$81 & 129 & {name too long} &
     The supplied filename was too long.
     \\\hline
-    \index{Hypervisor Error Codes!\$82}
+    \index{HYPPO Error Codes!\$82}
     \$82 & 130 & not implemented &
-    The hypervisor service is not implemented.
+    The HYPPO service is not implemented.
     \\\hline
-    \index{Hypervisor Error Codes!\$83}
+    \index{HYPPO Error Codes!\$83}
     \$83 & 131 & file too long &
     The file is larger than 16MB.
     \\\hline
-    \index{Hypervisor Error Codes!\$84}
+    \index{HYPPO Error Codes!\$84}
     \$84 & 132 & \makecell[tl]{too many\\open files} &
     All of the file descriptors are in use.
     \\\hline
-    \index{Hypervisor Error Codes!\$85}
+    \index{HYPPO Error Codes!\$85}
     \$85 & 133 & invalid cluster &
     The supplied cluster number is invalid.
     \\\hline
-    \index{Hypervisor Error Codes!\$86}
+    \index{HYPPO Error Codes!\$86}
     \$86 & 134 & is a directory &
     An attempt was made to operate on a directory, where a normal file was
     expected.
     \\\hline
-    \index{Hypervisor Error Codes!\$87}
+    \index{HYPPO Error Codes!\$87}
     \$87 & 135 & not a directory &
     An attempt was made to operate on a normal file, where a directory was
     expected.
     \\\hline
-    \index{Hypervisor Error Codes!\$88}
+    \index{HYPPO Error Codes!\$88}
     \$88 & 136 & file not found &
     The file could not be located in the current directory of the current drive.
     \\\hline
-    \index{Hypervisor Error Codes!\$89}
+    \index{HYPPO Error Codes!\$89}
     \$89 & 137 & \makecell[tl]{invalid file\\descriptor} &
     An invalid or closed file descriptor was supplied.
     \\\hline
-    \index{Hypervisor Error Codes!\$8A}
+    \index{HYPPO Error Codes!\$8A}
     \$8A & 138 & \makecell[tl]{image wrong\\length} &
     The disk image file has the wrong length.
     \\\hline
-    \index{Hypervisor Error Codes!\$8B}
+    \index{HYPPO Error Codes!\$8B}
     \$8B & 139 & image fragmented &
-    The disk image is not stored contiguously.
+    The disk image is not stored contiguously on the SD card.
     \\\hline
-    \index{Hypervisor Error Codes!\$8C}
+    \index{HYPPO Error Codes!\$8C}
     \$8C & 140 & no space &
     The SD card has no free space for the requested operation.
     \\\hline
-    \index{Hypervisor Error Codes!\$8D}
+    \index{HYPPO Error Codes!\$8D}
     \$8D & 141 & file exists &
     A file already exists with the given name.
     \\\hline
-    \index{Hypervisor Error Codes!\$8E}
+    \index{HYPPO Error Codes!\$8E}
     \$8E & 142 & directory full &
     The directory cannot accommodate any more entries.
     \\\hline
-    \index{Hypervisor Error Codes!\$FF}
+    \index{HYPPO Error Codes!\$FF}
     \$FF & 255 & eof &
     The end of a file or directory was encountered.
     \\\hline
@@ -382,19 +381,19 @@ hdos\_geterrorocde.
 \newpage
 \begin{hyppotrap}{getversion}{D640}{00}
 \item [Service:]
-  Returns the version of the Hypervisor operating system and its HDOS.
+  Returns the version of HYPPO and HDOS.
 \item [Outputs:]
-  \register{A}{The major version number of the Hypervisor}
-  \register{X}{The major version number of the Hypervisor}
+  \register{A}{The major version number of HYPPO}
+  \register{X}{The major version number of HYPPO}
   \register{Y}{The minor version number of HDOS}
   \register{Z}{The major version number of HDOS}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  The HDOS in the Hypervisor is not related to the CBDOS inside Kernal 65 or the
-  DOS in the disk drives attached to the serial port.
+  The HDOS in HYPPO is not related to the CBDOS inside the Kernal or the
+  DOS in the disk drive units attached to the serial port.
 \item [Example:]
-  Tests if the Hypervisor version is $\geq$ 1.2 and $<$ 2.0.
+  Tests if HYPPO's version is $\geq$ 1.2 and $<$ 2.0.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -402,10 +401,10 @@ hdos\_geterrorocde.
     LDA #$00
     STA $D640
     CLV
-    ;; Test if the major version number of the Hypervisor is 1
+    ;; Test if the major version number of HYPPO is 1
     CMP #1
     BNE @incompatible
-    ;; Test if the minor version number of the Hypervisor is >= 2
+    ;; Test if the minor version number of HYPPO is >= 2
     TXA
     CMP #2
     BMI @incompatible
@@ -428,8 +427,7 @@ hdos\_geterrorocde.
 \newpage
 \begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
 \item [Service:]
-  Sets up the area the Hypervisor uses to transfer data to and from your
-  programme.
+  Sets up the area HYPPO uses to transfer data to and from your programme.
 \item [Inputs:]
   \register{Y}{The MSB of the transfer area's address}
 \item [Errors:]
@@ -442,7 +440,7 @@ hdos\_geterrorocde.
 
   The transfer area is 256 bytes long for most services.
 
-  The transfer area is indicated using the processor's current memory mapping at
+  The transfer area is indicated using the CPU's current memory mapping at
   the time that a service is used. However, it is good practice to always
   place it in the bottom 32KB of bank 0.
 \item [Example:]
@@ -477,8 +475,8 @@ transferarea:
 %         This would resolve potential confusion when we do start referring
 %         to the virtual F011's drive 0 and 1 around mounting disk images.
 
-In the Hypervisor, drives are the partitions of the internal and external SD
-cards. They are not the drive 0 and drive 1 of the F011 floppy controller. They
+In HYPPO, drives are the partitions of the internal and external SD cards.
+They are not the drive 0 and drive 1 of the F011 floppy controller. They
 are also not the drive 0 and drive 1 of dual-drive units attached to the serial
 bus.
 
@@ -600,9 +598,9 @@ bus.
 \newpage
 \begin{hyppotrap}{findfile}{D640}{34}
 \item [Service:]
-  Finds the first file whose filename matches the current Hypervisor filename.
+  Finds the first file whose filename matches the current HYPPO filename.
 \item [Preconditions:]
-  The current Hypervisor filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hdos\_setname.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
@@ -611,12 +609,12 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  % Jimbo - Why does the Hypervisor do this and create this restriction?
-  The Hypervisor will only find files whose long filename is all in uppercase.
-  The Hypervisor converts the current filename to ASCII uppercase before trying
+  % Jimbo - Why does HYPPO do this and create this restriction?
+  HYPPO will only find files whose long filename is all in uppercase.
+  HYPPO converts the current filename to ASCII uppercase before trying
   to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
 
-  The Hypervisor does not yet support the wildcard characters * and ?. Support
+  HYPPO does not yet support the wildcard characters * and ?. Support
   for that is planned in a future version.
 
   This only finds the first matching file. You can find multiple matches by
@@ -632,9 +630,9 @@ bus.
 \newpage
 \begin{hyppotrap}{findfirst}{D640}{30}
 \item [Service:]
-  Finds the first file whose filename matches the current Hypervisor filename.
+  Finds the first file whose filename matches the current HYPPO filename.
 \item [Preconditions:]
-  The current Hypervisor filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hdos\_setname.
 \item [Outputs:]
   \register{A}{The file descriptor for reading the current working directory.
   You might be responsible for closing this file descriptor using
@@ -650,22 +648,22 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  If the Hypervisor finds an initial matching file, it will set the C flag and
+  If HYPPO finds an initial matching file, it will set the C flag and
   return a file descriptor in the A register. This is a file descriptor for
   reading the current working directory. You are responsible for closing it
   using hdos\_closedir. It's a standard directory file descriptor. You can use
   hdos\_readdir to read the FAT dir entries after the file that was found.
 
-  If the Hypervisor doesn't find any matching files, it will fail with a file
-  not found error. In this case the Hypervisor will have already closed the
+  If HYPPO doesn't find any matching files, it will fail with a file
+  not found error. In this case HYPPO will have already closed the
   file descriptor and you don't have to close it.
 
-  % Jimbo - Why does the Hypervisor do this and create this restriction?
-  The Hypervisor will only find files whose long filename is all in uppercase.
-  The Hypervisor converts the current filename to ASCII uppercase before trying
+  % Jimbo - Why does HYPPO do this and create this restriction?
+  HYPPO will only find files whose long filename is all in uppercase.
+  HYPPO converts the current filename to ASCII uppercase before trying
   to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
 
-  The Hypervisor does not yet support the wildcard characters * and ?. Support
+  HYPPO does not yet support the wildcard characters * and ?. Support
   for that is planned in a future version.
 
   If you are only interested in the first match, you can use hdos\_findfile
@@ -682,10 +680,9 @@ bus.
 \newpage
 \begin{hyppotrap}{findnext}{D640}{32}
 \item [Service:]
-  Finds a subsequent file whose filename matches the current Hypervisor
-  filename.
+  Finds a subsequent file whose filename matches the current HYPPO filename.
 \item [Preconditions:]
-  The current Hypervisor filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hdos\_setname.
 
   The first matching file has already been found successfully using
   hdos\_findfirst.
@@ -698,8 +695,8 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  If the Hypervisor doesn't find a subsequent matching file, it will fail with a
-  file not found error. The Hypervisor will also close the file descriptor it
+  If HYPPO doesn't find a subsequent matching file, it will fail with a
+  file not found error. HYPPO will also close the file descriptor it
   output in hdos\_findfirst.
 
   If you don't exhaust the search by using hdos\_findnext until it fails with a
@@ -779,7 +776,7 @@ bus.
 \newpage
 \begin{hyppotrap}{getdefaultdrive}{D640}{02}
 \item [Service:]
-  Returns the drive number (SD card partition) the Hypervisor selected while
+  Returns the drive number (SD card partition) HYPPO selected while
   booting.
 \item [Outputs:]
   \register{A}{The default drive number}
@@ -901,7 +898,7 @@ bus.
   Creates a sub-directory.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current Hypervisor filename in the current working dirctory of the current
+  current HYPPO filename in the current working dirctory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -915,7 +912,7 @@ bus.
   Creates a file.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current Hypervisor filename in the current working dirctory of the current
+  current HYPPO filename in the current working dirctory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -1048,7 +1045,7 @@ filename:
   and hdos\_closedir hasn't since been used to close it.
 \item [Inputs:]
   \register{X}{A file descriptor for the directory.}
-  \register{Y}{The MSB of the address the Hypervisor will copy the FAT dir entry
+  \register{Y}{The MSB of the address HYPPO will copy the FAT dir entry
   into. It must be $\leq$ \$7E. This destination address must be on a page
   boundary. It's LSB must be \$00. The destination area must be at least 87
   bytes.}
@@ -1104,10 +1101,10 @@ filename:
   the directory}
 \item [Remarks:]
   If the long file name in the FAT dir entry is too long to copy into the
-  destination area, the Hypervisor skips the entry entrirely.
+  destination area, HYPPO skips the entry entrirely.
 
-  The file names in FAT are encoded as UTF-16. The Hypervisor only reads the LSB
-  of each 16-bit character. The Hypervisor does not convert file names into
+  The file names in FAT are encoded as UTF-16. HYPPO only reads the LSB
+  of each 16-bit character. HYPPO does not convert file names into
   PETSCII.
 
   See hdos\_setup\_transfer\_area for more details about the value for the Y
@@ -1212,7 +1209,7 @@ filename:
   Renames a file or sub-directory.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current Hypervisor filename in the current working dirctory of the current
+  current HYPPO filename in the current working dirctory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -1256,16 +1253,16 @@ filename:
 \item [Service:]
   Selects the currently selected drive (SD card partition).
 \item [Preconditions:]
-  The Hypervisor has assigned a drive number to the SD card partition.
+  HYPPO has assigned a drive number to the SD card partition.
 \item [Inputs:]
   \register{X}{The drive number to become the new current drive}
 \item [Postconditions:]
   hdos\_getcurrentdrive returns the value that was in the X register.
 
-  The Hypervisor services operate on the newly selected drive.
+  HYPPO services operate on the newly selected drive.
 \item [Errors:]
   \errordesc{80}{no such drive}{The drive in the X register does not exist.
-  The Hypervisor only assigns drive numbers to the SD card partitions it can
+  HYPPO only assigns drive numbers to the SD card partitions it can
   read.}
 \item [History:]
   \availablefrom{1.2}
@@ -1296,7 +1293,7 @@ filename:
     STA $D640
     CLV
     BCC @error
-    ;; The C flag was already set by the Hypervisor service
+    ;; The C flag was already set by HYPPO service
     RTS
 \end{verbatim}
 \end{tcolorbox}
@@ -1329,7 +1326,7 @@ filename:
 \newpage
 \begin{hyppotrap}{setname}{D640}{2E}
 \item [Service:]
-  Sets the current Hypervisor filename.
+  Sets the current HYPPO filename.
 \item [Preconditions:]
   The filename is stored in ASCII and ends with \$00 byte.
 
@@ -1337,7 +1334,7 @@ filename:
 \item [Inputs:]
   \register{Y}{The MSB of the filename address.}
 \item [Postconditions:]
-  The Hypervisor has copied the filename into it's own data area.
+  HYPPO has copied the filename into it's own data area.
 
   The hdos\_find* and hdos\_load* services use this filename.
 \item [Side effects:]
@@ -1353,11 +1350,11 @@ filename:
   mapping is used. However, it is good practice to place it in the bottom 32KB
   of bank 0.
 
-  The filenames in FAT are encoded in UTF-16. The Hypervisor only reads the LSB
-  of each 16-bit character. The Hypervisor does not convert between ASCII and
+  The filenames in FAT are encoded in UTF-16. HYPPO only reads the LSB
+  of each 16-bit character. HYPPO does not convert between ASCII and
   PETSCII.
 
-  The Hypervisor accesses the files in the FAT file system on the internal and
+  HYPPO accesses the files in the FAT file system on the internal and
   external SD cards. It does not access files on disks in floppy drives or in
   disk images.
 \item [Example:]
@@ -1386,15 +1383,15 @@ filename:
 The 45IO27 multi-function I/O controller includes a F011-compatible floppy
 controller. The internal floppy drive is attached to this as drive 0.
 
-The Hypervisor can virtualise the F011 floppy controller so that disk images
-can be attached instead of floppy drives. Once a disk image is attached, the
-Hypervisor traps the F011's I/O registers and emulates the commands on the disk
+HYPPO can virtualise the F011 floppy controller so that disk images
+can be attached instead of floppy drives. Once a disk image is attached,
+HYPPO traps the F011's I/O registers and emulates the commands on the disk
 image.
 
 You can use BASIC, the Kernal and the F011 I/O registers to operate on a disk
-image just as you would a real disk. This emulation does not behave the same as
-a floppy drive in all cases. If you intend for your programme to work with both
-disk images and physical disks, be sure to test it with both.
+image just as you would a physical disk. The virtualisation does not behave the
+same as a floppy drive in all cases. If you intend for your programme to work
+with both disk images and physical disks, be sure to test it with both.
 
 
 % ******************************************************************************
@@ -1404,7 +1401,7 @@ disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Attach a D81 disk image to virtualised F011 drive 0.
 \item [Preconditions:]
-  The current Hypervisor filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hdos\_setname.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
@@ -1421,7 +1418,7 @@ disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Attach a D81 disk image to virtualised F011 drive 1.
 \item [Preconditions:]
-  The current Hypervisor filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hdos\_setname.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]

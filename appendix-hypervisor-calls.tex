@@ -4,7 +4,7 @@
   \newcommand{\deprecatedfrom}[1]{
     \textcolor{Orange}{
       \textbf{DEPRECATED} since Hyppo ##1.
-      This service may be removed in a future version. New programmes should
+      This service may be removed in a future version. New programs should
       not use this service.
     }
   }
@@ -98,17 +98,17 @@
 \index{Registers!\$D67F}
 
 \section{Introduction}
-A part of the Mega65 is the system program called Hyppo that:
+A part of the MEGA65 is the system program called Hyppo that:
 \begin{itemize}
-  \item Boots the Mega65. ({\textbf{\color{red}TODO}} refer to the start up sequence diagram)
+  \item Boots the MEGA65.
   \item Loads the ROMs and other files from the SD card.
   \item Makes memory banks 2 and 3 ROM-like by protecting them from being
         written to.
   \item Virtualises the floppy disk controller so you can use disk images.
   \item Launches various utilities like the freezer and the Matrix Mode
         Debugger.
-  \item Provides services specific to the Mega65 that you can use in your
-        programmes.
+  \item Provides services specific to the MEGA65 that you can use in your
+        programs.
 \end{itemize}
 
 If you know about hypervisors and virtual machines, Hyppo is a very limited
@@ -120,19 +120,19 @@ hypervisor as you might know it.
 Hyppo provides 3 operating modes.
 
 \begin{itemize}
-  \item \textbf{The C64-like operating mode} runs C64 programmes and Mega65
-        programmes that run in the Mega65's C64 mode. When you boot with
+  \item \textbf{The C64-like operating mode} runs C64 programs and MEGA65
+        programs that run in the MEGA65's C64 mode. When you boot with
         \megasymbolkey pressed or use the \textbf{GO64} command, Hyppo
         starts a process in the C64-like operating mode to run BASIC 2 or the
-        Mega65 programme.
-  \item \textbf{The C65-like operating mode} is the Mega65's normal operating
-        mode. This is where regular Mega65 program run, including BASIC 65
-        programmes.
-  \item \textbf{The Mega65 operating mode} runs the Mega65's system programmes
+        MEGA65 program.
+  \item \textbf{The C65-like operating mode} is the MEGA65's normal operating
+        mode. This is where regular MEGA65 program run, including BASIC 65
+        programs.
+  \item \textbf{The MEGA65 operating mode} runs the MEGA65's system programs
         like the freezer, the configuration utility and the Matrix Mode
-        Debugger. Maybe surprisingly, normal Mega65 programs do not run in the
-        Mega65 operating mode. They run in the C65-like operating mode. The
-        Mega65 operating mode is designed solely for the Mega65 and does not
+        Debugger. Maybe surprisingly, normal MEGA65 programs do not run in the
+        MEGA65 operating mode. They run in the C65-like operating mode. The
+        MEGA65 operating mode is designed solely for the MEGA65 and does not
         attempt to be compatible with or even be similar to previous systems.
 \end{itemize}
 
@@ -141,25 +141,25 @@ operating mode while it's is running, by simply enabling or disabling the
 various hardware features.
 
 \filbreak
-Hyppo provides very limited virtualisation of the Mega65's hardware. It can
+Hyppo provides very limited virtualisation of the MEGA65's hardware. It can
 virtualise the floppy controller. There are plans to virtualise the serial bus
-so the Mega65 can use disk images for units like the 1541.
+so the MEGA65 can use disk images for units like the 1541.
 
 There are some parts of the hardware that only Hyppo can access. It is the only
 component that can directly access the internal and external SD cards. You need
 to use Hyppo's services if you want to access the files and directories on the
-SD cards from within your programmes.
+SD cards from within your programs.
 
 \subsection{Terminology}
 
 When you start to learn about Hyppo, there can be some terminology that might be
-confusing if you already know about other parts of the Mega65.
+confusing if you already know about other parts of the MEGA65.
 
 On the SD card there is likely to be a file called HICKUP.M65. This file updates
 Hyppo to new versions without having to install an upgraded core. You might find
 occasions where Hyppo might be called Hickup because of this strong association.
 
-There are 3 distinct disk operating systems in the Mega65.
+There are 3 distinct disk operating systems in the MEGA65.
 
 \begin{itemize}
   \item Inside Hyppo is Hyppo DOS, or HDOS for short. HDOS is for accessing
@@ -180,7 +180,7 @@ The word drive means different things for each of these DOS's.
 
 \begin{itemize}
   \item The drives in Hyppo are the partitions of the internal and external SD
-        cards. When the Mega65 boots, Hyppo assigns numbers to the partitions
+        cards. When the MEGA65 boots, Hyppo assigns numbers to the partitions
         it can read.
   \item The drives in CBDOS are the physical disk drives attached to the 45IO27
         multi-function I/O controller --- such as the internal disk drive ---
@@ -196,7 +196,7 @@ The word drive means different things for each of these DOS's.
 This chapter describes the services available in Hyppo 1.2.
 
 New Hyppo services may become available and existing Hyppo services may change
-or be deprecated. A robust programme will use the \nameref{hyppo:getversion}
+or be deprecated. A robust program will use the \nameref{hyppo:getversion}
 service to check whether it is compatible with the Hyppo in the MEGA65 it's
 running on.
 
@@ -218,14 +218,14 @@ chapter tells you what value to write and which trap to use. You have to use the
 A register when triggering a trap. Writing the same value from another register
 won't work.
 
-When the Hyppo service finishes, the CPU will switch back to your programme.
+When the Hyppo service finishes, the CPU will switch back to your program.
 Except for the registers a service uses to return values, the registers are
 otherwise preserved.
 
 \textbf{Important} The CPU may or may not execute the next byte in your
-programme after the Hyppo service finishes. Put a CLV instruction after the STA.
-The CPU executing the CLV or not shouldn't matter to your programme. If your
-programme does rely on the V flag, you can use the NOP instruction instead. When
+program after the Hyppo service finishes. Put a CLV instruction after the STA.
+The CPU executing the CLV or not shouldn't matter to your program. If your
+program does rely on the V flag, you can use the NOP instruction instead. When
 you use NOP you must be mindful of when the CPU interprets the NOP as a prefix
 for the following instruction. For this reason, you should prefer using CLV
 over NOP.
@@ -395,7 +395,7 @@ in the A register. There is a table of error codes in the description for
     \\\hline
     \index{Hyppo Error Codes!\$FF}
     \$FF & 255 & no such trap &
-    There is no Hyppo service available for the trap. The programme may be
+    There is no Hyppo service available for the trap. The program may be
     incompatible with this version of Hyppo.
     \\\hline
   \end{longtable}
@@ -455,7 +455,7 @@ in the A register. There is a table of error codes in the description for
 \newpage
 \begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
 \item [Service:]
-  Sets up the area Hyppo uses to transfer data to and from your programme.
+  Sets up the area Hyppo uses to transfer data to and from your program.
 \item [Inputs:]
   \register{Y}{The MSB of the transfer area's address}
 \item [Errors:]
@@ -884,8 +884,13 @@ bus.
   Loading will start at 28-bit address \$00ZZYYXX. If loading tries to go beyond
   \$00FFFFFF, it wraps around and continue at \$00000000.
 
-  You can use \hypporef{loadfile}\_attic to load a file into hyper memory. The
+  You can use \hypporef{loadfile\_attic} to load a file into hyper memory. The
   hyper memory is the 8MB or more of memory in the external RAM chips.
+\item [Example:]
+  Allocates an 8K memory block in bank 3 or 4 and loads the file KABOOM.WAV into
+  it. This example assumes the size of KABOOM.WAV is less than 8K.
+
+  \TODO
 \end{hyppotrap}
 
 
@@ -1018,7 +1023,7 @@ bus.
 \item [Remarks:]
   You cannot use this to open a file inside a disk image. To do that you use
   \hypporef{d81attach0} or \hypporef{d81attach1} to attach the disk image and
-  then use either use the Kernal to read the file or programme the virtualised
+  then use either use the Kernal to read the file or program the virtualised
   F011 floppy controller.
 \item [Example:]
   Finds, opens and then closes the file CONFIG.DAT.
@@ -1075,16 +1080,16 @@ filename:
 \newpage
 \begin{hyppotrap}{readdir}{D640}{14}
 \item [Service:]
-  Reads the next FAT dir entry.
+  Reads the next FAT dir entry into a destination area.
 \item [Preconditions:]
   The file descriptor given in the X register was opened using
   \hypporef{opendir} and \hypporef{closedir} hasn't since been used to close it.
+
+  The destination area is on a page boundary between \$0000 and \$7E00 and is
+  at least 87 bytes.
 \item [Inputs:]
-  \register{X}{A file descriptor for the directory.}
-  \register{Y}{The MSB of the address Hyppo will copy the FAT dir entry
-  into. It must be $\leq$ \$7E. This destination address must be on a page
-  boundary. It's LSB must be \$00. The destination area must be at least 87
-  bytes.}
+  \register{X}{The file descriptor for the directory.}
+  \register{Y}{The MSB of the destination area.}
 \item [Outputs:]
   Starting at \$YY00, the FAT dir entry has this structure.
   {\setlength{\tabcolsep}{2mm}
@@ -1105,7 +1110,7 @@ filename:
   \\
   \$52 & dword & The length of file in bytes.
   \\
-  \$56 & dword & The type and attribute bits.
+  \$56 & byte  & The type and attribute bits.
   \\\hline
   \end{tabular}
   }
@@ -1129,12 +1134,10 @@ filename:
   Using \hypporef{readdir} again reads the next FAT dir entry in the directory.
 \item [Errors:]
   \errordesc{08}{partition error}{An unspecified error occurred while handling
-  the currently selected partition}
-  \errordesc{10}{invalid address}{The address in Y is invalid. It must be
-  $\leq$ \$7E}
-  \errordesc{20}{read error}{An unspecified error occurred while reading}
+  the currently selected partition.}
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
   \errordesc{85}{invalid cluster}{An attempt was made to read past the end of
-  the directory}
+  the directory.}
 \item [Remarks:]
   If the long file name in the FAT dir entry is too long to copy into the
   destination area, Hyppo skips the entry entirely.
@@ -1184,16 +1187,16 @@ filename:
   \end{itemize}
 
   If a full sector was read, Y:X will be \$0200. For the last sector of the
-  file, Y:X may be less than that. Any bytes in sector buffer after Y:X are
-  invalid and will not necessarily be zero.
+  file, Y:X may be less than that. Any bytes in the sector buffer after Y:X are
+  undefined and will not necessarily be zero.
 
-  If you read past the end of the last sector, Y:X will be \$0000, A will be
-  \$FF and the C flag will be set.
+  If you read past the end of the last sector, Y:X will be \$0000, the A
+  register will be \$FF and the C flag will be set.
 
   While multiple files can be opened simultaneously, only the current file can
   be read. The current file is often the last file opened, but not always.
 \item [Example:]
-  Maps the sector buffer at \$DE00 and then reads each sector of the file
+  Maps the sector buffer to \$DE00 and then reads each sector of the file
   calling proccesssector for each sector read. proccesssector is assumed to be
   defined elsewhere.
 
@@ -1206,7 +1209,7 @@ filename:
     ;; because that will prevent us from mapping in the sector buffer
     LDA #1
     TRB $D030
-    ;; Map the sector buffer at $DE00
+    ;; Map the sector buffer to $DE00
     LDA #$81
     STA $D680
 @nextsector:
@@ -1359,7 +1362,8 @@ filename:
 \item [Preconditions:]
   The filename is stored in ASCII and ends with \$00 byte.
 
-  The filename starts on a page boundary between \$0000 and \$7E00.
+  The filename starts on a page boundary between \$0000 and \$7E00 and is less
+  than 63 characters, excluding the \$00 byte.
 \item [Inputs:]
   \register{Y}{The MSB of the filename address.}
 \item [Postconditions:]
@@ -1387,7 +1391,8 @@ filename:
   external SD cards. It does not access files on disks in floppy drives or in
   disk images.
 \item [Example:]
-  See the example in (where? \TODO).
+  See the examples in \hypporef{openfile}, \hypporef{loadfile},
+  \hypporef{d81attach0}.
 \end{hyppotrap}
 
 
@@ -1419,7 +1424,7 @@ image.
 
 You can use BASIC, the Kernal and the F011 I/O registers to operate on a disk
 image just as you would a physical disk. The virtualisation does not behave the
-same as a floppy drive in all cases. If you intend for your programme to work
+same as a floppy drive in all cases. If you intend for your program to work
 with both disk images and physical disks, be sure to test it with both.
 
 
@@ -1436,6 +1441,10 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Remarks:]
   Unless it's been changed, drive 0 of the virtualised F011 floppy controller is
   unit 8.
+\item [Example:]
+  Attaches the disk image MYPROGRAM.D81 to virtualised F011 drive 0.
+
+  \TODO
 \end{hyppotrap}
 
 
@@ -1517,7 +1526,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{create\_task\_native}{D640}{62}
 \item [Service:]
-  Creates a Hyppo task in the Mega65 operating mode.
+  Creates a Hyppo task in the MEGA65 operating mode.
 \notimplemented
 \end{hyppotrap}
 
@@ -1548,7 +1557,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{get\_mapping}{D640}{74}
 \item [Service:]
-  Copies the current 4510 memory mapping into a destination area.
+  Copies the current 45GS02 memory mapping into a destination area.
 \item [Preconditions:]
   The destination area starts on a page boundary between \$0000 and \$7E00 and
   is at least 6 bytes.
@@ -1577,7 +1586,7 @@ with both disk images and physical disks, be sure to test it with both.
 
   MAPHI is the mapping for \$8000 - \$FFFF.
 
-  See \TODO{} for more information on Mega65 memory mapping and banking.
+  See \TODO{} for more information on MEGA65 memory mapping and banking.
 \end{hyppotrap}
 
 
@@ -1719,7 +1728,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{reset}{D640}{7E}
 \item [Service:]
-  Warm boots the Mega65.
+  Warm boots the MEGA65.
 \item [History:]
   \availablefrom{1.2}
 \end{hyppotrap}
@@ -1731,10 +1740,13 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{rom\_writeenable}{D641}{02}
 \item [Service:]
-  Enables writes to \$20000 -- \$3FFFF by disabling the write-protection.
+  Changes \$20000 -- \$3FFFF to behave like RAM by disabling the
+  write-protection.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
+  \$20000 -- \$3FFFF normally has the Kernal, BASIC, CBDOS, and font ROMs.
+
   \hypporef{rom\_writeprotect} enables the write-protection and blocks writes.
   \hypporef{toggle\_rom\_writeprotect} toggles the write-protection.
 \end{hyppotrap}
@@ -1746,10 +1758,13 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{rom\_writeprotect}{D641}{00}
 \item [Service:]
-  Protects \$20000 -- \$3FFFF by enabling the write-protection.
+  Changes \$20000 -- \$3FFFF to behave like ROM by enabling the
+  write-protection.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
+  \$20000 -- \$3FFFF normally has the Kernal, BASIC, CBDOS, and font ROMs.
+
   \hypporef{rom\_writeenable} disables the write-protection and allows writes.
   \hypporef{toggle\_rom\_writeprotect} toggles the write-protection.
 \end{hyppotrap}
@@ -1800,7 +1815,7 @@ with both disk images and physical disks, be sure to test it with both.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  The character will be lost if the serial monitor is not read to receive,
+  The character will be lost if the serial monitor is not ready to receive,
   If you don't want the character to be lost, use
   \hypporef{serial\_monitor\_wait\_and\_write}.
 \end{hyppotrap}
@@ -1812,7 +1827,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{set\_mapping}{D640}{76}
 \item [Service:]
-  Copies the source area into the current 4510 memory mapping.
+  Copies the source area into the current 45GS02 memory mapping.
 \item [Preconditions:]
   The source area starts on a page boundary between \$0000 and \$7E00 and
   is at least 6 bytes.
@@ -1849,7 +1864,7 @@ with both disk images and physical disks, be sure to test it with both.
 
   MAPHI is the mapping for \$8000 - \$FFFF.
 
-  See \TODO{} for more information on Mega65 memory mapping and banking.
+  See \TODO{} for more information on MEGA65 memory mapping and banking.
 \end{hyppotrap}
 
 
@@ -1882,8 +1897,8 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Toggles the CPU personality between 45GS02 and 6502.
 \item [Outputs:]
-  \register{A}{The current state. If bit 5 is set, the CPU is in the 45GS02
-  personality. If bit 5 is clear, the CPU is in the 6502 personality.}
+  \register{A}{If bit 5 is set, the CPU is in the 45GS02 personality. If bit 5
+  is clear, the CPU is in the 6502 personality.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
@@ -1896,6 +1911,10 @@ with both disk images and physical disks, be sure to test it with both.
 
   \textbf{Warning} This feature is incomplete and untested. Most undocumented
   6502 opcodes do not operate correctly when the 6502 personality is enabled.
+\item [Example:] Enables the 45GS02 personality regardless of the CPU's current
+  personality.
+
+  \TODO
 \end{hyppotrap}
 
 
@@ -1907,13 +1926,15 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Toggles the write-protection for \$20000 -- \$3FFFF.
 \item [Outputs:]
-  \register{A}{The current state. If bit 2 is set, \$20000 -- \$3FFFF cannot
-  be written to.}
+  \register{A}{If bit 2 is set, \$20000 -- \$3FFFF cannot be written to.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
   The others bits of the A register are undefined. Do not expect them to be
   zero.
+
+  If you want to toggle but disable or enable the protection, you can use
+  \hypporef{rom\_writeenable} and \hypporef{rom\_writeprotect}.
 \end{hyppotrap}
 
 
@@ -2037,7 +2058,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 \begin{hyppotrap}{unfreeze\_from\_slot}{D642}{12}
 \item [Service:]
-  Unfreeze from a freeze slot
+  Unfreezes from a freeze slot
 \item [History:]
   \availablefrom{1.2}
 \end{hyppotrap}

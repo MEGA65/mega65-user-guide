@@ -94,10 +94,10 @@ A part of the Mega65 is the system program called HYPPO that:
 \begin{itemize}
   \item Boots the Mega65. ({\textbf{\color{red}TODO}} refer to the start up sequence diagram)
   \item Loads the ROMs and other files from the SD card.
-  \item Makes memory banks 2 and 3 ROM-like by proctecting them from being
+  \item Makes memory banks 2 and 3 ROM-like by protecting them from being
         written to.
   \item Virtualises the floppy disk controller so you can use disk images.
-  \item Launches various utilties like the freezer and the Matrix Mode Debugger.
+  \item Launches various utilities like the freezer and the Matrix Mode Debugger.
   \item Provides services specific to the Mega65 that you can use in your
         programmes.
 \end{itemize}
@@ -143,7 +143,7 @@ confusing if you already know about other parts of the Mega65.
 
 On the SD card there is likely to be a file called HICKUP.M65. This file updates
 HYPPO to new versions without having to install an upgraded core. You might find
-occations where HYPPO might be called Hickup because of this strong association.
+occasions where HYPPO might be called Hickup because of this strong association.
 
 There are 3 distinct disk operating systems in the Mega65.
 
@@ -158,7 +158,7 @@ There are 3 distinct disk operating systems in the Mega65.
         cards and the FAT32 file system on them. HYPPO virtualises part of the
         45IO27 so CBDOS can access disk images like they're physical disks.
   \item The external disk units attached to the serial bus each have their own
-        DOS. They are used for access the file systems on their respective
+        DOS. They are used for accessing the file systems on their respective
         physical disks.
 \end{itemize}
 
@@ -188,7 +188,7 @@ check whether it is compatible with the HYPPO in the MEGA65 it's running on.
 
 \subsection{Using}
 When you want to use a HYPPO service, you don't use JSR. This is because
-HYPPO exists in a space that's seperate from regular code. In order to
+HYPPO exists in a space that's separate from regular code. In order to
 access it, the CPU needs to switch into its hypervisor mode.
 
 At addresses \$D640 -- \$D67F are a set of hypervisor traps. Writing to these
@@ -210,7 +210,7 @@ otherwise preserved.
 programme after the HYPPO service finishes. Put a CLV instruction after the STA.
 The CPU executing the CLV or not shouldn't matter to your programme. If your
 programme does rely on the V flag, you can use the NOP instruction instead. When
-you use NOP you must be mindful of when the CPU interpets the NOP as a prefix
+you use NOP you must be mindful of when the CPU interprets the NOP as a prefix
 for the following instruction. For this reason, you should prefer using CLV
 over NOP.
 
@@ -221,7 +221,7 @@ If the service was successful, it will set the C flag.
 
 If the service was unsuccessful, it will clear the C flag and put an error code
 in the A register. There is a table of error codes in the description for
-hyppo\_geterrorocde.
+hyppo\_geterrorcode.
 
 
 
@@ -759,7 +759,7 @@ bus.
     LDA #$30
     ADC @temp
     LDA @temp
-    ;; Put the screen code into the top-left of screen memmory
+    ;; Put the screen code into the top-left of screen memory
     STA $0800
     RTS
 @error:
@@ -910,7 +910,7 @@ bus.
   Creates a sub-directory.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current HYPPO filename in the current working dirctory of the current
+  current HYPPO filename in the current working directory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -924,7 +924,7 @@ bus.
   Creates a file.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current HYPPO filename in the current working dirctory of the current
+  current HYPPO filename in the current working directory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -971,7 +971,7 @@ bus.
   Opens a file on a drive.
 \item [Preconditions:]
   The file has already been found. Files can be found using hyppo\_findfile,
-  hyppo\_findfirst and hyppo\_findnext. hyppo\_readdir can alse be used to find a
+  hyppo\_findfirst and hyppo\_findnext. hyppo\_readdir can also be used to find a
   file.
 \item [Outputs:]
   \register{A}{The file descriptor for accessing the file. You are responsible
@@ -1113,7 +1113,7 @@ filename:
   the directory}
 \item [Remarks:]
   If the long file name in the FAT dir entry is too long to copy into the
-  destination area, HYPPO skips the entry entrirely.
+  destination area, HYPPO skips the entry entirely.
 
   The file names in FAT are encoded as UTF-16. HYPPO only reads the LSB
   of each 16-bit character. HYPPO does not convert file names into
@@ -1172,6 +1172,9 @@ filename:
   Maps the sector buffer at \$DE00 and then reads each sector of the file calling
   proccesssector for each sector read. proccesssector is assumed to be defined
   elsewhere.
+
+  \ldots{} continues on the next page \ldots
+
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -1179,14 +1182,6 @@ filename:
     ;; because that will prevent us from mapping in the sector buffer
     LDA #1
     TRB $D030
-\end{verbatim}
-\end{tcolorbox}
-
-\ldots{} continues on the next page \ldots
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
     ;; Map the sector buffer at $DE00
     LDA #$81
     STA $D680
@@ -1221,7 +1216,7 @@ filename:
   Renames a file or sub-directory.
 \item [Errors:]
   \errordesc{8D}{file exists}{A sub-directory or file already exists with the
-  current HYPPO filename in the current working dirctory of the current
+  current HYPPO filename in the current working directory of the current
   drive.}
 \notimplemented
 \end{hyppotrap}
@@ -1317,7 +1312,7 @@ filename:
 \begin{verbatim}
 @mightnotexist:
     ;; If the error code in A is $80, the drive doesn't exist;
-    ;; otherwise some other kind of error occured
+    ;; otherwise some other kind of error occurred
     CMP #$80
     BNE @error
     ;; Clear the C flag because the drive doesn't exist
@@ -1445,7 +1440,7 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{d81detach}{D640}{42}
 \item [Service:]
-  Detachs any disk images from virtualised F011 drives 0 and 1.
+  Detaches any disk images from virtualised F011 drives 0 and 1.
 \item [History:]
   \availablefrom{1.2}
 \end{hyppotrap}
@@ -1711,9 +1706,9 @@ with both disk images and physical disks, be sure to test it with both.
 % rom_writeenable
 % ******************************************************************************
 \newpage
-\begin{hyppotrap}{rom\_writeprotect}{D641}{02}
+\begin{hyppotrap}{rom\_writeenable}{D641}{02}
 \item [Service:]
-  Enables writes for \$20000 -- \$3FFFF by disabling the write-protection.
+  Enables writes to \$20000 -- \$3FFFF by disabling the write-protection.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]

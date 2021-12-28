@@ -1,6 +1,13 @@
 \newenvironment{hyppotrap}[3]
 {
   \newcommand{\availablefrom}[1]{Available since HYPPO ##1}
+  \newcommand{\deprecatedfrom}[1]{
+    \textcolor{Orange}{
+      \textbf{DEPRECATED} since HYPPO ##1.
+      This service may be removed in a future version. New programmes should
+      not use this service.
+    }
+  }
   \newcommand{\errordesc}[3]{\index{HYPPO Error Codes!\$##1}\textbf{\$##1 ##2} ##3\par}
   \newcommand{\notimplemented}{\item[Remarks:]\textbf{NOT IMPLEMENTED}\par}
   \newcommand{\register}[2]{\textbf{##1} ##2\par}
@@ -90,7 +97,7 @@ A part of the Mega65 is the system program called HYPPO that:
   \item Makes memory banks 2 and 3 ROM-like by proctecting them from being
         written to.
   \item Virtualises the floppy disk controller so you can use disk images.
-  \item Runs various utilties like the freezer and the Matrix Mode Debugger.
+  \item Launches various utilties like the freezer and the Matrix Mode Debugger.
   \item Provides services specific to the Mega65 that you can use in your
         programmes.
 \end{itemize}
@@ -1905,6 +1912,167 @@ with both disk images and physical disks, be sure to test it with both.
   Writes into the memory of another HYPPO task.
 \notimplemented
 \end{hyppotrap}
+
+
+
+% ==============================================================================
+% System Partition
+% ==============================================================================
+\newpage
+\section{System Partition Services}
+
+
+% ******************************************************************************
+% configsector_apply
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_apply}{D642}{04}
+\item [Service:]
+  Applies the system configuration sector currently loading into memory.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% configsector_read
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_read}{D642}{00}
+\item [Service:]
+  Reads the system configuration sector into memory.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% configsector_write
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_write}{D642}{02}
+\item [Service:]
+  Writes the system configuration sector from memory.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% dmagic_autoset
+% ******************************************************************************
+\begin{hyppotrap}{dmagic\_autoset}{D642}{06}
+\item [Service:]
+  Sets the DMAgic revision based on the loaded ROM.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Freezer
+% ==============================================================================
+\newpage
+\section{Freezer Services}
+
+
+% ******************************************************************************
+% freeze_self
+% ******************************************************************************
+\begin{hyppotrap}{freeze\_self}{D67F}{xx}
+\item [Service:]
+  Launches the freezer.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_slot_count
+% ******************************************************************************
+\begin{hyppotrap}{get\_slot\_count}{D642}{16}
+\item [Service:]
+  Gets the number of freeze slots
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% locate_freeze_slot
+% ******************************************************************************
+\begin{hyppotrap}{locate\_freeze\_slot}{D642}{10}
+\item [Service:]
+  Locates the first sector of a freeze slot
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% read_freeze_region_list
+% ******************************************************************************
+\begin{hyppotrap}{read\_freeze\_region\_list}{D642}{14}
+\item [Service:]
+  Reads the freeze region list
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% unfreeze_from_slot
+% ******************************************************************************
+\begin{hyppotrap}{unfreeze\_from\_slot}{D642}{12}
+\item [Service:]
+  Unfreeze from a freeze slot
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Secure Mode
+% ==============================================================================
+\newpage
+\section{Secure Mode}
+
+
+% ******************************************************************************
+% leave_securemode
+% ******************************************************************************
+\begin{hyppotrap}{leave\_securemode}{D652}{xx}
+\item [Service:]
+  Request to exit secure mode
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% protected_hardware_config
+% ******************************************************************************
+\begin{hyppotrap}{protected\_hardware\_config}{D672}{xx}
+\item [Service:]
+  Requests the setting of the protected hardware configuration to allow or
+  restrict access to various sub-systems, including the SD card storage system.
+\item [History:]
+  \deprecatedfrom{1.2}
+\item [Remarks:]
+  This service will be removed once the secure mode framework is more
+  completely implemented.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% securemode
+% ******************************************************************************
+\begin{hyppotrap}{securemode}{D651}{xx}
+\item [Service:]
+  Request to enter secure mode
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
 
 
 

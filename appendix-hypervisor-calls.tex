@@ -127,6 +127,10 @@ HYPPO provides 3 operating modes.
         attempt to be compatible with or even be similar to previous systems.
 \end{itemize}
 
+Unlike on the C128, it is possible for a program to effectively change the
+operating mode while it's is running, by simply enabling or disabling the
+various hardware features.
+
 HYPPO provides very limited virtualisation of the Mega65's hardware. It can
 virtualise the floppy controller. There are plans to virtualise the serial bus
 so the Mega65 can use disk images for units like the 1541.
@@ -1327,8 +1331,6 @@ filename:
 
 % ******************************************************************************
 % setname
-%
-% Jimbo - Generally is this 8.3 or an LFN?
 % ******************************************************************************
 \newpage
 \begin{hyppotrap}{setname}{D640}{2E}
@@ -1455,7 +1457,8 @@ with both disk images and physical disks, be sure to test it with both.
 \newpage
 \begin{hyppotrap}{d81write\_en}{D640}{44}
 \item [Service:]
-  Detaches any disk images from virtualised F011 drives 0 and 1.
+  Enables writing to any disk images attached to virtualised F011 drives 0
+  and 1.
 \item [History:]
   \availablefrom{1.2}
 \end{hyppotrap}
@@ -1752,12 +1755,10 @@ with both disk images and physical disks, be sure to test it with both.
   Waits for the serial monitor or Matrix Mode Debugger to be ready to receive
   and then writes a character to it.
 \item [Inputs:]
-  \register{A}{The character to write.}
+  \register{A}{The ASCII character to write.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  \TODO{} What character set?
-
   The service waits for the serial monitor to be ready to receive. This could
   slow down or hang your program. If you don't want this and you are happy for
   the character to be lost if the serial monitor is not ready to receive,
@@ -1775,12 +1776,10 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Preconditions:]
   The serial monitor is ready to receive.
 \item [Inputs:]
-  \register{Y}{The character to write.}
+  \register{Y}{The ASCII character to write.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  \TODO{} What character set?
-
   The character will be lost if the serial monitor is not read to receive,
   If you don't want the character to be lost, use
   hyppo\_serial\_monitor\_wait\_and\_write.

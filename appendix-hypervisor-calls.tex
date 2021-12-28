@@ -1463,8 +1463,98 @@ with both disk images and physical disks, be sure to test it with both.
 
 
 % ******************************************************************************
+% create_task_c64
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_c64}{D640}{66}
+\item [Service:]
+  Creates a HYPPO task in the C64-like operating mode.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% create_task_c65
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_c65}{D640}{68}
+\item [Service:]
+  Creates a HYPPO task in the C65-like operating mode.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% create_task_native
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_native}{D640}{62}
+\item [Service:]
+  Creates a HYPPO task in the Mega65 operating mode.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% exit_and_switch_to_task
+% ******************************************************************************
+\begin{hyppotrap}{exit\_and\_switch\_to\_task}{D640}{6A}
+\item [Service:]
+  Exits the current HYPPO task and switches context to another HYPPO task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% exit_task
+% ******************************************************************************
+\begin{hyppotrap}{exit\_task}{D640}{6E}
+\item [Service:]
+  Exits the current HYPPO task. % Jimbo - And then what?
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_mapping
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{get\_mapping}{D640}{74}
+\item [Service:]
+  Copies the current 4510 memory mapping into a destination area.
+\item [Preconditions:]
+  The destination area starts on a page boundary between \$0000 and \$7E00 and
+  is at least 6 bytes.
+\item [Inputs:]
+  \register{Y}{The MSB of the destination area.}
+\item [Outputs:]
+  Starting at \$YY00, the current mapping info has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description} \\
+  \hline
+  0 & word & MAPLO \\
+  2 & word & MAPHI \\
+  4 & byte & The megabyte offset for MAPLO \\
+  5 & byte & The megabyte offset for MAPHI \\
+  \hline
+  \end{tabular}
+  }
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  MAPLO is the mapping for \$0000 - \$7FFF.
+
+  MAPHI is the mapping for \$8000 - \$FFFF.
+
+  See \TODO{} for more information on Mega65 memory mapping and banking.
+\end{hyppotrap}
+
+
+% ******************************************************************************
 % get_proc_desc
 % ******************************************************************************
+\newpage
 \begin{hyppotrap}{get\_proc\_desc}{D640}{48}
 \item [Service:]
   Copies the current task block into a destination area.
@@ -1549,6 +1639,266 @@ with both disk images and physical disks, be sure to test it with both.
   \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
 \item [History:]
   \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% gettasklist
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{gettasklist}{D640}{50}
+\item [Service:]
+  Gets the list of tasks in HYPPO.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% load_into_task
+% ******************************************************************************
+\begin{hyppotrap}{load\_into\_task}{D640}{64}
+\item [Service:]
+  Loads a file from an SD card partition into the memory of a HYPPO task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readoutoftask
+% ******************************************************************************
+\begin{hyppotrap}{readoutoftask}{D640}{58}
+\item [Service:]
+  Reads from the memory of another HYPPO task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% receivemessage
+% ******************************************************************************
+\begin{hyppotrap}{receivemessage}{D640}{54}
+\item [Service:]
+  Receives messages sent from other HYPPO tasks.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% reset
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{reset}{D640}{7E}
+\item [Service:]
+  Warm boots the Mega65.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rom_writeenable
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rom\_writeprotect}{D641}{02}
+\item [Service:]
+  Enables writes for \$20000 -- \$3FFFF by disabling the write-protection.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  hyppo\_rom\_writeprotect enables the write-protection and blocks writes.
+  hyppo\_toggle\_rom\_writeprotect toggles the write-protection.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rom_writeprotect
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rom\_writeprotect}{D641}{00}
+\item [Service:]
+  Protects \$20000 -- \$3FFFF by enabling the write-protection.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  hyppo\_rom\_writeenable disables the write-protection and allows writes.
+  hyppo\_toggle\_rom\_writeprotect toggles the write-protection.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% sendmessage
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{sendmessage}{D640}{52}
+\item [Service:]
+  Sends a message to another HYPPO task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% serial_monitor_wait_and_write
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{serial\_monitor\_wait\_and\_write}{D643}{xx}
+\item [Service:]
+  Waits for the serial monitor or Matrix Mode Debugger to be ready to receive
+  and then writes a character to it.
+\item [Inputs:]
+  \register{A}{The character to write.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  \TODO{} What character set?
+
+  The service waits for the serial monitor to be ready to receive. This could
+  slow down or hang your program. If you don't want this and you are happy for
+  the character to be lost if the serial monitor is not ready to receive,
+  use hyppo\_serial\_monitor\_write.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% serial_monitor_write
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{serial\_monitor\_write}{D640}{7C}
+\item [Service:]
+  Writes a character to the serial monitor or the Matrix Mode Debugger.
+\item [Preconditions:]
+  The serial monitor is ready to receive.
+\item [Inputs:]
+  \register{Y}{The character to write.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  \TODO{} What character set?
+
+  The character will be lost if the serial monitor is not read to receive,
+  If you don't want the character to be lost, use
+  hyppo\_serial\_monitor\_wait\_and\_write.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% set_mapping
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{set\_mapping}{D640}{76}
+\item [Service:]
+  Copies the source area into the current 4510 memory mapping.
+\item [Preconditions:]
+  The source area starts on a page boundary between \$0000 and \$7E00 and
+  is at least 6 bytes.
+\item [Inputs:]
+  \register{Y}{The MSB of the source area.}
+
+  Starting at \$YY00, the current mapping info has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description} \\
+  \hline
+  0 & word & MAPLO \\
+  2 & word & MAPHI \\
+  4 & byte & The megabyte offset for MAPLO \\
+  5 & byte & The megabyte offset for MAPHI \\
+  \hline
+  \end{tabular}
+  }
+\item [Postconditions:]
+  The CPU continues execution with the new memory mapping.
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You must take care when changing the memory mapping. HYPPO will not take any
+  steps to ensure the instructions after the STA are executed regardless of the
+  mapping. If you change the mapping of the block where the program counter
+  points to, the CPU will resume with the instructions in the newly mapped
+  block.
+
+  MAPLO is the mapping for \$0000 - \$7FFF.
+
+  MAPHI is the mapping for \$8000 - \$FFFF.
+
+  See \TODO{} for more information on Mega65 memory mapping and banking.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% switch_to_task
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{switch\_to\_task}{D640}{6C}
+\item [Service:]
+  Switches context to another HYPPO task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% terminateothertask
+% ******************************************************************************
+\begin{hyppotrap}{terminateothertask}{D640}{60}
+\item [Service:]
+  Terminates another HYPPO task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% toggle_force_4502
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{toggle\_force\_4502}{D640}{72}
+\item [Service:]
+  Toggles the CPU personality between 45GS02 and 6502.
+\item [Outputs:]
+  \register{A}{The current state. If bit 5 is set, the CPU is in the 45GS02
+  personality. If bit 5 is clear, the CPU is in the 6502 personality.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The others bits of the A register are undefined. Do not expect them to be
+  zero.
+
+  In the 6502 personality, none of the new opcodes of the 65C02, 65CE02, 4510
+  or 45GS02 are available. These are replaced with the original --- and often
+  strange --- behaviour of the undefined opcodes of the 6502.
+
+  \textbf{Warning} This feature is incomplete and untested. Most undocumented
+  6502 opcodes do not operate correctly when the 6502 personality is enabled.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% toggle_rom_writeprotect
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{toggle\_rom\_writeprotect}{D640}{70}
+\item [Service:]
+  Toggles the write-protection for \$20000 -- \$3FFFF.
+\item [Outputs:]
+  \register{A}{The current state. If bit 2 is set, \$20000 -- \$3FFFF cannot
+  be written to.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The others bits of the A register are undefined. Do not expect them to be
+  zero.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% writeintotask
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{writeintotask}{D640}{56}
+\item [Service:]
+  Writes into the memory of another HYPPO task.
+\notimplemented
 \end{hyppotrap}
 
 

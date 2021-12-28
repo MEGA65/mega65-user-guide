@@ -6,7 +6,7 @@
   \newcommand{\register}[2]{\textbf{##1} ##2\par}
   \newcommand{\TODO}{\textbf{\color{red}TODO}}
   \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
-  \subsection{hdos\_#1}
+  \subsection{hyppo\_#1}
   \index{HYPPO Services!\$#2 \$#3}
   \begin{description}[leftmargin=2.7cm,style=nextline]
   \item [Trap:] LDA \#\$#3 : STA \$#2 : CLV
@@ -174,7 +174,7 @@ The word drive means different things for each of these DOS's.
 This chapter describes the services available in HYPPO 1.2.
 
 New HYPPO services may become available and existing HYPPO services may change
-or be deprecated. A robust programme will use the hdos\_getversion service to
+or be deprecated. A robust programme will use the hyppo\_getversion service to
 check whether it is compatible with the HYPPO in the MEGA65 it's running on.
 
 % Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
@@ -214,7 +214,7 @@ If the service was successful, it will set the C flag.
 
 If the service was unsuccessful, it will clear the C flag and put an error code
 in the A register. There is a table of error codes in the description for
-hdos\_geterrorocde.
+hyppo\_geterrorocde.
 
 
 
@@ -489,8 +489,8 @@ bus.
   Changes the current working directory.
 \item [Preconditions:]
   The FAT dir entry for the directory you want to change to has been
-  found. hdos\_findfile is typically used to find a FAT dir entry.
-  hdos\_findfirst, hdos\_findnext and hdos\_readdir can also be used.
+  found. hyppo\_findfile is typically used to find a FAT dir entry.
+  hyppo\_findfirst, hyppo\_findnext and hyppo\_readdir can also be used.
 \item [Errors:]
   \errordesc{87}{not a directory}{The FAT dir entry last found isn't for a
   directory. Bit 4 of the FAT dir entry's attribute byte is set for
@@ -502,7 +502,7 @@ bus.
 
   You cannot move up or down more than one directory at a time.
 
-  Use hdos\_cdrootdir to directly change back to the root directory.
+  Use hyppo\_cdrootdir to directly change back to the root directory.
 \end{hyppotrap}
 
 
@@ -514,16 +514,16 @@ bus.
 \item [Service:]
   Closes all the file descriptors.
 \item [Postconditions:]
-  Using any file descriptor with hdos\_closedir or hdos\_closefile succeeds.
+  Using any file descriptor with hyppo\_closedir or hyppo\_closefile succeeds.
 
-  Using any file descriptor with hdos\_readdir or hdos\_readfile fails.
+  Using any file descriptor with hyppo\_readdir or hyppo\_readfile fails.
 
-  hdos\_opendir and hdos\_openfile reuse the file descriptor.
+  hyppo\_opendir and hyppo\_openfile reuse the file descriptor.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  You can also close individual file descriptors using hdos\_closedir or
-  hdos\_closefile.
+  You can also close individual file descriptors using hyppo\_closedir or
+  hyppo\_closefile.
 \end{hyppotrap}
 
 
@@ -535,21 +535,21 @@ bus.
 \item [Service:]
   Closes a file descriptor for a directory.
 \item [Preconditions:]
-  The file descriptor given in the X register was opened using hdos\_opendir.
+  The file descriptor given in the X register was opened using hyppo\_opendir.
 \item [Inputs:]
   \register{A}{The file descriptor for the directory}
 \item [Postconditions:]
-  Using the file descriptor again with hdos\_closedir succeeds.
+  Using the file descriptor again with hyppo\_closedir succeeds.
 
-  Using the file descriptor again with hdos\_readdir fails.
+  Using the file descriptor again with hyppo\_readdir fails.
 
-  hdos\_opendir and hdos\_openfile reuse the file descriptor.
+  hyppo\_opendir and hyppo\_openfile reuse the file descriptor.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  You can also close all the open file descriptors using hdos\_closeall.
+  You can also close all the open file descriptors using hyppo\_closeall.
 \item [Example:]
-  See the examples in hdos\_opendir and hdos\_readdir.
+  See the examples in hyppo\_opendir and hyppo\_readdir.
 \end{hyppotrap}
 
 
@@ -561,21 +561,21 @@ bus.
 \item [Service:]
   Closes a file descriptor for a file.
 \item [Preconditions:]
-  The file descriptor given in the X register was opened using hdos\_openfile.
+  The file descriptor given in the X register was opened using hyppo\_openfile.
 \item [Inputs:]
   \register{A}{The file descriptor for the file}
 \item [Postconditions:]
-  Using the file descriptor again with hdos\_closefile succeeds.
+  Using the file descriptor again with hyppo\_closefile succeeds.
 
-  Using the file descriptor again with hdos\_readfile fails.
+  Using the file descriptor again with hyppo\_readfile fails.
 
-  hdos\_opendir and hdos\_openfile reuse the file descriptor.
+  hyppo\_opendir and hyppo\_openfile reuse the file descriptor.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  You can also close all the open file descriptors using hdos\_closeall.
+  You can also close all the open file descriptors using hyppo\_closeall.
 \item [Example:]
-  See the example in hdos\_openfile.
+  See the example in hyppo\_openfile.
 \end{hyppotrap}
 
 
@@ -600,7 +600,7 @@ bus.
 \item [Service:]
   Finds the first file whose filename matches the current HYPPO filename.
 \item [Preconditions:]
-  The current HYPPO filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hyppo\_setname.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
@@ -618,7 +618,7 @@ bus.
   for that is planned in a future version.
 
   This only finds the first matching file. You can find multiple matches by
-  using hdos\_findfirst and hdos\_findnext.
+  using hyppo\_findfirst and hyppo\_findnext.
 \end{hyppotrap}
 
 
@@ -632,13 +632,13 @@ bus.
 \item [Service:]
   Finds the first file whose filename matches the current HYPPO filename.
 \item [Preconditions:]
-  The current HYPPO filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hyppo\_setname.
 \item [Outputs:]
   \register{A}{The file descriptor for reading the current working directory.
   You might be responsible for closing this file descriptor using
-  hdos\_closedir. See the remarks.}
+  hyppo\_closedir. See the remarks.}
 \item [Postconditions:]
-  hdos\_firstnext find the next matching file or fails with a file not found
+  hyppo\_firstnext find the next matching file or fails with a file not found
   error.
 \item [Side effects:]
   Sets the current file descriptor.
@@ -651,8 +651,8 @@ bus.
   If HYPPO finds an initial matching file, it will set the C flag and
   return a file descriptor in the A register. This is a file descriptor for
   reading the current working directory. You are responsible for closing it
-  using hdos\_closedir. It's a standard directory file descriptor. You can use
-  hdos\_readdir to read the FAT dir entries after the file that was found.
+  using hyppo\_closedir. It's a standard directory file descriptor. You can use
+  hyppo\_readdir to read the FAT dir entries after the file that was found.
 
   If HYPPO doesn't find any matching files, it will fail with a file
   not found error. In this case HYPPO will have already closed the
@@ -666,8 +666,8 @@ bus.
   HYPPO does not yet support the wildcard characters * and ?. Support
   for that is planned in a future version.
 
-  If you are only interested in the first match, you can use hdos\_findfile
-  instead. hdos\_findfile always closes the file descriptor for you. But you
+  If you are only interested in the first match, you can use hyppo\_findfile
+  instead. hyppo\_findfile always closes the file descriptor for you. But you
   can't use it to find multiple matching files.
 \end{hyppotrap}
 
@@ -682,12 +682,12 @@ bus.
 \item [Service:]
   Finds a subsequent file whose filename matches the current HYPPO filename.
 \item [Preconditions:]
-  The current HYPPO filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hyppo\_setname.
 
   The first matching file has already been found successfully using
-  hdos\_findfirst.
+  hyppo\_findfirst.
 \item [Postconditions:]
-  Using hdos\_firstnext again finds the next matching file or fails with a file
+  Using hyppo\_firstnext again finds the next matching file or fails with a file
   not found error.
 \item [Errors:]
   \errordesc{88}{file not found}{A subsequent matching file was not found in
@@ -697,11 +697,11 @@ bus.
 \item [Remarks:]
   If HYPPO doesn't find a subsequent matching file, it will fail with a
   file not found error. HYPPO will also close the file descriptor it
-  output in hdos\_findfirst.
+  output in hyppo\_findfirst.
 
-  If you don't exhaust the search by using hdos\_findnext until it fails with a
+  If you don't exhaust the search by using hyppo\_findnext until it fails with a
   file not found error, you are required to close the file descriptor yourself
-  using hdos\_closedir.
+  using hyppo\_closedir.
 \end{hyppotrap}
 
 
@@ -728,7 +728,7 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
-  hdos\_selectdrive changes the current drive number. hdos\_cdrootdir
+  hyppo\_selectdrive changes the current drive number. hyppo\_cdrootdir
   can also change it.
 \item [Example:]
   Prints the number of the currently selected drive in the top-left of the
@@ -827,7 +827,7 @@ bus.
 \item [Service:]
   Loads a file into chip memory.
 \item [Preconditions:]
-  The name of the file to load has been set using hdos\_setname.
+  The name of the file to load has been set using hyppo\_setname.
 \item [Inputs:]
   \register{X}{The LSB of the address to start loading from}
   \register{Y}{The middle byte of the address to start loading from}
@@ -835,9 +835,9 @@ bus.
 \item [Postconditions:]
   No additional file descriptors are open.
 \item [Errors:]
-  \errordesc{84}{too many open files}{hdos\_loadfile uses one file descriptor
+  \errordesc{84}{too many open files}{hyppo\_loadfile uses one file descriptor
   internally, but all the file descriptors are in use. Close some or all of the
-  file descriptors using hdos\_closedir, hdos\_closefile or hdos\_closeall.}
+  file descriptors using hyppo\_closedir, hyppo\_closefile or hyppo\_closeall.}
   \errordesc{88}{file not found}{The file was not found in the current directory
   of the current drive.}
 \item [History:]
@@ -849,7 +849,7 @@ bus.
   Loading will start at 28-bit address \$00ZZYYXX. If loading tries to go beyond
   \$00FFFFFF, it wraps around and continue at \$00000000.
 
-  You can use hdos\_loadfile\_attic to load a file into hyper memory. The hyper
+  You can use hyppo\_loadfile\_attic to load a file into hyper memory. The hyper
   memory is the 8MB or more of memory in the external RAM chips.
 \end{hyppotrap}
 
@@ -862,7 +862,7 @@ bus.
 \item [Service:]
   Loads a file into hyper memory.
 \item [Preconditions:]
-  The name of the file to load has been set using hdos\_setname.
+  The name of the file to load has been set using hyppo\_setname.
 \item [Inputs:]
   \register{X}{The LSB of the address to start loading from}
   \register{Y}{The middle byte of the address to start loading from}
@@ -872,7 +872,7 @@ bus.
 \item [Errors:]
   \errordesc{84}{too many open files}{hos\_loadfile\_attic uses one file descriptor
   internally, but all the file descriptors are in use. Close some or all of the
-  file descriptors using hdos\_closedir, hdos\_closefile or hdos\_closeall.}
+  file descriptors using hyppo\_closedir, hyppo\_closefile or hyppo\_closeall.}
   \errordesc{88}{file not found}{The file was not found in the current directory
   of the current drive.}
 \item [History:]
@@ -884,7 +884,7 @@ bus.
   Loading will start at 28-bit address \$08ZZYYXX. If loading tries to go beyond
   \$08FFFFFF, the loading will wrap around and continue at \$08000000.
 
-  You can use hdos\_loadfile to load a file into chip memory. The chip memory is
+  You can use hyppo\_loadfile to load a file into chip memory. The chip memory is
   the 384KB or more of memory inside the CPU module.
 \end{hyppotrap}
 
@@ -927,19 +927,19 @@ bus.
   Opens the current working directory for reading the file entries in it.
 \item [Preconditions:]
   The drive and directory you want to read have already been set up using
-  hdos\_selectdrive and hdos\_chdir if necessary.
+  hyppo\_selectdrive and hyppo\_chdir if necessary.
 \item [Outputs:]
   \register{A}{The file descriptor for reading the directory. You are
-  responsible for closing this file descriptor using hdos\_closedir.}
+  responsible for closing this file descriptor using hyppo\_closedir.}
 \item [Postconditions:]
-  hdos\_readdir reads the first FAT dir entry in the directory.
+  hyppo\_readdir reads the first FAT dir entry in the directory.
 \item [Errors:]
   \errordesc{84}{too many open files}{All the file descriptors are in use.
-  hdos\_opendir and hdos\_openfile share the same very small pool of file
-  descriptors. Close some or all of the file descriptors using hdos\_closedir,
-  hdos\_closefile or hdos\_closeall.}
+  hyppo\_opendir and hyppo\_openfile share the same very small pool of file
+  descriptors. Close some or all of the file descriptors using hyppo\_closedir,
+  hyppo\_closefile or hyppo\_closeall.}
   \errordesc{87}{not a directory}{The FAT dir entry last found is for a file.
-  Use hdos\_openfile for files.}
+  Use hyppo\_openfile for files.}
 \item [History:]
   \availablefrom{1.2}
 \item [Example:]
@@ -958,30 +958,30 @@ bus.
 \item [Service:]
   Opens a file on a drive.
 \item [Preconditions:]
-  The file has already been found. Files can be found using hdos\_findfile,
-  hdos\_findfirst and hdos\_findnext. hdos\_readdir can alse be used to find a
+  The file has already been found. Files can be found using hyppo\_findfile,
+  hyppo\_findfirst and hyppo\_findnext. hyppo\_readdir can alse be used to find a
   file.
 \item [Outputs:]
   \register{A}{The file descriptor for accessing the file. You are responsible
-  for closing this file descriptor using hdos\_closefile.}
+  for closing this file descriptor using hyppo\_closefile.}
 \item [Postconditions:]
-  Using hdos\_readfile with this file descriptor reads the first sector of the
+  Using hyppo\_readfile with this file descriptor reads the first sector of the
   file.
 \item [Side effects:]
-  Sets the current file to the newly opened file. hdos\_readfile reads from the
+  Sets the current file to the newly opened file. hyppo\_readfile reads from the
   current file.
 \item [Errors:]
   \errordesc{84}{too many open files}{All the file descriptors are in use.
-  hdos\_opendir and hdos\_openfile share the same very small pool of file
-  descriptors. Close some or all of the file descriptors using hdos\_closedir,
-  hdos\_closefile or hdos\_closeall.}
+  hyppo\_opendir and hyppo\_openfile share the same very small pool of file
+  descriptors. Close some or all of the file descriptors using hyppo\_closedir,
+  hyppo\_closefile or hyppo\_closeall.}
   \errordesc{86}{is a directory}{The FAT dir entry last found is for a
-  directory. Use hdos\_opendir for directories.}
+  directory. Use hyppo\_opendir for directories.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
   You cannot use this to open a file inside a disk image. To do that you use
-  hdos\_d81attach0 or hdos\_d81attach1 to attach the disk image and then use
+  hyppo\_d81attach0 or hyppo\_d81attach1 to attach the disk image and then use
   either use the Kernal to read the file or programme the virtualised F011 floppy
   controller.
 \item [Example:]
@@ -1041,8 +1041,8 @@ filename:
 \item [Service:]
   Reads the next FAT dir entry.
 \item [Preconditions:]
-  The file descriptor given in the X register was opened using hdos\_opendir
-  and hdos\_closedir hasn't since been used to close it.
+  The file descriptor given in the X register was opened using hyppo\_opendir
+  and hyppo\_closedir hasn't since been used to close it.
 \item [Inputs:]
   \register{X}{A file descriptor for the directory.}
   \register{Y}{The MSB of the address HYPPO will copy the FAT dir entry
@@ -1090,7 +1090,7 @@ filename:
   \end{tabular}
   }
 \item [Postconditions:]
-  Using hdos\_readdir again reads the next FAT dir entry in the directory.
+  Using hyppo\_readdir again reads the next FAT dir entry in the directory.
 \item [Errors:]
   \errordesc{08}{partition error}{An unspecified error occurred while handling
   the currently selected partition}
@@ -1107,7 +1107,7 @@ filename:
   of each 16-bit character. HYPPO does not convert file names into
   PETSCII.
 
-  See hdos\_setup\_transfer\_area for more details about the value for the Y
+  See hyppo\_setup\_transfer\_area for more details about the value for the Y
   register.
 \item [History:]
   \availablefrom{1.2}
@@ -1127,12 +1127,12 @@ filename:
 \item [Service:]
   Reads the next sector of the current file into the sector buffer.
 \item [Preconditions:]
-  There is a current file open. Files can be opened with hdos\_openfile.
+  There is a current file open. Files can be opened with hyppo\_openfile.
 \item [Outputs:]
   \register{X}{The LSB of the number of bytes read}
   \register{Y}{The MSB of the number of bytes read}
 \item [Postconditions:]
-  The next call to hdos\_readfile will read the next sector of the current file
+  The next call to hyppo\_readfile will read the next sector of the current file
   or signal the end of the file.
 \item [Errors:]
   \TODO
@@ -1257,7 +1257,7 @@ filename:
 \item [Inputs:]
   \register{X}{The drive number to become the new current drive}
 \item [Postconditions:]
-  hdos\_getcurrentdrive returns the value that was in the X register.
+  hyppo\_getcurrentdrive returns the value that was in the X register.
 
   HYPPO services operate on the newly selected drive.
 \item [Errors:]
@@ -1336,7 +1336,7 @@ filename:
 \item [Postconditions:]
   HYPPO has copied the filename into it's own data area.
 
-  The hdos\_find* and hdos\_load* services use this filename.
+  The hyppo\_find* and hyppo\_load* services use this filename.
 \item [Side effects:]
   Sets the transfer area to \$YY00.
 \item [Errors:]
@@ -1401,7 +1401,7 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Attach a D81 disk image to virtualised F011 drive 0.
 \item [Preconditions:]
-  The current HYPPO filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hyppo\_setname.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
@@ -1418,7 +1418,7 @@ with both disk images and physical disks, be sure to test it with both.
 \item [Service:]
   Attach a D81 disk image to virtualised F011 drive 1.
 \item [Preconditions:]
-  The current HYPPO filename has been set using hdos\_setname.
+  The current HYPPO filename has been set using hyppo\_setname.
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
@@ -1442,7 +1442,7 @@ with both disk images and physical disks, be sure to test it with both.
 % ******************************************************************************
 % d81write_en
 %
-% Jimbo - hdos_d81attach* already write-enables the images.
+% Jimbo - hyppo_d81attach* already write-enables the images.
 %         See https://github.com/MEGA65/mega65-core/issues/494
 % ******************************************************************************
 \newpage

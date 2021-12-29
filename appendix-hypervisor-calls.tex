@@ -30,6 +30,42 @@
   \end{description}
 }
 
+\DeclareTCBInputListing{\acmelisting}{ m }{
+  bottom=0mm,
+  breakable,
+  colback=black,
+  coltext=lightgray,
+  enhanced,
+  frame empty,
+  fontupper=\codefont,
+  listing engine=listings,
+  listing file={#1},
+  listing only,
+  listing options={
+    basewidth=0.3em,
+    breakatwhitespace,
+    breakindent=0pt,
+    breaklines,
+    columns=fullflexible,
+    commentstyle=\sffamily\footnotesize\color{Dandelion},
+    includerangemarker=false,
+    inputpath="examples/appendix-hypervisor-calls",
+    keywordstyle={*\color{white}},
+    keywordstyle={[2]\color{GreenYellow}},
+    language={[acme]Assembler},
+    linerange=EXAMPLE\ BEGINS-EXAMPLE\ ENDS,
+    postbreak={;\space},
+    rangeprefix=;\ >>>\ ,
+    showstringspaces=false,
+  },
+  top=0mm,
+  underlay first and middle={
+    \node at ([yshift=-3mm]frame.south)
+      {\ldots{} continues on the next page \ldots} ;
+  }
+}
+
+
 \chapter{MEGA65 Hyppo Services}
 \index{Hyppo Services}
 \index{Registers!\$D640}
@@ -422,25 +458,7 @@ in the A register. There is a table of error codes in the description for
   DOS in the disk drive units attached to the serial port.
 \item [Example:]
   Tests if Hyppo's version is $\geq$ 1.2 and $<$ 2.0.
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    ;; Get the version numbers
-    LDA #$00
-    STA $D640
-    CLV
-    ;; Test if the major version number of Hyppo is 1
-    CMP #1
-    BNE @incompatible
-    ;; Test if the minor version number of Hyppo is >= 2
-    TXA
-    CMP #2
-    BMI @incompatible
-    RTS
-@incompatible:
-    BRK
-\end{verbatim}
-\end{tcolorbox}
+  \acmelisting{getversion.asm}
 \end{hyppotrap}
 
 
@@ -473,22 +491,7 @@ in the A register. There is a table of error codes in the description for
   place it in the bottom 32KB of bank 0.
 \item [Example:]
   Reserves 256 bytes on a page boundary and sets it up as the transfer area.
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    LDY #>transferarea
-    LDA #$3A
-    STA $D640
-    CLV
-    BCC @error
-    RTS
-@error:
-    BRK
-    !align 255, 0
-transferarea:
-    !skip 256
-\end{verbatim}
-\end{tcolorbox}
+  \acmelisting{setup_transfer_area.asm}
 \end{hyppotrap}
 
 
@@ -768,28 +771,7 @@ bus.
   Prints the number of the currently selected drive in the top-left of the
   screen. This example assumes that there aren't more than 10 drives (drives
   0 to 9). It also assumes the screen memory hasn't been moved from \$000800.
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    ;; Get the current drive
-    LDA #$04
-    STA $D640
-    CLV
-    BCC @error
-    ;; Convert the drive number in A into a screen code
-    STA @temp
-    LDA #$30
-    ADC @temp
-    LDA @temp
-    ;; Put the screen code into the top-left of screen memory
-    STA $0800
-    RTS
-@error:
-    BRK
-@temp:
-    !skip 1
-\end{verbatim}
-\end{tcolorbox}
+  \acmelisting{getcurrentdrive.asm}
 \end{hyppotrap}
 
 
@@ -818,26 +800,7 @@ bus.
   \availablefrom{1.2}
 \item [Example:]
   Selects the default drive.
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    ;; Get the default drive
-    LDA #$02
-    STA $D640
-    CLV
-    BCC @error
-    ;; Transfer the drive number in A to X
-    TAX
-    ;; Select the default drive
-    LDA #$06
-    STA $D640
-    CLV
-    BCC @error
-    RTS
-@error:
-    BRK
-\end{verbatim}
-\end{tcolorbox}
+  \acmelisting{getdefaultdrive.asm}
 \end{hyppotrap}
 
 
@@ -1027,50 +990,7 @@ bus.
   F011 floppy controller.
 \item [Example:]
   Finds, opens and then closes the file CONFIG.DAT.
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    ;; Set the filename to CONFIG.DAT
-    LDY #>filename
-    LDA #$2E
-    STA $D640
-    CLV
-    BCC @error
-\end{verbatim}
-\end{tcolorbox}
-
-\ldots{} continues on the next page \ldots
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    ;; Find the file
-    LDA #$34
-    STA $D640
-    CLV
-    BCC @error
-    ;; Open the file
-    LDA #$18
-    STA $D640
-    CLV
-    BCC @error
-    ;; Transfer the file descriptor in A to X
-    TAX
-    ;; Close the file
-    LDA #$20
-    STA $D640
-    CLV
-    BCC @error
-    RTS
-@error:
-    BRK
-    ;; The filename must start on a 256 byte page boundary.
-    !align 255, 0
-filename:
-    !text "CONFIG.DAT", 0
-\end{verbatim}
-\end{tcolorbox}
+  \acmelisting{openfile.asm}
 \end{hyppotrap}
 
 
@@ -1199,38 +1119,7 @@ filename:
   Maps the sector buffer to \$DE00 and then reads each sector of the file
   calling proccesssector for each sector read. proccesssector is assumed to be
   defined elsewhere.
-
-  \ldots{} continues on the next page \ldots
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    ;; Unmap the colour RAM at $DC00
-    ;; because that will prevent us from mapping in the sector buffer
-    LDA #1
-    TRB $D030
-    ;; Map the sector buffer to $DE00
-    LDA #$81
-    STA $D680
-@nextsector:
-    ;; Read the next sector
-    LDA #$1A
-    STA $D640
-    CLV
-    BCC @eoforerror
-    ;; Call processsector (assumed to be defined elsewhere)
-    JSR processsector
-    BRA @nextsector
-@eoforerror:
-    ;; If the error code in A is $FF we have reached the end of the file
-    ;; otherwise there's been an error
-    CMP #$FF
-    BNE @error
-    RTS
-@error:
-    BRK
-\end{verbatim}
-\end{tcolorbox}
+  \acmelisting{readfile.asm}
 \end{hyppotrap}
 
 
@@ -1303,52 +1192,7 @@ filename:
 \item [Example:]
   Tests if drive 2 exists by trying to select it. Returns with the C flag set if
   drive 2 exists.
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-    ;; Preserve the current drive in Z so we can restore it later
-    LDA #$04
-    STA $D640
-    CLV
-    BCC @error
-    TAZ
-    ;; Try to select drive 2
-    LDX #2
-    LDA #$06
-    STA $D640
-    CLV
-    BCC @mightnotexist
-    ;; Transfer the previously selected drive number in Z to X
-    TZA
-    TAX
-    ;; Restore the previously selected drive
-    LDA #$06
-    STA $D640
-    CLV
-    BCC @error
-    ;; The C flag was already set by Hyppo service
-    RTS
-\end{verbatim}
-\end{tcolorbox}
-
-\ldots{} continues on the next page \ldots
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-@mightnotexist:
-    ;; If the error code in A is $80, the drive doesn't exist;
-    ;; otherwise some other kind of error occurred
-    CMP #$80
-    BNE @error
-    ;; Clear the C flag because the drive doesn't exist
-    CLC
-    RTS
-@error:
-    BRK
-\end{verbatim}
-\end{tcolorbox}
+  \acmelisting{selectdrive.asm}
 \end{hyppotrap}
 
 

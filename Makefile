@@ -55,6 +55,7 @@ libc-doc:	libc-doc.c
 
 EXAMPLEDIR=	examples
 EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex
+HYPPO_EXAMPLES= $(wildcard $(EXAMPLEDIR)/appendix-hypervisor-calls/*.asm)
 
 %.tex:	%.prg prg2tex Makefile
 	./prg2tex -u $<
@@ -113,7 +114,7 @@ referenceguide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory ..
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make referenceguide.tex
 
-mega65-developer-guide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory  $(GENERATED_TEX_FILES) ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+mega65-developer-guide.pdf: *.tex $(EXAMPLES) $(HYPPO_EXAMPLES) lstlang0.sty Makefile references.bib document-memory  $(GENERATED_TEX_FILES) ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -f -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-developer-guide.tex
@@ -122,7 +123,7 @@ hardwareguide.pdf: *.tex  $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_F
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make hardwareguide.tex
 
-mega65-book.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory $(GENERATED_TEX_FILES) ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
+mega65-book.pdf: *.tex $(EXAMPLES) $(HYPPO_EXAMPLES) lstlang0.sty Makefile references.bib document-memory $(GENERATED_TEX_FILES) ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q ../mega65-core/src/vhdl/*.vhdl ../mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-book.tex

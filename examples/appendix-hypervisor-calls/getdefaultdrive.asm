@@ -1,3 +1,7 @@
+    !source "common.inc"
+
+main:
+
 ; >>> EXAMPLE BEGINS
     ; Get the default drive
     LDA #$02

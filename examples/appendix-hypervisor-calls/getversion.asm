@@ -1,3 +1,7 @@
+    !source "common.inc"
+
+main:
+
 ; >>> EXAMPLE BEGINS
     ; Get the version numbers
     LDA #$00

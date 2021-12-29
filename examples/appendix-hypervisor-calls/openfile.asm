@@ -1,3 +1,7 @@
+    !source "common.inc"
+
+main:
+
 ; >>> EXAMPLE BEGINS
     ; Set the filename to CONFIG.DAT
     LDY #>filename
@@ -26,7 +30,7 @@
 @error:
     BRK
     ; Fill with zeros until a page boundary is reached
-    !align 255, 2
+    !align 255, 0
 filename:
     !text "CONFIG.DAT", 0
 ; >>> EXAMPLE ENDS

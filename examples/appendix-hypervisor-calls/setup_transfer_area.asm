@@ -1,3 +1,7 @@
+    !source "common.inc"
+
+main:
+
 ; >>> EXAMPLE BEGINS
     LDY #>transferarea
     LDA #$3A

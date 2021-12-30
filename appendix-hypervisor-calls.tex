@@ -535,6 +535,17 @@ bus.
   You cannot move up or down more than one directory at a time.
 
   Use \hypporef{cdrootdir} to directly change back to the root directory.
+\item [Example:]
+  Changes to an arbitrary path on the current drive. Call with Y:X being the
+  address of the path. The last character of each component in the path needs
+  to have bit 7 set. The whole path is terminated with a \$00. For example,
+  to change into DIR1 and then DIR2 the path would be
+  {\codefont !text "DIR", '1'+\$80, "DIR" '2'+\$80, 0}.
+
+  If successful, returns with the C flag set. If some part of the path doesn't
+  exist, returns with the C flag cleared and the current working directory will
+  be whatever directory was last successfully navigated to.
+  \acmelisting{chdir.asm}
 \end{hyppotrap}
 
 
@@ -655,6 +666,8 @@ bus.
 
   This only finds the first matching file. You can find multiple matches by
   using \hypporef{findfirst} and \hypporef{findnext}.
+\item [Example:]
+  See the example in \hypporef{openfile}.
 \end{hyppotrap}
 
 
@@ -706,6 +719,8 @@ bus.
   If you are only interested in the first match, you can use \hypporef{findfile}
   instead. \hypporef{findfile} always closes the file descriptor for you. But
   you can't use it to find multiple matching files.
+\item [Example:]
+  See the example in \hypporef{findnext}.
 \end{hyppotrap}
 
 
@@ -739,6 +754,12 @@ bus.
   If you don't exhaust the search by using \hypporef{findnext} until it fails
   with a file not found error, you are required to close the file descriptor
   yourself using \hypporef{closedir}.
+\item [Example:]
+  Returns with X register containing the number of files matching the current
+  Hyppo filename in the current working directory of the current drive. While
+  a directory can in theory have multiple files with an indentical name, this
+  example will be more useful once Hyppo supports * and ? wildcards.
+  \acmelisting{findnext.asm}
 \end{hyppotrap}
 
 
@@ -850,10 +871,8 @@ bus.
   You can use \hypporef{loadfile\_attic} to load a file into hyper memory. The
   hyper memory is the 8MB or more of memory in the external RAM chips.
 \item [Example:]
-  Allocates an 8K memory block in bank 3 or 4 and loads the file KABOOM.WAV into
-  it. This example assumes the size of KABOOM.WAV is less than 8K.
-
-  \TODO
+  Loads the file SHOOTEMUP-001.LEVEL into memory starting at \$48000.
+  \acmelisting{loadfile.asm}
 \end{hyppotrap}
 
 
@@ -1071,9 +1090,6 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Example:]
-  Checks if the file DIR1 is a sub-directory. Returns with the C flag set if it
-  is.
-
   \TODO
 \end{hyppotrap}
 

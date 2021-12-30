@@ -1,74 +1,36 @@
     !source "common.inc"
 
-main:
-    ; Find and open the file
-    LDX #0: STX $800
-    LDY #>filename
-    LDA #$2E
-    STA $D640
-    CLV
-    BCC @error
-    LDX #1: STX $801
-    LDA #$34
-    STA $D640
-    CLV
-    BCC @error
-    LDX #2: STX $802
-    LDA #$18
-    STA $D640
-    CLV
-    BCC @error
-    LDX #3: STX $803
-    PHA
-    LDZ #0
-    JSR example
-    LDX #4: STX $804
-    PLX
-    LDA #$20
-    STA $D640
-    CLV
-    BCC @error
-    LDX #5: STX $805
-    RTS
-@error:
-    LDX #$21: STX $806
-    STA $807
-    BRK
-
 example:
 
 ; >>> EXAMPLE BEGINS
+    ; Assume the file is already open.
     ; Unmap the colour RAM from $DC00 because that will prevent us from mapping in the sector buffer
-    LDA $d030
-    PHA
-    AND #%11111110
-    STA $d030
-@nextsector:
+    LDA $D030 : PHA : AND #%11111110 : STA $d030
+@10:
     ; Read the next sector
-    LDA #$1A
-    STA $D640
-    CLV
-    BCC @eoforerror
+    LDA #$1A : STA $D640 : CLV : BCC @20
     ; Map the sector buffer to $DE00
-    LDA #$81
-    STA $D680
+    LDA #$81 : STA $D680
     ; Call processsector (assumed to be defined elsewhere)
     JSR processsector
     ; Unmap the sector buffer from $DE00
-    LDA #$82
-    STA $D680
-    BRA @nextsector
-@eoforerror:
+    LDA #$82 : STA $D680
+    BRA @10
+@20:
     ; If the error code in A is $FF we have reached the end of the file otherwise there's been an error
-    CMP #$FF
-    BNE @error
+    CMP #$FF : BNE error
     ; Map the colour RAM at $DC00 if it was previously mapped
-    PLA
-    STA $d030
-    RTS
-@error:
-    BRK
+    PLA : STA $D030
 ; >>> EXAMPLE ENDS
+
+done:
+    LDX #4: STX $804
+    PLX
+    LDA #$20 : STA $D640 : CLV : BCC error
+    LDX #$41: STX $805 : RTS
+
+error:
+    LDX #$56 : STX $805 : STA $806 : RTS
 
 processsector:
     TZA
@@ -76,6 +38,18 @@ processsector:
     STZ $850,X
     INZ
     RTS
+
+main:
+    LDX #0: STX $800
+    LDY #>filename : LDA #$2E : STA $D640 : CLV : BCC error
+    LDX #1: STX $801
+    LDA #$34 : STA $D640 : CLV : BCC error
+    LDX #2: STX $802
+    LDA #$18 : STA $D640 : CLV : BCC error
+    LDX #3: STX $803
+    PHA
+    LDZ #0
+    JMP example
 
     !align 255, 0
 filename:

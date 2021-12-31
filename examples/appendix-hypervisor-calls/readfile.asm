@@ -5,7 +5,7 @@ example:
 ; >>> EXAMPLE BEGINS
     ; Assume the file is already open.
     ; Unmap the colour RAM from $DC00 because that will prevent us from mapping in the sector buffer
-    LDA $D030 : PHA : AND #%11111110 : STA $d030
+    LDA $D030 : PHA : AND #%11111110 : STA $D030
 @10:
     ; Read the next sector
     LDA #$1A : STA $D640 : CLV : BCC @20
@@ -33,9 +33,7 @@ error:
     LDX #$56 : STX $805 : STA $806 : RTS
 
 processsector:
-    TZA
-    TAX
-    STZ $850,X
+    TZA : TAX : STZ $850,X
     INZ
     RTS
 

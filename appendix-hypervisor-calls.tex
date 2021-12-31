@@ -603,7 +603,7 @@ bus.
 \item [Remarks:]
   You can also close all the open file descriptors using \hypporef{closeall}.
 \item [Example:]
-  See the examples in \hypporef{opendir} and \hypporef{readdir}.
+  See the example in \hypporef{opendir}.
 \end{hyppotrap}
 
 
@@ -629,8 +629,6 @@ bus.
   \availablefrom{1.2}
 \item [Remarks:]
   You can also close all the open file descriptors using \hypporef{closeall}.
-\item [Example:]
-  See the example in \hypporef{openfile}.
 \end{hyppotrap}
 
 
@@ -976,8 +974,7 @@ bus.
 \item [Example:]
   Calls processdirentry for each FAT dir entry in the current working directory.
   processdirentry is assumed to be defined elsewhere.
-
-  \TODO
+  \acmelisting{opendir.asm}
 \end{hyppotrap}
 
 
@@ -1098,7 +1095,7 @@ bus.
 \item [History:]
   \availablefrom{1.2}
 \item [Example:]
-  \TODO
+  See the example in \hypporef{opendir}.
 \end{hyppotrap}
 
 
@@ -1259,7 +1256,8 @@ bus.
   external SD cards. It does not access files on disks in floppy drives or in
   disk images.
 \item [Example:]
-  \TODO
+  Set the current Hyppo filename to GAME.MAP.
+  \acmelisting{setname.asm}
 \end{hyppotrap}
 
 
@@ -1303,15 +1301,17 @@ with both disk images and physical disks, be sure to test it with both.
   Attach a D81 disk image to virtualised F011 drive 0.
 \item [Preconditions:]
   The current Hyppo filename has been set using \hypporef{setname}.
+\item [Errors:]
+  \errordesc{88}{file not found}{The disk image file was not found in the
+  current directory of the current drive.}
 \item [History:]
   \availablefrom{1.2}
 \item [Remarks:]
   Unless it's been changed, drive 0 of the virtualised F011 floppy controller is
   unit 8.
 \item [Example:]
-  Attaches the disk image MYPROGRAM.D81 to virtualised F011 drive 0.
-
-  \TODO
+  Attaches the disk image DISK2.D81 to virtualised F011 drive 0.
+  \acmelisting{d81attach0.asm}
 \end{hyppotrap}
 
 
@@ -1780,8 +1780,7 @@ with both disk images and physical disks, be sure to test it with both.
   6502 opcodes do not operate correctly when the 6502 personality is enabled.
 \item [Example:] Enables the 45GS02 personality regardless of the CPU's current
   personality.
-
-  \TODO
+  \acmelisting{toggle_force_4502.asm}
 \end{hyppotrap}
 
 

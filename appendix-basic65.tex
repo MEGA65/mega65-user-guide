@@ -4078,6 +4078,57 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item \begin{center}\includegraphics[width=0.7\linewidth]{images/foreground-example.png}\end{center}
 \end{description}
 
+% ******
+% FORMAT
+% ******
+
+\newpage
+\subsection{FORMAT}
+\index{BASIC 65 Commands!FORMAT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$37
+\item [Format:] {\bf FORMAT} diskname [{\bf,I} id] [{\bf,D} drive] [{\bf,U} unit]
+\item [Usage:]
+   Used to format (or clear) a disk.
+
+   {\bf I} The disk ID.
+
+   {\bf diskname} is either a quoted string, e.g. \screentext{"DATA"} or
+   a string expression in brackets, e.g. \screentext{(DN\$)}.
+   The maximum length of {\bf diskname} is 16 characters.
+
+   \drivedefinition
+
+   \unitdefinition
+
+\item [Remarks:] {\bf FORMAT} and {\bf HEADER} are aliases and call the same routine.
+
+   For new floppy disks which have not already been formatted in MEGA65 (1581) format,
+   it is necessary to specify the disk ID with the
+   {\bf I} parameter. This switches the format command to low level
+   format, which writes sector IDs and erases all contents.
+   This takes some time, as every block on the floppy disk will be written.
+
+   If the {\bf I} parameter is omitted, a quick format will
+   be performed. This is only possible if the disk has already been formatted
+   as a MEGA65 or 1581 floppy disk.
+   A quick format writes the new disk name and clears the
+   block allocation map, marking all blocks as free.
+   The disk ID is not changed, and blocks are not overwritten,
+   so contents may be recovered with {\bf ERASE R}.
+   You can read more about {\bf ERASE} on page \pageref{erasecommand}.
+
+\item [Examples:] Using {\bf FORMAT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+  FORMAT "ADVENTURE",IDK : FORMAT DISK WITH NAME ADVENTURE AND ID DK
+  FORMAT "ZORK-I",U9     : FORMAT DISK IN UNIT 9 WITH NAME ZORK-I
+  FORMAT "DUNGEON",D1,U10: FORMAT DISK IN DRIVE 1 UNIT 10 WITH NAME DUNGEON
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % FRE
 % ***
@@ -4579,15 +4630,17 @@ ARE YOU SURE?
 
    \unitdefinition
 
-\item [Remarks:]
-   For new disks which have not already been formatted,
+\item [Remarks:] {\bf FORMAT} and {\bf HEADER} are aliases and call the same routine.
+
+   For new floppy disks which have not already been formatted in MEGA65 (1581) format,
    it is necessary to specify the disk ID with the
-   {\bf I} parameter. This switches the format command to
-   full format, which writes sector IDs and erases all contents.
-   This takes some time, as every block on the disk will
-   be written. \\
+   {\bf I} parameter. This switches the format command to low level
+   format, which writes sector IDs and erases all contents.
+   This takes some time, as every block on the floppy disk will be written.
+
    If the {\bf I} parameter is omitted, a quick format will
-   be performed. This is only possible if the disk has already been formatted.
+   be performed. This is only possible if the disk has already been formatted
+   as a MEGA65 or 1581 floppy disk.
    A quick format writes the new disk name and clears the
    block allocation map, marking all blocks as free.
    The disk ID is not changed, and blocks are not overwritten,

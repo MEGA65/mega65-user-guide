@@ -9024,26 +9024,31 @@ RUN
 
 \item [Remarks:] Source and destination can either be
                 a sprite number or a string variable,
-                but both cannot be a string variable at the same time.
-                A simple string assignment can be used for such
-                cases.
 
                 {\bf SPRSAV} can be used with the basic form of sprites
-                (C64 compatible) only. These sprites have a size of 64 bytes,
-                and the amount of memory they consume is 67 bytes.
+                (C64 compatible) only. These sprites occupy 64 bytes of memory,
+                and create strings of length 64, if the destination
+                parameter is a string variable.
 
                 Extended sprites and variable height sprites
                 cannot be used with {\bf SPRSAV}.
+
+                A string array of sprite data can be used to store
+                many shapes and copy them fast to the sprite memory
+                with the command {\bf SPRSAV}.
+
+                It's also a convenient method to read or write
+                shapes of single sprites from or to a disk file.
 
 \item [Example:] Using {\bf SPRSAV}:
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 BLOAD "SPRITEDATA",P1600    :REM LOAD DATA FOR SPRITE 1
-20 SPRITE 1,1                  :REM TURN SPRITE 1 ON
-30 SPRSAV 1,2                  :REM COPY SPRITE 1 DATA TO 2
-40 SPRITE 2,1                  :REM TURN SPRITE 2 ON
-50 SPRSAV 1,A$                 :REM SAVE SPRITE 1 DATA IN STRING
+10 SPRITE LOAD "SPRITEDATA" :REM LOAD DATA FOR 8 SPRITES
+20 SPRITE 1,1               :REM TURN SPRITE 1 ON
+30 SPRSAV 1,2               :REM COPY SPRITE 1 DATA TO SPRITE 2
+40 SPRITE 2,1               :REM TURN SPRITE 2 ON
+50 SPRSAV 1,A$              :REM SAVE SPRITE 1 DATA IN STRING A$
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

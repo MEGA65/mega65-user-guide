@@ -178,7 +178,7 @@ int main(int argc, char** argv)
      its function.
   */
 
-  char processor[1024];
+  char processor[1000];
   char processor_path[1024];
   int pplen = 0;
   int plen = 0;
@@ -206,19 +206,17 @@ int main(int argc, char** argv)
     int count = 0;
     line[0] = 0;
     fgets(line, 1024, cf);
-    while (line[0]) {
+    while (line[0] && count < 1024) {
       unsigned int opcode;
       char instr[1024];
       char cycles[1024];
       int n = sscanf(line, "%x %s %[^\n]", &opcode, instr, cycles);
-      if (n == 3) {
-        if (count >= 0 && count < 1024)
-          cycle_count_list[count] = StrDup(cycles);
-      }
-      else if (n == 2) {
-        if (count >= 0 && count < 1024)
-          cycle_count_list[count] = StrDup(instr);
-      }
+      if (n == 3)
+        cycle_count_list[count] = StrDup(cycles);
+      else if (n == 2)
+        cycle_count_list[count] = StrDup(instr);
+      else
+        fprintf(stderr, "invalid number of fields for %X\n", opcode);
       cycle_count_list_bytes[count] = opcode;
       count++;
       line[0] = 0;
@@ -416,15 +414,16 @@ int main(int argc, char** argv)
     int indirect_note_seen = 0;
     int single_cycle_seen = 0;
 
-    printf("\\begin{tabular}{|lp{3.6cm}ll*{7}{p{2.5mm}}p{0.2cm}|}\n\\hline\n"
+    printf("\\begin{center}\n\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{0.2cm}p{8.5em}p{6em}p{5.5em}*{7}{>{\\centering\\arraybackslash}p{1em}}p{0.2cm}|}\n"
+           "\\hline\n"
            " & \\multicolumn{8}{l}{\\bf %s : %s} & \\multicolumn{3}{r|}{\\bf %s} \\\\\n"
            " & \\multicolumn{10}{l}{%s} & \\\\\n"
-           " & & & & {\\bf N} & {\\bf Z} & \\multicolumn{1}{c}{\\bf I} & {\\bf C} & {\\bf D} & {\\bf V} & {\\bf E} & \\\\\n "
-           "& & &",
+           " & & & & {\\bf N} & {\\bf Z} & {\\bf I} & {\\bf C} & {\\bf D} & {\\bf V} & {\\bf E} & \\\\\n"
+           " & & &",
         instruction, short_description, processor, action);
 
     for (int ipf = 0; ipf < 7; ++ipf)
-      printf(" & \\multicolumn{1}{c}{\\bf %s}", pflags[ipf]);
+      printf(" & {\\bf %s}", pflags[ipf]);
 
     printf(" & \\\\\n"
            " & & & & & & & & & & & \\\\\n"
@@ -542,7 +541,7 @@ int main(int argc, char** argv)
             indirect_note ? "i" : "", delidle4510_note ? "m" : "", page_note ? "p" : "", read_note ? "r" : "",
             single_cycle ? "s" : "");
 
-        printf(" & %s        & %s       & \\multicolumn{1}{c}{%s}     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{c}{%s} & "
+        printf(" & %s        & %s       & %s     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{c}{%s} & "
                "\\multicolumn{2}{l|}{%s} \\\\\n",
             addressing_mode, assembly, opcode, bytes, cycle_count, cycle_notes);
       }
@@ -569,7 +568,7 @@ int main(int argc, char** argv)
       printf(" \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Instruction requires 2 cycles when CPU is run at 1MHz or "
              "2MHz.} \\\\\n");
 
-    printf("\\end{tabular}\n");
+    printf("\\end{tabular}\n\\end{center}\n");
     fflush(stdout);
 
     snprintf(insfilename, 1024, "%s-opcodes.tex", processor);
@@ -710,7 +709,7 @@ int main(int argc, char** argv)
             safe_name[slen] = 0;
           }
           else {
-            snprintf(safe_name, 1024, "");
+            safe_name[0] = 0;
           }
           fprintf(tf, "& %s     ", safe_name);
         }

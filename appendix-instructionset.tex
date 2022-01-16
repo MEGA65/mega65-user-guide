@@ -5,6 +5,9 @@ is compatible with the CSG 4510, and in 6502 compatibility mode,
 where 6502 undocumented instructions, also known as illegal
 instructions, are supported for compatibility.
 
+WARNING: This feature is incomplete and untested.  Most undocumented
+6502 opcodes do not operate correctly when the 6502 personality is enabled.
+
 When in 4510 compatibility mode, the 45GS02 also supports a number
 of extensions through {\em compound instructions}. These work be prefixing
 the desired instruction's opcode with one or more {\em prefix bytes}, which
@@ -46,7 +49,7 @@ rotate or modify the value of the Q Pseudo Register in some way.  For example,
 \screentext{ASL Q} shifts the value in the Q Pseudo Register left one bit.
 
 Remember that the Q Pseudo Register is simply the A, X, Y and Z registers acting together
-as a pseudo 32-bit register, where A contains the least significant bits, and Z the
+as a virtual 32-bit register, where A contains the least significant bits, and Z the
 most significant bits.  There are some cases where using a Q mode instruction can be
 helpful for operating on the four true registers.
 
@@ -250,7 +253,7 @@ The encoding for this addressing mode is identical to Base Page Mode.
 
 \subsection{Base Page Quad Indirect X-Indexed Mode}
 
-This addressing mode is identical to Base PAge Indirect X-Indexed Mode, except that the address
+This addressing mode is identical to Base Page Indirect X-Indexed Mode, except that the address
 of the pointer is formed from the Base Page Register (high byte) and the 8-bit operand (low byte).
 The encoding for this addressing mode is identical to Base Page Quad Mode.
 
@@ -315,6 +318,9 @@ except that it operates on 32-bits of data at the 32-bit address formed by the a
 in comparison to 32-bit Base Page Indirect Z-Indexed Mode which operates on only 8 bits
 of data.   The encoding of this addressing mode is \$42, \$42, \$EA, followed by the
 natural 6502 opcode for the instruction being performed.
+
+It is also important to note that most of the time Z is actually {\em not} added to the
+pointer, as it is part of the Q Pseudo Register. Only \screentext{LDQ (\$nn),Z} will add Z.
 
 
 \subsection{32-bit Base Page Indirect Mode}

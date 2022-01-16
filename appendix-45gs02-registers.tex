@@ -442,8 +442,9 @@ memory is required, and the extra cycles of reading the 32-bit addresses is prob
 
 \subsection{Virtual 32-bit Register}
 
-The 45GS02 allows the use of its four general purpose registers, A, X ,Y and Z as a single virtual 32-bit register. This can greatly
-simplify and speed up many common operations, and help avoid many common programming errors.
+The 45GS02 allows the use of its four general purpose registers, A, X, Y and Z (A is LSB, Z is MSB) as a single virtual 32-bit register, 
+also called the {\em Q pseudo register}.
+This can greatly simplify and speed up many common operations, and help avoid many common programming errors.
 For example, adding two 16-bit or 32-bit values can now be easily accomplished with something like:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -502,14 +503,13 @@ The virtual 32-bit addressing mode works with any addressing mode.
 However, indexed addressing modes, where X, Y or Z are added to the address should
 be used with care, because these registers may in fact be holding part of a 32-bit value.
 
-The exception is the Zero-Page
-Indirect Z-Indexed addressing mode: In this case the Z register is NOT added to the target address, unlike would normally
-be the case. This is to allow the virtual 32-bit register to be able to be used with flat-memory access with the combined prefix of
-\stw{NEG NEG NOP},  before the instruction to allow accessing a 32-bit value anywhere in memory in a single instruction.
+The exception is the Zero-Page Indirect Z-Indexed addressing mode: In this case the Z register is NOT added to the target address
+(with the exception of the LDQ opcode), unlike would normally be the case. This is to allow the virtual 32-bit register to be able
+to be used with flat-memory access with the combined prefix of \stw{NEG NEG NOP},  before the instruction to allow accessing a
+32-bit value anywhere in memory in a single instruction.
 
 Note that the virtual 32-bit register cannot be used in immediate mode, e.g., to load a constant into the four general
-purpose registers, or to add or subtract a constant value.  This is to
-avoid problems with variable length instructions.
+purpose registers, or to add or subtract a constant value.  This is to avoid problems with variable length instructions.
 
 For LDQ and STQ, it would save at most one byte
 compared to LDA \#\$nn ... LDZ \#\$nn, and would be no faster.  In fact, for many common

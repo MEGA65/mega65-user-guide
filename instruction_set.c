@@ -7,13 +7,17 @@
 struct opcode {
   char* abbrev;
   char* mode;
-  int mode_num;
+  int modeId;
   int instr_num;
+  char* cycles;
   unsigned int bytes;
 };
 
 #define MAX_MODES 32
 struct modeinfo {
+  char* mode;
+  char* nmode;
+  char* texmode;
   char* description;
   int bytes;
   int cycles;
@@ -23,9 +27,8 @@ struct modeinfo {
   char* long_title;
 };
 
+int mode_count = 0;
 struct modeinfo modeinfo[MAX_MODES];
-char* modes[MAX_MODES];
-int mode_count = 1; // 0: implied
 
 char* instrs[256];
 int instruction_count = 0;
@@ -50,19 +53,20 @@ int CPU;
 int extra_cycles;
 size_t len;
 char* is_unintended;
-char insfilename[1024];
 char short_description[256];
 char long_description[8192];
 char action[256];
 char bction[256];
 char flags[256];
+char DEBUG = 0;
 
-char* StrDup(const char* s)
-{
+// strdup, bug panic and exit if no memory was available
+char* StrDup(const char* s) {
   char* r;
   if (s == NULL)
-    return strdup(" ");
-  r = strdup(s);
+    r = strdup("");
+  else
+    r = strdup(s);
   if (r == NULL) {
     fprintf(stderr, "\n*** failed to allocate in StrDup for string [%s]\n", s);
     exit(1);
@@ -70,244 +74,258 @@ char* StrDup(const char* s)
   return r;
 }
 
+// escape string by putting backslash before $ and #
+char* texEscape(const char* s) {
+  char t[255];
+  int i = 0;
+  for (int j = 0; s[j]; j++) {
+    // Escape tricky chars
+    switch (s[j]) {
+      case '$':
+      case '#':
+        t[i++] = '\\';
+    }
+    t[i++] = s[j];
+  }
+  t[i] = 0;
+  return StrDup(t);
+}
+
 // read a line from file 'f' into buffer
 // and remove CR/LF and trailing blanks
-
-void Fgets(char* Str, size_t Size, FILE* F)
-{
+char* Fgets(char* Str, size_t Size, FILE* F) {
   size_t l;
-  memset(Str, 0, Size);
-  if (fgets(Str, Size - 1, F)) {
+  if (fgets(Str, Size, F)) {
     l = strlen(Str);
     while (l && Str[l - 1] <= ' ')
       Str[--l] = 0;
+    return Str;
   }
-  if (Str[0] == 0)
-    strcpy(Str, " ");
+  return NULL;
 }
 
-static int compar_str(const void* a, const void* b)
-{
+static int compar_str(const void* a, const void* b) {
   return strcmp(*(char* const*)a, *(char* const*)b);
 }
 
-void lookup_mode_description(int m, int isQuad)
-{
-  fprintf(stderr, "Looking for description of '%s', Q=%d\n", modes[m], isQuad);
+void error_exit(char* errstr) {
+  fprintf(stderr, "\nERROR %s\n", errstr);
+  exit(-1);
+}
 
-  // Normalise mode into a safe filename
-  char n[256];
+#define Fgets_err(a, b, c, d) if (!Fgets(a,b,c)) error_exit(d)
+
+int lookup_mode_description(char* mode, int isQuad) {
+  if (DEBUG) fprintf(stderr, "Looking for description of '%s', Q=%d", mode, isQuad);
+
+  // Normalise mode into a safe filename extension
+  char nmode[256], errstr[1256];
   int nlen = 0;
 
   if (isQuad)
-    n[nlen++] = 'Q';
+    nmode[nlen++] = 'Q';
 
-  for (int i = 0; i < 255 && modes[m][i]; i++) {
-    switch (modes[m][i]) {
-    case '(':
-    case '#':
-    case '$':
-    case ',':
-    case ')':
-      n[nlen++] = '_';
-      break;
-    case '[':
-    case ']':
-      n[nlen++] = 'S';
-      break;
-    default:
-      n[nlen++] = modes[m][i];
+  for (int i = 0; i < 255 && mode[i]; i++) {
+    switch (mode[i]) {
+      case '(':
+      case '#':
+      case '$':
+      case ',':
+      case ')':
+        nmode[nlen++] = '_';
+        break;
+      case '[':
+      case ']':
+        nmode[nlen++] = 'S';
+        break;
+      default:
+        nmode[nlen++] = mode[i];
     }
   }
-  n[nlen] = 0;
-  fprintf(stderr, "Normalised to '%s'\n", n);
+  nmode[nlen] = 0;
+  if (DEBUG) fprintf(stderr, ", normalised to '%s'\n", nmode);
 
+  // search if we already loaded this mode
+  int modeId = 0;
+  for (modeId = 0; modeId < mode_count; modeId++)
+    if (!strcmp(nmode, modeinfo[modeId].nmode))
+      return modeId;
+
+  // new mode
+  mode_count++;
+  modeinfo[modeId].mode = StrDup(mode);
+  modeinfo[modeId].nmode = StrDup(nmode);
+  modeinfo[modeId].texmode = texEscape(mode);
   char filename[1024];
-  if (strlen(n) == 0) // avoiding 'mode.' filename, as it's not windows-friendly
+  if (strlen(nmode) == 0) // avoiding 'mode.' filename, as it's not windows-friendly
     snprintf(filename, 1024, "instruction_sets/mode");
   else
-    snprintf(filename, 1024, "instruction_sets/mode.%s", n);
+    snprintf(filename, 1024, "instruction_sets/mode.%s", nmode);
   FILE* f = fopen(filename, "rb");
   if (f) {
     char line[8192];
-    fgets(line, 1024, f);
-    while (line[0] && line[strlen(line) - 1] < ' ')
-      line[strlen(line) - 1] = 0;
+    snprintf(errstr, 1255, "reading mode info %s", filename);
+    Fgets_err(line, 1024, f, errstr);
     if (CPU == 6502 && !strncmp(line, "base", 4))
-      strncpy(line, "zero", 4);
-    modeinfo[m].description = StrDup(line);
-    fgets(line, 1024, f);
-    while (line[0] && line[strlen(line) - 1] < ' ')
-      line[strlen(line) - 1] = 0;
-    modeinfo[m].bytes = atoi(line);
-    fgets(line, 1024, f);
-    while (line[0] && line[strlen(line) - 1] < ' ')
-      line[strlen(line) - 1] = 0;
-    modeinfo[m].cycles = atoi(line);
-    fgets(line, 1024, f);
-    while (line[0] && line[strlen(line) - 1] < ' ')
-      line[strlen(line) - 1] = 0;
-    modeinfo[m].cycle_notes = StrDup(line);
-    fgets(line, 1024, f);
-    while (line[0] && line[strlen(line) - 1] < ' ')
-      line[strlen(line) - 1] = 0;
-    modeinfo[m].memory_equation = StrDup(line);
-    fgets(line, 1024, f);
-    while (line[0] && line[strlen(line) - 1] < ' ')
-      line[strlen(line) - 1] = 0;
-    modeinfo[m].long_title = StrDup(line);
+      memcpy(line, "zero", 4);
+    modeinfo[modeId].description = StrDup(line);
+    Fgets_err(line, 1024, f, errstr);
+    modeinfo[modeId].bytes = atoi(line);
+    Fgets_err(line, 1024, f, errstr);
+    modeinfo[modeId].cycles = atoi(line);
+    Fgets_err(line, 1024, f, errstr);
+    modeinfo[modeId].cycle_notes = StrDup(line);
+    Fgets_err(line, 1024, f, errstr);
+    modeinfo[modeId].long_title = StrDup(line);
     int r = fread(line, 1, 8192, f);
     line[r] = 0;
-    modeinfo[m].long_description = StrDup(line);
+    modeinfo[modeId].long_description = StrDup(line);
 
     fclose(f);
+    return modeId;
   }
   else {
     fprintf(stderr, "WARNING: Could not find mode description file '%s'\n", filename);
-    bzero(&modeinfo[m], sizeof(struct modeinfo));
+    bzero(&modeinfo[modeId], sizeof(struct modeinfo));
   }
 
-  return;
+  return -1;
 }
 
-int main(int argc, char** argv)
-{
+void usage(char *prg) {
+  fprintf(stderr, "Usage: %s [--debug|-d] OPCODEFILE\n", prg);
+  exit(-1);
+}
+
+int main(int argc, char** argv) {
   /* Read a list of opcodes. Gather them by instruction, and
      generate the various tables and things that we need from
      that. We also have one file per instruction that describes
      its function.
   */
-
-  char processor[1000];
+  char processor[256];
   char processor_path[1024];
-  int pplen = 0;
-  int plen = 0;
+  char filename[1024];
+  char* find;
+  int argi = 1;
+  char line[1024], errstr[256];
+
+  if (argc < 2) usage(argv[0]);
+
+  // parse cmdline for debug flag
+  if (!strcmp(argv[argi], "--debug") || !strcmp(argv[argi], "-d")) {
+    argi++;
+    DEBUG = 1;
+  }
+
+  if (argi >= argc) usage(argv[0]);
 
   for (int i = 0; i < 256; i++)
     instruction_names[i] = NULL;
 
-  for (int i = 0; argv[1] && argv[1][i] && argv[1][i] != '.'; i++) {
-    processor[plen++] = argv[1][i];
-    processor[plen] = 0;
-    if (argv[1][i] == '/')
-      plen = 0;
-    processor_path[pplen++] = argv[1][i];
-    processor_path[pplen] = 0;
-  }
+  find = strrchr(argv[argi], '/');
+  if (find == NULL)
+    find = argv[argi];
+  else
+    find++; // skip over /
+  strncpy(processor, find, 256);
+  find = strrchr(processor, '.');
+  if (find != NULL) *find = 0;
+
+  strncpy(processor_path, argv[argi], 1024);
+  find = strrchr(processor_path, '.');
+  if (find != NULL) *find = 0;
   fprintf(stderr, "Processor name is '%s'\n", processor);
   CPU = atoi(processor);
 
-  char line[1024];
-
+  // read cycles
   strcat(processor_path, ".cycles");
   FILE* cf = fopen(processor_path, "rb");
-  if (cf) {
-    fprintf(stderr, "Reading instruction cycle count information...\n");
-    int count = 0;
-    line[0] = 0;
-    fgets(line, 1024, cf);
-    while (line[0] && count < 1024) {
-      unsigned int opcode;
-      char instr[1024];
-      char cycles[1024];
-      int n = sscanf(line, "%x %s %[^\n]", &opcode, instr, cycles);
-      if (n == 3)
-        cycle_count_list[count] = StrDup(cycles);
-      else if (n == 2)
-        cycle_count_list[count] = StrDup(instr);
-      else
-        fprintf(stderr, "invalid number of fields for %X\n", opcode);
-      cycle_count_list_bytes[count] = opcode;
-      count++;
-      line[0] = 0;
-      fgets(line, 1024, cf);
-    }
-    fclose(cf);
-    cycle_counts = count;
+  if (!cf) {
+    fprintf(stderr, "cycle file \"%s\" not found!\n\n", processor_path);
+    usage(argv[0]);
   }
+  fprintf(stderr, "Reading instruction cycle count information...\n");
+  int count = 0;
+  while (Fgets(line, 1024, cf) && count < 1024) {
+    unsigned int opcode;
+    char instr[1024];
+    char cycles[1024];
+    int n = sscanf(line, "%x %s %s", &opcode, instr, cycles);
+    if (n == 3)
+      cycle_count_list[count] = StrDup(cycles);
+    else if (n == 2)
+      cycle_count_list[count] = StrDup(instr);
+    else
+      fprintf(stderr, "invalid number of fields for %X\n", opcode);
+    cycle_count_list_bytes[count] = opcode;
+    count++;
+  }
+  fclose(cf);
+  cycle_counts = count;
   fprintf(stderr, "cycle_counts=%d\n", cycle_counts);
 
-  modes[0] = "implied";
-  lookup_mode_description(0, 0);
+  // read opcodes
+  lookup_mode_description("", 0);
+  int opcode_count = 0;
+  FILE* f = fopen(argv[argi], "rb");
+  if (!f) {
+    fprintf(stderr, "opc file \"%s\" not found!\n\n", argv[argi]);
+    usage(argv[0]);
+  }
 
-  int opcode = 0;
-
-  FILE* f = fopen(argv[1], "rb");
-  line[0] = 0;
-  fgets(line, 1024, f);
-  while (line[0]) {
-    int bytes;
+  while (Fgets(line, 1024, f)) {
+    int bytes, i = 0, n;
     char name[1024];
     char mode[1024] = "";
-    int n = sscanf(line, "%x %s %[^\n]", &bytes, name, mode);
+
+    n = sscanf(line, "%x %s %[^\n]", &bytes, name, mode);
     if (n < 2) {
       fprintf(stderr, "ERROR: Could not parse line: %s\n", line);
       exit(-3);
     }
 
     // Store full extended byte sequence
-    opcodes[opcode].bytes = bytes;
+    opcodes[opcode_count].bytes = bytes;
 
     int isQuad = 0;
-    if (strchr(name, 'Q'))
+    if (strchr(name, 'Q') && strcmp(name, "BEQ")) // BEQ is no Q opcode!
       isQuad = 1;
 
-    if (!mode[0])
-      if (isQuad)
-        snprintf(mode, 2, "Q");
+    if (!mode[0] && isQuad) // replace empty Q with "Q"
+      strcpy(mode, "Q");
+
+    if (DEBUG) fprintf(stderr, "parsing opc: %d / $%08X / %s / %s / Q=%d\n", n, bytes, name, mode, isQuad);
 
     if (n >= 2) {
       //      fprintf(stderr,"3<%s><%s>: ",name,mode);
-      int i = 99;
-      for (i = 0; i < mode_count; i++) {
-        if (!strcmp(modes[i], mode)) {
-          break;
-        }
-      }
-      if (i < mode_count)
-        opcodes[opcode].mode_num = i;
-      else {
-        opcodes[opcode].mode_num = mode_count;
-        modes[mode_count] = StrDup(mode);
-
-        // Try to find better description and data
-        lookup_mode_description(mode_count, isQuad);
-
-        mode_count++;
-      }
-      opcodes[opcode].mode = StrDup(mode);
+      int modeId = lookup_mode_description(mode, isQuad);
+      if (modeId < 0) {
+        fprintf(stderr, "ERROR: mode not found (%s, %d)\n", mode, isQuad);
+        exit(-3);
+      } else
+        opcodes[opcode_count].modeId = modeId;
     }
 
-    {
-      int i = 0;
-      for (i = 0; i < instruction_count; i++) {
-        if (!strcmp(instrs[i], name)) {
-          break;
-        }
-      }
-      if (i < instruction_count)
-        opcodes[opcode].instr_num = i;
-      else {
-        opcodes[opcode].instr_num = instruction_count;
-        instrs[instruction_count++] = StrDup(name);
+    for (i = 0; i < instruction_count; i++) {
+      if (!strcmp(instrs[i], name)) {
+        break;
       }
     }
-
-    opcodes[opcode].abbrev = StrDup(name);
-
-    opcode++;
-
-    line[0] = 0;
-    fgets(line, 1024, f);
+    if (i < instruction_count)
+      opcodes[opcode_count].instr_num = i;
+    else {
+      opcodes[opcode_count].instr_num = instruction_count;
+      instrs[instruction_count++] = StrDup(name);
+    }
+    opcodes[opcode_count++].abbrev = StrDup(name);
   }
-
-  int opcode_count = opcode;
 
   fprintf(stderr, "%d addressing modes found.\n", mode_count);
   fprintf(stderr, "%d unique instructions found.\n", instruction_count);
 
   for (int i = 0; i < mode_count; i++) {
-    fprintf(stderr, "Modes #%d : %s\n", i, modeinfo[i].description);
+    fprintf(stderr, "Mode #%02d: %s\n", i, modeinfo[i].description);
   }
 
   // Sort instruction names alphabetically
@@ -323,23 +341,43 @@ int main(int argc, char** argv)
     }
   }
 
-  // Now generate the instruction tables.
-
+  /*
+   * Now generate the instruction tables.
+   */
+  int delmodify65ce02_note = 0;
+  int delidle4510_note = 0;
+  int branch_note = 0;
+  int indirect_note = 0;
+  int page_note = 0;
+  int read_note = 0;
+  int single_cycle = 0;
+  int delmodify65ce02_note_seen = 0;
+  int delidle4510_note_seen = 0;
+  int branch_note_seen = 0;
+  int page_note_seen = 0;
+  int read_note_seen = 0;
+  int indirect_note_seen = 0;
+  int single_cycle_seen = 0;
+  char opcode[16], assembly[256], bytes[16], cycles[16], cycle_count[256], cycle_notes[1024];
+  char* addressing_mode;
   for (int i = 0; i < instruction_count; i++) {
     instruction = instrs[i];
     extra_cycles = 0;
     for (int ipf = 0; ipf < 7; ++ipf)
       strcpy(pflags[ipf], "$\\cdot$");
 
-    snprintf(insfilename, sizeof(insfilename), "instruction_sets/inst.%s", instrs[i]);
-    FILE* f = fopen(insfilename, "rb");
-    if (f) {
-      fprintf(stderr, "Using %s\n", insfilename);
-      Fgets(short_description, sizeof(short_description), f);
-      Fgets(action, sizeof(action), f);
+    snprintf(filename, sizeof(filename), "instruction_sets/inst.%s", instrs[i]);
+    FILE* f = fopen(filename, "rb");
+    if (!f) {
+      fprintf(stderr, "WARNING: Could not read %s\n", filename);
+    } else {
+      snprintf(errstr, 1255, "reading instruction %s", filename);
+      fprintf(stderr, "Using %s\n", filename);
+      Fgets_err(short_description, sizeof(short_description), f, errstr);
+      Fgets_err(action, sizeof(action), f, errstr);
       // There may be different lines for 6502 and 4510 CPU
       if (!strncmp(action, "6502:", 5) || !strncmp(action, "4510:", 5)) {
-        Fgets(bction, sizeof(bction), f);
+        Fgets_err(bction, sizeof(bction), f, errstr);
         fprintf(stderr, "action:%s\n", action);
         fprintf(stderr, "bction:%s\n", bction);
         if (!strncmp(bction, processor, 4))
@@ -349,7 +387,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "zction:%s\n", action);
         fprintf(stderr, "short :%s\n", short_description);
       }
-      Fgets(flags, sizeof(flags), f);
+      Fgets_err(flags, sizeof(flags), f, errstr);
       for (int i = 0; flags[i]; i += 2) {
         switch (flags[i]) {
         case 'N':
@@ -392,10 +430,7 @@ int main(int argc, char** argv)
       //      fprintf(stderr,"%s Long desc:\n%s\n\n\n\n",instruction,long_description);
       fclose(f);
     }
-    else {
-      fprintf(stderr, "WARNING: Could not read %s\n", insfilename);
-    }
-    fprintf(stderr, "%s - %s\n", instrs[i], short_description);
+    fprintf(stderr, "%s - %s:\n  ", instrs[i], short_description);
 
     is_unintended = strstr(short_description, "(unintended instruction)");
     if (is_unintended) {
@@ -406,15 +441,15 @@ int main(int argc, char** argv)
       printf("\n\n\\subsection{%s}\n", instruction);
     printf("\\index{%s}%s\n\n\n", instruction, long_description);
 
-    int delmodify65ce02_note_seen = 0;
-    int delidle4510_note_seen = 0;
-    int branch_note_seen = 0;
-    int page_note_seen = 0;
-    int read_note_seen = 0;
-    int indirect_note_seen = 0;
-    int single_cycle_seen = 0;
+    delmodify65ce02_note_seen = 0;
+    delidle4510_note_seen = 0;
+    branch_note_seen = 0;
+    page_note_seen = 0;
+    read_note_seen = 0;
+    indirect_note_seen = 0;
+    single_cycle_seen = 0;
 
-    printf("\\begin{center}\n\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{0.2cm}p{8.5em}p{6em}p{5.5em}*{7}{>{\\centering\\arraybackslash}p{1em}}p{0.2cm}|}\n"
+    printf("\\begin{center}\n\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{0.2cm}p{9em}p{7em}p{6em}*{7}{>{\\centering\\arraybackslash}p{1em}}p{0.2cm}|}\n"
            "\\hline\n"
            " & \\multicolumn{8}{l}{\\bf %s : %s} & \\multicolumn{3}{r|}{\\bf %s} \\\\\n"
            " & \\multicolumn{10}{l}{%s} & \\\\\n"
@@ -422,7 +457,7 @@ int main(int argc, char** argv)
            " & & &",
         instruction, short_description, processor, action);
 
-    for (int ipf = 0; ipf < 7; ++ipf)
+    for (int ipf = 0; ipf < 7; ipf++)
       printf(" & {\\bf %s}", pflags[ipf]);
 
     printf(" & \\\\\n"
@@ -432,26 +467,12 @@ int main(int argc, char** argv)
 
     for (int j = 0; j < opcode_count; j++) {
       if (opcodes[j].instr_num == i) {
-        int m = opcodes[j].mode_num;
+        int m = opcodes[j].modeId;
         if (m < 0)
           m = 0;
-        fprintf(stderr, "  $%02x %d,%d\n", j, m, opcodes[j].mode_num);
-        char* addressing_mode = modeinfo[m].description ? modeinfo[m].description : "No description";
-        char assembly[1024] = "LDA \\$1234";
-        snprintf(assembly, 1024, "%s ", instruction);
-        for (int j = 0; modes[m][j]; j++) {
-          // Escape tricky chars
-          switch (modes[m][j]) {
-          case '$':
-          case '#':
-            assembly[strlen(assembly) + 1] = 0;
-            assembly[strlen(assembly)] = '\\';
-          }
-          assembly[strlen(assembly) + 1] = 0;
-          if (m)
-            assembly[strlen(assembly)] = modes[m][j];
-        }
-        char opcode[16] = "A9";
+        addressing_mode = modeinfo[m].description ? modeinfo[m].description : "No description";
+        snprintf(assembly, 256, "%s %s", instruction, modeinfo[m].texmode);
+
         snprintf(opcode, 16, "%02X", j);
         if (opcodes[j].bytes & 0xff000000) {
           snprintf(opcode, 16, "%02X %02X %02X %02X", opcodes[j].bytes >> 24, (opcodes[j].bytes >> 16) & 0xff,
@@ -467,14 +488,10 @@ int main(int argc, char** argv)
           snprintf(opcode, 16, "%02X %02X", (opcodes[j].bytes >> 8) & 0xff, opcodes[j].bytes & 0xff);
           extra_cycles += 1;
         }
+        fprintf(stderr, "%s,%s; ", opcode, m?modeinfo[m].nmode:"NULL");
 
-        char bytes[16] = "3";
         snprintf(bytes, 16, "%d", modeinfo[m].bytes);
-        char cycles[16] = "4";
         snprintf(cycles, 16, "%d", modeinfo[m].cycles + extra_cycles);
-
-        char cycle_count[1024];
-        char cycle_notes[1024] = "";
 
         int k = 0;
         for (k = 0; k < cycle_counts; k++) {
@@ -482,6 +499,7 @@ int main(int argc, char** argv)
             break;
         }
 
+        cycle_notes[0] = 0;
         if (k < cycle_counts) {
           cycle_count[0] = 0;
           for (int i = 0; isdigit(cycle_count_list[k][i]); i++) {
@@ -497,45 +515,43 @@ int main(int argc, char** argv)
           cycle_notes[0] = 0;
         }
 
-        int delmodify65ce02_note = 0;
-        int delidle4510_note = 0;
-        int branch_note = 0;
-        int indirect_note = 0;
-        int page_note = 0;
-        int read_note = 0;
-        int single_cycle = 0;
-
         if (strstr(cycle_notes, "d")) {
           delmodify65ce02_note = 1;
           delmodify65ce02_note_seen = 1;
-        }
+        } else
+          delmodify65ce02_note = 0;
         if (strstr(cycle_notes, "m")) {
           delidle4510_note = 1;
           delidle4510_note_seen = 1;
-        }
+        } else
+          delidle4510_note = 0;
         if (strstr(cycle_notes, "b")) {
           branch_note = 1;
           branch_note_seen = 1;
-        }
+        } else
+          branch_note = 0;
         if (strstr(cycle_notes, "p")) {
           page_note = 1;
           page_note_seen = 1;
-        }
+        } else
+          page_note = 0;
         if (strstr(cycle_notes, "i")) {
           indirect_note = 1;
           indirect_note_seen = 1;
-        }
+        } else
+          indirect_note = 0;
         if (strstr(cycle_notes, "r")) {
           read_note = 1;
           read_note_seen = 1;
-        }
+        } else
+          read_note = 0;
         if (!strcmp(cycle_count, "1")) {
           single_cycle = 1;
           single_cycle_seen = 1;
-        }
+        } else
+          single_cycle = 0;
 
         instruction_names[j] = StrDup(instruction);
-        fprintf(stderr, "instruction_names[%d] set\n", j);
 
         snprintf(cycle_notes, 1024, "$^{%s%s%s%s%s%s%s}$", branch_note ? "b" : "", delmodify65ce02_note ? "d" : "",
             indirect_note ? "i" : "", delidle4510_note ? "m" : "", page_note ? "p" : "", read_note ? "r" : "",
@@ -546,6 +562,7 @@ int main(int argc, char** argv)
             addressing_mode, assembly, opcode, bytes, cycle_count, cycle_notes);
       }
     }
+    fprintf(stderr, "\n");
     printf("\\hline\n");
     // d = 65CE02 delete idle cycles when CPU >2MHz
     // m = 4510 delete non-bus cycles
@@ -571,8 +588,8 @@ int main(int argc, char** argv)
     printf("\\end{tabular}\n\\end{center}\n");
     fflush(stdout);
 
-    snprintf(insfilename, 1024, "%s-opcodes.tex", processor);
-    FILE* tf = fopen(insfilename, "wb");
+    snprintf(filename, 1024, "%s-opcodes.tex", processor);
+    FILE* tf = fopen(filename, "wb");
     if (tf) {
       fprintf(tf, "\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
       fprintf(tf, "\\cline{2-17}\n");
@@ -591,8 +608,8 @@ int main(int argc, char** argv)
       fclose(tf);
     }
 
-    snprintf(insfilename, 1024, "%s-cycles.tex", processor);
-    tf = fopen(insfilename, "wb");
+    snprintf(filename, 1024, "%s-cycles.tex", processor);
+    tf = fopen(filename, "wb");
     if (tf) {
       fprintf(tf, "\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
       fprintf(tf, "\\cline{2-17}\n");
@@ -680,8 +697,8 @@ int main(int argc, char** argv)
 
     // write matrix of addressing modes
 
-    snprintf(insfilename, 1024, "%s-modes.tex", processor);
-    tf = fopen(insfilename, "wb");
+    snprintf(filename, 1024, "%s-modes.tex", processor);
+    tf = fopen(filename, "wb");
     if (tf) {
       fprintf(tf, "\\begin{tabular}{l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}\n");
       fprintf(tf, "\\cline{2-17}\n");
@@ -690,28 +707,8 @@ int main(int argc, char** argv)
       for (int i = 0; i < 16; i++) {
         fprintf(tf, "\\multicolumn{1}{|l|}{\\$%Xx} ", i);
         for (int j = 0; j < 16; j++) {
-          int m = opcodes[i * 16 + j].mode_num;
-          char safe_name[1024];
-          int slen = 0;
-          if (m >= 0) {
-            // fprintf(stderr,"Escaping mode #%d ",m); fflush(stderr);
-            // fprintf(stderr,"= \"%s\"\n",modes[m]); fflush(stderr);
-            for (int k = 0; modes[m][k]; k++) {
-              switch (modes[m][k]) {
-              case '$':
-              case '#':
-                safe_name[slen++] = '\\';
-                // FALL THROUGH
-              default:
-                safe_name[slen++] = modes[m][k];
-              }
-            }
-            safe_name[slen] = 0;
-          }
-          else {
-            safe_name[0] = 0;
-          }
-          fprintf(tf, "& %s     ", safe_name);
+          int m = opcodes[i * 16 + j].modeId;
+          fprintf(tf, "& %s     ", m>=0?modeinfo[m].texmode:"???");
         }
         fprintf(tf, "     \\\\ \\hline\n");
       }

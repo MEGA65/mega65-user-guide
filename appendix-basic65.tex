@@ -2473,7 +2473,7 @@ RUN
 \item [Format:] {\bf DELETE} [line range] \\
                 {\bf DELETE} filename [{\bf,D} drive] [{\bf,U} unit] [{\bf,R}]
 \item [Usage:] Used to either delete
-               a range of lines from the BASIC program or to delete a file from disk.
+               a range of lines from the BASIC program or to delete files from disk.
 
                {\bf line range} consists of the first and last
                line to delete, or a single line number.
@@ -2494,7 +2494,8 @@ RUN
    between deletion and recovery, which may have altered the
    contents of the file.
 
-\item [Remarks:] {\bf DELETE} is a synonym of {\bf SCRATCH}.
+\item [Remarks:] {\bf DELETE filename} is a synonym of {\bf SCRATCH filename}
+                 and {\bf ERASE filename}.
 
 \item [Examples:] Using {\bf DELETE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2506,6 +2507,8 @@ RUN
   DELETE -70      :REM DELETE FROM START TO 70
 
   DELETE "DRM",U9 :REM DELETE FILE DRM ON UNIT 9
+  DELETE "*=SEQ"  :REM DELETE ALL SEQUENTIAL FILES
+  DELETE "R*=PRG" :REM DELETE PROGRAM FILES STARTING WITH 'R'
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3548,54 +3551,6 @@ where the error line is taken from {\bf EL}.
 \end{tcolorbox}
 \end{description}
 
-% *****
-% ERASE
-% *****
-
-\newpage
-\subsection{ERASE}
-\index{BASIC 65 Commands!ERASE}
-\label{erasecommand}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$FE \$2A
-\item [Format:] {\bf ERASE} filename [{\bf,D} drive] [{\bf,U} unit] [{\bf,R}]
-\item [Usage:] Used
-               to erase a disk file.
-
-   \filenamedefinition
-
-   \drivedefinition
-
-   \unitdefinition
-
-   {\bf R} Recover a previously erased file.
-   This will only work if there were no write operations
-   between erasing and recovery, which may have altered the
-   contents of the file.
-
-\item [Remarks:] {\bf ERASE} is a synonym of {\bf SCRATCH}.
-
-                 The success and the number of erased files can
-                 be examined by printing or using the system
-                 variable {\bf DS\$}. The second to last number from {\bf DS\$}
-                 contains the number of successfully erased files,
-                 (normally the second to last number in {\bf DS\$}
-                 contains the track number in case of a disk error).
-
-\item [Examples:] Using {\bf ERASE}
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  ERASE "DRM",U9 :REM ERASE FILE DRM ON UNIT 9
-  PRINT DS$
-  01, FILES SCRATCHED,01,00
-  ERASE "OLD*"   :REM ERASE ALL FILES BEGINNING WITH "OLD"
-  PRINT DS$
-  01, FILES SCRATCHED,04,00
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
 % **
 % ER
 % **
@@ -3623,6 +3578,51 @@ where the error number is taken from {\bf ER}.
 100 IF ER>0 THEN PRINT ERR$(ER);" ERROR"
 110 PRINT " IN LINE";EL
 120 RESUME NEXT       :REM RESUME AFTER ERROR
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% ERASE
+% *****
+
+\newpage
+\subsection{ERASE}
+\index{BASIC 65 Commands!ERASE}
+\label{erasecommand}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$2A
+\item [Format:] {\bf ERASE} filename [{\bf,D} drive] [{\bf,U} unit] [{\bf,R}]
+\item [Usage:] Used to erase a disk file.
+
+   \filenamedefinition
+
+   \drivedefinition
+
+   \unitdefinition
+
+   {\bf R} Recover a previously erased file.
+   This will only work if there were no write operations
+   between erasing and recovery, which may have altered the
+   contents of the disk.
+
+\item [Remarks:] {\bf ERASE filename} is a synonym of {\bf SCRATCH filename}
+                  and {\bf DELETE filename}.
+
+   In direct mode the success and the number of erased files is printed.
+                 The second to last number from the message
+                 contains the number of successfully erased files,
+
+\item [Examples:] Using {\bf ERASE}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ERASE "DRM",U9 :REM ERASE FILE DRM ON UNIT 9
+01, FILES SCRATCHED,01,00
+ERASE "OLD*"   :REM ERASE ALL FILES BEGINNING WITH "OLD"
+01, FILES SCRATCHED,04,00
+ERASE "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
+01, FILES SCRATCHED,09,00
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -7007,7 +7007,7 @@ page \pageref{envelopetable}.
 90 FOR I%=0 TOL-1:PRINT CHR$(PEEK(SP+I%));:NEXT:PRINT
 
 RUN
-DESCRIPTOR AT: $F743
+DESCRIPTOR AT: $FD75
 LENGTH =  5
  72  69  76  76  79
 HELLO
@@ -8613,27 +8613,25 @@ DRAW PEN COLOUR =  1
    {\bf R} Recover a previously erased file.
    This will only work if there were no write operations
    between erasure and recovery, which may have altered the
-   contents of the file.
+   contents of the disk.
 
-\item [Remarks:] {\bf SCRATCH filename} is a synonym of {\bf ERASE}.
+\item [Remarks:] {\bf SCRATCH filename} is a synonym of {\bf ERASE filename}
+                 and {\bf DELETE filename}.
 
-                 The success and the number of erased files can
-                 be examined by {\bf PRINT}ing or using the system
-                 variable {\bf DS\$}. The second last number, which
-                 normally reports the track number in case of a disk error,
-                 instead reports the number of successfully erased files.
+   In direct mode the success and the number of erased files is printed.
+                 The second to last number from the message
+                 contains the number of successfully erased files,
 
 \item [Examples:] Using {\bf SCRATCH}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-  SCRATCH "DRM",U9 :REM SCRATCH FILE DRM ON UNIT 9
-  PRINT DS$
-  01, FILES SCRATCHED,01,00
-
-  SCRATCH "OLD*"   :REM SCRATCH ALL FILES BEGINNING WITH "OLD"
-  PRINT DS$
-  01, FILES SCRATCHED,04,00
+SCRATCH "DRM",U9 :REM ERASE FILE DRM ON UNIT 9
+01, FILES SCRATCHED,01,00
+SCRATCH "OLD*"   :REM ERASE ALL FILES BEGINNING WITH "OLD"
+01, FILES SCRATCHED,04,00
+SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
+01, FILES SCRATCHED,09,00
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

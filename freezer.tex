@@ -1,119 +1,251 @@
-\chapter{Floppy Disks And D81 Images}
+\chapter{Floppy Disks, the Freezer, and D81 Images}
 \label{cha:freezer}
 
 \phantomsection
 
-\includegraphics[width=\linewidth]{images/freezer.jpg}
+\section{Disk Drives}
+\index{Disk Drives}
+The MEGA65 is compatible with a wide range of floppy disk drives, and can be configured to use them in a variety
+of different ways. It includes an internal 3.5" drive, which is compatible with double density and high density
+3.5" disks. But did you know you can also use 5.25" disks? By connecting a compatible IEC drive to the rear
+Disk Drive/IEC Connector, you can use your MEGA65 with two or more physical floppy drives simultaneously!
 
-\section{Terminology}
+There are also IEC drive emulators available, such as the SD2IEC. These devices
+(and the MEGA65) use ``disk images'', which are files that represent a floppy disk, usually stored on an SD card.
+By ``mounting'' a disk image file to a disk drive emulator, the MEGA65 can then use these files without realising it's
+actually being emulated. As far as the MEGA65 is concerned, it's using a real drive.
 
-{\bf BASIC} and {\bf CBDOS} use following terminology:
+This allows you to use modern media to read and write your programs, and in some cases can drastically reduce
+read and write times. These files usually have the extension {\bf .d64} (named after the C64), which are files that
+represent a {\it single} side of a 5.25" disk, or {\bf .d81}, which represents an entire 3.5" disk (named after the
+1581 floppy disk drive).
 
-{\bf UNIT} is a device number in the range 0-31.
-The numbers from 0 to 11 are reserved for following device types:
+The MEGA65 can use either real disks and drives, {\bf .d81} files, or a combination of both.
 
-{\ttfamily
+\subsection{Disk Drive Terminology}
+\index{Disk Drives!Terminology}
+\index{Connections!IEC}
+Before you get to know how to use the various disk drives that work with the MEGA65, it's important to be aware
+of some specific terminology which CBM computers and the MEGA65 use. This includes {\bf BASIC} commands (such as
+{\bf LOAD} and {\bf SAVE}), and {\bf CBDOS} (Computer Based Disk Operating System), which use the following:
+
+{\bf UNIT} is a device number in the range of 0-31.
+The numbers from 0 to 11 are reserved for the following device types:
+
 \setlength{\tabcolsep}{1mm}
+\begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
- unit \# & device  & comment \\
+{\bf Unit} \# & {\bf Device}  & {\bf Notes} \\
 \hline
-0        & KEYBOARD & input \\
-1        & unused   & was TAPE on C64 \\
-2        & unused   & was RS232 on C64 \\
-3        & SCREEN   & input/output     \\
-4-5      & IEC PRINTER  & output     \\
-6-7      & IEC PLOTTER  & output     \\
-8-9      & CBDOS drives & floppy drive or disk image \\
+0        & Keyboard & Input \\
+1        & Unused   & Was used for Cassettes on the C64 \\
+2        & Unused   & Was used for RS-232 on the C64 \\
+3        & Screen   & Input/Output     \\
+4-5      & IEC Printer  & Output     \\
+6-7      & IEC Plotter  & Output     \\
+8-9      & CBDOS drives\footnotemark{} & Internal floppy drive, 1565\footnotemark{}, or disk image \\
 10-11    & IEC drives   & 1541, 1571, 1581, FD-2000 \\
 \hline
 \end{tabular}
-}
+\end{center}
+\addtocounter{footnote}{-2}
+\stepcounter{footnote}\footnotetext{IEC drives can be assigned to devices 8-9, by moving the built-in MEGA65 devices
+                                    to 10-11 first. Once the drives have been reassigned, the IEC drives can be
+                                    switched on.}
+\stepcounter{footnote}\footnotetext{The 1565 was a prototype external C65 disk drive that never made it to production.}
 
-{\bf DRIVE} is the drive number inside a {\bf UNIT}.
+{\bf DRIVE} is the drive number of a {\bf UNIT}:
 
-{\ttfamily
 \setlength{\tabcolsep}{1mm}
+\begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
- device  & drive numbers & comment \\
+{\bf Unit}  & {\bf Drive Numbers} & {\bf Comment} \\
 \hline
-1581 IEC & 0             & single drive \\
-1571 IEC & 0             & single drive \\
-1541 IEC & 0             & single drive \\
-FD-2000 IEC & 0             & single drive (CMD)\\
-FD-4000 IEC & 0             & single drive (CMD)\\
-SD2IEC      & 0             & drive images\\
+1541 IEC & 0             & Single drive \\
+1571 IEC & 0             & Single drive \\
+1581 IEC & 0             & Single drive \\
+FD-2000 IEC & 0             & Single drive (CMD)\\
+FD-4000 IEC & 0             & Single drive (CMD)\\
+SD2IEC      & 0             & Disk images\\
+4040 IEEE-488 & 0,1             & Dual drive (CMD)\\
+8050 IEEE-488 & 0,1             & Dual drive (CMD)\\
+8250 IEEE-488 & 0,1             & Dual drive (CMD)\\
 \hline
 \end{tabular}
-}
+\end{center}
+% thw following few paragraphs probably needs more wording. Sounds like a list of bullet points which isn't pretty.
+For all single drives, the drive number is always 0.
+This includes all of the well known drives with an IEC interface.
 
-For all single drives the drive number is always 0.
-These are all known drives with an IEC interface, for example
-the CBM drives 1541, 1571, 1581 and the CMD drives FD-2000 and FD-4000.
-Also SD2IEC devices, which emulate a CBM drive using disk images on
-SD-card.
-
-Dual disk drives like 4040, 8050, 8250 which use drive numbers
-0 and 1 are equipped with the IEEE-488 interface and need
+Dual disk drives (which use drive numbers 0 and 1) are usually equipped with an IEEE-488 interface, and need
 an IEEE-488 to IEC converter to be used on the MEGA65.
 
-The internal floppy controller of the MEGA65 can control
-two floppy drives (one internal and one external, both attached to the same
-ribbon cable). The {\bf FREEZER} can be used to assign D81 images from the
-SD-card to the drive numbers 0 and/or 1, instead of physical floppy drives.
+The internal floppy controller of the MEGA65 can be used to control
+two floppy drives. However, both drives must be attached to the same ribbon cable.
 
-BASIC commands, that address files or disks, use therefore
-{\bf U} for UNIT and {\bf D} for drive.
-The default settings are {\bf UNIT = 8} and {\bf DRIVE = 0}.
+{\bf BASIC} commands that address files or disks include
+{\bf U} for UNIT and {\bf D} for drive, which use the default values of
+{\bf UNIT = 8}, and {\bf DRIVE = 0}.
 
 \section{The Freezer}
-The {\bf freezer} is a tool for changing system parameters at any time
-regardless of the currently running program. The {\bf freezer} is invoked
-by pressing \widekey{RESTORE} for approximately half to one second.
-The current status of the computer is frozen and the freezer menu,
-similar to the picture above, is displayed.
-Most options are self explaining or will be covered in detail in the
-online documentation. This chapter describes, how to assign disk images
-and the internal floppy disk drive.
+\label{sec:freezer}
+The MEGA65 {\bf FREEZER} is a tool for changing system parameters at any time,
+regardless of the currently running program. It's very similar to the Freezer that many popular cartridges
+for the C64 included, such as the Action Replay cartridge, and The Final cartridge. Freezers generally work by
+taking over the CPU whilst leaving RAM intact. This way you can perform functions and change configuration
+settings without affecting the currently running program. Once you have finished using the Freezer, CPU control
+is given back to the original program.
 
-The bottom/right region of the freezer screen shows the current assignments.
-The internal CBDOS (Computer Based Disk Operating System) can handle two
-3.5" floppydrives or D81 images.
-Drive 0 can be either the internal floppy disk drive or a D81 disk image.
-Drive 1 can be either an external floppy disk drive (connected with the
-same ribbon cable as the internal drive) or a D81 disk image.
 
-The typical configurations will probably be:
+The Freezer is invoked by pressing and holding \widekey{RESTORE} for half to one second.
+The current status of the computer is frozen and the Freezer menu,
+similar to the following picture is displayed. This chapter focuses on how to assign disk images and configure
+the internal floppy disk drive, but the other options in the Freezer are self explanatory, or will be covered in detail in
+online documentation.
 
-Drive 0 :internal floppy disk drive, drive 1: disk image \\
-Drive 0 :disk image, drive 1: disk image
+\begin{center}
+\includegraphics[trim= 10mm 20mm 10mm 20mm,clip,width=0.7\linewidth]{images/freezer.jpg}
+\end{center}
 
-The assignment, and the mounting of disk images can be done by pressing
-\megakey{O} for drive 0 or \megakey{1} for drive 1.
+The bottom-right part of the Freezer screen shows the current disk drive assignments.
+The internal CBDOS which the MEGA65 uses supports up to two
+3.5" disk drives and .d81 images, in any combination.
+Drive 0 can be assigned to the internal floppy disk drive or a .d81 disk image,
+whereas Drive 1 can be assigned to an external floppy disk drive (connected to the
+same ribbon cable as the internal drive), or a .d81 disk image.
 
-The drive numbers are used internally by the CBDOS. BASIC and Kernal
-however address the storage devices by {\bf UNIT} numbers.
-The CBDOS fakes two single drives for the
-operating system, by assigning separate unit numbers to drive 0 and drive 1.
+\index{Disk Drives!Assignment}
+A typical configuration is usually one of the following:
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+{\bf Drive 0 Assignment} & {\bf Drive 1 Assignment} \\
+\hline
+Internal floppy disk drive &  Disk image \\
+Disk image                 &  Disk image \\
+\hline
+\end{tabular}
+\end{center}
+
+The assignment, and mounting of disk images can be performed by pressing
+\megakey{0} for drive 0, or \megakey{1} for drive 1.
+
+You may have noticed that the drive numbers here (0-1) are different to the more commonly used {\bf UNIT}
+numbers (8-9), which you may be more used to. The drive numbers of 0 and 1 are used internally by CBDOS.
+However, {\bf BASIC} and Kernal address these storage devices by {\bf UNIT} numbers. CBDOS emulates two single drives for
+the operating system, by assigning separate unit numbers to drive 0 and drive 1.
 The default assignment is:
 
-{\bf UNIT 8, DRIVE 0} :internal drive 0 (internal floppy or disk image) \\
-{\bf UNIT 9, DRIVE 0} :internal drive 1 (external floppy or disk image)
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+{\bf Assignment} & {\bf Unit/Drive} \\
+\hline
+Internal drive 0 (internal floppy or disk image) & UNIT 8, DRIVE 0 \\
+Internal drive 1 (external floppy or disk image) & UNIT 9, DRIVE 0 \\
+\hline
+\end{tabular}
+\end{center}
 
-Sometimes one wants to change this unit assignment, if for example
-a floppy drive 1541 is plugged in as unit 8 to the IEC port.
-Then the internal drive assignment can be switched to an alternative unit
-number, to avoid conflict.
 
-\megakey{8} toggles the unit assignment of drive 0 between 8 and 10. \\
-\megakey{9} toggles the unit assignment of drive 1 between 9 and 11.
+You may wish to change this unit assignment, if for example
+a 1541 drive is connected to the IEC port as unit 8.
+In this case, the internal drive assignment can be switched to an alternative unit
+to avoid conflict. To do this, press \megakey{8} to toggle the unit assignment of drive 0
+between 8 and 10, and \megakey{9} to toggle the unit assignment of drive 1, between 9 and 11.
 
-After setting the preferences, the {\bf freezer} can be exited
-with \megakey{F3}. The {\bf freezer} restores the screen and
+After setting the preferences, the Freezer can be exited
+with \megakey{F3}. The Freezer restores the screen and
 returns to the interrupted program.
 
-The drive and unit assignments are temporary and will be reset to default
-after power down or reset. For permanent settings use the {\bf CONFIGURE}
-menu.
+Note: The drive and unit assignments are temporary, and will be reset to their defaults
+after power down or reset. For permanent settings, use the {\bf CONFIGURE}
+menu. You can read more about this menu on page \pageref{configuring-chipset}.
 
+\index{Disk Drives!D81 Images}
+\label{sec:d81-images}
+\section{Using D81 images}
+As previously mentioned, the MEGA65 allows the use of D81 files instead of using physical disks. The MEGA65 includes a
+built-in file browser, which allows you to choose which D81 file to mount. To do this, enter the Freezer menu,
+then press \megakey{0} or \megakey{1}, to choose the drive to mount it to.
+
+When you do this, the file browser will appear:
+
+\begin{center}
+\includegraphics[width=0.7\linewidth]{images/d81-file-browser.png}
+\end{center}
+
+The file browser will list all D81 images on the microSD card. The MEGA65 prioritises the external microSD card, so if you
+prefer to use an image on the internal SD card, the microSD card should be removed (when doing this, the MEGA65 needs
+to be reset as well).
+
+Press the cursor keys to choose a file. If the currently selected file isn't a valid D81, the border will be red,
+otherwise it will be blue, as shown above. Whilst browsing for D81 files, the list of files within the currently
+selected D81 file will be shown on the right-hand side.
+
+You may have noticed that the file browser has a \screentextwide{ - NO DISK - }, \screentextwide{ - NEW D81 IMAGE - }
+and a \screentextwide{ - INTERNAL 3.5" - } entry. \screentextwide{ - NO DISK - } is used to tell
+the MEGA65 that no disk is inserted, and to not try and find one when performing a disk-based operation.
+
+\screentextwide{ - NEW D81 IMAGE - } creates a new, blank D81 image to use. When you select this option, you'll be
+asked to enter the filename for the new image, which is limited to 8 characters in length.
+
+\screentextwide{ - INTERNAL 3.5" - } is used when using a physical 3.5" disk in the internal drive. If no disk is
+inserted and a disk-based operation is performed with the \screentextwide{ - INTERNAL 3.5" - } option, the MEGA65 will
+try and find a disk, which could take a few seconds. Any previously mounted D81 files will be unmounted when using
+these options.
+
+When you find the D81 file you wish to mount, press \specialkey{RETURN}.
+This will take you back to the Freezer menu, and the selected D81 file will be shown under the selected drive.
+In the following screenshot, the  \screentextwide{MEGA65.D81} file has been mounted to drive 0:
+
+\begin{center}
+\includegraphics[trim= 10mm 20mm 10mm 20mm,clip,width=0.7\linewidth]{images/freezer-chosen-d81.png}
+\end{center}
+
+Next, press \megakey{F3} to exit the Freezer menu and return to the currently running program. Alternatively,
+pressing \megakey{F5} will exit the Freezer, and reset the MEGA65 as well.
+
+Now that the file has been mounted, you can use
+the {\bf DIR} command to list the files in the image, or any of the {\bf LOAD} and {\bf SAVE} commands, like you
+would on a physical disk.
+
+
+\subsection{Auto Booting From a Disk}
+If you would like the MEGA65 to automatically perform any BASIC commands upon startup, you can create an
+{\bf AUTOBOOT.C65} PRG file on your disk/image. In this file, you can write BASIC programs to do things such
+as changing the {\bf BACKGROUND}, {\bf BORDER}, or {\bf FOREGROUND} colours, or even {\bf LOAD} a program.
+
+For example, to change the background and border colours to black, and load a program called ``MYPROGRAM''
+automatically, create a BASIC listing like the following, then {\bf SAVE} it:
+
+\index{BASIC 65 Examples!BACKGROUND}
+\index{BASIC 65 Examples!BORDER}
+\index{BASIC 65 Examples!LOAD}
+\index{BASIC 65 Examples!SAVE}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 BACKGROUND 0
+20 BORDER 0
+30 LOAD "MYPROGRAM.PRG"
+SAVE "AUTOBOOT.C65"
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{Saving D81 file settings}
+
+The D81 settings are temporary, and will be reset to their defaults after power down. You can change the default settings
+in the {\bf CONFIGURE} menu. When opening the Configure menu, press the \megakey{F1} and \megakey{F2} keys
+to reach the \screentext{CHIPSET} section, then navigate to the \screentext{F011 DISK CONTROLLER} options.
+Select the \screentext{USES SDCARD DISK IMAGE} setting, then enter the name of the disk image you wish to have mounted
+by default in the \screentext{DEFAULT DISK IMAGE} field. A screenshot showing these settings with
+\screentext{MEGA65.D81} as the default D81 disk image is shown:
+
+\begin{center}
+\includegraphics[width=0.7\linewidth]{images/ss-m65config-2.png}
+\end{center}
+
+You can read more about the Configure menu on page \pageref{sec:configuration-utility}.

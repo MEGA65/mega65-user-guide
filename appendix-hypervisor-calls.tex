@@ -1,283 +1,1936 @@
-\chapter{MEGA65 Hypervisor Services}
+\newenvironment{hyppotrap}[3]
+{
+  \newcommand{\availablefrom}[1]{Available since Hyppo ##1}
+  \newcommand{\deprecatedfrom}[1]{
+    \textcolor{Orange}{
+      \textbf{DEPRECATED} since Hyppo ##1.
+      This service may be removed in a future version. New programs should
+      not use this service.
+    }
+  }
+  \newcommand{\errordesc}[3]{
+    \index{Hyppo Error Codes!\$##1}
+    \textbf{\$##1 ##2} ##3\par
+  }
+  \newcommand{\hypporef}[1]{
+    \StrDel{hyppo:##1}{\_}[\reflbl]
+    \nameref{\reflbl}
+  }
+  \newcommand{\notimplemented}{\item[Remarks:]\textbf{NOT IMPLEMENTED}\par}
+  \newcommand{\register}[2]{\textbf{##1} ##2\par}
+  \newcommand{\TODO}{\textbf{\color{red}TODO}}
+  \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
+  \subsection{hyppo\_#1}
+  { \StrDel{hyppo:#1}{\_}[\reflbl] \label{\reflbl} }
+  \index{Hyppo Services!\$#2 \$#3}
+  \begin{description}[leftmargin=2.7cm,style=nextline]
+  \item [Trap:] LDA \#\$#3 : STA \$#2 : CLV
+}
+{
+  \end{description}
+}
 
-The MEGA65's Hypervisor provides a number of services via Hypervisor Traps.
-This chapter will describe these services.  For detailed information on how
-Hypervisor Traps are facilitated by the CPU is described in \bookvref{cha:cpu}.
+\DeclareTCBInputListing{\acmelisting}{ m }{
+  bottom=0mm,
+  breakable,
+  colback=black,
+  coltext=lightgray,
+  enhanced,
+  frame empty,
+  fontupper=\codefont,
+  listing engine=listings,
+  listing file={#1},
+  listing only,
+  listing options={
+    basewidth=0.3em,
+    breakatwhitespace,
+    breakindent=0pt,
+    breaklines,
+    columns=fullflexible,
+    commentstyle=\sffamily\footnotesize\color{Dandelion},
+    includerangemarker=false,
+    inputpath="examples/appendix-hypervisor-calls",
+    keywordstyle={*\color{white}},
+    keywordstyle={[2]\color{GreenYellow}},
+    language={[acme]Assembler},
+    linerange=EXAMPLE\ BEGINS-EXAMPLE\ ENDS,
+    postbreak={;\space},
+    rangeprefix=;\ >>>\ ,
+    showstringspaces=false,
+  },
+  top=0mm,
+  underlay first and middle={
+    \node at ([yshift=-3mm]frame.south)
+      {\ldots{} continues on the next page \ldots} ;
+  }
+}
 
-The hypervisor calls are identified by the trap register (\$D640 -- \$D67F), and
-the value of the accumulator register when writing to the trap register.  Thus
-a hypervisor call \$00:\$02 would be made via the following sequence of instructions:
 
-\begin{screenoutput}
-  LDA #$02         
-  STA $D640+$00
-  NOP                ; All traps calls MUST be followed by a NOP instruction
-\end{screenoutput}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+\chapter{MEGA65 Hyppo Services}
+\index{Hyppo Services}
+\index{Registers!\$D640}
+\index{Registers!\$D641}
+\index{Registers!\$D642}
+\index{Registers!\$D643}
+\index{Registers!\$D644}
+\index{Registers!\$D645}
+\index{Registers!\$D646}
+\index{Registers!\$D647}
+\index{Registers!\$D648}
+\index{Registers!\$D649}
+\index{Registers!\$D64A}
+\index{Registers!\$D64B}
+\index{Registers!\$D64C}
+\index{Registers!\$D64D}
+\index{Registers!\$D64E}
+\index{Registers!\$D64F}
+\index{Registers!\$D650}
+\index{Registers!\$D651}
+\index{Registers!\$D652}
+\index{Registers!\$D653}
+\index{Registers!\$D654}
+\index{Registers!\$D655}
+\index{Registers!\$D656}
+\index{Registers!\$D657}
+\index{Registers!\$D658}
+\index{Registers!\$D659}
+\index{Registers!\$D65A}
+\index{Registers!\$D65B}
+\index{Registers!\$D65C}
+\index{Registers!\$D65D}
+\index{Registers!\$D65E}
+\index{Registers!\$D65F}
+\index{Registers!\$D660}
+\index{Registers!\$D661}
+\index{Registers!\$D662}
+\index{Registers!\$D663}
+\index{Registers!\$D664}
+\index{Registers!\$D665}
+\index{Registers!\$D666}
+\index{Registers!\$D667}
+\index{Registers!\$D668}
+\index{Registers!\$D669}
+\index{Registers!\$D66A}
+\index{Registers!\$D66B}
+\index{Registers!\$D66C}
+\index{Registers!\$D66D}
+\index{Registers!\$D66E}
+\index{Registers!\$D66F}
+\index{Registers!\$D670}
+\index{Registers!\$D671}
+\index{Registers!\$D672}
+\index{Registers!\$D673}
+\index{Registers!\$D674}
+\index{Registers!\$D675}
+\index{Registers!\$D676}
+\index{Registers!\$D677}
+\index{Registers!\$D678}
+\index{Registers!\$D679}
+\index{Registers!\$D67A}
+\index{Registers!\$D67B}
+\index{Registers!\$D67C}
+\index{Registers!\$D67D}
+\index{Registers!\$D67E}
+\index{Registers!\$D67F}
 
-The values of the other registers or other structures will be described for
-each individual call.
+\section{Introduction}
+A part of the MEGA65 is the system program called Hyppo that:
+\begin{itemize}
+  \item Boots the MEGA65.
+  \item Loads the ROMs and other files from the SD card.
+  \item Makes memory banks 2 and 3 ROM-like by protecting them from being
+        written to.
+  \item Virtualises the floppy disk controller so you can use disk images.
+  \item Launches various utilities like the freezer and the Matrix Mode
+        Debugger.
+  \item Provides services specific to the MEGA65 that you can use in your
+        programs.
+\end{itemize}
 
+If you know about hypervisors and virtual machines, Hyppo is a very limited
+hypervisor. Don't expect to be able to run multiple virtual machines
+concurrently with full isolation. Hyppo runs things that are more akin to the
+task and processes of a modern operating system than the virtual machines of a
+hypervisor as you might know it.
+
+Hyppo provides 3 operating modes.
+
+\begin{itemize}
+  \item \textbf{The C64-like operating mode} runs C64 programs and MEGA65
+        programs that run in the MEGA65's C64 mode. When you boot with
+        \megasymbolkey pressed or use the \textbf{GO64} command, Hyppo
+        starts a process in the C64-like operating mode to run BASIC 2 or the
+        MEGA65 program.
+  \item \textbf{The C65-like operating mode} is the MEGA65's normal operating
+        mode. This is where regular MEGA65 program run, including BASIC 65
+        programs.
+  \item \textbf{The MEGA65 operating mode} runs the MEGA65's system programs
+        like the freezer, the configuration utility and the Matrix Mode
+        Debugger. Maybe surprisingly, normal MEGA65 programs do not run in the
+        MEGA65 operating mode. They run in the C65-like operating mode. The
+        MEGA65 operating mode is designed solely for the MEGA65 and does not
+        attempt to be compatible with or even be similar to previous systems.
+\end{itemize}
+
+Unlike on the C128, it is possible for a program to effectively change the
+operating mode while it's is running, by simply enabling or disabling the
+various hardware features.
+
+\filbreak
+Hyppo provides very limited virtualisation of the MEGA65's hardware. It can
+virtualise the floppy controller. There are plans to virtualise the serial bus
+so the MEGA65 can use disk images for units like the 1541.
+
+There are some parts of the hardware that only Hyppo can access. It is the only
+component that can directly access the internal and external SD cards. You need
+to use Hyppo's services if you want to access the files and directories on the
+SD cards from within your programs.
+
+\subsection{Terminology}
+
+When you start to learn about Hyppo, there can be some terminology that might be
+confusing if you already know about other parts of the MEGA65.
+
+On the SD card there is likely to be a file called HICKUP.M65. This file updates
+Hyppo to new versions without having to install an upgraded core. You might find
+occasions where Hyppo might be called Hickup because of this strong association.
+
+There are 3 distinct disk operating systems in the MEGA65.
+
+\begin{itemize}
+  \item Inside Hyppo is Hyppo DOS, or HDOS for short. HDOS is for accessing
+        the FAT32 file system on the SD cards. HDOS does not know anything
+        about Commodore file systems. It can attach an image of a Commodore
+        file system, but it does not understand what is inside the image.
+  \item Inside the Kernal is CBDOS. CBDOS is for accessing 1581-like file
+        systems. CBDOS uses the 45IO27 multi-function I/O controller to access
+        the sectors of a physical disk. CBDOS does not know anything about SD
+        cards and the FAT32 file system on them. Hyppo virtualises part of the
+        45IO27 so CBDOS can access disk images like they're physical disks.
+  \item The external disk units attached to the serial bus each have their own
+        DOS. They are used for accessing the file systems on their respective
+        physical disks.
+\end{itemize}
+
+The word drive means different things for each of these DOS's.
+
+\begin{itemize}
+  \item The drives in Hyppo are the partitions of the internal and external SD
+        cards. When the MEGA65 boots, Hyppo assigns numbers to the partitions
+        it can read.
+  \item The drives in CBDOS are the physical disk drives attached to the 45IO27
+        multi-function I/O controller --- such as the internal disk drive ---
+        or the disk images attached to the virtualised 45IO27. The CBDOS drives
+        are normally seen as units 8 and 9.
+  \item The drives in an external unit attached to the serial bus are the
+        disk drives inside that unit.
+\end{itemize}
+
+\filbreak
+\subsection{Versions}
+
+This chapter describes the services available in Hyppo 1.2.
+
+New Hyppo services may become available and existing Hyppo services may change
+or be deprecated. A robust program will use the \nameref{hyppo:getversion}
+service to check whether it is compatible with the Hyppo in the MEGA65 it's
+running on.
+
+% Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
+
+\subsection{Using}
+When you want to use a Hyppo service, you don't use JSR. This is because
+Hyppo exists in a space that's separate from regular code. In order to
+access it, the CPU needs to switch into its hypervisor mode.
+
+At addresses \$D640 -- \$D67F are a set of hypervisor traps. Writing to these
+addresses are not like writing to other addresses. Instead of writing to memory
+or I/O, the CPU switches into the hypervisor mode and starts a Hyppo service.
+How the CPU does this is described in \bookvref{cha:cpu}.
+
+Which Hyppo service starts depends on what value from the A register you
+write and which trap you write to. Each of the services described in this
+chapter tells you what value to write and which trap to use. You have to use the
+A register when triggering a trap. Writing the same value from another register
+won't work.
+
+When the Hyppo service finishes, the CPU will switch back to your program.
+Except for the registers a service uses to return values, the registers are
+otherwise preserved.
+
+\textbf{Important} The CPU may or may not execute the next byte in your
+program after the Hyppo service finishes. Put a CLV instruction after the STA.
+The CPU executing the CLV or not shouldn't matter to your program. If your
+program does rely on the V flag, you can use the NOP instruction instead. When
+you use NOP you must be mindful of when the CPU interprets the NOP as a prefix
+for the following instruction. For this reason, you should prefer using CLV
+over NOP.
+
+\subsection{Errors}
+\index{Hyppo Error Codes}
+
+If the service was successful, it will set the C flag.
+
+If the service was unsuccessful, it will clear the C flag and put an error code
+in the A register. There is a table of error codes in the description for
+\nameref{hyppo:geterrorcode}.
+
+\subsection{Examples}
+The examples use the ACME assembler. The ACME assembler is not required. The
+Hyppo services can be used with any assembler.
+
+The examples are often not complete. They assume an error handler called error
+is defined somewhere. They also assume a transfer area has been defined
+somewhere. \nameref{hyppo:setuptransferarea} and \nameref{hyppo:setname}
+show how to define a transfer area.
+
+
+% ==============================================================================
+% General Services
+% ==============================================================================
+\newpage
 \section{General Services}
 
-\subsection{\$00:\$00 -- Get Hypervisor Version}
 
-Returns the version of the Hypervisor operating system and DOS components in the
-four registers:
-
-\begin{itemize}
-  \item A = Hypervisor Operating System Major Version number. 
-  \item X = Hypervisor Operating System Minor Version number. 
-  \item Y = Hypervisor DOS Minor Version number. 
-  \item Z = Hypervisor DOS Major Version number. 
-\end{itemize}
-
-These values can be used to check whether a given MEGA65 system's hypervisor
-supports features that become available (or are deprecated) at particular versions.
-
-\subsection{\$00:\$38 -- Get Current Error Code (geterrorcode)}
-
-Returns the current error code from the Hypervisor.  The currently supported
-error codes are:
-
-\begin{itemize}
-\item \$01 (1) -- Partition Not Interesting, indicating that an attempt to mount a partition was rejected because the partition was not of a supported type.
-\item \$02 (2) -- Bad Signature, indicating that the signature bytes at the end of a partition table or of the first sector of a partition were missing or incorrect.
-\item \$03 (3) -- An attempt was made to mount a FAT12 or FAT16 partition.  Only FAT32 partitions are supported.
-\item \$04 (4) -- An attempt was made to mount a partition that has too many reserved sectors. The number of reserved sectors must be less than 65,536.
-  \item \$05 (5) -- An attempt was made to mount a partition that does not have exactly two copies of the FAT structure.
-\item \$06 (6) -- An attempt was made to mount a partition that contains a partition with too few clusters.
-\item \$07 (7) -- A read timeout occurred.
-  \item \$08 (8) -- An unspecified error occurred while handling a partition.
-\item \$10 (16) -- An invalid address was supplied to the Setup Transfer Area For Other Calls function.
-\item \$11 (17) -- An illegal value was supplied to a Hypervisor call.
-\item \$20 (32) -- A read error occurred.
-\item \$21 (33) -- A write error occurred.
-\item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
-\item \$81 (129) -- The supplied filename was too long.
-\item \$82 (130) -- A Hypervisor call was made to a function that is not implemented. 
-\item \$83 (131) -- An attempt was made to load a file into memory that is longer than 16MiB.
-\item \$84 (132) -- Too many files are open, and no free file descriptor could be obtained for the requested operation.
-\item \$85 (133) -- The supplied cluster number is invalid.
-\item \$86 (134) -- An attempt was made to operate on a directory, where a normal file was expected.
-\item \$87 (135) -- An attempt was made to operate on a normal file, where a directory was expected.
-\item \$88 (136) -- The requested file could not be located.
-\item \$89 (137) -- An invalid file descriptor was supplied.
-\item \$8A (138) -- A disk image file had the wrong length, and was rejected for this reason.
-\item \$8B (139) -- A disk image was attempted to be mounted, but could not because it is fragmented on the file system.  Disk images must be stored contiguously on disk. This is because of the way that the SD card controller and floppy controller work: They load the starting sector of the disk image into special registers, and have no way to correctly handle a disk image that is stored in separate pieces on the disk. 
-\item \$8C (140) -- The disk has no free space for the requested operation.
-\item \$8D (141) -- An attempt was made to create a file that already exists, or to rename a file to have the name of a file that already exists.
-\item \$8E (142) -- An attempt was made to create a file in a directory that cannot accommodate any more entries.
-\item \$FF (255) -- The end of a file or directory was encountered.
-\end{itemize}
-
-\subsection{\$00:\$3A -- Setup Transfer Area for Other Calls (setup\_transfer\_area)}
-
-Setup the transfer area for various hypervisor calls. The page number of the transfer area is supplied in the Y register.
-This page must be between \$00 (0) and \$7E (126), thus indicating a transfer area starting between \$0000 and \$7E00 (0 and 32,256).
-The transfer area is
-256 bytes long for most calls.  Note that the transfer area is indicated using the processor's current memory mapping at
-the time that a function is called.  However, it is good practice to always place it in the bottom 32KiB of main memory.
-
-\begin{itemize}
-  \item Y = Page number of the transfer area (\$00 -- \$7E).
-\end{itemize}
-
-This call can produce the following error codes:
-
-\begin{itemize}
-\item \$10 (16) -- An invalid transfer area address was supplied, i.e., Y > \$7E (126).
-\end{itemize}
-
-\section{Disk/Storage Hypervisor Calls}
-
-\subsection{\$00:\$02 -- Get Default Drive (SD Card Partition)}
-
-This call returns the default drive (SD card partition) number in the A register.
-
-\subsection{\$00:\$04 -- Get Current Drive (SD Card Partition)}
-
-This call returns the current selected drive (SD card partition) in the A register.
-
-\subsection{\$00:\$06 -- Select Drive (SD Card Partition)}
-
-This call sets the currently selected drive (SD card partition) to the drive indicated in the X register.
-
-\begin{itemize}
-  \item X = Selected drive (SD card partition) number.
-\end{itemize}
-
-This call can produce the following error codes:
-
-\begin{itemize}
-\item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
-\end{itemize}
-
-\subsection{\$00:\$08 -- {\em NOT IMPLEMENTED} Get Disk Size}
-
-When implemented, this call will return information on the size of the currently selected disk (SD card partition).
-
-\subsection{\$00:\$0A -- {\em NOT IMPLEMENTED} Get Current Working Directory}
-
-When implemented, this call will return information on the currently selected directory or sub-directory.
-
-\subsection{\$00:\$0C -- Change Working Directory}
-
-Changes the current working directory to the directory specified in the dirent structure. The dirent structure
-can be populated by using any of the findfirst, findnext, findfile, or readdir Hypervisor calls.
-
-This call can produce the following error codes:
-
-\begin{itemize}
-\item \$87 (135) -- An attempt was made to operate on a normal file, where a directory was expected.
-\end{itemize}
-
-\subsection{\$00:\$0E -- {\em NOT IMPLEMENTED} Create Directory}
-
-When implemented, this call will allow the creation of new subdirectories.
-
-\subsection{\$00:\$10 -- {\em NOT IMPLEMENTED} Remove Directory}
-
-When implemented, ths call will allow the removal of a directory.
-
-\subsection{\$00:\$12 -- Open Directory (opendir)}
-
-Open the current working directory.
-
-On success, it returns the file descriptor of the opened directory in the A register.
-
-This call can result in the following error codes:
-
-\begin{itemize}
-\item \$07 (7) -- A read timeout occurred.
-  \item \$08 (8) -- An unspecified error occurred while handling a partition.
-\item \$10 (16) -- An invalid address was supplied to the Setup Transfer Area For Other Calls function.
-\item \$11 (17) -- An illegal value was supplied to a Hypervisor call.
-\item \$20 (32) -- A read error occurred.
-\item \$21 (33) -- A write error occurred.
-\item \$80 (128) -- An attempt was made to select or operate on a disk or partition that does not exist.
-\item \$84 (132) -- Too many files are open, and no free file descriptor could be obtained for the requested operation.
-\end{itemize}
-
-\subsection{\$00:\$14 -- Read Next Directory Entry (readdir)}
-\subsection{\$00:\$16 -- Close Directory (closedir)}
-\subsection{\$00:\$18 -- Open File (openfile)}
-\subsection{\$00:\$1A -- Read From a File (readfile)}
-\subsection{\$00:\$1C -- {\em NOT IMPLEMENTED} Write to a File (writefile)}
-\subsection{\$00:\$1E -- {\em NOT IMPLEMENTED} Create File (mkfile)}
-
-\subsection{\$00:\$20 -- Close a File (closefile)}
-\subsection{\$00:\$22 -- Close All Open Files (closeall)}
-\subsection{\$00:\$24 -- {\em NOT IMPLEMENTED} Seek to a Given Offset in a File (seekfile)}
-\subsection{\$00:\$26 -- {\em NOT IMPLEMENTED} Delete a File (rmfile)}
-\subsection{\$00:\$28 -- {\em NOT IMPLEMENTED} Get Information About a File (fstat)}
-\subsection{\$00:\$2A -- {\em NOT IMPLEMENTED} Rename a File (rename)}
-\subsection{\$00:\$2C -- {\em NOT IMPLEMENTED} Set time stamp of a file (filedate)}
-\subsection{\$00:\$2E -- Set the current filename (setname)}
-
-Sets the current Hypervisor filename to the ASCIIZ string stored at \$YYXX. The provided address
-must be in the first 31KiB of main memory.  Addresses at \$7F00 or above will result in errors.
-
-The filename indicates a file in the current working directory of the SD card's FAT file system.
-This call will {\em not} work with names of files that are stored on floppy disks or floppy disk
-images.  
-
-\subsection{\$00:\$30 -- Find first matching file (findfirst)}
-\subsection{\$00:\$32 -- Find subsequent matching file (findnext)}
-\subsection{\$00:\$34 -- Find matching file (one only) (findfile)}
-\subsection{\$00:\$36 -- Load a File into Main Memory (loadfile)}
-
-On success, this call loads the file specified by the setname Hypervisor call into the specified
-address in main (chip) memory.  It is limited to files of 16MiB size, and the first 16MiB of 
-the address space.  The load address will be \$00ZZYYXX.
-
-Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
-significant address byte will not be incremented during loading.
-
-\subsection{\$00:\$3C -- Change Working Directory to Root Directory of Selected Partition}
-\subsection{\$00:\$3E -- Load a File into Attic Memory (loadfile\_attic)}
-
-On success, this call loads the file specified by the setname Hypervisor call into the specified
-address in the Attic RAM memory.  It is limited to files of 16MiB size, and the first 16MiB of 
-the attic RAM address space.  The load address will be \$08ZZYYXX.
-
-Addresses during loading will wrap around within the same 16MiB region of memory, i.e., the most 
-significant address byte will not be incremented during loading.
-
-\section{Disk Image Management}
-
-\subsection{\$00:\$40 -- Attach a D81 Disk Image to Drive 0}
-\subsection{\$00:\$42 -- Detach All D81 Disk Images}
-\subsection{\$00:\$44 -- Write Enable All Currently Attached D81 Disk Images}
-\subsection{\$00:\$46 -- Attach a D81 Disk Image to Drive 1}
-
-\section{Task and Process Management}
-
-\subsection{\$00:\$50 -- {\em NOT IMPLEMENTED} Get Task List}
-\subsection{\$00:\$52 -- {\em NOT IMPLEMENTED} Send Message to Another Task}
-\subsection{\$00:\$54 -- {\em NOT IMPLEMENTED} Receive Messages From Other Tasks}
-\subsection{\$00:\$56 -- {\em NOT IMPLEMENTED} Write Into Memory of Another Task}
-\subsection{\$00:\$58 -- {\em NOT IMPLEMENTED} Read From Memory of Another Task}
-
-\subsection{\$00:\$60 -- {\em NOT IMPLEMENTED} Terminate Another Task}
-\subsection{\$00:\$62 -- {\em NOT IMPLEMENTED} Create a Native MEGA65 Task}
-\subsection{\$00:\$64 -- {\em NOT IMPLEMENTED} Load File Into Task}
-\subsection{\$00:\$66 -- {\em NOT IMPLEMENTED} Create a C64-Mode Task}
-\subsection{\$00:\$68 -- {\em NOT IMPLEMENTED} Create a C65-Mode Task}
-\subsection{\$00:\$6A -- {\em NOT IMPLEMENTED} Exit and Switch to Another Task}
-\subsection{\$00:\$6C -- {\em NOT IMPLEMENTED} Context-Switch to Another Task}
-\subsection{\$00:\$6E -- {\em NOT IMPLEMENTED} Exit This Task}
-
-\subsection{\$00:\$70 -- Toggle Write Protection of ROM Area}
-\subsection{\$00:\$72 -- Toggle 4510 vs 6502 Processor Mode}
-\subsection{\$00:\$74 -- Get current 4510 memory MAPping}
-
-Y = page where memory mapping is to be stored.  Six bytes will be returned:
-Y must be <= \$7E.
-
-\begin{itemize}
-  \item \$00 - Low byte of MAPLO (lower 32KB RAM mapping)
-  \item \$01 - High byte of MAPLO (lower 32KB RAM mapping)
-  \item \$02 - Low byte of MAPHI (upper 32KB RAM mapping)
-  \item \$03 - High byte of MAPHI (upper 32KB RAM mapping)
-  \item \$04 - Megabyte offset for MAPLO (lower 32KB RAM mapping)
-  \item \$05 - Megabyte offset for MAPHI (upper 32KB RAM mapping)
-\end{itemize}
-
-\subsection{\$00:\$76 -- Set 4510 memory MAPping}
-
-This call performs the opposite of the Get 4510 memory MAPping, reading 6 bytes
-from the memory page indicated by Y, and storing them into the current processor's mapping status.
-Y must be <= \$7E.
-
-\subsection{\$00:\$7C -- Write Character to Serial Monitor/Matrix Mode Interface}
-\subsection{\$00:\$7E -- Reset MEGA65}
-
-\subsection{\$01:\$00 -- Enable Write Protection of ROM Area}
-\subsection{\$01:\$02 -- Disable Write Protection of ROM Area}
-
-\section{System Partition \& Freezing}
-
-\subsection{\$02:\$00 -- Read System Config Sector Into Memory}
-\subsection{\$02:\$02 -- Write System Config Sector From Memory}
-\subsection{\$02:\$04 -- Apply System Config Sector Current Loaded Into Memory}
-\subsection{\$02:\$06 -- Set DMAgic Revision Based On Loaded ROM}
-
-\subsection{\$02:\$10 -- Locate First Sector of Freeze Slot}
-\subsection{\$02:\$12 -- Unfreeze From Freeze Slot}
-\subsection{\$02:\$14 -- Read Freeze Region List}
-\subsection{\$02:\$16 -- Get Number of Freeze Slots}
-
-\subsection{\$03:\$XX -- Write Character to Serial Monitor/Matrix Mode Interface}
-
-\section{Secure Mode}
-
-\subsection{\$11:\$XX -- Request Enter Secure Mode}
-\subsection{\$12:\$XX -- Request Exit Secure Mode}
-\subsection{\$32:\$XX -- {\em DEPRECATED} Set Protected Hardware Configuration}
-
-This call will be removed once the secure mode framework is more completely implemented.
-
-Until it is removed, this call allows a process to request the setting of the protected hardware configuration to allow or restrict access to various sub-systems, including the SD card storage system.
-
-\subsection{\$3F:\$XX -- Freeze Self}
-
+% ******************************************************************************
+% geterrorcode
+% ******************************************************************************
+\begin{hyppotrap}{geterrorcode}{D640}{38}
+\index{Hyppo Error Codes}
+\item [Service:]
+  Returns the current error code from Hyppo.
+\item [Precondition:]
+  The previous service used cleared the C flag.
+\item [Outputs:]
+  \register{A}{The error code of the previously failed service.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The error code is only valid if the previous Hyppo service cleared the C flag.
+  If the C flag was set there was no error and the Hyppo error code is
+  undefined.
+
+  The meanings here are generic. See the sections for the services for more
+  specific meanings.
+\item [Error codes:] This is possibly not an exhaustive list.
+{
+  \setlength{\def\arraystretch{1.5}\tabcolsep}{3pt}
+  \begin{longtable}{|c|r|l|p{8cm}|}
+    \hline
+    \textbf{Hex} & \textbf{Dec} & \textbf{Name} & \textbf{General meaning}\\
+    \hline
+    \endhead
+    \index{Hyppo Error Codes!\$01}
+    \$01 & 1 & \makecell[tl]{partition not \\ interesting} &
+    The partition is not of a supported type.
+    \\\hline
+    \index{Hyppo Error Codes!\$02}
+    \$02 & 2 & bad signature &
+    The signature bytes at the end of a partition table or of the first sector
+    of a partition were missing or incorrect.
+    \\\hline
+    \index{Hyppo Error Codes!\$03}
+    \$03 & 3 & is small FAT &
+    This is partition is FAT12 or FAT16 partition. Only FAT32 is supported.
+    \\\hline
+    \index{Hyppo Error Codes!\$04}
+    \$04 & 4 & \makecell[tl]{too many reserved\\clusters} &
+    The partition has more than 65,535 reserved sectors.
+    \\\hline
+    \index{Hyppo Error Codes!\$05}
+    \$05 & 5 & not two FATs &
+    The partition does not have exactly two copies of the FAT structure.
+    \\\hline
+    \index{Hyppo Error Codes!\$06}
+    \$06 & 6 & too few clusters &
+    The partition contains too few clusters.
+    % Jimbo - What is the minimum?
+    \\\hline
+    \index{Hyppo Error Codes!\$07}
+    \$07 & 7 & read timeout &
+    It took to long to read from the SD card.
+    % Jimbo - Is there a write timeout error code?
+    \\\hline
+    \index{Hyppo Error Codes!\$08}
+    \$08 & 8 & partition error &
+    An unspecified error occurred while handling a partition.
+    \\\hline
+    \index{Hyppo Error Codes!\$10}
+    \$10 & 16 & invalid address &
+    An invalid address was supplied in an argument.
+    \\\hline
+    \index{Hyppo Error Codes!\$11}
+    \$11 & 17 & illegal value &
+    An illegal value was supplied in an argument.
+    \\\hline
+    \index{Hyppo Error Codes!\$20}
+    \$20 & 32 & read error &
+    An unspecified error occurred while reading.
+    \\\hline
+    \index{Hyppo Error Codes!\$21}
+    \$21 & 33 & write error &
+    An unspecified error occurred while writing.
+    \\\hline
+    \index{Hyppo Error Codes!\$80}
+    \$80 & 128 & no such drive &
+    The supplied Hyppo drive number does not exist.
+    \\\hline
+    \index{Hyppo Error Codes!\$81}
+    \$81 & 129 & {name too long} &
+    The supplied filename was too long.
+    \\\hline
+    \index{Hyppo Error Codes!\$82}
+    \$82 & 130 & not implemented &
+    The Hyppo service is not implemented.
+    \\\hline
+    \index{Hyppo Error Codes!\$83}
+    \$83 & 131 & file too long &
+    The file is larger than 16MB.
+    \\\hline
+    \index{Hyppo Error Codes!\$84}
+    \$84 & 132 & \makecell[tl]{too many\\open files} &
+    All of the file descriptors are in use.
+    \\\hline
+    \index{Hyppo Error Codes!\$85}
+    \$85 & 133 & invalid cluster &
+    The supplied cluster number is invalid.
+    \\\hline
+    \index{Hyppo Error Codes!\$86}
+    \$86 & 134 & is a directory &
+    An attempt was made to operate on a directory, where a normal file was
+    expected.
+    \\\hline
+    \index{Hyppo Error Codes!\$87}
+    \$87 & 135 & not a directory &
+    An attempt was made to operate on a normal file, where a directory was
+    expected.
+    \\\hline
+    \index{Hyppo Error Codes!\$88}
+    \$88 & 136 & file not found &
+    The file could not be located in the current directory of the current drive.
+    \\\hline
+    \index{Hyppo Error Codes!\$89}
+    \$89 & 137 & \makecell[tl]{invalid file\\descriptor} &
+    An invalid or closed file descriptor was supplied.
+    \\\hline
+    \index{Hyppo Error Codes!\$8A}
+    \$8A & 138 & \makecell[tl]{image wrong\\length} &
+    The disk image file has the wrong length.
+    \\\hline
+    \index{Hyppo Error Codes!\$8B}
+    \$8B & 139 & image fragmented &
+    The disk image is not stored contiguously on the SD card.
+    \\\hline
+    \index{Hyppo Error Codes!\$8C}
+    \$8C & 140 & no space &
+    The SD card has no free space for the requested operation.
+    \\\hline
+    \index{Hyppo Error Codes!\$8D}
+    \$8D & 141 & file exists &
+    A file already exists with the given name.
+    \\\hline
+    \index{Hyppo Error Codes!\$8E}
+    \$8E & 142 & directory full &
+    The directory cannot accommodate any more entries.
+    \\\hline
+    \index{Hyppo Error Codes!\$FF}
+    \$FF & 255 & eof &
+    The end of a file or directory was encountered.
+    \\\hline
+    \index{Hyppo Error Codes!\$FF}
+    \$FF & 255 & no such trap &
+    There is no Hyppo service available for the trap. The program may be
+    incompatible with this version of Hyppo.
+    \\\hline
+  \end{longtable}
+}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getversion
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getversion}{D640}{00}
+\item [Service:]
+  Returns the version of Hyppo and HDOS.
+\item [Outputs:]
+  \register{A}{The major version number of Hyppo}
+  \register{X}{The major version number of Hyppo}
+  \register{Y}{The minor version number of HDOS}
+  \register{Z}{The major version number of HDOS}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The HDOS in Hyppo is not related to the CBDOS inside the Kernal or the
+  DOS in the disk drive units attached to the serial port.
+\item [Example:]
+  Tests if Hyppo's version is $\geq$ 1.2 and $<$ 2.0.
+  \acmelisting{getversion.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% setup_transfer_area
+%
+% Jimbo - What are the post-conditions for this? What services are affected by
+%         this?
+%       - Is this now redudant? So far everything I've used has the transfer
+%         area as a parameter.
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
+\item [Service:]
+  Sets up the area Hyppo uses to transfer data to and from your program.
+\item [Inputs:]
+  \register{Y}{The MSB of the transfer area's address}
+\item [Errors:]
+  \errordesc{10}{invalid address}{The transfer area address in Y $>$ \$7E}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The transfer area must be between \$0000 and \$7E00. It must also begin on a
+  page boundary. The LSB of its address must be \$00.
+
+  The transfer area is 256 bytes long for most services.
+
+  The transfer area is indicated using the CPU's current memory mapping at
+  the time that a service is used. However, it is good practice to always
+  place it in the bottom 32KB of bank 0.
+\item [Example:]
+  Reserves 256 bytes on a page boundary and sets it up as the transfer area.
+  \acmelisting{setup_transfer_area.asm}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Disk/storage services
+% ==============================================================================
+\newpage
+\section{Drive/Storage Services}
+
+% Jimbo - These should be named as what they are, partitions.
+%         This would resolve potential confusion when we do start referring
+%         to the virtual F011's drive 0 and 1 around mounting disk images.
+
+In Hyppo, drives are the partitions of the internal and external SD cards.
+They are not the drive 0 and drive 1 of the F011 floppy controller. They
+are also not the drive 0 and drive 1 of dual-drive units attached to the serial
+bus.
+
+
+% ******************************************************************************
+% chdir
+% ******************************************************************************
+\begin{hyppotrap}{chdir}{D640}{0C}
+\item [Service:]
+  Changes the current working directory.
+\item [Preconditions:]
+  The FAT dir entry for the directory you want to change to has been
+  found. \hypporef{findfile} is typically used to find a FAT dir entry.
+  \hypporef{findfirst}, \hypporef{findnext} and \hypporef{readdir} can also be
+  used.
+\item [Errors:]
+  \errordesc{87}{not a directory}{The FAT dir entry last found isn't for a
+  directory. Bit 4 of the FAT dir entry's attribute byte is set for
+  directories.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can move up to the parent directory by finding the .. FAT dir entry.
+
+  You cannot move up or down more than one directory at a time.
+
+  Use \hypporef{cdrootdir} to directly change back to the root directory.
+\item [Example:]
+  Changes to an arbitrary path on the current drive. Call with Y:X being the
+  address of the path. The last character of each component in the path needs
+  to have bit 7 set. The whole path is terminated with a \$00. For example,
+  to change into DIR1 and then DIR2 the path would be
+  {\codefont !text "DIR", '1'+\$80, "DIR" '2'+\$80, 0}.
+
+  If successful, returns with the C flag set. If some part of the path doesn't
+  exist, returns with the C flag cleared and the current working directory will
+  be whatever directory was last successfully navigated to.
+  \acmelisting{chdir.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closeall
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closeall}{D640}{22}
+\item [Service:]
+  Closes all the file descriptors.
+\item [Postconditions:]
+  Using any file descriptor with \hypporef{closedir} or \hypporef{closefile}
+  succeeds.
+
+  Using any file descriptor with \hypporef{readdir} or \hypporef{readfile}
+  fails.
+
+  \hypporef{opendir} and \hypporef{openfile} reuse the file descriptor.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can also close individual file descriptors using \hypporef{closedir} or
+  \hypporef{closefile}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closedir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closedir}{D640}{16}
+\item [Service:]
+  Closes a file descriptor for a directory.
+\item [Preconditions:]
+  The file descriptor given in the X register was opened using
+  \hypporef{opendir}.
+\item [Inputs:]
+  \register{X}{The file descriptor for the directory}
+\item [Postconditions:]
+  Using the file descriptor again with \hypporef{closedir} succeeds.
+
+  Using the file descriptor again with \hypporef{readdir} fails.
+
+  \hypporef{opendir} and \hypporef{openfile} reuse the file descriptor.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can also close all the open file descriptors using \hypporef{closeall}.
+\item [Example:]
+  See the example in \hypporef{opendir}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closefile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closefile}{D640}{20}
+\item [Service:]
+  Closes a file descriptor for a file.
+\item [Preconditions:]
+  The file descriptor given in the X register was opened using
+  \hypporef{openfile}.
+\item [Inputs:]
+  \register{X}{The file descriptor for the file}
+\item [Postconditions:]
+  Using the file descriptor again with \hypporef{closefile} succeeds.
+
+  Using the file descriptor again with \hypporef{readfile} fails.
+
+  \hypporef{opendir} and \hypporef{openfile} reuse the file descriptor.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You can also close all the open file descriptors using \hypporef{closeall}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% filedate
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{filedate}{D640}{2C}
+\item [Service:]
+  Sets time stamp of a file.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findfile
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findfile}{D640}{34}
+\item [Service:]
+  Finds the first file whose filename matches the current Hyppo filename.
+\item [Preconditions:]
+  The current Hyppo filename has been set using \hypporef{setname}.
+\item [Postconditions:]
+  No additional file descriptors are open.
+\item [Errors:]
+  \errordesc{88}{file not found}{A matching file was not found in the current
+  directory of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  % Jimbo - Why does Hyppo do this and create this restriction?
+  Hyppo will only find files whose long filename is all in uppercase.
+  Hyppo converts the current filename to ASCII uppercase before trying
+  to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
+
+  Hyppo does not yet support the wildcard characters * and ?. Support
+  for that is planned in a future version.
+
+  This only finds the first matching file. You can find multiple matches by
+  using \hypporef{findfirst} and \hypporef{findnext}.
+\item [Example:]
+  See the example in \hypporef{openfile}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findfirst
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findfirst}{D640}{30}
+\item [Service:]
+  Finds the first file whose filename matches the current Hyppo filename.
+\item [Preconditions:]
+  The current Hyppo filename has been set using \hypporef{setname}.
+\item [Outputs:]
+  \register{A}{The file descriptor for reading the current working directory.
+  You might be responsible for closing this file descriptor using
+  \hypporef{closedir}. See the remarks.}
+\item [Postconditions:]
+  \hypporef{findnext} find the next matching file or fails with a file not
+  found error.
+\item [Side effects:]
+  Sets the current file descriptor.
+\item [Errors:]
+  \errordesc{88}{file not found}{A matching file was not found in the current
+  directory of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  If Hyppo finds an initial matching file, it will set the C flag and
+  return a file descriptor in the A register. This is a file descriptor for
+  reading the current working directory. You are responsible for closing it
+  using \hypporef{closedir}. It's a standard directory file descriptor. You
+  can use \hypporef{readdir} to read the FAT dir entries after the file that
+  was found.
+
+  If Hyppo doesn't find any matching files, it will fail with a file
+  not found error. In this case Hyppo will have already closed the
+  file descriptor and you don't have to close it.
+
+  % Jimbo - Why does Hyppo do this and create this restriction?
+  Hyppo will only find files whose long filename is all in uppercase.
+  Hyppo converts the current filename to ASCII uppercase before trying
+  to match it. Bytes \$61 -- \$7B change to \$41 -- \$5A.
+
+  Hyppo does not yet support the wildcard characters * and ?. Support
+  for that is planned in a future version.
+
+  If you are only interested in the first match, you can use \hypporef{findfile}
+  instead. \hypporef{findfile} always closes the file descriptor for you. But
+  you can't use it to find multiple matching files.
+\item [Example:]
+  See the example in \hypporef{findnext}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findnext
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findnext}{D640}{32}
+\item [Service:]
+  Finds a subsequent file whose filename matches the current Hyppo filename.
+\item [Preconditions:]
+  The current Hyppo filename has been set using \hypporef{setname}.
+
+  The first matching file has already been found successfully using
+  \hypporef{findfirst}.
+\item [Postconditions:]
+  Using \hypporef{findnext} again finds the next matching file or fails with a
+  file not found error.
+\item [Errors:]
+  \errordesc{88}{file not found}{A subsequent matching file was not found in
+  the current directory of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  If Hyppo doesn't find a subsequent matching file, it will fail with a
+  file not found error. Hyppo will also close the file descriptor it
+  output in \hypporef{findfirst}.
+
+  If you don't exhaust the search by using \hypporef{findnext} until it fails
+  with a file not found error, you are required to close the file descriptor
+  yourself using \hypporef{closedir}.
+\item [Example:]
+  Returns with X register containing the number of files matching the current
+  Hyppo filename in the current working directory of the current drive. While
+  a directory can in theory have multiple files with an indentical name, this
+  example will be more useful once Hyppo supports * and ? wildcards.
+  \acmelisting{findnext.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% fstat
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{fstat}{D640}{28}
+\item [Service:]
+  Returns information about a file.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getcurrentdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getcurrentdrive}{D640}{04}
+\item [Service:]
+  Returns the number of the currently selected drive (SD card partition).
+\item [Outputs:]
+  \register{A}{The current drive number}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  \hypporef{selectdrive} changes the current drive number. \hypporef{cdrootdir}
+  can also change it.
+\item [Example:]
+  Prints the number of the currently selected drive in the top-left of the
+  screen. This example assumes that there aren't more than 10 drives (drives
+  0 to 9). It also assumes the screen memory hasn't been moved from \$800.
+  \acmelisting{getcurrentdrive.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getcwd
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getcwd}{D640}{0A}
+\item [Service:]
+  Returns information on the currently selected directory or sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getdefaultdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getdefaultdrive}{D640}{02}
+\item [Service:]
+  Returns the drive number (SD card partition) Hyppo selected while
+  booting.
+\item [Outputs:]
+  \register{A}{The default drive number}
+\item [History:]
+  \availablefrom{1.2}
+\item [Example:]
+  Selects the default drive.
+  \acmelisting{getdefaultdrive.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getdrivesize
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getdrivesize}{D640}{08}
+\item [Service:]
+  Returns information on the size of the currently selected drive (SD card
+  partition).
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% loadfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{loadfile}{D640}{36}
+\item [Service:]
+  Loads a file into chip memory.
+\item [Preconditions:]
+  The name of the file to load has been set using \hypporef{setname}.
+\item [Inputs:]
+  \register{X}{The LSB of the address to start loading from}
+  \register{Y}{The middle byte of the address to start loading from}
+  \register{Z}{The MSB of the address to start loading from}
+\item [Postconditions:]
+  No additional file descriptors are open.
+\item [Errors:]
+  \errordesc{84}{too many open files}{\hypporef{loadfile} uses one file
+  descriptor internally, but all the file descriptors are in use. Close some or
+  all of the file descriptors using \hypporef{closedir}, \hypporef{closefile}
+  or \hypporef{closeall}.}
+  \errordesc{88}{file not found}{The file was not found in the current directory
+  of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  This service can load files up to 16MB in size into the first 16MB of chip
+  memory. Chip memory is the 384KB or more of memory inside the CPU module.
+
+  Loading will start at 28-bit address \$00ZZYYXX. If loading tries to go beyond
+  \$00FFFFFF, it wraps around and continue at \$00000000.
+
+  You can use \hypporef{loadfile\_attic} to load a file into hyper memory. The
+  hyper memory is the 8MB or more of memory in the external RAM chips.
+\item [Example:]
+  Loads a file into memory starting at \$48000.
+  \acmelisting{loadfile.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% loadfile_attic
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{loadfile\_attic}{D640}{3E}
+\item [Service:]
+  Loads a file into hyper memory.
+\item [Preconditions:]
+  The name of the file to load has been set using \hypporef{setname}.
+\item [Inputs:]
+  \register{X}{The LSB of the address to start loading from}
+  \register{Y}{The middle byte of the address to start loading from}
+  \register{Z}{The MSB of the address to start loading from}
+\item [Postconditions:]
+  No additional file descriptors are open.
+\item [Errors:]
+  \errordesc{84}{too many open files}{hos\_loadfile\_attic uses one file
+  descriptor internally, but all the file descriptors are in use. Close some or
+  all of the file descriptors using \hypporef{closedir}, \hypporef{closefile}
+  or \hypporef{closeall}.}
+  \errordesc{88}{file not found}{The file was not found in the current directory
+  of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  This service can load files up to 16MB in size into the first 16MB of hyper
+  memory. Hyper memory is the 8MB or more of memory in the external RAM chips.
+
+  Loading will start at 28-bit address \$08ZZYYXX. If loading tries to go beyond
+  \$08FFFFFF, the loading will wrap around and continue at \$08000000.
+
+  You can use \hypporef{loadfile} to load a file into chip memory. The chip
+  memory is the 384KB or more of memory inside the CPU module.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% mkdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{mkdir}{D640}{0E}
+\item [Service:]
+  Creates a sub-directory.
+\item [Errors:]
+  \errordesc{8D}{file exists}{A sub-directory or file already exists with the
+  current Hyppo filename in the current working directory of the current
+  drive.}
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% mkfile
+% ******************************************************************************
+\begin{hyppotrap}{mkfile}{D640}{1E}
+\item [Service:]
+  Creates a file.
+\item [Errors:]
+  \errordesc{8D}{file exists}{A sub-directory or file already exists with the
+  current Hyppo filename in the current working directory of the current
+  drive.}
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% opendir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{opendir}{D640}{12}
+\item [Service:]
+  Opens the current working directory for reading the file entries in it.
+\item [Preconditions:]
+  The drive and directory you want to read have already been set up using
+  \hypporef{selectdrive} and \hypporef{chdir} if necessary.
+\item [Outputs:]
+  \register{A}{The file descriptor for reading the directory. You are
+  responsible for closing this file descriptor using \hypporef{closedir}.}
+\item [Postconditions:]
+  \hypporef{readdir} reads the first FAT dir entry in the directory.
+\item [Errors:]
+  \errordesc{84}{too many open files}{All the file descriptors are in use.
+  \hypporef{opendir} and \hypporef{openfile} share the same very small pool of
+  file descriptors. Close some or all of the file descriptors using
+  \hypporef{closedir}, \hypporef{closefile} or \hypporef{closeall}.}
+  \errordesc{87}{not a directory}{The FAT dir entry last found is for a file.
+  Use \hypporef{openfile} for files.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Example:]
+  Calls processdirentry for each FAT dir entry in the current working directory.
+  processdirentry is assumed to be defined elsewhere.
+  \acmelisting{opendir.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% openfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{openfile}{D640}{18}
+\item [Service:]
+  Opens a file on a drive.
+\item [Preconditions:]
+  The file has already been found. Files can be found using \hypporef{findfile},
+  \hypporef{findfirst} and \hypporef{findnext}. \hypporef{readdir} can also be
+  used to find a file.
+\item [Outputs:]
+  \register{A}{The file descriptor for accessing the file. You are responsible
+  for closing this file descriptor using \hypporef{closefile}.}
+\item [Postconditions:]
+  Using \hypporef{readfile} with this file descriptor reads the first sector of
+  the file.
+\item [Side effects:]
+  Sets the current file to the newly opened file. \hypporef{readfile} reads
+  from the current file.
+\item [Errors:]
+  \errordesc{84}{too many open files}{All the file descriptors are in use.
+  \hypporef{opendir} and \hypporef{openfile} share the same very small pool of
+  file descriptors. Close some or all of the file descriptors using
+  \hypporef{closedir}, \hypporef{closefile} or \hypporef{closeall}.}
+  \errordesc{86}{is a directory}{The FAT dir entry last found is for a
+  directory. Use \hypporef{opendir} for directories.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You cannot use this to open a file inside a disk image. To do that you use
+  \hypporef{d81attach0} or \hypporef{d81attach1} to attach the disk image and
+  then use either use the Kernal to read the file or program the virtualised
+  F011 floppy controller.
+\item [Example:]
+  Finds and opens a file.
+  \acmelisting{openfile.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{readdir}{D640}{14}
+\item [Service:]
+  Reads the next FAT dir entry into a destination area.
+\item [Preconditions:]
+  The file descriptor given in the X register was opened using
+  \hypporef{opendir} and \hypporef{closedir} hasn't since been used to close it.
+
+  The destination area is on a page boundary between \$0000 and \$7E00 and is
+  at least 87 bytes.
+\item [Inputs:]
+  \register{X}{The file descriptor for the directory.}
+  \register{Y}{The MSB of the destination area.}
+\item [Outputs:]
+  Starting at \$YY00, the FAT dir entry has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description}
+  \\\hline
+  \$00 & asciiz & The long file name
+  \\
+  \$40 & byte & The length of long file name
+  \\
+  \$41 & ascii & The "8.3" file name. The name part is padded with spaces to make
+               it exactly 8 bytes. The 3 bytes of the extension follow. There is
+               no . between the name and the extension. There is no NULL byte.
+  \\
+  \$4E & dword & The cluster number where the file begins. For sub-directories,
+               this is where the FAT dir entries start for that sub-directory.
+  \\
+  \$52 & dword & The length of file in bytes.
+  \\
+  \$56 & byte  & The type and attribute bits.
+  \\\hline
+  \end{tabular}
+  }
+
+  This is what the bits in the last byte mean. Bits 6 and 7 are undefined.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|l|}
+  \hline
+  \textbf{Bit} & \textbf{Meaning if bit is set} \\
+  \hline
+  0 & Read only         \\
+  1 & Hidden            \\
+  2 & System            \\
+  3 & Volume label      \\
+  4 & Sub-directory     \\
+  5 & Archive           \\
+  \hline
+  \end{tabular}
+  }
+\item [Postconditions:]
+  Using \hypporef{readdir} again reads the next FAT dir entry in the directory.
+\item [Errors:]
+  \errordesc{08}{partition error}{An unspecified error occurred while handling
+  the currently selected partition.}
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+  \errordesc{85}{invalid cluster}{An attempt was made to read past the end of
+  the directory.}
+\item [Remarks:]
+  If the long file name in the FAT dir entry is too long to copy into the
+  destination area, Hyppo skips the entry entirely.
+
+  The file names in FAT are encoded as UTF-16. Hyppo only reads the LSB
+  of each 16-bit character. Hyppo does not convert file names into
+  PETSCII.
+
+  See \hypporef{setup\_transfer\_area} for more details about the value for the
+  Y register.
+\item [History:]
+  \availablefrom{1.2}
+\item [Example:]
+  See the example in \hypporef{opendir}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{readfile}{D640}{1A}
+\item [Service:]
+  Reads the next sector of the current file into the sector buffer.
+\item [Preconditions:]
+  There is a current file open. Files can be opened with \hypporef{openfile}.
+\item [Outputs:]
+  \register{X}{The LSB of the number of bytes read}
+  \register{Y}{The MSB of the number of bytes read}
+\item [Postconditions:]
+  The next call to \hypporef{readfile} will read the next sector of the current
+  file or signal the end of the file.
+\item [Errors:]
+  \errordesc{89}{invalid file descriptor}{There is no current file.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  To access the data, you need to either:
+  \begin{itemize}
+    \item map the sector buffer into the 16-bit address space;
+    \item use an enhanced DMA transfer to copy the sector buffer at
+          \$FFD6E00 -- \$FFD6FFF into a buffer already mapping into the 16-bit
+          address space; or
+    \item use 32-bit load instructions to access the sector buffer directly.
+  \end{itemize}
+
+  If a full sector was read, Y:X will be \$0200. For the last sector of the
+  file, Y:X may be less than that. Any bytes in the sector buffer after Y:X are
+  undefined and will not necessarily be zero.
+
+  If you read past the end of the last sector, Y:X will be \$0000, the A
+  register will be \$FF and the C flag will be set.
+
+  While multiple files can be opened simultaneously, only the current file can
+  be read. The current file is often the last file opened, but not always.
+\item [Example:]
+  Maps the sector buffer to \$DE00 and then reads each sector of the file
+  calling proccesssector for each sector read. proccesssector is assumed to be
+  defined elsewhere.
+  \acmelisting{readfile.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rename
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rename}{D640}{2A}
+\item [Service:]
+  Renames a file or sub-directory.
+\item [Errors:]
+  \errordesc{8D}{file exists}{A sub-directory or file already exists with the
+  current Hyppo filename in the current working directory of the current
+  drive.}
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rmdir
+% ******************************************************************************
+\begin{hyppotrap}{rmdir}{D640}{10}
+\item [Service:]
+  Removes a sub-directory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rmfile
+% ******************************************************************************
+\begin{hyppotrap}{rmfile}{D640}{26}
+\item [Service:]
+  Removes a files.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% seekfile
+% ******************************************************************************
+\begin{hyppotrap}{seekfile}{D640}{24}
+\item [Service:]
+  Seeks to a given sector in a file.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% selectdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{selectdrive}{D640}{06}
+\item [Service:]
+  Sets the currently selected drive (SD card partition).
+\item [Preconditions:]
+  Hyppo has assigned a drive number to the SD card partition.
+\item [Inputs:]
+  \register{X}{The drive number to become the new current drive}
+\item [Postconditions:]
+  \hypporef{getcurrentdrive} returns the value that was in the X register.
+
+  Hyppo services operate on the newly selected drive.
+\item [Errors:]
+  \errordesc{80}{no such drive}{The drive in the X register does not exist.
+  Hyppo only assigns drive numbers to the SD card partitions it can
+  read.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Example:]
+  Tests if drive 2 exists by trying to select it. Returns with the C flag set if
+  drive 2 exists.
+  \acmelisting{selectdrive.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% setname
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{setname}{D640}{2E}
+\item [Service:]
+  Sets the current Hyppo filename.
+\item [Preconditions:]
+  The filename is stored in ASCII and ends with a \$00 byte.
+
+  The filename starts on a page boundary between \$0000 and \$7E00 and is less
+  than 63 characters, excluding the \$00 byte.
+\item [Inputs:]
+  \register{Y}{The MSB of the filename address.}
+\item [Postconditions:]
+  Hyppo has copied the filename into it's own data area.
+
+  The hyppo\_find* and hyppo\_load* services use this filename.
+\item [Side effects:]
+  Sets the transfer area to \$YY00.
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+  \errordesc{81}{name too long}{The filename is longer than 63 characters.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The filename must be between \$0000 and \$7E00. It must also begin on a
+  page boundary. That is, its address must end with \$00. The current memory
+  mapping is used. However, it is good practice to place it in the bottom 32KB
+  of bank 0.
+
+  The filenames in FAT are encoded in UTF-16. Hyppo only reads the LSB
+  of each 16-bit character. Hyppo does not convert between ASCII and
+  PETSCII.
+
+  Hyppo accesses the files in the FAT file system on the internal and
+  external SD cards. It does not access files on disks in floppy drives or in
+  disk images.
+\item [Example:]
+  Set the current Hyppo filename to GAME.MAP.
+  \acmelisting{setname.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% writefile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{writefile}{D640}{1C}
+\item [Service:]
+  Writes the sector buffer to the current file.
+\notimplemented
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Disk Image Services
+% ==============================================================================
+\newpage
+\section{Disk Image Services}
+
+The 45IO27 multi-function I/O controller includes a F011-compatible floppy
+controller. The internal floppy drive is attached to this as drive 0.
+
+Hyppo can virtualise the F011 floppy controller so that disk images
+can be attached instead of floppy drives. Once a disk image is attached,
+Hyppo traps the F011's I/O registers and emulates the commands on the disk
+image.
+
+You can use BASIC, the Kernal and the F011 I/O registers to operate on a disk
+image just as you would a physical disk. The virtualisation does not behave the
+same as a floppy drive in all cases. If you intend for your program to work
+with both disk images and physical disks, be sure to test it with both.
+
+
+% ******************************************************************************
+% d81attach0
+% ******************************************************************************
+\begin{hyppotrap}{d81attach0}{D640}{40}
+\item [Service:]
+  Attach a D81 disk image to virtualised F011 drive 0.
+\item [Preconditions:]
+  The current Hyppo filename has been set using \hypporef{setname}.
+\item [Errors:]
+  \errordesc{88}{file not found}{The disk image file was not found in the
+  current directory of the current drive.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  Unless it's been changed, drive 0 of the virtualised F011 floppy controller is
+  unit 8.
+\item [Example:]
+  Attaches the disk image DISK2.D81 to virtualised F011 drive 0.
+  \acmelisting{d81attach0.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81attach1
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{d81attach1}{D640}{46}
+\item [Service:]
+  Attach a D81 disk image to virtualised F011 drive 1.
+\item [Preconditions:]
+  The current Hyppo filename has been set using \hypporef{setname}.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  Unless it's been changed, drive 1 of the virtualised F011 floppy controller is
+  unit 9.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81detach
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{d81detach}{D640}{42}
+\item [Service:]
+  Detaches any disk images from virtualised F011 drives 0 and 1.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81write_en
+%
+% Jimbo - hyppo_d81attach* already write-enables the images.
+%         See https://github.com/MEGA65/mega65-core/issues/494
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{d81write\_en}{D640}{44}
+\item [Service:]
+  Enables writing to any disk images attached to virtualised F011 drives 0
+  and 1.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Task and Process Services
+% ==============================================================================
+\newpage
+\section{Task and Process Services}
+
+
+% ******************************************************************************
+% create_task_c64
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_c64}{D640}{66}
+\item [Service:]
+  Creates a Hyppo task in the C64-like operating mode.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% create_task_c65
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_c65}{D640}{68}
+\item [Service:]
+  Creates a Hyppo task in the C65-like operating mode.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% create_task_native
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_native}{D640}{62}
+\item [Service:]
+  Creates a Hyppo task in the MEGA65 operating mode.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% exit_and_switch_to_task
+% ******************************************************************************
+\begin{hyppotrap}{exit\_and\_switch\_to\_task}{D640}{6A}
+\item [Service:]
+  Exits the current Hyppo task and switches context to another Hyppo task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% exit_task
+% ******************************************************************************
+\begin{hyppotrap}{exit\_task}{D640}{6E}
+\item [Service:]
+  Exits the current Hyppo task. % Jimbo - And then what?
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_mapping
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{get\_mapping}{D640}{74}
+\item [Service:]
+  Copies the current 45GS02 memory mapping into a destination area.
+\item [Preconditions:]
+  The destination area starts on a page boundary between \$0000 and \$7E00 and
+  is at least 6 bytes.
+\item [Inputs:]
+  \register{Y}{The MSB of the destination area.}
+\item [Outputs:]
+  Starting at \$YY00, the current mapping info has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description} \\
+  \hline
+  0 & word & MAPLO \\
+  2 & word & MAPHI \\
+  4 & byte & The megabyte offset for MAPLO \\
+  5 & byte & The megabyte offset for MAPHI \\
+  \hline
+  \end{tabular}
+  }
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  MAPLO is the mapping for \$0000 - \$7FFF.
+
+  MAPHI is the mapping for \$8000 - \$FFFF.
+
+  See \bookvref{cha:cpu} for more information on MEGA65 memory mapping and
+  banking.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_proc_desc
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{get\_proc\_desc}{D640}{48}
+\item [Service:]
+  Copies the current task block into a destination area.
+\item [Preconditions:]
+  The destination area starts on a page boundary between \$0000 and \$7E00 and
+  is at least 256 bytes.
+\item [Inputs:]
+  \register{Y}{The MSB of the destination area.}
+\item [Outputs:]
+  Starting at \$YY00, the current task block has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description}
+  \\\hline
+  \$00 & byte & The ID of the current task.
+  \\
+  \$01 & text & The name of the current task. A maximum of 16 characters.
+                Padded with \$00 bytes.
+                If it's 16 characters, there are no trailing \$00 bytes.
+  \\
+  \$11 & byte & Flags for the D81 disk image attached to drive 0 of the
+                virtualised F011 floppy controller.
+  \\
+  \$12 & byte & Same as above but for drive 1.
+  \\
+  \$13 & byte & The length of the D81 disk image filename attached to drive 0.
+  \\
+  \$14 & byte & Same as above but for drive 1.
+  \\
+  \$15 & text & The filename of the D81 disk image attached to drive 0.
+                A maximum of 32 characters. Padded with \$20 bytes.
+                There is no trailing \$00 byte.
+  \\
+  \$35 & text & Same as above but for drive 1.
+  \\
+  \$55 & & The meaning of these bytes are undefined and subject to change.
+  \\
+  \$80 & & File descriptor 0.
+  \\
+  \$A0 & & File descriptor 1.
+  \\
+  \$C0 & & File descriptor 2.
+  \\
+  \$E0 & & File descriptor 3.
+  \\\hline
+  \end{tabular}
+  }
+
+  Each of the file descriptors has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description}
+  \\\hline
+  \$00 & byte  & The number of the SD card partition where the file resides.
+                 \$FF means the file descriptor is closed.
+  \\\hline
+  \$01 & dword & The cluster where the file starts
+  \\\hline
+  \$05 & dword & The current cluster
+  \\\hline
+  \$09 & byte  & The current sector within the current cluster
+  \\\hline
+  \$0A & dword & The length of the file
+  \\\hline
+  \$0E & dword & The current position within the file's buffer
+  \\\hline
+  \$12 & dword & The cluster of the directory in which the file resides
+  \\\hline
+  \$16 & word  & The index of the file within its directory
+  \\\hline
+  \$18 & dword & The absolute 32-bit address of the file's buffer
+  \\\hline
+  \$1C & word  & The number of bytes used in the file's buffer
+  \\\hline
+  \$1E & word  & The current offset within the file's buffer
+  \\\hline
+  \end{tabular}
+  }
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% gettasklist
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{gettasklist}{D640}{50}
+\item [Service:]
+  Gets the list of tasks in Hyppo.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% load_into_task
+% ******************************************************************************
+\begin{hyppotrap}{load\_into\_task}{D640}{64}
+\item [Service:]
+  Loads a file from an SD card partition into the memory of a Hyppo task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readoutoftask
+% ******************************************************************************
+\begin{hyppotrap}{readoutoftask}{D640}{58}
+\item [Service:]
+  Reads from the memory of another Hyppo task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% receivemessage
+% ******************************************************************************
+\begin{hyppotrap}{receivemessage}{D640}{54}
+\item [Service:]
+  Receives messages sent from other Hyppo tasks.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% reset
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{reset}{D640}{7E}
+\item [Service:]
+  Warm boots the MEGA65.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rom_writeenable
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rom\_writeenable}{D641}{02}
+\item [Service:]
+  Changes \$20000 -- \$3FFFF to behave like RAM by disabling the
+  write-protection.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  \$20000 -- \$3FFFF normally has the Kernal, BASIC, CBDOS, and font ROMs.
+
+  \hypporef{rom\_writeprotect} enables the write-protection and blocks writes.
+  \hypporef{toggle\_rom\_writeprotect} toggles the write-protection.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rom_writeprotect
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rom\_writeprotect}{D641}{00}
+\item [Service:]
+  Changes \$20000 -- \$3FFFF to behave like ROM by enabling the
+  write-protection.
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  \$20000 -- \$3FFFF normally has the Kernal, BASIC, CBDOS, and font ROMs.
+
+  \hypporef{rom\_writeenable} disables the write-protection and allows writes.
+  \hypporef{toggle\_rom\_writeprotect} toggles the write-protection.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% sendmessage
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{sendmessage}{D640}{52}
+\item [Service:]
+  Sends a message to another Hyppo task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% serial_monitor_wait_and_write
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{serial\_monitor\_wait\_and\_write}{D643}{xx}
+\item [Service:]
+  Waits for the serial monitor or Matrix Mode Debugger to be ready to receive
+  and then writes a character to it.
+\item [Inputs:]
+  \register{A}{The ASCII character to write.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The service waits for the serial monitor to be ready to receive. This could
+  slow down or hang your program. If you don't want this and you are happy for
+  the character to be lost if the serial monitor is not ready to receive,
+  use \hypporef{serial\_monitor\_write}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% serial_monitor_write
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{serial\_monitor\_write}{D640}{7C}
+\item [Service:]
+  Writes a character to the serial monitor or the Matrix Mode Debugger.
+\item [Preconditions:]
+  The serial monitor is ready to receive.
+\item [Inputs:]
+  \register{Y}{The ASCII character to write.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The character will be lost if the serial monitor is not ready to receive,
+  If you don't want the character to be lost, use
+  \hypporef{serial\_monitor\_wait\_and\_write}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% set_mapping
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{set\_mapping}{D640}{76}
+\item [Service:]
+  Copies the source area into the current 45GS02 memory mapping.
+\item [Preconditions:]
+  The source area starts on a page boundary between \$0000 and \$7E00 and
+  is at least 6 bytes.
+\item [Inputs:]
+  \register{Y}{The MSB of the source area.}
+
+  Starting at \$YY00, the current mapping info has this structure.
+  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Description} \\
+  \hline
+  0 & word & MAPLO \\
+  2 & word & MAPHI \\
+  4 & byte & The megabyte offset for MAPLO \\
+  5 & byte & The megabyte offset for MAPHI \\
+  \hline
+  \end{tabular}
+  }
+\item [Postconditions:]
+  The CPU continues execution with the new memory mapping.
+\item [Errors:]
+  \errordesc{10}{invalid address}{The Y register is $>$ \$7E.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  You must take care when changing the memory mapping. Hyppo will not take any
+  steps to ensure the instructions after the STA are executed regardless of the
+  mapping. If you change the mapping of the block where the program counter
+  points to, the CPU will resume with the instructions in the newly mapped
+  block.
+
+  MAPLO is the mapping for \$0000 - \$7FFF.
+
+  MAPHI is the mapping for \$8000 - \$FFFF.
+
+  See \bookvref{cha:cpu} for more information on MEGA65 memory mapping and
+  banking.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% switch_to_task
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{switch\_to\_task}{D640}{6C}
+\item [Service:]
+  Switches context to another Hyppo task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% terminateothertask
+% ******************************************************************************
+\begin{hyppotrap}{terminateothertask}{D640}{60}
+\item [Service:]
+  Terminates another Hyppo task.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% toggle_force_4502
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{toggle\_force\_4502}{D640}{72}
+\item [Service:]
+  Toggles the CPU personality between 45GS02 and 6502.
+\item [Outputs:]
+  \register{A}{If bit 5 is set, the CPU is in the 45GS02 personality. If bit 5
+  is clear, the CPU is in the 6502 personality.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The others bits of the A register are undefined. Do not expect them to be
+  zero.
+
+  In the 6502 personality, none of the new opcodes of the 65C02, 65CE02, 4510
+  or 45GS02 are available. These are replaced with the original --- and often
+  strange --- behaviour of the undefined opcodes of the 6502.
+
+  \textbf{Warning} This feature is incomplete and untested. Most undocumented
+  6502 opcodes do not operate correctly when the 6502 personality is enabled.
+\item [Example:] Enables the 45GS02 personality regardless of the CPU's current
+  personality.
+  \acmelisting{toggle_force_4502.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% toggle_rom_writeprotect
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{toggle\_rom\_writeprotect}{D640}{70}
+\item [Service:]
+  Toggles the write-protection for \$20000 -- \$3FFFF.
+\item [Outputs:]
+  \register{A}{If bit 2 is set, \$20000 -- \$3FFFF cannot be written to.}
+\item [History:]
+  \availablefrom{1.2}
+\item [Remarks:]
+  The others bits of the A register are undefined. Do not expect them to be
+  zero.
+
+  If you simply want to disable or enable the protection, you can use
+  \hypporef{rom\_writeenable} and \hypporef{rom\_writeprotect}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% writeintotask
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{writeintotask}{D640}{56}
+\item [Service:]
+  Writes into the memory of another Hyppo task.
+\notimplemented
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% System Partition
+% ==============================================================================
+\newpage
+\section{System Partition Services}
+
+
+% ******************************************************************************
+% configsector_apply
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_apply}{D642}{04}
+\item [Service:]
+  Applies the system configuration sector currently loaded into memory.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% configsector_read
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_read}{D642}{00}
+\item [Service:]
+  Reads the system configuration sector into memory.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% configsector_write
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_write}{D642}{02}
+\item [Service:]
+  Writes the system configuration sector from memory.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% dmagic_autoset
+% ******************************************************************************
+\begin{hyppotrap}{dmagic\_autoset}{D642}{06}
+\item [Service:]
+  Sets the DMAgic revision based on the loaded ROM.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Freezer
+% ==============================================================================
+\newpage
+\section{Freezer Services}
+
+
+% ******************************************************************************
+% freeze_self
+% ******************************************************************************
+\begin{hyppotrap}{freeze\_self}{D67F}{xx}
+\item [Service:]
+  Launches the freezer.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_slot_count
+% ******************************************************************************
+\begin{hyppotrap}{get\_slot\_count}{D642}{16}
+\item [Service:]
+  Gets the number of freeze slots.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% locate_freeze_slot
+% ******************************************************************************
+\begin{hyppotrap}{locate\_freeze\_slot}{D642}{10}
+\item [Service:]
+  Locates the first sector of a freeze slot.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% read_freeze_region_list
+% ******************************************************************************
+\begin{hyppotrap}{read\_freeze\_region\_list}{D642}{14}
+\item [Service:]
+  Reads the freeze region list.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% unfreeze_from_slot
+% ******************************************************************************
+\begin{hyppotrap}{unfreeze\_from\_slot}{D642}{12}
+\item [Service:]
+  Unfreezes from a freeze slot.
+\item [History:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{5}}

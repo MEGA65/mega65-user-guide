@@ -11,10 +11,10 @@ The MEGA65's DMA controller provides several important improvements over the
 F018/F018A DMAgic chips of the C65:
 
 \begin{itemize}
-\item{\bf Speed} The MEGA65 performs DMA operations at 40MHz, allowing filling 40MiB or copying 20MiB
-  per second.  For example, it is possible to copy a complete 8KiB C64-style bitmap display in
+\item{\bf Speed} The MEGA65 performs DMA operations at 40MHz, allowing filling 40MB or copying 20MB
+  per second.  For example, it is possible to copy a complete 8KB C64-style bitmap display in
   about 200 micro-seconds, equivalent to less than four raster lines!
- \item{\bf Large Memory Access} The MEGA65's DMA controller allows access to all 256MiB of address space.
+ \item{\bf Large Memory Access} The MEGA65's DMA controller allows access to all 256MB of address space.
 \item{\bf Texture Copying Support} The MEGA65's DMA controller can do fractional address calculations
   to support hardware texture scaling, as well as address striding, to make it possible in principle
   to simultaneously scale-and-draw a texture from memory to the screen. This would be useful, should
@@ -27,7 +27,7 @@ F018/F018A DMAgic chips of the C65:
   or the source or destination memory region.
 
 \item{\bf Background Audio DMA}
-  The MEGA65 includes background audio DMA capabilities similar to the Amiga\texttrademark series of computers.
+  The MEGA65 includes background audio DMA capabilities similar to the Amiga\texttrademark{} series of computers.
   Key differences are that the MEGA65 can use either 8 or 16-bit samples, supports very high sample rates
   up to approximately 1 MHz, has 256 volume settings per channel, and no inter-channel modulation.
 
@@ -48,8 +48,8 @@ When ADDRLSBTRIG has been written to, the DMA job completes immediately.  Unlike
 of the processor of the MEGA65. This means that the processor stops trying to execute instructions {\em or fetching audio samples for DMA audio playback} until the DMA job
 has completed.  It also means that, unlike on the C65, DMA jobs cannot be interrupted. If your program has sensitive timing
 requirements, you may need to break larger DMA jobs into several smaller jobs.  This is somewhat mitigated by the high
-speed of the MEGA65's DMA, which is able to fill memory at 40.5MiB per second and copy memory at 20.25MiB per second, compared
-with circa 3.5 MiB and 1.7 MiB per second on a C65. This allows larger DMA jobs to be executed, without needing to worry about
+speed of the MEGA65's DMA, which is able to fill memory at 40.5MB per second and copy memory at 20.25MB per second, compared
+with circa 3.5MB and 1.7MB per second on a C65. This allows larger DMA jobs to be executed, without needing to worry about
 the impact on real-time elements of a program. For example, it is possible to fill an 80 column 50 row text screen using the
 MEGA65's DMA controller in just 200 microseconds.
 
@@ -71,7 +71,7 @@ in the list itself.  As the Enhanced DMA Jobs are an extension of the F018/F018B
 unless you are already familiar with the behaviour of the F018 DMA controller.
 
 \subsubsection{F018 11 byte DMA List Structure}
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Offset & Contents \\
@@ -91,9 +91,10 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
   \multicolumn{2}{l}{* The Command MSB is \$00 when using this list format.}
 
 \end{tabular}
+\end{center}
 
 \subsubsection{F018B 12 byte DMA List Structure}
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Offset & Contents \\
@@ -112,9 +113,10 @@ unless you are already familiar with the behaviour of the F018 DMA controller.
   \$0b & Modulo MSB / Mode \\
   \hline
 \end{tabular}
+\end{center}
 
 The structure of the command word is as follows:
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Bit(s) & Contents \\
@@ -131,9 +133,10 @@ The structure of the command word is as follows:
   12 -- 15 & RESESRVED. Always set to 0's \\
   \hline
 \end{tabular}
+\end{center}
 
 The command field take the following four values:
-
+\begin{center}
 \begin{tabular}{|c|l|}
   \hline
   Value & Contents \\
@@ -145,7 +148,7 @@ The command field take the following four values:
   \hline
   \multicolumn{2}{l}{* Only Copy and Fill are implemented at the time of writing.}
 \end{tabular}
-
+\end{center}
 
 The addressing mode fields take the following four values:
 
@@ -163,7 +166,7 @@ The addressing mode fields take the following four values:
 The BANK and FLAGS field for the source address allow selection of addresses within a 1MB
 address space. To access memory beyond the first 1MB, it is necessary to use an Enhanced DMA
 Job with the appropriate option bytes to select the source and/or destination MB of memory.
-The BLANKS and FLAGS field has the following structure:
+The BANK and FLAGS field has the following structure:
 
 \begin{tabular}{|c|l|}
   \hline
@@ -172,7 +175,7 @@ The BLANKS and FLAGS field has the following structure:
   4 & HOLD, i.e., do not change the address \\
   5 & MODULO, i.e., apply the MODULO field to wrap-around within a limited memory space \\
   6 & DIRECTION. If set, then the address is decremented instead of incremented. \\
-  7 & I/O. If set, then IO registers are visible during the DMA controller at \$D000 -- \$DFFF. \\
+  7 & I/O. If set, then I/O registers are visible during the DMA controller at \$D000 -- \$DFFF. \\
   \hline
 \end{tabular}
 
@@ -181,7 +184,7 @@ The BLANKS and FLAGS field has the following structure:
 For information on using the DMA controller from BASIC 65, refer to the \stw{DMA} BASIC command in \bookvref{BASIC 65 Commands!DMA}.
 
 To use the DMA controller from assembly language, set up a data structure with the DMA list, and then
-set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65 mode by filling
+set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65-mode by filling
 it with spaces, the following routine could be used:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -274,7 +277,7 @@ dmalist:
 
 It is also possible to perform a DMA operation from BASIC 2 in C64
 mode by POKEing the necessary values, after first making sure that
-MEGA65 or C65 IO mode has been selected by writing the appropriate
+MEGA65 or C65 I/O mode has been selected by writing the appropriate
 values to \$D02F (53295). For example, to clear the screen in C64 BASIC 2
 using the DMA controller, you could use something like:
 
@@ -285,9 +288,9 @@ the screen again, all you would need to do would be to \stw{POKE 55040,0} again,
 assuming that the DMA list and DMA controller registers had not been modified
 since the previous time the DMA job had been run.
 
-The HOLD, IO and other options can also be used to create interesting effects.
+The HOLD, I/O and other options can also be used to create interesting effects.
 For example, to write a new value to the screen background colour very quickly,
-you could copy a region of memory to \$D021, with the IO flag set to make the IO
+you could copy a region of memory to \$D021, with the I/O flag set to make the I/O
 register visible for writing in the DMA job, and the HOLD flag set, so that the
 same address gets written to repeatedly. This will write to the background colour
 at a rate of 20.5MHz, which is almost as fast as the video pixel clock (27MHz).
@@ -317,7 +320,7 @@ basicheader:
 	;; Actual code begining at $080d = 2061
 main:
 	sei
-	lda #$47        	; enable MEGA65 IO
+	lda #$47        	; enable MEGA65 I/O
 	sta $D02f
 	lda #$53
 	sta $d02f
@@ -500,7 +503,7 @@ i.e., approximately 40,500,000 pixels per second.
 \section{Audio DMA}
 \index{Digital Audio}
 \index{DMA Audio}
-\index{Amiga(tm) style audio}
+\index{Amiga\texttrademark{} style audio}
 \index{MOD-file style audio}
 The MEGA65 includes four channels of DMA-driven audio playback that can be used in place of the direct digital
 audio registers at \$D6F8-\$D6FB.  That is, you must select which of these two sources to feed to the audio
@@ -585,7 +588,7 @@ with the value \$FF, while a value of \$00 will effectively mute the
 channel.  The first two audio channels are normally allocated to the
 left, and the second two to the right.  However, the MEGA65 includes
 separate volume controls for the opposite channels. For example, to
-play audio DMA channel 0 at full volume on both left and right sides
+play audio DMA channel 0 at full volume on both left and right-hand sides
 of the audio output, set both \$D729 and \$D71C to \$FF.  This allows
 panning of the four audio DMA channels.
 
@@ -618,9 +621,9 @@ signal has also been set. When a sample completes playing, the CH0STP
 flag will be set.  The audio DMA subsystem cannot presently generate
 interrupts.
 
-Unlike on the Amiga\texttrademark, the MEGA65 audio DMA system supports both
+Unlike on the Amiga\texttrademark{}, the MEGA65 audio DMA system supports both
 8 and 16-bit samples.  It also supports packed 4-bit samples, playing
-either the lower or upper nybl of each sample byte.  This allows two
+either the lower or upper nibble of each sample byte.  This allows two
 separate samples to occupy the same byte, thus effectively halving the
 amount of space required to store two equal length samples.
 

@@ -33,7 +33,20 @@
   reginfo_TABLE.MODE.tex
   The SIGNAL tags will be used for populating the relevant bits in the table
   rows.
-  The description will then appear in a column on the right side of the tables.
+  The description will then appear below the tables.
+
+  It is possible to create condensed description lists by using signal aliases:
+
+  @IO:XX <address spec> TABLE:SIGNAL@ALIAS Description
+
+  defines ALIAS as the entry that will be  shown in the description list.
+  Use the following format to refer to such an description:
+
+  @IO:XX <address spec> TABLE:SIGNAL @ALIAS
+
+  It is possible to add '!' inside a SIGNAL name. This will be converted to a
+  soft word break in the LaTeX output, so the name can break in a small bit sized
+  cell.
 
   Extended comments for SIGNALs will take the form:
 
@@ -62,20 +75,22 @@ int Warn = 1; // print warnings to stderr if set
 struct reg_line {
   unsigned int low_address, high_address;
   unsigned int low_bit, high_bit;
-  char* signal;
-  char* description;
+  char *signal;
+  char *signal_idx;
+  char *description;
+  unsigned char isRef;
 };
 
 struct info_block {
-  char* signal;
-  char* description;
+  char *signal;
+  char *description;
   int line_count;
 #define MAX_LINES 1024
-  char* lines[MAX_LINES];
+  char *lines[MAX_LINES];
 };
 
 struct reg_table {
-  char* name;
+  char *name;
   int mode;
 #define MAX_ENTRIES 1024
   struct reg_line regs[MAX_ENTRIES];
@@ -90,16 +105,17 @@ int table_count = 0;
 
 struct table_output_line {
   int low_addr, high_addr;
-  char* bit_signals[8];
-  char* descriptions[8];
+  char *bit_signals[8];
+  char *bit_signals_idx[8];
+  char *descriptions[8];
 };
 
 struct table_output_line table_stuff[MAX_ENTRIES];
 int table_len = 0;
 int table_uses_bits = 0;
 
-char* table_signals[MAX_ENTRIES];
-char* table_descriptions[MAX_ENTRIES];
+char *table_signals[MAX_ENTRIES];
+char *table_descriptions[MAX_ENTRIES];
 int table_sigcount = 0;
 
 void clear_table_output(void)
@@ -109,7 +125,7 @@ void clear_table_output(void)
   table_sigcount = 0;
 }
 
-void latex_escape(char* target, char* source)
+void latex_escape(char *target, char *source)
 {
   char prev = '\0';
   ;
@@ -158,6 +174,46 @@ void latex_escape(char* target, char* source)
     prev = *source++;
   }
   *target = '\0';
+}
+
+// converts ! in signal names to a word break \-
+// allocates new memory for generated string and returns this much like strdup
+char *latex_add_break(char *signal)
+{
+  char *result = NULL, *s, *n;
+  int chars = 0;
+
+  for (s=signal; *s; s++)
+    if (*s == '!')
+      chars++;
+
+  result = malloc(strlen(signal) + chars + 1);
+  for (s=signal, n=result; *s; s++, n++) {
+    if (*s == '!') {
+      *n = '\\';
+      n++;
+      *n = '-';
+    } else
+      *n = *s;
+  }
+
+  return result;
+}
+
+// strip those ! pseudo breaks for index use
+// also strdups!
+char *latex_strip_break(char *signal)
+{
+  char *result = NULL, *s, *n;
+
+  result = malloc(strlen(signal) + 1);
+  for (s=signal, n=result; *s; s++)
+    if (*s != '!') {
+      *n = *s;
+      n++;
+    }
+
+  return result;
 }
 
 void table_output_add_reg(struct reg_line* r)
@@ -209,6 +265,7 @@ void table_output_add_reg(struct reg_line* r)
   // Update entry
   for (int bit = r->low_bit; bit <= r->high_bit; bit++) {
     table_stuff[l].bit_signals[bit] = r->signal;
+    table_stuff[l].bit_signals_idx[bit] = r->signal_idx;
     table_stuff[l].descriptions[bit] = r->description;
   }
 
@@ -219,37 +276,39 @@ void table_output_add_reg(struct reg_line* r)
   }
 
   // Now do the same for the signal list, for those tables that are bit-addressed
-  int signum = 0;
-  insert_point = -1;
-  for (signum = 0; signum < table_sigcount; signum++) {
-    if (!strcmp(table_signals[signum], r->signal)) {
-      insert_point = signum;
-      break;
-    }
-    else if (strcmp(table_signals[signum], r->signal) > 0) {
-      if (insert_point < 0) {
+  if (!r->isRef) {
+    int signum = 0;
+    insert_point = -1;
+    for (signum = 0; signum < table_sigcount; signum++) {
+      if (!strcmp(table_signals[signum], r->signal_idx)) {
         insert_point = signum;
+        break;
+      }
+      else if (strcmp(table_signals[signum], r->signal_idx) > 0) {
+        if (insert_point < 0) {
+          insert_point = signum;
+        }
       }
     }
-  }
-  if (insert_point < 0)
-    insert_point = table_sigcount;
-  if (signum == table_sigcount) {
-    // New signal.
+    if (insert_point < 0)
+      insert_point = table_sigcount;
+    if (signum == table_sigcount) {
+      // New signal.
 
-    if (table_sigcount >= MAX_ENTRIES) {
-      fprintf(stderr, "ERROR: Too many unique signal names in table. Fix or increase MAX_ENTRIES.\n");
-      return;
-    }
+      if (table_sigcount >= MAX_ENTRIES) {
+        fprintf(stderr, "ERROR: Too many unique signal names in table. Fix or increase MAX_ENTRIES.\n");
+        return;
+      }
 
-    // Shuffle to make space
-    for (int m = table_sigcount; m > insert_point; m--) {
-      table_signals[m] = table_signals[m - 1];
-      table_descriptions[m] = table_descriptions[m - 1];
+      // Shuffle to make space
+      for (int m = table_sigcount; m > insert_point; m--) {
+        table_signals[m] = table_signals[m - 1];
+        table_descriptions[m] = table_descriptions[m - 1];
+      }
+      table_signals[insert_point] = r->isRef?r->description:r->signal_idx;
+      table_descriptions[insert_point] = r->description;
+      table_sigcount++;
     }
-    table_signals[insert_point] = r->signal;
-    table_descriptions[insert_point] = r->description;
-    table_sigcount++;
   }
 }
 
@@ -296,11 +355,11 @@ void emit_table_output(FILE* f)
     if (table_stuff[row].low_addr < 0x0100) {
       if (table_stuff[row].low_addr != table_stuff[row].high_addr)
         fprintf(f, " %02X -- %02X\\index{\\$%02X (%s)}\\index{%s} & \\footnotesize %d -- %d ", table_stuff[row].low_addr,
-            table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].bit_signals[0],
-            table_stuff[row].bit_signals[0], table_stuff[row].low_addr, table_stuff[row].high_addr);
+            table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].bit_signals_idx[0],
+            table_stuff[row].bit_signals_idx[0], table_stuff[row].low_addr, table_stuff[row].high_addr);
       else
         fprintf(f, " %02X\\index{\\$%02X (%s)}\\index{%s} & \\footnotesize %d ", table_stuff[row].low_addr,
-            table_stuff[row].low_addr, table_stuff[row].bit_signals[0], table_stuff[row].bit_signals[0],
+            table_stuff[row].low_addr, table_stuff[row].bit_signals_idx[0], table_stuff[row].bit_signals_idx[0],
             table_stuff[row].low_addr);
     }
     else {
@@ -321,7 +380,7 @@ void emit_table_output(FILE* f)
         // Check for signals that span multiple bits
         int bit_count = 1;
         for (int b = bit - 1; b >= 0; b--) {
-          if (table_stuff[row].bit_signals[bit] == table_stuff[row].bit_signals[b])
+          if (table_stuff[row].bit_signals_idx[bit] == table_stuff[row].bit_signals_idx[b])
             bit_count++;
           else
             break;
@@ -333,7 +392,7 @@ void emit_table_output(FILE* f)
           fprintf(f, "& \\multicolumn{%d}{c|}{\\footnotesize %s", bit_count,
               table_stuff[row].bit_signals[bit] ? table_stuff[row].bit_signals[bit] : "--");
           if (table_stuff[row].bit_signals[bit])
-            fprintf(f, "\\index{Registers!%s}", table_stuff[row].bit_signals[bit]);
+            fprintf(f, "\\index{Registers!%s}", table_stuff[row].bit_signals_idx[bit]);
           fprintf(f, "}");
         }
 
@@ -345,11 +404,11 @@ void emit_table_output(FILE* f)
     else {
       // Table is address + signal name + description
       if (table_stuff[row].low_addr < 0x0100) {
-        fprintf(f, "& %s\\index{%s} & %s \\\\\n", table_stuff[row].bit_signals[0], table_stuff[row].bit_signals[0],
+        fprintf(f, "& %s\\index{%s} & %s \\\\\n", table_stuff[row].bit_signals[0], table_stuff[row].bit_signals_idx[0],
             table_stuff[row].descriptions[0]);
       }
       else {
-        fprintf(f, "& %s\\index{Registers!%s} & %s \\\\\n", table_stuff[row].bit_signals[0], table_stuff[row].bit_signals[0],
+        fprintf(f, "& %s\\index{Registers!%s} & %s \\\\\n", table_stuff[row].bit_signals[0], table_stuff[row].bit_signals_idx[0],
             table_stuff[row].descriptions[0]);
       }
       fprintf(f, "\\hline\n");
@@ -372,7 +431,7 @@ void emit_table_output(FILE* f)
   }
 }
 
-char* describe_mode(int m)
+char *describe_mode(int m)
 {
   if (m == MODE_C64)
     return "C64";
@@ -383,13 +442,13 @@ char* describe_mode(int m)
   return "???";
 }
 
-int parse_io_line(char* line)
+int parse_io_line(char *line)
 {
   int low_addr = 0, high_addr = 0, low_bit = 0, high_bit = 7;
   char mode[8192];
   char table[8192];
   char signal[8192];
-  char* description;
+  char *description, *sigsplit;
   int n;
   int mode_num;
 
@@ -482,15 +541,33 @@ int parse_io_line(char* line)
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_address = high_addr;
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].low_bit = low_bit;
   reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].high_bit = high_bit;
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal = strdup(signal);
-  reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description = strdup(description);
+  sigsplit = strchr(signal, '@');
+  if (sigsplit != NULL) { // reference label
+    *sigsplit = 0;
+    sigsplit++;
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal = latex_add_break(signal);
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal_idx = latex_strip_break(sigsplit);
+  } else {
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal = latex_add_break(signal);
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].signal_idx = latex_strip_break(signal);
+  }
+  if (*description == '@') { // reference label
+    if (sigsplit != NULL) {
+      fprintf(stderr, "WARNING: signal '%s:%s@%s' also is a reference to '%s'!", table, signal, sigsplit, description);
+    }
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].isRef = 1;
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description = latex_strip_break(description+1);
+  } else {
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].isRef = 0;
+    reg_tables[table_num]->regs[reg_tables[table_num]->reg_count].description = strdup(description);
+  }
 
   reg_tables[table_num]->reg_count++;
 
   return 0;
 }
 
-int scan_vhdl_file(char* file)
+int scan_vhdl_file(char *file)
 {
   int retVal = 0;
   int error_count = 0;

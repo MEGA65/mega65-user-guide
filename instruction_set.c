@@ -5,42 +5,42 @@
 #include <ctype.h>
 
 struct opcode {
-  char* abbrev;
-  char* mode;
+  char *abbrev;
+  char *mode;
   int modeId;
   int instr_num;
-  char* cycles;
+  char *cycles;
   unsigned int bytes;
 };
 
 #define MAX_MODES 32
 struct modeinfo {
-  char* mode;
-  char* nmode;
-  char* texmode;
-  char* description;
+  char *mode;
+  char *nmode;
+  char *texmode;
+  char *description;
   int bytes;
   int cycles;
-  char* cycle_notes;
-  char* memory_equation;
-  char* long_description;
-  char* long_title;
+  char *cycle_notes;
+  char *memory_equation;
+  char *long_description;
+  char *long_title;
 };
 
 int mode_count = 0;
 struct modeinfo modeinfo[MAX_MODES];
 
-char* instrs[256];
+char *instrs[256];
 int instruction_count = 0;
 
 struct opcode opcodes[256];
 
 // Collected information for opcode table generation
 int cycle_counts = 0;
-char* cycle_count_list[1024];
+char *cycle_count_list[1024];
 unsigned int cycle_count_list_bytes[1024];
 
-char* instruction_names[256];
+char *instruction_names[256];
 
 // static variables and arrays
 
@@ -48,11 +48,11 @@ char* instruction_names[256];
 //   nflag,zflag,iflag,cflag,dflag,vflag,eflag;
 char pflags[7][16];
 
-char* instruction;
+char *instruction;
 int CPU;
 int extra_cycles;
 size_t len;
-char* is_unintended;
+char *is_unintended;
 char short_description[256];
 char long_description[8192];
 char action[256];
@@ -61,8 +61,8 @@ char flags[256];
 char DEBUG = 0;
 
 // strdup, bug panic and exit if no memory was available
-char* StrDup(const char* s) {
-  char* r;
+char *StrDup(const char *s) {
+  char *r;
   if (s == NULL)
     r = strdup("");
   else
@@ -75,7 +75,7 @@ char* StrDup(const char* s) {
 }
 
 // escape string by putting backslash before $ and #
-char* texEscape(const char* s) {
+char *texEscape(const char *s) {
   char t[255];
   int i = 0;
   for (int j = 0; s[j]; j++) {
@@ -93,7 +93,7 @@ char* texEscape(const char* s) {
 
 // read a line from file 'f' into buffer
 // and remove CR/LF and trailing blanks
-char* Fgets(char* Str, size_t Size, FILE* F) {
+char *Fgets(char *Str, size_t Size, FILE* F) {
   size_t l;
   if (fgets(Str, Size, F)) {
     l = strlen(Str);
@@ -105,17 +105,17 @@ char* Fgets(char* Str, size_t Size, FILE* F) {
 }
 
 static int compar_str(const void* a, const void* b) {
-  return strcmp(*(char* const*)a, *(char* const*)b);
+  return strcmp(*(char *const*)a, *(char *const*)b);
 }
 
-void error_exit(char* errstr) {
+void error_exit(char *errstr) {
   fprintf(stderr, "\nERROR %s\n", errstr);
   exit(-1);
 }
 
 #define Fgets_err(a, b, c, d) if (!Fgets(a,b,c)) error_exit(d)
 
-int lookup_mode_description(char* mode, int isQuad) {
+int lookup_mode_description(char *mode, int isQuad) {
   if (DEBUG) fprintf(stderr, "Looking for description of '%s', Q=%d", mode, isQuad);
 
   // Normalise mode into a safe filename extension
@@ -206,7 +206,7 @@ int main(int argc, char** argv) {
   char processor[256];
   char processor_path[1024];
   char filename[1024];
-  char* find;
+  char *find;
   int argi = 1;
   char line[1024], errstr[256];
 
@@ -359,7 +359,7 @@ int main(int argc, char** argv) {
   int indirect_note_seen = 0;
   int single_cycle_seen = 0;
   char opcode[16], assembly[256], bytes[16], cycles[16], cycle_count[256], cycle_notes[1024];
-  char* addressing_mode;
+  char *addressing_mode;
   for (int i = 0; i < instruction_count; i++) {
     instruction = instrs[i];
     extra_cycles = 0;

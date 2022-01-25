@@ -372,9 +372,7 @@ the low-nibble of the X register.  As we wish to apply the mapping to only the f
 lower 32KB half of the C64 memory map, we must set the 4th bit of the upper nibble. That is, the upper nibble must be set
 to \%1000, i.e., \$8.  Therefore the X register must be loaded with \$8D.  Thus we yield the complete example program:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 ; Map Ethernet registers at $6000 - $7FFF
 
 ; Ethernet controller really lives $FFDE000 - $FFDEFFF, so select $FF megabyte section for MAP LO
@@ -395,8 +393,7 @@ map
 EOM
 
 ; Ethernet buffer now visible at $6800 - $6FFF
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 Note that the EOM (End Of Mapping) instruction (which is the same as NOP on a 6502, i.e., opcode \$EA) was only supplied after the last MAP instruction, to make sure that no interrupts could occur while
 the memory map contained mixed values with the mega-byte number set, but the lower-bits of the mapping address had not been
@@ -411,23 +408,17 @@ addressing mode to use a 32-bit pointer instead of the normal 16-bit pointer.  T
 using the Z-indexed Zero-Page Indirect Addressing Mode for the access, and having the instruction directly
 preceded by a NOP instruction (opcode \$EA).  For example:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 NOP
 LDA ($45),Z
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 If you are using the ACME assembler, or another assembler that supports the 45GS02 extensions, you can instead use square-brackets
 to indicate that you are performing a flat-memory operation. Such assemblers will insert the \$EA prefix automatically for you. For example:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA [$45],Z
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 Regardless which tool you are using, this example would read the four bytes of Zero-Page memory at \$45 -- \$48 to form a 32-bit memory address, and add the value of the
 Z register to this to form the actual address that will be read from.  The byte order in the address is the same as
@@ -447,9 +438,7 @@ also called the {\em Q pseudo register}.
 This can greatly simplify and speed up many common operations, and help avoid many common programming errors.
 For example, adding two 16-bit or 32-bit values can now be easily accomplished with something like:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
   ; Clear carry before performing addition, as normal
   CLC
   ; Prefix an instruction with two NEG instructions to select virtual 32-bit register mode
@@ -471,17 +460,14 @@ For example, adding two 16-bit or 32-bit values can now be easily accomplished w
   ; Or to write out the bottom bytes, we can just write the contents of A and X as normal
   STA $1240
   STX $1241
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 This approach works with the LDA, STA, ADC, SBC, CMP, EOR, AND, BIT, ORA, ASL, ASR, LSR, ROL, ROR, INC and DEC instructions.
 If you are using ACME or another 45GS02 aware assembler, you can instead use the new \stw{LDQ}, \stw{STQ}, \stw{ADCQ},
 \stw{SBCQ}, \stw{CPQ}, \stw{EORQ}, \stw{ANDQ}, \stw{BITQ}, \stw{ORQ}, \stw{ASLQ}, \stw{ASRQ}, \stw{LSRQ}, \stw{ROLQ}, \stw{RORQ}, \stw{INQ} and \stw{DEQ}
 mnemonics.\index{LDQ}\index{STQ}\index{ADCQ}\index{SBCQ}\index{CPQ}\index{EORQ}\index{ANDQ}\index{BITQ}\index{ORQ}\index{ASLQ}\index{ASRQ}\index{LSRQ}\index{ROLQ}\index{RORQ}\index{INQ}\index{DEQ} The previous example would thus become:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
   ; Clear carry before performing addition, as normal
   CLC
   LDQ $1234  ; Load the contents of $1234-$1237 into A,X,Y and Z respectively
@@ -496,8 +482,7 @@ mnemonics.\index{LDQ}\index{STQ}\index{ADCQ}\index{SBCQ}\index{CPQ}\index{EORQ}\
   ; Or to write out the bottom bytes, we can just write the contents of A and X as normal
   STA $1240
   STX $1241
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 The virtual 32-bit addressing mode works with any addressing mode.
 However, indexed addressing modes, where X, Y or Z are added to the address should
@@ -515,23 +500,18 @@ For LDQ and STQ, it would save at most one byte
 compared to LDA \#\$nn ... LDZ \#\$nn, and would be no faster.  In fact, for many common
 values, such as \#\$00000000, there are short-cuts, such as:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA #$00
 TAX
 TAY
 TAZ
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 If you need to add or subtract a 32-bit immediate value, this may require you to re-order the arguments, or perform other
 minor gymnastics.  For example, to compute the sum of the contents of memory and an immediate value, you can load the A, X, Y
 and Z registers with the immediate value, and then use \stw{ADCQ} with the memory address, e.g.:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
   ; Get the immediate value #$12345678 into Q
   LDA #$78
   LDX #$56
@@ -545,16 +525,13 @@ and Z registers with the immediate value, and then use \stw{ADCQ} with the memor
   NEG
   NEG
   STA $1234
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 Again, if you are using the ACME or another 45GS02-aware assembler, this can be more compactly and
 clearly written as follows. But note that in both cases the same byte-sequence of machine code is
 produced, and the program will take the same number of cycles to execute.
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
   ; Get the immediate value #$12345678 into Q
   LDA #$78
   LDX #$56
@@ -564,9 +541,7 @@ produced, and the program will take the same number of cycles to execute.
   ADCQ $1234
   ; Store the result back in $1234-$1237
   STQ $1234
-\end{verbatim}
-\end{tcolorbox}
-
+\end{screenoutput}
 
 \section{C64 CPU Memory Mapped Registers}
 
@@ -579,23 +554,26 @@ produced, and the program will take the same number of cycles to execute.
 \section{MEGA65 CPU Maths Acceleration Registers}
 
 Every MEGA65 contains a combined 32-bit hardware multiplier and divider.
-This device takes two 32-bit inputs, MULTINA and MULTINB, and simultaneously calculates:
+This device takes two 32-bit inputs, {\bf MULTINA} and {\bf MULTINB}, and simultaneously calculates:
 
 \begin{itemize}
-\item the 64-bit product of MULTINA and MULTINB
-\item the 32-bit whole part of MULTINA / MULTINB
-\item the 32-bit fractional part of MULTINA / MULTINB
+\item the 64-bit product {\bf MULTOUT} of {\bf MULTINA} and {\bf MULTINB}
+\item the 32-bit whole part {\bf DIVOUT}(4-7) of {\bf MULTINA} divided by {\bf MULTINB}
+\item the 32-bit fractional part {\bf DIVOUT}(0-3) of {\bf MULTINA} divided by {\bf MULTINB}
 \end{itemize}
 
 It is always updating the outputs based on the inputs, so there is no need to take special action when changing the inputs.
-The multiplier takes 1 cycle to calculate, and the updated result will thus be available immediately. The hardware divider,
-however, can take upto 16 cycles depending on the particular inputs.  Thus programmers should insert a short delay after
-changing the inputs before reading the output.  As this delay is so short, it can be implemented by simply reading the first
-byte of the result four times consecutively, as the 4th read will occur after the result has settled.
+The multiplier takes 1 cycle to calculate, and the updated result will thus be available immediately (a {\bf MULBUSY} bit is
+defined, but currently it won't be set at all). The hardware divider, however, can take upto 20 cycles depending on the
+particular inputs. The programmer should check the {\bf DIVBUSY} bit if the divider is still calculating:
 
-Some models of the MEGA65 also include a math unit, which helps to accelerate the calculation of fixed-point formulae.
-This presently disabled in all models of the MEGA65 and will be further documented if and when it becomes
-available.
+\begin{screenoutput}
+loop:   BIT $D70F   ; transfer DIVBUSY bit into N flag
+        BMI loop    ; as long as it is set, we need to wait
+\end{screenoutput}
+
+The MEGA65 is planned to also include a programmable math unit, which helps to accelerate the calculation of fixed-point formulae.
+This is presently disabled and will be further documented if and when it becomes available.
 
 \input{regtable_MATH.MEGA65}
 
@@ -862,9 +840,7 @@ made for writing programs for 6502-class processors.  The following example prog
 KickC produces very efficient code, and directly supports the MEGA65's
 hypervisor mode quite easily through the use of a linker definition file with the following contents:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 .file [name="%O.bin", type="bin", segments="XMega65Bin"]
 .segmentdef XMega65Bin [segments="Syscall, Code, Data, Stack, Zeropage"]
 .segmentdef Syscall [start=$8000, max=$81ff]
@@ -872,8 +848,7 @@ hypervisor mode quite easily through the use of a linker definition file with th
 .segmentdef Data [startAfter="Code", min=$8200, max=$bdff]
 .segmentdef Stack [min=$be00, max=$beff, fill]
 .segmentdef Zeropage [min=$bf00, max=$bfff, fill]
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 This file instructs KickC's assembler to create a 16KB file with the 512 byte SYSCALL/trap entry point region at the start,
 followed by code and data areas, and then the stack and zero-page areas. It enforces the size and location of these fields, and
@@ -881,9 +856,7 @@ will give an error during compilation if anything is too big to fit.
 
 With this file in place, you can then create a KickC source file that provides data structures for the SYSCALL/trap table, e.g.:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 // XMega65 KERNAL Development Template
 // Each function of the KERNAL is a no-args function
 // The functions are placed in the SYSCALLS table surrounded by JMP and NOP
@@ -904,7 +877,9 @@ const char WHITE = 1;
 
 // Some text to display
 char[] MESSAGE = "hello world!";
+\end{screenoutput}
 
+\begin{screenoutput}
 void main() {
     // Initialise screen memory, and select correct font
     *VIC_MEMORY = 0x14;
@@ -945,6 +920,9 @@ void syscall2() {
 // We have a char (xjmp) to hold the opcode for the JMP instruction,
 // and then put the address of the SYSCALL/trap handler in the next
 // two points as a pointer, and end with the NOP instruction opcode.
+\end{screenoutput}
+
+\begin{screenoutput}
 struct SysCall {
     char xjmp;         // Holds $4C, the JMP $nnnn opcode
     void()* syscall;   // Holds handler address, will be the target of the JMP
@@ -970,26 +948,19 @@ export struct SysCall[] SYSCALLS = {
 export align(0x100) struct SysCall[] SYSCALL\_RESET = {
     { JMP, &main, NOP }
 };
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 If you save the first listing into a file called mega65hyper.ld, and the second
 into a file called mega65hyper.kc, you can then compile them using KickC with
 a command like:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
   kickc -a mega65hyper
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 It will then produce a file called mega65hyper.bin, which you can then try out
 on your MEGA65, or run in the XMega65 emulator with a command like:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
   xmega65 -kickup mega65hyper.bin
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}

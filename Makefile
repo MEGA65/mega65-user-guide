@@ -66,13 +66,13 @@ api-conio.tex:	libc-doc ../mega65-libc/cc65/include/conio.h
 instruction_set: instruction_set.c Makefile
 	$(CC) -Wall -g -o instruction_set instruction_set.c
 
-instructionset-45GS02.tex:	instruction_sets instruction_set
+instructionset-45GS02.tex:	instruction_sets/* instruction_set
 	./instruction_set instruction_sets/45GS02.opc > instructionset-45GS02.tex
 
-instructionset-4510.tex:	instruction_sets instruction_set
+instructionset-4510.tex:	instruction_sets/* instruction_set
 	./instruction_set instruction_sets/4510.opc > instructionset-4510.tex
 
-instructionset-6502.tex:	instruction_sets instruction_set
+instructionset-6502.tex:	instruction_sets/* instruction_set
 	./instruction_set instruction_sets/6502.opc > instructionset-6502.tex
 
 #images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot

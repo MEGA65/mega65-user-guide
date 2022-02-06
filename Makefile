@@ -45,7 +45,7 @@ screen-maps:	screen-maps.c Makefile
 	$(CC) -Wall -o screen-maps screen-maps.c -lhpdf
 
 keymap:	keymap.c Makefile
-	$(CC) -Wall -o keymap keymap.c
+	$(CC) -Wall -g -o keymap keymap.c
 
 images/illustrations/screen-40x25-addresses16-80.pdf:	screen-maps
 	./screen-maps

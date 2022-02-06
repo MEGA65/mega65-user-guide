@@ -142,7 +142,7 @@ int main(int argc,char **argv)
 		"{\n"
 		"\\setlength{\\def\\arraystretch{1.5}\\tabcolsep}{1mm}\n"
 		"\\begin{center}\n"
-		"\\begin{tabular}{|l|c|l|l|c|l|l|c|l|}\n"
+		"\\begin{tabular}{|l|c|l||l|c|l||l|c|l|}\n"
 		"\\hline\n"
 		"\\bf{Key} & \\bf{Code} & \\bf{Unicode} &"
 		"\\bf{Key} & \\bf{Code} & \\bf{Unicode} &"
@@ -221,7 +221,7 @@ int main(int argc,char **argv)
 	    fprintf(o,"\\specialkey{CTRL} +");
 	    break;
 	  case 4: // MEGA
-	    fprintf(o,"{\\megasymbol} +");
+	    fprintf(o,"\\megasymbolkey +");
 	    break;
 	  case 5: // ALT
 	    fprintf(o,"\\specialkey{ALT} +");

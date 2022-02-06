@@ -15,78 +15,81 @@
 
 char *keys[72]={
 		"\\specialkey{INST\\\\DEL}",
-		"3",
-		"5",
-		"7",
-		"9",
-		"+",
-		"\\pounds",
-		"1",
+		"\\megakey{3}",
+		"\\megakey{5}",
+		"\\megakey{7}",
+		"\\megakey{9}",
+		"\\megakey{+}",
+		"\\megakey{\\pounds}",
+		"\\megakey{1}",
 		"\\specialkey{NO\\\\SCROLL}",
 		"\\specialkey{RETURN}",
-		"W",
-		"R",
-		"Y",
-		"I",
-		"P",
-		"*",
-		"$\\leftarrow$",
+		"\\megakey{W}",
+		"\\megakey{R}",
+		"\\megakey{Y}",
+		"\\megakey{I}",
+		"\\megakey{P}",
+		"\\megakey{*}",
+		"\\megakey{$\\leftarrow$}", // NOT cursor left!
 		"\\specialkey{TAB}",
 		"\\megakey{$\\rightarrow$}",
-		"A",
-		"D",
-		"G",
-		"J",
-		"L",
-		";",
+		"\\megakey{A}",
+		"\\megakey{D}",
+		"\\megakey{G}",
+		"\\megakey{J}",
+		"\\megakey{L}",
+		"\\megakey{;}",
 		"\\specialkey{CTRL}",
 		"\\specialkey{ALT}",
 		"\\megakey{F7}",
-		"4",
-		"6",
-		"8",
-		"0",
-		"-",
+		"\\megakey{4}",
+		"\\megakey{6}",
+		"\\megakey{8}",
+		"\\megakey{0}",
+		"\\megakey{-}",
 		"\\specialkey{CLR\\\\HOME}",
-		"2",
+		"\\megakey{2}",
 		"\\specialkey{HELP}",
 		"\\megakey{F1}",
-		"Z",
-		"C",
-		"B",
-		"M",
-		".",
+		"\\megakey{Z}",
+		"\\megakey{C}",
+		"\\megakey{B}",
+		"\\megakey{M}",
+		"\\megakey{.}",
 		"\\specialkey{SHIFT\\\\right}",
 		"\\megakey{SPC}",
 		"\\megakey{F9}",
 		"\\megakey{F3}",
-		"S",
-		"F",
-		"H",
-		"K",
-		":",
-		"=",
+		"\\megakey{S}",
+		"\\megakey{F}",
+		"\\megakey{H}",
+		"\\megakey{K}",
+		"\\megakey{:}",
+		"\\megakey{=}",
 		"\\megasymbolkey",
 		"\\megakey{F11}",
 		"\\megakey{F5}",
-		"E",
-		"T",
-		"U",
-		"O",
-		"@",
+		"\\megakey{E}",
+		"\\megakey{T}",
+		"\\megakey{U}",
+		"\\megakey{O}",
+		"\\megakey{@}",
 		"\\megakey{$\\uparrow$}",
-		"Q",
+		"\\megakey{Q}",
 		"\\megakey{F13}",
 		"\\megakey{$\\downarrow$}",
 		"\\specialkey{SHIFT\\\\left}",
-		"X",
-		"V",
-		"N",
-		",",
-		"/",
+		"\\megakey{X}",
+		"\\megakey{V}",
+		"\\megakey{N}",
+		"\\megakey{,}",
+		"\\megakey{/}",
 		"\\specialkey{RUN STOP}",
 		"\\specialkey{ESC}"
 };
+
+int unimap[256][16];
+
 
 int keyid(int k)
 {
@@ -105,6 +108,9 @@ int main(int argc,char **argv)
   }
 
   int mapping[72];
+
+  // Clear reverse map info
+  for(int i=0;i<256;i++) for(int j=0;j<16;j++) unimap[i][j]=-1;
   
   // Clear mapping ready for next table
   for(int i=0;i<72;i++) mapping[i]=0;
@@ -136,14 +142,23 @@ int main(int argc,char **argv)
 		"{\n"
 		"\\setlength{\\def\\arraystretch{1.5}\\tabcolsep}{1mm}\n"
 		"\\begin{center}\n"
-		"\\begin{tabular}{|l{3cm}|c{2cm}|l{2cm}|}\n"
+		"\\begin{tabular}{|l|c|l|l|c|l|l|c|l|}\n"
 		"\\hline\n"
-		"& \\bf{Key} & \\bf{Output} & \\bf{Unicode Glyph}  \\\\\n");
+		"\\bf{Key} & \\bf{Code} & \\bf{Unicode} &"
+		"\\bf{Key} & \\bf{Code} & \\bf{Unicode} &"
+		"\\bf{Key} & \\bf{Code} & \\bf{Unicode}"
+		"  \\\\\n");
 	
 	for(int k=0;k<72;k++) {
-	  fprintf(o,"\\hline\n"
-		  "\\small %s & \\$%02X & \\char\"%04X \\\\\n",
+	  if (!(k%3)) fprintf(o,"\\hline\n");
+	  fprintf(o,
+		  "\\small %s & \\$%02X & \\char\"%04X",
 		  keys[keyid(k)],mapping[k],mapping[k]);
+	  if ((k%3)==2) {
+	    fprintf(o," \\\\\n");
+	  } else {
+	    fprintf(o," & ");
+	  }
 	  
 	}
 	

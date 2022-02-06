@@ -178,10 +178,67 @@ int main(int argc,char **argv)
       {
 	//	fprintf(stderr,"Key %d maps to $%02X\n",key_num,unicode);
 	mapping[key_num]=unicode;
+
+	// ALT+ combos take priority in the table, as they are used
+	// for more logical mapping to international keys, while
+	// we also keep the MEGA combos to match PETSCII.
+	if ((unimap[unicode][0]==-1)||((unimap[unicode][0]>>8)!=5))
+	  unimap[unicode][0]=(table<<8)+key_num;
       }
     
     line[0]=0; fgets(line,1024,f);
   }
   
   fclose(f);
+
+  FILE *o=fopen("unicode_mapping.tex","w");
+
+  for(int p=0;p<0x100;p+=0x40) {
+  
+    fprintf(o,"{\\ttfamily\n"
+	    "{\n"
+	    "\\setlength{\\def\\arraystretch{1.5}\\tabcolsep}{1mm}\n"
+	    "\\begin{center}\n"
+	    "\\begin{tabular}{|r|r|r|r|r|r|r|r|r|}\n"
+	    "\\hline\n"
+	    " & & \\bf{+\\$%02X} & & \\bf{+\\$%02X} & & \\bf{+\\$%02X} & & \\bf{+\\$%02X}"
+	    "  \\\\\n",
+	    p,p+0x10,p+0x20,p+0x30);
+  
+    for(int k=0;k<16;k++) {
+      fprintf(o,"\\hline\n\\small \\$0%x & ",k);
+      for(int x=0;x<4;x++) {
+	int c=k+x*0x10+p;
+	fprintf(o," \\char\"%04X & ",c);
+	if (unimap[c][0]!=-1) {
+	  switch(unimap[c][0]>>8) {
+	  case 1: // unmodified
+	    break;
+	  case 2: // shift
+	    fprintf(o,"\\specialkey{SHIFT} +");
+	    break;
+	  case 3: // CTRL
+	    fprintf(o,"\\specialkey{CTRL} +");
+	    break;
+	  case 4: // MEGA
+	    fprintf(o,"{\\megasymbol} +");
+	    break;
+	  case 5: // ALT
+	    fprintf(o,"\\specialkey{ALT} +");
+	    break;
+	  }
+	  fprintf(o," %s ",keys[keyid(unimap[c][0]&0xff)]);
+	}
+	if (x!=3) fprintf(o," & ");
+      }
+      fprintf(o," \\\\\n");    
+    }
+    
+    fprintf(o,"\\hline\n"
+	    "\\end{tabular}\n"
+	    "\\end{center}\n"
+	    "}}\n\n");
+  }
+  
+  fclose(o);  
 }

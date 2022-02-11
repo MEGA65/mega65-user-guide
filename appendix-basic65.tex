@@ -2714,10 +2714,25 @@ on page \pageref{3columndirlisting}.
 \index{BASIC 65 Commands!DLOAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F0
-\item [Format:] {\bf DLOAD} filename [{\bf,D} drive] [{\bf,U} unit]
-\item [Usage:]
-   "Disk LOAD" loads a file of type
+\item [Format:] {\bf DLOAD} filename [{\bf,D} drive] [{\bf,U} unit] \\
+                {\bf DLOAD} "\$[pattern=type]" [{\bf,D} drive] [{\bf,U} unit] \\
+                {\bf DLOAD} "\$\$[pattern=type]" [{\bf,D} drive] [{\bf,U} unit]
+
+\item [Usage:] The first form loads a file of type
    {\bf PRG} into memory reserved for BASIC programs.
+
+The second form loads a directory into memory, which can then be viewed
+with {\bf LIST} or {\bf LISTP}. It is structured like a BASIC program,
+but file sizes are displayed instead of line numbers.
+
+The third form is similar to the second one, but the files are numbered.
+This listing can be scrolled like a BASIC program with the keys \megakey{F9}
+or \megakey{F11}, edited, listed, saved or printed.
+
+A filter can be applied by specifying a pattern or a pattern and a type.
+The asterisk \* matches the rest of the name, while the ? matches any single character.
+The type specifier can be a character of (P,S,U,R), that is Program, Sequential, User,
+or Relative file.
 
    \filenamedefinition
 
@@ -2739,6 +2754,9 @@ on page \pageref{3columndirlisting}.
    new program. Variables, arrays and strings from the current
    run are preserved and can also be used by the newly loaded program.
 
+   Every {\bf DLOAD} either program or directory, will replace
+   contents (programs), that are currently in memory.
+
 \item [Examples:] Using {\bf DLOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -2746,6 +2764,10 @@ on page \pageref{3columndirlisting}.
   DLOAD "APOCALYPSE"
   DLOAD "MEGA TOOLS",U9
   DLOAD (FI$),U(UN%)
+
+  DLOAD "$"            :REM LOAD WHOLE DIRECTORY - WITH FILE SIZES
+  DLOAD "$$"           :REM LOAD WHOLE DIRECTORY - SCROLLABLE
+  DLOAD "$$X*=P"       :REM LOAD ONLY PRG FILES STARTING with 'X'
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

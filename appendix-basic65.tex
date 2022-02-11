@@ -2767,7 +2767,7 @@ or Relative file.
 
   DLOAD "$"            :REM LOAD WHOLE DIRECTORY - WITH FILE SIZES
   DLOAD "$$"           :REM LOAD WHOLE DIRECTORY - SCROLLABLE
-  DLOAD "$$X*=P"       :REM LOAD ONLY PRG FILES STARTING with 'X'
+  DLOAD "$$X*=P"       :REM DIRECTOY WITH PRG FILES STARTING with 'X'
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5556,8 +5556,25 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$93
 \item [Format:] {\bf LOAD} filename [{\bf,} unit [{\bf,} flag]] \\
+                {\bf LOAD} "\$[pattern=type]" [{\bf, unit}] \\
+                {\bf LOAD} "\$\$[pattern=type]" [{\bf, unit}] \\
                 {\bf /} filename [{\bf,} unit [{\bf,} flag]]
-\item [Usage:]
+
+\item [Usage:] The first form loads a file of type
+   {\bf PRG} into memory reserved for BASIC programs.
+
+The second form loads a directory into memory, which can then be viewed
+with {\bf LIST} or {\bf LISTP}. It is structured like a BASIC program,
+but file sizes are displayed instead of line numbers.
+
+The third form is similar to the second one, but the files are numbered.
+This listing can be scrolled like a BASIC program with the keys \megakey{F9}
+or \megakey{F11}, edited, listed, saved or printed.
+
+A filter can be applied by specifying a pattern or a pattern and a type.
+The asterisk \* matches the rest of the name, while the ? matches any single character.
+The type specifier can be a character of (P,S,U,R), that is Program, Sequential, User,
+or Relative file.
 
    A common use of the shortcut symbol {\bf /} is to quickly load
    {\bf PRG} files. To do this:
@@ -5612,6 +5629,10 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
   LOAD "APOCALYPSE"   :REM LOAD A FILE CALLED APOCALYPSE TO BASIC MEMORY
   LOAD "MEGA TOOLS",9 :REM LOAD A FILE CALLED "MEGA TOOLS" FROM UNIT 9 TO BASIC MEMORY
   LOAD "*",8,1        :LOAD THE FIRST FILE ON UNIT 8 TO RAM AS SPECIFIED IN THE FILE
+
+  LOAD "$"            :REM LOAD WHOLE DIRECTORY - WITH FILE SIZES
+  LOAD "$$"           :REM LOAD WHOLE DIRECTORY - SCROLLABLE
+  LOAD "$$X*=P"       :REM DIRECTORY, WITH PRG FILES STARTING with 'X'
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

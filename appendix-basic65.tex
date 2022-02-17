@@ -9434,20 +9434,61 @@ THE VALUE OF PI IS 3.14159265
 \item [Format:] {\bf SYS} address [\{{\bf,} areg{\bf,} xreg{\bf,} yreg{\bf,}
 		zreg{\bf,} sreg\}]
 \item [Usage:]  Calls a machine language subroutine.
-                This can be a ROM-resident kernal routine, a BASIC subroutine,
+                This can be a ROM-resident kernal routine
                 or any other routine which has previously been loaded or {\bf POKE}d
                 to RAM.
 
                The CPU registers are loaded with the arguments
                (if they're specified), then a subroutine call ({\bf JSR address})
                is performed. {\bf JSR} is an assembly language instruction that is short
-               for {\bf J}ump to {\bf S}ub{\bf R}outine. The called routine should exit with
-               an {\bf RTS} instruction. {\bf RTS} is another assembly language instruction that is
-               short for {\bf R}e{\bf t}urn from {\bf S}ubroutine. After the subroutine has returned,
-               the register contents will be saved, and the execution of the BASIC program will
+               for {\bf J}ump to {\bf S}ub{\bf R}outine.
+               The called routine should exit with
+               an {\bf RTS} instruction. {\bf RTS} is another assembly
+               language instruction that is
+               short for {\bf R}e{\bf t}urn from {\bf S}ubroutine.
+               After the subroutine has returned,
+               the register contents will be saved,
+               and the execution of the BASIC program will
                continue.
 
                {\bf address} start address of the subroutine.
+
+               If the address value is 16 bit (\$0000 - \$FFFF), the bank value,
+               that is currently valid (see {\bf BANK}) is examined. A
+               bank value of 128 lets the current mapping persist. That is:
+               RAM is only available at the address range (\$0000 - \$1FFF),
+               while BASIC ROM, KERNAL and I/O occupy the rest.
+               Short machine language programs may use the address range
+               (\$1800 - \$1FFF) which is only used by BASIC while a
+               graphics screen is open.
+
+               If the address is higher than \$FFFF, it is interpreted as a
+               linear 24 bit address and the value of {\bf BANK} is ignored.
+               The initial mapping is shown in the following table:
+
+\begin{center}
+\texttt
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|}
+\hline
+{\bf Range}  & {\bf content} \\
+\hline
+0000 - 1FFF & bank 0 with direct page, stack, vectors \\
+            & and interface routines \\
+2000 - BFFF & selected RAM bank:address bits 16-23 \\
+C000 - CFFF & kernal ROM \\
+D000 - DFFF & I/O \\
+E000 - EFFF & editor ROM \\
+F000 - FFFF & kernal ROM and jump table \\
+\hline
+\end{tabular}
+}
+\end{center}
+
+The RAM banks 0, 1, 4 and 5 may be used on a MEGA65 with {\bf SYS} command.
+The attic RAM cannot be used for this purpose, because the 24 bit address
+of the {\bf SYS command} is limited to the lower 16MB of the address range.
+
 
                {\bf areg} CPU accumulator value.
 
@@ -9459,23 +9500,17 @@ THE VALUE OF PI IS 3.14159265
 
                {\bf sreg} Status register value.
 
+
 \item [Remarks:] The register values after a {\bf SYS} call are stored
                  in system memory. {\bf RREG} can be used to retrieve these values.
 
-                 {\bf SYS} maps addresses \$2000 - \$FFFF to the bank set with {\bf BANK},
-                 allowing you to call subroutines in any bank. Addresses \$0000 - \$1FFF
-                 remain unmapped and will access the RAM in bank 0. This means you can only
-                 call subroutines in addresses \$0000 - \$1FFF of {\bf BANK 0} and {\bf BANK 128}.
-
                  The {\bf SYS} instruction on the MEGA65 is completely different to the
-                 well known {\bf SYS} command on the C64. It is not possible to jump
-                 to an address after the BASIC program text in bank 0 (and execute
-                 a machine language subroutine there), as bank 0 is 64K of
-                 RAM with no I/O or kernal mapped in.
+                 well known {\bf SYS} command on the C64. It is not possible
+                 to have the BASIC ROM and a BASIC program, in the same mapping
+                 because they occupy the same address range.
 
-                 Using {\bf SYS} properly (i.e. without corrupting BASIC RAM, and having
-                 access to kernal routines and I/O) requires
-                 some technical skill, which is out of scope of the User's Guide.
+                 Using {\bf SYS} properly (i.e. without corrupting the system),
+                 requires some technical skill, which is out of scope of the User's Guide.
                  However, if you would like to learn more, there is a lot more
                  information and examples in the MEGA65 Developer's Guide.
 
@@ -9483,11 +9518,11 @@ THE VALUE OF PI IS 3.14159265
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 BANK 128
- 20 BLOAD "ML PROG",8192
- 30 SYS 8192
- 40 RREG A,X,Y,Z,S
- 50 PRINT "REGISTER:";A;X;Y;Z;S
+ 10 REM DEMO FOR SYS:CHANGING THE BORDER COLOUR
+ 20 BANK 0
+ 30 POKE $4000,$EE,$20,$D0,$60 :REM INC $D020:RTS
+ 40 SYS $4000                  :REM CALL SUBROUTINE AT $4000 / BANK $00
+ 50 GETKEY A$:IF A$ <> "Q" THEN 40
 \end{verbatim}
 \end{tcolorbox}
 

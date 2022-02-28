@@ -1815,6 +1815,44 @@ RUN
 \end{tcolorbox}
 \end{description}
 
+% ******
+% CLRBIT
+% ******
+
+\newpage
+\subsection{CLRBIT}
+\index{BASIC 65 Functions!CLRBIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$9C \$FE \$4E
+\item [Format:] {\bf CLRBIT} address{\bf,} bit number
+\item [Usage:]  Clears (resets) a single bit at the {\bf address}.
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536)
+                are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+                The {\bf bit number} ia a value in the range of 0-7.
+
+                 A bank value > 127 is used to access I/O,
+                 and the underlying system hardware such as the
+                 VIC, SID, FDC, etc.
+
+
+\item [Example:] Using {\bf CLRBIT}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 BANK 128          :REM SELECT SYSTEM MAPPING
+ 20 CLRBIT $D011,4    :REM DISABLE DISPLAY
+ 30 CLRBIT $D016,3    :REM SWITCH TO 38 OR 76 COLUMN MODE
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % CMD
 % ***
@@ -8900,6 +8938,44 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
  SET DISK 8 TO 9 :REM CHANGE UNIT# OF DISK DRIVE 8 TO 9
  DIR U9          :REM SHOW DIRECTORY OF UNIT 9 (FORMER 8)
  SET VERIFY ON   :REM ACTIVATE VERIFY-AFTER-WTITE MODE
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ******
+% SETBIT
+% ******
+
+\newpage
+\subsection{SETBIT}
+\index{BASIC 65 Functions!SETBIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$2D \$FE \$4E
+\item [Format:] {\bf SETBIT} address{\bf,} bit number
+\item [Usage:]  Sets a single bit at the {\bf address}.
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536)
+                are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+                The {\bf bit number} ia a value in the range of 0-7.
+
+                 A bank value > 127 is used to access I/O,
+                 and the underlying system hardware such as the
+                 VIC, SID, FDC, etc.
+
+
+\item [Example:] Using {\bf SETBIT}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 BANK 128          :REM SELECT SYSTEM MAPPING
+ 20 SETBIT $D011,6    :REM ENABLE EXTENDED BACKGROUND MODE
+ 30 SETBIT $D01B,0    :REM SET BACKGROUND PRIORITY FOR SPRITE 0
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

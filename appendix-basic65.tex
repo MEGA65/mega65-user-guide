@@ -1623,23 +1623,51 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$4B
 \item [Format:] {\bf CHDIR} dirname [{\bf,U} unit]
-\item [Usage:] Change to a subdirectory or a parent directory
-   of the SD-Card filesystem.
-
-   {\bf CHDIR ".."} changes to the parent directory.
+\item [Usage:] Change to a subdirectory or a parent directory.
 
    \filenamedefinition
 
-   The {\bf,U} unit argument is currently ignored.
-   {\bf CHDIR} can only be used on unit 12, the SD-card.
+   Dependent on the {\bf unit}, {\bf CHDIR} is applied to
+   different filesystems.
+
+   {\bf UNIT 12} is reserved for the SD-Card (FAT filesystem).
+   There this command can be used to navigate to subdirectories
+   and mount disk images, that are stored there.
+   {\bf CHDIR "..",U12} changes to the parent directory on {\bf UNIT 12}.
+
+   For units, that are managed by CBDOS (typically 8 and 9),
+   {\bf CHDIR} is used to change into or out of subdirectories
+   on floppy or disk image of type {\bf D81}.
+   Existing subdirectories are displayed as filetype {\bf CBM}
+   in the parent directory, they are created with the command {\bf MKDIR}.
+   {\bf CHDIR "/",U unit} changes to the root directory.
 
 \item [Examples:] Using {\bf CHDIR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-  CHDIR "ADVENTURES"      :REM ENTER SUBDIRECTORY ADVENTURES
-  CHDIR ".."              :REM GO BACK TO PARENT DIRECTORY
-  CHDIR "RACING"          :REM ENTER SUBDIRECTORY RACING
+CHDIR "ADVENTURES",U12  :REM ENTER ADVENTURES ON SD CARD
+CHDIR "..",U12          :REM GO BACK TO PARENT DIRECTORY
+CHDIR "RACING",U12      :REM ENTER SUBDIRECTORY RACING
+\end{verbatim}
+
+\selectfont{\codefont 0}
+\begin{tcolorbox}[colback=white,coltext=black,arc=0mm,boxrule=0mm,
+       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
+       left skip=0.5mm,
+       width=28mm,height=3mm,valign=center]
+\begin{verbatim}
+"MEGA65          "    1D
+\end{verbatim}
+\end{tcolorbox}
+\begin{verbatim}
+800  "MEGA65 GAMES"     CBM
+800  "MEGA65 TOOLS"     CBM
+600  "BASIC PROGRAMS"   CBM
+960  BLOCKS FREE.
+
+CHDIR "MEGA65 GAMES",U8 :REM ENTER SUBDIRECTORY ON FLOPPY DISK
+CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -1834,7 +1862,7 @@ RUN
                 are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-                The {\bf bit number} ia a value in the range of 0-7.
+                The {\bf bit number} is a value in the range of 0-7.
 
                  A bank value > 127 is used to access I/O,
                  and the underlying system hardware such as the
@@ -6075,6 +6103,66 @@ MEGA+65
 \end{tcolorbox}
 \end{description}
 
+% *****
+% MKDIR
+% *****
+
+\newpage
+\subsection{MKDIR}
+\index{BASIC 65 Commands!MKDIR}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$51
+\item [Format:] {\bf MKDIR} dirname {\bf,L} size [{\bf,U} unit]
+\item [Usage:] Make (create) a subdirectory on a floppy or D81 disk image.
+
+   \filenamedefinition
+
+   {\bf MKDIR} can only be used on units, managed by CBDOS.
+   These are the internal floppy disk drive and SD-Card images of {\bf D81} type.
+   The command cannot be used on external drives connected
+   to the serial IEC bus.
+
+   The {\bf size} parameter specifies the number of tracks, to be reserved
+   for the subdirectory, with one track = 40 sectors at 256 byte.
+   The first track of the reserved range is used as directory track
+   for the subdirectory.
+
+   The minimum size is 3 tracks, the maximm 38 tracks.
+   There must be a contiguous region of empty tracks on the floppy
+   (D81 image), that is large enough for the creation of the subdirectory.
+   The error message DISK FULL is reported, if there isn't such a region.
+
+   Several subdirectories may be created as long as there are enough
+   empty tracks.
+
+After successful creation of the subdirectory an automatic
+{\bf CHDIR} into this subdirectory is performed.
+
+{\bf CHDIR "/"} changes back to the root directory.
+
+\item [Examples:] Using {\bf MKDIR}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+MKDIR "SUBDIR",L5   :REM MAKE SUBDIRECTORY WITH 5 TRACKS
+DIR
+\end{verbatim}
+\selectfont{\codefont 0}
+\begin{tcolorbox}[colback=white,coltext=black,arc=0mm,boxrule=0mm,
+       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
+       left skip=0.5mm,
+       width=28mm,height=3mm,valign=center]
+\begin{verbatim}
+"SUBDIR          "    1D
+\end{verbatim}
+\end{tcolorbox}
+\begin{verbatim}
+160 BLOCKS FREE.
+
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % MOD
 % ***
@@ -8961,7 +9049,7 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
                 are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-                The {\bf bit number} ia a value in the range of 0-7.
+                The {\bf bit number} is a value in the range of 0-7.
 
                  A bank value > 127 is used to access I/O,
                  and the underlying system hardware such as the

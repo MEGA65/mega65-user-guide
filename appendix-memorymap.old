@@ -1,0 +1,518 @@
+\chapter{System Memory Map}
+\label{cha:memory-map}
+\section{Introduction}
+
+The MEGA65 computer has a large 28-bit address space, which allows it
+to address up to 256MiB of memory and memory-mapped devices.
+This memory map has several different views, depending on which mode
+the computer is operating in. Broadly, there are five main modes:
+(1) Hypervisor mode; (2) C64 compatibility mode; (3) C65 compatibility mode; (4) UltiMAX
+compatibility mode; and (5) MEGA65 mode, or one of the other modes,
+where the programmer has made use of MEGA65 enhanced features.
+
+It is important to understand that, unlike the C128, the C65 and
+MEGA65 allow access to all enhanced features from C64 mode, if the
+programmer wishes to do so.  This means that while we frequently talk
+about ``C64 Mode,'' ``C65 Mode'' and ``MEGA65 Mode,'' these are simply
+terms of convenience for the MEGA65 with its memory map (and sometimes
+other features) configured to provide an environment that matches
+the appropriate mode.  The heart of this is the MEGA65's flexibly
+memory map.
+
+In this appendix, we will begin by describing the MEGA65's native
+memory map, that is, where all of the memory, IO devices and other
+features appear in the 28-bit address space. We will then explain how
+C64 and C65 compatible memory maps are accessed from this 28-bit
+address space.
+
+\newpage
+
+\section{MEGA65 Native Memory Map}
+
+\subsection{The First Sixteen 64KB Banks}
+
+The MEGA65 uses a similar memory map to that of the C65 for the first
+MiB of memory, i.e., 16 memory banks of 64KiB each.
+This is because the C65's 4510 CPU can access only 1MiB
+of address space.  These banks can be accessed from BASIC 65 using the
+\stw{BANK}\index{BASIC 65 Commands!BANK},
+\stw{DMA}\index{BASIC 65 Commands!DMA}, \stw{PEEK} and \stw{POKE}
+commands.  The following table summarises the contents of the first
+16 banks:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{1cm}|L{1.5cm}|L{2cm}|p{6cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Address}} & {\bf{Contents}} \\
+\hline
+\endfirsthead
+\multicolumn{4}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Address}} & {\bf{Contents}} \\
+\endhead
+\multicolumn{4}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+\small 0 & \small 0 & \$0xxxx & \multicolumn{1}{p{6cm}|}{First 64KiB RAM. This is the RAM visible in C64 mode.}\\
+\hline
+\small 1 & \small 1 & \$1xxxx & \multicolumn{1}{p{6cm}|}{Second 64KiB RAM. This is the 2nd 64KiB of RAM present on a C65.}\\
+\hline
+\small 2 & \small 2 & \$2xxxx & \multicolumn{1}{p{6cm}|}{First half of C65 ROM (C64 mode and shared components) {\em or} RAM}\\
+\hline
+\small 3 & \small 3 & \$3xxxx & \multicolumn{1}{p{6cm}|}{Second half of C65 ROM (C65 mode components) {\em or} RAM}\\
+\hline
+\small 4 & \small 4 & \$4xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (384KiB or larger chip-RAM models)}\\
+\hline
+\small 5 & \small 5 & \$5xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (384KiB or larger chip-RAM models)}\\
+\hline
+\small 6 & \small 6 & \$6xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (512KiB or larger chip-RAM models)}\\
+\hline
+\small 7 & \small 7 & \$7xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (512KiB or larger chip-RAM models)}\\
+\hline
+\small 8 & \small 8 & \$8xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small 9 & \small 9 & \$9xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small A & \small 10 & \$Axxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small B & \small 11 & \$Bxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small C & \small 12 & \$Cxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small D & \small 13 & \$Dxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small E & \small 14 & \$Exxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\small F & \small 15 & \$Fxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MiB or larger chip-RAM models)}\\
+\hline
+\end{longtable}
+
+The key features of this address space are the 128KiB of RAM in the first two banks, which is also present on
+the C65. If you intend to write programmes which can also run on a C65, you should only use these two banks
+of RAM.
+
+On all models it is possible to use all or part of the 128KiB of ``ROM'' space as RAM. To do this, you must first
+request that the Hypervisor removes the read-only protection on this area, before you will be able to change
+its contents.  If you are writing a programme which will start from C64 mode, or otherwise switch to using the C64
+part of the ROM, instead of the C65 part), then the second half of that space, i.e., BANK 3, can be safely used
+for your programmes. This gives a total of 192KiB of RAM, which is available on all models of the MEGA65.
+
+On models that have 384KiB or more of chip RAM, BANK 4 and 5 are also available.  Similarly, models which provide
+1MiB or more of chip RAM will have BANK 6 through 15 also available, giving a total of 896KiB (or 960KiB, if only
+the C64 part of the ROM is required) of RAM available for your programmes.  Note that the MEGA65's built-in
+freeze cartridge currently freezes only the first 384KiB of RAM.
+
+\subsection{Colour RAM}
+
+The MEGA65's VIC-IV video controller supports much larger screens than the VIC-II or VIC-III. For this reason, it
+has access to a separate colour RAM, similar to on the C64.  For compatibility with the C65, the first two kilo-bytes
+of this are accessible at \$1F800 -- \$1FFFF.  The full 32KiB or 64KiB of colour RAM is located at \$FF80000.
+This is most easily access through the use of advanced DMA operations, or the 32-bit base-page indirect addressing
+mode of the processor.
+
+At the time of writing, the \stw{BANK} and \stw{DMA} commands cannot be used to access the rest of the colour RAM, because the
+colour RAM is not located in the first mega-byte of address space.  This may be corrected in a future revision of
+the MEGA65, allowing access to the full colour RAM via BANK 15 or an equivalent DMA job.
+
+\subsection{28-bit Address Space}
+
+In addition to the C65-style 1MB address space, the MEGA65 extends this
+to 256MiB, by using 28-bit addresses.  The following shows the high-level
+layout of this address space.
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{1.5cm}|L{2cm}|L{1.1cm}|p{6cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Size}} & {\bf{Contents}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Size}} & {\bf{Contents}} \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+\small 0000000 & \small 0 & 1 & \multicolumn{1}{p{6cm}|}{CPU IO Port Data
+  Direction Register}\\
+\hline
+\small 0000001 & \small 1 & 1 & \multicolumn{1}{p{6cm}|}{CPU IO Port Data}\\
+\hline
+\small 0000002 -- 005FFFF & \small 2 -- 384 KiB & 384 KiB &
+\multicolumn{1}{p{6cm}|}{Fast chip RAM (40MHz)}\\
+\hline
+\small 0060000 -- 0FFFFFF & \small 384 KiB -- 16 MiB  & 15.6 MiB &
+\multicolumn{1}{p{6cm}|}{Reserved for future chip RAM expansion}\\
+\hline
+\small 1000000 -- 3FFFFFF & \small 16 MiB -- 64 MiB & 48 MiB &
+\multicolumn{1}{p{6cm}|}{Reserved}\\
+\hline
+\small 4000000 -- 7FFFFFF & \small 64 MiB -- 128 MiB & 64 MiB &
+\multicolumn{1}{p{6cm}|}{Cartridge port and other devices on the slow bus
+  (1 -- 10 MHz)}\\
+\hline
+\small 8000000 -- 87FFFFF & \small 128 MiB -- 135 MiB & 8 MiB &
+\multicolumn{1}{p{6cm}|}{8MB ATTIC RAM (selected models only)}\\
+\hline
+\small 8800000 -- 8FFFFFF & \small 135 MiB -- 144 MiB & 8 MiB &
+\multicolumn{1}{p{6cm}|}{8MB CELLAR RAM (selected models only)}\\
+\hline
+\small 9000000 -- EFFFFFF & \small 144 MiB -- 240 MiB & 96 MiB &
+\multicolumn{1}{p{6cm}|}{Reserved for future expansion RAM}\\
+\hline
+\small F000000 -- FF7DFFF & \small 240 MiB -- 255.49 MiB & 15.49 MiB &
+\multicolumn{1}{p{6cm}|}{Reserved for future IO expansion}\\
+\hline
+\small FF7E000 -- FF7EFFF & \small 255.49 MiB -- 255.49 MiB & 4 KiB &
+\multicolumn{1}{p{6cm}|}{VIC-IV Character ROM (write only)}\\
+\hline
+\small FF80000 -- FF87FFF & \small 255.5 MiB -- 255.53 MiB & 32 KiB &
+\multicolumn{1}{p{6cm}|}{VIC-IV Colour RAM (32KiB colour RAM models)}\\
+\hline
+\small FF88000 -- FF8FFFF & \small 255.53 MiB -- 255.57 MiB & 32 KiB &
+\multicolumn{1}{p{6cm}|}{Additional VIC-IV Colour RAM (64KiB colour RAM models only)}\\
+\hline
+\small FF90000 -- FFCAFFF & \small 255.53 MiB -- 255.80 MiB & 216 KiB &
+\multicolumn{1}{p{6cm}|}{Reserved}\\
+\hline
+\small FFCB000 -- FFCBFFF & \small 255.80 MiB -- 255.80 MiB & 4 KiB &
+\multicolumn{1}{p{6cm}|}{Emulated C1541 RAM}\\
+\hline
+\small FFCC000 -- FFCFFFF & \small 255.80 MiB -- 255.81 MiB & 16 KiB &
+\multicolumn{1}{p{6cm}|}{Emulated C1541 ROM}\\
+\hline
+\small FFD0000 -- FFD0FFF & \small 255.81 MiB -- 255.81 MiB & 4 KiB &
+\multicolumn{1}{p{6cm}|}{C64 \$Dxxx IO Personality}\\
+\hline
+\small FFD1000 -- FFD1FFF & \small 255.81 MiB -- 255.82 MiB & 4 KiB &
+\multicolumn{1}{p{6cm}|}{C65 \$Dxxx IO Personality}\\
+\hline
+\small FFD2000 -- FFD2FFF & \small 255.82 MiB -- 255.82 MiB & 4 KiB &
+\multicolumn{1}{p{6cm}|}{MEGA65 \$Dxxx Ethernet IO Personality}\\
+\hline
+\small FFD3000 -- FFD3FFF & \small 255.82 MiB -- 255.82 MiB & 4 KiB &
+\multicolumn{1}{p{6cm}|}{MEGA65 \$Dxxx Normal IO Personality}\\
+\hline
+\small FFD4000 -- FFD5FFF & \small 255.82 MiB -- 255.83 MiB & 8 KiB &
+\multicolumn{1}{p{6cm}|}{Reserved}\\
+\hline
+\small FFD6000 -- FFD67FF & \small 255.83 MiB -- 255.83 MiB & 2 KiB &
+\multicolumn{1}{p{6cm}|}{Hypervisor scratch space}\\
+\hline
+\small FFD6000 -- FFD6BFF & \small 255.83 MiB -- 255.83 MiB & 3 KiB &
+\multicolumn{1}{p{6cm}|}{Hypervisor scratch space}\\
+\hline
+\small FFD6C00 -- FFD6DFF & \small 255.83 MiB -- 255.83 MiB & 512 &
+\multicolumn{1}{p{6cm}|}{F011 floppy controller sector buffer}\\
+\hline
+\small FFD6E00 -- FFD6FFF & \small 255.83 MiB -- 255.83 MiB & 512 &
+\multicolumn{1}{p{6cm}|}{SD Card controller sector buffer}\\
+\hline
+\small FFD7000 -- FFD70FF & \small 255.83 MiB -- 255.83 MiB & 256 &
+\multicolumn{1}{p{6cm}|}{MEGAphone r1 I2C peripherals}\\
+\hline
+\small FFD7100 -- FFD71FF & \small 255.83 MiB -- 255.83 MiB & 256 &
+\multicolumn{1}{p{6cm}|}{MEGA65 r2 I2C peripherals}\\
+\hline
+\small FFD7200 -- FFD72FF & \small 255.83 MiB -- 255.83 MiB & 256 &
+\multicolumn{1}{p{6cm}|}{MEGA65 HDMI I2C registers (only for models fitted
+  with the ADV7511 HDMI driver chip)}\\
+\hline
+\small FFD7300 -- FFD7FFF & \small 255.83 MiB -- 255.84 MiB & 3.25 KiB &
+\multicolumn{1}{p{6cm}|}{Reserved for future I2C peripherals}\\
+\hline
+\small FFD8000 -- FFDBFFF & \small 255.83 MiB -- 255.86 MiB & 16 KiB &
+\multicolumn{1}{p{6cm}|}{Hypervisor ROM (only visible in Hypervisor Mode)}\\
+\hline
+\small FFDC000 -- FFDDFFF & \small 255.86 MiB -- 255.87 MiB & 8 KiB &
+\multicolumn{1}{p{6cm}|}{Reserved for Hypervisor Mode ROM expansion}\\
+\hline
+\small FFDE000 -- FFDE7FF & \small 255.87 MiB -- 255.87 MiB & 2 KiB &
+\multicolumn{1}{p{6cm}|}{Reserved for Ethernet buffer expansion}\\
+\hline
+\small FFDE800 -- FFDEFFF & \small 255.87 MiB -- 255.87 MiB & 2 KiB &
+\multicolumn{1}{p{6cm}|}{Ethernet frame read buffer (read only) and
+  Ethernet frame write buffer (write only)}\\
+\hline
+\small FFDF000 -- FFDFFFF & \small 255.87 MiB -- 255.87 MiB & 4 KiB &
+\multicolumn{1}{p{6cm}|}{Virtual FPGA registers (selected models only)}\\
+\hline
+\small FFE0000 -- FFFFFFF & \small 255.87 MiB -- 256 MiB & 128 KiB &
+\multicolumn{1}{p{6cm}|}{Reserved}\\
+\hline
+\end{longtable}
+
+\section{\$D000 -- \$DFFF IO Personalities}
+\label{sec:iopersonalities}
+
+The MEGA65 supports four different IO personalities.  These are
+selected by writing the appropriate values to the \$D02F KEY register,
+which is visible in all four IO personalities.  There is more information in
+\bookvref{cha:modes} about the use of the KEY
+register.
+
+The following table shows which IO devices are visible in each of
+these IO modes, as well as the KEY register values that are used to
+select the IO personality.
+
+\newpage
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|p{2.2cm}|C{2cm}|C{2cm}|C{2cm}|C{2cm}|}
+\hline
+{\bf{HEX}} & {\bf{C64}} & {\bf{C65}} & {\bf{MEGA65 ETHERNET}} & {\bf{MEGA65}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+{\bf{HEX}} & {\bf{C64}} & {\bf{C65}} & {\bf{MEGA65 ETHERNET}} & {\bf{MEGA65}} \\
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\small KEY & \small \$00 & \$A5, \$96 & \$45, \$54  & \$47, \$53 \\
+\hline
+\small \$D000 -- \$D02F & \small VIC-II & VIC-II & VIC-II & VIC-II \\
+\hline
+\small \$D030 -- \$D07F & \small VIC-II{$^1$} & VIC-III & VIC-III & VIC-III \\
+\hline
+\small \$D080 -- \$D08F & \small VIC-II & F011 & F011 & F011 \\
+\hline
+\small \$D090 -- \$D09F & \small VIC-II & -- & SD Card & SD Card \\
+\hline
+\small \$D0A0 -- \$D0FF & \small VIC-II & RAM EXPAND CONTROL & -- & -- \\
+\hline
+\small \$D100 -- \$D1FF & \small VIC-II & RED Palette & RED Palette &
+RED Palette \\
+\hline
+\small \$D200 -- \$D2FF & \small VIC-II & GREEN Palette & GREEN Palette &
+GREEN Palette \\
+\hline
+\small \$D300 -- \$D3FF & \small VIC-II & BLUE Palette & BLUE Palette &
+BLUE Palette \\
+\hline
+\small \$D400 -- \$D41F & \small SID Right \#1 & SID Right \#1 & SID Right \#1 &
+SID Right \#1 \\
+\hline
+\small \$D420 -- \$D43F & \small SID Right \#2 & SID Right \#2 & SID Right \#2 &
+SID Right \#2 \\
+\hline
+\small \$D440 -- \$D45F & \small SID Left \#1 & SID Left \#1 & SID Left \#1 &
+SID Left \#1 \\
+\hline
+\small \$D460 -- \$D47F & \small SID Left \#2 & SID Left \#2 & SID Left \#2 &
+SID Left \#2 \\
+\hline
+\small \$D480 -- \$D49F & \small SID Right \#1 & SID Right \#1 & SID Right \#1 &
+SID Right \#1 \\
+\hline
+\small \$D4A0 -- \$D4BF & \small SID Right \#2 & SID Right \#2 & SID Right \#2 &
+SID Right \#2 \\
+\hline
+\small \$D4C0 -- \$D4DF & \small SID Left \#1 & SID Left \#1 & SID Left \#1 &
+SID Left \#1 \\
+\hline
+\small \$D4E0 -- \$D4FF & \small SID Left \#2 & SID Left \#2 & SID Left \#2 &
+SID Left \#2 \\
+\hline
+\small \$D500 -- \$D5FF & \small SID images & -- & Reserved & Reserved \\
+\hline
+\small \$D600 -- \$D63F & \small -- & UART & UART & UART \\
+\hline
+\small \$D640 -- \$D67F & \small -- & UART images & HyperTrap
+Registers & HyperTrap Registers \\
+\hline
+\small \$D680 -- \$D6FF & \small -- & -- & MEGA65 Devices & MEGA65 Devices \\
+\hline
+\small \$D700 -- \$D7FF & \small -- & -- & MEGA65 Devices & MEGA65 Devices \\
+\hline
+\small \$D800 -- \$DBFF & \small COLOUR RAM & COLOUR RAM & ETHERNET Buffer & COLOUR RAM \\
+\hline
+\small \$DC00 -- \$DDFF & \small CIAs & CIAs / COLOUR RAM & ETHERNET Buffer & CIAs / COLOUR RAM \\
+\hline
+\small \$DE00 -- \$DFFF & \small CART IO & CART IO & ETHERNET Buffer & CART IO / SD SECTOR \\
+\hline
+\multicolumn{5}{p{10.2cm}}{{$^1$} In the C64 IO personality, \$D030 behaves as on C128, allowing toggling
+  between 1MHz and 2MHz CPU speed.}\\
+\multicolumn{5}{p{10.2cm}}{{$^2$} The additional MEGA65 SIDs are visible in
+  all IO personalities.}\\
+\multicolumn{5}{p{10.2cm}}{{$^3$} Some models may replace the repeated images
+  of the first four SIDs with four additional SIDs, for a total of 8 SIDs.}\\
+\endlastfoot
+\end{longtable}
+
+\section{CPU Memory Banking}
+\label{sec:membanking}
+
+The 45GS10 processor, like the 6502, can only ``see'' 64KB of memory
+at a time. Access to additional memory is via a selection of
+bank-switching mechanisms.  For backward-compatibility with the C64
+and C65, the memory banking mechanisms for both of these computers
+existing the MEGA65:
+\begin{enumerate}
+\item C65-style MAP instruction banking
+\item C65-style \$D030 banking
+\item C64-style cartridge banking
+\item C64-style \$00 / \$01 banking
+\end{enumerate}
+
+It is important to understand that these different banking modes have
+a priority order: If a higher priority form of banking is being used,
+it takes priority over a lower priority form.  The C65 banking methods
+take priority of the C64 mode banking methods.  So, for example, if
+the 45GS10 MAP instruction has been used to provide a particular
+memory layout, the C64-style \$00 / \$01 banking will not be visible.
+
+This makes the overall banking scheme more complex than on the C64.
+Thus to understand what the actual memory layout will be, you should
+start by considering the effects of C64 memory banking, and then if
+any C65 MAP instruction memory banking is enabled, using that to override the
+C64-style memory banking. Then if any C65 \$D030 memory banking is
+used, that overrides both the C64 and C65 MAP instruction memory
+banking. Finally, if IO is banked, or if there are any cartridges
+inserted and active, their effects are made.
+
+The following diagram shows the different types of banking that can
+apply to the different areas of the 64KB that the CPU can see.  The
+higher layers take priority over the lower layers, as described in the
+previous paragraph.
+
+\begin{tabular}{rccccccc}
+\cline{4-5} \cline{7-8}
+\rowcolor[HTML]{C0C0C0} IO/CART &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMLO\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMHI\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{F8A102}IO}                                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART \\ ROMHI\end{tabular}} \\ \cline{4-8}
+\rowcolor[HTML]{EFEFEF}
+C65                                                 &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}\begin{tabular}[c]{@{}c@{}}INTER-\\ FACE\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                   & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}KERNAL}                                                \\ \cline{2-8}
+\rowcolor[HTML]{34FF34}
+\multicolumn{1}{r|}{\cellcolor[HTML]{C0C0C0}MAP}    & \multicolumn{2}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP LO\\ (4 x 8KB slabs)\end{tabular}} & \multicolumn{5}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP HI\\ (4 x 8KB slabs)\end{tabular}}                                                                                                                                                                                                                                                                                                                                                                                                     \\ \cline{2-8}
+\rowcolor[HTML]{EFEFEF}
+C64                                                 &                                 &                                                                             & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                     & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}\begin{tabular}[c]{@{}c@{}}CHAR\\ ROM\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}KERNAL}                                                \\ \cline{2-8}
+\rowcolor[HTML]{9698ED}
+\multicolumn{1}{r|}{\cellcolor[HTML]{C0C0C0}RAM}   & \multicolumn{2}{c|}{\cellcolor[HTML]{9698ED}RAM*}                                                             & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                  & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                  & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                   & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                   \\ \cline{2-8}
+\rowcolor[HTML]{EFEFEF}
+                                                    & \multicolumn{2}{c}{\cellcolor[HTML]{EFEFEF}\begin{tabular}[c]{@{}c@{}}\$0000 --\\ \$7FFF\end{tabular}}        & \begin{tabular}[c]{@{}c@{}}\$8000 --\\ \$9FFF\end{tabular}                                        & \begin{tabular}[c]{@{}c@{}}\$A000 --\\ \$BFFF\end{tabular}                                        & \begin{tabular}[c]{@{}c@{}}\$C000 --\\ \$CFFF\end{tabular}                                         & \begin{tabular}[c]{@{}c@{}}\$D000 --\\ \$DFFF\end{tabular}                                      & \begin{tabular}[c]{@{}c@{}}\$E000 --\\ \$FFFF\end{tabular}
+\end{tabular}
+
+(There are actually a few further complications. For example, if the
+cartridge selects the UltiMAX(tm) game mode, then only the first 4KB
+of RAM will be visible, and the remaining address space will be
+un-mapped, and able to be supplied by the cartridge.)
+
+For example, using \$D030 to bank in C65
+ROM at \$A000, this will take priority over the C64 BASIC 2 ROM at the
+same address.
+
+\section{C64/C65 ROM Emulation}
+
+The C64 and C65 use ROM memories to hold the KERNAL and BASIC system.
+The MEGA65 is different: It uses 128KB of its 384KB fast chip RAM at
+\$20000 - \$3FFFF (banks 2 and 3) to
+hold these system programmes. This makes it possible to change or upgrade the
+``ROM'' that the MEGA65 is running, without having to open the
+computer. It is even possible to use the MEGA65's Freeze Menu to
+change the ``ROM'' being used while a programme is running.
+
+The C64 and C65 memory banking methods use this 128KB of area when
+making ROM banks visible.  When the RAM banks are mapped, they are
+always read-only.  However, if the MAP instruction or DMA is used to
+access that address area, it is possible to write to it. For improved
+backward compatibility, the whole 128KB region of memory is normally
+set to read-only.
+
+A programme can, however, request read-write access to this
+128KB area of memory, so that it can make full use of the MEGA65's
+384KB of chip RAM.  This is accomplished by triggering the {\em Toggle
+  Rom Write-protect} system trap of the hypervisor.  The following
+code-fragment demonstrates how to do this. Calling it a second time
+will re-activate the write-protection.
+
+\begin{screenoutput}
+  LDA #$70
+  STA $D640
+  NOP
+\end{screenoutput}
+
+This fragment works by
+calling sub-function \$70 (toggle ROM write-protect) of Hypervisor
+trap \$00. Note that the \screentext{NOP} is mandatory. The MEGA65
+IO personality must be first selected, so that the \$D640 register is
+un-hidden.
+
+The current write-protection
+state can be tested by attempting to write to this area of memory.
+Also, you can examine and toggle the current state from in the MEGA65
+Freeze Menu.
+
+NOTE: If you are starting your programme from C65 mode, you must first make
+sure that the IO area is visible at \$D000-\$DFFF.  The simplest way to do
+this is to use the {\tt MAP} instruction with all zero values in the registers.
+The following fragment demonstrates this, and also makes sure that the MEGA65 IO
+context is active, so that the hypervisor trap will be able to trigger:
+
+\begin{screenoutput}
+
+  ; Clear C65 memory map
+  LDA #$00
+  TAX
+  TAY
+  TAZ
+  MAP
+  ; Bank IO in via C64 mechanism
+  LDA #$35
+  STA $01
+  ; Do MEGA65 / VIC-IV IO knock
+  LDA #$47
+  STA $D02F
+  LDA #$53
+  STA $D02F
+  ; End MAP sequence, thus allowing interrupts to occur again
+  EOM
+  ; Do Hypervisor call to un-write-protect the ROM area
+  LDA #$70
+  STA $D640
+  NOP
+\end{screenoutput}
+
+
+\subsection{C65 Compatibility ROM Layout}
+
+The layout of the C65 compatibility 128KB ROM area is identical to that of the C65:
+
+{\ttfamily
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|l|l|}
+\hline
+{\bf{HEX}} & {\bf{Contents}} \\
+\hline
+\$3E000 -- \$3FFFF & C65 KERNAL \\
+\hline
+\$3C000 -- \$3DFFF & RESERVED \\
+\hline
+\$38000 -- \$3BFFF & C65 BASIC GRAPHICS ROUTINES \\
+\hline
+\$32000 -- \$37FFF & C65 BASIC \\
+\hline
+\$30000 -- \$31FFF & MONITOR (gets mapped at \$6000 -- \$7FFF) \\
+\hline
+\$2E000 -- \$2FFFF & C64 KERNAL \\
+\hline
+\$2D000 -- \$2DFFF & C64 CHARSET \\
+\hline
+\$2C000 -- \$2CFFF & INTERFACE \\
+\hline
+\$24000 -- \$27FFF & RESERVED \\
+\hline
+\$20000 -- \$23FFF & DOS (gets mapped at \$8000 -- \$BFFF) \\
+\hline
+\end{tabular}
+}
+
+The INTERFACE program is a series of routines that are used by the C65
+to switch between C64 mode, C65 mode and the C65's built-in DOS.  The
+DOS is located in the lower-eighth of the ROM.
+
+
+
+

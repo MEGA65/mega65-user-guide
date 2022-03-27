@@ -3447,23 +3447,42 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ELLIPSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$30
-\item [Format:] {\bf ELLIPSE} xcentre{\bf,} ycentre{\bf,} xradius{\bf,} yradius
-		[{\bf,} solid]
+\item [Format:] {\bf ELLIPSE} xc{\bf,} yc{\bf,} xr{\bf,} yr
+		[{\bf,} flags {\bf,} start{\bf,} stop]
 \item [Usage:] Draws an ellipse.
 
-               {\bf xcentre} x coordinate of centre in pixels.
+               {\bf xc} is the x coordinate of the centre in pixels
 
-               {\bf ycentre} y coordinate of centre in pixels.
+               {\bf yc} is the y coordinate of the centre in pixels
 
-               {\bf xradius} x radius of the ellipse in pixels.
+               {\bf xr} is the x radius of the ellipse in pixels
 
-               {\bf yradius} y radius of the ellipse in pixels.
+               {\bf yr} is the y radius of the ellipse in pixels
 
-               {\bf solid} fills the ellipse, if not zero.
+               {\bf flags} control filling and, arcs.
+               Default setting (zero) is don't fill and draw legs.
+
+{\setlength{\tabcolsep}{1.5mm}
+\begin{tabular}{|l|l|l|l|}
+\hline
+{\bf Bit}  & {\bf Name} & {\bf Value} & {\bf Action if set} \\
+\hline
+  0 & fill  & 1  & Fill ellipse or arc with the current pen colour \\
+  1 & legs  & 2  & Suppress drawing of the legs of an arc \\
+\hline
+\end{tabular}
+}
+
+               The units for the start- and stop-angle are degrees
+               in the range of 0 to 360. The 0 radian starts
+               at 3 o' clock and moves clockwise.
+
+               {\bf start} start angle for drawing an elliptic arc.
+
+               {\bf stop} stop angle for drawing an elliptic arc.
 
 \item [Remarks:] {\bf ELLIPSE} is used to draw ellipses on
                screens at various resolutions.
-               It can also be used to draw circles.
 
 \item [Example:] Using {\bf ELLIPSE}
 

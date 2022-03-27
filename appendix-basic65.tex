@@ -1714,18 +1714,46 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \index{BASIC 65 Commands!CIRCLE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E2
-\item [Format:] {\bf CIRCLE} xcentre{\bf,} ycentre{\bf,} radius [{\bf,} solid]
+\item [Format:] {\bf CIRCLE} xc{\bf,} yc{\bf,} radius [{\bf,} flags
+                {\bf,} start{\bf,} stop]
 \item [Usage:] A special case of
                {\bf ELLIPSE}, using the same value for
                horizontal and vertical radius.
 
-               {\bf xcentre} x coordinate of the centre in pixels
+               {\bf xc} is the x coordinate of the centre in pixels
 
-               {\bf ycentre} y coordinate of the centre in pixels
+               {\bf yc} is the y coordinate of the centre in pixels
 
-               {\bf radius} radius of the circle in pixels
+               {\bf radius} is the radius of the circle in pixels
 
-               {\bf solid} fills the circle, if not zero
+               {\bf flags} control filling, arcs and
+                           the position of the 0 degree angle.
+               Default setting (zero) is don't fill, draw legs
+               and the 0 degree radian points to 3 o' clock.
+
+{\setlength{\tabcolsep}{1.5mm}
+\begin{tabular}{|l|l|l|l|}
+\hline
+{\bf Bit}  & {\bf Name} & {\bf Value} & {\bf Action if set} \\
+\hline
+  0 & fill  & 1  & Fill circle or arc with the current pen colour \\
+  1 & legs  & 2  & Suppress drawing of the legs of an arc \\
+  2 & combs & 4  & Let the zero radian point to 12 o' clock \\
+\hline
+\end{tabular}
+}
+
+               The units for the start- and stop-angle are degrees
+               in the range of 0 to 360. The 0 radian starts
+               at 3 o' clock and moves clockwise.
+               Setting bit 2 of flags (value 4) moves the zero-radian
+               to the 12 o' clock position.
+
+               {\bf start} start angle for drawing an arc.
+
+               {\bf stop} stop angle for drawing an arc.
+
+
 
 \item [Remarks:] {\bf CIRCLE} is used to draw circles on
                screens with an aspect ratio of 1:1 (for example: 320 x 200
@@ -2955,7 +2983,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 30 LOOP
 
 10 I%=0 : REM INTEGER LOOP 1-100
-20 DO I%=I%+1
+20 DO: I%=I%+1
 30 LOOP WHILE I% < 101
 \end{verbatim}
 \end{tcolorbox}

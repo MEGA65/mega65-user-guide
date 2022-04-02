@@ -67,27 +67,29 @@ commands.  The following table summarises the contents of the first
 \hline
 \small 5 & \small 5 & \$5xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (384KB or larger chip-RAM models)}\\
 \hline
-\small 6 & \small 6 & \$6xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (512KB or larger chip-RAM models)}\\
+\small 6 & \small 6 & \$6xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*512KB or larger chip-RAM models)}\\
 \hline
-\small 7 & \small 7 & \$7xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (512KB or larger chip-RAM models)}\\
+\small 7 & \small 7 & \$7xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*512KB or larger chip-RAM models)}\\
 \hline
-\small 8 & \small 8 & \$8xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small 8 & \small 8 & \$8xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
-\small 9 & \small 9 & \$9xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small 9 & \small 9 & \$9xxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
-\small A & \small 10 & \$Axxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small A & \small 10 & \$Axxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
-\small B & \small 11 & \$Bxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small B & \small 11 & \$Bxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
-\small C & \small 12 & \$Cxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small C & \small 12 & \$Cxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
-\small D & \small 13 & \$Dxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small D & \small 13 & \$Dxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
-\small E & \small 14 & \$Exxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small E & \small 14 & \$Exxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
-\small F & \small 15 & \$Fxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (1MB or larger chip-RAM models)}\\
+\small F & \small 15 & \$Fxxxx & \multicolumn{1}{p{6cm}|}{Additional RAM (*1MB or larger chip-RAM models)}\\
 \hline
 \end{longtable}
+
+* Note that the MEGA65 presently only provides a model featuring 384KB of chip-RAM. Future models may feature larger amounts of chip-RAM (such as 512KB and 1MB).
 
 The key features of this address space are the 128KB of RAM in the first two banks, which is also present on
 the C65. If you intend to write programs which can also run on a C65, you should only use these two banks
@@ -115,6 +117,12 @@ mode of the processor.
 At the time of writing, the \stw{BANK} and \stw{DMA} commands cannot be used to access the rest of the colour RAM, because the
 colour RAM is not located in the first mega-byte of address space.  This may be corrected in a future revision of
 the MEGA65, allowing access to the full colour RAM via BANK 15 or an equivalent DMA job.
+
+\subsection{Additional RAM}
+
+Apart from the 384kb of chip-RAM found as standard on all MEGA65 models, most models (devkit, release boards and xemu, but NOT on Nexys boards currently) also have an extra 8MB of RAM starting at \$8000000, referred to as 'ATTIC RAM'. It is not visible to the other chips (vic/sid/etc) and can't be used for audio DMA, but code can run from it (more slowly) or it can be used to store content and DMA it in/out of the chip-RAM.
+
+There are also plans underway to support a PMOD hyperRAM module (installed via the trapdoor beneath the MEGA65) in order to provide a further 8MB of RAM starting at \$8800000, referred to as 'CELLAR RAM'.
 
 \subsection{28-bit Address Space}
 
@@ -156,10 +164,10 @@ layout of this address space.
   (1 -- 10 MHz)}\\
 \hline
 \small 8000000 -- 87FFFFF & \small 128MB -- 135MB & 8MB &
-\multicolumn{1}{p{6cm}|}{8MB ATTIC RAM (selected models only)}\\
+\multicolumn{1}{p{6cm}|}{8MB ATTIC RAM (all models apart from Nexys, presently)}\\
 \hline
 \small 8800000 -- 8FFFFFF & \small 135MB -- 144MB & 8MB &
-\multicolumn{1}{p{6cm}|}{8MB CELLAR RAM (selected models only)}\\
+\multicolumn{1}{p{6cm}|}{8MB CELLAR RAM (planned PMOD module installed via trapdoor)}\\
 \hline
 \small 9000000 -- EFFFFFF & \small 144MB -- 240MB & 96MB &
 \multicolumn{1}{p{6cm}|}{Reserved for future expansion RAM}\\
@@ -171,12 +179,9 @@ layout of this address space.
 \multicolumn{1}{p{6cm}|}{VIC-IV Character ROM (write only)}\\
 \hline
 \small FF80000 -- FF87FFF & \small 255.5MB -- 255.53MB & 32KB &
-\multicolumn{1}{p{6cm}|}{VIC-IV Colour RAM (32KB colour RAM models)}\\
+\multicolumn{1}{p{6cm}|}{VIC-IV Colour RAM (32KB)}\\
 \hline
-\small FF88000 -- FF8FFFF & \small 255.53MB -- 255.57MB & 32KB &
-\multicolumn{1}{p{6cm}|}{Additional VIC-IV Colour RAM (64KB colour RAM models only)}\\
-\hline
-\small FF90000 -- FFCAFFF & \small 255.53MB -- 255.80MB & 216KB &
+\small FF88000 -- FFCAFFF & \small 255.53MB -- 255.80MB & 216KB &
 \multicolumn{1}{p{6cm}|}{Reserved}\\
 \hline
 \small FFCB000 -- FFCBFFF & \small 255.80MB -- 255.80MB & 4KB &
@@ -219,7 +224,7 @@ layout of this address space.
 \multicolumn{1}{p{6cm}|}{MEGA65 r2 I2C peripherals}\\
 \hline
 \small FFD7200 -- FFD72FF & \small 255.83MB -- 255.83MB & 256 &
-\multicolumn{1}{p{6cm}|}{MEGA65 HDMI I2C registers (only for models fitted
+\multicolumn{1}{p{6cm}|}{MEGA65 HDMI I2C registers (only for older models fitted
   with the ADV7511 HDMI driver chip)}\\
 \hline
 \small FFD7300 -- FFD7FFF & \small 255.83MB -- 255.84MB & 3.25KB &

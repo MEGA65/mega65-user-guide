@@ -6802,37 +6802,40 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \index{BASIC 65 Commands!PAINT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$DF
-\item [Format:] {\bf PAINT} x{\bf,} y{\bf,} mode [{\bf,} colour]
-\item [Usage:]  Performs a flood fill
-                of an enclosed graphics area.
+\item [Format:] {\bf PAINT} x{\bf,} y{\bf,} mode [{\bf,} region border colour]
+\item [Usage:]  Performs a flood fill of an enclosed graphics area
+                using the current pen colour.
 
                 {\bf x, y} is a coordinate pair, which must
-                lie inside the area to be filled.
+                lie inside the area to be painted.
 
-                {\bf mode} specifies the fill mode:
+                {\bf mode} specifies the paint mode:
                 \begin{itemize}
-                    \item {\bf 0} use the {\bf colour} to fill the area.
-                    \item {\bf 1} use the colour of pixel (x,y) to fill the area.
+                    \item {\bf 0} The colour of pixel (x,y) defines the colour,
+                    which is replaced by the pen colour.
+
+                    \item {\bf 1} The {\bf region border colour} defines
+                    the region to be painted with the pen colour.
+
+                    \item {\bf 2} Paint the region connected to pixel (x,y).
                 \end{itemize}
 
+                {\bf region border colour} defines the colour index for mode 1.
 
 \item [Example:] Using {\bf PAINT}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 GRAPHIC CLR          :REM INITIALISE
- 20 SCREEN DEF 1,0,0,2   :REM 320 X 200
- 30 SCREEN OPEN 1        :REM OPEN
- 40 SCREEN SET 1,1       :REM MAKE SCREEN ACTIVE
- 50 PALETTE 1,1,10,15,10 :REM COLOUR 1 TO LIGHT GREEN
- 60 PEN 1                :REM SET DRAWING PEN (PEN 0) TO LIGHT GREEN (1)
- 70 LINE 160,0,240,100   :REM 1ST. LINE
- 80 LINE 240,100,80,100  :REM 2ND. LINE
- 90 LINE 80,100,160,0    :REM 3RD. LINE
-100 PAINT 160,10,0,1     :REM FILL TRIANGLE WITH COLOUR 1
-110 GETKEY K$            :REM WAIT FOR KEY
-120 SCREEN CLOSE 1       :REM END GRAPHICS
+ 10 SCREEN 320,200,2     :REM OPEN SCREEN
+ 20 PALETTE 0,1,10,15,10 :REM COLOUR 1 TO LIGHT GREEN
+ 30 PEN 1                :REM SET DRAWING PEN (PEN 0) TO LIGHT GREEN (1)
+ 40 LINE 160,0,240,100   :REM 1ST. LINE
+ 50 LINE 240,100,80,100  :REM 2ND. LINE
+ 60 LINE 80,100,160,0    :REM 3RD. LINE
+ 70 PAINT 160,10         :REM FILL TRIANGLE WITH PEN COLOUR
+ 80 GETKEY A&            :REM WAIT FOR KEY
+ 90 SCREEN CLOSE         :REM END GRAPHICS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

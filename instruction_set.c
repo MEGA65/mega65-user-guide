@@ -402,10 +402,10 @@ int main(int argc, char** argv)
     is_unintended = strstr(short_description, "(unintended instruction)");
     if (is_unintended) {
       *is_unintended = 0;
-      printf("\n\n\\subsection*{\\textcolor{red}{%s [unintended]}}\n", instruction);
+      printf("\n\n\\subsection{\\textcolor{red}{%s [unintended]}}\n", instruction);
     }
     else
-      printf("\n\n\\subsection*{%s}\n", instruction);
+      printf("\n\n\\subsection{%s}\n", instruction);
     printf("\\index{%s}%s\n\n\n", instruction, long_description);
 
     int delmodify65ce02_note_seen = 0;

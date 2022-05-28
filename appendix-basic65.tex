@@ -1616,6 +1616,42 @@ CHANGE &IN& TO &OUT&
 Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \end{description}
 
+% *******
+% CHARDEF
+% *******
+
+\newpage
+\subsection{CHARDEF}
+\index{BASIC 65 Commands!CHARDEF}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$E0 \$96
+\item [Format:] {\bf CHARDEF} index, bit-matrix
+\item [Usage:] Change the bitmap matrix of characters
+
+      {\bf index} is the character number in display code,
+      (@:0, A:1, B:2, ...)
+
+      {\bf bit-matrix} is a set of 8 byte values, which define
+      the raster representation for the character from top row to bottom row.
+      If more than 8 values are used as arguments, the values 9-16 are used
+      for the character index+1, 17-24 for index+2, etc.
+
+\item [Remarks:] The character bitmap changes are applied to the VIC
+       character generator, which resides in RAM at the address \$FF7E000.
+
+       All changes are volatile and the VIC character set can be restored by
+       a reset or by using the {\bf FONT} command.
+
+\item [Examples:] Using {\bf CHARDEF}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+CHARDEF 1,$FF,$81,$81,$81,$81,$81,$81,$FF :REM CHANGE 'A' TO RECTANGLE
+CHARDEF 9,$18,$18,$18,$18,$18,$18,$18,$00 :REM MAKE 'I' SANS SERIF
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % *****
 % CHDIR
 % *****
@@ -1671,42 +1707,6 @@ CHDIR "RACING",U12      :REM ENTER SUBDIRECTORY RACING
 
 CHDIR "MEGA65 GAMES",U8 :REM ENTER SUBDIRECTORY ON FLOPPY DISK
 CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
-% *******
-% CHARDEF
-% *******
-
-\newpage
-\subsection{CHARDEF}
-\index{BASIC 65 Commands!CHARDEF}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$E0 \$96
-\item [Format:] {\bf CHARDEF} index, bit-matrix
-\item [Usage:] Change the bitmap matrix of characters
-
-      {\bf index} is the character number in display code,
-      (@:0, A:1, B:2, ...)
-
-      {\bf bit-matrix} is a set of 8 byte values, which define
-      the raster representation for the character from top row to bottom row.
-      If more than 8 values are used as arguments, the values 9-16 are used
-      for the character index+1, 17-24 for index+2, etc.
-
-\item [Remarks:] The character bitmap changes are applied to the VIC
-       character generator, which resides in RAM at the address \$FF7E000.
-
-       All changes are volatile and the VIC character set can be restored by
-       a reset or by using the {\bf FONT} command.
-
-\item [Examples:] Using {\bf CHARDEF}
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-CHARDEF 1,$FF,$81,$81,$81,$81,$81,$81,$FF :REM CHANGE 'A' TO RECTANGLE
-CHARDEF 9,$18,$18,$18,$18,$18,$18,$18,$00 :REM MAKE 'I' SANS SERIF
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

@@ -273,6 +273,55 @@ String   Array &  3                         &    \screentext{\$} & 0 .. 255 char
 \end{tabular}
 \end{center}
 
+\subsection{Screen memory and colour RAM}
+\index{Screen memory and colour RAM}
+Many programmers like to skip the standard routine {\bf PRINT} for screen output
+and want to access the screen memory and the colour RAM directly
+using the commands {\bf PEEK} and {\bf POKE}.
+{\bf BASIC 65} provides a method for direct access, that is easier to use
+and faster than {\bf POKE}:
+
+Two byte arrays are predefined, that are mapped to screen text memory
+and screen colour memory.
+
+\screentextwide{ T@\&(COLUMS,ROWS)} is mapped to the text screen memory.
+
+\screentextwide{ C@\&(COLUMS,ROWS)} is mapped to the colour screen memory.
+
+In 80 column mode the arrays are dimensioned as:
+
+\screentextwide{ T@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
+
+\screentextwide{ C@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
+
+In 40 column mode the arrays are dimensioned as:
+
+\screentextwide{ T@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
+
+\screentextwide{ C@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
+
+If you want to display the character {\bf A} (display code = 1)
+in row 2 and column 5 and make it yellow, you can either use the POKE method:
+
+\screentextwide{POKE 2213,1} address = 2048 + 2 * 80 +5 = 2213
+
+\screentextwide{POKE \$FF808A5,7} 7 = YELLOW.
+
+or use the mapped byte arrays:
+
+\screentextwide{T@\&(5,2) = 1} character A
+
+\screentextwide{C@\&(5,2) = 7} colour YELLOW
+
+Examining the contents of a screen position is equally easy.
+To get the character and the colour at the left most (home) postion:
+
+\screentextwide{T\% = T@\&(0,0)}
+
+\screentextwide{C\% = C@\&(0,0)}
+
+T\% will then contain the display code of the character, while C\% has the colour index.
+
 
 \subsection{BASIC 65 Operators}
 \index{BASIC 65 Operators}

@@ -7022,40 +7022,6 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \end{tcolorbox}
 \end{description}
 
-% *****
-% PEEKW
-% *****
-
-\newpage
-\subsection{PEEKW}
-\index{BASIC 65 Functions!PEEKW}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$C2 'W'
-\item [Format:] {\bf PEEKW(}address{\bf)}
-\item [Usage:]  Returns an unsigned 16-bit value (word)
-                read from {\bf address} (low byte) and {\bf address}+1 (high byte).
-
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
-                memory bank set by {\bf BANK} is used.
-
-                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
-                addresses and used as such, ignoring the {\bf BANK} setting.
-
-
-\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
-                 Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
-                 VIC, SID, FDC, etc.
-\item [Example:] Using {\bf PEEKW}
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- 20 UA = PEEKW($02F8)   :REM USR JUMP TARGET
- 50 PRINT "USR FUNCTION CALL ADDRESS";UA
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
 % ***
 % PEN
 % ***
@@ -10660,6 +10626,41 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 20 WINDOW 0,0,79,24,1    :REM FULL SCREEN WINDOW CLEARED
 30 WINDOW 0,12,79,24     :REM LOWER HALF OF SCREEN
 40 WINDOW 20,5,59,15     :REM SMALL CENTRED WINDOW
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% WPEEK
+% *****
+
+\newpage
+\subsection{WPEEK}
+\index{BASIC 65 Functions!WPEEK}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$CE \$10
+\item [Format:] {\bf WPEEK(}address{\bf)}
+\item [Usage:]  Returns an unsigned 16-bit value (word)
+                read from {\bf address} (low byte) and {\bf address}+1 (high byte).
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+
+\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
+                 Banks greater than 127 are used to access I/O,
+                  and the underlying system hardware such as the
+                 VIC, SID, FDC, etc.
+\item [Example:] Using {\bf WPEEK}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 20 UA = WPEEK($02F8)   :REM USR JUMP TARGET
+ 50 PRINT "USR FUNCTION CALL ADDRESS";UA
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

@@ -6087,7 +6087,7 @@ bit & memory segment \\
 \item [Remarks:] After reserving memory with {\bf MEM} the graphics
                  library will not use the reserved areas, so it can
                  be used for other purposes. Access to bank 4 and 5
-                 is possible with the commands {\bf PEEK, PEEKW, POKE, POKEW}
+                 is possible with the commands {\bf PEEK, WPEEK, POKE, WPOKE}
                  and {\bf EDMA}.
 
                  If a graphics screen cannot be opened, because the
@@ -7331,10 +7331,9 @@ HELLO
 \index{BASIC 65 Functions!POKE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$97
-\item [Format:] {\bf POKE} address{\bf,} byte [{\bf,} byte ...]
+\item [Format:] {\bf POKE} address{\bf,} value [{\bf,} value ...]
 \item [Usage:]  Writes one or more bytes into memory
-                or memory mapped I/O, starting at
-                {\bf address}.
+                or memory mapped I/O, starting at {\bf address}.
 
                 If the address is in the range of \$0000 to \$FFFF (0-65535), the
                 memory bank set by {\bf BANK} is used.
@@ -7342,7 +7341,11 @@ HELLO
                 Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-                {\bf byte} a value in the range of 0-255.
+                If {\bf value} is in the range of 0-255, this is poked into memory,
+                otherwise the low byte of value is used. So a command like
+                \screentext{POKE AD,V AND 255} can be written as
+                \screentext{POKE AD,V} because {\bf POKE} uses the lowy byte anyway.
+
 
 \item [Remarks:] The address is incremented for each data byte,
                  so a memory range can be written to with a single {\bf POKE}.
@@ -7358,47 +7361,6 @@ HELLO
 \begin{verbatim}
  10 BANK 128        :REM SELECT SYSTEM BANK
  20 POKE $02F8,0,24 :REM SET USR VECTOR TO $1800
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
-% *****
-% POKEW
-% *****
-
-\newpage
-\subsection{POKEW}
-\index{BASIC 65 Functions!POKEW}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$97 'W'
-\item [Format:] {\bf POKEW} address{\bf,} word [{\bf,} word ...]
-\item [Usage:]  Writes one or more words into memory
-                or memory mapped I/O, starting at
-                {\bf address}.
-
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
-                memory bank set by {\bf BANK} is used.
-
-                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
-                addresses and used as such, ignoring the {\bf BANK} setting.
-
-                {\bf word} a value from 0-65535.
-                The first word is stored at address (low byte)
-                and address+1 (high byte). The second word is stored at
-                address+2 (low byte) and address+3 (high byte), etc.
-
-\item [Remarks:] The address is increased by two for each data word,
-                 so a memory range can be written to with a single {\bf POKEW}.
-
-                Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
-                VIC, SID, FDC, etc.
-\item [Example:] Using {\bf POKEW}
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- 10 BANK 128                :REM SELECT SYSTEM BANK
- 20 POKEW $02F8,$1800       :REM SET USR VECTOR TO $1800
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -10698,6 +10660,46 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 20 WINDOW 0,0,79,24,1    :REM FULL SCREEN WINDOW CLEARED
 30 WINDOW 0,12,79,24     :REM LOWER HALF OF SCREEN
 40 WINDOW 20,5,59,15     :REM SMALL CENTRED WINDOW
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% WPOKE
+% *****
+
+\newpage
+\subsection{WPOKE}
+\index{BASIC 65 Functions!WPOKE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$1D
+\item [Format:] {\bf WPOKE} address{\bf,} word [{\bf,} word ...]
+\item [Usage:]  Writes one or more words into memory
+                or memory mapped I/O, starting at {\bf address}.
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+                {\bf word} a value from 0-65535.
+                The first word is stored at address (low byte)
+                and address+1 (high byte). The second word is stored at
+                address+2 (low byte) and address+3 (high byte), etc.
+
+\item [Remarks:] The address is increased by two for each data word,
+                 so a memory range can be written to with a single {\bf WPOKE}.
+
+                Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
+                VIC, SID, FDC, etc.
+\item [Example:] Using {\bf WPOKE}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 BANK 128                :REM SELECT SYSTEM BANK
+ 20 WPOKE $02F8,$1800       :REM SET USR VECTOR TO $1800
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

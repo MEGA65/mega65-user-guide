@@ -36,6 +36,7 @@ GENERATED_TEX_FILES= 	document-memory \
 
 COMPILED_BINARIES= 	document-memory \
 			generate_condensed \
+			keymap \
 			index_basic_programmes \
 			instruction_set \
 			libc-doc \

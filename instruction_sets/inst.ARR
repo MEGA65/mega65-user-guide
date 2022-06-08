@@ -1,8 +1,8 @@
 Binary AND and Rotate Right (unintended instruction)
-A $\leftarrow$ (A $AND$ Value) $>>$1, C $\leftarrow$ A(7)
+$A \leftarrow (A \land V) >> 1, C \rightarrow A(7...0) \rightarrow C$
 N+Z+C+M+V+
 This instruction shifts the Accumulator one bit right after
-performing a binary AND of the Accumulator and the immediate mode argument.
+performing a binary AND of the Accumulator and the immediate mode argument $V$.
 Bit 7 is exchanged with the carry.
 
 \subsubsection*{Side effects}

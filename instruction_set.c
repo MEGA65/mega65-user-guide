@@ -5,12 +5,14 @@
 #include <ctype.h>
 
 struct opcode {
+  unsigned char defined;
   char *abbrev;
   char *mode;
   int modeId;
   int instr_num;
   char *cycles;
   unsigned int bytes;
+  unsigned char isUnintended;
 };
 
 #define MAX_MODES 32
@@ -19,12 +21,15 @@ struct modeinfo {
   char *nmode;
   char *texmode;
   char *description;
+  char *shortDesc;
   int bytes;
   int cycles;
+  int extra_cycles;
   char *cycle_notes;
   char *memory_equation;
   char *long_description;
   char *long_title;
+  unsigned char isQuad;
 };
 
 int mode_count = 0;
@@ -156,11 +161,13 @@ int lookup_mode_description(char *mode, int isQuad) {
   modeinfo[modeId].mode = StrDup(mode);
   modeinfo[modeId].nmode = StrDup(nmode);
   modeinfo[modeId].texmode = texEscape(mode);
+  modeinfo[modeId].isQuad = isQuad;
   char filename[1024];
   if (strlen(nmode) == 0) // avoiding 'mode.' filename, as it's not windows-friendly
-    snprintf(filename, 1024, "instruction_sets/mode");
+    snprintf(filename, 1024, "instruction_sets/mode.implied");
   else
     snprintf(filename, 1024, "instruction_sets/mode.%s", nmode);
+  if (DEBUG) fprintf(stderr, "MODE-FILE %s\n", filename);
   FILE* f = fopen(filename, "rb");
   if (f) {
     char line[8192];
@@ -169,6 +176,12 @@ int lookup_mode_description(char *mode, int isQuad) {
     if (CPU == 6502 && !strncmp(line, "base", 4))
       memcpy(line, "zero", 4);
     modeinfo[modeId].description = StrDup(line);
+    if (CPU == 6502) {
+      char *find = strstr(line, "bp");
+      if (find != NULL) memcpy(find, "zp", 2);
+    }
+    Fgets_err(line, 1024, f, errstr);
+    modeinfo[modeId].shortDesc = texEscape(line);
     Fgets_err(line, 1024, f, errstr);
     modeinfo[modeId].bytes = atoi(line);
     Fgets_err(line, 1024, f, errstr);
@@ -198,11 +211,12 @@ void usage(char *prg) {
 }
 
 int main(int argc, char** argv) {
-  /* Read a list of opcodes. Gather them by instruction, and
-     generate the various tables and things that we need from
-     that. We also have one file per instruction that describes
-     its function.
-  */
+  /* 
+   * Read a list of opcodes. Gather them by instruction, and
+   * generate the various tables and things that we need from
+   * that. We also have one file per instruction that describes
+   * its function.
+   */
   char processor[256];
   char processor_path[1024];
   char filename[1024];
@@ -274,6 +288,7 @@ int main(int argc, char** argv) {
     usage(argv[0]);
   }
 
+  memset(opcodes, 0, sizeof(struct opcode)*256);
   while (Fgets(line, 1024, f)) {
     int bytes, i = 0, n;
     char name[1024];
@@ -285,8 +300,13 @@ int main(int argc, char** argv) {
       exit(-3);
     }
 
+    if (opcodes[bytes&0xff].defined) {
+      fprintf(stderr, "WARNING: Duplicate definition for opcode %02X - %s IGNORED\n", bytes&0xff, name);
+      continue;
+    }
     // Store full extended byte sequence
-    opcodes[opcode_count].bytes = bytes;
+    opcodes[bytes&0xff].bytes = bytes;
+    opcodes[bytes&0xff].defined = 1;
 
     int isQuad = 0;
     if (strchr(name, 'Q') && strcmp(name, "BEQ")) // BEQ is no Q opcode!
@@ -295,7 +315,7 @@ int main(int argc, char** argv) {
     if (!mode[0] && isQuad) // replace empty Q with "Q"
       strcpy(mode, "Q");
 
-    if (DEBUG) fprintf(stderr, "parsing opc: %d / $%08X / %s / %s / Q=%d\n", n, bytes, name, mode, isQuad);
+    if (DEBUG) fprintf(stderr, "parsing opc #%02x: %d / $%08X / %s / %s / Q=%d\n", bytes&0xff, n, bytes, name, mode, isQuad);
 
     if (n >= 2) {
       //      fprintf(stderr,"3<%s><%s>: ",name,mode);
@@ -304,7 +324,7 @@ int main(int argc, char** argv) {
         fprintf(stderr, "ERROR: mode not found (%s, %d)\n", mode, isQuad);
         exit(-3);
       } else
-        opcodes[opcode_count].modeId = modeId;
+        opcodes[bytes&0xff].modeId = modeId;
     }
 
     for (i = 0; i < instruction_count; i++) {
@@ -313,14 +333,16 @@ int main(int argc, char** argv) {
       }
     }
     if (i < instruction_count)
-      opcodes[opcode_count].instr_num = i;
+      opcodes[bytes&0xff].instr_num = i;
     else {
-      opcodes[opcode_count].instr_num = instruction_count;
+      opcodes[bytes&0xff].instr_num = instruction_count;
       instrs[instruction_count++] = StrDup(name);
     }
-    opcodes[opcode_count++].abbrev = StrDup(name);
+    opcodes[bytes&0xff].abbrev = StrDup(name);
+    opcode_count++;
   }
 
+  fprintf(stderr, "%d opcodes found.\n", opcode_count);
   fprintf(stderr, "%d addressing modes found.\n", mode_count);
   fprintf(stderr, "%d unique instructions found.\n", instruction_count);
 
@@ -332,9 +354,9 @@ int main(int argc, char** argv) {
   fprintf(stderr, "Sorting instructions alphabetically.\n");
   qsort(&instrs[0], instruction_count, sizeof(char*), compar_str);
   // Now update the instruction numbers in the array
-  for (int i = 0; i < opcode_count; i++) {
+  for (int i = 0; i < 256; i++) {
     for (int j = 0; j < instruction_count; j++) {
-      if (!strcmp(opcodes[i].abbrev, instrs[j])) {
+      if (opcodes[i].defined && opcodes[i].abbrev != NULL && !strcmp(opcodes[i].abbrev, instrs[j])) {
         opcodes[i].instr_num = j;
         break;
       }
@@ -433,6 +455,7 @@ int main(int argc, char** argv) {
     fprintf(stderr, "%s - %s:\n  ", instrs[i], short_description);
 
     is_unintended = strstr(short_description, "(unintended instruction)");
+
     if (is_unintended) {
       *is_unintended = 0;
       printf("\n\n\\subsection{\\textcolor{red}{%s [unintended]}}\n", instruction);
@@ -465,11 +488,12 @@ int main(int argc, char** argv) {
            " & {\\bf Addressing Mode} & {\\bf Assembly} & {\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & "
            "\\multicolumn{3}{c}{\\bf Cycles} & & \\\\ \n\\hline\n");
 
-    for (int j = 0; j < opcode_count; j++) {
+    for (int j = 0; j < 256; j++) {
       if (opcodes[j].instr_num == i) {
         int m = opcodes[j].modeId;
         if (m < 0)
           m = 0;
+        opcodes[j].isUnintended = is_unintended!=NULL || (!strncmp(opcodes[j].abbrev, "NOP", 3) && j != 0xEA); // only EA is the real NOP
         addressing_mode = modeinfo[m].description ? modeinfo[m].description : "No description";
         snprintf(assembly, 256, "%s %s", instruction, modeinfo[m].texmode);
 
@@ -492,7 +516,7 @@ int main(int argc, char** argv) {
 
         snprintf(bytes, 16, "%d", modeinfo[m].bytes);
         snprintf(cycles, 16, "%d", modeinfo[m].cycles + extra_cycles);
-
+        modeinfo[m].extra_cycles = extra_cycles;
         int k = 0;
         for (k = 0; k < cycle_counts; k++) {
           if (cycle_count_list_bytes[k] == opcodes[j].bytes)
@@ -588,6 +612,50 @@ int main(int argc, char** argv) {
     printf("\\end{tabular}\n\\end{center}\n");
     fflush(stdout);
 
+    // generate new combined two-page opcode table
+    snprintf(filename, 1024, "%s-newopc.tex", processor);
+    FILE* tf1 = fopen(filename, "wb");
+    if (tf1) {
+      fprintf(tf1, "\\cleartoleftpage\n");
+      for (int side = 0; side < 2; side++) {
+        if (side == 0)
+          fprintf(tf1, "\\begin{center}\n"
+                       "{\\bf Opcode Table %s}\n"
+                       "\\begin{tabular}{c|c|c|c|c|c|c|c|c|}\n"
+                       "\\cline{2-9}\n"
+                       "& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 \\\\ \\hline\n", processor);
+        else
+          fprintf(tf1, "\\begin{center}\n"
+                       "{\\bf Opcode Table %s}\n"
+                       "\\begin{tabular}{|c|c|c|c|c|c|c|c|c}\n"
+                       "\\cline{1-8}\n"
+                       "\\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF & \\\\ \\hline\n", processor);
+        for (int i = 0; i < 16; i++) {
+          if (side == 0)
+            fprintf(tf1, "\\multicolumn{1}{|c|}{\\$%Xx} & ", i);
+          for (int j = side*8; j < (side + 1)*8; j++) {
+            int m = opcodes[i * 16 + j].modeId;
+            if (i * 16 + j < 256)
+              fprintf(tf1, "%s\\OPC{%s}{%d}{%d}{%s} %s",
+                opcodes[i * 16 + j].isUnintended ? "\\OPill" : "",
+                opcodes[i * 16 + j].defined ? opcodes[i * 16 + j].abbrev : "???", // opcode
+                modeinfo[m].bytes, //bytes
+                modeinfo[m].cycles + modeinfo[m].extra_cycles, //cycles
+                modeinfo[m].shortDesc,
+                j!=7 && j!=15 ? "& ": "");
+            else
+              fprintf(tf1, " & ");
+          }
+          if (side == 1)
+            fprintf(tf1, " & \\multicolumn{1}{c|}{\\$%Xx} \\\\ \\hline\n", i);
+          else
+            fprintf(tf1, " \\\\ \\hline\n");
+        }
+        fprintf(tf1, "\\end{tabular}\n\\end{center}\n\n");
+      }
+      fclose(tf1);
+    }
+
     snprintf(filename, 1024, "%s-opcodes.tex", processor);
     FILE* tf = fopen(filename, "wb");
     if (tf) {
@@ -598,7 +666,7 @@ int main(int argc, char** argv) {
       for (int i = 0; i < 16; i++) {
         fprintf(tf, "\\multicolumn{1}{|l|}{\\$%Xx} ", i);
         for (int j = 0; j < 16; j++)
-          if (i * 16 + j < opcode_count)
+          if (i * 16 + j < 256)
             fprintf(tf, "& %s     ", instruction_names[i * 16 + j] ? instruction_names[i * 16 + j] : "??");
           else
             fprintf(tf, "& ");

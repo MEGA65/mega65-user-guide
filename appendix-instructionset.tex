@@ -46,7 +46,7 @@ rotate or modify the value of the Accumulator Register in some way.  For example
 
 In this mode, the Q Pseudo Register is the operand. This is typically used to shift,
 rotate or modify the value of the Q Pseudo Register in some way.  For example,
-\screentext{ASL Q} shifts the value in the Q Pseudo Register left one bit.
+\screentext{ASLQ} shifts the value in the Q Pseudo Register left one bit.
 
 Remember that the Q Pseudo Register is simply the A, X, Y and Z registers acting together
 as a virtual 32-bit register, where A contains the least significant bits, and Z the
@@ -61,12 +61,9 @@ values to be entered in decimal, or in hexadecimal by preceding the value with a
 in binary, by preceding the value with a \% sign.  For example, to set the Accumulator
 Register to the value 5, you could use the following:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA #5
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 The immediate argument is encoded as a single byte following the instruction.  For the above
 case, the instruction stream would contain \$A9, the opcode for LDA immediate mode, followed
@@ -78,12 +75,9 @@ In this mode, the argument is a 16-bit value that is used directly. There is onl
 which uses this addressing mode, \screentext{PHW}.  For example, to push the word \$1234
 onto the stack, you could use:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 PHW #$1234
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 The low byte of the immediate value follows the opcode of the instruction.  The high byte of the
 immediate value then follows that.  For the above example, the instruction stream would thus
@@ -140,7 +134,7 @@ be in the Base Page, that is, any carry due to the addition from the low byte in
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
 
-\subsection{Base Page (Zero-Page) Base Y Indexed Mode}
+\subsection{Base Page (Zero-Page) Quad Y Indexed Mode}
 
 This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
 argument, and adding the value of the Y Register to it.  In 6502 mode, the result will always
@@ -302,14 +296,11 @@ For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0
 Z index contained the value \$01, the following instruction sequence would change the screen
 colour to blue:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA #$06
 LDZ #$01
 STA [$12],Z
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 \subsection{32-bit Base Page Indirect Quad Z-Indexed Mode}
 
@@ -335,26 +326,20 @@ to any memory, without requiring the use of complex bank-switching or DMA operat
 For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0D,
 the following instruction sequence would change the screen border colour to blue:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA #$06
-STA [$12]
-\end{verbatim}
-\end{tcolorbox}
+STA [$12],Z
+\end{screenoutput}
 
 NOTE: The ACME assembler is the only assembler that currently supports this addressing mode.
 For other assemblers, you can achieve the same result by using a \stw{NOP} instruction to
 prefix the equivalent {\em Base Page Indirect, Indexed by Z} instruction.
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA #$06
 NOP
 STA ($12),Z
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 
 The encoding for this addressing mode is identical to Base Page Mode.
@@ -396,8 +381,11 @@ addresses when calling routines.
 NOTE: The mechanisms for switching from 4510 to 6502 CPU personality
 have yet to be finalised.
 
-NOTE: Not all 6502 illegal opcodes are currently implemented.
+NOTE: Most 6502 unintended opcodes are currently unimplemented and even 
+those implemented are not guaranteed to produce the same effect as
+a real 6502 processor.
 
+\cleartoleftpage
 \subsection{Opcode Map}
 
 \begin{center}
@@ -406,6 +394,7 @@ NOTE: Not all 6502 illegal opcodes are currently implemented.
 }
 \end{center}
 
+\cleartoleftpage
 \subsection{Instruction Timing}
 
 The following table summarises the base instruction timing for 6502 mode.
@@ -418,6 +407,7 @@ of important factors that affect these figures.
 }
 \end{center}
 
+\cleartoleftpage
 \subsection{Addressing Mode Table}
 
 \begin{center}
@@ -440,8 +430,8 @@ The remaining opcodes form the set of the
 For the sake of completeness these are documented too.
 All instructions of the unintended set are headed by a red coloured mnemonic.
 
-The unintended instructions are implemented in the 6502 mode,
-but are not guaranteed to produce exactly the same results as on other
+The unintended instructions are currently unimplemented, and are guaranteed
+not to produce exactly the same results as on other
 CPU's of the 65xx family. Many of these instructions are known to
 be unstable, even running on old hardware.
 

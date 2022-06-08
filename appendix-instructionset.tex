@@ -313,45 +313,6 @@ natural 6502 opcode for the instruction being performed.
 It is also important to note that most of the time Z is actually {\em not} added to the
 pointer, as it is part of the Q Pseudo Register. Only \screentext{LDQ (\$nn),Z} will add Z.
 
-
-\subsection{32-bit Base Page Indirect Mode}
-
-This mode is formed by preceding a Base Page Indirect Z-Indexed Mode instruction with
-the {NOP} instruction (opcode \$EA).  This causes the 45GS02 to read a 32-bit address instead
-of a 16-bit address from the Base Page address indicated by its operand.
-Importantly, the 32-bit address does not refer to the processor's current 64KB
-view of memory, but rather to the 45GS02's true 28-bit address space. This allows easy access
-to any memory, without requiring the use of complex bank-switching or DMA operations.
-
-For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0D,
-the following instruction sequence would change the screen border colour to blue:
-
-\begin{screenoutput}
-LDA #$06
-STA [$12],Z
-\end{screenoutput}
-
-NOTE: Check if your assembler supports this addressing mode.
-For other assemblers, you can achieve the same result by using a \stw{NOP} instruction to
-prefix the equivalent {\em Base Page Indirect, Indexed by Z} instruction.
-
-\begin{screenoutput}
-LDA #$06
-NOP
-STA ($12),Z
-\end{screenoutput}
-
-
-The encoding for this addressing mode is identical to Base Page Mode.
-
-\subsection{32-bit Base Page Indirect Mode}
-
-This addressing mode is identical to the 32-bit Base Page Indirect Mode,
-except that it operates on 32-bits of data at the 32-bit address formed by the argument,
-in comparison to 32-bit Base Page Indirect Mode which operates on only 8 bits
-of data.   The encoding of this addressing mode is \$42, \$42, \$EA, followed by the
-natural 6502 opcode for the instruction being performed.
-
 \subsection{Stack Relative Indirect, Indexed by Y}
 
 This addressing mode is similar to Base Page Indirect Y-Indexed Mode,

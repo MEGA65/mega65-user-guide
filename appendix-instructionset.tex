@@ -337,46 +337,11 @@ to any location in the current 64KB memory view.  This makes it possible
 to write software that is fully relocatable, by avoiding the need for absolute
 addresses when calling routines.
 
+\clearpage
 \section{6502 Instruction Set}
 
 NOTE: The mechanisms for switching from 4510 to 6502 CPU personality
 have yet to be finalised.
-
-NOTE: Most 6502 unintended opcodes are currently unimplemented and even 
-those implemented are not guaranteed to produce the same effect as
-a real 6502 processor.
-
-\cleartoleftpage
-\subsection{Opcode Map}
-
-\begin{center}
-\rotatebox{270}{
-\input{6502-opcodes}
-}
-\end{center}
-
-\cleartoleftpage
-\subsection{Instruction Timing}
-
-The following table summarises the base instruction timing for 6502 mode.
-Please also read the information for 4510 mode, as it discusses a number
-of important factors that affect these figures.
-
-\begin{center}
-\rotatebox{270}{
-\input{6502-cycles}
-}
-\end{center}
-
-\cleartoleftpage
-\subsection{Addressing Mode Table}
-
-\begin{center}
-  \rotatebox{270}{
-    \scriptsize
-\input{6502-modes}
-}
-\end{center}
 
 \subsection{Official And Unintended Instructions}
 
@@ -391,29 +356,60 @@ The remaining opcodes form the set of the
 For the sake of completeness these are documented too.
 All instructions of the unintended set are headed by a red coloured mnemonic.
 
-The unintended instructions are currently unimplemented, and are guaranteed
+NOTE: The unintended instructions are currently unimplemented, and are guaranteed
 not to produce exactly the same results as on other
 CPU's of the 65xx family. Many of these instructions are known to
 be unstable, even running on old hardware.
+
+\subsection{Opcode Table}
+
+\begingroup
+% \OPC{Instruction}{Addr-Mode}{Bytes}{Cycles}
+\newcommand{\OPC}[4]{\makecell{\begin{tabular}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedleft\arraybackslash}p{0.8cm}}
+\fontsize{8pt}{0pt}\selectfont #3 & \fontsize{8pt}{0pt}\selectfont {\em #4} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{10pt}{0pt}\selectfont #1} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{8pt}{0pt}\selectfont #2}
+\end{tabular}}}
+% unintended - light red cell fill
+\newcommand{\OPill}{\cellcolor[rgb]{1,.8,.8}}
+
+The Opcode Table lists all possible opcodes, their size, cycles and addressing mode
+in a conscise format.
+
+A cell with a light red background signifies an \textcolor{red}{unintended} instruction.
+
+\begin{center}
+\begin{tabular}{c|c|c|}
+  \cline{2-3}
+  & \$x0 & \$x1 \\\hline
+  \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{mode}{size}{cyc} & \OPill\OPC{OPC}{mode}{size}{cyc} \\\hline
+\end{tabular}
+\end{center}
+
+The letters attached to the cycle count have the following meaning:
+
+\begin{center}
+  \begin{tabular}{|p{2em}|l|}
+  \cline{1-2}
+  & {\bf Meaning} \\\hline
+\multicolumn{1}{|c|}{$b$} & Add one cycle if branch is taken. \\
+                          & Add one more cycle if branch taken crosses a page boundary. \\\hline
+\multicolumn{1}{|c|}{$p$} & Add one cycle if indexing crosses a page boundary. \\\hline
+  \end{tabular}
+\end{center}
+
+\input{6502-newopc.tex}
+
+\endgroup
 
 \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 \input{instructionset-6502}
 \addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
 
-
 \section{4510 Instruction Set}
-
-\subsection{Opcode Map}
-
-\begin{center}
-\rotatebox{270}{
-  \input{4510-opcodes}
-  }
-\end{center}
 
 \subsection{Instruction Timing}
 
-The following table lists the base cycle count for each opcode.
 Note that the number of cycles depends on the speed setting of the
 processor: Some instructions take more or fewer cycles when the
 processor is running at full-speed, or a C65 compatibility 3.5MHz speed,
@@ -440,25 +436,58 @@ view is:
   6502 requires for these instructions.
 \end{itemize}
 
-Note that it is possible that further changes to processor timing will occur.
+\subsection{Opcode Table}
 
-Similar issues apply to when the processor is in 6502 mode.
+\begingroup
+% \OPC{Instruction}{Addr-Mode}{Bytes}{Cycles}
+\newcommand{\OPC}[4]{\makecell{\begin{tabular}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedleft\arraybackslash}p{0.8cm}}
+\fontsize{8pt}{0pt}\selectfont #3 & \fontsize{8pt}{0pt}\selectfont {\em #4} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{10pt}{0pt}\selectfont #1} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{8pt}{0pt}\selectfont #2}
+\end{tabular}}}
+\newcommand{\OPCQ}[4]{\makecell{\begin{tabular}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedleft\arraybackslash}p{0.8cm}}
+\fontsize{8pt}{0pt}\selectfont #3 & \fontsize{8pt}{0pt}\selectfont {\em #4} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{10pt}{0pt}\selectfont #1} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{8pt}{0pt}\selectfont #2} \\[-12pt]
+\fontsize{8pt}{0pt}\selectfont Q
+\end{tabular}}}
+% unintended - light red cell fill
+\newcommand{\OPill}{\cellcolor[rgb]{1,.8,.8}}
+\newcommand{\OPfar}{\cellcolor[rgb]{.8,1,.8}}
+\newcommand{\OPquad}{\cellcolor[rgb]{.8,.8,1}}
+\newcommand{\OPfarq}{\cellcolor[rgb]{.8,1,1}}
+
+The coloured cells indicate an extended 45GS02 Opcode. A Q pseudo register opcode is
+marked blue, a base-page indirect Z indexed opcode that can use 32-bit pointers is cyan.
 
 \begin{center}
-\rotatebox{270}{
-\input{4510-cycles}
-}
-\end{center}
+  \begin{tabular}{c|c|c|c|}
+    \cline{2-4}
+    & \$x0 & \$x1 & \$x2 \\\hline
+    \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{mode}{size}{cyc} & \OPquad\OPCQ{QOP}{mode}{size}{cyc} & \OPfarq\OPCQ{FARQ}{IbpZ}{size}{cyc} \\\hline
+  \end{tabular}
+\end{center}  
 
-\subsection{Addressing Mode Table}
+The letters attached to the cycle count have the following meaning:
 
 \begin{center}
-  \rotatebox{270}{
-    \scriptsize
-\input{4510-modes}
-}
+  \begin{tabular}{|p{2em}|l|}
+  \cline{1-2}
+    & {\bf Meaning} \\\hline
+\multicolumn{1}{|c|}{b} & Add one cycle if branch is taken. \\
+    & Add one more cycle if branch taken crosses a page boundary. \\\hline
+\multicolumn{1}{|c|}{d} & Subtract one cycle when CPU is at 3.5MHz.  \\\hline
+\multicolumn{1}{|c|}{i} & Add one cycle if clock speed is at 40 MHz. \\\hline
+\multicolumn{1}{|c|}{m} & Subtract non-bus cycles when at 40MHz.  \\\hline
+\multicolumn{1}{|c|}{p} & Add one cycle if indexing crosses a page boundary. \\\hline
+\multicolumn{1}{|c|}{r} & Add one cycle if clock speed is at 40 MHz. \\\hline
+\multicolumn{1}{|c|}{s} & Instruction requires 2 cycles when CPU is run at 1MHz or 2MHz. \\\hline
+  \end{tabular}
 \end{center}
 
+\input{4510-newopc.tex}
+
+\endgroup
 
 \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 \input{instructionset-4510}
@@ -472,6 +501,8 @@ more single byte instructions placed immediately before a conventional
 instruction.  These prefixes instruct the 45GS02 to treat the following instruction
 differently, as described in \bookvref{cha:cpu}.
 
+You can find them highlighted in the 4510 Opcode Table.
+
 % Opcodes can have multiple meanings, so no table
 
 % No instruction timing table for compounds, as it can't
@@ -479,8 +510,6 @@ differently, as described in \bookvref{cha:cpu}.
 
 % Same goes for mode list.
 
-
 \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 \input{instructionset-45GS02}
 \addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
-

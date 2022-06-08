@@ -83,7 +83,7 @@ instructionset-45GS02.tex:	instruction_sets/* instruction_set
 	./instruction_set instruction_sets/45GS02.opc > instructionset-45GS02.tex
 
 instructionset-4510.tex:	instruction_sets/* instruction_set
-	./instruction_set instruction_sets/4510.opc > instructionset-4510.tex
+	./instruction_set instruction_sets/4510.opc instruction_sets/45GS02.opc > instructionset-4510.tex
 
 instructionset-6502.tex:	instruction_sets/* instruction_set
 	./instruction_set instruction_sets/6502.opc > instructionset-6502.tex

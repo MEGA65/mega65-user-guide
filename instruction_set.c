@@ -38,7 +38,8 @@ struct modeinfo modeinfo[MAX_MODES];
 char *instrs[256];
 int instruction_count = 0;
 
-struct opcode opcodes[256];
+#define MAX_OPCODES 256*4
+struct opcode opcodes[MAX_OPCODES];
 
 // Collected information for opcode table generation
 int cycle_counts = 0;
@@ -288,9 +289,12 @@ int main(int argc, char** argv) {
     usage(argv[0]);
   }
 
-  memset(opcodes, 0, sizeof(struct opcode)*256);
+  memset(opcodes, 0, sizeof(struct opcode)*MAX_OPCODES);
+  for (int i=0; i<MAX_OPCODES; i++) // initialise for empty instructions
+    opcodes[i].instr_num = -1;
+
   while (Fgets(line, 1024, f)) {
-    int bytes, i = 0, n;
+    int bytes, i = 0, n, opc_offset;
     char name[1024];
     char mode[1024] = "";
 
@@ -300,13 +304,21 @@ int main(int argc, char** argv) {
       exit(-3);
     }
 
-    if (opcodes[bytes&0xff].defined) {
-      fprintf(stderr, "WARNING: Duplicate definition for opcode %02X - %s IGNORED\n", bytes&0xff, name);
+    opc_offset = bytes&0xff;
+    if (bytes > 0xff)
+      opc_offset += 256;
+    if (bytes > 0xffff)
+      opc_offset += 256;
+    if (bytes > 0xffffff)
+      opc_offset += 256;
+
+    if (opcodes[opc_offset].defined) {
+      fprintf(stderr, "WARNING: Duplicate definition for opcode %08X - %s IGNORED\n", bytes, name);
       continue;
     }
     // Store full extended byte sequence
-    opcodes[bytes&0xff].bytes = bytes;
-    opcodes[bytes&0xff].defined = 1;
+    opcodes[opc_offset].bytes = bytes;
+    opcodes[opc_offset].defined = 1;
 
     int isQuad = 0;
     if (strchr(name, 'Q') && strcmp(name, "BEQ")) // BEQ is no Q opcode!
@@ -324,7 +336,7 @@ int main(int argc, char** argv) {
         fprintf(stderr, "ERROR: mode not found (%s, %d)\n", mode, isQuad);
         exit(-3);
       } else
-        opcodes[bytes&0xff].modeId = modeId;
+        opcodes[opc_offset].modeId = modeId;
     }
 
     for (i = 0; i < instruction_count; i++) {
@@ -333,12 +345,12 @@ int main(int argc, char** argv) {
       }
     }
     if (i < instruction_count)
-      opcodes[bytes&0xff].instr_num = i;
+      opcodes[opc_offset].instr_num = i;
     else {
-      opcodes[bytes&0xff].instr_num = instruction_count;
+      opcodes[opc_offset].instr_num = instruction_count;
       instrs[instruction_count++] = StrDup(name);
     }
-    opcodes[bytes&0xff].abbrev = StrDup(name);
+    opcodes[opc_offset].abbrev = StrDup(name);
     opcode_count++;
   }
 
@@ -354,7 +366,7 @@ int main(int argc, char** argv) {
   fprintf(stderr, "Sorting instructions alphabetically.\n");
   qsort(&instrs[0], instruction_count, sizeof(char*), compar_str);
   // Now update the instruction numbers in the array
-  for (int i = 0; i < 256; i++) {
+  for (int i = 0; i < MAX_OPCODES; i++) {
     for (int j = 0; j < instruction_count; j++) {
       if (opcodes[i].defined && opcodes[i].abbrev != NULL && !strcmp(opcodes[i].abbrev, instrs[j])) {
         opcodes[i].instr_num = j;
@@ -488,14 +500,17 @@ int main(int argc, char** argv) {
            " & {\\bf Addressing Mode} & {\\bf Assembly} & {\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & "
            "\\multicolumn{3}{c}{\\bf Cycles} & & \\\\ \n\\hline\n");
 
-    for (int j = 0; j < 256; j++) {
+    int j;
+    for (j = 0; j < MAX_OPCODES; j++) {
       if (opcodes[j].instr_num == i) {
         int m = opcodes[j].modeId;
         if (m < 0)
           m = 0;
-        opcodes[j].isUnintended = is_unintended!=NULL || (!strncmp(opcodes[j].abbrev, "NOP", 3) && j != 0xEA); // only EA is the real NOP
+        fprintf(stderr,"%d %08X\n", j, opcodes[j].bytes);
+        opcodes[j].isUnintended = (is_unintended!=NULL) || (!strncmp(opcodes[j].abbrev, "NOP", 3) && j != 0xEA); // only EA is the real NOP
         addressing_mode = modeinfo[m].description ? modeinfo[m].description : "No description";
         snprintf(assembly, 256, "%s %s", instruction, modeinfo[m].texmode);
+        fprintf(stderr,"%s\n", assembly);
 
         snprintf(opcode, 16, "%02X", j);
         if (opcodes[j].bytes & 0xff000000) {

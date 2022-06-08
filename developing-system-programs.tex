@@ -19,7 +19,7 @@ with normal C64 or C65-mode programs.
 
 \section{Flash Menu}
 
-The flash menu is located in pre-initialised RAM at \$50000 -- \$57FFFF.  It is executed during the first boot each time the
+The flash menu is located in pre-initialised RAM at \$50000 -- \$57FFF.  It is executed during the first boot each time the
 MEGA65 is switched on.  It is unusual in that it executes in the hypervisor context. This is so that it has access to
 the QSPI
 flash, which is not available outside of Hypervisor Mode, so that user programs cannot corrupt the cores stored in the flash.
@@ -108,7 +108,7 @@ The Hypervisor is normally built as HICKUP.M65, a 16KB file that contains the co
 
 \begin{itemize}
 	\item 1. Place the updated HICKUP.M65 file on the FAT32 file system of the SD card, and then power the MEGA65 off and on.  This works because the Hypervisor contains code that checks for an updated version of itself, and if found, loads it. However this approach is problematic in that if you install a newer bitstream, it will still downgrade the Hypervisor to whatever version is found in the HICKUP.M65 file on the SD card.  This method is only recommended for developers who have a need to test their modified Hypervisor code from a cold start. Even then, it is recommended to remove the HICKUP.M65 file immediately after testing to avoid unexpected down-grading in the future.
-	\item 2. Use the m65 command's {\\t -k} option to replace the Hypervisor in place, and then reset the MEGA65 using the reset button on the left-hand side of the case.  This should be done when the Hypervisor is {\em not} active, so that corruption of current execution cannot occur. However, it must also occur before any ROM has been loaded to replace the default OpenROM image.  This is because the Hypervisor will attempt to call into the ROM on first-boot in prepration for calling the flash menu, and assumes that the OpenROM is present, because it uses a special OpenROM-specific call to initialise parts of the system state for the flash menu.  This is best done by using a command like {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} to load both a new Hypervisor program and re-load an OpenROM image.
+	\item 2. Use the m65 command's {\tt -k} option to replace the Hypervisor in place, and then reset the MEGA65 using the reset button on the left-hand side of the case.  This should be done when the Hypervisor is {\em not} active, so that corruption of current execution cannot occur. However, it must also occur before any ROM has been loaded to replace the default OpenROM image.  This is because the Hypervisor will attempt to call into the ROM on first-boot in prepration for calling the flash menu, and assumes that the OpenROM is present, because it uses a special OpenROM-specific call to initialise parts of the system state for the flash menu.  This is best done by using a command like {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} to load both a new Hypervisor program and re-load an OpenROM image.
 \end{itemize}
 
 \section{OpenROM}

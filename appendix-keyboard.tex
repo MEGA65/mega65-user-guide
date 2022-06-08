@@ -8,7 +8,7 @@ C65-mode, as well as eleven new C65 keys that normally work only in C65-mode.
 \section{Hardware Accelerated Keyboard Scanning}
 
 To make use of the new extended keyboard easier, the MEGA65 features a hardware
-accelerated keyboard scan circuit, that provides ASCII (not PETSCII!) codes for
+accelerated keyboard scan circuit, that provides ASCII/Unicode (not PETSCII!) codes for
 keys and key-combinations.  This makes it very simple to use the full capabilities
 of the MEGA65's keyboard, including the entry of ASCII symbols such as \{, \_ and |,
 which are not possible to type on a normal C64 and C128 keyboards.
@@ -18,8 +18,8 @@ make it easier to read from the keyboard without having check it too regularly.
 Further, the hardware acclerated keyboard scanner supports most Latin-1 code-page
 characters, allowing the entry of many accented characters.  These keys are
 entered by holding down \megasymbolkey and pressing other keys or key-combinations.
-The use of ASCII or Latin-1 symbols not present in the PETSCII character set
-requires the use  of a font that contains these symbols, and software which supports them.
+The use of ASCII or Unicode basic-latin symbols not present in the PETSCII character set
+requires the use of a font that contains these symbols, and software which supports them.
 
 The hardware accelerated keyboard scanner is very simple to use: First, make sure
 that you have the MEGA65 I/O context activated, then read memory location \$D610
@@ -53,8 +53,49 @@ any keys that you have entered buffered in the normal way. For assembly language
 programs the easiest solution to this is to disable interrupts via the SEI
 instruction.  This prevents the KERNAL keyboard scanner from running.
 
+\subsection{Key Combination Tables}
 
-\subsection{Latin-1 Keyboard Map}
+The following tables show the hex value and unicode character that will be produced
+by each key combination. One table is provided for pressing a key on its own, and
+one table for each of the \specialkey{SHIFT}, \specialkey{CTRL}, \megasymbolkey, and
+\specialkey{ALT} keys.
+
+\begin{minipage}{\textwidth}
+\bf{Keys pressed alone:}
+\include{keymap_table_1}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Keys pressed with \specialkey{SHIFT}}
+\include{keymap_table_2}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Keys pressed with \specialkey{CTRL}}
+\include{keymap_table_3}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Keys pressed with \megasymbolkey}
+\include{keymap_table_4}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Keys pressed with \specialkey{ALT}}
+\include{keymap_table_5}
+\end{minipage}
+
+\subsection{Unicode Basic-Latin Keyboard Map}
+
+The following tables are a convenient reference to help you find a key combination
+that will produce the desired ASCII/Unicode basic-latin character code.  Note that
+a very few codes are difficult to type in practice, because they are mapped to
+key combinations that perform other functions, in particular the combination of
+\megasymbol + \specialkey{TAB} is normally overridden by the Matrix Mode hardware
+debug feature.
+
+\include{unicode_mapping}
+
 
 \section{Keyboard Theory of Operation}
 

@@ -237,8 +237,7 @@ Standard Definition TV modes used by the C64. The frame parameters of the VIC-IV
 	\small NTSC & 65 & 526 & 263  \\
 \end{longtable}
 
-The result is that the frames on the VIC-IV consist of exactly the same
- number of $\sim$ 1MHz CPU cycles as on the VIC-II exactly.
+The result is that the frames on the VIC-IV consist of exactly the same number of $\sim$1MHz CPU cycles as on the VIC-II.
 
 \subsubsection{Bad Lines}
 
@@ -259,8 +258,11 @@ any bad line from stealing time from the processor.
 
 \section{Memory Interface}
 
-The VIC-IV supports up to 64KB of colour RAM and, in principle, 16MB of direct access RAM for video data.  However in typical installations
-32KB of colour RAM and 384KB of addressable RAM is present. In MEGA65 systems, the second 128KB of RAM is typically used to hold a C65-compatible ROM, leaving 256KB available, unless software is written to avoid the need to use C65 ROM routines, in which case all 384KB can be used.
+The VIC-IV supports up to 16MB of direct access RAM for video data, however at present, all existing models provide only 384KB of addressable RAM.
+In MEGA65 systems, the second block of 128KB of RAM (spanning from 128KB-256KB in the memory map) is typically used to hold a C65-compatible ROM,
+leaving 256KB of RAM available to the user. If software is written to avoid the need to use C65 ROM routines, then the entire 384KB of RAM can be used by the program.
+
+All MEGA65 models presently support 32KB of colour RAM, however there are plans for the latest R3 board to support 64KB of colour RAM (or possibly even 128KB).
 
 The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM, including the VIC-II's use of 16KB banks, and the VIC-III's Display Address Translator (DAT).  This additional memory can be used for character and bitmap displays, as well as for sprites.  However, the VIC-III bitplane modes remain limited to using only the first 128KB of RAM, as the VIC-IV does not enhance the bitplane mode.
 
@@ -279,18 +281,19 @@ POKE $D060,$45:POKE $D061,$23:POKE $D062,$1
 The location of the character generator data can also be set with byte-level precision via the CHARPTR registers at \$D068 -- \$D06A (53352 -- 53354 decimal). As usual, the first of these registers holds the lowest-order byte, and the last the highest-order byte. The three bytes allow for placement of character data anywhere in the first 16MB of RAM. For systems with less than 16MB of RAM accessible by the VIC-IV, the upper address bits should be zero.
 
 For example, to indicate that character generator data should be sourced beginning at \$41200 (266752 decimal), the following
-could be used.  Note that the AND binary operator only works with arguments between 0 and 65,535. Therefore we first
-subtract 4$\times$65,536 = 262,144 from the address (the 4 is determined by calculating INT(266752/65536) ), before we use the AND operator to compute the lower part of the address:
+could be used.  Note that the command POKEW can be used to write two bytes as a word into a memory or I/O location. Therefore, we use POKEW to write \$00 into \$D068 and \$12 into \$D069, and an additional POKE to write the high byte \$A into \$D06A by dividing the address by 65536:
 
 \begin{screenoutput}
 REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 REM HEX $41200 IS EASILY DIVIDED IN ITS 3 BYTES $00, $12, $4
-REM BUT YOU CAN ALSO USE MATH TO EXTRACT THE PARTS
-POKE $D060,(266752-INT(266752/65536)*$10000) AND 255
-POKE $D061,INT((266752-INT(266752/65536)*65536)/256)
-POKE $D062,INT(266752/65536)
-\end{screenoutput}
+REM POKEW SETS THE LOWER TWO BYTES IN ONE COMMAND AND
+REM THE FOLLOWING POKE SETS THE UPPER BYTE
+A=$41200
+POKEW $D068,A
+POKE $D06A,A/65536
+\end{verbatim}
+\end{tcolorbox}
 
 
 \subsection{Relocating Colour / Attribute RAM}
@@ -536,12 +539,14 @@ normally be used with Super-Extended Attribute Mode (SEAM), so that more than 25
 the selection of 8,192 unique characters, this allows FCM character data to be placed anywhere in the first 512KB of chip RAM (but
 note that most models of the MEGA65 have only 384KB of chip RAM).
 
+Please note that the pixel value \$ff will not select the corresponding colour code directly. Instead, it will select the colour code defined by the colour RAM.
+
 \subsection{Nibble-colour (16 colours per character) Text Mode (NCM)}
 
 The Nibble-Colour Mode (NCM) for text is similar to Full-Colour Text Mode, except that each byte of data describes two
 pixels using 4 bits each. This makes the NCM unique, because the characters will be 16 pixels wide, instead of the usual 8 pixels wide. This can be used to create colourful displays, without using as much memory as FCM, because fewer characters are required to cover the screen.  Unlike the VIC-II's MCM, this mode does not result in a loss of horizontal resolution.
 
-In NCM the lower four bits of the pixel colour comes from the upper or lower four bits of the pixel data.  The upper four bits of the colour code come from the colour RAM data for the displayed character.  This makes it possible to use all palette entries in NCM, although the limitation of 16 colours per character remains.
+In NCM the lower four bits of the pixel colour comes from the upper or lower four bits of the pixel data.  The upper four bits of the colour code come from the colour RAM data for the displayed character.  This makes it possible to use all palette entries in NCM, although the limitation of 16 colours per character remains. Similar to the behaviour of FCM, the pixel data value \$f will select the pixel colour set in the colour RAM.
 
 A further advantage of NCM is that it uses fewer bus cycles per pixel than FCM, because fewer character data fetches need to occur per raster line.  Together with the reduced memory requirements, this makes NCM particularly useful for creating colourful multiple layers of graphics.  This allows the VIC-IV to display arcade style displays with more colours than many 16-bit computers.
 

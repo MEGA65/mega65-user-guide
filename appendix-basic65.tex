@@ -273,6 +273,55 @@ String   Array &  3                         &    \screentext{\$} & 0 .. 255 char
 \end{tabular}
 \end{center}
 
+\subsection{Screen memory and colour RAM}
+\index{Screen memory and colour RAM}
+Many programmers like to skip the standard routine {\bf PRINT} for screen output
+and want to access the screen memory and the colour RAM directly
+using the commands {\bf PEEK} and {\bf POKE}.
+{\bf BASIC 65} provides a method for direct access, that is easier to use
+and faster than {\bf POKE}:
+
+Two byte arrays are predefined, that are mapped to screen text memory
+and screen colour memory.
+
+\screentextwide{ T@\&(COLUMNS,ROWS)} is mapped to the text screen memory.
+
+\screentextwide{ C@\&(COLUMNS,ROWS)} is mapped to the colour screen memory.
+
+In 80 column mode the arrays are dimensioned as:
+
+\screentextwide{ T@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
+
+\screentextwide{ C@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
+
+In 40 column mode the arrays are dimensioned as:
+
+\screentextwide{ T@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
+
+\screentextwide{ C@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
+
+If you want to display the character {\bf A} (display code = 1)
+in row 2 and column 5 and make it yellow, you can either use the POKE method:
+
+\screentextwide{POKE 2213,1} address = 2048 + 2 * 80 +5 = 2213
+
+\screentextwide{POKE \$FF808A5,7} 7 = YELLOW.
+
+or use the mapped byte arrays:
+
+\screentextwide{T@\&(5,2) = 1} character A
+
+\screentextwide{C@\&(5,2) = 7} colour YELLOW
+
+Examining the contents of a screen position is equally easy.
+To get the character and the colour at the left most (home) postion:
+
+\screentextwide{T\% = T@\&(0,0)}
+
+\screentextwide{C\% = C@\&(0,0)}
+
+T\% will then contain the display code of the character, while C\% has the colour index.
+
 
 \subsection{BASIC 65 Operators}
 \index{BASIC 65 Operators}
@@ -367,6 +416,8 @@ Minus          & \screentext{-}   & Subtraction       & \screentext{B = A - 42}\
 Asterisk       & \screentext{*}   & Multiplication    & \screentext{C = A * B}\\
 Slash          & \screentext{/}   & Division          & \screentext{D = B / 13}\\
 Up Arrow       & \screentext{$\uparrow$} & Exponentiation    & \screentext{E = 2 $\uparrow$ 10}\\
+Left Shift     & \screentext{<<}   & Left Shift        & \screentext{A = B << 2} \\
+Right Shift    & \screentext{>>}   & Right Shift       & \screentext{A = B >> 1} \\
 \hline
 \end{tabular}
 \end{center}
@@ -449,6 +500,7 @@ High             & \screentext{$\uparrow$} \\
                  & \screentext{+ -} (Unary Mathematical) \\
                  & \screentext{* /} \\
                  & \screentext{+ -} (Binary Mathematical)\\
+                 & \screentext{<< >>} (Arithmetic Shifts)\\
                  & \screentext{< <= > >= = <>} \\
                  & \screentext{NOT} \\
                  & \screentext{AND} \\
@@ -1613,6 +1665,42 @@ CHANGE &IN& TO &OUT&
 Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \end{description}
 
+% *******
+% CHARDEF
+% *******
+
+\newpage
+\subsection{CHARDEF}
+\index{BASIC 65 Commands!CHARDEF}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$E0 \$96
+\item [Format:] {\bf CHARDEF} index, bit-matrix
+\item [Usage:] Change the bitmap matrix of characters
+
+      {\bf index} is the character number in display code,
+      (@:0, A:1, B:2, ...)
+
+      {\bf bit-matrix} is a set of 8 byte values, which define
+      the raster representation for the character from top row to bottom row.
+      If more than 8 values are used as arguments, the values 9-16 are used
+      for the character index+1, 17-24 for index+2, etc.
+
+\item [Remarks:] The character bitmap changes are applied to the VIC
+       character generator, which resides in RAM at the address \$FF7E000.
+
+       All changes are volatile and the VIC character set can be restored by
+       a reset or by using the {\bf FONT} command.
+
+\item [Examples:] Using {\bf CHARDEF}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+CHARDEF 1,$FF,$81,$81,$81,$81,$81,$81,$FF :REM CHANGE 'A' TO RECTANGLE
+CHARDEF 9,$18,$18,$18,$18,$18,$18,$18,$00 :REM MAKE 'I' SANS SERIF
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % *****
 % CHDIR
 % *****
@@ -1623,23 +1711,51 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$4B
 \item [Format:] {\bf CHDIR} dirname [{\bf,U} unit]
-\item [Usage:] Change to a subdirectory or a parent directory
-   of the SD-Card filesystem.
-
-   {\bf CHDIR ".."} changes to the parent directory.
+\item [Usage:] Change to a subdirectory or a parent directory.
 
    \filenamedefinition
 
-   The {\bf,U} unit argument is currently ignored.
-   {\bf CHDIR} can only be used on unit 12, the SD-card.
+   Dependent on the {\bf unit}, {\bf CHDIR} is applied to
+   different filesystems.
+
+   {\bf UNIT 12} is reserved for the SD-Card (FAT filesystem).
+   There this command can be used to navigate to subdirectories
+   and mount disk images, that are stored there.
+   {\bf CHDIR "..",U12} changes to the parent directory on {\bf UNIT 12}.
+
+   For units, that are managed by CBDOS (typically 8 and 9),
+   {\bf CHDIR} is used to change into or out of subdirectories
+   on floppy or disk image of type {\bf D81}.
+   Existing subdirectories are displayed as filetype {\bf CBM}
+   in the parent directory, they are created with the command {\bf MKDIR}.
+   {\bf CHDIR "/",U unit} changes to the root directory.
 
 \item [Examples:] Using {\bf CHDIR}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-  CHDIR "ADVENTURES"      :REM ENTER SUBDIRECTORY ADVENTURES
-  CHDIR ".."              :REM GO BACK TO PARENT DIRECTORY
-  CHDIR "RACING"          :REM ENTER SUBDIRECTORY RACING
+CHDIR "ADVENTURES",U12  :REM ENTER ADVENTURES ON SD CARD
+CHDIR "..",U12          :REM GO BACK TO PARENT DIRECTORY
+CHDIR "RACING",U12      :REM ENTER SUBDIRECTORY RACING
+\end{verbatim}
+
+\selectfont{\codefont 0}
+\begin{tcolorbox}[colback=white,coltext=black,arc=0mm,boxrule=0mm,
+       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
+       left skip=0.5mm,
+       width=28mm,height=3mm,valign=center]
+\begin{verbatim}
+"MEGA65          "    1D
+\end{verbatim}
+\end{tcolorbox}
+\begin{verbatim}
+800  "MEGA65 GAMES"     CBM
+800  "MEGA65 TOOLS"     CBM
+600  "BASIC PROGRAMS"   CBM
+960  BLOCKS FREE.
+
+CHDIR "MEGA65 GAMES",U8 :REM ENTER SUBDIRECTORY ON FLOPPY DISK
+CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -1686,18 +1802,46 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \index{BASIC 65 Commands!CIRCLE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E2
-\item [Format:] {\bf CIRCLE} xcentre{\bf,} ycentre{\bf,} radius [{\bf,} solid]
+\item [Format:] {\bf CIRCLE} xc{\bf,} yc{\bf,} radius [{\bf,} flags
+                {\bf,} start{\bf,} stop]
 \item [Usage:] A special case of
                {\bf ELLIPSE}, using the same value for
                horizontal and vertical radius.
 
-               {\bf xcentre} x coordinate of the centre in pixels
+               {\bf xc} is the x coordinate of the centre in pixels
 
-               {\bf ycentre} y coordinate of the centre in pixels
+               {\bf yc} is the y coordinate of the centre in pixels
 
-               {\bf radius} radius of the circle in pixels
+               {\bf radius} is the radius of the circle in pixels
 
-               {\bf solid} fills the circle, if not zero
+               {\bf flags} control filling, arcs and
+                           the position of the 0 degree angle.
+               Default setting (zero) is don't fill, draw legs
+               and the 0 degree radian points to 3 o' clock.
+
+{\setlength{\tabcolsep}{1.5mm}
+\begin{tabular}{|l|l|l|l|}
+\hline
+{\bf Bit}  & {\bf Name} & {\bf Value} & {\bf Action if set} \\
+\hline
+  0 & fill  & 1  & Fill circle or arc with the current pen colour \\
+  1 & legs  & 2  & Suppress drawing of the legs of an arc \\
+  2 & combs & 4  & Let the zero radian point to 12 o' clock \\
+\hline
+\end{tabular}
+}
+
+               The units for the start- and stop-angle are degrees
+               in the range of 0 to 360. The 0 radian starts
+               at 3 o' clock and moves clockwise.
+               Setting bit 2 of flags (value 4) moves the zero-radian
+               to the 12 o' clock position.
+
+               {\bf start} start angle for drawing an arc.
+
+               {\bf stop} stop angle for drawing an arc.
+
+
 
 \item [Remarks:] {\bf CIRCLE} is used to draw circles on
                screens with an aspect ratio of 1:1 (for example: 320 x 200
@@ -1811,6 +1955,44 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 RUN
 
  0
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ******
+% CLRBIT
+% ******
+
+\newpage
+\subsection{CLRBIT}
+\index{BASIC 65 Functions!CLRBIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$9C \$FE \$4E
+\item [Format:] {\bf CLRBIT} address{\bf,} bit number
+\item [Usage:]  Clears (resets) a single bit at the {\bf address}.
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536)
+                are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+                The {\bf bit number} is a value in the range of 0-7.
+
+                 A bank value > 127 is used to access I/O,
+                 and the underlying system hardware such as the
+                 VIC, SID, FDC, etc.
+
+
+\item [Example:] Using {\bf CLRBIT}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 BANK 128          :REM SELECT SYSTEM MAPPING
+ 20 CLRBIT $D011,4    :REM DISABLE DISPLAY
+ 30 CLRBIT $D016,3    :REM SWITCH TO 38 OR 76 COLUMN MODE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -1973,23 +2155,14 @@ CLOSE 1
 \index{BASIC 65 Commands!COLOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E7
-\item [Format:] {\bf COLOR} colour\\
-                {\bf COLOR} <{\bf ON} | {\bf OFF}>\\
-\item [Usage:] The first format works in the same way as the {\bf FOREGROUND}, i.e: sets the foreground colour
-               (text colour) of the screen to the colour argument, which must be in the range of 0 to 31. Refer to the table
-               under {\bf BACKGROUND} on page \pageref{colourtable} for the colour values and their corresponding colours.
+\item [Format:] {\bf COLOR} colour-index
+\item [Usage:] The command works in the same way as {\bf FOREGROUND},
+               i.e: sets the foreground colour
+               (text colour) of the screen to the colour argument, which
+                must be in the range of 0 to 31. Refer to the table
+               under {\bf BACKGROUND} on page \pageref{colourtable} for
+               the colour values and their corresponding colours.
 
-               The second format enables or disables
-               handling of character attributes on screen.
-               If {\bf COLOR} is {\bf ON}, the screen routines
-               take care of both character RAM and attribute RAM (or colour RAM).
-               For example, if the screen is scrolling text, the attributes
-               are also scrolled, so each character keeps its attribute.
-               If {\bf COLOR} is {\bf OFF}, the attribute
-               is fixed and only character movement is performed
-               for screen characters. This speeds up screen
-               handling, which could be useful when moving characters with different colours is
-               not required.
 \item [Example:] Using {\bf COLOR}
 \item \begin{center}\includegraphics[width=0.8\linewidth]{images/colour-example.png}\end{center}
 \end{description}
@@ -2714,10 +2887,25 @@ on page \pageref{3columndirlisting}.
 \index{BASIC 65 Commands!DLOAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F0
-\item [Format:] {\bf DLOAD} filename [{\bf,D} drive] [{\bf,U} unit]
-\item [Usage:]
-   "Disk LOAD" loads a file of type
+\item [Format:] {\bf DLOAD} filename [{\bf,D} drive] [{\bf,U} unit] \\
+                {\bf DLOAD} "\$[pattern=type]" [{\bf,D} drive] [{\bf,U} unit] \\
+                {\bf DLOAD} "\$\$[pattern=type]" [{\bf,D} drive] [{\bf,U} unit]
+
+\item [Usage:] The first form loads a file of type
    {\bf PRG} into memory reserved for BASIC programs.
+
+The second form loads a directory into memory, which can then be viewed
+with {\bf LIST} or {\bf LISTP}. It is structured like a BASIC program,
+but file sizes are displayed instead of line numbers.
+
+The third form is similar to the second one, but the files are numbered.
+This listing can be scrolled like a BASIC program with the keys \megakey{F9}
+or \megakey{F11}, edited, listed, saved or printed.
+
+A filter can be applied by specifying a pattern or a pattern and a type.
+The asterisk \* matches the rest of the name, while the ? matches any single character.
+The type specifier can be a character of (P,S,U,R), that is Program, Sequential, User,
+or Relative file.
 
    \filenamedefinition
 
@@ -2739,6 +2927,9 @@ on page \pageref{3columndirlisting}.
    new program. Variables, arrays and strings from the current
    run are preserved and can also be used by the newly loaded program.
 
+   Every {\bf DLOAD} either program or directory, will replace
+   contents (programs), that are currently in memory.
+
 \item [Examples:] Using {\bf DLOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -2746,6 +2937,10 @@ on page \pageref{3columndirlisting}.
   DLOAD "APOCALYPSE"
   DLOAD "MEGA TOOLS",U9
   DLOAD (FI$),U(UN%)
+
+  DLOAD "$"            :REM LOAD WHOLE DIRECTORY - WITH FILE SIZES
+  DLOAD "$$"           :REM LOAD WHOLE DIRECTORY - SCROLLABLE
+  DLOAD "$$X*=P"       :REM DIRECTOY WITH PRG FILES STARTING with 'X'
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -2867,7 +3062,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 30 LOOP
 
 10 I%=0 : REM INTEGER LOOP 1-100
-20 DO I%=I%+1
+20 DO: I%=I%+1
 30 LOOP WHILE I% < 101
 \end{verbatim}
 \end{tcolorbox}
@@ -3331,23 +3526,51 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 Commands!ELLIPSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$30
-\item [Format:] {\bf ELLIPSE} xcentre{\bf,} ycentre{\bf,} xradius{\bf,} yradius
-		[{\bf,} solid]
+\item [Format:] {\bf ELLIPSE} xc{\bf,} yc{\bf,} xr{\bf,} yr
+		[{\bf,} flags {\bf,} start{\bf,} stop]
 \item [Usage:] Draws an ellipse.
 
-               {\bf xcentre} x coordinate of centre in pixels.
+               {\bf xc} is the x coordinate of the centre in pixels
 
-               {\bf ycentre} y coordinate of centre in pixels.
+               {\bf yc} is the y coordinate of the centre in pixels
 
-               {\bf xradius} x radius of the ellipse in pixels.
+               {\bf xr} is the x radius of the ellipse in pixels
 
-               {\bf yradius} y radius of the ellipse in pixels.
+               {\bf yr} is the y radius of the ellipse in pixels
 
-               {\bf solid} fills the ellipse, if not zero.
+               {\bf flags} control filling, arcs and orientation
+               of the zero radian (combs flag named after {\bf retroCombs}).
+               Default setting (zero) is: Don't fill, draw legs,
+               start drawing at 3 'o clock.
+
+{\setlength{\tabcolsep}{1.5mm}
+\begin{tabular}{|l|l|l|l|}
+\hline
+{\bf Bit}  & {\bf Name} & {\bf Value} & {\bf Action if set} \\
+\hline
+  0 & fill  & 1  & Fill ellipse or arc with the current pen colour \\
+  1 & legs  & 2  & Suppress drawing of the legs of an arc \\
+  2 & combs & 4  & Drawing (0 degree) starts at 12 'o clock \\
+\hline
+\end{tabular}
+}
+
+               The units for the start- and stop-angle are degrees
+               in the range of 0 to 360. The 0 radian starts
+               at 3 o' clock and moves clockwise. The combs-flag
+               shifts the 0 radian and the start position to the
+               12 'o clock position.
+
+               {\bf start} start angle for drawing an elliptic arc.
+
+               {\bf stop} stop angle for drawing an elliptic arc.
 
 \item [Remarks:] {\bf ELLIPSE} is used to draw ellipses on
                screens at various resolutions.
-               It can also be used to draw circles.
+               If a full ellipse is to be drawn, start and stop should
+               be either omissed or set both to zero
+               (not 0 and 360). Drawing and filling of full ellipses is
+               much faster, than using elliptic arcs.
 
 \item [Example:] Using {\bf ELLIPSE}
 
@@ -3358,22 +3581,20 @@ where the error line is taken from {\bf EL}.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 REM ELLIPSE
-110 W=320:H=200:B%=2            :REM WIDTH, HEIGHT, DEPTH
-120 X0=W/2:Y0=H/2:XD=W/4:YD=H/4 :REM CENTRE AND HALF AXIS
-130 BORDER 0                    :REM BLACK
-140 BACKGROUND 0                :REM BLACK
-150 FOREGROUND 5                :REM GREEN
-160 SCREEN 320,200,B%           :REM SET PARAMETERS
-170 PEN 2                       :REM DRAW PEN RED
-180 ELLIPSE X0,Y0,XD,YD,1       :REM DRAW SOLID ELLIPSE
-190 PEN 3                       :REM DRAW PEN CYAN
-200 ELLIPSE X0,Y0,XD+8,YD+8,0   :REM DRAW OUTLINED ELLIPSE
-210 A$=STR$(W)+" X"+STR$(H)+" X"+STR$(B%)
-220 PEN 1                       :REM DRAW PEN WHITE
-230 CHAR  12,10,1,1,2,A$        :REM DRAW TEXT
-240 GETKEY A$                   :REM WWAIT FOR KEYPRESS
-250 SCREEN CLOSE                :REM CLOSE GRAPHICS
+100 S%=2:D%=3:W%=320*S%:H%=200*S%  :REM SCREEN SETTINGS
+110 CX%=W%/2:CY%=H%/2              :REM CENTRE AND RADII
+120 RX%=W%/2:RY%=H%/2
+130 SCREEN W%,H%,D%                :REM OPEN SCREEN
+140 ELLIPSE CX%,CY%,CX%-4,CY%-4
+150 PEN2:CIRCLE CX%,CY%,RY%-4,2
+160 PEN3:CIRCLE CX%,CY%,RY%-14,2
+170 PEN4:CIRCLE CX%,CY%,RY%-24,0,135,45
+180 PEN5:ELLIPSE CX%,CY%/2,RX%/4,RY%/4,1
+190 PEN6:CIRCLE 120*S%,CY%,40,1,45,315
+200 PEN7:CIRCLE 200*S%,CY%,40,1,225,135
+210 PEN0:CHAR 34,CY%/2-8,2,2,2,"MEGA65",$3D000
+220 GETKEY A&                      :REM WAIT FOR ANY KEY
+230 SCREEN CLOSE                   :REM CLOSE GRAPHICS SCREEN
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4455,7 +4676,7 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
                call to commands such as {\bf DOPEN}, or {\bf OPEN}.
 
 
-\item [Remarks:] All values from 0 to 255 are valid, so {\bf GET}
+\item [Remarks:] All values from 0 to 255 are valid, so {\bf GET\#}
                  can also be used to read binary data.
 
 \item [Example:] Using {\bf GET\#} to read a disk directory:
@@ -5534,8 +5755,25 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$93
 \item [Format:] {\bf LOAD} filename [{\bf,} unit [{\bf,} flag]] \\
+                {\bf LOAD} "\$[pattern=type]" [{\bf, unit}] \\
+                {\bf LOAD} "\$\$[pattern=type]" [{\bf, unit}] \\
                 {\bf /} filename [{\bf,} unit [{\bf,} flag]]
-\item [Usage:]
+
+\item [Usage:] The first form loads a file of type
+   {\bf PRG} into memory reserved for BASIC programs.
+
+The second form loads a directory into memory, which can then be viewed
+with {\bf LIST} or {\bf LISTP}. It is structured like a BASIC program,
+but file sizes are displayed instead of line numbers.
+
+The third form is similar to the second one, but the files are numbered.
+This listing can be scrolled like a BASIC program with the keys \megakey{F9}
+or \megakey{F11}, edited, listed, saved or printed.
+
+A filter can be applied by specifying a pattern or a pattern and a type.
+The asterisk \* matches the rest of the name, while the ? matches any single character.
+The type specifier can be a character of (P,S,U,R), that is Program, Sequential, User,
+or Relative file.
 
    A common use of the shortcut symbol {\bf /} is to quickly load
    {\bf PRG} files. To do this:
@@ -5590,6 +5828,10 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
   LOAD "APOCALYPSE"   :REM LOAD A FILE CALLED APOCALYPSE TO BASIC MEMORY
   LOAD "MEGA TOOLS",9 :REM LOAD A FILE CALLED "MEGA TOOLS" FROM UNIT 9 TO BASIC MEMORY
   LOAD "*",8,1        :LOAD THE FIRST FILE ON UNIT 8 TO RAM AS SPECIFIED IN THE FILE
+
+  LOAD "$"            :REM LOAD WHOLE DIRECTORY - WITH FILE SIZES
+  LOAD "$$"           :REM LOAD WHOLE DIRECTORY - SCROLLABLE
+  LOAD "$$X*=P"       :REM DIRECTORY, WITH PRG FILES STARTING with 'X'
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5657,6 +5899,47 @@ ppmtoilbm -aga <myImage.ppm> > <myImage.iff>
 150 DATA ALIEN,BEAKER,JOKER,PICARD,PULP,TROOPER,RIPLEY
 160 SCREEN CLOSE 0
 170 PALETTE RESTORE
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% ****
+% LOCK
+% ****
+
+\newpage
+\subsection{LOCK}
+\index{BASIC 65 Commands!LOCK}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$50
+\item [Format:] {\bf LOCK} filename/pattern [{\bf,D} drive] [{\bf,U} unit]
+\item [Usage:] Used to lock files. The specified file or
+               a set of files, that matches the pattern, is locked
+               and cannot be deleted with the commands {\bf DELETE},
+               {\bf ERASE} or {\bf SCRATCH}.
+
+               The command {\bf UNLOCK} removes the lock.
+
+   \filenamedefinition
+
+   \drivedefinition
+
+   \unitdefinition
+
+\item [Remarks:]
+
+   In direct mode the number of locked files is printed.
+                 The second to last number from the message
+                 contains the number of locked files,
+
+\item [Examples:] Using {\bf LOCK}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+LOCK "DRM",U9 :REM LOCK FILE DRM ON UNIT 9
+03,FILES LOCKED,01,00
+LOCK "BS*"    :REM LOCK ALL FILES BEGINNING WITH "BS"
+03,FILES LOCKED,04,00
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5853,7 +6136,7 @@ bit & memory segment \\
 \item [Remarks:] After reserving memory with {\bf MEM} the graphics
                  library will not use the reserved areas, so it can
                  be used for other purposes. Access to bank 4 and 5
-                 is possible with the commands {\bf PEEK, PEEKW, POKE, POKEW}
+                 is possible with the commands {\bf PEEK, WPEEK, POKE, WPOKE}
                  and {\bf EDMA}.
 
                  If a graphics screen cannot be opened, because the
@@ -5949,6 +6232,66 @@ bit & memory segment \\
 RUN
 GA-6
 MEGA+65
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% MKDIR
+% *****
+
+\newpage
+\subsection{MKDIR}
+\index{BASIC 65 Commands!MKDIR}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$51
+\item [Format:] {\bf MKDIR} dirname {\bf,L} size [{\bf,U} unit]
+\item [Usage:] Make (create) a subdirectory on a floppy or D81 disk image.
+
+   \filenamedefinition
+
+   {\bf MKDIR} can only be used on units, managed by CBDOS.
+   These are the internal floppy disk drive and SD-Card images of {\bf D81} type.
+   The command cannot be used on external drives connected
+   to the serial IEC bus.
+
+   The {\bf size} parameter specifies the number of tracks, to be reserved
+   for the subdirectory, with one track = 40 sectors at 256 byte.
+   The first track of the reserved range is used as directory track
+   for the subdirectory.
+
+   The minimum size is 3 tracks, the maximm 38 tracks.
+   There must be a contiguous region of empty tracks on the floppy
+   (D81 image), that is large enough for the creation of the subdirectory.
+   The error message DISK FULL is reported, if there isn't such a region.
+
+   Several subdirectories may be created as long as there are enough
+   empty tracks.
+
+After successful creation of the subdirectory an automatic
+{\bf CHDIR} into this subdirectory is performed.
+
+{\bf CHDIR "/"} changes back to the root directory.
+
+\item [Examples:] Using {\bf MKDIR}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+MKDIR "SUBDIR",L5   :REM MAKE SUBDIRECTORY WITH 5 TRACKS
+DIR
+\end{verbatim}
+\selectfont{\codefont 0}
+\begin{tcolorbox}[colback=white,coltext=black,arc=0mm,boxrule=0mm,
+       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
+       left skip=0.5mm,
+       width=28mm,height=3mm,valign=center]
+\begin{verbatim}
+"SUBDIR          "    1D
+\end{verbatim}
+\end{tcolorbox}
+\begin{verbatim}
+160 BLOCKS FREE.
+
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6553,37 +6896,40 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \index{BASIC 65 Commands!PAINT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$DF
-\item [Format:] {\bf PAINT} x{\bf,} y{\bf,} mode [{\bf,} colour]
-\item [Usage:]  Performs a flood fill
-                of an enclosed graphics area.
+\item [Format:] {\bf PAINT} x{\bf,} y{\bf,} mode [{\bf,} region border colour]
+\item [Usage:]  Performs a flood fill of an enclosed graphics area
+                using the current pen colour.
 
                 {\bf x, y} is a coordinate pair, which must
-                lie inside the area to be filled.
+                lie inside the area to be painted.
 
-                {\bf mode} specifies the fill mode:
+                {\bf mode} specifies the paint mode:
                 \begin{itemize}
-                    \item {\bf 0} use the {\bf colour} to fill the area.
-                    \item {\bf 1} use the colour of pixel (x,y) to fill the area.
+                    \item {\bf 0} The colour of pixel (x,y) defines the colour,
+                    which is replaced by the pen colour.
+
+                    \item {\bf 1} The {\bf region border colour} defines
+                    the region to be painted with the pen colour.
+
+                    \item {\bf 2} Paint the region connected to pixel (x,y).
                 \end{itemize}
 
+                {\bf region border colour} defines the colour index for mode 1.
 
 \item [Example:] Using {\bf PAINT}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 GRAPHIC CLR          :REM INITIALISE
- 20 SCREEN DEF 1,0,0,2   :REM 320 X 200
- 30 SCREEN OPEN 1        :REM OPEN
- 40 SCREEN SET 1,1       :REM MAKE SCREEN ACTIVE
- 50 PALETTE 1,1,10,15,10 :REM COLOUR 1 TO LIGHT GREEN
- 60 PEN 1                :REM SET DRAWING PEN (PEN 0) TO LIGHT GREEN (1)
- 70 LINE 160,0,240,100   :REM 1ST. LINE
- 80 LINE 240,100,80,100  :REM 2ND. LINE
- 90 LINE 80,100,160,0    :REM 3RD. LINE
-100 PAINT 160,10,0,1     :REM FILL TRIANGLE WITH COLOUR 1
-110 GETKEY K$            :REM WAIT FOR KEY
-120 SCREEN CLOSE 1       :REM END GRAPHICS
+ 10 SCREEN 320,200,2     :REM OPEN SCREEN
+ 20 PALETTE 0,1,10,15,10 :REM COLOUR 1 TO LIGHT GREEN
+ 30 PEN 1                :REM SET DRAWING PEN (PEN 0) TO LIGHT GREEN (1)
+ 40 LINE 160,0,240,100   :REM 1ST. LINE
+ 50 LINE 240,100,80,100  :REM 2ND. LINE
+ 60 LINE 80,100,160,0    :REM 3RD. LINE
+ 70 PAINT 160,10         :REM FILL TRIANGLE WITH PEN COLOUR
+ 80 GETKEY A&            :REM WAIT FOR KEY
+ 90 SCREEN CLOSE         :REM END GRAPHICS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6725,40 +7071,6 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \end{tcolorbox}
 \end{description}
 
-% *****
-% PEEKW
-% *****
-
-\newpage
-\subsection{PEEKW}
-\index{BASIC 65 Functions!PEEKW}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$C2 'W'
-\item [Format:] {\bf PEEKW(}address{\bf)}
-\item [Usage:]  Returns an unsigned 16-bit value (word)
-                read from {\bf address} (low byte) and {\bf address}+1 (high byte).
-
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
-                memory bank set by {\bf BANK} is used.
-
-                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
-                addresses and used as such, ignoring the {\bf BANK} setting.
-
-
-\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
-                 Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
-                 VIC, SID, FDC, etc.
-\item [Example:] Using {\bf PEEKW}
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- 20 UA = PEEKW($02F8)   :REM USR JUMP TARGET
- 50 PRINT "USR FUNCTION CALL ADDRESS";UA
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
 % ***
 % PEN
 % ***
@@ -6778,7 +7090,8 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                     \item {\bf 2} currently unused.
                 \end{itemize}
 
-                {\bf colour} palette index.
+                {\bf colour} palette index. Refer to the table under {\bf BACKGROUND} on
+                page \pageref{colourtable} for the colour values and their corresponding colours.
 
 \item [Remarks:] The colour selected by {\bf PEN} will be used by all
                  graphic/drawing commands that follow it.
@@ -6849,6 +7162,10 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                where each argument provides the sequence of notes and directives to be played on
                a specific voice on the two available SID chips, allowing for up to 6-channel polyphony.
 
+               Note that {\bf PLAY} makes use of SID1 (for voices 1 to 3) and SID3 (for voices 4 to 6)
+               of the 4 SID chips of the system. Also note that, by default, SID1 and SID2 are slightly
+               right-biased and SID3 and SID4 are slightly left-biased (in terms of stereo sound).
+
                A musical note is a character (A, B, C, D, E, F, or G),
                which may be preceded by an optional modifier.
 
@@ -6902,8 +7219,9 @@ Embedded directives consist of a letter, followed by a digit:
 
   You have a lot of flexibility on which voice channels you choose to play your melodies on.
   For instance, you may decide to use only voice 1 and voice 4 for your melody, and spare
-  the other channels for sound effects generated by {\bf SOUND}. Just skip the voices
-  you're not using with {\bf PLAY}, by leaving those arguments empty:
+  the other channels for melody-based sound effects (for simple one-shot sound effects,
+  consider the {\bf SOUND} command instead). Just skip the voices you're not using with
+  {\bf PLAY}, by leaving those arguments empty:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -6941,6 +7259,10 @@ page \pageref{envelopetable}.
                  and playing the melody. Program execution continues
                  with the next statement, and will not block until
                  the melody has finished.
+
+                 The 6 voice channels used by the {\bf PLAY} command
+                 (on SID1+SID3) are distinct to the 6 channels used by
+                 the {\bf SOUND} command (on SID2+SID4).
 
 
 \item [Example:] Using {\bf PLAY}
@@ -7024,10 +7346,9 @@ HELLO
 \index{BASIC 65 Functions!POKE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$97
-\item [Format:] {\bf POKE} address{\bf,} byte [{\bf,} byte ...]
+\item [Format:] {\bf POKE} address{\bf,} value [{\bf,} value ...]
 \item [Usage:]  Writes one or more bytes into memory
-                or memory mapped I/O, starting at
-                {\bf address}.
+                or memory mapped I/O, starting at {\bf address}.
 
                 If the address is in the range of \$0000 to \$FFFF (0-65535), the
                 memory bank set by {\bf BANK} is used.
@@ -7035,7 +7356,11 @@ HELLO
                 Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-                {\bf byte} a value in the range of 0-255.
+                If {\bf value} is in the range of 0-255, this is poked into memory,
+                otherwise the low byte of value is used. So a command like
+                \screentext{POKE AD,V AND 255} can be written as
+                \screentext{POKE AD,V} because {\bf POKE} uses the lowy byte anyway.
+
 
 \item [Remarks:] The address is incremented for each data byte,
                  so a memory range can be written to with a single {\bf POKE}.
@@ -7051,47 +7376,6 @@ HELLO
 \begin{verbatim}
  10 BANK 128        :REM SELECT SYSTEM BANK
  20 POKE $02F8,0,24 :REM SET USR VECTOR TO $1800
-\end{verbatim}
-\end{tcolorbox}
-\end{description}
-
-% *****
-% POKEW
-% *****
-
-\newpage
-\subsection{POKEW}
-\index{BASIC 65 Functions!POKEW}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:] \$97 'W'
-\item [Format:] {\bf POKEW} address{\bf,} word [{\bf,} word ...]
-\item [Usage:]  Writes one or more words into memory
-                or memory mapped I/O, starting at
-                {\bf address}.
-
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
-                memory bank set by {\bf BANK} is used.
-
-                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
-                addresses and used as such, ignoring the {\bf BANK} setting.
-
-                {\bf word} a value from 0-65535.
-                The first word is stored at address (low byte)
-                and address+1 (high byte). The second word is stored at
-                address+2 (low byte) and address+3 (high byte), etc.
-
-\item [Remarks:] The address is increased by two for each data word,
-                 so a memory range can be written to with a single {\bf POKEW}.
-
-                Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
-                VIC, SID, FDC, etc.
-\item [Example:] Using {\bf POKEW}
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
- 10 BANK 128                :REM SELECT SYSTEM BANK
- 20 POKEW $02F8,$1800       :REM SET USR VECTOR TO $1800
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8820,6 +9104,44 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \end{tcolorbox}
 \end{description}
 
+% ******
+% SETBIT
+% ******
+
+\newpage
+\subsection{SETBIT}
+\index{BASIC 65 Functions!SETBIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$2D \$FE \$4E
+\item [Format:] {\bf SETBIT} address{\bf,} bit number
+\item [Usage:]  Sets a single bit at the {\bf address}.
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536)
+                are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+                The {\bf bit number} is a value in the range of 0-7.
+
+                 A bank value > 127 is used to access I/O,
+                 and the underlying system hardware such as the
+                 VIC, SID, FDC, etc.
+
+
+\item [Example:] Using {\bf SETBIT}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 BANK 128          :REM SELECT SYSTEM MAPPING
+ 20 SETBIT $D011,6    :REM ENABLE EXTENDED BACKGROUND MODE
+ 30 SETBIT $D01B,0    :REM SET BACKGROUND PRIORITY FOR SPRITE 0
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % SGN
 % ***
@@ -8946,6 +9268,15 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
                of the next BASIC statement while the sound effect
                is played. This enables the showing of graphics or text
                and playing sounds simultaneously.
+
+               Note that {\bf SOUND} makes use of SID2 (for voices 1 to 3) and SID4 (for voices 4 to 6)
+               of the 4 SID chips of the system. Also note that, by default, SID1 and SID2 are slightly
+               right-biased and SID3 and SID4 are slightly left-biased (in terms of stereo sound).
+
+               The 6 voice channels used by the {\bf SOUND} command
+               (on SID2+SID4) are distinct to the 6 channels used by
+               the {\bf PLAY} command (on SID1+SID3).
+
 
 \item [Examples:] Using {\bf SOUND}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9350,20 +9681,61 @@ THE VALUE OF PI IS 3.14159265
 \item [Format:] {\bf SYS} address [\{{\bf,} areg{\bf,} xreg{\bf,} yreg{\bf,}
 		zreg{\bf,} sreg\}]
 \item [Usage:]  Calls a machine language subroutine.
-                This can be a ROM-resident kernal routine, a BASIC subroutine,
+                This can be a ROM-resident kernal routine
                 or any other routine which has previously been loaded or {\bf POKE}d
                 to RAM.
 
                The CPU registers are loaded with the arguments
                (if they're specified), then a subroutine call ({\bf JSR address})
                is performed. {\bf JSR} is an assembly language instruction that is short
-               for {\bf J}ump to {\bf S}ub{\bf R}outine. The called routine should exit with
-               an {\bf RTS} instruction. {\bf RTS} is another assembly language instruction that is
-               short for {\bf R}e{\bf t}urn from {\bf S}ubroutine. After the subroutine has returned,
-               the register contents will be saved, and the execution of the BASIC program will
+               for {\bf J}ump to {\bf S}ub{\bf R}outine.
+               The called routine should exit with
+               an {\bf RTS} instruction. {\bf RTS} is another assembly
+               language instruction that is
+               short for {\bf R}e{\bf t}urn from {\bf S}ubroutine.
+               After the subroutine has returned,
+               the register contents will be saved,
+               and the execution of the BASIC program will
                continue.
 
                {\bf address} start address of the subroutine.
+
+               If the address value is 16 bit (\$0000 - \$FFFF), the bank value,
+               that is currently valid (see {\bf BANK}) is examined. A
+               bank value of 128 lets the current mapping persist. That is:
+               RAM is only available at the address range (\$0000 - \$1FFF),
+               while BASIC ROM, KERNAL and I/O occupy the rest.
+               Short machine language programs may use the address range
+               (\$1800 - \$1FFF) which is only used by BASIC while a
+               graphics screen is open.
+
+               If the address is higher than \$FFFF, it is interpreted as a
+               linear 24 bit address and the value of {\bf BANK} is ignored.
+               The initial mapping is shown in the following table:
+
+\begin{center}
+\texttt
+{\setlength{\tabcolsep}{1mm}
+\begin{tabular}{|l|l|}
+\hline
+{\bf Range}  & {\bf Content} \\
+\hline
+0000 - 1FFF & bank 0 with direct page, stack, vectors \\
+            & and interface routines \\
+2000 - BFFF & selected RAM bank:address bits 16-23 \\
+C000 - CFFF & kernal ROM \\
+D000 - DFFF & I/O \\
+E000 - EFFF & editor ROM \\
+F000 - FFFF & kernal ROM and jump table \\
+\hline
+\end{tabular}
+}
+\end{center}
+
+The RAM banks 0, 1, 4 and 5 may be used on a MEGA65 with the {\bf SYS} command.
+The attic RAM cannot be used for this purpose, because the 24 bit address
+of the {\bf SYS command} is limited to the lower 16MB of the address range.
+
 
                {\bf areg} CPU accumulator value.
 
@@ -9375,23 +9747,17 @@ THE VALUE OF PI IS 3.14159265
 
                {\bf sreg} Status register value.
 
+
 \item [Remarks:] The register values after a {\bf SYS} call are stored
                  in system memory. {\bf RREG} can be used to retrieve these values.
 
-                 {\bf SYS} maps addresses \$2000 - \$FFFF to the bank set with {\bf BANK},
-                 allowing you to call subroutines in any bank. Addresses \$0000 - \$1FFF
-                 remain unmapped and will access the RAM in bank 0. This means you can only
-                 call subroutines in addresses \$0000 - \$1FFF of {\bf BANK 0} and {\bf BANK 128}.
-
                  The {\bf SYS} instruction on the MEGA65 is completely different to the
-                 well known {\bf SYS} command on the C64. It is not possible to jump
-                 to an address after the BASIC program text in bank 0 (and execute
-                 a machine language subroutine there), as bank 0 is 64K of
-                 RAM with no I/O or kernal mapped in.
+                 well known {\bf SYS} command on the C64. It is not possible
+                 to have the BASIC ROM and a BASIC program, in the same mapping
+                 because they occupy the same address range.
 
-                 Using {\bf SYS} properly (i.e. without corrupting BASIC RAM, and having
-                 access to kernal routines and I/O) requires
-                 some technical skill, which is out of scope of the User's Guide.
+                 Using {\bf SYS} properly (i.e. without corrupting the system),
+                 requires some technical skill, which is out of scope of the User's Guide.
                  However, if you would like to learn more, there is a lot more
                  information and examples in the MEGA65 Developer's Guide.
 
@@ -9399,11 +9765,11 @@ THE VALUE OF PI IS 3.14159265
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 BANK 128
- 20 BLOAD "ML PROG",8192
- 30 SYS 8192
- 40 RREG A,X,Y,Z,S
- 50 PRINT "REGISTER:";A;X;Y;Z;S
+ 10 REM DEMO FOR SYS:CHANGING THE BORDER COLOUR
+ 20 BANK 0
+ 30 POKE $4000,$EE,$20,$D0,$60 :REM INC $D020:RTS
+ 40 SYS $4000                  :REM CALL SUBROUTINE AT $4000 / BANK $00
+ 50 GETKEY A$:IF A$ <> "Q" THEN 40
 \end{verbatim}
 \end{tcolorbox}
 
@@ -9829,6 +10195,49 @@ READY.
 \end{tcolorbox}
 \end{description}
 
+% ****
+% UNLOCK
+% ****
+
+\newpage
+\subsection{UNLOCK}
+\index{BASIC 65 Commands!UNLOCK}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$4F
+\item [Format:] {\bf UNLOCK} filename/pattern [{\bf,D} drive] [{\bf,U} unit]
+\item [Usage:] Used to unlock files. The specified file or
+               a set of files, that matches the pattern, is unlocked
+               and no more protected.
+               It can be deleted afterwards with the commands {\bf DELETE},
+               {\bf ERASE} or {\bf SCRATCH}
+
+               The command {\bf LOCK} applies the lock.
+
+   \filenamedefinition
+
+   \drivedefinition
+
+   \unitdefinition
+
+\item [Remarks:] Unlocking a file, that is already unlocked,
+                 has no effect.
+
+   In direct mode the number of unlocked files is printed.
+                 The second to last number from the message
+                 contains the number of unlocked files,
+
+\item [Examples:] Using {\bf UNLOCK}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+UNLOCK "SNOOPY",U9 :REM UNLOCK FILE SNOOPY ON UNIT 9
+03,FILES UNLOCKED,01,00
+UNLOCK "BS*"    :REM UNLOCK ALL FILES BEGINNING WITH "BS"
+03,FILES UNLOCKED,04,00
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % *****
 % UNTIL
 % *****
@@ -10136,6 +10545,34 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \end{tcolorbox}
 \end{description}
 
+% *****
+% VSYNC
+% *****
+
+\newpage
+\subsection{VSYNC}
+\index{BASIC 65 Commands!VSYNC}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$54
+\item [Format:] {\bf VSYNC} raster line
+\item [Usage:] Waits until the selected raster line is active.
+
+               {\bf raster line} (0 - 311) for PAL, (0 - 262) for NTSC mode.
+
+\item [Example:] Using {\bf VSYNC}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 IF FRE(-1)<920364 THEN PRINT"UPDATE ROM":END
+20 BORDER 3     :REM CHANGE BORDER COLOUR TO CYAN
+30 VSYNC 100    :REM WAIT UNTIL RASTER LINE 100
+40 BORDER 7     :REM CHANGE BORDER COLOUR TO YELLOW
+50 VSYNC 260    :REM WAIT UNTIL RASTER LINE 260
+60 GOTO 20      :REM LOOP
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ****
 % WAIT
 % ****
@@ -10266,6 +10703,81 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 20 WINDOW 0,0,79,24,1    :REM FULL SCREEN WINDOW CLEARED
 30 WINDOW 0,12,79,24     :REM LOWER HALF OF SCREEN
 40 WINDOW 20,5,59,15     :REM SMALL CENTRED WINDOW
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% WPEEK
+% *****
+
+\newpage
+\subsection{WPEEK}
+\index{BASIC 65 Functions!WPEEK}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$CE \$10
+\item [Format:] {\bf WPEEK(}address{\bf)}
+\item [Usage:]  Returns an unsigned 16-bit value (word)
+                read from {\bf address} (low byte) and {\bf address}+1 (high byte).
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+
+\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
+                 Banks greater than 127 are used to access I/O,
+                  and the underlying system hardware such as the
+                 VIC, SID, FDC, etc.
+\item [Example:] Using {\bf WPEEK}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 20 UA = WPEEK($02F8)   :REM USR JUMP TARGET
+ 50 PRINT "USR FUNCTION CALL ADDRESS";UA
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+% *****
+% WPOKE
+% *****
+
+\newpage
+\subsection{WPOKE}
+\index{BASIC 65 Functions!WPOKE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$FE \$1D
+\item [Format:] {\bf WPOKE} address{\bf,} word [{\bf,} word ...]
+\item [Usage:]  Writes one or more words into memory
+                or memory mapped I/O, starting at {\bf address}.
+
+                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                memory bank set by {\bf BANK} is used.
+
+                Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
+                addresses and used as such, ignoring the {\bf BANK} setting.
+
+                {\bf word} a value from 0-65535.
+                The first word is stored at address (low byte)
+                and address+1 (high byte). The second word is stored at
+                address+2 (low byte) and address+3 (high byte), etc.
+
+\item [Remarks:] The address is increased by two for each data word,
+                 so a memory range can be written to with a single {\bf WPOKE}.
+
+                Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
+                VIC, SID, FDC, etc.
+\item [Example:] Using {\bf WPOKE}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+ 10 BANK 128                :REM SELECT SYSTEM BANK
+ 20 WPOKE $02F8,$1800       :REM SET USR VECTOR TO $1800
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

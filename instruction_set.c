@@ -442,6 +442,8 @@ int main(int argc, char** argv) {
   char opcode[16], assembly[256], bytes[16], cycles[16], cycle_count[256], cycle_notes[1024];
   char *addressing_mode;
   for (int i = 0; i < instruction_count; i++) {
+    // skip reserved 45GS02 instructions
+    // if (!strcmp(instrs[i], "RESQ") || !strcmp(instrs[i], "RSVQ")) continue;
     instruction = instrs[i];
     extra_cycles = 0;
     for (int ipf = 0; ipf < 7; ++ipf)
@@ -531,7 +533,7 @@ int main(int argc, char** argv) {
     indirect_note_seen = 0;
     single_cycle_seen = 0;
 
-    printf("\\begin{center}\n\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{0.2cm}p{9em}p{7em}p{6em}*{7}{>{\\centering\\arraybackslash}p{1em}}p{0.2cm}|}\n"
+    printf("\\begin{center}\n\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{0.2cm}p{9em}p{7.5em}p{6em}*{7}{>{\\centering\\arraybackslash}p{1em}}p{0.2cm}|}\n"
            "\\hline\n"
            " & \\multicolumn{8}{l}{\\bf %s : %s} & \\multicolumn{3}{r|}{\\bf %s} \\\\\n"
            " & \\multicolumn{10}{l}{%s} & \\\\\n"

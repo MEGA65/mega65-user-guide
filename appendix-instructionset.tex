@@ -1,12 +1,16 @@
 \chapter{45GS02 \& 6502 Instruction Sets}
 
+\section{Introduction}
+
 The 45GS02 CPU is able to operate in native mode, where it
 is compatible with the CSG 4510, and in 6502 compatibility mode,
 where 6502 undocumented instructions, also known as illegal
 instructions, are supported for compatibility.
 
-WARNING: This feature is incomplete and untested.  Most undocumented
+\begin{quote}
+{\bf WARNING:} This feature is incomplete and untested.  Most undocumented
 6502 opcodes do not operate correctly when the 6502 personality is enabled.
+\end{quote}
 
 When in 4510 compatibility mode, the 45GS02 also supports a number
 of extensions through {\em compound instructions}. These work be prefixing
@@ -23,9 +27,29 @@ The remainder of this chapter introduces the addressing modes, instructions, opc
 instruction timing data of the 45GS02, beginning with 6502 compatibility mode, before
 moving on to 4510 compatibility mode, and the 45GS02 extensions.
 
+\section{Stack Operations}
+
+The stack is a area of memory where you can push data onto or fetch (pop) the latest piece
+of data from it. Every stack operation that puts data to the stack (push) also changes the Stack
+Pointer (SP) downwards (the stack starts at the top of the area and grows down), and every
+stack operation that takes data from the stack (pop) will change the SP upwards.
+
+So if you find something like
+\begin{quote}
+  STACK $\leftarrow$ VALUE
+\end{quote}
+implies that VALUE is pushed onto the STACK and SP is reduced by the number of bytes VALUE is
+big. When pushing more than one byte, the MSB is pushed first followed by the LSB.
+
+And in the opposite direction a operation like
+\begin{quote}
+  MEMORY $or$ REGISTER $\leftarrow$ STACK
+\end{quote}
+will pop data from the STACK and increment SP for each byte removed.
+
 \section{Addressing Modes}
 
-The 45GS02 supports 36 different addressing modes, which are explained below.
+The 45GS02 supports 34 different addressing modes, which are explained below.
 Many of these are very similar to one another, being variations of the normal 6502
 or 65CE02 addressing modes, except that they accept either
 32-bit pointers, operate on 32-bits of data, or both.
@@ -99,12 +123,8 @@ and put it into the Accumulator Register.  The instruction byte stream for this 
 
 \subsection{Base Page (Zero-Page) Quad Mode}
 
-In this mode, the argument is an 8-bit address.  The upper 8-bits of the address are taken from
-the Base Page Register.  On 6502 processors, there is no Base Page Register, and instead, the
-upper 8-bits are always set to zero -- hence the name of this mode on the 6502: Zero-Page. On
-the 45GS02, it is possible to move this ``Zero-Page'' to any page in the processor's 64KB view
-of memory by setting the Base Page Register using the \screentext{TAB} instruction. Base Page
-Mode allows faster access to a 256 region of memory, and uses less instruction bytes to do so.
+This mode is identical to Base Page Mode, except that it reads a 32-bit word starting at the
+specified address.
 
 The argument is encoded as a single byte that immediately follows the instruction opcode. For
 example, \screentext{LDQ \$12} would read the value stored in locations \$12 -- \$15 in the Base Page,
@@ -113,7 +133,7 @@ and put them into the Q Pseudo Register.
 \subsection{Base Page (Zero-Page) X Indexed Mode}
 
 This mode is identical to Base Page Mode, except that the address is formed by taking the
-argument, and adding the value of the X Register to it.  In 6502 mode, the result will always
+argument, and adding the value of the X Register t<o it.  In 6502 mode, the result will always
 be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
@@ -337,7 +357,6 @@ to any location in the current 64KB memory view.  This makes it possible
 to write software that is fully relocatable, by avoiding the need for absolute
 addresses when calling routines.
 
-\clearpage
 \section{6502 Instruction Set}
 
 NOTE: The mechanisms for switching from 4510 to 6502 CPU personality
@@ -437,6 +456,7 @@ view is:
 \end{itemize}
 
 \subsection{Opcode Table}
+\label{sec:4510-inst}
 
 \begingroup
 % \OPC{Instruction}{Addr-Mode}{Bytes}{Cycles}
@@ -501,7 +521,7 @@ more single byte instructions placed immediately before a conventional
 instruction.  These prefixes instruct the 45GS02 to treat the following instruction
 differently, as described in \bookvref{cha:cpu}.
 
-You can find them highlighted in the 4510 Opcode Table.
+You can find them highlighted in the 4510 Opcode Table (see \bookref{sec:4510-inst})
 
 % Opcodes can have multiple meanings, so no table
 

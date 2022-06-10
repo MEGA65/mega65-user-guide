@@ -545,7 +545,7 @@ int main(int argc, char** argv) {
       printf(" & {\\bf %s}", pflags[ipf]);
 
     printf(" & \\\\\n"
-           " & & & & & & & & & & & \\\\\n"
+           " & & & & & & & & & & & \\\\[-6pt]\n"
            " & {\\bf Addressing Mode} & {\\bf Assembly} & {\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & "
            "\\multicolumn{3}{c}{\\bf Cycles} & & \\\\ \n\\hline\n");
 

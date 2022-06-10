@@ -1,9 +1,42 @@
+\begingroup
+\setlength{\def\arraystretch{1.1}\tabcolsep}{1pt}
+% \OPC{Instruction}{Addr-Mode}{Bytes}{Cycles}
+\newcommand{\OPC}[4]{\makecell{\begin{tabular}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedleft\arraybackslash}p{0.8cm}}
+\fontsize{8pt}{0pt}\selectfont #3 & \fontsize{8pt}{0pt}\selectfont {\em #4} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{10pt}{0pt}\selectfont #1} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{8pt}{0pt}\selectfont #2}
+\end{tabular}}}
+\newcommand{\OPCQ}[4]{\makecell{\begin{tabular}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedleft\arraybackslash}p{0.8cm}}
+\fontsize{8pt}{0pt}\selectfont #3 & \fontsize{8pt}{0pt}\selectfont {\em #4} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{10pt}{0pt}\selectfont #1} \\[-3pt]
+\multicolumn{2}{c}{\fontsize{8pt}{0pt}\selectfont #2} \\[-12pt]
+\fontsize{8pt}{0pt}\selectfont Q
+\end{tabular}}}
+% cell colours
+\newcommand{\OPill}{\cellcolor[rgb]{1,.8,.8}}
+\newcommand{\OPfar}{\cellcolor[rgb]{.8,1,.8}}
+\newcommand{\OPquad}{\cellcolor[rgb]{.8,.8,1}}
+\newcommand{\OPfarq}{\cellcolor[rgb]{.8,1,1}}
+% binary logic
+\newcommand{\binand}{$\mathit{AND}$}
+\newcommand{\binor}{$\mathit{OR}$}
+\newcommand{\binxor}{$\mathit{XOR}$}
+\newcommand{\binnot}{$\mathit{NOT}$}
+\newcommand{\binneg}{$\mathit{NEG}$}
+
 \chapter{45GS02 \& 6502 Instruction Sets}
+
+\section{Introduction}
 
 The 45GS02 CPU is able to operate in native mode, where it
 is compatible with the CSG 4510, and in 6502 compatibility mode,
 where 6502 undocumented instructions, also known as illegal
 instructions, are supported for compatibility.
+
+\begin{quote}
+{\bf WARNING:} This feature is incomplete and untested.  Most undocumented
+6502 opcodes do not operate correctly when the 6502 personality is enabled.
+\end{quote}
 
 When in 4510 compatibility mode, the 45GS02 also supports a number
 of extensions through {\em compound instructions}. These work be prefixing
@@ -20,9 +53,29 @@ The remainder of this chapter introduces the addressing modes, instructions, opc
 instruction timing data of the 45GS02, beginning with 6502 compatibility mode, before
 moving on to 4510 compatibility mode, and the 45GS02 extensions.
 
+\section{Stack Operations}
+
+The stack is a area of memory where you can push data onto or fetch (pop) the latest piece
+of data from it. Every stack operation that puts data to the stack (push) also changes the Stack
+Pointer (SP) downwards (the stack starts at the top of the area and grows down), and every
+stack operation that takes data from the stack (pop) will change the SP upwards.
+
+So if you find something like
+\begin{quote}
+  STACK $\leftarrow$ VALUE
+\end{quote}
+implies that VALUE is pushed onto the STACK and SP is reduced by the number of bytes VALUE is
+big. When pushing more than one byte, the MSB is pushed first followed by the LSB.
+
+And in the opposite direction a operation like
+\begin{quote}
+  MEMORY $or$ REGISTER $\leftarrow$ STACK
+\end{quote}
+will pop data from the STACK and increment SP for each byte removed.
+
 \section{Addressing Modes}
 
-The 45GS02 supports 36 different addressing modes, which are explained below.
+The 45GS02 supports 34 different addressing modes, which are explained below.
 Many of these are very similar to one another, being variations of the normal 6502
 or 65CE02 addressing modes, except that they accept either
 32-bit pointers, operate on 32-bits of data, or both.
@@ -43,10 +96,10 @@ rotate or modify the value of the Accumulator Register in some way.  For example
 
 In this mode, the Q Pseudo Register is the operand. This is typically used to shift,
 rotate or modify the value of the Q Pseudo Register in some way.  For example,
-\screentext{ASL Q} shifts the value in the Q Pseudo Register left one bit.
+\screentext{ASLQ} shifts the value in the Q Pseudo Register left one bit.
 
 Remember that the Q Pseudo Register is simply the A, X, Y and Z registers acting together
-as a pseudo 32-bit register, where A contains the least significant bits, and Z the
+as a virtual 32-bit register, where A contains the least significant bits, and Z the
 most significant bits.  There are some cases where using a Q mode instruction can be
 helpful for operating on the four true registers.
 
@@ -58,12 +111,9 @@ values to be entered in decimal, or in hexadecimal by preceding the value with a
 in binary, by preceding the value with a \% sign.  For example, to set the Accumulator
 Register to the value 5, you could use the following:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA #5
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 The immediate argument is encoded as a single byte following the instruction.  For the above
 case, the instruction stream would contain \$A9, the opcode for LDA immediate mode, followed
@@ -75,12 +125,9 @@ In this mode, the argument is a 16-bit value that is used directly. There is onl
 which uses this addressing mode, \screentext{PHW}.  For example, to push the word \$1234
 onto the stack, you could use:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 PHW #$1234
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 The low byte of the immediate value follows the opcode of the instruction.  The high byte of the
 immediate value then follows that.  For the above example, the instruction stream would thus
@@ -102,12 +149,8 @@ and put it into the Accumulator Register.  The instruction byte stream for this 
 
 \subsection{Base Page (Zero-Page) Quad Mode}
 
-In this mode, the argument is an 8-bit address.  The upper 8-bits of the address are taken from
-the Base Page Register.  On 6502 processors, there is no Base Page Register, and instead, the
-upper 8-bits are always set to zero -- hence the name of this mode on the 6502: Zero-Page. On
-the 45GS02, it is possible to move this ``Zero-Page'' to any page in the processor's 64KB view
-of memory by setting the Base Page Register using the \screentext{TAB} instruction. Base Page
-Mode allows faster access to a 256 region of memory, and uses less instruction bytes to do so.
+This mode is identical to Base Page Mode, except that it reads a 32-bit word starting at the
+specified address.
 
 The argument is encoded as a single byte that immediately follows the instruction opcode. For
 example, \screentext{LDQ \$12} would read the value stored in locations \$12 -- \$15 in the Base Page,
@@ -116,7 +159,7 @@ and put them into the Q Pseudo Register.
 \subsection{Base Page (Zero-Page) X Indexed Mode}
 
 This mode is identical to Base Page Mode, except that the address is formed by taking the
-argument, and adding the value of the X Register to it.  In 6502 mode, the result will always
+argument, and adding the value of the X Register t<o it.  In 6502 mode, the result will always
 be in the Base Page, that is, any carry due to the addition from the low byte into the high byte
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
@@ -137,7 +180,7 @@ be in the Base Page, that is, any carry due to the addition from the low byte in
 of the address will be ignored.  The encoding for this addressing mode is identical to Base Page
 Mode.
 
-\subsection{Base Page (Zero-Page) Base Y Indexed Mode}
+\subsection{Base Page (Zero-Page) Quad Y Indexed Mode}
 
 This mode is identical to Base Page Quad Mode, except that the address is formed by taking the
 argument, and adding the value of the Y Register to it.  In 6502 mode, the result will always
@@ -250,7 +293,7 @@ The encoding for this addressing mode is identical to Base Page Mode.
 
 \subsection{Base Page Quad Indirect X-Indexed Mode}
 
-This addressing mode is identical to Base PAge Indirect X-Indexed Mode, except that the address
+This addressing mode is identical to Base Page Indirect X-Indexed Mode, except that the address
 of the pointer is formed from the Base Page Register (high byte) and the 8-bit operand (low byte).
 The encoding for this addressing mode is identical to Base Page Quad Mode.
 
@@ -258,7 +301,7 @@ The encoding for this addressing mode is identical to Base Page Quad Mode.
 
 This addressing mode differs from the X-Indexed Indirect modes, in that the Y Register is
 added to the address that is read from the pointer, instead of being added to the pointer.
-This is a very useful mode, that is frequently because it effectively provides access to
+This is a very useful mode, that is frequently used because it effectively provides access to
 ``the Y-th byte of the memory at the address pointed to by the operand.'' That is, it de-references
 a pointer.
 The encoding for this addressing mode is identical to Base Page Mode.
@@ -273,7 +316,7 @@ Base Page Mode, except that it is prefixed by \$42, \$42.
 
 This addressing mode differs from the X-Indexed Indirect modes, in that the Z Register is
 added to the address that is read from the pointer, instead of being added to the pointer.
-This is a very useful mode, that is frequently because it effectively provides access to
+This is a very useful mode, that is frequently used because it effectively provides access to
 ``the Z-th byte of the memory at the address pointed to by the operand.'' That is, it de-references
 a pointer.
 The encoding for this addressing mode is identical to Base Page Mode.
@@ -299,14 +342,11 @@ For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0
 Z index contained the value \$01, the following instruction sequence would change the screen
 colour to blue:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 LDA #$06
 LDZ #$01
 STA [$12],Z
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 \subsection{32-bit Base Page Indirect Quad Z-Indexed Mode}
 
@@ -316,50 +356,8 @@ in comparison to 32-bit Base Page Indirect Z-Indexed Mode which operates on only
 of data.   The encoding of this addressing mode is \$42, \$42, \$EA, followed by the
 natural 6502 opcode for the instruction being performed.
 
-
-\subsection{32-bit Base Page Indirect Mode}
-
-This mode is formed by preceding a Base Page Indirect Z-Indexed Mode instruction with
-the {NOP} instruction (opcode \$EA).  This causes the 45GS02 to read a 32-bit address instead
-of a 16-bit address from the Base Page address indicated by its operand.
-Importantly, the 32-bit address does not refer to the processor's current 64KB
-view of memory, but rather to the 45GS02's true 28-bit address space. This allows easy access
-to any memory, without requiring the use of complex bank-switching or DMA operations.
-
-For example, if addresses \$12 to \$15 contained the bytes \$20, \$D0, \$FF, \$0D,
-the following instruction sequence would change the screen border colour to blue:
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-LDA #$06
-STA [$12]
-\end{verbatim}
-\end{tcolorbox}
-
-NOTE: The ACME assembler is the only assembler that currently supports this addressing mode.
-For other assemblers, you can achieve the same result by using a \stw{NOP} instruction to
-prefix the equivalent {\em Base Page Indirect, Indexed by Z} instruction.
-
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-LDA #$06
-NOP
-STA ($12),Z
-\end{verbatim}
-\end{tcolorbox}
-
-
-The encoding for this addressing mode is identical to Base Page Mode.
-
-\subsection{32-bit Base Page Indirect Mode}
-
-This addressing mode is identical to the 32-bit Base Page Indirect Mode,
-except that it operates on 32-bits of data at the 32-bit address formed by the argument,
-in comparison to 32-bit Base Page Indirect Mode which operates on only 8 bits
-of data.   The encoding of this addressing mode is \$42, \$42, \$EA, followed by the
-natural 6502 opcode for the instruction being performed.
+It is also important to note that most of the time Z is actually {\em not} added to the
+pointer, as it is part of the Q Pseudo Register. Only \screentext{LDQ (\$nn),Z} will add Z.
 
 \subsection{Stack Relative Indirect, Indexed by Y}
 
@@ -385,41 +383,11 @@ to any location in the current 64KB memory view.  This makes it possible
 to write software that is fully relocatable, by avoiding the need for absolute
 addresses when calling routines.
 
+\clearpage
 \section{6502 Instruction Set}
 
 NOTE: The mechanisms for switching from 4510 to 6502 CPU personality
 have yet to be finalised.
-
-NOTE: Not all 6502 illegal opcodes are currently implemented.
-
-\subsection{Opcode Map}
-
-\begin{center}
-\rotatebox{270}{
-\input{6502-opcodes}
-}
-\end{center}
-
-\subsection{Instruction Timing}
-
-The following table summarises the base instruction timing for 6502 mode.
-Please also read the information for 4510 mode, as it discusses a number
-of important factors that affect these figures.
-
-\begin{center}
-\rotatebox{270}{
-\input{6502-cycles}
-}
-\end{center}
-
-\subsection{Addressing Mode Table}
-
-\begin{center}
-  \rotatebox{270}{
-    \scriptsize
-\input{6502-modes}
-}
-\end{center}
 
 \subsection{Official And Unintended Instructions}
 
@@ -434,29 +402,49 @@ The remaining opcodes form the set of the
 For the sake of completeness these are documented too.
 All instructions of the unintended set are headed by a red coloured mnemonic.
 
-The unintended instructions are implemented in the 6502 mode,
-but are not guaranteed to produce exactly the same results as on other
+NOTE: The unintended instructions are currently unimplemented, and are guaranteed
+not to produce exactly the same results as on other
 CPU's of the 65xx family. Many of these instructions are known to
 be unstable, even running on old hardware.
+
+\subsection{Opcode Table}
+
+The Opcode Table lists all possible opcodes, their size, cycles and addressing mode
+in a conscise format.
+
+A cell with a light red background signifies an \textcolor{red}{unintended} instruction.
+
+\begin{center}
+\begin{tabular}{c|c|c|}
+  \cline{2-3}
+  & \$x0 & \$x1 \\\hline
+  \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{mode}{size}{cyc} & \OPill\OPC{OPC}{mode}{size}{cyc} \\\hline
+\end{tabular}
+\end{center}
+
+The letters attached to the cycle count have the following meaning:
+
+\begin{center}
+  \begin{tabular}{|p{2em}|l|}
+  \cline{1-2}
+  & {\bf Meaning} \\\hline
+\multicolumn{1}{|c|}{$b$} & Add one cycle if branch is taken. \\
+                          & Add one more cycle if branch taken crosses a page boundary. \\\hline
+\multicolumn{1}{|c|}{$p$} & Add one cycle if indexing crosses a page boundary. \\\hline
+  \end{tabular}
+\end{center}
+
+\input{opcodetable-6502}
 
 \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 \input{instructionset-6502}
 \addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
 
-
+\clearpage
 \section{4510 Instruction Set}
-
-\subsection{Opcode Map}
-
-\begin{center}
-\rotatebox{270}{
-  \input{4510-opcodes}
-  }
-\end{center}
 
 \subsection{Instruction Timing}
 
-The following table lists the base cycle count for each opcode.
 Note that the number of cycles depends on the speed setting of the
 processor: Some instructions take more or fewer cycles when the
 processor is running at full-speed, or a C65 compatibility 3.5MHz speed,
@@ -483,25 +471,37 @@ view is:
   6502 requires for these instructions.
 \end{itemize}
 
-Note that it is possible that further changes to processor timing will occur.
+\subsection{Opcode Table}
 
-Similar issues apply to when the processor is in 6502 mode.
-
-\begin{center}
-\rotatebox{270}{
-\input{4510-cycles}
-}
-\end{center}
-
-\subsection{Addressing Mode Table}
+The coloured cells indicate an extended 45GS02 Opcode. A Q pseudo register opcode is
+marked blue, a base-page indirect Z indexed opcode that can use 32-bit pointers is cyan.
 
 \begin{center}
-  \rotatebox{270}{
-    \scriptsize
-\input{4510-modes}
-}
+  \begin{tabular}{c|c|c|c|}
+    \cline{2-4}
+    & \$x0 & \$x1 & \$x2 \\\hline
+    \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{mode}{size}{cyc} & \OPquad\OPCQ{QOP}{mode}{size}{cyc} & \OPfarq\OPCQ{FARQ}{IbpZ}{size}{cyc} \\\hline
+  \end{tabular}
+\end{center}  
+
+The letters attached to the cycle count have the following meaning:
+
+\begin{center}
+  \begin{tabular}{|p{2em}|l|}
+  \cline{1-2}
+    & {\bf Meaning} \\\hline
+\multicolumn{1}{|c|}{b} & Add one cycle if branch is taken. \\
+    & Add one more cycle if branch taken crosses a page boundary. \\\hline
+\multicolumn{1}{|c|}{d} & Subtract one cycle when CPU is at 3.5MHz.  \\\hline
+\multicolumn{1}{|c|}{i} & Add one cycle if clock speed is at 40 MHz. \\\hline
+\multicolumn{1}{|c|}{m} & Subtract non-bus cycles when at 40MHz.  \\\hline
+\multicolumn{1}{|c|}{p} & Add one cycle if indexing crosses a page boundary. \\\hline
+\multicolumn{1}{|c|}{r} & Add one cycle if clock speed is at 40 MHz. \\\hline
+\multicolumn{1}{|c|}{s} & Instruction requires 2 cycles when CPU is run at 1MHz or 2MHz. \\\hline
+  \end{tabular}
 \end{center}
 
+\input{opcodetable-4510}
 
 \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 \input{instructionset-4510}
@@ -515,6 +515,8 @@ more single byte instructions placed immediately before a conventional
 instruction.  These prefixes instruct the 45GS02 to treat the following instruction
 differently, as described in \bookvref{cha:cpu}.
 
+You can find them highlighted in the 4510 Opcode Table (see \bookvref{sec:opctable4510})
+
 % Opcodes can have multiple meanings, so no table
 
 % No instruction timing table for compounds, as it can't
@@ -522,8 +524,8 @@ differently, as described in \bookvref{cha:cpu}.
 
 % Same goes for mode list.
 
-
 \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 \input{instructionset-45GS02}
 \addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
 
+\endgroup

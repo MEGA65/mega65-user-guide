@@ -1,6 +1,6 @@
 Set Decimal Flag
 D $\leftarrow$ 1
-
+D+
 This instruction sets the Decimal Flag.
 Binary arithmetic will now use Binary-Coded Decimal (BCD) mode.
 

@@ -53,6 +53,7 @@ Because the new features of the VIC-IV are all extensions to the existing VIC-II
 \multicolumn{3}{l@{}}{\ldots continued}\\
 \hline
 {\bf{First Value Hex (Decimal)}} & {\bf{Second Value Hex (Decimal)}} & {\bf{Effect}} & {\bf{VIC-IV Specific? }} \\
+\hline
 \endhead
 \multicolumn{3}{l@{}}{continued \ldots}\\
  \endfoot
@@ -195,9 +196,7 @@ As these HDTV video modes are not supported by all VGA monitors, a compatibility
 
 To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the Freeze Menu, which displays the current video mode, or from a program you can check the PALNTSC signal (bit 7 of \$D06F, 53359 decimal). If this bit is set, then the machine is operating in NTSC mode, and clear if operating in PAL mode. This bit can be modified to change between the modes, e.g.:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 10 REM ENABLE C65+MEGA65 I/O
 20 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 30 REM CHECK NTSC BIT
@@ -210,8 +209,7 @@ To determine whether the MEGA65 is operating in PAL or NTSC, you can enter the F
 100 REM DISPLAY NEW STATE
 110 NTSC=PEEK($D06F) AND 128
 120 PRINT"MEGA65 IS IN ";:IF NTSC THEN PRINT"NTSC MODE":ELSE PRINT"PAL MODE"
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 \subsubsection{Physical and Logical Rasters}
 
@@ -229,6 +227,7 @@ Standard Definition TV modes used by the C64. The frame parameters of the VIC-IV
 \multicolumn{3}{l@{}}{\ldots continued}\\
 \hline
 {\bf{Standard}} & {\bf{Cycles per Raster}} & {\bf{Physical Rasters per Frame}} & {\bf{Logical Rasters per Frame}}  \\
+\hline
 \endhead
 \multicolumn{3}{l@{}}{continued \ldots}\\
 \endfoot
@@ -271,14 +270,11 @@ The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM
 
 To use the additional memory for screen RAM, the screen RAM start address can be adjusted to any location in memory with byte-level granularity by setting the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal).  For example, to set the screen memory to address 12345:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 POKE $D060,$45:POKE $D061,$23:POKE $D062,$1
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 \subsection{Relocating Character Generator Data}
 
@@ -287,9 +283,7 @@ The location of the character generator data can also be set with byte-level pre
 For example, to indicate that character generator data should be sourced beginning at \$41200 (266752 decimal), the following
 could be used.  Note that the command POKEW can be used to write two bytes as a word into a memory or I/O location. Therefore, we use POKEW to write \$00 into \$D068 and \$12 into \$D069, and an additional POKE to write the high byte \$A into \$D06A by dividing the address by 65536:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 REM HEX $41200 IS EASILY DIVIDED IN ITS 3 BYTES $00, $12, $4
@@ -306,16 +300,13 @@ POKE $D06A,A/65536
 
 The area of colour RAM being used can be similarly set using the COLPTR registers (\$D064 -- \$D065, 53348 -- 53349 decimal). That is, the value is an offset from the start of the colour / attribute RAM.  This is because, like on the C64, the colour / attribute RAM of the MEGA65 is a separate memory component, with its own dedicated connection to the VIC-IV.  By default, the COLPTRs are set to zero, which replicates the behaviour of the VIC-II/III.  To set the display to use the colour / attribute RAM beginning at offset \$4000, one could use something like:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 REM SET COLPTR TO $4000, SPLITS INTO $00 LSB and $40 MSB
 POKE $D064,$00
 POKE $D065,$40
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 \subsection{Relocating Sprite Pointers and Images}
 
@@ -326,16 +317,13 @@ to be located anywhere in the first 4MB of RAM, the SPRPTR16 bit in \$D06E must 
 location of each sprite, instead of one. That is, the list of sprite pointers will be 16 bytes long, instead of 8 bytes long as on the VIC-II/III.  When SPRPTR16 is enabled, the location of the sprite pointers should always be set explicitly via the SPRPTRADR registers.
 For example, to position the sprite pointers at location 800 -- 815, you could use something like the following code. Note that a little gymnastics is required to keep the SPRPTR16 bit unchanged, and also to work around the AND binary operator not working with values greater than 65535:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
 REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 POKE $D06C,(800-INT(800/65536)*65536) AND 255
 POKE $D06D,INT(800/256) AND 255
 POKE $D06E,(PEEK($D06E) AND 128)+INT(800/65536)
-\end{verbatim}
-\end{tcolorbox}
+\end{screenoutput}
 
 The location of each sprite image remains a multiple of 64 bytes, thus allowing for up to 65,536 unique sprite images
 to be used at any point in time, if the system is equipped with sufficient RAM (4MB or more).  In this mode, the VIC-II 16KB banking is ignored, and the location of sprite data is simply 64 $\times$ the pointer value.  For example, to have the data for a sprite at \$C000 (49152 decimal), this would be sprite location 768, because 49152 divided by 64 = 768.  We then need to split 768 into high and low bytes, to set the two pointer bytes: 768 = 256$\times$3, with remainder 0, so this would require the two sprite pointer bytes to be 0 (low byte, which comes first) and 3 (high byte).  Thus if the sprite pointers were located at \$7F8 (2040 decimal), setting the first sprite to sprite image 768 could be done with something like:
@@ -436,6 +424,7 @@ among the particular modes.  The default is as follows:
 \multicolumn{2}{l@{}}{\ldots continued}\\
 \hline
 {\bf{Bit(s)}} & {\bf{Function}}  \\
+\hline
 \endhead
 \multicolumn{2}{l@{}}{continued \ldots}\\
 \endfoot
@@ -472,6 +461,7 @@ If the GOTOX bit is set, some of the fields have different meanings:
 \multicolumn{2}{l@{}}{\ldots continued}\\
 \hline
 {\bf{Bit(s)}} & {\bf{Function}}  \\
+\hline
 \endhead
 \multicolumn{2}{l@{}}{continued \ldots}\\
 \endfoot

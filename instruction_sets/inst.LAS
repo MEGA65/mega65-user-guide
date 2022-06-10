@@ -1,5 +1,5 @@
 Set A, X and SPL Register With Useless Value (unintended instruction)
-SP, A, X $\leftarrow$ SP AND M
+SP, A, X $\leftarrow$ SP \binand{} M
 N+,Z+
 NOTE: This monstrosity of an instruction, aside from being devoid of
 any conceivable useful purpose is unstable on many 6502 processors

@@ -1,5 +1,5 @@
 Binary AND and Rotate Right (unintended instruction)
-A $\leftarrow$ A AND M, A $\leftarrow$ A$\gg$1, C $\leftrightarrow$ A(7)
+A $\leftarrow$ A \binand{} M, A $\leftarrow$ A$\gg$1, C $\leftrightarrow$ A(7)
 N+Z+C+M+V+
 This instruction shifts the Accumulator one bit right after
 performing a binary AND of the Accumulator and the immediate mode argument $M$.

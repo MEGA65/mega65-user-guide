@@ -12,18 +12,11 @@ GENERATED_TEX_FILES= 	document-memory \
 			instructionset-4510.tex \
 		     	instructionset-6502.tex \
 		     	instructionset-45GS02.tex \
+			opcodetable-6502.tex \
+			opcodetable-4510.tex \
 		 	api-conio.tex \
 			appendix-basic65-indexed.tex \
 			appendix-basic65-condensed.tex \
-			4510-cycles.tex \
-			4510-modes.tex \
-			4510-opcodes.tex \
-			45GS02-cycles.tex \
-			45GS02-modes.tex \
-			45GS02-opcodes.tex \
-			6502-cycles.tex \
-			6502-modes.tex \
-			6502-opcodes.tex \
 			examples/ledcycle.tex \
 			examples/ledcycle.txt \
 			keymap_table_1.tex \
@@ -80,13 +73,13 @@ instruction_set: instruction_set.c Makefile
 	$(CC) -Wall -g -o instruction_set instruction_set.c
 
 instructionset-45GS02.tex:	instruction_sets/* instruction_set
-	./instruction_set instruction_sets/45GS02.opc > instructionset-45GS02.tex
+	./instruction_set instruction_sets/45GS02.opc
 
-instructionset-4510.tex:	instruction_sets/* instruction_set
-	./instruction_set instruction_sets/4510.opc instruction_sets/45GS02.opc > instructionset-4510.tex
+instructionset-4510.tex opcodetable-4510.tex:	instruction_sets/* instruction_set
+	./instruction_set instruction_sets/4510.opc instruction_sets/45GS02.opc
 
-instructionset-6502.tex:	instruction_sets/* instruction_set
-	./instruction_set instruction_sets/6502.opc > instructionset-6502.tex
+instructionset-6502.tex opcodetable-6502.tex:	instruction_sets/* instruction_set
+	./instruction_set instruction_sets/6502.opc
 
 #images/illustrations/flashmenu-flowchart.pdf:	images/illustrations/flashmenu-flowchart.dot
 #	dot -Tpdf images/illustrations/flashmenu-flowchart.dot  > images/illustrations/flashmenu-flowchart.pdf

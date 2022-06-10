@@ -261,7 +261,7 @@ int main(int argc, char** argv) {
   FILE* f = fopen(argv[argi], "rb");
   if (!f) {
     fprintf(stderr, "opc file \"%s\" not found!\n\n", argv[argi]);
-    usage(argv[0]);
+    exit(1);
   }
 
   memset(opcodes, 0, sizeof(struct opcode)*MAX_OPCODES);
@@ -334,8 +334,8 @@ int main(int argc, char** argv) {
   if (argi < argc) {
     FILE* f = fopen(argv[argi], "rb");
     if (!f) {
-      fprintf(stderr, "extopc file \"%s\" not found!\n\n", argv[argi]);
-      usage(argv[0]);
+      fprintf(stderr, "ERROR: extended opcode file \"%s\" not found!\n\n", argv[argi]);
+      exit(1);
     }
     unsigned int bytes, opc_offset, n;
     char name[1024];
@@ -367,7 +367,7 @@ int main(int argc, char** argv) {
   FILE* cf = fopen(processor_path, "rb");
   if (!cf) {
     fprintf(stderr, "ERROR: cycle file \"%s\" not found!\n\n", processor_path);
-    usage(argv[0]);
+    exit(1);
   }
   fprintf(stderr, "Reading instruction cycle count information...\n");
   cycle_counts = 0;
@@ -441,6 +441,14 @@ int main(int argc, char** argv) {
   int single_cycle_seen = 0;
   char opcode[16], assembly[256], bytes[16], cycles[16], cycle_count[256], cycle_notes[1024];
   char *addressing_mode;
+
+  snprintf(filename, 1024, "instructionset-%s.tex", processor);
+  FILE* tf1 = fopen(filename, "wb");
+  if (!tf1) {
+    fprintf(stderr, "ERROR: output file \"%s\" could not be created!\n", filename);
+    exit(1);
+  }
+
   for (int i = 0; i < instruction_count; i++) {
     // skip reserved 45GS02 instructions
     // if (!strcmp(instrs[i], "RESQ") || !strcmp(instrs[i], "RSVQ")) continue;
@@ -519,11 +527,11 @@ int main(int argc, char** argv) {
 
     if (is_unintended) {
       *is_unintended = 0;
-      printf("\n\n\\subsection{\\textcolor{red}{%s [unintended]}}\n", instruction);
+      fprintf(tf1, "\n\n\\subsection{\\textcolor{red}{%s [unintended]}}\n", instruction);
     }
     else
-      printf("\n\n\\subsection{%s}\n", instruction);
-    printf("\\index{%s}%s\n\n\n", instruction, long_description);
+      fprintf(tf1, "\n\n\\subsection{%s}\n", instruction);
+    fprintf(tf1, "\\index{%s}%s\n\n\n", instruction, long_description);
 
     delmodify65ce02_note_seen = 0;
     delidle4510_note_seen = 0;
@@ -533,7 +541,7 @@ int main(int argc, char** argv) {
     indirect_note_seen = 0;
     single_cycle_seen = 0;
 
-    printf("\\begin{center}\n\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{0.2cm}p{9em}p{7.5em}p{6em}*{7}{>{\\centering\\arraybackslash}p{1em}}p{0.2cm}|}\n"
+    fprintf(tf1, "\\begin{center}\n\\begin{tabular}{|>{\\raggedright\\arraybackslash}p{0.2cm}p{9em}p{7.5em}p{6em}*{7}{>{\\centering\\arraybackslash}p{1em}}p{0.2cm}|}\n"
            "\\hline\n"
            " & \\multicolumn{8}{l}{\\bf %s : %s} & \\multicolumn{3}{r|}{\\bf %s} \\\\\n"
            " & \\multicolumn{10}{l}{%s} & \\\\\n"
@@ -542,9 +550,9 @@ int main(int argc, char** argv) {
         instruction, short_description, processor, action);
 
     for (int ipf = 0; ipf < 7; ipf++)
-      printf(" & {\\bf %s}", pflags[ipf]);
+      fprintf(tf1, " & {\\bf %s}", pflags[ipf]);
 
-    printf(" & \\\\\n"
+    fprintf(tf1, " & \\\\\n"
            " & & & & & & & & & & & \\\\[-6pt]\n"
            " & {\\bf Addressing Mode} & {\\bf Assembly} & {\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & "
            "\\multicolumn{3}{c}{\\bf Cycles} & & \\\\ \n\\hline\n");
@@ -625,85 +633,90 @@ int main(int argc, char** argv) {
             indirect_note ? "i" : "", delidle4510_note ? "m" : "", page_note ? "p" : "", read_note ? "r" : "",
             single_cycle ? "s" : "");
 
-        printf(" & %s        & %s       & %s     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{c}{%s} & "
+        fprintf(tf1, " & %s        & %s       & %s     & \\multicolumn{3}{c}{%s} & \\multicolumn{3}{c}{%s} & "
                "\\multicolumn{2}{l|}{%s} \\\\\n",
             addressing_mode, assembly, opcode, bytes, cycle_count, cycle_notes);
       }
     }
 
-    printf("\\hline\n");
+    fprintf(tf1, "\\hline\n");
     // d = 65CE02 delete idle cycles when CPU >2MHz
     // m = 4510 delete non-bus cycles
     if (branch_note_seen) {
-      printf(" \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch is taken.} \\\\\n");
-      printf(" \\multicolumn{1}{r}{   } & \\multicolumn{11}{l}{Add one more cycle if branch taken crosses a page boundary.} "
+      fprintf(tf1, " \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch is taken.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{   } & \\multicolumn{11}{l}{Add one more cycle if branch taken crosses a page boundary.} "
              "\\\\\n");
     }
     if (delmodify65ce02_note_seen)
-      printf(" \\multicolumn{1}{r}{$d$} & \\multicolumn{11}{l}{Subtract one cycle when CPU is at 3.5MHz. } \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$d$} & \\multicolumn{11}{l}{Subtract one cycle when CPU is at 3.5MHz. } \\\\\n");
     if (indirect_note_seen)
-      printf(" \\multicolumn{1}{r}{$i$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$i$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
     if (delidle4510_note_seen)
-      printf(" \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
     if (page_note_seen)
-      printf(" \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
     if (read_note_seen)
-      printf(" \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
     if (single_cycle_seen)
-      printf(" \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Instruction requires 2 cycles when CPU is run at 1MHz or "
+      fprintf(tf1, " \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Instruction requires 2 cycles when CPU is run at 1MHz or "
              "2MHz.} \\\\\n");
 
-    printf("\\end{tabular}\n\\end{center}\n");
-    fflush(stdout);
+    fprintf(tf1, "\\end{tabular}\n\\end{center}\n");
+  }
+  fclose(tf1);
 
-    // generate new combined two-page opcode table
-    if (CPU != 45) { // no table for 45GS02
-      snprintf(filename, 1024, "%s-newopc.tex", processor);
-      FILE* tf1 = fopen(filename, "wb");
-      if (tf1) {
-        fprintf(tf1, "\\cleartoleftpage\n");
-        for (int side = 0; side < 2; side++) {
-          if (side == 0)
-            fprintf(tf1, "\\begin{center}\n"
-                        "{\\bf Opcode Table %s}\n"
-                        "\\begin{tabular}{c|c|c|c|c|c|c|c|c|}\n"
-                        "\\cline{2-9}\n"
-                        "& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 \\\\ \\hline\n", CPU==4510 ? "4510/45GS02" : processor);
-          else
-            fprintf(tf1, "\\begin{center}\n"
-                        "{\\bf Opcode Table %s}\n"
-                        "\\begin{tabular}{|c|c|c|c|c|c|c|c|c}\n"
-                        "\\cline{1-8}\n"
-                        "\\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF & \\\\ \\hline\n", CPU==4510 ? "4510/45GS02" : processor);
-          for (int i = 0; i < 16; i++) {
-            if (side == 0)
-              fprintf(tf1, "\\multicolumn{1}{|c|}{\\$%Xx} & ", i);
-            for (int j = side*8; j < (side + 1)*8; j++) {
-              int opc_offset = i * 16 + j;
-              int m = opcodes[opc_offset].modeId;
-              fprintf(tf1, "%s\\OPC%s{%s}{%s}{%d}{%d%s} %s",
-                opcodes[opc_offset].isUnintended ? "\\OPill" : 
-                  ((opcodes[opc_offset].isFar && opcodes[opc_offset].isFarQuad && opcodes[opc_offset].isQuad) ? "\\OPfarq" : 
-                    (opcodes[opc_offset].isQuad ? "\\OPquad" : 
-                      (opcodes[opc_offset].isFar ? "\\OPfar" : ""))),
-                (opcodes[opc_offset].isFarQuad || opcodes[opc_offset].isQuad) ? "Q" : "",
-                opcodes[opc_offset].defined ? opcodes[opc_offset].abbrev : "???", // opcode
-                modeinfo[m].shortDesc,
-                modeinfo[m].bytes, //bytes
-                opcodes[opc_offset].cycle_count, opcodes[opc_offset].cycle_notes,
-                j!=7 && j!=15 ? "& ": "");
-            }
-            if (side == 1)
-              fprintf(tf1, " & \\multicolumn{1}{c|}{\\$%Xx} \\\\ \\hline\n", i);
-            else
-              fprintf(tf1, " \\\\ \\hline\n");
-          }
-          fprintf(tf1, "\\end{tabular}\n\\end{center}\n\n");
-        }
-        fclose(tf1);
-      }
+  // generate new combined two-page opcode table, but not for 45GS02
+  if (CPU != 45) {
+    snprintf(filename, 1024, "opcodetable-%s.tex", processor);
+    FILE* tf1 = fopen(filename, "wb");
+    if (!tf1) {
+      fprintf(stderr, "ERROR: cycle file \"%s\" not found!\n\n", filename);
+      exit(1);
     }
+    fprintf(tf1, "\\cleartoleftpage\n\\label{sec:opctable%s}\n", processor);
+    for (int side = 0; side < 2; side++) {
+      if (side == 0)
+        fprintf(tf1, "\\begin{center}\n"
+                    "{\\bf Opcode Table %s}\n"
+                    "\\begin{tabular}{c|c|c|c|c|c|c|c|c|}\n"
+                    "\\cline{2-9}\n"
+                    "& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 \\\\ \\hline\n", CPU==4510 ? "4510/45GS02" : processor);
+      else
+        fprintf(tf1, "\\begin{center}\n"
+                    "{\\bf Opcode Table %s}\n"
+                    "\\begin{tabular}{|c|c|c|c|c|c|c|c|c}\n"
+                    "\\cline{1-8}\n"
+                    "\\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF & \\\\ \\hline\n", CPU==4510 ? "4510/45GS02" : processor);
+      for (int i = 0; i < 16; i++) {
+        if (side == 0)
+          fprintf(tf1, "\\multicolumn{1}{|c|}{\\$%Xx} & ", i);
+        for (int j = side*8; j < (side + 1)*8; j++) {
+          int opc_offset = i * 16 + j;
+          int m = opcodes[opc_offset].modeId;
+          fprintf(tf1, "%s\\OPC%s{%s}{%s}{%d}{%d%s} %s",
+            opcodes[opc_offset].isUnintended ? "\\OPill" : 
+              ((opcodes[opc_offset].isFar && opcodes[opc_offset].isFarQuad && opcodes[opc_offset].isQuad) ? "\\OPfarq" : 
+                (opcodes[opc_offset].isQuad ? "\\OPquad" : 
+                  (opcodes[opc_offset].isFar ? "\\OPfar" : ""))),
+            (opcodes[opc_offset].isFarQuad || opcodes[opc_offset].isQuad) ? "Q" : "",
+            opcodes[opc_offset].defined ? opcodes[opc_offset].abbrev : "???", // opcode
+            modeinfo[m].shortDesc,
+            modeinfo[m].bytes, //bytes
+            opcodes[opc_offset].cycle_count, opcodes[opc_offset].cycle_notes,
+            j!=7 && j!=15 ? "& ": "");
+        }
+        if (side == 1)
+          fprintf(tf1, " & \\multicolumn{1}{c|}{\\$%Xx} \\\\ \\hline\n", i);
+        else
+          fprintf(tf1, " \\\\ \\hline\n");
+      }
+      fprintf(tf1, "\\end{tabular}\n\\end{center}\n\n");
+    }
+    fclose(tf1);
+  }
 
+  // skip old tables
+  if (0) {
     snprintf(filename, 1024, "%s-opcodes.tex", processor);
     FILE* tf = fopen(filename, "wb");
     if (tf) {
@@ -833,5 +846,6 @@ int main(int argc, char** argv) {
       fclose(tf);
     }
   }
+
   fprintf(stderr, "\n");
 }

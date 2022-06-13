@@ -413,11 +413,13 @@ int main(int argc, char** argv) {
   fprintf(stderr, "Sorting instructions alphabetically.\n");
   qsort(&instrs[0], instruction_count, sizeof(char*), compar_str);
   // Now update the instruction numbers in the array
-  for (int i = 0; i < opcode_count; i++) {
-    for (int j = 0; j < instruction_count; j++) {
-      if (opcodes[i].defined && opcodes[i].abbrev != NULL && !strcmp(opcodes[i].abbrev, instrs[j])) {
-        opcodes[i].instr_num = j;
-        break;
+  for (int i = 0; i < MAX_OPCODES; i++) {
+    if (opcodes[i].defined && opcodes[i].abbrev != NULL) {
+      for (int j = 0; j < instruction_count; j++) {
+        if (!strcmp(opcodes[i].abbrev, instrs[j])) {
+          opcodes[i].instr_num = j;
+          break;
+        }
       }
     }
   }

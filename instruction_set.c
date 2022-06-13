@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
   char filename[1024];
   char *find;
   int argi = 1;
-  char line[1024], errstr[256];
+  char line[1024], errstr[1256];
 
   if (argc < 2) usage(argv[0]);
 
@@ -413,7 +413,7 @@ int main(int argc, char** argv) {
   fprintf(stderr, "Sorting instructions alphabetically.\n");
   qsort(&instrs[0], instruction_count, sizeof(char*), compar_str);
   // Now update the instruction numbers in the array
-  for (int i = 0; i < MAX_OPCODES; i++) {
+  for (int i = 0; i < opcode_count; i++) {
     for (int j = 0; j < instruction_count; j++) {
       if (opcodes[i].defined && opcodes[i].abbrev != NULL && !strcmp(opcodes[i].abbrev, instrs[j])) {
         opcodes[i].instr_num = j;

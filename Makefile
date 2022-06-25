@@ -137,8 +137,23 @@ mega65-book.pdf: *.tex $(EXAMPLES) $(HYPPO_EXAMPLES) lstlang0.sty Makefile refer
 mega65-book-cmyk.pdf:	mega65-book.pdf
 	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-book-cmyk.pdf mega65-book.pdf
 
+mega65-userguide-cmyk.pdf:	mega65-userguide.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-userguide-cmyk.pdf mega65-userguide.pdf
+
 mega65-developer-guide-cmyk.pdf:	mega65-developer-guide.pdf
 	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-developer-guide-cmyk.pdf mega65-developer-guide.pdf
+
+mega65-chipset-reference-cmyk.pdf:	mega65-chipset-reference.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-chipset-reference-cmyk.pdf mega65-chipset-reference.pdf
+
+mega65-assembly-reference-cmyk.pdf:	mega65-assembly-reference.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-assembly-reference-cmyk.pdf mega65-assembly-reference.pdf
+
+mega65-basic65-reference-cmyk.pdf:	mega65-basic65-reference.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-basic65-reference-cmyk.pdf mega65-basic65-reference.pdf
+
+mega65-basic-programming-cmyk.pdf:	mega65-basic-programming.pdf
+	gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=CMYK -dProcessColorModel=/DeviceCMYK -sOutputFile=mega65-basic-programming-cmyk.pdf mega65-basic-programming.pdf
 
 document-memory:	document-memory.c Makefile
 	$(CC) -Wall -g -o document-memory document-memory.c

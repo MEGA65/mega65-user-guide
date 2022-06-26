@@ -335,24 +335,21 @@ POKE 2041,INT(768/256)
 
 \section{Hot Registers}
 
-Because of the availability of precise vernier registers to set a wide
-range of video parameters directly, \$D011 (53265 decimal), \$D016 (53270 decimal) and other VIC-II and
-VIC-III video mode registers are implemented as virtual registers:
-by default, writing to any of these results in computed consistent values being
-applied to all of the relevant vernier registers.  This means that
-writing to any of these virtual registers will reset the video mode.
-Thus some care has to be taken when using new VIC-IV features to not
-touch any of the ``hot'' VIC-II and VIC-III registers.
+Some VIC-IV registers support features similar to the VIC-II and VIC-III, but with expanded capabilities. For backwards compatibility, writing to specific VIC-II and VIC-III registers also causes related VIC-IV registers to reset with consistent values. If you write to any of these registers, you may need to update the VIC-IV registers after you do so.
 
-The ``hot'' registers to be careful with are:
+For example, the lower four bits of register $D018 (\textbf{CB}) set the VIC-II character set address, as a multiple of 1 KiB. VIC-IV can locate the character set to any 24-bit address using $D06A (\textbf{CHARPTRBNK}), $D068 (\textbf{CHARPTRLSB}), and $D069 (\textbf{CHARPTRMSB}). If you set CB, the VIC-IV registers will also be updated to match.
 
-\$D011, \$D016, \$D018, \$D031 (53265, 53270, 53272 and 53297 decimal) and the VIC-II bank bits of \$DD00 (56576 decimal).
+The complete set of VIC-II registers that affect VIC-IV registers include:
 
-If you write to any of those, various VIC-IV registers will need to be re-written
-with the values you wish to maintain.
+\begin{itemize}
+\item $D011 (53265)
+\item $D016 (53270)
+\item $D018 (53272)
+\item $D031 (53297)
+\item The VIC-II bank bits of $DD00 (56576)
+\end{itemize}
 
-This ``hot'' register behaviour is intended primarily for legacy software.
-It can be disabled by clearing the HOTREG signal (bit 7 of \$D05D, 53341 decimal).
+This behavior of the VIC-II registers is intended primarily for legacy software. It can be disabled by clearing the HOTREG (``hot register'') signal: bit 7 of $D05D (53341).
 
 \section{New Modes}
 
@@ -670,7 +667,7 @@ to be the palette accessible via the palette bank registers at \$D100 -- \$D3FF 
 
 In addition to monochrome and multi-colour modes, the VIC-IV supports a new full-colour sprite mode.  In this mode, four bits are used to
 encode each sprite pixel.  However, unlike multi-colour mode where pairs of bits encode pairs of pixels, in full-colour mode the pixels
-remain at their normal horizontal resolution.  The colour zero is considered transparent. If you wish to use black in a full-colour sprite, 
+remain at their normal horizontal resolution.  The colour zero is considered transparent. If you wish to use black in a full-colour sprite,
 you must configure the palette bank that is selected for sprites so that one of the 15 colours for the specific sprite encodes black.
 
 Full-colour sprite mode is selectable for each sprite by setting the appropriate bit in the SPR16EN register (\$D06B, 53355 decimal).

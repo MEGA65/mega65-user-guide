@@ -71,12 +71,17 @@
 \usepackage{imakeidx}
 \usepackage[pagestyles,raggedright]{titlesec}
 \usepackage[all]{nowidow}
-\usepackage[bookmarks=true,linktoc=uncolored]{hyperref}
+\usepackage[bookmarks=true,linktoc=all]{hyperref}
 \hypersetup{
   colorlinks   = true, %Colours links instead of ugly boxes
   urlcolor     = blue, %Colour for external hyperlinks
-  % Internal links cannot be blue, because other wise section headings on
-  % blue intro pages will be invisible as blue-on-blue
+  % Each main .tex file configures via \titleformat the \chapter command
+  % to do {\chapmtoc\insertminitoc} and \chapmtoc, as defined below, will
+  % use \hypersetup{linkcolor=white} to avoid blue-on-blue TOC links
+  % Besides, each main .tex file will issue the \tableofcontents command
+  % between \hypersetup{linkcolor=black} and \hypersetup{linkcolor=blue}
+  % This means however that if "blue" is modified here it must be modified
+  % in these files too.
   linkcolor    = blue, %Colour of internal links
   citecolor   = red %Colour of citations
 }
@@ -190,8 +195,8 @@
 
 \TOCLevels{chapter}{section}
 \begin{minitocfmt}{\chapmtoc}
-\declaretocfmt{section}{\@F{\color{white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
-\declaretocfmt{section*}{\@F{\color{white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
+\declaretocfmt{section}{\@F{\color{white}\hypersetup{linkcolor=white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
+\declaretocfmt{section*}{\@F{\color{white}\hypersetup{linkcolor=white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{2.8cm}\@P{\mtocgobble}}
 \end{minitocfmt}
 
 \input{fonts}

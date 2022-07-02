@@ -1,30 +1,29 @@
 language: minimal
 os: linux
 arch: amd64
-dist: hirsute
+dist: focal
 branches: 
   except:
     - CI-latest
 script:
-- sudo apt-get install -y texlive-base texlive-latex-extra texlive-xetex latexmk xzdec 
+- sudo apt-get install -y texlive-latex-extra texlive-xetex latexmk xzdec 
 - sudo apt-get install -y sshpass
 - sudo tlmgr init-usertree 
-- sudo tlmgr option repository http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2020/tlnet-final/
-- sudo tlmgr install bibtex IEEEtran tools url arydshln booktabs sttools etoolbox titlesec appendix parskip kvoptions ltxcmds kvsetkeys float caption tikzpagenodes pgf ifoddpage imakeidx xkeyval nowidow hyperref infwarerr textpos enumitem tcolorbox environ listings wrapfig needspace ean ocr-b changepage tabulary multirow geometry zapfding helvetic iftex || true
-- latex --version
+- sudo tlmgr option repository http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2019/tlnet-final/
+- sudo tlmgr --no-verify-downloads install bibtex IEEEtran tools url arydshln booktabs sttools etoolbox titlesec appendix parskip kvoptions ltxcmds kvsetkeys float caption tikzpagenodes pgf ifoddpage imakeidx xkeyval nowidow hyperref infwarerr textpos enumitem tcolorbox environ listings wrapfig needspace ean ocr-b changepage tabulary multirow geometry zapfding helvetic || true
 - sudo updmap-sys
 - git -C .. clone https://github.com/MEGA65/mega65-libc.git
 - git -C .. clone --branch=development https://github.com/MEGA65/mega65-core.git
-- sudo make mega65-book.pdf || true
-- sudo make mega65-book.pdf
-- sudo make mega65-basic65-reference.pdf || true
-- sudo make mega65-basic65-reference.pdf
-- sudo make mega65-chipset-reference.pdf || true
-- sudo make mega65-chipset-reference.pdf
-- sudo make mega65-developer-guide.pdf || true
-- sudo make mega65-developer-guide.pdf
-- sudo make mega65-userguide.pdf || true
-- sudo make mega65-userguide.pdf
+- make mega65-book.pdf || true
+- make mega65-book.pdf
+- make mega65-basic65-reference.pdf || true
+- make mega65-basic65-reference.pdf
+- make mega65-chipset-reference.pdf || true
+- make mega65-chipset-reference.pdf
+- make mega65-developer-guide.pdf || true
+- make mega65-developer-guide.pdf
+- make mega65-userguide.pdf || true
+- make mega65-userguide.pdf
 after_script:
 - ./genhtml.sh
 - ssh-keygen -R ${SFTP_SERVER}

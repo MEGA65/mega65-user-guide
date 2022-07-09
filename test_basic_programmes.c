@@ -145,6 +145,7 @@ int end_program(void)
 {
   if (prog_line_count<MAX_PROG_LINES) {
 
+#if 0
     // Ignore listings that are unambiguously classified for the moment
     if (basic_hints+asm_hints+c_hints) {
       if ((basic_hints+asm_hints==0)||
@@ -157,23 +158,39 @@ int end_program(void)
 	  return 0;
 	}
     }
-
+#endif
+    
     if (basic_hints>asm_hints&&basic_hints>c_hints) {
-      fprintf(stderr,"\nCLASSIFICATION: %d BASIC, %d ASM, %d C\n",
-	      basic_hints,asm_hints,c_hints);
-      fprintf(stderr,"LISTING:\n");
+      //      fprintf(stderr,"\nCLASSIFICATION: %d BASIC, %d ASM, %d C\n",
+      //	      basic_hints,asm_hints,c_hints);
+      //      fprintf(stderr,"LISTING:\n");
       SHA512_CTX ctx;
       SHA512_Init(&ctx);     
       for(int i=0;i<prog_line_count;i++) {
-	fprintf(stderr,"  %s",prog_lines[i]);
+	//	fprintf(stderr,"  %s",prog_lines[i]);
 	SHA512_Update(&ctx,prog_lines[i],strlen(prog_lines[i]));
       }
-      fprintf(stderr,"\n");
+      //      fprintf(stderr,"\n");
       unsigned char hash[256];
       SHA512_Final(hash,&ctx);
-      fprintf(stderr,"HASH:");
-      for(int i=0;i<16;i++) fprintf(stderr,"%02x",hash[i]);
-      fprintf(stderr,"\n");
+      //      fprintf(stderr,"HASH:");
+      //      for(int i=0;i<16;i++) fprintf(stderr,"%02x",hash[i]);
+      //      fprintf(stderr,"\n");
+
+      char filename[1024];
+      snprintf(filename,1024,"basic_progs/%02x%02x%02x%02x%02x%02x%02x%02x.bas",
+	       hash[0],hash[1],hash[2],hash[3],hash[4],hash[5],hash[6],hash[7]);
+      FILE *f=fopen(filename,"w");
+      if (!f) {
+	fprintf(stderr,"ERROR: Could not write to %s\n",filename);
+	exit(-1);
+      }
+      fprintf(f,"REM %s.%d\n",last_filename,prog_num);
+      for(int i=0;i<prog_line_count;i++) {
+	fprintf(f,"%s",prog_lines[i]);
+      }
+      fclose(f);
+      fprintf(stderr,"INFO: Wrote %s\n",filename);
     }
   }
 

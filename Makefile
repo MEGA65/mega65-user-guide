@@ -31,6 +31,7 @@ COMPILED_BINARIES= 	document-memory \
 			generate_condensed \
 			keymap \
 			index_basic_programmes \
+			test_basic_programmes \
 			instruction_set \
 			libc-doc \
 			prg2tex
@@ -160,6 +161,9 @@ document-memory:	document-memory.c Makefile
 
 index_basic_programmes:	index_basic_programmes.c Makefile
 	$(CC) -Wall -g -o index_basic_programmes index_basic_programmes.c
+
+test_basic_programmes:	test_basic_programmes.c Makefile
+	$(CC) -Wall -g -o test_basic_programmes test_basic_programmes.c
 
 appendix-basic65-indexed.tex:	appendix-basic65.tex index_basic_programmes
 	./index_basic_programmes appendix-basic65.tex > appendix-basic65-indexed.tex

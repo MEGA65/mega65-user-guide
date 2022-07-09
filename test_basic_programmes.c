@@ -138,8 +138,8 @@ int start_program(char *filename)
     strcpy(last_filename,filename);
   } else prog_num++;
 
-  fprintf(stderr,"DEBUG: Recording program '%s.%d.bas'\n",
-	  filename,prog_num);
+  //  fprintf(stderr,"DEBUG: Recording program '%s.%d.bas'\n",
+  //	  filename,prog_num);
   return 0;
 }
 
@@ -159,14 +159,16 @@ int end_program(void)
 	  return 0;
 	}
     }
-    
-    fprintf(stderr,"\nCLASSIFICATION: %d BASIC, %d ASM, %d C\n",
-	    basic_hints,asm_hints,c_hints);
-    fprintf(stderr,"LISTING:\n");
-    for(int i=0;i<prog_line_count;i++) {
-      fprintf(stderr,"  %s",prog_lines[i]);
+
+    if (basic_hints>asm_hints&&basic_hints>c_hints) {
+      fprintf(stderr,"\nCLASSIFICATION: %d BASIC, %d ASM, %d C\n",
+	      basic_hints,asm_hints,c_hints);
+      fprintf(stderr,"LISTING:\n");
+      for(int i=0;i<prog_line_count;i++) {
+	fprintf(stderr,"  %s",prog_lines[i]);
+      }
+      fprintf(stderr,"\n");
     }
-    fprintf(stderr,"\n");
   }
 
   basic_hints=0;
@@ -202,18 +204,18 @@ void parse_tex_file(char *filename)
     }
     else if (!strncmp("\\begin{verbatim}", line, strlen("\\begin{verbatim}"))) {
       if (code_font == 1) {
-        fprintf(stderr, "BEGIN\n");
+	//        fprintf(stderr, "BEGIN\n");
         in_code = 1;
 	start_program(filename);
       }
     }
     else if (!strncmp("\\begin{screenoutput}", line, strlen("\\begin{screentext}"))) {
-        fprintf(stderr, "BEGIN\n");
+      //        fprintf(stderr, "BEGIN\n");
 	in_code=1;
 	start_program(filename);
     }
     else if (!strncmp("\\end{screenoutput}", line, strlen("\\end{screentext}"))) {
-      fprintf(stderr, "END\n");
+      //      fprintf(stderr, "END\n");
       
       if (in_code) end_program();
       
@@ -221,7 +223,7 @@ void parse_tex_file(char *filename)
 
     }
     else if (!strncmp("\\end{verbatim}", line, strlen("\\end{verbatim}"))) {
-        fprintf(stderr, "END\n");
+      //        fprintf(stderr, "END\n");
 
       if (in_code) end_program();
       

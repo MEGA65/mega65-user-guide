@@ -148,7 +148,13 @@ of memory by setting the Base-Page Register using the \screentext{TAB} instructi
 Mode allows faster access to a 256 region of memory, and uses less instruction bytes to do so.
 
 The argument is encoded as a single byte that immediately follows the instruction opcode. For
-example, \screentext{LDA \$12} would read the value stored in location \$12 in the Base-Page,
+example,
+
+\begin{screenoutput}
+LDA #12
+\end{screenoutput}
+
+would read the value stored in location \$12 in the Base-Page,
 and put it into the Accumulator Register.  The instruction byte stream for this would be
 \$85 \$12.
 
@@ -159,7 +165,13 @@ This mode is identical to Base-Page Mode, except that it reads a 32-bit word sta
 specified address.
 
 The argument is encoded as a single byte that immediately follows the instruction opcode. For
-example, \screentext{LDQ \$12} would read the value stored in locations \$12 -- \$15 in the Base-Page,
+example,
+
+\begin{screenoutput}
+LDQ $12
+\end{screenoutput}
+
+would read the value stored in locations \$12 -- \$15 in the Base-Page,
 and put them into the Q Pseudo Register.
 The instruction byte stream for this would be \$42 \$42 \$85 \$12.  Note that this is the same as for
 the Base-Page (Zero-Page) Mode, with the addition of the two \$42 prefix bytes.  Opcode \$42 is normally
@@ -167,7 +179,7 @@ NEG (negate the value in the A register).  When executed twice in a row, this re
 original value.  The 45GS02 processor has special logic to recognises this sequence, so that it knows
 to execute the next instruction using the Q Pseudo Register for that instruction.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page X-Indexed Mode}
 
@@ -178,10 +190,16 @@ of the address will be ignored.  The encoding for this addressing mode is identi
 Mode.
 
 The argument is encoded as a single byte that immediately follows the instruction opcode.
-For example, \screentext{LDA \$12,X} would read the value stored in location (\$12 + X) in the Base-Page,
+For example,
+
+\begin{screenoutput}
+LDA $12,X
+\end{screenoutput}
+
+would read the value stored in location (\$12 + X) in the Base-Page,
 and put it into the A register.  The instruction byte stream for this would be \$B5 \$12.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page Quad X-Indexed Mode}
 
@@ -192,13 +210,19 @@ of the address will be ignored.  The encoding for this addressing mode is identi
 Mode.
 
 The argument is encoded as a single byte that immediately follows the instruction opcode.
-For example, \screentext{DEQ \$12,X} would increment the 32-bit word stored at (\$12 + X) through to (\$15 + X) in the Base-Page,
+For example,
+
+\begin{screenoutput}
+DEQ $12,X
+\end{screenoutput}
+
+would increment the 32-bit word stored at (\$12 + X) through to (\$15 + X) in the Base-Page,
 and put it into the X register.  The instruction byte stream for this would be \$42 \$42 \$D6 \$12.
 
 Note that LDQ is not available in this addressing mode.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
 
 \subsection{Base-Page Y-Indexed Mode}
 
@@ -209,10 +233,16 @@ of the address will be ignored.  The encoding for this addressing mode is identi
 Mode.
 
 The argument is encoded as a single byte that immediately follows the instruction opcode.
-For example, \screentext{LDX \$12,Y} would read the value stored in location (\$12 + Y) in the Base-Page,
+For example,
+
+\begin{screenoutput}
+LDX $12,Y
+\end{screenoutput}
+
+would read the value stored in location (\$12 + Y) in the Base-Page,
 and put it into the X register.  The instruction byte stream for this would be \$B6 \$12.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page Quad Y-Indexed Mode}
 
@@ -224,7 +254,7 @@ Mode.
 
 Note that no instructions currently offer this addressing mode.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page Z-Indexed Mode}
 
@@ -236,7 +266,7 @@ Mode.
 
 Note that no instructions currently offer this addressing mode.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page Quad Z-Indexed Mode}
 
@@ -248,13 +278,19 @@ Mode.
 
 Note that no instructions currently offer this addressing mode.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Absolute Mode}
 
 In this mode, the argument is an 16-bit address.  The low 8-bits of the address are taken from
 the byte immediately following the instruction opcode. The upper 8-bits are taken from the
-byte following that.  For example, the instruction \screentext{LDA \$1234}, would read the
+byte following that.  For example, the instruction
+
+\begin{screenoutput}
+LDA $1234
+\end{screenoutput}
+
+would read the
 memory location \$1234, and place the read value into the Accumulator Register.  This would
 be encoded as \$AD \$34 \$12.
 
@@ -263,11 +299,17 @@ be encoded as \$AD \$34 \$12.
 In this mode, the argument is an 16-bit address.  The low 8-bits of the address are taken from
 the byte immediately following the instruction opcode. The upper 8-bits are taken from the
 byte following that.
-For example, the instruction \screentext{LDQ \$1234}, would read the
+For example, the instruction
+
+\begin{screenoutput}
+LDQ $1234
+\end{screenoutput}
+
+would read the
 memory locations \$1234 -- \$1237, and place the read values into the Q Pseudo Register.  This would
 be encoded as \$42 \$42 \$AD \$34 \$12.
 
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
 
 \subsection{Absolute X-Indexed Mode}
 
@@ -276,7 +318,13 @@ argument, and adding the value of the X Register to it.  If the indexing causes 
 to cross a page boundary, i.e., if the upper byte of the address changes, this may incur a
 1 cycle penalty, depending on the processor mode and speed setting.
 The encoding for this addressing mode is identical to Absolute Mode.
-For example, the instruction \screentext{LDA \$1234,X}, would read the
+For example, the instruction
+
+\begin{screenoutput}
+LDA $1234,X
+\end{screenoutput}
+
+would read the
 memory location (\$1234 + X), and place the value read from there into the A Register.  This would
 be encoded as \$BD \$34 \$12.
 
@@ -288,11 +336,17 @@ to cross a page boundary, i.e., if the upper byte of the address changes, this m
 1 cycle penalty, depending on the processor mode and speed setting.
 The encoding for this addressing mode is identical to Absolute Quad Mode.
 
-For example, the instruction \screentext{ROLQ \$1234,X}, would rotate left the 32-bit value 
+For example, the instruction
+
+\begin{screenoutput}
+ROLQ $1234,X
+\end{screenoutput}
+
+would rotate left the 32-bit value 
 at memory locations (\$1234+X) -- (\$1237+X), and write the result back to these same memory locations.  This would
 be encoded as \$42 \$42 \$3E \$34 \$12.
 
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
 
 \subsection{Absolute Y-Indexed Mode}
 
@@ -301,7 +355,13 @@ argument, and adding the value of the Y Register to it.  If the indexing causes 
 to cross a page boundary, i.e., if the upper byte of the address changes, this may incur a
 1 cycle penalty, depending on the processor mode and speed setting.
 The encoding for this addressing mode is identical to Absolute Mode.
-For example, the instruction \screentext{LDA \$1234,Y}, would read the
+For example, the instruction
+
+\begin{screenoutput}
+LDA $1234,Y
+\end{screenoutput}
+
+would read the
 memory location (\$1234 + Y), and place the value read from there into the A Register.  This would
 be encoded as \$B9 \$34 \$12.
 
@@ -315,13 +375,19 @@ The encoding for this addressing mode is identical to Absolute Quad Mode.
 
 Note that no instructions currently offer this addressing mode.
 
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
 
 \subsection{Absolute Indirect Mode}
 
 In this mode, the 16-bit argument is the address that points to, i.e., contains the
 address of actual byte to read.  For example, if memory location \$1234 contains \$78
-and memory location \$1235 contains \$56, then \screentext{JMP (\$1234)} would jump
+and memory location \$1235 contains \$56, then
+
+\begin{screenoutput}
+JMP (\$1234)
+\end{screenoutput}
+
+would jump
 to address \$5678.  The encoding for this addressing mode is identical to Absolute Mode,
  and thus this instruction would be encoded as \$6C \$34 \$12.
 
@@ -331,7 +397,13 @@ In this mode, the 16-bit argument is the address that points to, i.e., contains 
 address of actual byte to read. It is identical to Absolute Indirect Mode, except that
  the value of the X Register is added to the pointer address.
 For example, if the X Register contains the value \$04, memory location \$1238 contains \$78
-and memory location \$1239 contains \$56, then \screentext{JMP (\$1234,X)} would jump
+and memory location \$1239 contains \$56, then
+
+\begin{screenoutput}
+JMP ($1234,X)
+\end{screenoutput}
+
+would jump
 to address \$5678.
 The encoding for this addressing mode is identical to Absolute Mode, and thus this instruction
 would be encoded as \$7C \$34 \$12.
@@ -344,10 +416,16 @@ The encoding for this addressing mode is identical to Base-Page Mode.
 
 For example, if the X Register contains the value \$04, and the memory locations \$16 and \$17 in the current
 Base-Page contained \$34 and \$12, respectively,
-then \screentext{LDA (\$12,X)} would read the contents of memory location \$1234,
+then
+
+\begin{screenoutput}
+LDA ($12,X)
+\end{screenoutput}
+
+would read the contents of memory location \$1234,
 and store the result in the A register. This instruction would be encoded as \$A1 \$12.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page Quad Indirect X-Indexed Mode}
 
@@ -357,8 +435,8 @@ The encoding for this addressing mode is identical to Base-Page Quad Mode.
 
 Note that no instructions currently offer this addressing mode.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
 
 \subsection{Base-Page Indirect Y-Indexed Mode}
 
@@ -371,10 +449,16 @@ The encoding for this addressing mode is identical to Base-Page Mode.
 
 For example, if the Y Register contains the value \$04, and the memory locations \$12 and \$13 in the current
 Base-Page contained \$78 and \$56, respectively,
-then \screentext{LDA (\$12),Y} would read the contents of memory location \$567C (i.e., \$5678 + Y),
+then
+
+\begin{screenoutput}
+LDA ($12),Y
+\end{screenoutput}
+
+would read the contents of memory location \$567C (i.e., \$5678 + Y),
 and store the result in the A register. This instruction would be encoded as \$B1 \$12.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page Quad Indirect Y-Indexed Mode}
 
@@ -384,8 +468,8 @@ Base-Page Mode, except that it is prefixed by \$42, \$42.
 
 Note that no instructions currently offer this addressing mode.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
 
 \subsection{Base-Page Indirect Z-Indexed Mode}
 
@@ -398,13 +482,19 @@ The encoding for this addressing mode is identical to Base-Page Mode.
 
 For example, if the Z Register contains the value \$04, and the memory locations \$12 and \$13 in the current
 Base-Page contained \$78 and \$56, respectively,
-then \screentext{LDA (\$12),Z} would read the contents of memory location \$567C (i.e., \$5678 + Z),
+then
+
+\begin{screenoutput}
+LDA ($12),Z
+\end{screenoutput}
+
+would read the contents of memory location \$567C (i.e., \$5678 + Z),
 and store the result in the A register. This instruction would be encoded as \$B2 \$12.
 
 That is, it is equivalent to the Base-Page Indirect Y-Indexed Mode, but using the Z register instead
 of the Y register to calculate the offset.
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 \subsection{Base-Page Quad Indirect Z-Indexed Mode}
 
@@ -413,13 +503,19 @@ This addressing mode is identical to the Base-Page Indirect Z-Indexed Mode, exce
 Base-Page Mode, except that it is prefixed by \$42, \$42.
 For example, if the Z Register contains the value \$04, and the memory locations \$20, and \$21 in the current
 Base-Page contained \$AB and \$CD, respectively,
-then \screentext{LDQ (\$20),Z} would read the contents of memory location \$ABD1 (i.e., \$ABCD + Y) -- \$ABD4
+then
+
+\begin{screenoutput}
+LDQ ($12),Z
+\end{screenoutput}
+
+would read the contents of memory location \$ABD1 (i.e., \$ABCD + Y) -- \$ABD4
 and store the result in the Q Pseudo Register. This instruction would be encoded as \$42 \$42 \$B2 \$12.
 
 Currently the only instruction that offers this mode is LDQ. 
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
 
 \subsection{32-bit Base-Page Indirect Z-Indexed Mode}
 \label{32-bit Base-Page (Zero-Page) Indirect Z-Indexed Mode}
@@ -441,7 +537,7 @@ LDZ #$01
 STA [$12],Z
 \end{screenoutput}
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
 
 \subsection{32-bit Base-Page (Zero-Page) Indirect Quad Z-Indexed Mode}
@@ -454,10 +550,19 @@ natural 6502 opcode for the instruction being performed.
 
 It is also important to note that most of the time Z is actually {\em not} added to the
 pointer, as it is part of the Q Pseudo Register. Only \screentext{LDQ (\$nn),Z} will add Z.
+For example,
 
-See the note at \ref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
-See the note at \ref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
-See the note at \ref{32-bit Base-Page (Zero-Page) Indirect Z-Indexed Mode} for more information on 32-bit Base-Page Indirect addressing.
+\begin{screenoutput}
+LDQ [$12],Z
+\end{screenoutput}
+
+would read the memory locations at \$12 + Z through \$15 + Z from the Base-Page, and use those
+values to form the 32-bit address from which to load the Q Pseudo Register. This instruction would be
+encoded as \$42 \$42 \$EA \$B2 \$12.
+
+See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
+See the note on page \pageref{Base-Page (Zero-Page) Quad Mode} for more information on Quad Mode instructions.
+See the note on page \pageref{32-bit Base-Page (Zero-Page) Indirect Z-Indexed Mode} for more information on 32-bit Base-Page Indirect addressing.
 
 \subsection{Stack Relative Indirect, Y-Indexed}
 

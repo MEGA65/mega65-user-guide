@@ -5,6 +5,8 @@
 #include <strings.h>
 #include <ctype.h>
 
+#include <openssl/sha.h>
+
 #define MAX_PROG_LINES 1024
 char prog_lines[MAX_PROG_LINES][1024];
 int prog_line_count=0;
@@ -15,15 +17,11 @@ int c_hints=0;
 
 void parse_basic_text(char* s)
 {
-  int quote_mode = 0;
-  char token[8192];
-  int tlen = 0;
-
   if (prog_line_count<MAX_PROG_LINES) {
     strcpy(prog_lines[prog_line_count++],s);
   } else {
     if (prog_line_count==MAX_PROG_LINES) {
-      fprintf(stderr,"ERROR: Program listing in file '%s' looks too long. Missing \\end{screenoutput}, perhaps?\n");
+      fprintf(stderr,"ERROR: Program listing looks too long. Missing \\end{screenoutput}, perhaps?\n");
       fprintf(stderr,"First few lines of program are:\n");
       for(int i=0;i<10;i++)
 	fprintf(stderr,"  %s\n",s);
@@ -164,9 +162,17 @@ int end_program(void)
       fprintf(stderr,"\nCLASSIFICATION: %d BASIC, %d ASM, %d C\n",
 	      basic_hints,asm_hints,c_hints);
       fprintf(stderr,"LISTING:\n");
+      SHA512_CTX ctx;
+      SHA512_Init(&ctx);     
       for(int i=0;i<prog_line_count;i++) {
 	fprintf(stderr,"  %s",prog_lines[i]);
+	SHA512_Update(&ctx,prog_lines[i],strlen(prog_lines[i]));
       }
+      fprintf(stderr,"\n");
+      unsigned char hash[256];
+      SHA512_Final(hash,&ctx);
+      fprintf(stderr,"HASH:");
+      for(int i=0;i<16;i++) fprintf(stderr,"%02x",hash[i]);
       fprintf(stderr,"\n");
     }
   }

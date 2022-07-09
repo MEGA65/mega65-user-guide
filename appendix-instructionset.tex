@@ -573,12 +573,41 @@ pointer. This addressing mode effectively de-references a pointer that
 has been placed on the stack, e.g., as part of a function call from a
 high-level language.  It is encoded identically to the Base-Page Mode.
 
+For example,
+
+\begin{screenoutput}
+LDA ($12,SP),Y
+\end{screenoutput}
+
+This would use the contents of memory at the current stack pointer plus \$12 to compute the address of the pointer.
+This pointer would then have the Y-Register value added to it to obtain the final address to read from, and to
+store the value into the Accumulator. The instruction byte stream for this instruction would be \$E2 \$12.
+
+If the Stack Pointer currently pointed to \$01E0, then the pointer address would
+be read from addresses \$1F2 and \$1F3, i.e., the two bytes at \$1E0 + \$12 and \$1E0 + \$13.  If locations
+\$1F2 and \$1F3 contained \$78 and \$56 respectively, and the Y-Register contained the value \$34, then
+the final memory location that would be read would be \$5678 + \$34 = \$56AC, and the contents of that memory
+location would be read into the Accumulator.
+
 \subsection{Relative Addressing Mode}
 
 In this addressing mode, the operand is an 8-bit signed offset to the
 current value of the Program Counter (PC). It is used to allow branches
 to encode the nearby address at which execution should proceed if the
 branch is taken.
+
+For example,
+
+\begin{screenoutput}
+BNE $2003
+\end{screenoutput}
+
+would jump to \$2003, if the Z flag of the processor was not set.  If this instruction were located at
+address \$2000, it would be encoded as \$D0 \$01, i.e., branching to +1 bytes after the PC.  Branch
+offsets greater than \$7F branch backwards, with \$FD branching to the byte immediately preceeding the branch
+instruction, and lower values branching progressively further back.  In this way, a branch can effectively
+be made between -125 and +127 bytes from the opcode byte of the branch instruction.  For longer branches,
+the 45GS02 supports Relative Word Addressing Mode, where the offset is encoded using 2 bytes instead of 1.
 
 \subsection{Relative Word Addressing Mode}
 
@@ -587,6 +616,16 @@ the address offset is a 16-bit value. This allows a relative branch or jump
 to any location in the current 64KB memory view.  This makes it possible
 to write software that is fully relocatable, by avoiding the need for absolute
 addresses when calling routines.
+
+For example,
+
+\begin{screenoutput}
+BNE $3000
+\end{screenoutput}
+
+would jump to \$3000 if the Z flag of the process was not set. If this instruction were located at
+address \$2002, it would be encoded as \$D3 \$FC \$0F, i.e., branching to +\$FFC = 4,092 bytes following
+the second byte of the instruction.  The fact that the instruction is 3 bytes long is ignored in this calculation.
 
 \clearpage
 \section{6502 Instruction Set}

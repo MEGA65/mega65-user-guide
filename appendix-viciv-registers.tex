@@ -434,70 +434,122 @@ uses per character, and the 16 bits that the VIC-III uses, the VIC-IV
 has 32 bits of information.  How those 32 bits are used varies slightly
 among the particular modes.  The default is as follows:
 
+\subsubsection{Default Bit Fields (when GOTOX bit is cleared):}
+
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{3cm}|L{8cm}|}
-\hline
-{\bf{Bit(s)}} & {\bf{Function}}  \\
-\hline
+  \hhline{==}
+  {\bf{Bit(s)}} & {\bf{Function when GOTOX bit is \underline{cleared}}}  \\
+  \hhline{==}
 \endfirsthead
 \multicolumn{2}{l@{}}{\ldots continued}\\
-\hline
-{\bf{Bit(s)}} & {\bf{Function}}  \\
-\hline
+  \hhline{==}
+  {\bf{Bit(s)}} & {\bf{Function when GOTOX bit is \underline{cleared}}}  \\
+  \hhline{==}
 \endhead
 \multicolumn{2}{l@{}}{continued \ldots}\\
 \endfoot
 \hline
 \endlastfoot
-\small Screen RAM byte 0 & {\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
-\small Screen RAM byte 1, bits 0 - 4 & {\small Upper 5 bits of character number, allowing addressing of 8,192 unique characters }\\
-\small Screen RAM byte 1, bits 5 -- 7 & {\small Trim pixels from right-hand side of character (bits 0 -- 2) {\em or} Set character data Y offset if GOTOX set set (bits 0 -- 2) }\\
-\small Colour RAM byte 0, bit 7 & {\small Vertically flip the character {\em or} enable transparency for subsequent characters if GOTOX is set }\\
-\small Colour RAM byte 0, bit 6 & {\small Horizontally flip the character }\\
-\small Colour RAM byte 0, bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
-\small Colour RAM byte 0, bit 4 & {\small GOTO X (allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later), must be set to 0 for displaying characters }\\
-\small Colour RAM byte 0, bits 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right-hand side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
-\small Colour RAM byte 0, bits 2 & {\small Trim pixels from right-hand side of character (bit 3) {\em or} Set character data Y offset if GOTOX set set (bit 3) }\\
-\small Colour RAM byte 0, bits 0 -- 1 & {\small Number of pixels to trim from top or bottom of character }\\
-\small Colour RAM byte 1, bits 0 -- 3 & {\small Low 4 bits of colour of character }\\
-\small Colour RAM byte 1, bits 4 -- 7 & {\small Upper 4 bits of colour of character (if VIC-II multi-colour mode is enabled) }\\
-\small Colour RAM byte 1, bit 4 & {\small Hardware blink of character (if VIC-III extended attributes are enabled) }\\
-\small Colour RAM byte 1, bit 5 & {\small Hardware reverse video enable of character (if VIC-III extended attributes are enabled)* }\\
-\small Colour RAM byte 1, bit 6 & {\small Hardware bold attribute of character (if VIC-III extended attributes are enabled)* }\\
-\small Colour RAM byte 1, bit 7 & {\small Hardware underlining of character (if VIC-III extended attributes are enabled) }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Screen RAM byte 0}} \\
+  \hline
+  \small \qquad bits 0 - 7 & {\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Screen RAM byte 1}} \\
+  \hline
+\small \qquad bits 0 - 4 & {\small Upper 5 bits of character number, allowing addressing of 8,192 unique characters }\\
+  \hline
+\small \qquad bits 5 -- 7 & {\small Trim pixels from right-hand side of character (bits 0 -- 2)}\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Colour RAM byte 0}} \\
+  \hline
+\small \qquad bit 7 & {\small Vertically flip the character }\\
+  \hline
+\small \qquad bit 6 & {\small Horizontally flip the character }\\
+  \hline
+\small \qquad bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
+  \hline
+  \small \qquad \textbf{bit 4} & {\small \textbf{GOTO X is \underline{cleared} (set to 0)} \linebreak GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later). Must be set to 0 for displaying characters }\\
+  \hline
+\small \qquad bit 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right-hand side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
+  \hline
+\small \qquad bit 2 & {\small Trim pixels from right-hand side of character (bit 3)}\\
+  \hline
+\small \qquad bits 0 -- 1 & {\small Number of pixels to trim from top or bottom of character }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Colour RAM byte 1}} \\
+  \hline
+\small \qquad bits 0 -- 3 & {\small Low 4 bits of colour of character }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \quad \underline{If VIC-II multi-colour mode is enabled}:} \\
+  \hline
+\small \qquad bits 4 -- 7 & {\small Upper 4 bits of colour of character}\\
+  \hline
+  \multicolumn{2}{|l|}{\small \quad \underline{If VIC-III extended attributes are enabled}:} \\
+  \hline
+\small \qquad bit 4 & {\small Hardware blink of character}\\
+  \hline
+\small \qquad bit 5 & {\small Hardware reverse video enable of character * }\\
+  \hline
+\small \qquad bit 6 & {\small Hardware bold attribute of character * }\\
+  \hline
+\small \qquad bit 7 & {\small Hardware underlining of character }\\
 \end{longtable}
 
 * Enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
 
 If the GOTOX bit is set, some of the fields have different meanings:
 
+\subsubsection{Bit Fields when GOTOX bit is set:}
+
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{3cm}|L{8cm}|}
-\hline
-{\bf{Bit(s)}} & {\bf{Function}}  \\
-\hline
+  \hhline{==}
+  {\bf{Bit(s)}} & {\bf{Function when GOTOX bit is \underline{set}}}  \\
+  \hhline{==}
 \endfirsthead
 \multicolumn{2}{l@{}}{\ldots continued}\\
-\hline
-{\bf{Bit(s)}} & {\bf{Function}}  \\
-\hline
+  \hhline{==}
+  {\bf{Bit(s)}} & {\bf{Function when GOTOX bit is \underline{set}}}  \\
+  \hhline{==}
 \endhead
 \multicolumn{2}{l@{}}{continued \ldots}\\
 \endfoot
 \hline
 \endlastfoot
-\small Screen RAM byte 0 & {\small Lower 8 bits of new X position to start drawing the next character, relative to the start of character drawing.  Setting to 0 causes the next character to be drawn over the top of the left-most character. }\\
-\small Screen RAM byte 1, bits 0 - 1 & {\small Upper 2 bits of new X position }\\
-\small Screen RAM byte 1, bits 3 - 4 & {\small RESERVED, set to 0 }\\
-\small Screen RAM byte 1, bits 5 - 7 & {\small FCM Character data offset: Characters display normally when set to zero. When non-zero, 8 $\times$ the value is added to the character address. With careful planning, this can be used to smoothly vertically scroll multiple layers of RRB content.  }\\
-\small Colour RAM byte 0, bit 4 - 5 & {\small RESERVED, set to 0 }\\
-\small Colour RAM byte 0, bits 6 & {\small If set, the following characters will be rendered as background, allowing sprites to appear in front of them, even when sprites are set to background. }\\
-\small Colour RAM byte 0, bit 7 & {\small If set, then background/transparent pixels will not be drawn, allowing layering }\\
-\small Colour RAM byte 0, bit 4 & {\small GOTO X, set to 1 }\\
-\small Colour RAM byte 0, bits 3 & {\small ROWMASK. If set, then the pixel row mask is used to determine which pixel rows of the following characters should be rendered. This can be used to vertically scroll characters using the Raster-Rewrite Buffer, by drawing each character twice, once shifted down on the screen line on which it appears, and a second time, shifted up in the following screen line, and masked so that only the pixel rows belonging to the scrolled character are displayed, and not data from either before or after that character's data.}\\
-\small Colour RAM byte 0, bits 2 & {\small If set, the following characters will be rendered as foreground, regardless of their colouring, allowing sprites to appear behind them. }\\
-\small Colour RAM byte 0, bits 0 - 1 & {\small RESERVED, set to 0 }\\
-\small Colour RAM byte 1, bits 0 - 7 & {\small Pixel row mask flags }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Screen RAM byte 0}} \\
+  \hline
+\small \qquad bits 0 - 7 & {\small Lower 8 bits of new X position to start drawing the next character, relative to the start of character drawing.  Setting to 0 causes the next character to be drawn over the top of the left-most character. }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Screen RAM byte 1}} \\
+  \hline
+\small \qquad bits 0 - 1 & {\small Upper 2 bits of new X position }\\
+  \hline
+\small \qquad bits 3 - 4 & {\small RESERVED, set to 0 }\\
+  \hline
+\small \qquad bits 5 - 7 & {\small FCM Character data Y offset: Characters display normally when set to zero. When non-zero, 8 $\times$ the value is added to the character address. With careful planning, this can be used to smoothly vertically scroll multiple layers of RRB content.  }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Colour RAM byte 0}} \\
+  \hline
+\small \qquad bit 7 & {\small If set, then background/transparent pixels will not be drawn for subsequent characters, allowing layering }\\
+  \hline
+\small \qquad bits 6 & {\small If set, the following characters will be rendered as background, allowing sprites to appear in front of them, even when sprites are set to background. }\\
+  \hline
+\small \qquad bit 5 & {\small RESERVED, set to 0 }\\
+  \hline
+  \small \qquad \textbf{bit 4} & {\small \textbf{GOTO X, set to 1} \linebreak GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later). Must be set to 0 for displaying characters }\\
+  \hline
+\small \qquad bit 3 & {\small ROWMASK. If set, then the pixel row mask is used to determine which pixel rows of the following characters should be rendered. This can be used to vertically scroll characters using the Raster-Rewrite Buffer, by drawing each character twice, once shifted down on the screen line on which it appears, and a second time, shifted up in the following screen line, and masked so that only the pixel rows belonging to the scrolled character are displayed, and not data from either before or after that character's data.}\\
+  \hline
+\small \qquad bit 2 & {\small If set, the following characters will be rendered as foreground, regardless of their colouring, allowing sprites to appear behind them. }\\
+  \hline
+\small \qquad bits 0 - 1 & {\small RESERVED, set to 0 }\\
+  \hline
+  \multicolumn{2}{|l|}{\small \textbf{Colour RAM byte 1}} \\
+  \hline
+\small \qquad bits 0 - 7 & {\small Pixel row mask flags }\\
 \end{longtable}
 
 

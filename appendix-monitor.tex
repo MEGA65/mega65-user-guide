@@ -2,66 +2,21 @@
 
 \section{Introduction}
 
-Before we go any further, it is important to remember that the MEGA65 typically
-has two separate machine language monitors:  The one included in C65 ROMs, and
-the one that is part of the Matrix Mode debug interface.  It is also possible to
-replace the standard C65 monitor in the ROM with the enhanced MEGA65 OpenROMs
-machine language monitor, which corrects many bugs and adds many new features --
-including support for all enhanced CPU instructions of the MEGA65.  This chapter
-describes all three of these machine language monitors.
+A machine language monitor is a program for inspecting and experimenting with the internal state of a computer's CPU and memory, useful for debugging machine language programs and exploring how the computer works. A typical monitor can view and modify the contents the CPU registers and memory, disassemble machine code, assemble instructions directly to memory, and manipulate memory in other ways, among other features.
 
-\section{C65 ROM Standard Machine Language Monitor}
-\index{MONITOR!Standard C65 ROM Monitor}
-The machine language monitor is a debugging tool for machine language
-programs. It includes a mini-assembler, a disassembler and many useful commands.
-When the program execution encounters the code 00 (zero) alias BRK,
-the default action of the operating system is, to call the monitor.
-This features allows the debugging of programs by setting breakpoints.
+The MEGA65 has two separate machine language monitors built in: one in the ROM (the MEGA65 monitor), and one that is part of the Matrix Mode debug interface (the Matrix Mode/serial monitor). Each monitor has different features and uses.
 
-\subsection{Table of C65 ROM Standard Monitor Commands}
+The monitor in the MEGA65 ROM is similar to one that was included with the original C65 ROM, more complete and with more features. It is included in both the MEGA65 closed ROM and the enhanced MEGA65 OpenROM. If you are using an original C65 ROM, its monitor works similarly.
 
-{
-\ttfamily
-\setlength{\tabcolsep}{1mm}
-\begin{center}
-\begin{tabular}{|l|l|l|}
-\hline
-C & mnemonic & description \\
-\hline
-A &     ASSEMBLE        & Assemble a line of 45GS02 code\\
-C &     COMPARE         & Compare two sections of memory\\
-D &     DISASSEMBLE     & Disassemble a line of 45GS02 code\\
-F &     FILL            & Fill a section of memory with a value \\
-G &     GO              & Start execution at specified address\\
-H &     HUNT            & Find specified data in a section of memory\\
-L &     LOAD            & Load a file from disk\\
-M &     MEMORY          & Dump a section of memory\\
-R &     REGISTERS       & Display the contents of the 45GS02 registers\\
-S &     SAVE            & Save a section of memory to a disk file\\
-T &     TRANSFER        & Transfer memory to another location\\
-V &     VERIFY          & Compare a section of memory with a disk file\\
-X &     EXIT            & Exit Monitor mode\\
-\hline
- . &     <period>        & Assembles a line of 45GS02 code\\
- > &     <greater>       & Modifies memory\\
- ; &     <semicolon>     & Modifies register contents\\
- @ &     <at sign>       & Disk command, directory or status\\
-\hline
-\$ &     <hex>           & Display hex, decimal, octal, and binary value \\
- + &     <decimal>       & Display hex, decimal, octal, and binary value\\
-\& &     <octal>         & Display hex, decimal, octal, and binary value\\
-\% &     <binary>        & Display hex, decimal, octal, and binary value\\
-\hline
-\end{tabular}
-\end{center}
-}
 
-\subsection {Calling the Monitor}
+\section{The MEGA65 Machine Language Monitor}
+\index{MONITOR!MEGA65 Monitor}
 
-To enter the monitor from BASIC, type:
-\screentext{MONITOR}
+The machine language monitor included with the MEGA65 ROM can be invoked in several ways. From BASIC, you can invoke the monitor with the {\screentext MONITOR} command. You can also cause the MEGA65 to boot directly into the monitor by holding the \specialkey{STOP} key during start-up.
 
-The monitor responds with a display of register contents and waits for a command:
+The MEGA65 monitor activates automatically when program execution encounters the {\bf BRK} instruction (byte value {\tt 00}). You can cause your program to pause and open the monitor at a specific point by including a {\bf BRK} instruction in the program code at that point.
+
+When the monitor starts, it displays the register contents, then waits for a command:
 
 \begin{tcolorbox}[colback=blue,coltext=white]
 \verbatimfont{\codefont}
@@ -72,25 +27,25 @@ MONITOR
 \end{verbatim}
 \end{tcolorbox}
 
-\subsection{addresses and numbers}
+\subsection{Numbers}
 
-All addresses and numbers must be numbers of base 16 (hex),
-10 (decimal), 8 (octal) or 2 (dual). Symbolic names like CHROUT
-or arithmetics like \$1000+5 are not allowed.
+The monitor uses hexadecimal (base 16) to display numbers, such as memory addresses and values. Hexadecimal values are printed without a leading `\$` character, such as {\tt 5A} or {\tt D020}.
 
-It is an old tradition since the first monitor of the Commodore PET,
-that the default base is 16. In fact the old monitors would not
-accept any other numbers, than hexadecimal (short hex).
-This may confuse beginners, because a statement like
+You can enter a value in hexadecimal, decimal (base 10), octal (base 8), or binary (base 2). Each number format uses a character prefix, as shown in the table below. If you omit the prefix, the monitor assumes the value is in hexadecimal. (This is unlike BASIC, which assumes decimal without a prefix.) You can also enter a byte value as a PETSCII character, with the appropriate prefix.
+
+Hexadecimal is the default number format for assembly instructions as well. This can be confusing! Consider what happens when you tell the monitor to assemble the following instruction:
+
 \begin{verbatim}
 LDA #10
 \end{verbatim}
-loads the decimal value 16 into the accumulator.
-Later monitors, like that of the Commodore 128 accepted numbers of
-base 16,10,8 and 2 - like this one, but still used 16 (hex) as default.
-Additionally the MEGA65 monitor allows character entry, which uses
-the PETSCII value of the character.
-Following prefixes can be used to specify the base of the following number:
+
+A typical assembler interprets this as loading the decimal value 10 (hex {\tt 0A}) into the accumulator. The monitor assumes this is the hexadecimal value {\tt \$10} (decimal 16). To avoid confusion, always provide an explicit prefix character for numbers in assembly instructions. The monitor's disassembler shows all values as hexadecimal starting with the {\tt \$} prefix.
+
+All numbers must be literal values. The monitor does not understand arithmetic expressions.
+
+You can use the monitor to show all the base conversions of a given number or PETSCII character. To do this, enter the number as if it were a command, using its prefix. The {\tt \$} is required for hexadecimal numbers in this case to distinguish it from other monitor commands.
+
+The following table shows the prefixes for each way a value can be entered:
 
 {\ttfamily
 {\setlength{\tabcolsep}{1mm}
@@ -103,7 +58,7 @@ Following prefixes can be used to specify the base of the following number:
 16 & hexadecimal  & \$  & 0123456789ABCDEF & \$100       \\
 10 & decimal      &  +  & 0123456789       & +256        \\
  8 & octal        & \&  & 01234567         & \&400       \\
- 2 & dual         & \%  & 01               & \%100000000 \\
+ 2 & binary       & \%  & 01               & \%100000000 \\
    & character    &  '  & all              & 'A          \\
 \hline
 \end{tabular}
@@ -111,84 +66,27 @@ Following prefixes can be used to specify the base of the following number:
 }
 }
 
+\subsection{The Assembler}
 
-% ======================================
-% Start of the monitor command reference
-% ======================================
+The monitor has a builtin mini-assembler that can be used to write machine language code using the standard mnemonics like {\bf LDA} or {\bf STA}.
 
-\titleformat*{\subsubsection}{\normalfont\huge\bfseries\color{blue}}
+This is not a full assembler like you might use to write large programs. In particular, it does not support symbols, such as labels for subroutines or kernel addresses. Instead of {\ttfamily {\bf JSR CHROUT}}, you must look up the address of {\ttfamily {\bf CHROUT}} and enter the number value: {\ttfamily {\bf JSR FFD2}}
 
-% ***********
-% DISASSEMBLE
-% ***********
+For convenience, you can provide a full address to a branch instruction. The monitor calculates the relative address offset to assemble the instruction.
 
-\subsubsection{D : DISASSEMBLE}
-\index{DISASSEMBLE}
-\index{MONITOR Commands!DISASSEMBLE}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf D [from [,to]]}
-\item [Usage:] Prints a machine language listing for the specified
-               address range assuming, that it contains code.
-               If only one argument is present, the disassembler
-               disassembles the next 21 bytes. If no argument is
-               given, the disassembly continues with the last used
-               disassemble address.
-               The contents are printed as hex values.
+The assembler knows all of the instructions and address modes of the MEGA65
+CPU 45GS02. An instruction like {\ttfamily \bf LDA [TXTPTR],Z}
+will be assembled as loading the accumulator using a 32-bit pointer
+at the addresses {\ttfamily \bf TXTPTR, TXTPTR+1, TXTPTR+2, TXTPTR+3}.
 
-\item [Remarks:] The rows start with the dot character '.'.
-                 This enables direct full screen editing of the disassembly.
-                 Typing return in any row will assemble the changed
-                 command of the cursor row back to memory, if writable RAM is there.
-                 See monitor command {\bf .}.
+{\em Note: Instructions involving the Q virtual register are not yet supported.}
 
-                 The disassembler knows the instruction set of the C65 CPU
-                 GS6502. Enhanced instructions from the 45GS02 CPU of the MEGA65
-                 are not recognised.
+\subsection{Differences from the C65 Monitor}
 
-\item [Example:] Using {\bf D}
-\end{description}
+The MEGA65 monitor is similar to the monitor included with the C65. It includes multiple enhancements beyond the C65 monitor, both to make the monitor more generally useful and to extend it to support features specific to the MEGA65 architecture.
 
-\includegraphics[width=\linewidth]{images/monitor-d}
+The MEGA65 monitor has the following exclusive features:
 
-% ******
-% MEMORY
-% ******
-
-\subsubsection{M : MEMORY}
-\index{MEMORY}
-\index{MONITOR Commands!MEMORY}
-\begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf M [from [,to]]}
-\item [Usage:] Prints a memory dump for the given address range.
-               The dump displays memory contents, organised in rows
-               of 16 consecutive addresses starting with the
-               address, given as 1st. argument. The dump continues
-               until a row has been printed, containing the value
-               of the address given as 2nd. argument.
-               If no 2nd. argument is present, the dump displays
-               a full page of 256 bytes in 16 rows.
-               The contents are printed as 16 byte values in hex,
-               followed by the character representation.
-
-\item [Remarks:] The rows start with the character '>'.
-                 This enables direct full screen editing of the dump.
-                 Typing return in any row will write the changed
-                 values of the cursor row back to memory, if writable RAM is there.
-                 See monitor command {\bf >}.
-
-\item [Example:] Using {\bf M}
-\end{description}
-
-\includegraphics[width=\linewidth]{images/monitor-m}
-
-\section{Enhanced Machine Language Monitor}
-\index{MONITOR!Enhanced MEGA65 ROM Monitor}
-\label{cha:MLMonitor}
-
-This machine language monitor is a new development for the MEGA65.
-It is available both in the {\tt 92XXXX} ROMs and in the OpenROMs.
-
-The enhanced monitor has following additional features:
 \begin{description}[leftmargin=1cm,style=nextline]
 \item[Adddresses:] All addresses are used as 32-bit (4 bytes) addresses.
    This allows access to the whole MEGA65 address range, which needs
@@ -217,7 +115,7 @@ The enhanced monitor has following additional features:
 
 \end{description}
 
-\subsection{Table of MEGA65 Enhanced Monitor Commands}
+\subsection{Table of MEGA65 Monitor Commands}
 
 {
 \ttfamily
@@ -234,6 +132,7 @@ D &     DISASSEMBLE     & Disassemble a line of 45GS02 code\\
 F &     FILL            & Fill a section of memory with a value \\
 G &     GO              & Start execution at specified address\\
 H &     HUNT            & Find specified data in a section of memory\\
+J &     JUMP            & Jump to a subroutine at specified address\\
 L &     LOAD            & Load a file from disk\\
 M &     MEMORY          & Dump a section of memory\\
 R &     REGISTERS       & Display the contents of the 45GS02 registers\\
@@ -256,93 +155,11 @@ X &     EXIT            & Exit Monitor mode\\
 \end{center}
 }
 
+% ======================================
+% Start of the monitor command reference
+% ======================================
 
-\subsection {Calling the Monitor}
-
-To enter the monitor from BASIC, type:
-\screentext{MONITOR}
-
-The monitor responds with a display of register contents and waits for a command:
-
-\begin{tcolorbox}[colback=blue,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-MONITOR
-\end{verbatim}
-\begin{tcolorbox}[colback=yellow,coltext=blue,,arc=0mm,boxrule=0mm,
-       left*=0.5mm,right*=0mm,top=0mm,bottom=0mm,nobeforeafter,
-       left skip=0.1mm,
-       width=50mm,height=3mm,valign=center]
-\begin{verbatim}
-BS MONITOR COMMANDS:ABCDFGHJMRTX@.>;?$+&%'LSV
-\end{verbatim}
-\end{tcolorbox}
-\begin{verbatim}
-    PC   SR AC XR YR ZR BP  SP  NVEBDIZC
-; 00CFA4 35 00 00 00 00 00 01F8 --11-1-1
-\end{verbatim}
-\end{tcolorbox}
-
-\subsection{addresses and numbers}
-
-All addresses and numbers must be numbers of base 16 (hex),
-10 (decimal), 8 (octal) or 2 (dual). Symbolic names like CHROUT
-or arithmetics like \$1000+5 are not allowed.
-
-It is an old tradition since the first monitor of the Commodore PET,
-that the default base is 16. In fact the old monitors would not
-accept any other numbers, than hexadecimal (short hex).
-This may confuse beginners, because a statement like
-\begin{verbatim}
-LDA #10
-\end{verbatim}
-loads the decimal value 16 into the accumulator.
-Later monitors, like that of the Commodore 128 accepted numbers of
-base 16,10,8 and 2 - like this one, but still used 16 (hex) as default.
-Additionally the MEGA65 monitor allows character entry, which uses
-the PETSCII value of the character.
-Following prefixes can be used to specify the base of the following number:
-
-{\ttfamily
-{\setlength{\tabcolsep}{1mm}
-\begin{center}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
- base  & name & prefix & digits characters & example     \\
-\hline
-16 & hexadecimal  &     & 0123456789ABCDEF &   100       \\
-16 & hexadecimal  & \$  & 0123456789ABCDEF & \$100       \\
-10 & decimal      &  +  & 0123456789       & +256        \\
- 8 & octal        & \&  & 01234567         & \&400       \\
- 2 & dual         & \%  & 01               & \%100000000 \\
-   & character    &  '  & all              & 'A          \\
-\hline
-\end{tabular}
-\end{center}
-}
-}
-
-\subsection{Assembler}
-
-The monitor has a builtin mini-assembler, which can be used to write
-machine language code using the standard mnemonics like {\bf LDA} or
-{\bf STA}, etc.
-The most important difference to a full assembler is the necessity
-to use numeric constants as operands for the instructions only.
-So you cannot use named variables, labels or subroutine names.
-A call to the kernal routine, which prints a character to the screen
-would be written {\ttfamily {\bf JSR CHROUT}} in a full assembler, while
-the mini-assembler needs the syntax {\ttfamily \bf JSR FFD2} (you need
-to know or lookup the addresses). There is the convenience for
-branch instructions, that the target address is written to the
-operand field and the mini-assembler computes the relative address,
-that is inserted in the code.
-
-The assembler knows all instructions and address modes of the MEGA65
-CPU 45GS02 (except the instructions using the Q register, these will
-be added later). So an instruction like {\ttfamily \bf LDA [TXTPTR],Z}
-will be assembled as loading the accumulator using a 32-bit pointer
-at the addresses {\ttfamily \bf TXTPTR, TXTPTR+1, TXTPTR+2, TXTPTR+3}.
+\titleformat*{\subsubsection}{\normalfont\huge\bfseries\color{blue}}
 
 % ********
 % ASSEMBLE
@@ -398,8 +215,8 @@ at the addresses {\ttfamily \bf TXTPTR, TXTPTR+1, TXTPTR+2, TXTPTR+3}.
 \index{BITMAPS}
 \index{MONITOR Commands!BITMAPS}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf B display character bitmaps}
-\item [Usage:] B address
+\item [Format:] {\bf B start}
+\item [Usage:] Displays memory values interpreted as character bitmaps.
 
 \item [Remarks:] The B command displays the contents of memory cells bitwise
                  by printing an asterisk for 1 and a dot for 0.
@@ -421,20 +238,351 @@ FONT C : REM $02D000 : original C64 font
 \end{description}
 \includegraphics[width=\linewidth]{images/monitor-b}
 
+% *******
+% COMPARE
+% *******
+
+\subsubsection{C : COMPARE}
+\index{COMPARE}
+\index{MONITOR Commands!COMPARE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf C start end start-b}
+\item [Usage:] Compares two regions of memory, then lists the addresses whose values differ.
+
+\item [Remarks:] The end address is one beyond the last address to compare.
+
+    The second memory region to compare starts at {\bf start-b} and is the same size as the region described by {\bf start} and {\bf end}.
+
+    Addresses are printed as hex values.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-c}
+
+% ***********
+% DISASSEMBLE
+% ***********
+
+\subsubsection{D : DISASSEMBLE}
+\index{DISASSEMBLE}
+\index{MONITOR Commands!DISASSEMBLE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf D [from [to]]}
+\item [Usage:] Prints a machine language listing for the specified
+               address range assuming, that it contains code.
+               If only one argument is present, the disassembler
+               disassembles the next 21 bytes. If no argument is
+               given, the disassembly continues with the last used
+               disassemble address.
+               The contents are printed as hex values.
+
+\item [Remarks:] The rows start with the dot character '.'.
+                 This enables direct full screen editing of the disassembly.
+                 Typing return in any row will assemble the changed
+                 command of the cursor row back to memory, if writable RAM is there.
+                 See monitor command {\bf .}.
+
+                 The disassembler knows the instruction set of the C65 CPU
+                 GS6502. Enhanced instructions from the 45GS02 CPU of the MEGA65
+                 are not recognised.
+
+\item [Example:] Using {\bf D}
+\end{description}
+\includegraphics[width=\linewidth]{images/monitor-d}
+
+% ****
+% FILL
+% ****
+
+\subsubsection{F : FILL}
+\index{FILL}
+\index{MONITOR Commands!FILL}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf F start end value}
+\item [Usage:] Fills a region of memory with a value.
+
+\item [Remarks:] The end address is one beyond the last address to fill.
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-f}
+
+% **
+% GO
+% **
+
+\subsubsection{G : GO}
+\index{GO}
+\index{MONITOR Commands!GO}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf G [addr]}
+\item [Usage:] Executes code at an address. If {\bf addr} is omitted, the current program counter is used as the address.
+
+\item [Remarks:] This is equivalent to a {\bf JMP} instruction.
+
+    The {\bf G} command without an argument is a convenient way to resume execution of a program after starting the monitor with a {\bf BRK} instruction.
+
+    Because this uses a {\bf JMP}, it must not be used to call subroutines. See {\bf J}.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-g}
+
+% ****
+% HUNT
+% ****
+
+\subsubsection{H : HUNT}
+\index{HUNT}
+\index{MONITOR Commands!HUNT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf H start end byte [byte...]}
+\item [Usage:] Searches for every occurrence of a byte sequence in a range of memory, then lists the starting address of each occurrence.
+
+\item [Remarks:] The end address is one beyond the last address to search.
+
+    Addresses are printed as hex values.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-h}
+
+% ****
+% JUMP
+% ****
+
+\subsubsection{J : JUMP}
+\index{JUMP}
+\index{MONITOR Commands!JUMP}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf J addr}
+\item [Usage:] Jumps to a subroutine at an address.
+
+\item [Remarks:] This is equivalent to a {\bf JSR} instruction. When the subroutine returns with {\tt RTS}, the monitor resumes.
+
+    To simply continue execution at an address without expecting to return to the monitor, use {\bf G}.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-j}
+
+% ****
+% LOAD
+% ****
+
+\subsubsection{L : LOAD}
+\index{LOAD}
+\index{MONITOR Commands!LOAD}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf L "filename",unit [start]}
+\item [Usage:] Loads data from a file into memory.
+
+\item [Remarks:] The filename must be surrounded by double-quotes.
+
+    The {\bf unit} number (such as 8 or 9) is required.
+
+    If the {\bf start} address is omitted, the starting address is taken from the first two bytes of the file. The file must be of type {\tt PRG}. If {\bf start} is provided, the two byte {\tt PRG} header is ignored.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-l}
+
+% ******
+% MEMORY
+% ******
+
+\subsubsection{M : MEMORY}
+\index{MEMORY}
+\index{MONITOR Commands!MEMORY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf M [from [,to]]}
+\item [Usage:] Prints a memory dump for the given address range.
+               The dump displays memory contents, organised in rows
+               of 16 consecutive addresses starting with the
+               address, given as 1st. argument. The dump continues
+               until a row has been printed, containing the value
+               of the address given as 2nd. argument.
+               If no 2nd. argument is present, the dump displays
+               a full page of 256 bytes in 16 rows.
+               The contents are printed as 16 byte values in hex,
+               followed by the character representation.
+
+\item [Remarks:] The rows start with the character '>'.
+                 This enables direct full screen editing of the dump.
+                 Typing return in any row will write the changed
+                 values of the cursor row back to memory, if writable RAM is there.
+                 See monitor command {\bf >}.
+
+\item [Example:] Using {\bf M}
+\end{description}
+\includegraphics[width=\linewidth]{images/monitor-m}
+
+% *********
+% REGISTERS
+% *********
+
+\subsubsection{R : REGISTERS}
+\index{REGISTERS}
+\index{MONITOR Commands!REGISTERS}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf R}
+\item [Usage:] Displays the contents of the registers from just before the monitor was started.
+
+\item [Remarks:] The output begins with a {\tt ;} character so that you can change the register values by moving the cursor up to the line, changing the values, then pressing \specialkey{Return}.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-r}
+
+% ****
+% SAVE
+% ****
+
+\subsubsection{S : SAVE}
+\index{SAVE}
+\index{MONITOR Commands!SAVE}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf S "filename",unit start end}
+\item [Usage:] Saves a region of memory to a file on disk, of type {\tt PRG}.
+
+\item [Remarks:] The filename must be surrounded by double-quotes.
+
+    The {\bf unit} number (such as 8 or 9) is required.
+
+    The end address is one beyond the last address to save.
+
+    To overwrite an existing file, put {\tt 0:} before the filename, such as: {\tt "0:MYFILE"}
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-s}
+
+% ********
+% TRANSFER
+% ********
+
+\subsubsection{T : TRANSFER}
+\index{TRANSFER}
+\index{MONITOR Commands!TRANSFER}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf T start end destination-start}
+\item [Usage:] Transfers (copies) a region of memory to another region.
+
+\item [Remarks:] The end address is one beyond the last address to copy.
+
+    The destination region is assumed to be the same length as the source region. All bytes are copied.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-t}
+
+% ******
+% VERIFY
+% ******
+
+\subsubsection{V : VERIFY}
+\index{VERIFY}
+\index{MONITOR Commands!VERIFY}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf V "filename",unit start}
+\item [Usage:] Verifies that a region of memory matches a file on disk.
+
+\item [Remarks:] The filename must be surrounded by double-quotes.
+
+    The {\bf unit} number (such as 8 or 9) is required.
+
+    The length of the data to verify is assumed to be the length of the file.
+
+    % TODO: How is verification status reported?
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-v}
+
+% ****
+% EXIT
+% ****
+
+\subsubsection{X : EXIT}
+\index{EXIT}
+\index{MONITOR Commands!EXIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf X}
+\item [Usage:] Exits the monitor to BASIC.
+
+\item [Remarks:] If the monitor was started by a {\bf BRK} instruction in a program, exiting the monitor effectively aborts the program. To continue a paused program, use {\bf G} instead.
+
+\end{description}
+
+% ************
+% . (ASSEMBLE)
+% ************
+
+\subsubsection{. : ASSEMBLE}
+\index{MONITOR Commands!.}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf . address opcode operand}
+\item [Usage:] An alias for {\bf A}.
+
+\item [Remarks:] The output of the disassembler starts each line with a {\tt .} character. You can edit the assembly instructions printed by the disassembler by moving the cursor up to a line, editing it, and pressing \specialkey{Return}. This changes the {\tt .} to a {\tt A} so you can see which lines have been reassembled.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-dot}
+
+% *****************
+% > (MODIFY MEMORY)
+% *****************
+
+\subsubsection{> : MODIFY MEMORY}
+\index{MONITOR Commands!>}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf > addr byte [byte...]}
+\item [Usage:] Modifies one or more bytes starting at an address.
+
+\item [Remarks:] The output of the {\bf M} command starts each line with a {\tt >} character. You can edit the memory values printed by the {\bf M} command by moving the cursor up to a line, editing it, and pressing \specialkey{Return}.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-gt}
+
+% ********************
+% ; (MODIFY REGISTERS)
+% ********************
+
+\subsubsection{; : MODIFY REGISTERS}
+\index{MONITOR Commands!.}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf ; pc sr ac xr yr zr bp sp nvebdizc}
+\item [Usage:] Modifies the CPU registers. Arguments are in the format output by the {\bf R} command.
+
+\item [Remarks:] The output of the {\bf R} command starts the line with a {\tt ;} character. You can edit the memory values printed by the {\bf R} command by moving the cursor up to the line, editing it, and pressing \specialkey{Return}.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-semi}
+
+% ****************
+% @ (DISK COMMAND)
+% ****************
+
+\subsubsection{@ : DISK COMMAND}
+\index{MONITOR Commands!@}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf @ [unit] [command]}
+\item [Usage:] Perform a disk command.
+
+\item [Remarks:] Without a command, this displays the drive status.
+
+    The default unit is 8.
+
+    The command can be any Commodore DOS command. For example, to rename a file: {\tt @R0:NEWNAME=OLDNAME}
+
+    The command can be {\tt U1} to load raw disk sectors to memory, or {\tt U2} to save memory to raw disk sectors. These commands take this form:
+
+    {\bf @8,U1 mem-start track sector [sector-count]}
+
+    Tracks are numbered 1-80, and sectors are numbered 0-39. If {\bf sector-count} is omitted, only one sector is read from or written to.
+
+\end{description}
+% TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-at}
 
 
 
+\section{The Matrix Mode/Serial Monitor}
+\index{MONITOR!Matrix Mode/Serial Monitor}
 
-\section{MEGA65 Matrix Mode Monitor Interface}
-\index{MONITOR!Matrix Mode/Serial Monitor Interface}
+The Matrix Mode monitor can do something that the MEGA65 monitor cannot: instead of pausing a program to run the monitor, the Matrix Mode monitor runs concurrently with the active program. That is, you can view and modify the memory the MEGA65, {\em while a program is running}.
 
-This monitor is different to the other two: It is part of the MEGA65
-system itself, and runs concurrently with MEGA65's processor. That is,
-you can view and modify the memory the MEGA65, {\em while a program is running}.
-
-This works using dedicated hardware in the MEGA65 design, that implements a little
-helper processor that runs this monitor interface, and has a special access mechanism
-to the memory and processor of the MEGA65.
+This works using dedicated hardware in the MEGA65 design that implements a little
+helper processor that runs this monitor interface. This hardware has a special access mechanism
+to the memory and CPU of the MEGA65.
 
 In comparison with the ROM-based monitors that execute on the MEGA65's primary processor,
 the Matrix Mode monitor has several advantages and disadvantages:

@@ -54,7 +54,7 @@ You have been warned!
 \section{Installing Vivado}
 \label{sec:installvivado}
 
-Installation of Vivado is required to flash the QSPI flash memory within your MEGA65 target device, whether it be a MEGA65 R2/R3, Nexys4/Nexys4DDr/NexysA7, MEGAphone or other.
+Installation of Vivado is required to flash the QSPI flash memory within your MEGA65 target device, whether it be a MEGA65 R2/R3/R3A/R4, Nexys4/Nexys4DDR/NexysA7, MEGAphone or other.
 
 Vivado is also the tool used to perform compilation (synthesis, as it is preferably called) of FPGA bitstreams.
 
@@ -68,7 +68,7 @@ To get started, connect to \url{https://www.xilinx.com/support/download.html}
   \end{center}
   NOTE : Some users still have success with using older versions, as the main aim here is to install a version that supports the FPGA of your target hardware. \\
   \\
-  I.e., the Artix7 100T (for Nexys and R2) or 200T (R3).
+  I.e., the Artix7 100T (for Nexys and R2) or 200T (R3/R3A/R4).
 \end{minipage}
 
 \begin{minipage}{\linewidth}
@@ -455,14 +455,14 @@ The diagram below shows two common pathways that the FPGA can load bitstreams at
 
 In this section, we describe the pathway that makes use of the QSPI.
 
-Many of the following steps in this section are applicable not only to MEGA65 R2/R3 owners, but Nexys4 board owners too. There are a few points of distinction along the way that readers will be made aware of.
+Many of the following steps in this section are applicable not only to MEGA65 R2/R3/R3A/R4 owners, but Nexys4 board owners too. There are a few points of distinction along the way that readers will be made aware of.
 
 If you choose to proceed, you will need a functioning installation of Xilinx's Vivado software, and the FTDI drivers installed, as described in the earlier sections.
 
 You will also need to download or build an .mcs bitstream file (and optional .prm checksum verification file) that you intend flash onto the QSPI chip via Vivado. See \nameref{sec:bitstreamfiles} for more details on where such files can be downloaded.
 
 \begin{tcolorbox}[colback=white,coltext=black]
-\underline{For MEGA65 R2/R3 owners}:\\
+\underline{For MEGA65 R2/R3/R3A/R4 owners}:\\
 \\
 You will need a TE0790-03 JTAG programming module. It is also necessary to have
 dip-switches 1 and 3 in the ON position and dip-switches 2 and 4 in the
@@ -593,7 +593,7 @@ Also, set J1 jumper to the QSPI position:
   Step 5: Under "Open Hardware Manager", choose "Add Configuration
   Memory Device", then:
   \begin{itemize}
-    \item \underline{For MEGA65R3}: "xc7a200t\_0"
+    \item \underline{For MEGA65R3/R3A/R4}: "xc7a200t\_0"
     \item \underline{For Nexys4 and MEGA65R2}: "xc7a100t\_0".
   \end{itemize}
 
@@ -612,6 +612,7 @@ Also, set J1 jumper to the QSPI position:
     \item \underline{For MEGA65R2/R3}: type "S25fl256s"
     (without quotes), then select "s25fl256sxxxxxxx0-spi-x1\_x2\_x4"
     (the upper one) and click "OK".
+    \item \underline{For MEGA65R3A/R4}: Vivado cannot flash the larger flash part on these boards. Use the flash menu on the MEGA65.
     \item \underline{For Nexys4}: type "S25fl128s"
     (without quotes), then select "s25fl128sxxxxxxx0-spi-x1\_x2\_x4"
     (the upper one) and click "OK".
@@ -705,7 +706,7 @@ the one nearest the floppy data cable.
 \includegraphics[width=\linewidth]{images/jtag_detail_05.jpg}
 
 
-On the PCB R2 MEGA65 mainboard, dip switch 1 (the one nearest to the user
+On the PCB of a R2/R3/R3A/R4 MEGA65 mainboard, dip switch 1 (the one nearest to the user
 sitting in front of the machine) must be in the ON position. The other
 switches must be OFF. The keyboard will go into ``ambulance mode''
 (blue flashing lights) when set correctly.
@@ -831,9 +832,8 @@ The micro-USB port of the TEI0004 must face in the opposite direction of the HDM
 the trap door.
 The following image shows the correct position.
 
-On the PCB R2 MEGA65 mainboard, all dip switches must be in the OFF position. The main FPGA of the MEGA65 R2 must not contain
-a valid bitstream. See section \nameref{sec:mainfpgaflashing} on how to erase the bitstream
-from the main FPGA.
+On the PCB R2/R3/R3A/R4 MEGA65 mainboard, all dip switches must be in the OFF position. The main FPGA of the MEGA65 must not contain
+a valid bitstream. The easiest way to do this is if you have a TE0790 JTAG adaptor: you can then use the m65 tool from a connected computer to begin sending a bitstream via JTAG, and then using control-C to abort the m65 tool before it can finish loading the bitstream. 
 
 \includegraphics[width=\linewidth]{images/jtag_detail_max10.png}
 

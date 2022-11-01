@@ -45,8 +45,11 @@ no other program has modified the contents of \$D701 or \$D702.  Note that BASIC
 scroll the screen, so it is usually safest to always write to all three registers.
 
 When ADDRLSBTRIG has been written to, the DMA job completes immediately.  Unlike on the C65, the DMA controller is part
-of the processor of the MEGA65. This means that the processor stops trying to execute instructions {\em or fetching audio samples for DMA audio playback} until the DMA job
-has completed.  It also means that, unlike on the C65, DMA jobs cannot be interrupted. If your program has sensitive timing
+of the processor of the MEGA65. This means that the processor stops trying to execute instructions until the DMA job
+has completed.  The only exception to this, is that Audio DMA continues, and will steal cycles from any other DMA activity,
+to ensure that audio playback is not affected.
+
+This behaviour means that unlike on the C65, DMA jobs cannot be interrupted. If your program has sensitive timing
 requirements, you may need to break larger DMA jobs into several smaller jobs.  This is somewhat mitigated by the high
 speed of the MEGA65's DMA, which is able to fill memory at 40.5MB per second and copy memory at 20.25MB per second, compared
 with circa 3.5MB and 1.7MB per second on a C65. This allows larger DMA jobs to be executed, without needing to worry about

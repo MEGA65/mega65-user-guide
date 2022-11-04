@@ -493,6 +493,38 @@ in the \url{https://github.com/mega65/mega65-tools} repository provides an examp
 implement hardware accelerated line drawing. This is {\em very} fast, as it draws lines at the full DMA fill speed,
 i.e., approximately 40,500,000 pixels per second.
 
+\section{Inline DMA Lists}
+\index{DMA!Inline DMA Lists}
+\index{Inline DMA Lists}
+
+Normally you have to setup a separate area of memory that contains the DMA list, and then load the address of that
+area into the DMA address registers at \$D70x.  Because the MEGA65's DMA controller is part of the CPU, it supports
+an additional mode that is very convenient, called inline DMA list mode.  
+
+This mode works like Enhanced DMA mode, except that the DMA list is read starting from the current value of the
+Program Counter (PC) register.  The DMA list can be a single job, or chained, as with any other DMA job. The
+real magic is that the Program Counter gets set to the next address after the end of the DMA list, and that
+the DMA list is read from the CPU's current memory mapping. This means that you can execute code with DMA lists
+from any bank of memory, without having to worry about which bank it is in.
+
+For example, the following code would clear the C65-mode screen, before flashing the border endlessly:
+
+\begin{screenoutput}
+        sta $d707
+        .byte $00   ; end of job options
+        .byte $03   ; fill
+        .word 2000  ; count
+        .word $0020 ; value
+        .byte $00   ; src bank
+        .word $0800 ; dst
+        .byte $00   ; dst bank
+        .byte $00   ; cmd hi
+        .word $0000 ; modulo / ignored
+foo:
+        inc $d020
+        jmp foo
+\end{screenoutput}
+
 \section{Audio DMA}
 \index{Digital Audio}
 \index{DMA Audio}

@@ -502,7 +502,10 @@ area into the DMA address registers at \$D70x.  Because the MEGA65's DMA control
 an additional mode that is very convenient, called inline DMA list mode.  
 
 This mode works like Enhanced DMA mode, except that the DMA list is read starting from the current value of the
-Program Counter (PC) register.  The DMA list can be a single job, or chained, as with any other DMA job. The
+Program Counter (PC) register.  To use this mode, write any value to \$D707, to immediately a trigger a DMA job,
+with the list in the bytes immediately following the instruction that writes to \$D707.
+
+The DMA list can be a single job, or chained, as with any other DMA job. The
 real magic is that the Program Counter gets set to the next address after the end of the DMA list, and that
 the DMA list is read from the CPU's current memory mapping. This means that you can execute code with DMA lists
 from any bank of memory, without having to worry about which bank it is in.
@@ -510,7 +513,7 @@ from any bank of memory, without having to worry about which bank it is in.
 For example, the following code would clear the C65-mode screen, before flashing the border endlessly:
 
 \begin{screenoutput}
-        sta $d707
+        STA $D707
         .byte $00   ; end of job options
         .byte $03   ; fill
         .word 2000  ; count
@@ -521,8 +524,8 @@ For example, the following code would clear the C65-mode screen, before flashing
         .byte $00   ; cmd hi
         .word $0000 ; modulo / ignored
 foo:
-        inc $d020
-        jmp foo
+        INC $d020
+        JMP foo
 \end{screenoutput}
 
 \section{Audio DMA}

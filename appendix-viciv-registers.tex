@@ -281,16 +281,16 @@ POKE $D060,$45:POKE $D061,$23:POKE $D062,$1
 The location of the character generator data can also be set with byte-level precision via the CHARPTR registers at \$D068 -- \$D06A (53352 -- 53354 decimal). As usual, the first of these registers holds the lowest-order byte, and the last the highest-order byte. The three bytes allow for placement of character data anywhere in the first 16MB of RAM. For systems with less than 16MB of RAM accessible by the VIC-IV, the upper address bits should be zero.
 
 For example, to indicate that character generator data should be sourced beginning at \$41200 (266752 decimal), the following
-could be used.  Note that the command POKEW can be used to write two bytes as a word into a memory or I/O location. Therefore, we use POKEW to write \$00 into \$D068 and \$12 into \$D069, and an additional POKE to write the high byte \$A into \$D06A by dividing the address by 65536:
+could be used.  Note that the command WPOKE can be used to write two bytes as a word into a memory or I/O location. Therefore, we use WPOKE to write \$00 into \$D068 and \$12 into \$D069, and an additional POKE to write the high byte \$A into \$D06A by dividing the address by 65536:
 
 \begin{screenoutput}
 REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
 REM HEX $41200 IS EASILY DIVIDED IN ITS 3 BYTES $00, $12, $4
-REM POKEW SETS THE LOWER TWO BYTES IN ONE COMMAND AND
+REM WPOKE SETS THE LOWER TWO BYTES IN ONE COMMAND AND
 REM THE FOLLOWING POKE SETS THE UPPER BYTE
 A=$41200
-POKEW $D068,A
+WPOKE $D068,A
 POKE $D06A,A/65536
 \end{screenoutput}
 

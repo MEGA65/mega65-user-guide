@@ -465,7 +465,7 @@ among the particular modes.  The default is as follows:
   \hline
 \small \qquad Bit 6 & {\small Horizontally flip the character }\\
   \hline
-\small \qquad Bit 5 & {\small Alpha blend mode (leave 0, discussed later) }\\
+\small \qquad Bit 5 & {\small Enable alpha blend mode, pixel values are treated as alpha values blending between foreground colour and background colour (needs bit 7 of \$d054 set) }\\
   \hline
   \small \qquad \textbf{Bit 4} & {\small \textbf{GOTOX is \underline{cleared} (set to 0)} \linebreak GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later). Must be set to 0 for displaying characters }\\
   \hline
@@ -625,7 +625,17 @@ XXX
 
 \subsection{Alpha-Blending / Anti-Aliasing}
 
-XXX
+The VIC-IV supports blending of characters with the background colour, enabling effects such as anti-aliased font rendering. Blending is possible on a per character basis. It is enabled for a specific character if the following conditions are met:
+\begin{enumerate}
+  \item The {\em ALPHAEN} signal is set in bit 7 of \$D054.
+  \item The {\em CHR16} signal is set in bit 0 of \$D054 to enable Super-Extended Attribute Mode (SEAM).
+  \item Full-Colour Text Mode (FCM) is enabled for the character.
+\end{enumerate}
+If alpha-blending is enabled for a character, its 8-bit pixel values are treated as alpha values instead of palette indices. The actual pixel colour is determined by blending the background colour with the character's foreground colour defined in the colour RAM. An alpha value of 0 represents full transparency, showing only the background colour for that pixel.
+
+Note that the alpha-blending is only applied between the background colour and the character's foreground colour. This means that any characters behind the current character will effectively not be visible (character layers can be composed by using GOTOX repositioning). However, programmers should assume that blending with previous layers will be supported in a future implementation. To avoid issues with such a change you should not put any characters behind a character with alpha-blending enabled.
+
+
 
 \subsection{Flipping Characters}
 

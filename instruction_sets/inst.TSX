@@ -1,7 +1,7 @@
-Transfer Stack Pointer High Register into the X Register
-X $\leftarrow$ SPH
+Transfer Stack Pointer Low Register into the X Register
+X $\leftarrow$ SPL
 N+Z+
-This instruction loads the X Register with the contents of the Stack Pointer High (SPH)
+This instruction loads the X Register with the contents of the Stack Pointer Low (SPL)
 Register.
 
 \subsubsection*{Side effects}

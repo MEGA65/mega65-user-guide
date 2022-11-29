@@ -8,14 +8,129 @@ During development, frequently test software on real hardware, such as a MEGA65 
 
 Download the MEGA65 emulator source code from \url{https://github.com/lgblgblgb/xemu}.
 
-Download pre-compiled versions from \url{https://github.lgb.hu/xemu/}.
+Download pre-compiled versions from \url{https://github.lgb.hu/xemu/}. Installers are
+available for macOS, Windows and Linux.
 
-A live ISO image containing the emulator, documentation, and other tools is available from \url{Forum64.de}
+A live ISO image containing the emulator, documentation, and other tools is available from
+Forum64.de
 at \url{https://www.forum64.de/index.php?thread/104698-xemu-live-system-iso-file/\&postID=1549927\#post1549936}.
+Should you choose to use it you may find instructions on page \pageref{sec:live-iso-image}.
 
 \section{Using The Xmega65 Emulator}
+\index{emulator}
+
+\subsection{The keyboard}
+\label{sec:xemu-keyboard}
+\index{keyboard}
+
+The MEGA65 keyboard layout is based on the Commodore 65, which is unlike a modern PC
+keyboard. In most cases, the Xmega65 emulator recognizes PC keys as their equivalent
+MEGA65 keys, such as letters, numbers, and common modifiers like \specialkey{Shift}.
+Xmega65 assumes an American/U.S. layout.
+
+Some keys are only present on the MEGA65 keyboard and have no PC equivalents. Xmega65
+uses the PC keys \specialkey{Insert}, \specialkey{Delete}, \specialkey{Home},
+\specialkey{End}, \specialkey{Page Up}, and \specialkey{Page Down} to represent
+\megakey{+}, \megakey{\pounds}, \specialkey{CLR HOME}, \specialkey{RUN STOP},
+\specialkey{HELP}, and \widekey{RESTORE}, respectively.
+
+\begin{center}
+  \includegraphics[width=\linewidth]{images/xemu-extended-keyboard.png}
+\end{center}
+
+On most PC keyboards, this places \specialkey{RUN STOP} and \widekey{RESTORE} next to each
+other, to make that key combination easy to enter.
+
+This diagram shows the PETSCII glyphs as they appear on a MEGA65 keyboard, with the
+\megasymbolkey glyph on the left and the \specialkey{Shift} glyph on the right. Note
+that on a PC keyboard, the key for \megasymbolkey is to the right of the
+\specialkey{Shift}.
+
+Xemu lets you have two joysticks (one at a time) on the numeric keypad.
+\specialkey{Enter} over there is used to toggle ports 1, 2 and to off when pressed
+repeatedly.
+
+Please be aware the emulator by default catches \megakey{F9} \megakey{F10}
+\megakey{F11} as shortcuts of its own functions. If you want to use these keys with the
+emulated MEGA65, you must configure the keyboard mapping. The files are found in the
+folder for Xemu's settings as explained on page
+\pageref{sec:sdcard-settings-location}. This is done by copying
+\stw{keymap-default.cfg} into \stw{keymap.cfg} and then removing the following lines:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+XEMU-EXIT F9
+XEMU-FULLSCREEN F11
+\end{verbatim}
+\end{tcolorbox}
+
+and changing:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+F9 Unknown
+F11 Unknown
+\end{verbatim}
+\end{tcolorbox}
+
+into:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+F9 F9
+F11 F11
+\end{verbatim}
+\end{tcolorbox}
+
+With these keys remapped, the full-screen and exit functions are still available from
+the menu. Right-click (or control-click) anywhere in the window to access it.
+
+\subsection{Apple MacOS start problems}
+
+If a message \stw{macOS cannot verify that this app is free from malware} pops up
+use the following procedure when you open the app for the first time:\index{Apple}
+\index{macOS}
+
+\begin{itemize}
+  \item Open Finder on your Mac.
+  \item Control-click (or right-click) on the Xmega65 app icon.
+  \item In the context menu, select \stw{Open}.
+  \item The message appears again, but this time there is an \stw{Open} button.
+        Click \stw{Open}. You only need to perform this procedure the first time you
+		run the app. From now on, you can open the app normally.
+\end{itemize}
+
+\subsection{Updating settings}
+\label{sec:sdcard-settings-location}
+\index{SD card}
+
+You may wish to edit the Xemu settings file to change the keyboard mapping or make
+a backup of the SD card image file. To access these files from within Xemu, open the
+menu, select \stw{Debug / Advanced} then \stw{Browse system folder}. Edit the
+\stw{keymap-default.cfg} and \stw{mega65-default.cfg} files with a text editor.
+For specific instructions on how to change \stw{keymap-default.cfg} please refer to
+page \pageref{sec:xemu-keyboard}.
+
+\begin{center}
+  \includegraphics[width=0.5\linewidth]{images/xemusettings.png}
+\end{center}
+
+The Xemu system folder location varies by operating system:
+
+\begin{itemize}
+    \item Windows (may be copied into the address bar of the file explorer):
+    \stw{\%appdata\%$\textbackslash$xemu-lgb$\textbackslash$mega65}
+    \item Linux:
+    \stw{$\textasciitilde$/.xemu-lgb/}
+    \item Macintosh:
+    \stw{$\textasciitilde$/Library/Application$\textbackslash$ Support/xemu-lgb/mega65/}
+\end{itemize}
 
 \section{Using the Live ISO image}
+\label{sec:live-iso-image}
 
 The Live ISO image is the product of a volunteer community; not the MEGA65 team. We include it for your convenience.
 
@@ -62,4 +177,5 @@ Finally, on the right-hand side, there are links to download a C65 ROM and to up
 
 To access all contents of the Live ISO image, use the file explorer.
 
+% 2022-11-28 edits by nobruinfo
 % 2021-03-17 edits by SBC

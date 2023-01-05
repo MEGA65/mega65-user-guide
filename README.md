@@ -6,7 +6,7 @@ This is community effort to create a User Guide for the MEGA65 in the spirit of 
 
 If you just want the typeset manuals, the latest pdf's from our build pipeline are available here:
 
--   https://files.mega65.org/manuals-upload/
+- https://files.mega65.org/manuals-upload/
 
 (Location will be updated to files.mega65.org at a later stage when our automation permits it)
 
@@ -18,11 +18,11 @@ https://github.com/MEGA65/mega65-user-guide/releases
 
 ## Requirements
 
--   MingW32 (tested on MinGW-6.3.0, and MinGW-8.1.0) for Windows or GCC Compiler for Linux / Mac OS X.
--   This project repo.
--   The mega65-core repo: https://github.com/MEGA65/mega65-core is required for the memory tables included in the User Guide. Clone `mega65-core` to the parent directory of this repo.
--   The Simple C library for the MEGA65: https://github.com/MEGA65/mega65-libc is required to create api-conio.tex. Clone `mega65-libc` to the parent directory of this repo.
--   A typesetting environment that supports XeLaTeX, for example: http://www.tug.org/texworks/ for Windows.
+- MingW32 (tested on MinGW-6.3.0, and MinGW-8.1.0) for Windows or GCC Compiler for Linux / Mac OS X.
+- This project repo.
+- The mega65-core repo: https://github.com/MEGA65/mega65-core is required for the memory tables included in the User Guide. Clone `mega65-core` to the parent directory of this repo.
+- The Simple C library for the MEGA65: https://github.com/MEGA65/mega65-libc is required to create api-conio.tex. Clone `mega65-libc` to the parent directory of this repo.
+- A typesetting environment that supports XeLaTeX, for example: http://www.tug.org/texworks/ for Windows.
 
 # Usage
 

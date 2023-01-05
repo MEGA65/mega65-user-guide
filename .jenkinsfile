@@ -1,0 +1,50 @@
+pipeline {
+    agent {
+        docker { image 'megatex' }
+    }
+    stages {
+        stage('Cleanup') {
+            steps {
+                sh 'make realclean'
+            }
+        }
+        stage('Clone libc and core') {
+            steps {
+                sh "rm -rf mega65-libc; git clone https://github.com/MEGA65/mega65-libc.git"
+                sh "rm -rf mega65-core; git clone --branch=development https://github.com/MEGA65/mega65-core.git"
+            }
+        }
+        stage('Build MEGA65 Book') {
+            steps {
+                sh "make REPOPATH=. mega65-book.pdf"
+            }
+        }
+        stage('Build MEGA65 BASIC65 Reference') {
+            steps {
+                sh "make REPOPATH=. mega65-basic65-reference.pdf"
+            }
+        }
+        stage('Build MEGA65 Chipset Reference') {
+            steps {
+                sh "make REPOPATH=. mega65-chipset-reference.pdf"
+            }
+        }
+        stage('Build MEGA65 Developer Guide') {
+            steps {
+                sh "make REPOPATH=. mega65-developer-guide.pdf"
+            }
+        }
+        stage('Build MEGA65 Userguide') {
+            steps {
+                sh "make REPOPATH=. mega65-userguide.pdf"
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: "mega65-*.pdf*",
+                onlyIfSuccessful: true,
+                fingerprint: true
+        }
+    }
+}

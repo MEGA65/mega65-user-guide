@@ -101,7 +101,15 @@ int keyid(int k)
 
 int main(int argc,char **argv)
 {
-  FILE *f=fopen("../mega65-core/src/vhdl/matrix_to_ascii.vhdl","r");
+  FILE *f;
+
+  if (argc != 2) {
+    fprintf(stderr, "Usage: keymap MATRIX2ASCIIVHDL\n");
+    exit(-1);
+  }
+
+  f=fopen(argv[1],"r");
+
   if (!f) {
     fprintf(stderr,"ERROR: Could not read ../mega65-core/src/vhdl/matrix_to_ascii.vhdl.\n");
     exit(-1);

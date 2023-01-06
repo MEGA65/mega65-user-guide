@@ -266,6 +266,27 @@ All MEGA65 models presently support 32KB of colour RAM, however there are plans 
 
 The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM, including the VIC-II's use of 16KB banks, and the VIC-III's Display Address Translator (DAT).  This additional memory can be used for character and bitmap displays, as well as for sprites.  However, the VIC-III bitplane modes remain limited to using only the first 128KB of RAM, as the VIC-IV does not enhance the bitplane mode.
 
+\subsection{Startup Base Addresses}
+
+If no mappings are changed and no screen memory is relocated (see the following paragraph
+for more on this) the base addresses can be used to place characters on the screen and
+set colour and attributes accordingly:
+
+\begin{itemize}
+  \item \bf{\$0800} \index{screen RAM} Screen RAM
+  \item \bf{\$ff80000} \index{colour RAM} Colour RAM
+\end{itemize}
+
+These values are the upper left character on the screen no matter if in 40 or 80 column
+mode. In BASIC you can use the dollar sign directly to use the hexadecimal format. For
+a far better method in BASIC see
+\ifdefined\printmanual
+the {\bf MEGA65 Book}
+\else
+ \bookvref{sec:screenmemoryandcolourram}
+\fi
+.
+
 \subsection{Relocating Screen Memory}
 
 To use the additional memory for screen RAM, the screen RAM start address can be adjusted to any location in memory with byte-level granularity by setting the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal).  For example, to set the screen memory to address 12345:

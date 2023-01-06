@@ -274,6 +274,7 @@ String   Array &  3                         &    \screentext{\$} & 0 .. 255 char
 \end{center}
 
 \subsection{Screen memory and colour RAM}
+\label{sec:screenmemoryandcolourram}
 \index{Screen memory and colour RAM}
 Many programmers like to skip the standard routine {\bf PRINT} for screen output
 and want to access the screen memory and the colour RAM directly
@@ -3305,8 +3306,13 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                 "DD-MON-YYYY", for example: "04-APR-2021".
 \item[Remarks:] {\bf DT\$} is a reserved system variable.
                 For more information on how to set the Real-Time Clock,
-                refer to the Configuration Utility section on page
-                \pageref{sec:configuration-utility}.
+                refer to
+\ifdefined\printmanual
+the {\bf MEGA65 Book}
+\else
+ \bookvref{sec:configuration-utility}
+\fi
+				.
 
 \item [Example:] Using {\bf DT\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3457,9 +3463,20 @@ ok.
                  target [{\bf,} sub{\bf,} mod]
 \item [Usage:]
    {\bf EDMA} ("Extended Direct Memory Access") is the fastest method
-   to manipulate memory areas using the DMA controller.
+   to manipulate memory areas using the DMA controller. Please refer to
+\ifdefined\printmanual
+the {\bf MEGA65 Book}
+\else
+\bookvref{cha:dmagic}
+\fi
+   for more details on EDMA.
 
    {\bf command} 0: copy, 1: mix, 2: swap, 3: fill.
+   
+   Because this two bits of the command share the same register with other
+   bits you can for example use bit 5 to reverse loop operation. This is
+   also working in overlapping memory regions for source and target. Please
+   see the example below.
 
    {\bf length} number of bytes (maximum = 65535).
 
@@ -3483,6 +3500,26 @@ EDMA 3, 80*25, 32, 2048       :REM FILL SCREEN WITH BLANKS
 EDMA 0, 80*25, 2048, $8000800 :REM COPY SCREEN TO ATTIC RAM
 \end{verbatim}
 \end{tcolorbox}
+
+   By adding 32 (bit 5) to the command parameter, the dma operation can be
+   performed in reverse order:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 PRINT "ƳMEGA65!"
+20 EDMA  0,10,2048,3020  : REM 2048 IS BEGINNING OF SCREEN RAM
+30 EDMA 32,10,2048,3100  : REM 3020 AND 3100 ARE THE LOWER PART OF THE SCREEN
+\end{verbatim}
+\end{tcolorbox}
+\clearpage
+
+    Listing and output of the last example:
+
+\item \begin{center}
+    \includegraphics[width=\linewidth]{images/basic-example-edma.png}
+\end{center}
+
 \end{description}
 
 % **
@@ -3574,10 +3611,6 @@ where the error line is taken from {\bf EL}.
 
 \item [Example:] Using {\bf ELLIPSE}
 
-
-\item \begin{center}\includegraphics[width=0.7\linewidth]{images/ellipse.png}\end{center}
-
-\newpage
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -3597,6 +3630,9 @@ where the error line is taken from {\bf EL}.
 230 SCREEN CLOSE                   :REM CLOSE GRAPHICS SCREEN
 \end{verbatim}
 \end{tcolorbox}
+
+\item \begin{center}\includegraphics[width=0.7\linewidth]{images/ellipse.png}\end{center}
+
 \end{description}
 % ****
 % ELSE
@@ -9994,7 +10030,12 @@ RUN
 
                 For more information on how to set the Real-Time Clock,
                 refer to the Configuration Utility section on page
-                \pageref{sec:configuration-utility}.
+\ifdefined\printmanual
+the {\bf MEGA65 Book}
+\else
+ \bookvref{sec:configuration-utility}
+\fi
+				.
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}

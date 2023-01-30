@@ -52,8 +52,8 @@ like \$C000.
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|c|c}
 \cline{1-3}\cline{5-8}
-\$0000 & \$0001 & \$0002 & \cdots & \$0FFE & \$0FFF & \$1000 & \$1001 &
-\cdots \\
+\$0000 & \$0001 & \$0002 & $\cdots$ & \$0FFE & \$0FFF & \$1000 & \$1001 &
+$\cdots$ \\
 \cline{1-3}\cline{5-8}
 \end{tabular}
 \end{center}
@@ -171,7 +171,7 @@ POKE $D020,7
 \end{screenoutput}
 
 The VIC video chip uses address \$D020 to store the color of the screen border.
-The {\bw BORDER} command sets this register to achieve the same effect.
+The {\bf BORDER} command sets this register to achieve the same effect.
 
 \begin{screenoutput}
 BORDER 7
@@ -191,7 +191,7 @@ the highest (leftmost) four bits set to 0. (In hexadecimal, this would be an
 eight-digit number with the leftmost digit of 0. This digit is typically
 omitted from notation.)
 
-The BASIC {\bw POKE} command and {\bw PEEK()} function can use 28-bit
+The BASIC {\bf POKE} command and {\bf PEEK()} function can use 28-bit
 addresses. For example, to store then retrieve a value from RAM at address \$8000000:
 
 \begin{screenoutput}
@@ -884,7 +884,7 @@ complete MAPLO value is \$2452.
 X & A & Z & Y \\
 \hline
 \$s\textsubscript{lo} o\textsubscript{1} &
-\$o\textsubscript{2} o\textsubscript{3}$ &
+\$o\textsubscript{2} o\textsubscript{3} &
 \$s\textsubscript{hi} o\textsubscript{1} &
 \$o\textsubscript{2} o\textsubscript{3} \\
 \hline
@@ -931,7 +931,7 @@ To see this in action, try the following:
 \begin{enumerate}
 \item Start the MEGA65 monitor with the {\bf MONITOR} command.
 \item Assemble the following machine language program at address \$1800 by
-entering the first line as: \stw{A1800 LDA #\$00} The monitor will calculate
+entering the first line as: \stw{A1800 LDA \#\$00} The monitor will calculate
 the subsequent addresses for each line. Press \specialkey{RETURN} without an
 instruction after the last line.
 
@@ -1809,152 +1809,3 @@ less colour data in order to use the first 2KB as general purpose memory. A
 program that uses all 32KB of colour memory must allow the first 2KB to be
 visible in the Colour RAM Window at 1.F800 -- 1.FFFF. (There is no requirement
 to bank this memory into \$D800 -- \$DFFF.)
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{comment}
-
-\begin{screenoutput}
-LDA #$70
-STA $D640
-NOP
-\end{screenoutput}
-
-\screentext{NOP}
-\screentextwide{PRINT I}
-
-\screenshotwrap{images/getting-started/syntax-error.png}
-
-Assembly mnemonics: STA \screentext{NOP} {\tt MAP} -- very inconsistent!
-
-Ranges: \$1F800 -- \$1FFFF
-
-Hexadecimal addresses are unformatted. To use a dollar sign: \$
-
-{\bf BANK}
-{\bf POKE}
-{\bf PEEK}
-\stw{POKE 53281,0}
-
-A BASIC command: {\bf BANK}\index{BASIC 65 Commands!BANK} {\bf LIST}
-A keyboard key: \specialkey{SHIFT} \megasymbolkey \megakey{$\leftarrow$}
-
-Referring to other chapters and sections: \bookvref{cha:modes}
-
-\url{https://github.com/mega65/mega65-tools}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-* Accessing memory with the MEGA65 monitor
-* You can run code directly from color RAM, for about a 2x slow-down.
-* Using 16-bit addresses
-
-* BANK sets D030 to decimal 100, 0x64, = ROM8, ROMC, CROM9
-* C64-style 00/01 banking control Dxxx. My 00/01 registers seem pegged at FF
-(are these readable registers?), which would keep A000-FFFF set up like a
-C64--I think iff there is no MAP offset applied for these blocks, so with
-MAPHI:B300 that's only C000-CFFF and D000-DFFF without an offset.
-    - C000-CFFF is RAM (49152)
-    - D000-DFFF is either I/O (CHAREN 1) or Character ROM (CHAREN 0)
-
-
-(C65-style D030 banking (ROM))
-(C64-style cartridge override 0.8000-0.bfff, 0.e000-0.ffff)
-(C64 00/01 banking?)
-- Location 0 is the *data direction register.* When bits 2, 1, and 0 are set, location 1 controls mapping. (Why would you disable this by clearing these flags?)
-- Location 1 bits 2, 1, and 0 are CHAREN, HIRAM, and LORAM, which provide software control over PLA memory mapping. Two additional lines, EXROM and GAME, are controlled by hardware connected to the expansion port, and are high if there is no hardware pulling them to ground.
-	- With no cartridge connected (EXROM and GAME high):
-		- HIRAM 1, LORAM 1:
-			- A000-BFFF is BASIC
-			- C000-CFFF is RAM (49152)
-			- D000-DFFF is either I/O (CHAREN 1) or Character ROM (CHAREN 0)
-			- E000-FFFF is Kernel
-		- HIRAM 1, LORAM 0:
-			- A000-CFFF is RAM (switch out BASIC, preserve I/O-Char ROM)
-		- HIRAM 0, LORAM 1:
-			- E000-FFFF is RAM (switch out BASIC and kernel, preserve I/O-Char ROM)
-		- HIRAM 0, LORAM 0:
-			- All 64 Kb is RAM (no BASIC, no kernel, no I/O or Char ROM)
-	- Cartridge: EXROM 0, GAME 1
-		- 8000-A000 is 8K cartridge; BASIC, kernel, I/O or Char ROM all active regardless of HIRAM/LORAM
-	- Cartridge: EXROM 0, GAME 0
-		- Various ways to set 8000-BFFF to 16 Kb cartridge, or set A000-BFFF to 8K cartridge
-
-* The MEGA65 ROM
-	* Loaded to banks 2 and 3; Hypervisor sets these regions as read-only
-	* D030 maps ROM regions to bank 0:
-		* 0.6000-0.7fff: MONITOR ROM from 3.0000-3.1fff
-		* 0.8000-0.bfff: DOS ROM from 2.0000-2.3fff
-	* To toggle the read-write status of the ROM regions...
-
-```
-; (make sure MAP is 0 and MEGA65 I/O personality is selected, then...)
-
-LDA #$70
-STA $D640
-NOP
-
-(See chapter F for complete example.)
-```
-
-* (Test by writing)
-* (C64 ROM vs. C65 ROM: if I'm not using C64 ROM, can I use its bank for RAM?)
-
-* I/O personalities: 0.d000-0.dfff
-	* C64, C65, MEGA65 Ethernet, MEGA65
-	* d02f: KEY register, available in all personalities
-
-* VIC-IV memory
-	* Well documented in appendix M.
-	* (Relocatable; maybe only need to describe high-level capabilities and refer to another chapter.)
-	* Text
-	* Bitmap
-	* Color
-	* Sprites
-
-* How the kernel uses memory
-	* Base page `$00`
-	* Kernel working space: 0.0100-0.15ff
-        * (Where is the CPU stack?)
-		* 0400: BASIC runtime stack (512 bytes)
-		* 1200: BASIC absolute variables
-		* 1300: BASIC DOS buffer
-		* 1400: BASIC DMA list
-	* DOS memory: 1.0000 - 1.1fff  CBDOS buffers and variables
-* How BASIC 65 uses memory
-	* Program space
-		* 0.2000 - 0.f6ff
-		* Buffer space after end of BASIC program
-			* (Confirm; which commands do this? Only one of the graphics routines)
-	* Variables
-		* 0.f700 - 0.feff  scalar variables (max. 256)
-		* 1.2000 - 1.f6ff  arrays (bottom) & strings (top)
-	* Sprites
-		* (Where does the SPRITE command load sprite data?)
-* How C64 mode uses memory
-	* BASIC can only access first 64 Kb with 16-bit addresses
-	* Dxxx I/O registers; the D02F KEY register (Chapter 10)
-	* Machine language runs on 45GS02 and can access all MEGA65 memory
-
-* Using memory from BASIC programs
-	* DMA from BASIC
-		* (Page F-5 claims that DMA can't access all 28 bits of address space. This should be amended to say that EDMA can access all 28 bits. C65's "DMA" command only ever expected 1 MB of RAM, same with "BANK".)
-
-* Using memory from machine language programs
-	* Machine language = assembly or other compiled languages like C
-	* A typical machine language program loads into BASIC program memory, and starts with a short BASIC program that invokes a machine language routine in that memory region.
-	* If the program never needs to return to BASIC *and* never needs to call the kernel (disk operations), it is possible for the program to take over all of Fast RAM: map out I/O, make ROM regions read-write.
-		* (with the possible exception of colour RAM which may not be un-mappable)
-	* If the program makes kernel calls (disk operations), must preserve page `$00` and kernel working space, memory reserved for DOS, and the ROM. Remember to restore the base page before calling kernel routines.
-	* If the program returns to BASIC or interoperates with BASIC, must avoid additional RAM regions used by BASIC features. Graphics memory. Commands that use fast RAM as buffer space.
-	* 32-bit addressing modes: Q instructions, 32-bit base page indirect
-	* 16-bit addresses and the MAP instruction
-	* ROM and I/O mapping (16-bit addresses, MAP=0)
-	* The CPU stack
-	* Base page; B register, TAB and TBA instructions
-	* DMA from machine language
-
-* Memory Exercises
-    * Using the MONITOR
-
-\end{comment}

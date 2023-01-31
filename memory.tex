@@ -942,7 +942,7 @@ LDY #$00
 LDZ #$B3
 MAP
 NOP
-JMP $180B
+JMP $180A
 \end{screenoutput}
 
 \item Call this routine with the monitor's "jump" command: \stw{J1800} The
@@ -1040,7 +1040,7 @@ With this program in memory:
 \item Call the subroutine with the monitor's "jump" command: \stw{J1800}
 \item Display the memory where the subroutine stored the values that it
 accessed: \stw{M1900 1901}
-\item To confirm that \stw{LDA \$2100} saw \$C100 as RAM, set a new value there
+\item To confirm that \stw{LDA \$2100} saw \$C100 as RAM, set a new value at \$C100
 and run the subroutine again. This monitor command will set RAM (and ignore
 \$D030 banking): \stw{>C100 BB}
 \item To confirm that \stw{LDA \$C100} saw \$C100 as ROM, read the ROM value
@@ -1167,7 +1167,7 @@ STA $D063
 If you experiment with this in the MEGA65 monitor, note that the BASIC editor
 will not automatically use the new screen location after you change it. You can
 type blindly to set memory and see that it's using the new location. Press
-\specialkey{RUN/STOP} + \specialkey{RESTORE} to reset.
+\specialkey{RUN STOP} + \specialkey{RESTORE} to reset.
 
 If your program writes to screen memory without initializing this register,
 be sure to read the location of screen memory from the register. Do not assume
@@ -1261,12 +1261,12 @@ STA $D06E
 \end{screenoutput}
 
 To set the first sprite to use image data at address 4.3100, set the 16-bit
-pointer to \$4310 (in Little Endian order):
+pointer to 4.3100 / 64 = \$10C4 (in Little Endian order):
 
 \begin{screenoutput}
-LDA #$10
+LDA #$C4
 STA $3200
-LDA #$43
+LDA #$10
 STA $3201
 \end{screenoutput}
 
@@ -1565,7 +1565,7 @@ dma_job:
 !byte $00            ; End of token list
 
 !byte $00, $00, $d7  ; copy ($00) $d700 bytes
-!byte $00, $02, $00  ; from (00)0.2000
+!byte $00, $20, $00  ; from (00)0.2000
 !byte $00, $00, $00  ; to (80)0.0000
 !byte $00, $00, $00  ; no funny business
 \end{screenoutput}
@@ -1769,7 +1769,7 @@ the selection flag of \$2 will apply the offset to the desired block.
 \begin{screenoutput}
 LDA #$00
 LDX #$00
-LDY #$80  ; MAPHI offset high byte of $80
+LDY #$7F  ; MAPHI offset high byte of $7F
 LDZ #$0F  ; (Special value for setting high byte)
 MAP
 
@@ -1781,8 +1781,14 @@ MAP
 EOM
 \end{screenoutput}
 
+Be careful not to change the high byte of the 32KB address region that contains
+the code doing the mapping! The high byte settings takes effect upon the first
+MAP instruction, and if the code is accidentally mapped out, the program
+counter won't be able to reach the remaining instructions, even if the final
+mapping is compatible.
+
 In most cases, it is easier for programs to access upper memory through 28-bit
-addressing modes or DMA. This extended MAP feature is included for completeness.
+addressing modes or DMA.  This extended MAP feature is included for completeness.
 
 \subsection{Making All Chip RAM Available}
 

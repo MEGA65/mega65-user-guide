@@ -41,13 +41,67 @@ Computer memory consists of many thousands of cells, each containing a single
 at each address. The program itself is stored as bytes in memory, as
 machine code instructions to be executed by the CPU.
 
+\subsection{Bits, Bytes, and Nibbles}
+
+A {\em bit} is a single digital signal with two possible values: off or on. A
+bit is often combined with other bits to represent more possible values. A byte
+is 8 bits, with 256 possible values.
+
+Bits and bytes are often used to represent numbers, and often have their values
+described as positive integers even when they represent other kinds of data.
+When discussing the bits of a byte, the bits are arranged in increasing place
+value from right to left. Bit 0 is the rightmost bit, also known as the
+"lowest" bit.  Bit 7 is the leftmost bit, also konwn as the "highest" bit.\footnote{See
+\bookvref{cha:decimal-binary-and-hexadecimal} for a complete explanation of
+binary and hexadecimal notation.}
+
+\begin{center}
+\begin{tabular}{ccccccccl}
+\hline
+\multicolumn{1}{|c}{{\bf b\textsubscript{7}}} &
+\multicolumn{1}{|c}{{\bf b\textsubscript{6}}} &
+\multicolumn{1}{|c}{{\bf b\textsubscript{5}}} &
+\multicolumn{1}{|c}{{\bf b\textsubscript{4}}} &
+\multicolumn{1}{|c}{{\bf b\textsubscript{3}}} &
+\multicolumn{1}{|c}{{\bf b\textsubscript{2}}} &
+\multicolumn{1}{|c}{{\bf b\textsubscript{1}}} &
+\multicolumn{1}{|c|}{{\bf b\textsubscript{0}}} & \\
+\hline
+\multicolumn{1}{|c}{\huge\texttt{0}} &
+\multicolumn{1}{|c}{\huge\texttt{1}} &
+\multicolumn{1}{|c}{\huge\texttt{1}} &
+\multicolumn{1}{|c}{\huge\texttt{0}} &
+\multicolumn{1}{|c}{\huge\texttt{1}} &
+\multicolumn{1}{|c}{\huge\texttt{0}} &
+\multicolumn{1}{|c}{\huge\texttt{1}} &
+\multicolumn{1}{|c|}{\huge\texttt{1}} & = 179 \\
+\hline
+\small{}128 &
+\small{}64 &
+\small{}32 &
+\small{}16 &
+\small{}8 &
+\small{}4 &
+\small{}2 &
+\small{}1 & \\
+\end{tabular}
+\end{center}
+
+A {\em nibble} is 4 bits. In computer architecture, the term "nibble" refers
+exclusively to one of the two halves of a byte. The "high nibble" is bits 7 --
+4, and the "low nibble" is bits 3 -- 0.
+
 \subsection{Hexadecimal Notation}
 
-Memory addresses are often presented in hexadecimal notation.\footnote{See
-\bookvref{cha:decimal-binary-and-hexadecimal} for a complete explanation of
-hexadecimal notation.} Hexadecimal is convenient for describing computer memory because of
-how memory is organized, with address ranges often starting at round numbers
-like \$C000.
+Hexadecimal ("hex") is a numbering system using sixteen possible values per digit,
+written as numerals 0 -- 9 followed by letters A -- F. It is especially
+convenient when describing values in computer memory because each hex digit
+represents a nibble (4 bits) of data. The 8-bit binary value \texttt{\%01101011} can be
+read as the two nibbles \texttt{0110 1011}, or \$6B in hexadecimal.
+
+Memory addresses are often presented in hexadecimal notation. Computer memory
+is typically organized in amounts that can be represented as round hexadecimal
+numbers, like \$C000.
 
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|c|c}
@@ -74,7 +128,7 @@ Round hexadecimal numbers represent common memory sizes, like so:
 \end{center}
 
 Address numbering starts at 0, so regions of these common sizes tend to start
-with 0 digits on the right, and stop just before the start of the next region.
+with "0" digits on the right, and stop just before the start of the next region.
 For example, \$2000 -- \$2FFF represents a 4KB region.
 
 You can enter numbers as hexadecimal in BASIC using the dollar sign prefix
@@ -99,6 +153,9 @@ book sometimes uses a dot (.) to separate groups of four hex digits to make
 them easier to read: FFF.FFFF. You do not type the dot when entering a long
 address into a program or command. To enter FFF.FFFF in BASIC, type
 \stw{\$FFFFFFF}.
+
+Each hex digit represents a nibble of a value. The value FFF.FFFF can be
+represented in seven nibbles (28 bits).
 
 \subsection{Random Access Memory}
 
@@ -180,14 +237,14 @@ BORDER 7
 \subsection{Addresses}
 
 The examples so far have used addresses consisting of four hexadecimal digits,
-such as \$1800. Each hexadecimal digit represents four bits, so a four-digit
+such as \$1800. Each hexadecimal digit represents four bits (one nibble), so a four-digit
 hexadecimal number represents a 16-bit address. Such an address is in the range
 \$0000 -- \$FFFF, with 65,536 possible addresses. The Commodore 64 and its MOS
 6502 CPU use 16-bit addresses to access up to 64 kilobytes (64KB) of memory.
 
-The MEGA65 has an adderss space of 28 bits, or seven hexadecimal digits, in the
+The MEGA65 has an address space of 28 bits, in the
 range 000.0000 -- FFF.FFFF. Such addresses can be stored as a 32-bit value with
-the highest (leftmost) four bits set to 0. (In hexadecimal, this would be an
+the highest nibble set to 0. (In hexadecimal, this would be an
 eight-digit number with the leftmost digit of 0. This digit is typically
 omitted from notation.)
 
@@ -232,10 +289,9 @@ and this chapter will cover it in detail.
 MEGA65 addresses can be divided into regions of 64KB known as {\em banks}. It's
 easy to identify the bank given an address specified in hexadecimal: the bank
 number is the leftmost digits of the address, and the rightmost four digits are
-a location in the bank.
+a location within the bank.
 
 \medskip
-% TODO: address diagram
 \begin{center}
 \begin{tabular}{m{0.4cm}m{0.4cm}m{0.05cm}m{0.4cm}m{0.4cm}m{0.4cm}m{0.4cm}}
 \multicolumn{1}{c}{\huge\texttt{\$}} &
@@ -252,8 +308,10 @@ a location in the bank.
 \end{center}
 \medskip
 
-For example, the address 3.FD08 (or \$003FD08) is an address in bank 3. The
-address 0.1800 (\$0001800) is an address in bank 0.
+For example, the address 3.FD08 (or \$003FD08) is an address in bank \$3. The
+address 0.1800 (\$0001800) is an address in bank \$0. The address 880.12AB
+(\$88012AB) is in bank \$880.\footnote{In a few cases, this is better understood as
+"megabyte \$88, bank \$0, offset \$12AB."}
 
 It is important to remember that if you see a 16-bit
 address such as \$2100, the actual bank that it refers to may not be bank 0.
@@ -274,19 +332,19 @@ to zero).
 
 To determine the bytes for an address, take the hexadecimal digits and
 group them in pairs, starting from the {\em rightmost} pair. Each pair of
-digits is a byte value. For example, the address \$003FD08 can be represented
-by the bytes \$08, \$FD, \$03, and \$00.
+digits is a byte value. For example, the address \$853FD08 can be represented
+by the bytes \$08, \$FD, \$03, and \$85.
 
 This ordering of the bytes from right to left is known as {\em Little Endian
 byte order}. The MEGA65 stores multi-byte values using Little Endian byte
 order by convention. The 45GS02 CPU, I/O registers, and other routines expect
-addresses to be stored in this way. (There exist computers that use the
+addresses to be stored in this way.\footnote{There exist computers that use the
 opposite ordering convention, known as {\em Big Endian} byte order. Most
-microcomputers use the Little Endian convention.)
+microcomputers use the Little Endian convention.}
 
-For example, to store the 28-bit address \$003FD08, you need four bytes of
-memory. To store this at memory locations \$0001800 -- \$0001803, you would
-start by storing the rightmost byte (\$08) in location \$0001800. The rest is
+For example, to store the 28-bit address 853.FD08, you need four bytes of
+memory. To store this at memory locations 0.1800 -- 0.1803, you would
+start by storing the rightmost byte (\$08) in location 0.1800. The rest is
 as follows:
 
 \begin{center}
@@ -294,17 +352,56 @@ as follows:
 \hline
 \multicolumn{1}{|c}{\huge\texttt{08}} &
 \multicolumn{1}{|c}{\huge\texttt{FD}} &
-\multicolumn{1}{|c}{\huge\texttt{03}} &
-\multicolumn{1}{|c|}{\huge\texttt{00}} \\
+\multicolumn{1}{|c}{\huge\texttt{53}} &
+\multicolumn{1}{|c|}{\huge\texttt{08}} \\
 \hline
-\rotatebox{90}{\$0001800 } &
-\rotatebox{90}{\$0001801 } &
-\rotatebox{90}{\$0001802 } &
-\rotatebox{90}{\$0001803 } \\
+\rotatebox{90}{0.1800 } &
+\rotatebox{90}{0.1801 } &
+\rotatebox{90}{0.1802 } &
+\rotatebox{90}{0.1803 } \\
 \end{tabular}
 \end{center}
 
-BASIC 65 includes commands for reading and writing
+When a 28-bit address is stored as four bytes, the upper four bits are unused.
+There are a few cases where a 28-bit address is stored in a way that uses those
+bits for something else. You must take care when writing such addresses that
+the upper bits retain appropriate values. This is typically done with Boolean
+logic to "mask" the upper bits.
+
+The following BASIC example sets the variable \stw{B} to \$A9, then updates it
+such that the upper nibble is preserved and the lower nibble is set to \$3.
+Try to guess what this will print before running it.
+
+\begin{screenoutput}
+10 B = $A9
+20 B = B AND $F0 OR $03
+30 PRINT HEX$(B)
+\end{screenoutput}
+
+The Commodore 65 used a 20-bit address space, so it sometimes only used five
+nibbles (five hexadecimal digits) to encode an address. In a few cases, the
+MEGA65 extends this to 28 bits by storing a separate "megabyte byte" in
+addition to a "bank nibble" and two bytes for the lower part of the address.
+An example of this will be explained later in this chapter.
+
+BASIC 65 includes commands for reading and writing 16-bit values as bytes
+without having to convert to Little Endian explicitly. {\bf WPOKE addr,val}
+sets {\bf addr} to the low byte of {\bf val} and {\bf addr+1} to the high byte.
+Similarly, {\bf WPEEK(addr)} reads the bytes at {\bf addr} and {\bf addr+1} and
+evaluates to the 16-bit number.
+
+\begin{screenoutput}
+WPOKE $1900,$FFD2
+\end{screenoutput}
+
+BASIC does not have dedicated commands for reading or writing 32-bit values,
+but if you can use the 16-bit commands to handle each half. Just be careful to
+use Little Endian order for each half:
+
+\begin{screenoutput}
+WPOKE $1802, $0853
+WPOKE $1800, $FD08
+\end{screenoutput}
 
 
 \newpage
@@ -322,7 +419,7 @@ assigned address space:
 \begin{itemize}
 \item {\bf Chip RAM}, 384KB, in range 000.0000 -- 005.FFFF
 \item {\bf Attic RAM}, 8MB, in range 800.0000 -- 87F.FFFF
-\item {\bf I/O registers and specialty RAM}, in range FF7.E000 -- FFF.FFFF
+\item {\bf I/O registers and specialty RAM}, in range F00.0000 -- FFF.FFFF
 \end{itemize}
 
 The remaining regions of the address space are reserved for future expansion
@@ -448,9 +545,7 @@ addresses directly.
 \hline
 \small 3.8000 & \small 3.BFFF & \multicolumn{1}{p{6cm}|}{C65 BASIC graphics}\\
 \hline
-\small 3.C000 & \small 3.C7FF & \multicolumn{1}{p{6cm}|}{Reserved}\\
-\hline
-\small 3.C800 & \small 3.CFFF & \multicolumn{1}{p{6cm}|}{C65 kernel}\\
+\small 3.C000 & \small 3.CFFF & \multicolumn{1}{p{6cm}|}{Reserved}\\
 \hline
 \small 3.D000 & \small 3.DFFF & \multicolumn{1}{p{6cm}|}{Character set B}\\
 \hline
@@ -562,9 +657,9 @@ Within each block of the memory map, only some addresses are guaranteed to
 remain constant between ROM versions. For example, a machine code program can
 invoke kernel routines by calling addresses in a "jump table," a set of
 fixed addresses in ROM guaranteed to remain the same in future
-versions.\footnote{The jump table is not yet described in this book. As of this
-writing, the MEGA65 jump table is identical to that of the
-Commodore 128. If a ROM revision expands this table, existing entries will
+versions.\footnote{The jump table is not yet described in this book. The C65
+used the same jump table as the C128, and so far the MEGA65 ROM has not
+extended it. If a ROM revision expands this table, existing entries will
 remain constant. See the MEGA65 Wiki for a list: \url{https://mega65.atlassian.net/}}
 
 Programs are not expected to read or modify kernel data directly, so

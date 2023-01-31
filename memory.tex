@@ -378,7 +378,7 @@ Try to guess what this will print before running it.
 30 PRINT HEX$(B)
 \end{screenoutput}
 
-The Commodore 65 used a 20-bit address space, so it sometimes only used five
+The Commodore 65 uses a 20-bit address space, so it sometimes only uses five
 nibbles (five hexadecimal digits) to encode an address. In a few cases, the
 MEGA65 extends this to 28 bits by storing a separate "megabyte byte" in
 addition to a "bank nibble" and two bytes for the lower part of the address.
@@ -959,17 +959,17 @@ MAPHI: & \$E000 -- \$FFFF & \$C000 -- \$DFFF & \$A000 -- \$BFFF & \$8000 --
 \end{center}
 
 The selection flags and the offset for MAPLO and MAPHI are encoded altogether
-as four bytes, two for MAPLO and two for MAPHI. The first four bits (one hex
-digit) are the selection flags for the four blocks of the region. Notice the
-order of the bits: the higher bits correspond to the higher address blocks.
+as four bytes, two for MAPLO and two for MAPHI. The first nibble contains the
+selection flags for the four blocks of the region. Notice the order of the
+bits: the higher bits correspond to the higher address blocks.
 
 For example, to select just the \$2000 -- \$3FFF block, set the MAPLO selection
 flag to binary "0 0 1 0," which is the hexadecimal digit \$2.
 
-The remaining twelve bits (three hex digits) are the upper three hex digits of the
+The remaining three nibbles are the upper three hex digits of the
 offset. To use the offset \$45200 for the selected MAPLO blocks, set the
-remaining bits of MAPLO to the hexadecimal digits \$452. For this example, the
-complete MAPLO value is \$2452.
+remaining bits of MAPLO to \$452. For this example, the complete MAPLO value is
+\$2452.
 
 \begin{center}
 \begin{tabular}{cc|cc}
@@ -988,8 +988,8 @@ X & A & Z & Y \\
 To set the MAP register, load the encoded bytes for MAPLO and MAPHI into the four CPU
 registers X, A, Z, and Y, then call the {\bf MAP} and {\bf EOM} ("end of MAP")
 instructions. Notice the order of assignment of the registers. To set MAPLO, load X
-with the selection flags and the upper hex digit of the offset, and load A with the lower
-digits of the offset. To set MAPHI, load Z and Y accordingly.
+with the selection flags and the upper nibble of the offset, and load A with the lower
+nibbles of the offset. To set MAPHI, load Z and Y accordingly.
 
 \begin{screenoutput}
 LDA #$52   ; MAPLO = select $2 offset $45200
@@ -1884,7 +1884,7 @@ selection flags and remaining offset values, call {\bf MAP}, then finally call
 {\bf EOM}.
 
 For example, to map \$A000 -- \$BFFF to \$8000000 -- \$8001FFF in Attic RAM,
-you use an offset of \$7FF6000. The high byte is \$7F, and the three hex digits
+you use an offset of \$7FF6000. The high byte is \$7F, and the three nibbles
 of the regular offset are \$F60. As before, setting MAPHI to this offset with
 the selection flag of \$2 will apply the offset to the desired block.
 

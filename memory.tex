@@ -1465,9 +1465,9 @@ dmajob:
 !byte $00, $00, $00  ; no funny business
 \end{screenoutput}
 
-The \stw{^dmajob} above is ACME assembler syntax for the bank byte of the
-\stw{dmajob} symbol. The \stw{^} is a caret symbol. Adapt this to your assembler's syntax, or hard-code this
-value if you know which bank will contain the \stw{dmajob} memory.
+The {\tt \^dmajob} above is ACME assembler syntax for the bank byte of the
+{\tt dmajob} symbol. Adapt this to your assembler's syntax, or hard-code this
+value if you know which bank will contain the {\tt dmajob} memory.
 
 \subsection{Invoking an Enhanced Job List Inline with Code}
 
@@ -1497,18 +1497,18 @@ This section presents a simplified version of the enhanced job list format.
 For a complete description, including fields not yet supported by the 45GS02
 DMA and the complete list of job option tokens, see see \bookvref{cha:dmagic}.
 
-The job list data structure is a binary format with values packed into bytes.
-The enhanced job list consists of a list of one or more job
+The {\em job list} is a binary format with values packed into bytes.
+It consists of one or more job records, where the "chain" bit is set for every
+job except the final job in the list.
+
+An enhanced {\em job record} consists of a list of one or more job
 option tokens that always ends with the "end of job option list" token (\$00),
-followed by one or more job records. The final job record in the list contains
-a clear (0) "chain" bit.
+followed by a 12-byte data structure. Each job option token is a byte value.
+Some tokens are followed by a one-byte argument value. Unless you're writing a
+program intended for a Commodore 65, your token list will typically use the
+\$0B token (no arguments) to select the 12-byte job record format.
 
-Each job option token is a byte value. Some tokens are followed by a one-byte
-argument value. Unless you're writing a program intended for
-a Commodore 65, your token list will typically use the \$0B token (no
-arguments) to select the 12-byte job record format.
-
-The 12-byte job record format is as follows:
+The 12-byte structure is as follows:
 
 \begin{center}
 \begin{tabular}{|c|p{6cm}|}
@@ -1542,11 +1542,10 @@ High bits of \$05: \newline
 {\bf 3 -- 2}: Addressing mode of destination \newline
 Addressing modes: \newline
 00: Linear: advance in direction for all bytes \newline
-01: Modulo: advance in direction for modulo bytes, then restart \newline
 10: Hold: do not advance, only repeat start address \\
 \hline
 
-\$0A -- \$0B & Modulo value (16-bit), used by modulo addressing \\
+\$0A -- \$0B & Reserved, always set to \$00 \$00 \\
 \hline
 
 \end{tabular}
@@ -1557,7 +1556,7 @@ addresses, in Little Endian order. To access the full 28-bit address space, use
 the job option tokens for setting the highest byte of the start (\$80 \$xx) and
 destination (\$81 \$xx) addresses. The token applies to all jobs in the job list.
 
-For example, to copy all of BASIC program text memory into Attic RAM:
+Example: copy all of BASIC program text memory into Attic RAM.
 
 \begin{screenoutput}
 dmajob:
@@ -1565,14 +1564,36 @@ dmajob:
 !byte $81, $80       ; Destination highest byte: $80
 !byte $0B            ; Use 12-byte job record format
 !byte $00            ; End of token list
-
 !byte $00, $00, $d7  ; copy ($00) $d700 bytes
 !byte $00, $20, $00  ; from (00)0.2000
 !byte $00, $00, $00  ; to (80)0.0000
-!byte $00, $00, $00  ; no funny business
+!byte $00, $00, $00  ;
 \end{screenoutput}
 
-Copy jobs ignore all mapping and banking settings. They access I/O registers at
+Example: a chain of three jobs, each performing a fill.
+
+\begin{screenoutput}
+dmajob:
+!byte $0B, $00       ; token list
+!byte $07, $00, $01  ; fill ($03) $0100 bytes; continue job chain (+$04)
+!byte $BB, $00, $00  ; with value $BB
+!byte $00, $30, $04  ; starting at 4.3000
+!byte $00, $00, $00  ;
+
+!byte $0B, $00       ; token list
+!byte $07, $00, $01  ; fill ($03) $0100 bytes; continue job chain (+$04)
+!byte $CC, $00, $00  ; with value $CC
+!byte $00, $31, $04  ; starting at 4.3100
+!byte $00, $00, $00  ;
+
+!byte $0B, $00       ; token list
+!byte $03, $00, $01  ; fill ($03) $0100 bytes; end job chain
+!byte $DD, $00, $00  ; with value $DD
+!byte $00, $32, $04  ; starting at 4.3200
+!byte $00, $00, $00  ;
+\end{screenoutput}
+
+DMA jobs ignore all mapping and banking settings. They access I/O registers at
 \$D000 -- \$DFFF only when requested by the flag at bit 23 of the source or
 destination address.
 
@@ -1586,31 +1607,33 @@ Addressing modes are one way to influence how the cursors move:
 \begin{itemize}
 \item The {\em linear} addressing mode advances the cursor by one address for each
 step.
-\item The {\em modulo} addressing mode advances the cursor by one address for the
-number of steps up to the modulo value in the job record, then resets the
-cursor to the start address.
 \item The {\em hold} addressing mode does not advance the cursor. It remains at the
 start address for every step.
 \item The {\em traversal direction} says whether to increment or decrement for each
-step during linear or modulo addressing.
+step during linear addressing.
 \end{itemize}
 
 Example: A copy that holds the source cursor and advances the
 destination cursor linearly is similar to performing a fill with the byte at
 the source address.
 
-Example: A copy that advances the source cursor with a modulo of \$0800 for
-\$2000 steps visits the first \$800 bytes of the source four times. Traversing
-the destination linearly will copy those \$800 bytes in a repeating pattern.
+\begin{screenoutput}
+dmajob:
+!byte $0B, $00       ; token list
+!byte $00, $80, $00  ; copy ($00) $0080 bytes
+!byte $00, $19, $00  ; from 0.1900
+!byte $40, $31, $04  ; to 4.3140
+!byte $02, $00, $00  ; hold the source
+\end{screenoutput}
 
-Example: A copy that holds the destination cursor on the \$D020 border colour
-register repeatedly updates the border colour with bytes read from the source.
-This occurs as fast as the DMA executes, and can form interesting patterns as
-the VIC draws a frame from top to bottom.
-
-The DMA is capable of many more sophisticated traversal patterns, controlled by
+The MEGA65 extended DMA is capable of many more sophisticated traversal patterns, controlled by
 job option tokens. You can use the DMA to draw lines and patterns into screen
 and colour memory.
+
+Commodore described but never completed their implementation of the Commodore
+65 DMA. The MEGA65 reserves bits of the DMA job record for these incomplete
+features for historical preservation purposes, even though an implementation
+can never be truly compatible with the Commodore 65 prototype.
 
 
 \newpage

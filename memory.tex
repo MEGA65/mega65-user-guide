@@ -170,7 +170,7 @@ Try this command. Try replacing 7 with another number between 0 and 31.
 POKE $D020,7
 \end{screenoutput}
 
-The VIC video chip uses address \$D020 to store the color of the screen border.
+The VIC video chip uses address \$D020 to store the colour of the screen border.
 The {\bf BORDER} command sets this register to achieve the same effect.
 
 \begin{screenoutput}
@@ -487,7 +487,6 @@ memory in banks 4 and 5. This does not affect a program that initializes its
 memory when it starts, but it may interfere with interactive tasks
 performed at the \screentext{READY.} prompt that need that memory preserved.
 
-% TODO: color?
 \begin{center}
 \begin{tabular}{m{0.14cm}m{0.06cm}m{1.45cm}m{0.21cm}m{1.4cm}m{0.1cm}m{0.1cm}m{3.3cm}m{3.3cm}l}
 \cline{1-1}\cline{3-9}
@@ -515,7 +514,6 @@ If the program calls the kernel, such as for disk functions, the program must
 avoid the areas of Chip RAM reserved for kernel use. It can do whatever it likes
 with the rest.
 
-% TODO: color?
 \begin{center}
 \begin{tabular}{m{0.14cm}m{0.06cm}m{1.45cm}m{0.21cm}m{1.4cm}m{0.1cm}m{0.1cm}m{3.3cm}m{3.3cm}l}
 \cline{1-1}\cline{4-4}\cline{6-8}
@@ -614,9 +612,9 @@ program text." However, they seem to behave differently:
 and the memory can be read with \stw{PRINT PEEK(\$1800)}.
 \item \stw{POKE \$2010,63} behaves like ROM: attempting to set the memory does nothing,
 and reading the memory with \stw{PRINT PEEK(\$2010)} returns the original ROM value.
-\item \stw{POKE \$D020,7} behaves like an I/O register: it changes the color of
+\item \stw{POKE \$D020,7} behaves like an I/O register: it changes the colour of
 the border immediately. While this value can be read with \stw{PRINT
-PEEK(\$D020)}, it is not useful as memory because the border color changes with the value.
+PEEK(\$D020)}, it is not useful as memory because the border colour changes with the value.
 \end{itemize}
 
 \newpage
@@ -1467,6 +1465,10 @@ dmajob:
 !byte $00, $00, $00  ; no funny business
 \end{screenoutput}
 
+The \stw{^dmajob} above is ACME assembler syntax for the bank byte of the
+\stw{dmajob} symbol. The \stw{^} is a caret symbol. Adapt this to your assembler's syntax, or hard-code this
+value if you know which bank will contain the \stw{dmajob} memory.
+
 \subsection{Invoking an Enhanced Job List Inline with Code}
 
 As an alternative to preparing a job list in memory, you can put the job list
@@ -1558,7 +1560,7 @@ destination (\$81 \$xx) addresses. The token applies to all jobs in the job list
 For example, to copy all of BASIC program text memory into Attic RAM:
 
 \begin{screenoutput}
-dma_job:
+dmajob:
 !byte $80, $00       ; Source highest byte: $00
 !byte $81, $80       ; Destination highest byte: $80
 !byte $0B            ; Use 12-byte job record format
@@ -1601,8 +1603,8 @@ Example: A copy that advances the source cursor with a modulo of \$0800 for
 \$2000 steps visits the first \$800 bytes of the source four times. Traversing
 the destination linearly will copy those \$800 bytes in a repeating pattern.
 
-Example: A copy that holds the destination cursor on the \$D020 border color
-register repeatedly updates the border color with bytes read from the source.
+Example: A copy that holds the destination cursor on the \$D020 border colour
+register repeatedly updates the border colour with bytes read from the source.
 This occurs as fast as the DMA executes, and can form interesting patterns as
 the VIC draws a frame from top to bottom.
 
@@ -1631,7 +1633,7 @@ location 0.0001. To restore the I/O registers, set bits 0 and 1 of location
 0.0001.
 
 This BASIC example demonstrates accessing location \$D020 as an I/O register
-(the border color) then as a RAM address. Try to guess what it will print
+(the border colour) then as a RAM address. Try to guess what it will print
 before running it.
 
 \begin{screenoutput}

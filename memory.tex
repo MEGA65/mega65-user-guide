@@ -299,7 +299,7 @@ a location within the bank.
 \multicolumn{1}{c}{ } &
 \multicolumn{1}{c}{\huge\texttt{F}} &
 \multicolumn{1}{c}{\huge\texttt{D}} &
-\multicolumn{1}{c}{\huge\texttt{0}} &
+\multicolumn{1}{c}{\huge\texttt{A}} &
 \multicolumn{1}{c}{\huge\texttt{8}} \\
 \cline{2-2}\cline{4-5}
 & \multicolumn{1}{c}{\small Bank} & & \multicolumn{2}{c}{\small Page} &
@@ -308,7 +308,7 @@ a location within the bank.
 \end{center}
 \medskip
 
-For example, the address 3.FD08 (or \$003FD08) is an address in bank \$3. The
+For example, the address 3.FDA8 (or \$003FDA8) is an address in bank \$3. The
 address 0.1800 (\$0001800) is an address in bank \$0. The address 880.12AB
 (\$88012AB) is in bank \$880.\footnote{In a few cases, this is better understood as
 "megabyte \$88, bank \$0, offset \$12AB."}
@@ -332,8 +332,8 @@ to zero).
 
 To determine the bytes for an address, take the hexadecimal digits and
 group them in pairs, starting from the {\em rightmost} pair. Each pair of
-digits is a byte value. For example, the address \$853FD08 can be represented
-by the bytes \$08, \$FD, \$03, and \$85.
+digits is a byte value. For example, the address \$853FDA8 can be represented
+by the bytes \$A8, \$FD, \$53, and \$08.
 
 This ordering of the bytes from right to left is known as {\em Little Endian
 byte order}. The MEGA65 stores multi-byte values using Little Endian byte
@@ -342,7 +342,7 @@ addresses to be stored in this way.\footnote{There exist computers that use the
 opposite ordering convention, known as {\em Big Endian} byte order. Most
 microcomputers use the Little Endian convention.}
 
-For example, to store the 28-bit address 853.FD08, you need four bytes of
+For example, to store the 28-bit address 853.FDA8, you need four bytes of
 memory. To store this at memory locations 0.1800 -- 0.1803, you would
 start by storing the rightmost byte (\$08) in location 0.1800. The rest is
 as follows:
@@ -350,7 +350,7 @@ as follows:
 \begin{center}
 \begin{tabular}{cccc}
 \hline
-\multicolumn{1}{|c}{\huge\texttt{08}} &
+\multicolumn{1}{|c}{\huge\texttt{A8}} &
 \multicolumn{1}{|c}{\huge\texttt{FD}} &
 \multicolumn{1}{|c}{\huge\texttt{53}} &
 \multicolumn{1}{|c|}{\huge\texttt{08}} \\
@@ -395,12 +395,12 @@ WPOKE $1900,$FFD2
 \end{screenoutput}
 
 BASIC does not have dedicated commands for reading or writing 32-bit values,
-but if you can use the 16-bit commands to handle each half. Just be careful to
+but if you can use the 16-bit commands to handle each half. Take care to
 use Little Endian order for each half:
 
 \begin{screenoutput}
 WPOKE $1802, $0853
-WPOKE $1800, $FD08
+WPOKE $1800, $FDA8
 \end{screenoutput}
 
 

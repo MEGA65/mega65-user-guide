@@ -280,7 +280,9 @@ Many programmers like to skip the standard routine {\bf PRINT} for screen output
 and want to access the screen memory and the colour RAM directly
 using the commands {\bf PEEK} and {\bf POKE}.
 {\bf BASIC 65} provides a method for direct access, that is easier to use
-and faster than {\bf POKE}:
+and faster than {\bf POKE}. This method also accounts for the VIC-IV's ability
+to relocate screen memory, so you do not need to read a register to determine
+the {\bf POKE} address.
 
 Two byte arrays are predefined, that are mapped to screen text memory
 and screen colour memory.
@@ -289,26 +291,26 @@ and screen colour memory.
 
 \screentextwide{ C@\&(COLUMNS,ROWS)} is mapped to the colour screen memory.
 
-In 80 column mode the arrays are dimensioned as:
+In 80 $\times$ 25 text mode the arrays are dimensioned as:
 
 \screentextwide{ T@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
 
 \screentextwide{ C@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
 
-In 40 column mode the arrays are dimensioned as:
+In 80 $\times$ 50 text mode the arrays are dimensioned as:
+
+\screentextwide{ T@\&(79,24)} Column = 0 - 79, Row = 0 - 49.
+
+\screentextwide{ C@\&(79,24)} Column = 0 - 79, Row = 0 - 49.
+
+In 40 $\times$ 25 text mode the arrays are dimensioned as:
 
 \screentextwide{ T@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
 
 \screentextwide{ C@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
 
 If you want to display the character {\bf A} (display code = 1)
-in row 2 and column 5 and make it yellow, you can either use the POKE method:
-
-\screentextwide{POKE 2213,1} address = 2048 + 2 * 80 +5 = 2213
-
-\screentextwide{POKE \$FF808A5,7} 7 = YELLOW.
-
-or use the mapped byte arrays:
+in row 2 and column 5 and make it yellow, use the mapped byte arrays:
 
 \screentextwide{T@\&(5,2) = 1} character A
 

@@ -6,7 +6,7 @@ This is community effort to create a User Guide for the MEGA65 in the spirit of 
 
 If you just want the typeset manuals, the latest pdf's from our build pipeline are available here:
 
-- https://files.mega65.org/manuals-upload/
+- https://mega65.org/docs
 
 (Location will be updated to files.mega65.org at a later stage when our automation permits it)
 

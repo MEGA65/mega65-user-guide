@@ -19,6 +19,8 @@ This contains an 8-bit hardware identifier.  The following values are currently 
 \item[\$01 (1)] MEGA65 R1
 \item[\$02 (2)] MEGA65 R2
 \item[\$03 (3)] MEGA65 R3
+\item[\$04 (4)] MEGA65 R4
+\item[\$05 -- \$0F (5 -- 15)] MEGA65 R5 -- MEGA65 R15
 \item[\$21 (33)] MEGAphone (hand-held) R1
 \item[\$40 (64)] Nexys4 PSRAM
 \item[\$41 (65)] Nexys4DDR
@@ -28,7 +30,22 @@ This contains an 8-bit hardware identifier.  The following values are currently 
 \end{description}
 
 
-\section{MEGA65 Desktop Computer, Revision 3 onwards}
+\section{MEGA65 Desktop Computer, Revision 4}
+
+The R4 desktop PCB is a signicant reworking of the R3 desktop PCB, with several important changes:
+
+\begin{itemize}
+\item The Intel\tm MAX10\tm helper FPGA has been completely removed from the board, simplifying the design, and helping to offset some of the cost increases that have occurred since the R3 board was designed.  This also eliminates some difficult failure modes that could occur if the MAX10 FPGA were accidentally deconfigured.
+\item The joystick ports now have the ability to be driven low by the MEGA65. This should allow devices such as the protopad\tm to be used with the MEGA65.
+\item The on-board internal speaker ports have been removed, as these were not widely used, added cost, and could have problems with overheating speakers due to the type of DACs used.
+\item The Real-Time Clock (RTC) has been replaced by a RV-3032-C7. This eliminates the problems experienced with the R3 boards due to variable-quality RTC chips of the previous type, that in many cases required replacement.
+\item A driver IC has been added to the digital video output to prevent back-powering problems.
+\item A new 16-pin header, J21, has been added that has direct access to the joystick output lines, as well as two additional FPGA pins. This is intended to assist with certain low-level development tasks, as well as to potentially support further improvements through the addition of a specialised daughter-board.
+\item A 64MiB SDRAM has been added in addition to the 8MiB HyperRAM. This will allow the porting of more of the MiSTer cores, as well as provide a larger and higher performance Attic RAM for the MEGA65 core.  It is likely that the HyperRAM will not be populated on production units of the R4 board, once the SDRAM is supported by the MEGA65 core, as the SDRAM is superior in every way to the HyperRAM: It is higher speed, with lower latency, and has 8$\times$ larger capacity.
+  \item Greatly improved audio quality on the 3.5mm external audio jack through the addition of a high-performance audio DAC chip.
+\end{itemize}
+
+\section{MEGA65 Desktop Computer, Revision 3 \& Revision 3A}
 
 The R3 desktop PCB is very similar to the R2 desktop PCB, with two key changes:
 
@@ -38,6 +55,8 @@ The R3 desktop PCB is very similar to the R2 desktop PCB, with two key changes:
   as on the R2 PCB.  The amplifier on the R3 PCB is the same as on the MEGAphone R1 -- R2 PCBs.
   However, the I2C registers are at a different address.  On the MEGA65 R3 PCB, the registers are located at \$FFD71DC -- \$FFD71EF.
 \end{itemize}
+
+The only difference between the R3 and R3A is the QSPI flash chip loaded onto the board. The PCB itself is unchanged. The QSPI flash chip on the R3 has capacity for only 4 core slots (0 -- 3), including the factory core in slot 0.  The R3A uses a higher-capacity QSPI flash chip that has capacity for 8 core slots (0 -- 7), including the factory core in slot 0.
 
 %\DONTinput{regtable_TARGETM65R3.MEGA65.tex}
 

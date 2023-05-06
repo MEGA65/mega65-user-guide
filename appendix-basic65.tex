@@ -301,9 +301,9 @@ In 80 $\times$ 25 text mode the arrays are dimensioned as:
 
 In 80 $\times$ 50 text mode the arrays are dimensioned as:
 
-\screentextwide{ T@\&(79,24)} Column = 0 - 79, Row = 0 - 49.
+\screentextwide{ T@\&(79,49)} Column = 0 - 79, Row = 0 - 49.
 
-\screentextwide{ C@\&(79,24)} Column = 0 - 79, Row = 0 - 49.
+\screentextwide{ C@\&(79,49)} Column = 0 - 79, Row = 0 - 49.
 
 In 40 $\times$ 25 text mode the arrays are dimensioned as:
 
@@ -896,7 +896,7 @@ the {\bf MEGA65 Book}
 \fi
 for more information.
 \item [Remarks:] A value > 127 selects memory mapped I/O.
-                 The default value for the bank number is 128.
+                 The default value at system startup for the bank number is 128.
                  This configuration has RAM from \$0000 to \$1FFF,
                  the BASIC and KERNAL ROM, and I/O from \$2000 to \$FFFF.
 \item [Example:] Using {\bf BANK}
@@ -1054,7 +1054,7 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
    {\bf PRG} into RAM at address P and bank B, and starts executing
    the code at the load address.
 
-   {\bf BOOT SYS} loads the boot sector from sector 0,
+   {\bf BOOT SYS} loads the boot sector (512 bytes in total) from sector 0,
    track 1 and unit 8 to address \$0400 in bank 0, and
    performs a \screentext{JSR \$0400} afterwards (Jump To Subroutine).
 
@@ -1075,10 +1075,12 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
 
    \unitdefinition
 
+\begin{comment}
 \item [Remarks:]
    {\bf BOOT SYS} copies the contents of one physical sector
    (two logical sectors) = 512 bytes from disk to RAM,
    filling RAM from \$0400 to \$05FF.
+\end{comment}
 
 \item [Examples:] Using {\bf BOOT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1260,7 +1262,7 @@ BOOT
    requires the load address to be written to the first two bytes.
    If the saving is done with a bank number that is not zero,
    or a start address greater than \$FFFF, this information will not
-   fit. For compatibility reasons, only the the two low order bytes
+   fit. For compatibility reasons, only the two low order bytes
    are written. Loading the file with the {\bf BLOAD} command will then
    require the full 16-bit range of the load address as a parameter.
 
@@ -1286,17 +1288,14 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$03
 \item [Format:] {\bf BUMP(}type{\bf )}
-\item [Usage:] Used to detect
-               sprite-sprite (type=1) or sprite-data (type=2) collisions.
-               The return value is an 8-bit mask with
-               one bit per sprite. The bit position corresponds to the
-               sprite number.
-               Each bit set in the returned value indicates that the
-               sprite for its position was involved in a collision
-               since the last call of {\bf BUMP}.
-               Calling {\bf BUMP} resets the collision mask, so you will
-               always get a summary of collisions encountered since
-               the last call of {\bf BUMP}.
+\item [Usage:] Used to detect sprite-sprite (type=1) or sprite-screendata (type=2) 
+  collisions.
+  Each bit set in the returned value indicates that the
+  sprite corresponding to that bit position was involved in a collision
+  since the last call of {\bf BUMP}.
+  Calling {\bf BUMP} resets the collision mask, so you will
+  always get a summary of collisions encountered since
+  the last call of {\bf BUMP}.
 
 \item [Remarks:] It's possible to detect multiple collisions,
                but you will need to evaluate the sprite coordinates

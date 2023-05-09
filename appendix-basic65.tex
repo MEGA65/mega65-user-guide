@@ -1985,10 +1985,14 @@ RUN
 
                 The {\bf bit number} is a value in the range of 0-7.
 
+\item [Remarks:] {\bf CLRBIT} is a short version of using a bitwise {\bf AND} to clear a bit,
+                 but you can only clear one bit at a time. Refer to {\bf SETBIT} to set a bit instead.
+
+\begin{comment}
                  A bank value > 127 is used to access I/O,
                  and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
-
+\end{comment}
 
 \item [Example:] Using {\bf CLRBIT}
 
@@ -2092,16 +2096,15 @@ CLOSE 1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$17
 \item [Format:] {\bf COLLISION} type [{\bf,} line number]
-\item [Usage:]  Enables or disables
-                a user-programmed interrupt handler.
+\item [Usage:]  Enables or disables a user-programmed interrupt handler.
                 A call without the line number argument disables the handler,
                 while a call with line number enables it.
                 After the execution of {\bf COLLISION} with
                 line number, a sprite collision of the same type,
                 (as specified in the {\bf COLLISION} call)
                 interrupts the BASIC program and performs a {\bf GOSUB}
-                to {\bf line number}, which is expected to contain
-                the user code for handling sprite collisions.
+                to {\bf line number}, which is expected to handle 
+                the sprite collisions.
                 This handler must give control back with {\bf RETURN}.
 
                 {\bf type} specifies the collision type for
@@ -2119,7 +2122,7 @@ CLOSE 1
                     \end{center}
 
                 {\bf linenumber} must point to a subroutine
-                which has code for handling sprite collision
+                which handles the sprite collision
                 and ends with {\bf RETURN}.
 
 \item [Remarks:] It is possible to enable the interrupt handler for

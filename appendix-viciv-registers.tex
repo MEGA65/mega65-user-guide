@@ -355,11 +355,11 @@ POKE 2041,INT(768/256)
 \section{Hot Registers}
 \index{Hot Registers}
 
-Some VIC-IV registers support features similar to the VIC-II and VIC-III, but with expanded capabilities. For backwards compatibility, writing to specific VIC-II and VIC-III registers also causes related VIC-IV registers to reset with consistent values. If you write to any of these registers, you may need to update the VIC-IV registers after you do so.
+Some VIC-IV registers support features similar to the VIC-II and VIC-III, but with expanded capabilities. For backwards compatibility, writing to specific VIC-II and VIC-III registers also causes related VIC-IV registers to reset with consistent values. This behavior can be configured with the HOTREG flag in bit 7 of \$D05D.
 
 For example, the lower four bits of register \$D018 (\textbf{CB}) set the VIC-II character set address, as a multiple of 1 KiB. VIC-IV can locate the character set to any 24-bit address using \$D06A (\textbf{CHARPTRBNK}), \$D068 (\textbf{CHARPTRLSB}), and \$D069 (\textbf{CHARPTRMSB}). If you set CB, the VIC-IV registers will also be updated to match.
 
-The complete set of VIC-II registers that affect VIC-IV registers include:
+The complete set of VIC-II ``hot'' registers that affect VIC-IV registers include:
 
 \begin{itemize}
 \item \$D011 (53265): RB8, ECM, BMM, BLNK, RSEL, YSCL
@@ -369,7 +369,9 @@ The complete set of VIC-II registers that affect VIC-IV registers include:
 \item The VIC-II bank bits of \$DD00 (56576) (CIA 2 PORTA)
 \end{itemize}
 
-Whenever any of those registers are modified, even by writing the existing value back into them, various VIC-IV registers will be updated immediately, if the HOTREG bit is set.  The registers that are modified during this process are listed below. Note that some of these registers are internal to the VIC-IV, and cannot be directly queried or modified by the user.  Where this is the case, no addresses are listed for the registers.
+Whenever any of those registers are modified, even by writing the existing value back into them, all of the correponding VIC-IV registers will be updated based on the VIC-II register valeus, even those unrelated to the register that was written to. This includes the FAST flag, which resides in a hot register byte location (\$D031) but is unrelated to video parameters and does not have a corresponding VIC-IV register.
+
+The registers that are modified during this process are listed below. Note that some of these registers are internal to the VIC-IV, and cannot be directly queried or modified by the user. Where this is the case, no addresses are listed for the registers.
 
 \begin{itemize}
 \item {\bf X position of the left side border edge.}  This internal register is updated set the left side border to the width indicated in the Single Side Border Width registers (\$D05C contains the LSB, and bits 0 -- 5 of \$D05D contain the MSB of the side border width.  Note that the width of the side border is based on the low-level video frame dimensions, not the display screen size of the video mode. The 38/40 column field of \$D016 is set to 38 columns, the left border edge will appear 14 pixels to the right of its normal position.
@@ -388,7 +390,30 @@ Whenever any of those registers are modified, even by writing the existing value
 \item {\bf Colour RAM Base Address (\$D064 LSB, \$D065 MSB).} These registers are reset to zero, causing the VIC-IV to expect the colour RAM for the screen to be in the first part of the colour RAM, to be compatible with the VIC-II and VIC-III.
 \end{itemize}
 
-This behavior of the VIC-II registers is intended primarily for legacy software. It can be disabled by clearing the HOTREG (``hot register'') signal: bit 7 of \$D05D (53341).  If you do clear the HOTREG flag, you will then need to update all some or all of these registers when you wish to change the video mode parameters.  Alternatively, you can re-enable HOTREG, make a change via that method, and then restore the value of any of the affected registers that you wished to keep after the change.
+This behavior of the VIC-II registers is intended primarily for legacy software that is not aware of (and therefore never writes to) VIC-IV registers. Hot register propagation can be disabled by clearing the HOTREG (``hot register'') signal: bit 7 of \$D05D (53341). If you clear the HOTREG flag, you will need to update VIC-IV registers directly when you wish to change video mode parameters.
+
+If you make a change to a hot register while HOTREG is disabled then re-enable HOTREG, all hot registers update immediately. There are rare cases where you might want to make a change to a hot register without updating VIC-IV registers but also want hot registers enabled after the change. To do this, you can cancel the pending update by writing a 0 to HOTREG again just before re-enabling hot registers. The full procedure is:
+
+\begin{enumerate}
+\item Write 0 to HOTREG to disable hot registers.
+\item Update the VIC-II register you want to change.
+\item Write 0 to HOTREG to cancel the pending update.
+\item Write 1 to HOTREG to re-enable hot registers.
+\end{enumerate}
+
+In assembly language:
+
+\begin{screenoutput}
+lda #%10000000
+trb $d05d        ; disable hot registers
+
+lda #%01000000
+tsb $d031        ; update a VIC-II/III register
+
+lda #%10000000
+trb $d05d        ; clear pending update
+tsb $d05d        ; re-enable hot registers
+\end{screenoutput}
 
 
 \section{New Modes}
@@ -685,7 +710,7 @@ time of the VIC-IV. Some experimentation will be required to determine how much 
 
 If the GOTO bit is set for a character, and the character width reduction bits are also set, they are interpretted as a Y offset to add to the character data address, but only in Full Colour Mode.  Setting Y=1 causes the character data to be fetched from 8 bytes later, i.e., the first row of character data will come from the address where the second row of character data would normally be fetched.  Similary for increased values the character data will be fetched from further character rows.  With careful arrangement of characters in memory, it is possible to use this feature to provide free vertical placement of soft sprites, without needing to copy the character data.
 
-If the GOTO bit is set for a character, and the Nybl Colour Mode (NCM) bit is also set, then the second colour RAM byte for that character is used to set the \index{Row Mask}Row Mask bits. For each bit set in the row mask, the corresponding row of characters in the line will not be displayed. This can be used in combination with the Y offset feature to effectively provide a character by character smooth vertical scrolling function. 
+If the GOTO bit is set for a character, and the Nybl Colour Mode (NCM) bit is also set, then the second colour RAM byte for that character is used to set the \index{Row Mask}Row Mask bits. For each bit set in the row mask, the corresponding row of characters in the line will not be displayed. This can be used in combination with the Y offset feature to effectively provide a character by character smooth vertical scrolling function.
 
 This ability to draw multiple layers of text and graphics is highly powerful. For example, it can be used to provide multiple overlapping
 layers of separately scrollable graphics.  This gives many of the advantages of bitplane-based play-fields on other computers, such as the

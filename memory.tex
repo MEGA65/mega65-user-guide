@@ -276,7 +276,7 @@ Address translation is a common feature of most microcomputers. The Commodore
 ROM and I/O registers using only 16-bit addresses. The Commmodore 65 was
 designed such that the memory system could be configured to resemble a
 Commodore 64 memory map through 16-bit address translation, and also support
-C64-style remapping of ROM and I/O registers.
+C64-style banking of ROM and I/O registers.
 
 Overall, the MEGA65 provides multiple mechanisms of address translation. Memory
 system configuration is one of the more complex topics of MEGA65 programming,
@@ -743,7 +743,7 @@ default mode, BASIC 65 remaps these addresses as follows:
 \hline
 \$A000 -- \$BFFF & 3.A000 -- 3.BFFF & ROM \\
 \hline
-\$C000 -- \$CFFF & 2.C000 -- 2.DFFF & ROM \\
+\$C000 -- \$CFFF & 2.C000 -- 2.CFFF & ROM \\
 \hline
 \$D000 -- \$DFFF & FFD.2000 -- FFD.2FFF & MEGA65 I/O\\
 \hline
@@ -1376,11 +1376,12 @@ capabilities with higher speeds and features that specialize in
 graphics and audio data.
 
 The MEGA65 DMA is unlike the C65 DMA (and DMA in other microcomputers) in an
-important way: in the MEGA65, the DMA is built into the CPU, and DMA jobs pause
-execution of CPU instructions. This would seem to be against the point of
-having dedicated DMA hardware, except for the fact that the MEGA65 executes DMA
-jobs very quickly compared to the C65. Copying a large graphic onto the screen
-happens quickly enough to be a regular part of a game loop's code.
+important way: in the MEGA65, the DMA is built into the CPU, and DMA jobs
+pause execution of CPU instructions. This would seem to be against the point
+of having dedicated DMA hardware, except for the fact that the MEGA65 executes
+DMA jobs very quickly compared to the C65 due to the higher maximum CPU speed.
+Copying a large graphic onto the screen happens quickly enough to be a regular
+part of a game loop's code.
 
 This also simplifies the programming model: a program can treat a DMA job like
 a special kind of CPU instruction, without additional logic to wait for jobs
@@ -1692,11 +1693,12 @@ m7772000
 The 777 bank takes the MAP register into account, as well as the memory
 mapping mechanisms described in the following sections.
 
-\subsection{C64-style Memory Mapping}
+\subsection{C64-style Memory Banking}
 
-The addresses \$0000 and \$0001 refer to CPU registers. These registers are
-the same CPU registers found in a Commodore 64. They control mapping of the
-C64 ROM into the 16-bit address space, just as they do on a C64.
+The 16-bit addresses \$0000 and \$0001 refer to registers. These registers
+function identically to the CPU registers found at these addresses in a
+Commodore 64. They control mapping of the C64 ROM into the 16-bit address
+space, just as they do on a C64.
 
 In a MEGA65, these registers serve two purposes: they bank in the I/O registers
 at \$D000 -- \$DFFF to overlay Chip RAM, and they provide access to the C64
@@ -1732,8 +1734,8 @@ Similarly, it is possible to use the MAP register to access the RAM at
 addresses 0.0000 and 0.0001 that are normally hidden by the C64-style banking
 registers. If the MAP register selects the \$0000 -- \$1FFF address block for
 mapping and applies an offset of 0, 16-bit addresses \$0000 and \$0001 will
-access RAM at 0.0000 and 0.0001, and will not access the C64-style memory
-mapping registers. The C64-style banking registers can only be accessed with
+access RAM at 0.0000 and 0.0001, and will not access the C64-style banking
+registers. The C64-style banking registers can only be accessed with
 the \$0000 -- \$1FFF region unmapped.
 
 It is typical for a MEGA65 program to leave I/O registers banked into \$D000,
@@ -1742,11 +1744,11 @@ program does not need to manipulate the C64-style banking register.
 
 \subsection{The \$D030 VIC-III Banking Register}
 
-The Commodore 65 provides a banking mechanism controlled by the VIC chip to
-make ROM data accessible with 16-bit addresses. This banking is controlled by the
-I/O register \$D030.\footnote{Accessing the VIC-III banking register at \$D030 requires
-that the computer be using the VIC-III/IV ``I/O personality,'' described
-later. This is the default in MEGA65 mode.}
+The Commodore 65 provides a banking mechanism to make additional ROM data
+accessible with 16-bit addresses. This banking is controlled by the I/O
+register \$D030.\footnote{Accessing the VIC-III banking register at \$D030
+requires that the computer be using the VIC-III/IV ``I/O personality,''
+described later. This is the default in MEGA65 mode.}
 
 Bits 3, 4, 5, and 7 map regions of ROM data into the 16-bit address space according to
 this table. (Recall that bits are numbered right to left from 0, so bit 7 is the
@@ -1778,7 +1780,7 @@ highest bit.)
 \end{center}
 
 For example, if \$D030 is set to \$64 = ``0 1 1 0 0 1 0 0,'' then ROMC is
-enabled, and the 16-bit addresses \$C000 -- \$DFFF access 2.C000 -- 2.DFFF.
+enabled, and the 16-bit addresses \$C000 -- \$CFFF access 2.C000 -- 2.CFFF.
 
 As with C64-style banking, \$D030 banking only applies to 8KB address blocks not
 selected for offsetting by the MAP register. For unmapped regions, if either
@@ -1789,10 +1791,10 @@ enabled.
 
 Notice that \$D030 does not bank in any of the MEGA65 kernel ROM from bank 3.
 The kernel itself uses the MAP register to access its own code, and only uses
-\$D030 banking to access the PETSCII character set at 2.C000 with ROMC
-enabled. As with the C64-style banking register, a typical MEGA65 program can
-leave the banking bits of \$D030 alone and use MAP to access RAM or ROM at
-these addresses as needed.
+\$D030 banking to access ROM code at 2.C000 with ROMC enabled. As with the
+C64-style banking register, a typical MEGA65 program can leave the banking
+bits of \$D030 alone and use MAP to access RAM or ROM at these addresses as
+needed.
 
 \subsection{Cartridge ROM}
 
@@ -1885,14 +1887,14 @@ ROM Write-protect system trap ({\tt hyppo\_toggle\_rom\_writeprotect}), like so:
 \begin{screenoutput}
 LDA #$70
 STA $D640
-NOP
+CLV
 \end{screenoutput}
 
-You must use the MAP register to write to RAM in banks 2 and 3. When C64-style
-banking or \$D030 banking is active for unmapped 16-bit addresses, reading
-those addresses will access bank 2, but writing to those addresses will write
-to RAM in bank 0. (This is similar to what happens when writing to a
-ROM-banked address on a Commodore 64.)
+You must use the MAP register, 32-bit instructions, or DMA to write to RAM in
+banks 2 and 3. When C64-style banking or \$D030 banking is active for unmapped
+16-bit addresses, reading those addresses will access bank 2, but writing to
+those addresses will write to RAM in bank 0. (This is similar to what happens
+when writing to a ROM-banked address on a Commodore 64.)
 
 The state of this write-protection is not readable in a register. To test
 whether the region is write-protected, simply attempt to write a value to the

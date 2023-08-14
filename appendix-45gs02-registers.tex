@@ -215,14 +215,14 @@ in and out using various bits of the VIC-III's \$D030 register:
   \hline
    \end{longtable}
 
-The CRAM2K signal causes the normal 1KB of colour RAM, which is located
-at \$1F800 -- \$1FBFF and is visible at \$D800 -- \$DBFF, to instead
-be visible from \$D800 -- \$DFFF. That is, the entire range \$1F800 -- \$1FFFF
-is visible, and can be both read from and written to.  Unlike on the C64,
-the colour RAM on the MEGA65 is always visible as 8-bit bytes.  Also, on
-the MEGA65, the colour RAM is 32KB in size, and exists at \$FF80000 -- \$FF87FFF.
-The visibility of the colour RAM at \$1F800 -- \$1FFFF is achieved by mirroring
-writes to both regions when accessing the colour RAM via this mechanism.
+The first 2KB of colour RAM is always visible ag \$1F800 -- \$1FFFF. The first
+1KB of this is also visible at \$D800 -- \$D8FF. When the CRAM2K signal is 1,
+the second kilobyte is made avaialble at \$D900 -- \$DFFF. Unlike on the C64,
+the colour RAM on the MEGA65 is always visible as 8-bit bytes.  Also, on the
+MEGA65, the colour RAM is 32KB in size, and exists at \$FF80000 -- \$FF87FFF.
+The visibility of the colour RAM at \$1F800 -- \$1FFFF is achieved by
+mirroring writes to both regions when accessing the colour RAM via this
+mechanism.
 
 Both VIC-III banking and C64-style banking can apply to \$A000 -- \$BFFF and
 \$E000 -- \$FFFF. They have the same effect of mapping those regions to ROM

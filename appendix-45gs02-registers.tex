@@ -205,13 +205,13 @@ in and out using various bits of the VIC-III's \$D030 register:
 \endlastfoot
 \small 0 & \small CRAM2K & \$1F800 -- \$1FFFF, \$FF80000 -- \$FF807FF & \$D800 -- \$DFFF & Y \\
  \hline
-\small 3 & \small ROM8 & \$38000 -- \$39FFF & \$8000 -- \$9FFF & N \\
+\small 3 & \small ROM8 & \$28000 -- \$29FFF & \$8000 -- \$9FFF & N \\
  \hline
-\small 4 & \small ROMA & \$3A000 -- \$3BFFF & \$A000 -- \$BFFF & N \\
+\small 4 & \small ROMA & \$2A000 -- \$2BFFF & \$A000 -- \$BFFF & N \\
  \hline
 \small 5 & \small ROMC & \$2C000 -- \$2CFFF & \$C000 -- \$CFFF & N \\
  \hline
-\small 7 & \small ROME & \$3E000 -- \$3FFFF & \$E000 -- \$FFFF & N \\
+\small 7 & \small ROME & \$2E000 -- \$2FFFF & \$E000 -- \$FFFF & N \\
   \hline
    \end{longtable}
 
@@ -224,9 +224,10 @@ the MEGA65, the colour RAM is 32KB in size, and exists at \$FF80000 -- \$FF87FFF
 The visibility of the colour RAM at \$1F800 -- \$1FFFF is achieved by mirroring
 writes to both regions when accessing the colour RAM via this mechanism.
 
-
-Note that these VIC-III memory banking signals take precedence over the
-C64-style memory banking.
+Both VIC-III banking and C64-style banking can apply to \$A000 -- \$BFFF and
+\$E000 -- \$FFFF. They have the same effect of mapping those regions to ROM
+addresses in bank 2. If either mechanism is active for a region, then the
+region is mapped to ROM.
 
 \subsubsection{VIC-III Display Address Translator}
 
@@ -247,7 +248,7 @@ may instead be re-mapped (hence the name of the MAP instruction) to somewhere el
 in the address space, by adding an offset to the address. Mapped addresses in the
 first 32KB use one offset, the lower offset, and the second 32KB uses another, the
 upper offset.  Re-mapping of memory using the MAP instruction takes precedence over
-the C64-style memory banking, but not the C65's ROM banking mechanism.
+all other banking mechanisms.
 
 The offsets must be a multiple of 256 bytes, and thus consist of 12 bits
 in order to allow an arbitrary offset in the 1MB address space of the C65.  As each 8KB
@@ -258,9 +259,7 @@ the lower half of memory and the Y and Z registers for the upper half of memory,
 the MAP instruction.
 
 The MAP instruction copies the contents of these registers into the
-processors internal registers that hold the mapping information.  Note that there is no way to
-use the MAP instruction to determine the current memory mapping configuration, which somewhat
-limits its effectiveness.
+processors internal registers that hold the mapping information.
 
 The following diagram illustrates how the MAP instruction takes the values of the four A, X, Y and Z
 registers, and uses them to compute the upper and lower address offsets, and sets the bank enable bits

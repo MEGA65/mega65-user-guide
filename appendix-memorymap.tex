@@ -367,34 +367,30 @@ existing the MEGA65:
 \item C64-style \$00 / \$01 banking
 \end{enumerate}
 
-It is important to understand that these different banking modes have
-a priority order: If a higher priority form of banking is being used,
-it takes priority over a lower priority form.  The C65 banking methods
-take priority of the C64-mode banking methods.  So, for example, if
-the 45GS10 MAP instruction has been used to provide a particular
-memory layout, the C64-style \$00 / \$01 banking will not be visible.
+The MAP register overrides all other banking mechanisms. This mechanism
+selects which of the eight 8KB regions of the 16-bit address space \$0000 --
+\$FFFF are mapped to other addresses via an offset. If a region is mapped,
+then the other banking mechanisms do not apply. This is true even if the
+offset is 0, allowing the 16-bit addresses to access RAM in bank 0 (such as
+address 0.D000).
 
-This makes the overall banking scheme more complex than on the C64.
-Thus to understand what the actual memory layout will be, you should
-start by considering the effects of C64 memory banking, and then if
-any C65 MAP instruction memory banking is enabled, using that to override the
-C64-style memory banking. Then if any C65 \$D030 memory banking is
-used, that overrides both the C64 and C65 MAP instruction memory
-banking. Finally, if I/O is banked, or if there are any cartridges
-inserted and active, their effects are made.
+C65-style \$D030 banking and C64-style \$00 / \$01 banking both select 8KB
+regions to map to bank 2, which (by default) contains C64 ROM code. These two
+mechanisms overlap in which regions they can map to ROM. If either mechanism
+maps a region to ROM (and it is not mapped elsewhere by the MAP register),
+then it is mapped to ROM.
 
 The following diagram shows the different types of banking that can
-apply to the different areas of the 64KB that the CPU can see.  The
-higher layers take priority over the lower layers, as described in the
-previous paragraph.
+apply to the different areas of the 64KB that the CPU can see.
+
 \begin{center}
 \begin{tabular}{rccccccc}
 \cline{4-5} \cline{7-8}
+\rowcolor[HTML]{34FF34}
+\multicolumn{1}{r|}{\cellcolor[HTML]{C0C0C0}MAP}    & \multicolumn{2}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP LO\\ (4 x 8KB slabs)\end{tabular}} & \multicolumn{5}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP HI\\ (4 x 8KB slabs)\end{tabular}}                                                                                                                                                                                                                                                                                                                                                                                                     \\ \cline{2-8}
 \rowcolor[HTML]{C0C0C0} I/O/CART &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMLO\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMHI\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{F8A102}I/O}                                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART \\ ROMHI\end{tabular}} \\ \cline{4-8}
 \rowcolor[HTML]{EFEFEF}
 C65                                                 &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}\begin{tabular}[c]{@{}c@{}}INTER-\\ FACE\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                   & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}KERNAL}                                                \\ \cline{2-8}
-\rowcolor[HTML]{34FF34}
-\multicolumn{1}{r|}{\cellcolor[HTML]{C0C0C0}MAP}    & \multicolumn{2}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP LO\\ (4 x 8KB slabs)\end{tabular}} & \multicolumn{5}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP HI\\ (4 x 8KB slabs)\end{tabular}}                                                                                                                                                                                                                                                                                                                                                                                                     \\ \cline{2-8}
 \rowcolor[HTML]{EFEFEF}
 C64                                                 &                                 &                                                                             & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                     & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}\begin{tabular}[c]{@{}c@{}}CHAR\\ ROM\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}KERNAL}                                                \\ \cline{2-8}
 \rowcolor[HTML]{9698ED}
@@ -404,14 +400,10 @@ C64                                                 &                           
 \end{tabular}
 \end{center}
 
-(There are actually a few further complications. For example, if the
+There are actually a few further complications. For example, if the
 cartridge selects the UltiMAX\texttrademark{} game mode, then only the first 4KB
 of RAM will be visible, and the remaining address space will be
-un-mapped, and able to be supplied by the cartridge.)
-
-For example, using \$D030 to bank in C65
-ROM at \$A000, this will take priority over the C64 BASIC 2 ROM at the
-same address.
+un-mapped, and able to be supplied by the cartridge.
 
 \section{C64/C65 ROM Emulation}
 

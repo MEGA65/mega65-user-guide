@@ -10,9 +10,7 @@ void parse_token(char** s, char* t)
 {
   int verbatim_mode = 0;
 
-  while (**s == ' ')
-    (*s)++;
-  while (**s == '\t')
+  while (**s == ' ' || **s == '\t' || **s == '\n' || **s == '\r')
     (*s)++;
 
   if (**s != '{') {

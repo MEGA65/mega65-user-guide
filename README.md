@@ -54,12 +54,9 @@ The User Guide project is defined using a Makefile to build.
 
 For MingW32 users, use the `mingw32-make` command where `make` is indicate below. Linux and macOS users, simply use `make`.
 
-`make` or `make all` will build all PDF manuals. You can also specify the name of the PDF file to build just one manual.
-
-**Note:** It is sometimes necessary to build a PDF _twice_ to be successful. LaTeX generates index files during the first build.
+`make` or `make all` will build all PDF manuals. You can also specify the name of the PDF file to build just one manual, like so:
 
 ```
-make mega65-book.pdf
 make mega65-book.pdf
 ```
 
@@ -79,7 +76,9 @@ The complete list of guides that can be individually built are:
 
 There is also a `sandbox.pdf` for experimenting with typesetting or components for the manuals. But it is not included in the makefile. Instead, it is able to be built directly using software like TeXworks. The sandbox is faster to build and test changes more quickly. You can then transfer your work directly to the userguide.
 
-`make clean` deletes all built files and temporary files.
+To delete all LaTeX-built files: `make clean`
+
+To delete every generated file: `make realclean`
 
 # Editors
 

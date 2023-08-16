@@ -16,31 +16,52 @@ https://github.com/MEGA65/mega65-user-guide/releases
 
 # Installation
 
-## Requirements
+## Cloning the repo
 
-- MingW32 (tested on MinGW-6.3.0, and MinGW-8.1.0) for Windows or GCC Compiler for Linux / Mac OS X.
-- This project repo.
-- The mega65-core repo: https://github.com/MEGA65/mega65-core is required for the memory tables included in the User Guide. Clone `mega65-core` to the parent directory of this repo.
-- The Simple C library for the MEGA65: https://github.com/MEGA65/mega65-libc is required to create api-conio.tex. Clone `mega65-libc` to the parent directory of this repo.
-- A typesetting environment that supports XeLaTeX, for example: http://www.tug.org/texworks/ for Windows.
+Use `git` to clone this project repo, with submodules:
+
+```
+git clone --recurse-submodules https://github.com/MEGA65/mega65-user-guide.git
+```
+
+If you cloned another way and still need submodules (e.g. the `mega65-core` subfolder is empty), initialize submodules:
+
+```
+git submodule update --init
+```
+
+## Installing LaTeX
+
+This project uses the LaTeX typesetting system, specifically XeLaTeX. Select and install the package appropriate for your operating system.
+
+- Windows: http://www.tug.org/texworks/
+- Linux: [TeX Live](https://tug.org/texlive/), often available via package manager (e.g. `sudo apt install texlive`)
+- macOS: [MacTeX](https://www.tug.org/mactex/)
+
+## GCC and build tools
+
+This project uses GNU Make for coordinating build logic, and also some supplemental tools written in C. The build uses a GCC-compatible C compiler to prepare some tools. For your operating system:
+
+- Windows: MingW32 (tested on MinGW-6.3.0, and MinGW-8.1.0)
+- Linux: GCC compiler suite, typically installed via the `build-essential` package
+- macOS: Clang or GCC, typically installed via Xcode or [Homebrew](https://brew.sh)
 
 # Usage
 
-The User Guide project is defined using a Makefile to build. Therefore if you are using an environment like TeXworks, do not use the built in Build button. That is for single file building only. For MingW32 users, just use:
+The User Guide project is defined using a Makefile to build.
 
-`mingw32-make` or `mingw32-make mega65-userguide.pdf` in the main folder of the project to build the mega65-userguide.pdf file.
+> If you are using an environment like TeXworks, do not use the built in Build button. That is for single file building only.
 
-For linux: `make` or `make mega65-userguide.pdf`.
+For MingW32 users, use the `mingw32-make` command where `make` is indicate below. Linux and macOS users, simply use `make`.
 
-If you wish to build the reference manual, use: `mingw32-make referenceguide.pdf`.
+`make` or `make all` will build all PDF manuals. You can also specify the name of the PDF file to build just one manual.
 
-If you wish to build the nexys4 setup guide, use: `mingw32-make nexys4-setup-guide.pdf`.
+**Note:** It is sometimes necessary to build a PDF _twice_ to be successful. LaTeX generates index files during the first build.
 
-To build the entire book, use: `mingw32-make mega65-book.pdf`.
-
-There is also a `sandbox.pdf` for experimenting with typesetting or components for the manuals. But it is not included in the makefile. Instead, it is able to be built directly using software like TeXworks.
-
-The sandbox is faster to build and test changes more quickly. You can then transfer your work directly to the userguide.
+```
+make mega65-book.pdf
+make mega65-book.pdf
+```
 
 The complete list of guides that can be individually built are:
 
@@ -54,39 +75,11 @@ The complete list of guides that can be individually built are:
 | Developer's Guide                                        | make mega65-developer-guide.pdf   |
 | Guide to MEGA65 and FPGA Hardware                        | make hardwareguide.pdf            |
 | All books combined                                       | make mega65-book.pdf              |
-| As above but in CYMK for printing (Ghostscript required) | make mega65-book-cmyk.pdf:        |
+| As above but in CYMK for printing (Ghostscript required) | make mega65-book-cmyk.pdf         |
 
-# MAC OSX
+There is also a `sandbox.pdf` for experimenting with typesetting or components for the manuals. But it is not included in the makefile. Instead, it is able to be built directly using software like TeXworks. The sandbox is faster to build and test changes more quickly. You can then transfer your work directly to the userguide.
 
-Install the LaTeX package from:
-
-https://www.tug.org/mactex/mactex-download.html
-
-Or use MacPorts, which gives easy access to a huge base of Linux/UNIX software.
-With MacPorts install following LaTeX packages:
-
-```
-sudo port install texlive-latex
-sudo port install texlive-latex-extra
-sudo port install texlive-latex-recommended
-sudo port install latexmk
-sudo port install latexdiff
-```
-
-The manual is created in the local repository with:
-
-```
-make clean
-make mega65-book.pdf
-make mega65-book.pdf
-```
-
-Calling "make" with the target twice is intentional and needed for getting all references resolved.
-Of course, you can create a shell script for these three lines.
-
-# Linux
-
-For Linux users, the instructions are the similar, but use your favourite package manager to install a LaTeX package of your choice.
+`make clean` deletes all built files and temporary files.
 
 # Editors
 

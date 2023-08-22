@@ -428,7 +428,6 @@ void emit_table_output(FILE* f)
   fprintf(f, "\\end{longtable}\n");
 
   // If table uses bits, then we need to produce the table of signal descriptions
-  fprintf(stderr, "before\n");
   if (table_uses_bits) {
     fprintf(f, "\\begin{itemize}\n");
     for (int s = 0; s < table_sigcount; s++) {
@@ -440,7 +439,6 @@ void emit_table_output(FILE* f)
     }
     fprintf(f, "\\end{itemize}\n");
   }
-  fprintf(stderr, "after\n");
 }
 
 char *describe_mode(int m)

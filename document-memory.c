@@ -125,11 +125,18 @@ void clear_table_output(void)
   table_sigcount = 0;
 }
 
-void latex_escape(char *target, char *source)
+char *latex_escape(char *source)
 {
   char prev = '\0';
-  ;
+  int len = strlen(source) << 2;
+  char *the_target = malloc(len < 256 ? 256 : len), *target; // quadrupling should be enough
 
+  if (!the_target) {
+    fprintf(stderr, "[ERROR] failed to allocate enough memory to latex escape string!\n");
+    exit(1);
+  }
+
+  target = the_target;
   while (*source) {
     // escape dollar sign if not already escaped or math mode
 
@@ -174,6 +181,8 @@ void latex_escape(char *target, char *source)
     prev = *source++;
   }
   *target = '\0';
+
+  return the_target;
 }
 
 // converts ! in signal names to a word break \-
@@ -314,7 +323,7 @@ void table_output_add_reg(struct reg_line* r)
 
 void emit_table_output(FILE* f)
 {
-  char buftxt[256]; // used to convert special chars to latex
+  char *buftxt; // used to convert special chars to latex
 
   if (table_uses_bits) {
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
@@ -419,16 +428,19 @@ void emit_table_output(FILE* f)
   fprintf(f, "\\end{longtable}\n");
 
   // If table uses bits, then we need to produce the table of signal descriptions
+  fprintf(stderr, "before\n");
   if (table_uses_bits) {
     fprintf(f, "\\begin{itemize}\n");
     for (int s = 0; s < table_sigcount; s++) {
       // XXX - Replace with contents of appropriate info block if one exists!
       //    fprintf(f,"\\item{\\bf{%s}} %s\n",table_signals[s],table_descriptions[s]);
-      latex_escape(buftxt, table_descriptions[s]);
+      buftxt = latex_escape(table_descriptions[s]);
       fprintf(f, "\\item{\\bf{%s}\\index{Registers!%s}} %s\n", table_signals[s], table_signals[s], buftxt);
+      free(buftxt);
     }
     fprintf(f, "\\end{itemize}\n");
   }
+  fprintf(stderr, "after\n");
 }
 
 char *describe_mode(int m)
@@ -739,6 +751,7 @@ int main(int argc, char** argv)
   // Now emit the tables
   for (int t = 0; t < table_count; t++) {
     char filename[1024];
+    fprintf(stderr, "(%d) writing regtable_%s.%s.tex\n", t + 1, reg_tables[t]->name, describe_mode(reg_tables[t]->mode));
     snprintf(filename, 1024, "regtable_%s.%s.tex", reg_tables[t]->name, describe_mode(reg_tables[t]->mode));
     FILE* f = fopen(filename, "w");
     if (!f) {

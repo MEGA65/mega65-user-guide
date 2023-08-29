@@ -1,281 +1,225 @@
-\chapter{Cores and Flashing}
+\chapter{Upgrading the MEGA65}
 \label{cha:cores}
 
-\phantomsection
-\section{What are Cores, and Why Do They Matter?}
+\section{How a MEGA65 Can Be Upgraded}
 
-The MEGA65 computer uses a versatile chip called an FPGA as its heart, which is
-an acronym for ``Field Programmable Gate Array''. This is a fancy way of
-saying that FPGAs are chips that can be programmed {\it by you} to impersonate
-other chips. They do this by re-configuring their arrays of logic gates to
-reproduce the circuits of other chips. As a result, FPGAs are not an emulation,
-but a re-creation of other chips.
+The MEGA65 platform consists of three major components:
 
-However, FPGAs forget what chip they are pretending
-to be whenever the power is turned off, or when they are re-programmed.
-This might sound annoying, but it's actually very powerful. It means that
-you can tell the FPGA in the MEGA65 to impersonate not just the MEGA65 design
-as it currently stands, but to impersonate any improvements made to the design itself.
-In other words, you can upgrade the MEGA65 hardware just by providing a new
-set of instructions to the FPGA.  These sets of instructions are called ``cores'',
-or ``bitstreams''. For the purpose of the MEGA65, these two terms are interchangeable.
+\begin{enumerate}
+  \item The {\bf MEGA65 core}, a description of the chipset to run on the FPGA
+  \item The {\bf ROM}, code that defines the Commodore-style operating system (kernel) and BASIC
+  \item {\bf System software} for features such as the Freezer menu
+\end{enumerate}
 
-FPGAs are so flexible that not only is it possible to teach the MEGA65 to be a better
-MEGA65, but it is also possible to teach the MEGA65 to be other interesting
-home computers. We believe that the FPGA is powerful enough to re-create
-a Commodore PET\texttrademark, VIC-20\texttrademark, Apple II\texttrademark, Spectrum\texttrademark,
-BBC Micro\texttrademark, or even an Amiga\texttrademark, or one of the 16-bit era game consoles. Unlike some
-previous FPGA-based retro-computers, the MEGA65, its FPGA instructions, board layout, and other information is
-all available for free under various open-source licenses. This means that anyone is free to
+You can upgrade these components as new releases are published. You can also replace one or more of these components individually. In the case of the core and ROM, you can even have multiple versions installed simultaneously and switch between them. For example, instead of the latest MEGA65 ROM, you can switch to the original Commodore 65 prototype ROM. Or, you could switch to another core that causes your MEGA65 hardware to behave like a different computer entirely, like a Commodore 64 or a ZX Spectrum.
+
+The ROM and system software are files that reside on the SD card, and upgrading them is as simple as replacing the files. To upgrade the core, you use a process to install a core file into the MEGA65's core flash memory. This chapter describes this process.
+
+\subsection{What is a Core?}
+
+The MEGA65 hardware architecture is based on a versatile chip called a ``Field Programmable Gate Array,'' or FPGA. This is a special kind of computer chip that can be programmed to impersonate other chips. They do this by configuring a giant array of logic gates to reproduce circuits. FPGAs are not an emulation, but an electronic re-creation of other chips. FPGA code is sometimes referred to as {\em firmware,} a term you may recognize from modern computers and other devices.
+
+Your MEGA65 was programmed at the factory to re-create a chipset designed by the MEGA65 team, based on the original Commodore 65. You can re-program the MEGA65 FPGA to upgrade to new versions of the MEGA65 chipset, or to replace the chipset with that of an entirely different computer!
+
+Each possible chipset is known as a {\em core}. The MEGA65 can store up to eight cores, and you can switch between these cores by accessing a menu when you switch on the computer. You can also use this menu to load a new core from a file on the SD card, a process known as {\em flashing}.
+
+Members of the MEGA65 community have made several useful and fun alternate cores for the FPGA hardware. \href{https://github.com/MJoergen/C64MEGA65}{{\em C64 for MEGA65}} by MJoergen and sy2002 re-creates the original Commodore 64 computer with a high degree of accuracy, perfect for running Commodore 64 games, demos, and applications. Other cores re-create the ZX Spectrum, the Game Boy, and even the original Galaga arcade machine hardware. The MEGA65 team believes that the FPGA is powerful enough to re-create nearly all 8-bit home computers, and likely some 16-bit computers and consoles such as the Commodore Amiga. The MEGA65 hardware design, board layout, FPGA core, and other information are all available for free under various open-source licenses, so anyone is free to
 create other cores for the MEGA65 hardware.
 
-To top it all off, the MEGA65 has enough storage for 7 different sets of FPGA instructions,
-so that you can easily switch the MEGA65's ``personality'' from being a MEGA65 to another
-system, and back again.
+\section{Determining the Versions of Things}
+\label{sec:versions}
 
-The remainder of this chapter describes how to select a core to run on the MEGA65, and
-how to store a core into one of the seven slots in the flash memory storage.
+All components of the MEGA65 platform have a version identifier. The MEGA65 can display the version identifiers for all of its components using the ``MEGA65 Information'' utility.
 
-\ifdefined\printmanual
-% no need for model types to be in the user guide?
-\else
-  \subsection{Model types}
-  Retail models of the MEGA65 are referred to as the MEGA65R3A (revision 3A). Throughout the course of development of the MEGA65, there have been several other model variants used by developers, each with differing specifications and available core slots, so they will be listed here, just to raise awareness of them.
+To open the ``MEGA65 Information'' utility:
 
-  \begin{minipage}{\linewidth}
-    \begin{center}
-      \begin{longtable}{|C{2.5cm}|C{2cm}|C{2cm}|C{2cm}|C{2cm}|}
-        \hhline{|=|=|=|=|=|}
-        {\textbf{Model}} & {\textbf{FPGA type}} & {\textbf{QSPI size}} & {\textbf{\#slots}} & {\textbf{slot size}} \\
-        \hhline{|=|=|=|=|=|}
-        \multirow{2}{*}{\textbf{MEGA65R3A}} & \multicolumn{4}{l|}{The retail/release version of the MEGA65} \\
-        \cline{2-5}
-        & A200T & 64MB & 8 & 8MB \\
-        \hhline{|=|=|=|=|=|}
-        \multirow{2}{*}{\textbf{MEGA65R3}} & \multicolumn{4}{l|}{The DevKit model} \\
-        \cline{2-5}
-        & A200T & 32MB & 4 & 8MB \\
-        \hhline{|=|=|=|=|=|}
-        \multirow{2}{*}{\textbf{MEGA65R2}} & \multicolumn{4}{l|}{An earlier MEGA65 model} \\
-        \cline{2-5}
-        & A100T & 32MB & 8 & 4MB \\
-        \hhline{|=|=|=|=|=|}
-        \multirow{2}{*}{\textbf{Nexys4}} & \multicolumn{4}{l|}{FPGA development boards used early in the project} \\
-        \cline{2-5}
-        & A100T & 16MB & 4 & 4MB \\
-        \hline
-      \end{longtable}
-    \end{center}
-  \end{minipage}
-\fi
+\begin{enumerate}
+  \item Switch on the MEGA65, and allow it to boot to BASIC.
+  \item Open the Freezer: press and hold \widekey{RESTORE} for one second then release.
+  \item Press \specialkey{HELP}. The ``MEGA65 Information'' utility opens.
+\end{enumerate}
 
-
-\section{Bitstream files}
-\label{sec:bitstreamfiles}
-
-Firstly, there are a variety of files related to the MEGA65's cores/bitstreams that you should be familiar with, in
-order to decide what file-types are needed for what occasion.
-
-\subsection{File types}
-
-%\index{.bit files}\index{.mcs files}\index{.prm files}\index{.cor files}
 \begin{center}
-  \begin{longtable}{|L{1.5cm}|p{10cm}|}
-    \hline
-    {\textbf{File-type}} & {\textbf{Purpose}} \\
-    \hline
-    {\tt .cor} & {The MEGA65 project's custom bitstream file format, containing extra header information to help identify the bitstream and the specific MEGA65 target device it is intended for. The MEGA65's flashing utility makes use of this additional information to ensure you don't accidentally flash the bitstream of a different device.} \\
-    \hline
-    {\tt .mcs} & {The bitstream file in a format needed when flashing it to your device's QSPI flash memory chip via Vivado\textregistered.} \\
-    \hline
-    {\tt .prm} & {This file contains checksum information that can be used by Vivado to verify the {\tt .mcs} file you have tried to flash. Optional.} \\
-    \hline
-    {\tt .bit} & {A plain bitstream file in its purest binary form.} \\
-    \hline
-  \end{longtable}
+  \includegraphics[width=0.7\linewidth]{images/megainfo.png}
 \end{center}
 
-\subsection{Where to Download}
+Take note of these version identifiers:
 
-Visit the following url:
+\begin{center}
+\setlength{\tabcolsep}{1mm}
+\begin{tabularx}{\textwidth}{|X|p{7cm}|}
+  \hline
+  {\bf Label and Example} & {\bf Description} \\
+  \hline
+  MEGA65 Model\newline {\tt MEGA65 R5} & The revision of the hardware. You need to know this when downloading new core files. \\
+  \hline
+  Artix Version\newline {\tt 93D55F08 2022-10-12} & The currently running MEGA65 core. This is a string of eight letters and numbers, and also a build date. \\
+  \hline
+  ROM Version\newline {\tt M65 V920377} & The currently running ROM. For MEGA65 ROMs, this is a sequential number, with larger numbers representing newer releases. \\
+  \hline
+  System files (.M65)\newline {\tt 221012.18-MASTER-5BBFDA9} & Each of the system software files has its own version identifier. Typically, you do not need to know these: you will upgrade these along with each core. The identifier is similar to the core version, but does not always match the currently running core. \\
+  \hline
+\end{tabularx}
+\end{center}
+
+Press \specialkey{F3} to exit to the Freezer, then \specialkey{F3} again to exit to BASIC.
+
+Each core has a separate version for each hardware revision. As of the year 2023, the production models of the MEGA65 have used two different main board revisions, known as ``R3'' (more specifically ``R3A'') and ``R5.''\footnote{The MEGA65 ``DevKit'' model sold in the year 2020 is revision ``R3.'' It is also possible to run the MEGA65 core on certain FPGA development boards, with a separate version of the core file for each.}
+
+The MEGA65 core is available for all hardware revisions. If you are installing an alternate core and it is not available for your hardware revision, contact the author of the core.
+
+\section{Obtaining the Latest Files}
+
+You can download the latest MEGA65 core, ROM, and system software from the MEGA65 Filehost website. Due to distribution restrictions for the Commodore 65 ROM code, some files require a Filehost account registered to a MEGA65 owner to access. All owners of the MEGA65 have a license to all versions of this ROM code.\footnote{There is a procedure for non-owners to get the latest MEGA65 ROM, such as to use with the \href{https://github.lgb.hu/xemu/}{Xemu MEGA65 emulator}. This involves downloading \href{https://www.c64forever.com/}{C64 Forever Free Express Edition} from Cloanto, extracting the original Commodore 65 prototype ROM file, then using a tool to apply a patch that you can download from Filehost. The full process is described in the following article: \url{https://files.mega65.org?ar=145591dd-deb6-4bd0-aa89-8e39cd021470}}
+
+Visit the following URL in your web browser:
 
 \url{https://files.mega65.org}
 
-\includegraphics[width=\linewidth]{images/latest_bitstream.png}
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/filehost_notsignedin.png}
+\end{center}
 
-Click the {\bf Files} tab, and in the search-bar, type {\bf .cor} and press Enter.
+To register a Filehost account with your owner code:
+
+\begin{enumerate}
+  \item Visit \href{https://files.mega65.org}{Filehost}. Click ``Sign Up.'' Follow the prompts to create an account.
+  \item Locate your owner code. This is a code printed on a piece of paper that was included with your MEGA65 (possibly inserted into this manual). It looks something like this: {\tt 123-ABC-456}
+  \item Click the user icon in the upper-right corner of the Filehost screen. In the pop-up menu, select ``Redeem Code.'' Enter your owner code as prompted.
+\end{enumerate}
+
+\begin{center}
+  \includegraphics[width=0.4\linewidth]{images/filehost_redeemmenu.png}
+\end{center}
+
+To download the latest release package:
+
+\begin{enumerate}
+  \item Click the ``Files'' tab of the Filehost website.
+  \item In the search box on the left-hand side, type: ``release'' The list will update to show only files with that word in the title.
+  \item Locate the entry named, ``MEGA65 Core Release Package (mega65r3) incl. ROM,'' where ``mega65r3'' matches your hardware revision.
+  \item Click the entry. Confirm that this release package is for your hardware revision, then click ``Download'' to download the file.
+\end{enumerate}
+
+If you don't see an entry that says ``incl. ROM,'' check that you are signed in and that you have redeemed a valid owner code. Note that there is an entry for the Release Package that does not include the ROM that is visible to everyone. To ensure you are using a compatible set of files, get the package that says ``incl. ROM.''
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/filehost_release.png}
+\end{center}
+
+Expand the downloaded archive. You should see a file whose name ends in {\tt .cor}, and a folder of {\tt sdcard-files} that includes one named {\tt MEGA65.ROM}.
+
+\section{The Core Selection Menu}
+
+The MEGA65 decides which core to load into the FPGA when it starts up. You can interrupt this process to select which core to load.\footnote{Technically, the MEGA65 starts the core in slot 0 to power the core selection menu. After you have made a selection or it chooses a default, it loads the selected core into the FPGA and continues the boot process.}
+
+To open the core selection menu, switch off the computer, then hold the \specialkey{NO\\SCROLL} key and switch on the computer. The core selection menu appears, with the eight core slots numbered 0 through 7.
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu.png}
+\end{center}
+
+You can select a core to boot using the cursor keys and \specialkey{RETURN}, or you can simply press the number key that corresponds to the slot. The boot process continues with the new core. The MEGA65 will keep running the new core until you physically power it off. (Pressing the reset button will not reset which core is being run.)
+
+When you switch on the computer without opening the core selection menu, the MEGA65 looks for a core in slot 1. If there is a valid core in that slot, it uses it. Otherwise it tries slot 0.\footnote{You can change the default core slot from 1 to 2 by moving DIP switch \#4 to the ``on'' position. DIP switches are located inside the case, on the main board.}
+
+Your computer comes with the MEGA65 core in slot 0 installed at the factory. It is recommended that you do not upgrade the factory-installed core under most circumstances. Instead, install new versions of the MEGA65 core in slot 1.
+
+\section{Upgrading the MEGA65 Core, ROM, and System Files}
+
+You can upgrade a core, or install a new core, from the core selection menu. This process reads the {\tt .cor} file from the SD card.
+
+To upgrade the MEGA65 core, ROM, and system files:
+
+\begin{enumerate}
+  \item Remove the SD card (or microSD card) from the MEGA65, and connect it to your PC using an SD card reader.
+  \item Copy the {\tt .cor} file from the archive you downloaded to the SD card.
+  \item On your PC, open the {\tt sdcard-files} folder, then copy those files to the SD card, replacing the existing files. Put them in the root of the SD card's file system, not a sub-folder.
+  \item Eject the SD card from your PC's operating system, then move it back to the MEGA65.
+  \item Open the core selection menu: Switch off the MEGA65, then hold \specialkey{NO\\SCROLL} while switching it back on.
+  \item Hold \specialkey{CTRL} then press the number of the slot you want to upgrade. Follow the prompts. This process asks for a key press several times, and takes several minutes.
+\end{enumerate}
+
+When you start the update process, it prompts you to select the {\tt .cor} file on a screen that looks similar to this:
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu-selectcore.png}
+\end{center}
+
+The process begins by checking that the core file matches your hardware revision. Press any key to continue.
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu-1-checking.png}
+\end{center}
+
+It then copies the file from the SD card to RAM, performing another check that the core file is complete.
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu-2-loading.png}
+\end{center}
+
+It presents the result of this check before proceeding. If the check is valid, you see a message similar to the following. Press any key to continue.
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu-3-checksum-ok.png}
+\end{center}
+
+If the check is invalid, you see a message similar to the following. If you were not expecting this message, abort the process and confirm that you are using the correct file.\footnote{There are rare cases where a core may be valid but not have a correct checksum, such as if you are installing older versions of the core.}
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu-3-checksum-mismatch.png}
+\end{center}
+
+Once you tell it to proceed, the MEGA65 begins programming the core data into flash memory. The border twinkles in coloured patterns during this process.
+
+\underline{Note}: Do {\em not} switch off your computer or disconnect power until after this step is complete.
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu-4-programming.png}
+\end{center}
+
+When the process is complete, you see a screen similar to the following.
+
+\begin{center}
+  \includegraphics[width=0.7\linewidth]{images/ss-flashmenu-done.png}
+\end{center}
+
+It is now safe to switch off your computer. Press any key to return to the core selection menu, or switch the computer off then on again to start the default core.
+
+
+\section{Installing Alternate Cores}
+
+Installing an alternate core, such as the C64 core, uses the same steps for flashing the core to a slot.
+
+It is recommended to use slots 2 through 7 for alternate cores, and reserve slot 1 for the latest MEGA65 core. Of course, there is nothing stopping you from installing an alternate core in slot 1, so that the MEGA65 behaves as a different type of computer when you switch it on. You can always choose the MEGA65 core from the core selection menu.
+
+
+\newpage
+
+\section{Upgrading the Factory Core in Slot 0}
+
+It is possible to upgrade the factory-installed MEGA65 core in slot 0. You only need to do this in rare cases, such as if a newer version of the MEGA65 core includes changes or bug fixes for the start-up process. The process is elaborate, delicate, and could result in a MEGA65 that fails to start if something goes wrong. It is {\em strongly} recommended that you do not upgrade slot 0 unless the announcement for the release suggests that you do so. Most MEGA65 core upgrades are fully functional in slot 1.
+
+{\em Please read these instructions carefully before starting the procedure.}
+
+\begin{enumerate}
+  \item Prepare to use the {\em internal SD card only}. This may involve opening the case to make the SD card easy to access. Do {\em not} use the external microSD card slot for updating core slot 0.
+  \item Using your PC, rename the core file that you wish to install to this exact filename: {\tt UPGRADE0.COR} (That's the word {\tt UPGRADE}, the number zero {\tt 0}, and {\tt .COR}, using uppercase letters.)
+  \item Install the latest MEGA65 core in slot 1, using the procedure described above. The core must be in the default non-zero slot to recover from any problems when updating slot 0. Boot this core to test that it works.
+  \item Open the core selection menu. Press \megasymbolkey and the comma key to start the flash procedure for slot 0. (You will not be prompted for a filename.)
+\end{enumerate}
+
 \ifdefined\printmanual
-  You will notice that there are different files with the {\tt .cor} extension. For your MEGA65, download the file
-  that ends with {\bf 65r3-dev.cor}. Other files are for other device types, which you can read more about in the
-  {\bf MEGA65 Book}.
 \else
-  For the purposes of this chapter on core-flashing, download the desired .cor file that suits your target device:
-
-  \begin{itemize}
-    \item{\textbf{mega65r3-dev.cor} (for MEGA65R3 boards, both Release and DevKits)}
-    \item{\textbf{mega65r2-dev.cor} (for MEGA65R2 boards)}
-    \item{\textbf{nexys4ddr-widget-dev.cor} (for Nexys4 DDR boards)}
-    \item{\textbf{nexys4-dev.cor} (for Nexys4 PSRAM boards)}
-    \item{You can also find .bit, .mcs and .prm files located here too.}
-  \end{itemize}
-
-  Alternatively, if you intend to flash the QSPI chip via Vivado, you would instead download the .mcs file for your target device (and optionally, the .prm files as well).
-
-  Another alternative for Nexys4 board users is to download .bit files and copy them to SD cards, which you can also download.
-
-  But once again, for the purposes of this chapter on core-flashing, you will only be interested in the .cor files.
+\underline{Note}: If you have a revision R3A MEGA65, have not previously upgraded slot 0, and \megasymbolkey and \megakey{,} does not start the procedure, you have an older slot 0 core that does not have this feature. You can work around this by restarting the core selection menu with slot 1. From the core selection menu, prepare to hold down \specialkey{NO\\SCROLL}, press the \megakey{1} key to boot into the core then immediately press and hold \specialkey{NO\\SCROLL}. The core selection menu re-opens using slot 1. Press \megasymbolkey and the comma key to complete the slot 0 upgrade.
 \fi
 
-\phantomsection
-\section{Selecting a Core}
+If something goes wrong during the slot 0 flashing process, your MEGA65 may not start correctly. Before doing anything else, switch on your MEGA65, and wait a minute or so. It should notice that there is no valid core in slot 0, then proceed to start the core in slot 1. You can hold \specialkey{NO\\SCROLL} during this to open slot 1's core selection menu and restart the flashing process.
 
-To operate the MEGA65 with an alternate core, switch off the power to the MEGA65, and then hold
-\specialkey{NO SCROLL} down while switching the power back on. This instructs the MEGA65 to enter the
-Flash and Core Menu, instead of booting normally. When booting this way, the following screen will appear:
-
-\begin{center}
-\includegraphics[trim= 0  0 0 10mm,clip,width=0.7\linewidth]{images/ss-flashmenu.png}
-\end{center}
-
-To select a core and start it, use the cursor keys to highlight the desired core, and then press
-\specialkey{RETURN}.  If you select a flash slot that does not
-contain a valid core, it will be highlighted in red to indicate that it
-cannot be booted from:
-
-\begin{center}
-\includegraphics[trim= 0  0 0 10mm,clip,width=0.7\linewidth]{images/ss-flashmenu-invalidslot.png}
-\end{center}
-
-Alternatively, you can press the number corresponding to the core you would
-like to use. The MEGA65 immediately reconfigures the FPGA, and launches the core.  If for some reason
-the core is faulty, the MEGA65 may instead restart normally after a few seconds, and depending on the
-circumstances, take you back into the menu automatically.
-
-The MEGA65 will keep running the new core until you physically power it off.  Pressing the reset button
-will not reset which core is being run.
-
-\phantomsection
-\section{Installing an Upgrade Core for the MEGA65}
-
-Installing and upgrading the core (from a {\tt .cor} file) for the MEGA65 can be done in a few easy steps.
-
-First, copy the core into the MEGA65 SD card's root directory. You can do this by removing the SD card and copying a previously
-downloaded core file to it from another computer. Alternatively,
-you can insert an SD card that already contains the upgrade core. Finally, you can use the MEGA65 TFTP Server
-program and the MEGA65's Ethernet port to upload the core upgrade file onto the SD card from another computer
-on your local network.
-
-The Flash Menu will use the external microSD slot over
-the internal SD card, so if you have both a microSD card and SD card
-inserted in your MEGA65, the Flash Menu will ignore the
-internal SD card. To avoid this, simply copy the core(s) from the internal SD
-card to the external microSD card, or temporarily remove the external
-microSD card from the rear of your MEGA65, so that the Flash Menu will
-be able to find the core files.  Also note that the Flash Menu
-currently only supports DOS-style 8.3 character filenames in UPPERCASE. If your
-core files have a longer name, you will need to rename them when
-copying them onto your microSD or SD card.
-
-\underline{Note}: If you plan on using your external microSD card solely for upgrading cores
-(and not for booting from), then you will not need to add "SD card essentials" files onto your 
-microSD card (simply adding the .cor file will suffice).
-
-Next, once you have the upgrade core on the MEGA65's SD card, enter the Flash and Core Menu as above,
-i.e., switch off the power, and hold \specialkey{NO SCROLL} down while switching the power on again.  When the Flash
-and Core Menu appears, hold \specialkey{CTRL} down and press
-\megakey{1} (or \specialkey{CTRL} and a different number, if you wish to replace the
-contents of a different flash slot). The MEGA65
-will present you with a list of core files that are on the SD card:
-
-\begin{center}
-\includegraphics[trim= 10mm  5mm 10mm 15mm,clip,width=0.7\linewidth]{images/ss-flashmenu-selectcore.png}
-\end{center}
-
-Select the upgrade core file you wish to
-install using the cursor keys, and then press \specialkey{RETURN}.  The MEGA65 will then erase
-the flash slot, before writing the upgraded core.  You will see a progress bar while the MEGA65 erases
-the flash slot:
-
-\begin{center}
-\includegraphics[trim= 10mm  3mm 10mm 15mm,clip,width=0.7\linewidth]{images/ss-flashmenu-erasing.png}
-\end{center}
-
-The progress bar will then reset, and the MEGA65 will
-write the new core into the slot. This process can take up to 15
-minutes, depending on the size of the core file.  If you simply wish
-to erase a flash slot, you can select the
-\screentext{-- erase slot --} option instead of a file name. This will then perform
-only the erasure part of the process.
-
-{\bf It is important to not switch the power off during this process}. If you do, the core file will be
-only partially installed, and the MEGA65 may not start properly.
-While
-inconvenient, it won't damage your MEGA65 or leave it
-in an unusable state: It will simply fall back to using the factory
-supplied core.
-If this happens, enter the Flash and Core Menu
-as described above, and follow the instructions again.
-
-When the flashing process has completed, you will see a message indicating that the process is complete:
-
-\begin{center}
-\includegraphics[trim= 10mm  3mm 10mm 15mm,clip,width=0.7\linewidth]{images/ss-flashmenu-done.png}
-\end{center}
+If the MEGA65 cannot boot any core after several minutes, it may be stuck. You may be able to recover using a device known as a ``JTAG interface'' that connects your PC to the MEGA65 main board. This allows you to inject a bitstream directly into the FPGA. The part is inexpensive but not always available. Contact the MEGA65 team for assistance.
 
 
-When this happens, simply switch off the power to the MEGA65 and switch it back on again for it to start using the
-upgraded core.  This is because the MEGA65 will always try to start the core in slot 1 when
-it is switched on.
-
-\underline{Note}: After flashing completes, it is safe to delete .cor files from your SD card, as their contents now reside within the QSPI flash memory.
-
-\phantomsection
-\section{Installing Other Cores}
-
-Installing other cores works very similarly to installing upgrade cores. The only difference is that you
-press \specialkey{CTRL} and \megakey{2} to \megakey{7} from the Flash and Core Menu, so that the core
-gets installed to another slot.
-
-Of course, there is nothing stopping you from installing a different core
-in slot 1, so that the MEGA65 behaves as a different type of computer when you switch it on.  If you do this,
-you can always choose to run the MEGA65 core by entering the Flash and Core Menu, and selecting the MEGA65
-core.
-
-\phantomsection
-\section{Creating Cores for the MEGA65}
-
-If you would like to create your own cores for the MEGA65, or help
-contribute to the MEGA65 core, then
-you may also wish to take a look at
-\ifdefined\printmanual
-the {\bf MEGA65 Book},
-\else
-\bookvref{cha:fpgacpldflashing},
-\fi
-which explains how to use the
-FPGA development tools to flash the MEGA65.
-
-\phantomsection
-\section{Replacing the Factory Core in Slot 0}
-
-Replacing the core in slot 0 is not recommended, because if it ever gets corrupted, it will ``brick'' the machine.
-This will require you to connect a TE-0790 JTAG programmer, by opening your MEGA65 case, installing
-the module, going through some rather convoluted software preparation steps (similar to if you were
-creating your own bistream/core) and then restoring a working bitstream into the slot.
-
-The MEGA65 is an open system though, so it's possible for you to do all of this, but it's very hard. There
-is a secret key-press combination in the Flash Menu that will then challenge you with a series of questions with
-increasing difficulty to ensure that you know what you are doing. Only after you have correctly
-answered these questions will you be given the option to erase and/or replace the contents of slot 0.
-Details of the questions asked are purposely not documented.
-
-There really should be no reason for using this method to replace the contents of slot 0:
-If you want to make your own bitstreams/cores, you can either write them to other slots and use the
-Flash Menu to activate them, or you can simply use a TE-0790 JTAG programmer, and then use
-Vivado or other FPGA development tool to write to the flash directly. This method is also
-somewhat faster than flashing through the Flash Menu.
-
-{\bf You have been warned!}
+\newpage
 
 \phantomsection
 \section{Understanding The Core Booting Process}
@@ -287,25 +231,25 @@ The process is shown in the following figure:
 
 The booting process is governed by two facilities:
 \begin{itemize}
-  \item The Hypervisor (also known as HYPPO), which operates at a level above the Kernal. One of its responsibilities is to manage aspects of the boot process. For more details on the Hypervisor, refer to  
+  \item The Hypervisor (also known as HYPPO), which operates at a level above the kernel. One of its responsibilities is to manage aspects of the boot process. For more details on the Hypervisor, refer to
 \ifdefined\printmanual
 the {\bf MEGA65 Book}.
 \else
  \bookvref{sec:hypervisor-mode}.
 \fi
     In the diagram, activities performed by the Hypervisor have been highlighted in green.
-  \item The Flash Menu program (also known as MegaFlash), which provides a list of available core slots to choose from. In the diagram, activities performed by MegaFlash have been highlighted in blue.
+  \item The core selection menu program (also known as MegaFlash), which provides a list of available core slots to choose from. In the diagram, activities performed by MegaFlash have been highlighted in blue.
 \end{itemize}
 
 When the MEGA65 is switched on, it does the following:
 \begin{itemize}
-\item Loads the bitstream stored in slot 0 of flash memory. If that is the MEGA65 Factory Core, the MEGA65 
+\item Loads the bitstream stored in slot 0 of flash memory. If that is the MEGA65 Factory Core, the MEGA65
   HYPPO Hypervisor starts.
 \item If it is the first boot since power-on (which implies that we are running from slot 0), HYPPO starts the Flash Menu program (aka MegaFlash) -- but note that the Flash Menu in
       this mode may not show anything on the screen to indicate that it is running!
-\item The Flash Menu then checks if \specialkey{NO SCROLL} is being held down.
+\item The Flash Menu then checks if \specialkey{NO\\SCROLL} is being held down.
 \item If it is, the Flash Menu program shows its display, allowing you to select or re-flash a core.
-\item If \specialkey{NO SCROLL} is \underline{not} being held down, the Flash Menu program checks if Flash Slot 1 contains a valid
+\item If \specialkey{NO\\SCROLL} is {\em not} being held down, the Flash Menu program checks if Flash Slot 1 contains a valid
       core.
 \item If it does, then the Flash Menu program attempts to load that core.
 \item If it succeeds, then the system reconfigures itself for that core, after which the behaviour of the system is
@@ -315,44 +259,4 @@ When the MEGA65 is switched on, it does the following:
       MEGA65 off and on again.
 \end{itemize}
 
-
-
-If you have selected a different core in the Flash Menu, the process
-is similar, except that the ambulance lights will appear for only a
-limited time, as the FPGA will automatically search through the flash
-memory until it finds a valid core. If it gets to the end of the flash
-memory, it will start the MEGA65 Factory Core from slot 0 again.
-
-\phantomsection
-\section{DIP Switches}
-\label{sec:dip-switches}
-
-The MEGA65 motherboard has 4 DIP switches (at position S3 on the PCB),
-which are documented in the following table.
-
-\begin{center}
-  \begin{tabular}{|>{\centering\arraybackslash}p{1.5cm}|p{8cm}|>{\centering\arraybackslash}p{1.5cm}|}
-    \hline
-    {\textbf{Switch\#}} & {\textbf{Purpose}} & {\textbf{Default}}\\
-    \hline
-    1 & {
-      Off = Disable Keyboard Flash \newline
-      On = Enable Keyboard Flash
-    } & Off \\
-    \hline
-    2 & {
-        Off = Disable remote control via Ethernet \newline
-    } & Off = Enable remote control via Ethernet \\
-    \hline
-    3 & {
-         Off = Disallow non-hypervisor access to QSPI flash \newline
-         On = Permit non-hypervisor access to QSPI flash
-    } & Off \\
-    \hline
-    4 & {
-         Off = Boot from slot 1 \newline
-         On = Boot from slot 2
-    } & Off \\
-    \hline
-  \end{tabular}
-\end{center}
+If you have selected a different core in the Flash Menu, the process is similar, except that the ambulance lights will appear for only a limited time, as the FPGA will automatically search through the flash memory until it finds a valid core. If it gets to the end of the flash memory, it will start the MEGA65 Factory Core from slot 0 again.

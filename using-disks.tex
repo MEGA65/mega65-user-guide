@@ -20,7 +20,7 @@ You can manage disk drives and virtual disk images from the Freezer menu. Some o
 
 Each disk drive (physical or virtual) is accessed via a {\it unit} number. With vintage Commodore computers, the unit number refers to an IEC device connected to the computer. Commodore reserved unit numbers in the range 0 -- 31 for devices of various purposes, with 8 -- 11 reserved for disk drives. If you've ever used a Commodore 64 and typed \screentext{LOAD "*",8,1}, the ``8'' refers to the disk drive connects as unit 8. BASIC 65 disk commands use unit 8 by default, and accept a {\bf U} parameter to change it, such as: \screentext{DLOAD "MYPROGRAM",U9}
 
-With the MEGA65, you can assign a unit number to the virtual disk drive with a D81 disk image mounted, or to the internal 3.5" floppy drive. You must ``mount'' a disk image or the internal 3.5" floppy drive to a unit number before it can be used. Any message sent to a unit number assigned to a virtual disk or the internal floppy drive is handled by the MEGA65. All other messages are sent to the IEC serial port.
+With the MEGA65, you can assign a unit number to the virtual disk drive with a D81 disk image mounted, or to the internal 3.5" floppy drive. You must mount a disk image or the internal 3.5" floppy drive to a unit number before it can be used. Any message sent to a unit number assigned to a virtual disk or the internal floppy drive is handled by the MEGA65. All other messages are sent to the IEC serial port.
 
 Disk commands also accept an optional parameter to specify a {\it drive} number. This is only needed when connecting a vintage dual floppy drive via the IEC port, such as the Commodore 4040, 8050, or 8250. Every disk drive assigns drive number 0 to the first drive. Dual-drive units assign a drive number of 1 to the second drive. Dual disk drives are usually equipped with an IEEE-488 interface, and need an IEEE-488 to IEC converter to be used on the MEGA65. BASIC 65 disk commands use device 0 by default, and accept a {\bf D} parameter to change it.
 
@@ -51,7 +51,7 @@ To mount a disk image on unit 8 or 10, select the first managed drive by pressin
   \includegraphics[width=0.7\linewidth]{images/d81-file-browser.png}
 \end{center}
 
-Using the cursor keys to select a D81 disk image, then press \widekey{RETURN}. The Freezer screen shows the selected disk image is now associated with the managed drive.
+Use the cursor keys to select a D81 disk image, then press \widekey{RETURN}. The Freezer screen shows the selected disk image is now associated with the managed drive.
 
 From the main Freezer screen, press \megakey{8} or \megakey{9} to toggle the unit number assigned to the first or second managed drive, respectively.
 
@@ -86,9 +86,9 @@ The new disk image is created on the SD card and mounted to the first managed dr
 
 \subsection{Managing SD Card Files in Sub-directories}
 
-Once you have spent some time on Filehost downloading games and apps, you will eventually have a large collection of D81 disk images on your SD card. You may wish to organize these files into sub-directories (folders). You can create these folders with the SD card connected to your PC, or with the Ethernet file transfer tool.
+Once you have spent some time on Filehost downloading games and applications, you will eventually have a large collection of D81 disk images on your SD card. You may wish to organize these files into sub-directories (folders). You can create these folders with the SD card connected to your PC, or with the Ethernet file transfer tool.
 
-The Freezer supports sub-directories in its file browser. Each sub-directory name begins with a slash ({\tt /}). Select a folder to visit it. To return to the previous folder, select {\tt /..}.
+The Freezer supports sub-directories in its file browser. Each sub-directory name begins with a slash (\screentext {/}). Select a folder to list it's files. To return to the previous folder, select \screentext {/...}
 
 \begin{center}
   \includegraphics[width=0.7\linewidth]{images/d81-subfolders.png}
@@ -96,7 +96,7 @@ The Freezer supports sub-directories in its file browser. Each sub-directory nam
 
 You can also create new disk images in sub-directories by navigating to the sub-directory before selecting \screentext{- NEW D81 DD IMAGE -}.
 
-The MEGA65 maintains a ``current working directory'' that is used as the base directory for BASIC commands like {\bf MOUNT}. To change the current working directory from BASIC, using the {\bf CHDIR} command with the {\bf U12} argument:
+The MEGA65 maintains a ``current working directory'' that is used as the base directory for BASIC commands such as {\bf MOUNT}. To change the current working directory from BASIC, use the {\bf CHDIR} command with the {\bf U12} argument:
 
 \begin{screenoutput}
 CHDIR "DEMOS",U12
@@ -196,7 +196,7 @@ BOOT
 
 As discussed in chapter \vref{cha:configuringyourmega}, you can use the Configuration Utility to set the MEGA65 to mount either a virtual disk image or the internal 3.5" disk drive automatically during boot. (You can also disable this feature by selecting the virtual disk, then leaving the field that asks for the disk image name empty.)
 
-If the mounted disk is bootable---that is, it contains a program file named {\tt AUTOBOOT.C65}---the MEGA65 will load and run the boot program automatically.
+If the mounted disk is bootable --- that is, it contains a program file named {\tt AUTOBOOT.C65}, the MEGA65 will load and run the boot program automatically.
 
 This is how the Intro Disk works. The Intro Disk menu is a program named {\tt AUTOBOOT.C65} on the virtual disk image {\tt MEGA65.D81}, which is pre-configured to be the mounted disk on system start-up. When you disable the Intro Disk from its menu, it renames {\tt AUTOBOOT.C65} to {\tt MENU}, such that the disk is no longer considered bootable.
 
@@ -233,14 +233,14 @@ To change the current working directory to the parent of the current directory:
 CHDIR "..",U12
 \end{screenoutput}
 
-The {\bf MOUNT} command can mount a D81 disk image to a unit number. Even though this command refers to a file on the SD card, it does not use the \screentext{U12} argument. Instead, it uses the {\bf U} argument to select the unit number for the disk being mounted. The {\bf MOUNT} command does use the current working directory set by {\bf CHDIR} to locate the file.
+The {\bf MOUNT} command can mount a D81 disk image to a unit number. Even though this command refers to a file on the SD card, it does not use the \screentext{U12} argument. Instead, it uses the {\bf U} argument to select the unit number for the disk being mounted. The {\bf MOUNT} command uses the current working directory set by {\bf CHDIR} to locate the file.
 
 
 \section{Common Disk Operations}
 
 The following are some examples of common disk operations you can perform at the \screentext{READY} prompt. See the BASIC command reference in appendix \vref{cha:basic-reference} for more information.
 
-Most commands that accept filenames also accept a {\bf U} argument that says which unit has the file. The default unit is 8.\footnote{The default disk unit for BASIC commands starts out as 8. You can change it with the {\bf SET DEF} command.}
+Most commands that accept filenames also accept a {\bf U} argument that says which unit has the file. The default unit is 8.\footnote{The default disk unit for BASIC commands is 8. You can change it with the {\bf SET DEF} command.}
 
 \subsection{DIR}
 
@@ -279,13 +279,13 @@ The {\bf DSAVE} command saves the BASIC program currently in memory to disk.
 DSAVE "MYGAME"
 \end{screenoutput}
 
-By default, this will refuse to overwrite an existing file with the same name. To request that the existing file be overwritten, put an {\tt @} (at) symbol before the filename, inside the double-quotes.
+By default, this will not overwrite an existing file with the same name. To request that the existing file be overwritten, insert an {\tt @} (at) symbol before the filename, inside the double-quotes.
 
 \begin{screenoutput}
 DSAVE "@MYGAME"
 \end{screenoutput}
 
-Note that save-with-replace is only recommended when using disk images and the 3.5" floppy drive. Older Commodore drives had bugs in this feature that could result in data loss.
+Note that save-with-replace is only recommended when using disk images and the 3.5" floppy drive. Older Commodore drives have bugs in this feature that could result in data loss.
 
 \subsection{BACKUP}
 

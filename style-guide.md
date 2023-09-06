@@ -110,9 +110,13 @@ Some commonly used words, and their preferences (in alphabetical order):
 
 * Disk, not disc. See [here](https://en.wikipedia.org/wiki/Spelling_of_disc#UK_vs._US) for more information.
 
+* Ethernet. Spelled with an initial capital like a proper noun. "Connect an Ethernet cable." (References: Apple Style Guide, Wikipedia. The term is curiously absent from Microsoft and Google style guides.)
+
+* The Internet. Spelled with an initial capital. There is only one Internet, so "the Internet" is the noun: "Download this file from the Internet." Can be used as an adjective, as in "Internet access."
+
 * Input/Output. Please use slashes here, same goes for the initials. i.e: I/O, not IO.
 
-* KERNAL. Commodore referred to the operating system kernel as "KERNAL" (all capital letters) as a proper noun in its Programmer's Reference Guide and other manuals. When referring to the software provided by the ROM, say KERNAL. In rare cases when referring to the computer architecture concept, say "kernel." Not "Kernal" or "kernal."
+* KERNAL. Commodore referred to the operating system kernel as "KERNAL" (all capital letters) as a proper noun in its Programmer's Reference Guide and other manuals. When referring to the software provided by the ROM, say KERNAL. When referring to the computer architecture concept, say "kernel," though in the context of the MEGA65 you're almost always referring to the MEGA65 KERNAL. Not "Kernal" or "kernal."
 
 * Keyword. When documenting BASIC, there's no need to add the word `keyword` before a BASIC keyword, as they
   should already be in bold (`{\bf LOAD`), so the fact that it's a keyword is already implied.

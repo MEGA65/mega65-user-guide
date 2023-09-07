@@ -1,13 +1,14 @@
 \chapter{Transferring Files}
-\label{cha:transferring-files}
 
 \section{Transferring Files}
+\label{cha:transferring-files}
+\index{SD Cards!Transferring Files}
 
 While there is plenty of fun to be had writing your own programs for the MEGA65, eventually you will want to run programs written by others. You may also want to back up your MEGA65 programs to your PC for safe keeping.
 
 You can copy D81 virtual disk images to your MEGA65-formatted SD card using any PC, without any special tools or software. Your PC will recognize the data region of the SD card as a FAT32 partition. If you use this method, be aware that some PC operating systems may have unwanted side effects, such as fragmentation of SD card files, or extraneous files created by macOS Finder. These effects are harmless to the data, but may require maintenance to keep the card useful in the MEGA65.\footnote{If the MEGA65 reports a fragmented file, you can use a PC disk defragmentation tool on the data partition. Alternatively, you can copy all files off of the SD card to the PC, re-format the SD card in the MEGA65, then copy the files back from the PC.}
 
-The fastest and most reliable way to transfer files between your PC and your MEGA65 is with an Ethernet cable. You connect one end of the cable to the RJ45 jack on the rear of the MEGA65. You can connect the other end to your local area network (LAN) router or switch, or connect it directly to your PC. You use software on your PC to initiate file transfers, in either direction: from the PC to the MEGA65, or from the MEGA65 to the PC.
+The fastest and most reliable way to transfer files between your PC and your MEGA65 is with an Ethernet cable.\index{Networking!Ethernet} You connect one end of the cable to the RJ45 jack on the rear of the MEGA65. You can connect the other end to your local area network (LAN) router or switch, or connect it directly to your PC. You use software on your PC to initiate file transfers, in either direction: from the PC to the MEGA65, or from the MEGA65 to the PC.
 
 It is also possible to transfer files using a JTAG or UART Serial interface connected to the main board. This is an advanced technique and is not described in this User's Guide. Most people will prefer the Ethernet method.\footnote{JTAG or UART Serial hardware provides access to a debugging interface that may be useful to some programmers. JTAG is also useful for developing FPGA cores. For more information, see {\it MEGA65 Developer's Guide.}}
 
@@ -15,7 +16,7 @@ It is also possible to transfer files using a JTAG or UART Serial interface conn
 
 The MEGA65 can use Ethernet to connect to or accept connections from other computers on a network. With appropriate software, it can connect to other computers over the Internet.
 
-The MEGA65 Ethernet hardware presents a Media Access Control (MAC) address to the local network. Unlike other Ethernet hardware, the MEGA65's MAC address is not assigned at the factory: it is set in the Configuration Utility. (See chapter \vref{cha:configuringyourmega}.)
+The MEGA65 Ethernet hardware presents a Media Access Control (MAC) address to the local network.\index{Networking!MAC address} Unlike other Ethernet hardware, the MEGA65's MAC address is not assigned at the factory: it is set in the Configuration Utility. (See chapter \vref{cha:configuringyourmega}.)
 
 % TODO: IP address handling may change before v0.96 is released. The new version will allow the PC to set the IP address of the MEGA65 for the session, and may or may not involve DHCP. It may also detect broadcast addresses automatically. Change pending as of September 6, 2023.
 
@@ -28,13 +29,14 @@ Most local network routers are configured to block incoming connections originat
 As an alternative to connecting the MEGA65 to your local network, if your PC has an Ethernet jack, you can connect your MEGA65 directly to your PC via Ethernet.
 
 \section{Obtaining the File Transfer Tools}
+\index{M65Connect Application}
 
 {\bf M65Connect} is an application for Windows, Mac, or Linux that facilitates file transfers and other useful features for MEGA65 users. The application has a windowed interface, and also includes command-line tools useful for programming.
 
 To obtain M65Connect:
 
 \begin{enumerate}
-\item Visit the MEGA65 Filehost in a browser: \url{https://files.mega65.org}
+\item Visit the MEGA65 Filehost website\index{Filehost website} in a browser: \url{https://files.mega65.org}
 \item In the search box in the top right corner, type: ``M65Connect''
 \item Select the version of M65Connect for your PC operating system.
 \item Click the ``Download'' button.
@@ -67,6 +69,7 @@ The Linux version of M65Connect is in the ``M65Connect'' folder: {\bf M65Connect
 The command-line tools are in a sub-folder named ``M65Connect Resources,'' such as: {\tt M65Connect Resources\\mega65\_ftp}
 
 \section{Enabling Network Listening}
+\index{Networking!Network Listening Mode}
 
 By default, the MEGA65 ignores all attempts by other computers to connect to it over the network. Software running on the MEGA65 can listen for network connections, but the MEGA65 does not do this on its own.
 
@@ -77,7 +80,7 @@ To transfer files with M65Connect, you must set the MEGA65 to listen for incomin
 \item Enable a network listening session by pressing this key combination: \specialkey{SHIFT} + \megakey{\pounds}
 \end{itemize}
 
-To set the DIP switch, open the case, as described in \vref{cha:setup}. Locate the DIP switches on the main board, then set DIP switch \#2 to the ``on'' position.
+To set the DIP switch,\index{DIP switches} open the case, as described in \vref{cha:setup}. Locate the DIP switches on the main board, then set DIP switch \#2 to the ``on'' position.
 
 \begin{center}
 \includegraphics[width=\linewidth]{images/illustrations/mega65-dip2.pdf}
@@ -102,12 +105,14 @@ Starting a file transfer session resets the MEGA65. As a precaution, the session
 \underline{Note}: If you clear memory by resetting the computer, remember to re-enable network listening: press \specialkey{SHIFT} + \megakey{\pounds}, and ensure the power light is blinking.
 
 \subsection{Transferring Files with M65Connect}
+\index{M65Connect Application}
 
 (This section is pending the release of a new version of M65Connect.)
 
 % TODO: These instructions are pending an update to M65Connect that implements this procedure.
 
 \subsection{The mega65\_ftp Command-Line Tool}
+\index{mega65\_ftp command@\texttt{mega65\_ftp command}}
 
 The {\tt mega65\_ftp} command-line tool initiates a file transfer session with the MEGA65. It can run interactively in the terminal and accept multiple file transfer commands, or it can run non-interactively with those commands provided as arguments.
 
@@ -131,7 +136,6 @@ To end the session, use the {\tt exit} command. The tool will exit and return to
 
 \begin{verbatim}
 MEGA65 SD-Card:/> exit
-
 %
 \end{verbatim}
 

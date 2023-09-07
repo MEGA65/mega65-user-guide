@@ -1,45 +1,44 @@
 \chapter{Using Disks and Disk Images}
-\label{cha:using-disks}
-
-\phantomsection
 
 \section{Disk Drives}
+\label{cha:using-disks}
 \index{Disk Drives}
 
-The MEGA65 has a built-in 3.5" floppy disk drive, and supports Commodore-style external disk drives via the IEC serial port on the back of the computer. The IEC port also supports other external IEC storage devices, such as the SD2IEC. Some IEC storage devices can be connected in a chain and used at the same time.
+The MEGA65 has a built-in 3.5" floppy disk drive, and supports Commodore-style external disk drives via the IEC serial port on the back of the computer. The IEC port also supports other external IEC storage devices, such as the SD2IEC.\index{SD2IEC device} Some IEC storage devices can be connected in a chain and used at the same time.
 
-The MEGA65 also includes a ``virtual'' disk drive that can mount D81 disk image files stored on the SD card. Most MEGA65 software that you download from the Internet is in the form of a D81 disk image. You can create a new D81 disk image directly from the MEGA65, and start saving your BASIC programs to the SD card without any additional hardware. You can also copy files between physical floppy disks and D81 disk images.
+The MEGA65 also includes a ``virtual'' disk drive that can mount D81 disk image files\index{D81 disk image} stored on the SD card. Most MEGA65 software that you download from the Internet is in the form of a D81 disk image. You can create a new D81 disk image directly from the MEGA65, and start saving your BASIC programs to the SD card without any additional hardware. You can also copy files between physical floppy disks and D81 disk images.
 
-The Intro Menu that you saw when you first switched on the computer is a program on a D81 disk image, a file named {\tt MEGA65.D81} on the SD card. The MEGA65 is initially configured to boot this disk image automatically. You can change this in the Configuration Utility. (Refer back to chatper \vref{cha:configuringyourmega}.)
+The Intro Disk Menu\index{Intro Disk} that you saw when you first switched on the computer is a program on a D81 disk image, a file named {\tt MEGA65.D81} on the SD card. The MEGA65 is initially configured to boot this disk image automatically. You can change this in the Configuration Utility.\index{Configuration!Utility} (Refer back to chatper \vref{cha:configuringyourmega}.)
 
-You can manage disk drives and virtual disk images from the Freezer menu. Some of these operations can be performed with BASIC commands such as {\bf MOUNT}.
+You can manage disk drives and virtual disk images from the Freezer menu.\index{Freezer menu} Some of these operations can be performed with BASIC commands such as {\bf MOUNT}.\index{BASIC 65 Commands!MOUNT}
 
 \subsection{Unit Numbers and Drive Numbers}
 \index{Disk Drives!Terminology}
 \index{Connections!IEC}
 
-Each disk drive (physical or virtual) is accessed via a {\it unit} number. With vintage Commodore computers, the unit number refers to an IEC device connected to the computer. Commodore reserved unit numbers in the range 0 -- 31 for devices of various purposes, with 8 -- 11 reserved for disk drives. If you've ever used a Commodore 64 and typed \screentext{LOAD "*",8,1}, the ``8'' refers to the disk drive connects as unit 8. BASIC 65 disk commands use unit 8 by default, and accept a {\bf U} parameter to change it, such as: \screentext{DLOAD "MYPROGRAM",U9}
+Each disk drive (physical or virtual) is accessed via a {\it unit} number.\index{Unit number (IEC devices)} With vintage Commodore computers, the unit number refers to an IEC device connected to the computer. Commodore reserved unit numbers in the range 0 -- 31 for devices of various purposes, with 8 -- 11 reserved for disk drives. If you've ever used a Commodore 64 and typed \screentext{LOAD "*",8,1}, the ``8'' refers to the disk drive connects as unit 8. BASIC 65 disk commands use unit 8 by default, and accept a {\bf U} parameter to change it, such as: \screentext{DLOAD "MYPROGRAM",U9}\index{BASIC 65 Examples!DLOAD}\index{BASIC 65 Examples!LOAD}
 
 With the MEGA65, you can assign a unit number to the virtual disk drive with a D81 disk image mounted, or to the internal 3.5" floppy drive. You must mount a disk image or the internal 3.5" floppy drive to a unit number before it can be used. Any message sent to a unit number assigned to a virtual disk or the internal floppy drive is handled by the MEGA65. All other messages are sent to the IEC serial port.
 
-Disk commands also accept an optional parameter to specify a {\it drive} number. This is only needed when connecting a vintage dual floppy drive via the IEC port, such as the Commodore 4040, 8050, or 8250. Every disk drive assigns drive number 0 to the first drive. Dual-drive units assign a drive number of 1 to the second drive. Dual disk drives are usually equipped with an IEEE-488 interface, and need an IEEE-488 to IEC converter to be used on the MEGA65. BASIC 65 disk commands use device 0 by default, and accept a {\bf D} parameter to change it.
+Disk commands also accept an optional parameter to specify a {\it drive} number.\index{Drive number (IEC devices)} This is only needed when connecting a vintage dual floppy drive via the IEC port, such as the Commodore 4040, 8050, or 8250. Every disk drive assigns drive number 0 to the first drive. Dual-drive units assign a drive number of 1 to the second drive. Dual disk drives are usually equipped with an IEEE-488 interface, and need an IEEE-488 to IEC converter to be used on the MEGA65. BASIC 65 disk commands use device 0 by default, and accept a {\bf D} parameter to change it.
 
 
 \section{Using Virtual Disk Images}
+\index{Disk Drives!D81 Images}
 
-The MEGA65 provides a virtual disk drive that uses D81 disk image files from the SD card. The virtual drive behaves like a Commodore 1581 drive, without the need for vintage physical media.
+The MEGA65 provides two ``managed drives'' that supplement drives connected to the IEC port. The first managed drive can be assigned either a D81 disk image file on the SD card, or it can be assigned to the built-in 3.5" floppy drive. The second managed drive can also be assigned a D81 disk image file, for up to two virtual disks mounted at the same time.\footnote{Commodore originally intended to release a new external 3.5" floppy drive called the ``1565'' to go with the Commodore 65, connecting to a dedicated non-IEC port. The MEGA65 project has ambitions to someday produce such a drive, and if it does, this would be assigned to the second managed drive.}
 
-You can mount up to two virtual disks at a time, or one virtual disk and the internal 3.5" floppy drive. Each virtual disk can be assigned to unit 8 or 10, and 9 or 11.
+The first managed drive can be set to unit 8 or 10, and the second managed drive can be set to unit 9 or 11.
 
 \subsection{Where to Get Disk Image Files}
 
-The MEGA65 Filehost website hosts a library of MEGA65 software produced by the community. You can browse or search for software, download a title, then copy the D81 disk image to the SD card using either your PC or the Ethernet file transfer tool.
+The MEGA65 Filehost website\index{Filehost website} hosts a library of MEGA65 software produced by the community. You can browse or search for software, download a title, then copy the D81 disk image to the SD card using either your PC or the Ethernet file transfer tool.
 
 \url{https://files.mega65.org/}
 
 \subsection{Mounting Disk Images with the Freezer}
 
-Open the Freezer menu: hold \widekey{RESTORE} for one second, then release it. Notice the current drive mounting settings in the lower-right of the screen.
+Open the Freezer menu:\index{Freezer menu} hold \widekey{RESTORE} for one second, then release it. Notice the current drive mounting settings in the lower-right of the screen.
 
 \begin{center}
   \includegraphics[width=0.7\linewidth]{images/freezer.png}
@@ -57,7 +56,7 @@ From the main Freezer screen, press \megakey{8} or \megakey{9} to toggle the uni
 
 \subsection{Mounting Disk Images from BASIC}
 
-The BASIC {\bf MOUNT} command can mount a D81 disk image from the SD card without having to open the Freezer. This command can be entered at the \screentext{READY} prompt, or be used as part of a program.
+The BASIC {\bf MOUNT} command\index{BASIC 65 Commands!MOUNT} can mount a D81 disk image from the SD card without having to open the Freezer. This command can be entered at the \screentext{READY} prompt, or be used as part of a program.
 
 To mount a disk image on unit 8, enter {\bf MOUNT} with the full filename in double-quotes, including the {\tt .D81} suffix:
 
@@ -72,8 +71,9 @@ MOUNT "MEGA65.D81",9
 \end{screenoutput}
 
 \subsection{Creating a New Disk Image}
+\index{Disk Drives!D81 Images}
 
-You can create a new empty disk image from within the MEGA65 Freezer.
+You can create a new empty disk image from within the MEGA65 Freezer.\index{Freezer menu}
 
 \begin{enumerate}
 \item Open the Freezer.
@@ -96,7 +96,7 @@ The Freezer supports sub-directories in its file browser. Each sub-directory nam
 
 You can also create new disk images in sub-directories by navigating to the sub-directory before selecting \screentext{- NEW D81 DD IMAGE -}.
 
-The MEGA65 maintains a ``current working directory'' that is used as the base directory for BASIC commands such as {\bf MOUNT}. To change the current working directory from BASIC, use the {\bf CHDIR} command with the {\bf U12} argument:
+The MEGA65 maintains a ``current working directory'' that is used as the base directory for BASIC commands such as {\bf MOUNT}. To change the current working directory from BASIC, use the {\bf CHDIR} command\index{BASIC 65 Commands!CHDIR} with the {\bf U12} argument:\index{BASIC 65 Examples!CHDIR}\index{BASIC 65 Examples!MOUNT}
 
 \begin{screenoutput}
 CHDIR "DEMOS",U12
@@ -109,21 +109,21 @@ MOUNT "XANADU.D81"
 
 The MEGA65 has a built-in 3.5" floppy disk drive, similar to what was intended for the Commodore 65. You can use physical floppy disks to store your programs and data. Some MEGA65 software can be purchased on floppy disk.
 
-The internal 3.5" drive must be mounted before it can be used. It can be mounted to unit 8 or unit 10.
+The internal 3.5" drive must be mounted before it can be used. It can be mounted to unit 8 or unit 10, in the first managed drive.
 
 \subsection{Mounting the 3.5" Drive with the Freezer}
 
-Open the Freezer menu: hold \widekey{RESTORE} for one second, then release it. Notice the current drive mounting settings in the lower-right of the screen.
+Open the Freezer menu:\index{Freezer menu} hold \widekey{RESTORE} for one second, then release it. Notice the current drive mounting settings in the lower-right of the screen.
 
 Press \megakey{0}, then use the cursor down key to: \screentext{- INTERNAL 3.5" -} Press \widekey{RETURN} to select it. The Freezer menu screen shows that the internal drive is mounted to the first managed disk device.
 
 The \screentext{UNIT \#} for the first device can be either 8 or 10. Press \megakey{8} to toggle between these options. BASIC disk commands default to unit 8, so it is typical to use unit 8 unless you are working with multiple disks at the same time.
 
-The internal 3.5" drive cannot be mounted to the second managed drive with unit numbers 9 or 11.
+The internal 3.5" drive can only be mounted in the first managed drive with unit numbers 8 or 10, and not the second managed drive (unit numbers 9 or 11).
 
 \subsection{Mounting the 3.5" Drive from BASIC}
 
-You can mount the internal 3.5" disk drive to unit 8 using the BASIC {\bf MOUNT} command. This command works from either the \screentext{READY} prompt or from a program. To mount the internal drive to unit 8, enter the command without arguments:
+You can mount the internal 3.5" disk drive to unit 8 using the BASIC {\bf MOUNT} command. This command works from either the \screentext{READY} prompt or from a program. To mount the internal drive to unit 8, enter the command without arguments:\index{BASIC 65 Examples!MOUNT}
 
 \begin{screenoutput}
 MOUNT
@@ -132,8 +132,10 @@ MOUNT
 The {\bf MOUNT} command can only mount the internal drive to unit 8. You can only mount it to unit 10 from the Freezer menu.
 
 \subsection{DD vs. HD disks}
+\index{Disk Drives!Double-Density (DD) Disks}
+\index{Disk Drives!High-Density (HD) Disks}
 
-The MEGA65 disk controller expects a Double Density (DD) floppy disk in the internal 3.5" floppy disk drive.\footnote{It may be possible to support full-capacity HD disks in a future firmware update. This is not a limitation of the drive hardware.} Floppy disks are no longer manufactured, and the DD variety can be difficult to find.
+The MEGA65 disk controller expects a Double Density (DD) floppy disk in the internal 3.5" floppy disk drive.\footnote{It may be possible to support full-capacity HD disks in a future firmware update. The drive hardware is capable of reading HD disks.} Floppy disks are no longer manufactured, and the DD variety can be difficult to find.
 
 You can use a High Density (HD) floppy disk with the drive, with one important modification: you must cover both sides of the hole in the upper-left corner (as seen from the front) of the disk with a small piece of tape. This convinces the drive that the disk is DD, and switches it to a mode compatible with the MEGA65 disk controller. A double-density disk does not have a hole in this location.
 
@@ -144,6 +146,7 @@ You can use a High Density (HD) floppy disk with the drive, with one important m
 \underline{Note}: Make sure that the tape covers both sides of the hole.
 
 \subsection{Formatting a Disk}
+\index{Disk Drives!Formatting a Disk}
 
 A floppy disk must be formatted before it can be used. The MEGA65's internal 3.5" floppy drive emulates a Commodore 1581 drive, and can use disks formatted in such a drive. You can also format a disk with the MEGA65.
 
@@ -152,12 +155,12 @@ A floppy disk must be formatted before it can be used. The MEGA65's internal 3.5
 To format a physical 3.5" floppy disk using the internal drive:
 
 \begin{enumerate}
-\item Open the Freezer.
-\item Mount the internal 3.5" floppy drive to the first managed drive slot, unit 8.
+\item Open the Freezer.\index{Freezer menu}
+\item Mount the internal 3.5" floppy drive to the first managed drive, unit 8.
 \item {\it Double-check that unit 8 says:} \screentext{- INTERNAL 3.5" -}
 \item Resume the computer: press \megakey{F3}.
 \item Insert the floppy disk you wish to format into the internal floppy drive.
-\item Enter the BASIC {\bf FORMAT} command, giving it a name ({\tt "MYDISK"}) and a two-character ID ({\tt XX}).
+\item Enter the BASIC {\bf FORMAT} command, giving it a name ({\tt "MYDISK"}) and a two-character ID ({\tt XX}).\index{BASIC 65 Commands!FORMAT}\index{BASIC 65 Examples!FORMAT}
 \begin{screenoutput}
 FORMAT "MYDISK",IXX
 \end{screenoutput}
@@ -166,27 +169,29 @@ FORMAT "MYDISK",IXX
 
 Formatting the disk takes a minute or so. The drive will make buzzing and clicking noises during the process. Do not switch off the computer or eject the disk until formatting is complete.
 
-You can confirm that the formatting was successful by issuing the {\bf DIR} command. You should see an empty directory listing with the name and ID you specified. Your disk is now ready to use.
+You can confirm that the formatting was successful by issuing the {\bf DIR} command.\index{BASIC 65 Commands!DIR} You should see an empty directory listing with the name and ID you specified. Your disk is now ready to use.
 
 
 \section{Using External IEC Disk Drives}
+\index{Connections!IEC}
 
 The MEGA65 works with external disk drives connected to the IEC serial port.
 
 External drives do not need to be mounted. If a unit number is not assigned to the internal 3.5" disk drive or to a disk image, disk operations intended for that unit number will be transmitted to the IEC serial port. It is up to the device connected to the port to recognize its unit number. Some IEC devices have switches that let you set the unit number. Others will only work with a specific number.
 
-If you have an external drive that expects a specific unit number, you will need to make sure the MEGA65 isn't assigning that number to a disk image or the internal drive. Open the Freezer, then press \megakey{8} or \megakey{9} to toggle the unit number assignments so that they no longer use the needed unit number.
+If you have an external drive that expects a specific unit number, you will need to make sure the MEGA65 isn't assigning that number to a disk image or the internal drive. Open the Freezer,\index{Freezer menu} then press \megakey{8} or \megakey{9} to toggle the unit number assignments so that they no longer use the needed unit number.\index{Unit number (IEC devices)}
 
 The drive and unit assignments are temporary, and will be reset to their defaults when the MEGA65 is switched off. You will need to re-configure the drive assignments the next time you switch on the computer.
 
 
 \section{Bootable Disks}
+\index{Disk Drives!Bootable Disks}
 
 With older Commodore computers, it was common for software makers to organize the file directory on a floppy disk such that the first file in the list is the main program. The user could then enter the command \screentext{LOAD "*",8,1} to load the main program, and \screentext{RUN} to run it. The asterisk is a wildcard that matches any file, so it matches the first file on the disk, without the user having to type the name of the program.
 
-This method is still common, and the MEGA65 has a quick way to boot such disks: hold \specialkey{SHIFT} and press \specialkey{RUN STOP}. This executes the \screentext{RUN "*"} command, which is similar to the familiar command sequence that loads and runs the first program on the disk.
+This method is still common, and the MEGA65 has a quick way to boot such disks: hold \specialkey{SHIFT} and press \specialkey{RUN STOP}. This executes the \screentext{RUN "*"} command, which is similar to the familiar command sequence that loads and runs the first program on the disk.\index{BASIC 65 Commands!RUN}
 
-With the C65, Commodore introduced a new way to boot disks. Instead of relying on file order, a disk can have a file named {\tt AUTOBOOT.C65}. If this file exists and is a program, the BASIC {\bf BOOT} command will load and run this file.
+With the C65, Commodore introduced a new way to boot disks. Instead of relying on file order, a disk can have a file named {\tt AUTOBOOT.C65}.\index{AUTOBOOT.C65 file} If this file exists and is a program, the BASIC {\bf BOOT} command will load and run this file.\index{BASIC 65 Commands!BOOT}\index{BASIC 65 Examples!BOOT}
 
 \begin{screenoutput}
 BOOT
@@ -194,7 +199,7 @@ BOOT
 
 \subsection{Auto-Booting Disks}
 
-As discussed in chapter \vref{cha:configuringyourmega}, you can use the Configuration Utility to set the MEGA65 to mount either a virtual disk image or the internal 3.5" disk drive automatically during boot. (You can also disable this feature by selecting the virtual disk, then leaving the field that asks for the disk image name empty.)
+As discussed in chapter \vref{cha:configuringyourmega}, you can use the Configuration Utility\index{Configuration!Utility} to set the MEGA65 to mount either a virtual disk image or the internal 3.5" disk drive automatically during boot.
 
 If the mounted disk is bootable --- that is, it contains a program file named {\tt AUTOBOOT.C65} --- the MEGA65 will load and run the boot program automatically.
 
@@ -209,19 +214,19 @@ Several BASIC 65 commands can operate directly on the MEGA65 SD card as if it we
 
 \underline{Note}: Unit 12 can only be accessed directly for a few specific operations. It cannot treat the entire SD card as if it were a CBDOS disk.
 
-To list all of the files on the SD card, use the {\bf DIR} command with the \screentext{U12} argument:
+To list all of the files on the SD card, use the {\bf DIR} command with the \screentext{U12} argument:\index{BASIC 65 Commands!DIR}\index{BASIC 65 Examples!DIR}
 
 \begin{screenoutput}
 DIR U12
 \end{screenoutput}
 
-To load or save a PRG file directly from the SD card (that isn't in a D81 disk image), use the \screentext{U12} argument with the {\bf DLOAD} and {\bf DSAVE} commands. You {\em must} include the {\tt .PRG} filename suffix in this case, which is different from using PRG files on disks or disk images.
+To load or save a PRG file directly from the SD card (that isn't in a D81 disk image), use the \screentext{U12} argument with the {\bf DLOAD} and {\bf DSAVE} commands. You {\em must} include the {\tt .PRG} filename suffix in this case, which is different from using PRG files on disks or disk images.\index{BASIC 65 Commands!DLOAD}\index{BASIC 65 Commands!DSAVE}\index{BASIC 65 Examples!DLOAD}
 
 \begin{screenoutput}
 DLOAD "MYPROGRAM.PRG",U12
 \end{screenoutput}
 
-As shown earlier, the MEGA65 supports sub-directories (sub-folders) on the SD card, and maintains a current working directory for disk operations. To change the current working directory to a subdirectory:
+As shown earlier, the MEGA65 supports sub-directories (sub-folders) on the SD card, and maintains a current working directory for disk operations. To change the current working directory to a subdirectory:\index{BASIC 65 Commands!CHDIR}\index{BASIC 65 Examples!CHDIR}
 
 \begin{screenoutput}
 CHDIR "SUBDIR",U12
@@ -233,16 +238,17 @@ To change the current working directory to the parent of the current directory:
 CHDIR "..",U12
 \end{screenoutput}
 
-The {\bf MOUNT} command can mount a D81 disk image to a unit number. Even though this command refers to a file on the SD card, it does not use the \screentext{U12} argument. Instead, it uses the {\bf U} argument to select the unit number for the disk being mounted. The {\bf MOUNT} command uses the current working directory set by {\bf CHDIR} to locate the file.
+The {\bf MOUNT} command can mount a D81 disk image to a unit number. Even though this command refers to a file on the SD card, it does not use the \screentext{U12} argument. Instead, it uses the {\bf U} argument to set the unit number for the disk being mounted. The {\bf MOUNT} command uses the current working directory set by {\bf CHDIR} to locate the file.
 
 
 \section{Common Disk Operations}
 
 The following are some examples of common disk operations you can perform at the \screentext{READY} prompt. See the BASIC command reference in appendix \vref{cha:basic-reference} for more information.
 
-Most commands that accept filenames also accept a {\bf U} argument that says which unit has the file. The default unit is 8.\footnote{The default disk unit for BASIC commands is 8 when the computer first starts. You can change it with the {\bf SET DEF} command.}
+Most commands that accept filenames also accept a {\bf U} argument that says which unit has the file. The default unit is 8.\footnote{The default disk unit for BASIC commands is 8 when the computer first starts. You can change it with the {\bf SET DEF} command.\index{BASIC 65 Commands!SET}}
 
 \subsection{DIR}
+\index{BASIC 65 Commands!DIR}\index{BASIC 65 Examples!DIR}
 
 To display the directory (list of files) for a disk, use the {\bf DIR} command.
 
@@ -257,6 +263,8 @@ Unlike the Commodore 64 method of loading the disk directory into BASIC memory, 
 To make larger directories easier to view, {\bf DIR W} (for ``wide'') displays the directory in columns, pausing for each page.
 
 \subsection{DLOAD and RUN}
+\index{BASIC 65 Commands!DLOAD}\index{BASIC 65 Examples!DLOAD}
+\index{BASIC 65 Commands!RUN}\index{BASIC 65 Examples!RUN}
 
 The {\bf DLOAD} command loads a program from disk into memory. The {\bf RUN} command runs the program currently in memory.
 
@@ -272,6 +280,7 @@ RUN "COOLGAME"
 \end{screenoutput}
 
 \subsection{DSAVE}
+\index{BASIC 65 Commands!DSAVE}\index{BASIC 65 Examples!DSAVE}
 
 The {\bf DSAVE} command saves the BASIC program currently in memory to disk.
 
@@ -288,6 +297,7 @@ DSAVE "@MYGAME"
 Note that save-with-replace is only recommended when using disk images and the 3.5" floppy drive. Older Commodore drives have bugs in this feature that could result in data loss.
 
 \subsection{BACKUP}
+\index{BASIC 65 Commands!BACKUP}\index{BASIC 65 Examples!BACKUP}
 
 The {\bf BACKUP} command copies an entire disk from one unit to another. All existing data on the destination disk is erased as part of this process.
 
@@ -298,6 +308,7 @@ BACKUP U8 TO U9
 You can use {\bf BACKUP} to make disk images from floppy disks, or write disk images to floppy disks, or copy everything from one disk drive to another.
 
 \subsection{COPY}
+\index{BASIC 65 Commands!COPY}\index{BASIC 65 Examples!COPY}
 
 The {\bf COPY} command makes a copy of a file. If the source and the destination are different filenames on the same unit, this duplicates the file on the disk.
 
@@ -308,6 +319,7 @@ COPY "MYGAME" TO "MYGAME-V1"
 \end{screenoutput}
 
 \subsection{RENAME}
+\index{BASIC 65 Commands!RENAME}\index{BASIC 65 Examples!RENAME}
 
 The {\bf RENAME} command changes the name of an existing file.
 
@@ -316,6 +328,7 @@ RENAME "MYGAME-V29" TO "MYGAME-FINAL"
 \end{screenoutput}
 
 \subsection{DELETE}
+\index{BASIC 65 Commands!DELETE}\index{BASIC 65 Examples!DELETE}
 
 The {\bf DELETE} command deletes a file.
 

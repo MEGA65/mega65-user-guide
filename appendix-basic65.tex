@@ -3,7 +3,8 @@
 \chapter{BASIC 65 Command Reference}
 \label{cha:basic-reference}
 
-\section{Commands, Functions and Operators}
+
+\section{Commands, Functions, and Operators}
 
 This appendix describes each of the commands, functions, and other callable
 elements of BASIC 65, which is an enhanced version of BASIC 10. Some of these
@@ -16,119 +17,116 @@ Below is an example of how commands, functions, and operators
 
 {\bf KEY} number{\bf,} string
 
-Here, {\bf KEY} is a keyword. Keywords are special words that
-BASIC understands. Keywords are always written in {\bf BOLD CAPITALS}, so that
-you can easily recognise them.
+Here, {\bf KEY} is a {\em keyword}.\index{Keywords} Keywords are special words
+that BASIC understands. In this manual, keywords are always written in
+{\bf BOLD CAPITALS}, so that you can easily recognise them.
 
-The words not in bold must be replaced for the command, function or operator to
-work. In this example, we need to replace number with a numeric expression, and
-string with a string expression. We'll explain what expressions are a bit more
-in a few moments.
+The ``number'' and ``string'' (in non-bold text) are examples of
+{\em arguments}. You replace these with values or algebraic phrases
+({\em expressions}) that represent the data that controls the command's behavior.
 
-The comma, and some other symbols and punctuation marks, just represent
-themselves when they are in bold. In our example here, it means that there must
-be a comma between the number and the string.
+Punctuation and other letters in bold text represent other characters that are
+typed as they appear. In this example, a comma must appear between the number
+argument and the string argument.
 
-You might also see symbols and punctuation marks that are not in bold. When
-they are not in bold they have a special meaning. You might see square
-brackets around something. For example: [{\bf,} numeric expression]. This means
-that whatever appears between the square brackets is optional. That is, you can
-include it if you need to, but the command, function or operator will also work
-just fine without it. For example, the {\bf CIRCLE} command has an optional
-numeric argument to indicate if the circle should be filled when being drawn.
+Here is an example of using the {\bf KEY} command based on this pattern:
 
-This arrangement of keywords, expressions and symbols is what's called syntax. If
-you miss something out, or put the wrong thing in the wrong place, it is called
-a syntax error. The computer will tell you that you have a syntax error by displaying
-a \screentext{?SYNTAX ERROR} message.
+\begin{screenoutput}
+KEY 8,"LIST"+CHR$(13)
+\end{screenoutput}
 
-There is nothing to worry about if you get an error from the MEGA65.
-Instead, it is just the MEGA65's way of telling you that something
-isn't quite right, so that you can more easily
-find and fix the problem.
-Error messages such as this won't hurt the computer or cause any damage to your program,
-so there is nothing to worry about.
-For example, if we accidentally left the comma out, or replaced it with
-a full stop, the MEGA65 will respond with
-a \screentext{?SYNTAX ERROR}, similar to what's shown below:
+When you see square brackets around arguments, this indicates that the arguments
+are optional. You are not meant to type the square brackets. Consider this
+description of the {\bf CIRCLE} command, which accepts optional arguments:
+
+{\bf CIRCLE} xc{\bf,} yc{\bf,} radius [{\bf,} flags {\bf,} start{\bf,} stop]
+
+The following examples of the {\bf CIRCLE} command are both valid. They have
+different behavior based on their different arguments.
+
+\begin{screenoutput}
+CIRCLE 100,150,30
+
+CIRCLE 100,150,30,0,45,135
+\end{screenoutput}
+
+This arrangement of keywords, symbols, and arguments is called {\em syntax}. If
+you leave something out, or put the wrong thing in the wrong place, the computer
+will fail to understand the command and report a {\em syntax error}.
+
+There is nothing to worry about if you get an error from the MEGA65. It is just
+the MEGA65's way of telling you that something isn't quite right, so that you can
+more easily find and fix the problem. For example, if you omit the comma in the
+{\bf KEY} command, or replace it with a period, the MEGA65 will respond with
+a \screentext{?SYNTAX ERROR}:
 
 \newpage
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
+\begin{screenoutput}
+READY.
 KEY 8"FISH"
 
 ?SYNTAX ERROR
-
+READY.
 KEY 8."FISH"
 
 ?SYNTAX ERROR
-\end{verbatim}
-\end{tcolorbox}
+READY.
+\end{screenoutput}
 
-
-It is very common for commands, functions and operators to use one or
-more {\bf``expressions''}.
-An expression is just a fancy name for something that has, or equates to a value.
-This could be as simple as a string (\screentext{"HELLO"}), a number
-(\screentext{23.7}), or a complex calculation that might include
-one or more functions or operators (\screentext{LEN("HELLO") * (3 XOR 7)}).
-Generally speaking, expressions can result in either a string or a numeric result.
-In this case we call the expressions string expressions or numeric expressions.
-For example, \screentext{"HELLO"} is a {\bf string expression}, while
-\screentext{23.7} is a {\bf numeric expression}.
+Expressions can be a number value such as \screentext{23.7}, a string value such
+as \screentext{"HELLO"}, or a more complex calculation that combines values,
+functions, and operators to describe a number or string value:
+\screentext{"LIST"+CHR\$(13)}
 
 It is important to use the correct type of expression when writing your programs.
 If you accidentally use the wrong type, the MEGA65 will display a
-\screentext{?TYPE MISMATCH ERROR}, to say that the type
-of expression you gave doesn't match what it expected. For example, we will get a
-\screentext{?TYPE MISMATCH ERROR} if we type the following command,
-because \screentext{"POTATO"} is a string expression instead of a numeric expression:
+\screentext{?TYPE MISMATCH ERROR}, to say that the type of expression you gave
+doesn't match what it expected. For example, the following command results in a
+\screentext{?TYPE MISMATCH ERROR}, because \screentext{"POTATO"} is a string
+expression, and a numeric expression is expected:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  KEY "POTATO","SOUP"
-\end{verbatim}
-\end{tcolorbox}
-
-If you wish, you can try typing this in yourself.
+\begin{screenoutput}
+KEY "POTATO","SOUP"
+\end{screenoutput}
 
 Commands are statements that you can use directly from the \screentext{READY.}
 prompt, or from within a program, for example:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  PRINT "HELLO"
-  HELLO
+\begin{screenoutput}
+READY.
+PRINT "HELLO"
+HELLO
 
-  10 PRINT "HELLO"
-  RUN
-  HELLO
-\end{verbatim}
-\end{tcolorbox}
+READY.
+10 PRINT "HELLO"
+RUN
+HELLO
+\end{screenoutput}
 
 You can place a sequence of statements within a single line by separating them with colons, for example:
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-  PRINT "HELLO" : PRINT "HOW ARE YOU?" : PRINT "HOW IS THE WEATHER?"
-  HELLO
-  HOW ARE YOU?
-  HOW IS THE WEATHER?
-\end{verbatim}
-\end{tcolorbox}
+\begin{screenoutput}
+PRINT "HELLO" : PRINT "HOW ARE YOU?" : PRINT "HOW IS THE WEATHER?"
+HELLO
+HOW ARE YOU?
+HOW IS THE WEATHER?
+\end{screenoutput}
 
 \subsection{Direct Mode Commands}
 \index{BASIC 65 Commands!Direct Mode}
-Note that some commands are said to only work in {\bf direct mode}. This means that the command can't be part of a BASIC
-program, but can be entered directly to the screen. In the two {\bf PRINT} examples above, the first was entered in
-direct mode, whereas the second one wasn't. The examples above would work since {\bf PRINT} works in both direct and indirect mode.
+Some commands only work in {\bf direct mode} (sometimes called ``immediate
+mode''). This means that the command can't be part of a BASIC program, but
+can be entered directly to the screen. For example, the {\bf RENUMBER}
+command only works in direct mode, because its function is to renumber the
+lines of a BASIC program.
 
-\subsection{Command Format Syntax}
-The following table describes what the other symbols found in this appendix mean.
+In the two {\bf PRINT} examples above, the first was entered in direct mode,
+whereas the second one was part of a program. The {\bf PRINT} command works
+in both immediate mode and in a program.
+
+\subsection{Command Syntax Descriptions}
+The following table describes the other symbols found in command syntax
+descriptions.
 
 \begin{center}
     \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
@@ -137,11 +135,11 @@ The following table describes what the other symbols found in this appendix mean
         \textbf{Symbol} & \textbf{Meaning}\\
         \hline
         \endhead
-        \dots &
-        The bracket can be repeated zero or more times \\
-        \hline
         [ ] &
         Optional \\
+        \hline
+        \dots &
+        The bracketed syntax can be repeated zero or more times \\
         \hline
         < | > &
         Include one of the choices \\
@@ -162,15 +160,21 @@ The following table describes what the other symbols found in this appendix mean
 \end{center}
 
 \subsection{Fonts}
-Whenever there's a piece of text in this appendix that reflects some logic, something you can type,
-or something the MEGA65 could display, the text will \screentext{WILL USE THIS FONT}. This helps make it easier
-to for you to distinguish between these things and the written text.
+Examples of text that appears on the screen, either typed by you or printed by the MEGA65, appear in the screen font: \screentext{"LIST"+CHR\$(13)}
 
 
 \newpage
 \subsection{BASIC 65 Constants}
 \index{BASIC 65 Constants}
 \setlength{\tabcolsep}{1mm}
+
+Values that are typed directly into an expression or program are called
+{\em constants}. The values are ``constant'' because they do not change
+based on other aspects of the program state.
+
+The following are types of constants that can appear in a BASIC 65
+expression.
+
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
@@ -188,30 +192,57 @@ String                  &  \screentext{"X"}   & \screentext{"TEXT"}   \\
 \subsection{BASIC 65 Variables}
 \index{BASIC 65 Variables}
 
-Each scalar variable consumes 8 bytes of storage in memory.
-The reserved area in bank 0 from \$F700-\$FEFF can store 256 variables.
-Variables don't need to be declared, and their type is determined by an appended
-character. All variables without an appended character are regarded as REAL by default,
-and storage is claimed at their first usage. They are also initialised to zero,
-whereas string variables are initialised as an empty string "".
+A program manipulates data by storing values in the computer's memory,
+referring to stored values, and updating them based on logic. In BASIC,
+elements of memory that store values are called {\em variables}. Each
+variable has a name, there are separate sets of variable names for each
+type of value.
 
-All 104 one-letter variables are declared as {\bf fast} variables.
-26 user functions are declared as {\bf fast} functions.
-These are the variables (A - Z), (A\% - Z\%), (A\& - Z\&) and (A\$ - Z\$)
-and the functions (FNA() - FNZ()).
-They have fixed memory addresses in the range \$FD00 - \$FEFF, the address
-is generated by a hash algorithm from the variable name. The access to these
-variables and functions, either use or definition, is much faster,
-than the access to two letter variables and functions.
-The address of fast variables and functions is computed by a very fast algorithm,
-while the address of two-letter variables and functions is stored in a table,
-which has to be searched for every use.
+For example, the variable \screentext{AA} can store a number value. The
+variable \screentext{AA\$} can store a string value. Commodore BASIC
+considers these to be separate variables, even though the names both
+begin with \screentext{AA}.
+
+One way to store a value in a variable is with the assignment {\bf =}
+operator. For example:
+
+\begin{screenoutput}
+AA = 1.95
+
+AA$ = "HELLO, "
+\end{screenoutput}
+
+Variable names must start with a letter, and contain only letters and
+numbers. They can be of any length, but Commodore BASIC only recognizes
+the first two letters of the name. \screentext{SPEED} and \screentext{SP}
+would be considered the same variable.
+
+Variable names cannot contain any of the BASIC keywords. This makes using
+long names difficult: it is easy to use a keyword accidentally. For
+example, \screentext{ENFORCEMENT} is not a valid variable name, because
+{\bf FOR} is a keyword. It is common to use short variable names to avoid
+these hazards.
+
+Once assigned a value, a variable can be used within an expression with other
+constants, variables, functions, and operators:
+
+\begin{screenoutput}
+10 INPUT "WHAT IS YOUR NAME";NA$
+20 MSG$ = "HELLO, "+NA$+"!"
+20 PRINT MSG$
+\end{screenoutput}
+
+Unlike some programming languages, BASIC variables do not need to be declared
+before use. A variable has a default value of zero for number type variables,
+or the empty string (\screentext{""}) for string type variables.
+
+The variable types and their values are as follows.
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
 \begin{tabular}{|l|l|l|l|}
 \hline
-{\bf Type} & {\bf Appended Character} & {\bf Range}       & {\bf Example}  \\
+{\bf Type} & {\bf Name Symbol} & {\bf Range}       & {\bf Example}  \\
 \hline
 Byte       & \screentext{\&}          & 0 .. 255          & \screentext{BY\& = 23}    \\
 Integer    & \screentext{\%}          & -32768 .. 32767   & \screentext{I\% = 5}      \\
@@ -221,168 +252,240 @@ String     & \screentext{\$}          & length = 0 .. 255 & \screentext{AB\$ = "
 \end{tabular}
 \end{center}
 
+A variable whose name is a single letter followed by the type symbol (or no
+symbol for real number variables) is a {\em fast variable}. BASIC 65 stores
+the variable in a way that makes it faster to access or update the value than
+variables with longer names. It otherwise behaves like any other variable.
+
 \subsection{BASIC 65 Arrays}
 \index{BASIC 65 Arrays}
 
-Each array consumes the number of elements multiplied by the item size,
-plus the size of the header (6 + 2 * dimensions) in memory.
-For example the array
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-100 DIM X(8,2,3)
-\end{verbatim}
-\end{tcolorbox}
-has 3 dimensions and 108 (9 x 3 x 4) items. You might be asking: Why is it 9 x 3 x 4,
-when the program uses 8, 2, and 3? This is because array indexes start at 0, not 1.
+A variable that stores a single value is also known as a {\em scalar
+variable}. Commodore BASIC also supports a type of variable that can store
+multiple values, called an {\em array}.
 
-The size for real items is 5, so the data of that array above would occupy 540 (5 x 108) bytes.
-The header size is 12 bytes (6 + 2 * 3), so the total length in memory is 552 bytes (540 + 12).
+The following example stores three string values in an array, then uses a {\bf
+FOR} loop to {\bf PRINT} a message for each element:
 
-\begin{comment}
-Arrays are stored in bank 1 starting at address \$2000 and expand upwards.
-They share the available memory at \$2000 .. \$F6FF with the string area,
-which starts in bank 1 at address \$F6FF, and expands \textit{downwards}.
-\end{comment}
-Each of the above scalar variable types can be used as an array, by declaring
-them with a {\bf DIM} statement. The arrays are initialised to zero for all
-elements on declaration. If an undeclared array element is used,
-an automatic implicit declaration is performed, which sets the upper boundary
-for each dimension to 10. For example, the usage of an undeclared element
-\screentext{AB(3,5)} would automatically perform a \screentext{DIM AB(10,10)}.
-As noted previously, the lower boundary for each dimension is always 0 (zero),
-so an array initialised with \screentext{DIM AB(10)} consists of 11 elements and accepts indexes from
-0 to 10.
+\begin{screenoutput}
+10 DIM NA$(3)
+20 NA$(0) = "DEFT"
+30 NA$(1) = "GARDNERS"
+40 NA$(2) = "LYDON"
+50 FOR I=0 TO 3
+60 PRINT "HELLO, ";NA$(I);"!"
+70 NEXT I
+\end{screenoutput}
 
-String arrays are more precisely expressed as \textit{arrays of string
-descriptors}. Each item consists of three bytes, which hold
-these values: The length of the string, and the 2 byte address (low/high byte)
-of the string in string memory.
-The usage of the BASIC function {\bf POINTER} with a string or
-string array element as the argument, returns the address of the descriptor, not the string itself.
+Each value in an array is referenced by the name of the array variable and an
+integer index. For example, \screentext{AA(7)} refers to the element of the
+array named \screentext{AA()} with index 7. Indexes are ``zero-based:'' the
+first element in the array has an index of 0. The index can be a numeric
+expression, which can be a powerful way to operate on multiple elements of
+data.
 
-\setlength{\tabcolsep}{1mm}
-\begin{center}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
-\multicolumn{2}{|c|}{\bf Type \& Item Size}  & {\bf Appended}    & {\bf Range}         & {\bf Example}  \\
-\multicolumn{2}{|c|}{}                      & {\bf Character}   &                     &                \\
-\hline
-Byte     Array &  1                         &    \screentext{\&} & 0 .. 255            & \screentext{BY\&(5,6) = 23}   \\
-Integer  Array &  2                         &    \screentext{\%} & -32768 .. 32767     & \screentext{I\%(0,10) = 5}    \\
-Real     Array &  5                         &    none            & -1E37 .. 1E37       & \screentext{XY(I\%) = 1/3}    \\
-String   Array &  3                         &    \screentext{\$} & 0 .. 255 characters & \screentext{AB\$(X) = "TEXT"} \\
-\hline
-\end{tabular}
-\end{center}
+All values in an array must be of the same type. The type is indicated in the
+name of the variable, similar to scalar variables. \screentext{AA()} is an
+array of real numbers, \screentext{AA\$()} is an array of strings.
 
-\subsection{Screen memory and colour RAM}
-\label{sec:screenmemoryandcolourram}
-\index{Screen memory and colour RAM}
-Many programmers like to skip the standard routine {\bf PRINT} for screen output
-and want to access the screen memory and the colour RAM directly
-using the commands {\bf PEEK} and {\bf POKE}.
-{\bf BASIC 65} provides a method for direct access, that is easier to use
-and faster than {\bf POKE}. This method also accounts for the VIC-IV's ability
-to relocate screen memory, so you do not need to read a register to determine
-the {\bf POKE} address.
+Array variable names are considered separate from scalar variable names. The
+scalar variable \screentext{AA} has no relationship to the array variable
+\screentext{AA()}.
 
-Two byte arrays are predefined, that are mapped to screen text memory
-and screen colour memory.
+Array variables must be declared before use with their maximum size. BASIC 65
+allocates the maximum amount of memory needed for the array. The {\bf DIM}
+command declares (``dimensions'') an array.
 
-\screentextwide{ T@\&(COLUMNS,ROWS)} is mapped to the text screen memory.
+An array can have multiple dimensions, each with its own index separated by a
+comma. The array must be declared with the maximum value for each dimension.
+Keep in mind that BASIC 65 allocates memory for the entire array, so large
+arrays may be constrained by available memory.
 
-\screentextwide{ C@\&(COLUMNS,ROWS)} is mapped to the colour screen memory.
+\begin{screenoutput}
+DIM BO$(3,3)
+BO$(1,1) = "X"
+BO$(0,0) = "O"
+BO$(0,2) = "X"
+BO$(1,0) = "O"
+\end{screenoutput}
 
-In 80 $\times$ 25 text mode the arrays are dimensioned as:
+\subsection{Screen Text and Colour Arrays}
+\label{sec:screentextandcolourarrays}
+\index{Screen Text and Colour Arrays}
 
-\screentextwide{ T@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
+A BASIC 65 program can place text on the screen in several ways. The {\bf
+PRINT} command displays a string at the current cursor location, which is
+especially useful for terminal-like output. The {\bf CURSOR} command moves the
+cursor to a given position. A program can use these commands together to draw
+pictures or user interfaces.
 
-\screentextwide{ C@\&(79,24)} Column = 0 - 79, Row = 0 - 24.
+A program can access individual characters on the screen using the special
+built-in arrays \textbf{T@\&()} and \textbf{C@\&()}. These arrays are
+two-dimensional with indexes corresponding to the column and row of each
+character on the screen, starting from (0,0) at the top left corner.
 
-In 80 $\times$ 50 text mode the arrays are dimensioned as:
+\textbf{T@\&(}column{\bf ,} row{\bf )} is the screen code of the character.
+Screen codes are not the same as PETSCII codes. Refer to a Commodore reference
+for a list of screen codes.
 
-\screentextwide{ T@\&(79,49)} Column = 0 - 79, Row = 0 - 49.
+\textbf{C@\&(}column{\bf ,} row{\bf )} is the colour code of the character.
+This is an entry number of the system palette. See the colour table on page
+\pageref{colourtable}. Upper bits also set text attributes, such as blinking.
 
-\screentextwide{ C@\&(79,49)} Column = 0 - 79, Row = 0 - 49.
+Like regular arrays, the screen and colour array entries can be assigned new
+values, or used in expressions to refer to their current values.
 
-In 40 $\times$ 25 text mode the arrays are dimensioned as:
+\begin{screenoutput}
+10 FOR X=10 TO 30
+20 T@&(X,2)=1
+30 C@&(X,2)=INT(RND(1)*16)
+40 NEXT X
+50 PRINT "COLOR AT POSITION 15: ";C@&(15,2)
+\end{screenoutput}
 
-\screentextwide{ T@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
-
-\screentextwide{ C@\&(39,24)} Column = 0 - 39, Row = 0 - 24.
-
-If you want to display the character {\bf A} (display code = 1)
-in row 2 and column 5 and make it yellow, use the mapped byte arrays:
-
-\screentextwide{T@\&(5,2) = 1} character A
-
-\screentextwide{C@\&(5,2) = 7} colour YELLOW
-
-Examining the contents of a screen position is equally easy.
-To get the character and the colour at the left most (home) postion:
-
-\screentextwide{T\% = T@\&(0,0)}
-
-\screentextwide{C\% = C@\&(0,0)}
-
-T\% will then contain the display code of the character, while C\% has the colour index.
-
+The dimensions of these arrays depend on the current text screen mode. In 80
+$\times$ 25 text mode, the column is in the range 0 -- 79, and the row is in
+the range 0 -- 24. The MEGA65 also supports 80 $\times$ 50 and 40 $\times$ 25
+text modes.
 
 \subsection{BASIC 65 Operators}
 \index{BASIC 65 Operators}
 
-BASIC 65 provides a set of operators that are typical of most BASIC
-programming dialects. The usage and precedence of these operators is documented in this section.
+An {\em operator} is a symbol or keyword that performs a function in an
+expression. It operates on one or two sub-expressions, called {\em operands}.
+The part of the expression that involves the operator is treated as the result
+of the operation: the operator {\em evaluates to} the result.
 
-The \screentext{=} symbol is used both as an assignment operator, and as a relational
-operator for testing equality. For example, in the statement
-\screentext{A = B = 5}, the first equal sign is the assignment operator,
-while the second is a logical operator, comparing the variable \screentext{B} with \screentext{5}.
-The value of \screentext{A} will either be assigned the value \screentext{-1} (for {\bf TRUE}), or
-the value \screentext{0} (for {\bf FALSE}).
-You may have noticed that the value of \screentext{-1} for {\bf TRUE} is different to
-other programming languages, such as {\bf C}, where the value of \screentext{1}
-is used for {\bf TRUE} instead.
+For example, the {\bf *} (asterisk) operator performs a multiplication of two
+number operands. The operator and its operands evaluate to the result of the
+multiplication.
 
-The \screentext{+} symbol can be used as a positive sign for numerical expressions,
-as an addition operator, or for string concatenation. The number and type of operands
-determines the operation.
+\begin{screenoutput}
+A=6
+PRINT A*7
+\end{screenoutput}
 
-The \screentext{-} symbol can be used as a negative sign for numerical expressions,
-or as a subtraction operator. The number and type of operands
-determines the operation.
+The {\bf +} (plus) operator has a different meaning depending on the type of
+the operands. If both operands are numbers, then the operator performs an
+addition of the numbers. If both operands are strings, then the operator
+evaluates to a new string that is the concatenation of the operands.
 
-The operators \screentext{NOT, AND, OR} and \screentext{XOR} can be used both as
-logical operators, or as boolean operators.
+\begin{screenoutput}
+A=64
+PRINT A+1
 
-\begin{itemize}
-  \item Logical Operator Example: \screentext{IF A>B AND A<0}
-  \item Boolean Operator Example: \screentext{A = B AND \$7F}
-\end{itemize}
+A$="MEGA"
+PRINT A$+"65"
+\end{screenoutput}
 
-Both examples always produce an integer result internally, which can be interpreted
-either numerically or logically.
-If the result of a comparison is {\bf TRUE}, the value will be set
-to {\bf -1}, while a {\bf FALSE} result yields {\bf 0}.
-In the boolean operator example above, the \screentext{AND} operator converts both operands
-to a 16-bit integer value, and performs a bitwise {\bf AND} for all 16 bits.
-This example will take the value of \screentext{B}, set the upper 9 bits to zero,
-and store the result in \screentext{A}.
+The {\bf -} (minus) operator accepts either one operand or two operands. Given
+one number operand on the right-hand side, it evaluates to the negation of
+that number. Given two number operands, one on either side, it evaluates to
+the subtraction of the second operand from the first operand.
 
-The result of logical operations can be used in numerical expressions as well,
-for example,
-\screentext{A = A - (B > 7)}
-will increment \screentext{A} by 1 if the result of \screentext{(B > 7)} is {\bf TRUE} (-1). This is because
-the mathematical expression of \screentext{A = A - (-1)} is the same as \screentext{A = A + 1}.
+\begin{screenoutput}
+A=64
+PRINT -A
 
-The operators have precedences, which are listed in the tables below.
-In the statement \screentext{A * A - B * B}
-both multiplications will be performed first, before the subtraction is executed.
-Parentheses are used to change the precedence, for example
-\screentext{A * (A - B) * B)} will execute the subtraction first.
+PRINT A-16
+\end{screenoutput}
 
-\subsection{Assignment Operator}
+The {\bf =} symbol is used both as an assignment statement and as a relational
+operator. As an assignment, the {\bf =} symbol is a statement that updates the
+value of a variable. The left-hand side must be a variable or array element
+reference, and its type must match the type of the expression on the
+right-hand side. The assignment is not an operator: it is not part of an
+expression.
+
+\begin{screenoutput}
+AA=7
+NA$="DEFT"
+\end{screenoutput}
+
+As a relational operator, the {\bf =} symbol behaves as an expression.
+It evaluates the expressions on both sides of the operator, then tests whether
+the values are equal. If they are equal, the equality operator evaluates to
+$-1$, BASIC's representation of ``true.'' If they are not equal, the operator
+evaluates to 0, or ``false.'' The equality expression can be used with an {\bf
+IF} statement to control program flow, or it can be used as part of a numeric
+expression. Both expressions must be of the same type.
+
+\begin{screenoutput}
+100 IF X=99 THEN 130
+110 X=X+1
+120 GOTO 100
+130 PRINT "DONE."
+\end{screenoutput}
+
+BASIC 65 knows the difference between assignment and equality based on
+context. Consider this line of code:
+
+\begin{screenoutput}
+A = B = 10
+\end{screenoutput}
+
+BASIC 65 expects a statement, and notices a variable name followed by the
+{\bf =} symbol. It concludes that this is a statement assigning a value
+to the number variable \screentext{A}. It then expects a number expression on
+the right-hand side of the assignment, and notices the {\bf =} symbol
+is an operator in that expression. It concludes that the operation is an
+equality test, and proceeds to evaluate the expression and assign the result.
+
+The operators {\bf NOT}, {\bf AND}, {\bf OR} and {\bf XOR} can be used either
+as logical operators or as boolean operators. A logical operator join two
+conditional expressions as operands and evaluates to the logical comparison of
+their truth values.
+
+\begin{screenoutput}
+IF X=99 OR Y<5 THEN 130
+
+IF Y>10 AND Y<20 THEN 150
+\end{screenoutput}
+
+A boolean operator accepts two number operands and performs a calculation on
+the bits of the binary values.
+
+\begin{screenoutput}
+A=17
+PRINT A AND 20
+\end{screenoutput}
+
+Unlike other cases where operators have different behaviors based on how they
+are used, BASIC 65 does not need to determine whether these operators are
+behaving as logical operators or boolean operators. Because ``true'' and
+``false'' are represented by carefully chosen numbers, the logical operators
+have the same behavior whether their operands are conditional expressions or
+numbers. A ``true'' conditional expression is the number $-1$, which
+internally is a binary number with all bits set. The logical expression ``true
+and false'' is equivalent to the binary boolean expression {\tt \%....0000 \&
+\%....1111}. In this case, the {\bf AND} operator evaluates to 0, which is
+``false.''
+
+Conditional expressions evaluating to numbers can be used in some clever
+programming tricks. Consider this example:
+
+\begin{screenoutput}
+A = A - (B > 7)
+\end{screenoutput}
+
+This statement will increment the value in the \screentext{A} by 1 if the
+value in \screentext{B} is greater than 7. Otherwise it leaves it unchanged.
+If the sub-expression \screentext{B > 7} is true, then it evaluates to -1.
+\screentext{A - (-1)} is equivalent to \screentext{A + 1}. If the
+sub-expression is false, then it evaluates to 0, and \screentext{A - 0} is
+equivalent to \screentext{A}.
+
+When multiple operators are used in a single expression, the order in which
+they are evaluated is specified by {\em precedence}. For example, in the
+statement \screentext{A * A - B * B}, both multiplications will be performed
+first, then the subtraction. As in algebra, you can use parentheses to change
+the order of execution. In the expression \screentext{A * (A - B) * B)}, the
+subtraction is performed first.
+
+The complete set of operators and their order of predecence are summarized in
+the sections that follow.
+
+\subsubsection{Assignment Statement}
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -395,7 +498,7 @@ Parentheses are used to change the precedence, for example
 \end{tabular}
 \end{center}
 
-\subsection{Unary Mathematical Operators}
+\subsubsection{Unary Mathematical Operators}
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -409,7 +512,7 @@ Minus      & \screentext{-} & Negative sign     & \screentext{B = -42} \\
 \end{tabular}
 \end{center}
 
-\subsection{Binary Mathematical Operators}
+\subsubsection{Binary Mathematical Operators}
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -428,9 +531,9 @@ Right Shift    & \screentext{>>}   & Right Shift       & \screentext{A = B >> 1}
 \end{tabular}
 \end{center}
 
-Note that the \screentext{$\uparrow$} character used for exponentiation is entered with \megakeywhite{$\uparrow$}, which is next to \widekey{RESTORE}.\\
+\underline{Note}: The \screentext{$\uparrow$} character used for exponentiation is entered with \megakeywhite{$\uparrow$}, which is next to \widekey{RESTORE}.
 
-\subsection{Relational Operators}
+\subsubsection{Relational Operators}
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -448,7 +551,7 @@ Note that the \screentext{$\uparrow$} character used for exponentiation is enter
 \end{tabular}
 \end{center}
 
-\subsection{Logical Operators}
+\subsubsection{Logical Operators}
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -464,8 +567,7 @@ Note that the \screentext{$\uparrow$} character used for exponentiation is enter
 \end{tabular}
 \end{center}
 
-
-\subsection{Boolean Operators}
+\subsubsection{Boolean Operators}
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -481,7 +583,7 @@ Note that the \screentext{$\uparrow$} character used for exponentiation is enter
 \end{tabular}
 \end{center}
 
-\subsection{String Operator}
+\subsubsection{String Operator}
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -516,6 +618,7 @@ Low              & \screentext{OR XOR}\\
 \end{center}
 
 \input{appendix-keywords}
+
 
 \newpage
 \section{BASIC Command Reference}
@@ -681,7 +784,7 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
                {\bf ASC} returns zero for an empty string, whose behaviour
                is different to BASIC 2, where \screentext{ASC("")} gave an error.
                The inverse function to {\bf ASC} is {\bf CHR\$}.
-               Refer to the {\bf CHR\$} function on page \pageref{chrcommand}
+               Refer to the {\bf CHR\$} function on page \pageref{BASIC 65 Functions!CHR}
                for more information.
 
 \item [Examples:] Using {\bf ASC}
@@ -882,7 +985,7 @@ BACKUP D0 TO D1, U10 : REM BACKUP ON DUAL DRIVE CONNECTED VIA IEC
 \newpage
 \subsection{BANK}
 \index{BASIC 65 Commands!BANK}
-\label{bankcommand}
+\label{BASIC 65 Commands!BANK}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$02
 \item [Format:] {\bf BANK} bank number
@@ -1658,7 +1761,7 @@ CHANGE &IN& TO &OUT&
                 different units in the horizontal and vertical directions.
                 Horizontal is in columns and vertical is in pixels.
 
-                Refer to the {\bf CHR\$} function on page \pageref{chrcommand}
+                Refer to the {\bf CHR\$} function on page \pageref{BASIC 65 Functions!CHR}
                 for more information.
 
 \item [Example:] Using {\bf CHAR}
@@ -1776,8 +1879,8 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \newpage
 \index{Keyboard!PETSCII Codes and CHR\$}
 \subsection{CHR\$}
-\index{BASIC 65 Functions!CHR\$}
-\label{chrcommand}
+\index{BASIC 65 Functions!CHR}
+\label{BASIC 65 Functions!CHR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C1
 \item [Format:] {\bf CHR\$(}numeric expression{\bf)}
@@ -3857,7 +3960,7 @@ where the error number is taken from {\bf ER}.
 \newpage
 \subsection{ERASE}
 \index{BASIC 65 Commands!ERASE}
-\label{erasecommand}
+\label{BASIC 65 Commands!ERASE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2A
 \item [Format:] {\bf ERASE} filename [{\bf,D} drive] [{\bf,U} unit] [{\bf,R}]
@@ -4376,7 +4479,6 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 % **********
 
 \newpage
-\label{foregroundcommand}
 \subsection{FOREGROUND}
 \index{BASIC 65 Commands!FOREGROUND}
 \begin{description}[leftmargin=2cm,style=nextline]
@@ -4433,7 +4535,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
    block allocation map, marking all blocks as free.
    The disk ID is not changed, and blocks are not overwritten,
    so contents may be recovered with {\bf ERASE R}.
-   You can read more about {\bf ERASE} on page \pageref{erasecommand}.
+   You can read more about {\bf ERASE} on page \pageref{BASIC 65 Commands!ERASE}.
 
 \item [Examples:] Using {\bf FORMAT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4988,7 +5090,7 @@ ARE YOU SURE?
    block allocation map, marking all blocks as free.
    The disk ID is not changed, and blocks are not overwritten,
    so contents may be recovered with {\bf ERASE R}.
-   You can read more about {\bf ERASE} on page \pageref{erasecommand}.
+   You can read more about {\bf ERASE} on page \pageref{BASIC 65 Commands!ERASE}.
 
 \item [Examples:] Using {\bf HEADER}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5554,7 +5656,7 @@ KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
                  must not exceed 240 characters.
                  Special characters such as RETURN or QUOTE are entered
                  using their codes with the {\bf CHR\$} function.
-                 Refer to {\bf CHR\$} on page \pageref{chrcommand}
+                 Refer to {\bf CHR\$} on page \pageref{BASIC 65 Functions!CHR}
                  for more information.
 
 \item [Examples:] Using {\bf KEY}:
@@ -5753,7 +5855,7 @@ A=5      :REM SHORTER AND FASTER
 % ****
 % LIST
 % ****
-\label{basic65-list}
+\label{BASIC 65 Commands!LIST}
 \newpage
 \subsection{LIST}
 \index{BASIC 65 Commands!LIST}
@@ -6165,7 +6267,7 @@ only exits the current loop.
 
 \newpage
 \subsection{MEM}
-\label{memcommand}
+\label{BASIC 65 Commands!MEM}
 \index{BASIC 65 Commands!MEM}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$23
@@ -9682,7 +9784,7 @@ RUN
 
 \newpage
 \subsection{STOP}
-\index{BASIC 65 Commands!}
+\index{BASIC 65 Commands!STOP}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$90
 \item [Format:] {\bf STOP}

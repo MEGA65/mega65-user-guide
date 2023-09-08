@@ -640,11 +640,10 @@ Low              & \screentext{OR XOR}\\
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B6
 \item [Format:] {\bf ABS(}x{\bf)}
-\item [Usage:]  {\bf ABS} returns
-                the absolute value of the numeric
+\item [Usage:]  Returns the absolute value of the numeric
                 argument {\bf x}.
 
-               {\bf x} numeric argument (integer or real expression).
+               {\bf x} numeric argument (integer or real expression)
 \item [Remarks:] The result is of type real.
 \item [Example:] Using {\bf ABS}
 
@@ -671,7 +670,7 @@ Low              & \screentext{OR XOR}\\
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$AF
 \item [Format:] operand {\bf AND} operand
-\item [Usage:]  {\bf AND} performs a bit-wise
+\item [Usage:]  Performs a bit-wise
                 logical AND operation on two 16-bit values.
                 Integer operands are used as they are.
                 Real operands are converted to a signed 16-bit integer (losing precision).
@@ -708,7 +707,7 @@ Low              & \screentext{OR XOR}\\
 \end{verbatim}
 \end{tcolorbox}
 
-In most cases, {\bf AND} is used in {\bf IF} statements.
+{\bf AND} can be used in {\bf IF} statements to require multiple conditions.
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -751,7 +750,7 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
    except that the file must already exist.
    The content of the file is retained, and all printed text
    is appended to the end.
-   Trying to {\bf APPEND} to a non existing file reports a DOS error.
+   Trying to {\bf APPEND} to a non-existing file reports a DOS error.
 
 \item [Examples:] Open existing file in append mode:
 
@@ -776,16 +775,17 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C6
 \item [Format:] {\bf ASC(}string{\bf)}
-\item [Usage:] Takes the first character of
-               the string argument and returns its numeric code value.
-               The name was apparently chosen to be a mnemonic to ASCII,
-               but the returned value is in fact the so-called PETSCII code.
+\item [Usage:] The PETSCII code of the first character of
+               the string argument, as a number.
 \item [Remarks:]
                {\bf ASC} returns zero for an empty string, whose behaviour
                is different to BASIC 2, where \screentext{ASC("")} gave an error.
                The inverse function to {\bf ASC} is {\bf CHR\$}.
                Refer to the {\bf CHR\$} function on page \pageref{BASIC 65 Functions!CHR}
                for more information.
+
+               The name was apparently chosen to be a mnemonic to ASCII,
+               but the returned value is a PETSCII code.
 
 \item [Examples:] Using {\bf ASC}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -809,7 +809,8 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C1
 \item [Format:] {\bf ATN(}numeric expression{\bf)}
-\item [Usage:] Returns the arc tangent of the argument.
+\item [Usage:] The arc tangent of the argument.
+
                The result is in the range ($-\pi/2$ to $\pi/2$)
 
 \item [Remarks:]
@@ -839,7 +840,7 @@ In most cases, {\bf AND} is used in {\bf IF} statements.
 \item [Token:] \$DC
 \item [Format:]
   {\bf AUTO} [step]
-\item [Usage:] Enables faster typing of BASIC programs.
+\item [Usage:] Enables or disables automatic line numbering during BASIC program entry.
   After submitting a new program line to the BASIC editor with
   \specialkey{RETURN}, the {\bf AUTO} function generates a new BASIC line
   number for the entry of the next line. The new number is
@@ -870,8 +871,11 @@ AUTO     : SWITCH AUTO OFF
 \item [Token:] \$FE \$3B
 \item [Format:] {\bf BACKGROUND} colour
 \item [Usage:] Sets the background colour
-               of the screen to the argument, which must be in the
-               range of 0 to 255. All colours within this range are
+               of the screen.
+
+               {\bf colour} the palette entry number, in the range 0 -- 255
+
+               All colours within this range are
                customisable via the {\bf PALETTE} command. On
                startup, the MEGA65 only has the first 32 colours configured,
                which are described in the following table.
@@ -941,13 +945,15 @@ BACKGROUND  3 : REM SELECT BACKGROUND COLOUR CYAN
 \item [Token:] \$F6
 \item [Format:] {\bf BACKUP U} source {\bf TO U} target \\
                 {\bf BACKUP D} source {\bf TO D} target [{\bf,U} unit]
-\item [Usage:] The first form of {\bf BACKUP}, specifying
-               units for source and target can only be used for the drives
+\item [Usage:] Copies one disk to another.
+
+               The first form of {\bf BACKUP}, specifying
+               units for source and target, can only be used for the drives
                connected to the internal FDC (Floppy Disk Controller).
                Units 8 and 9 are reserved for this controller.
                These can be either the internal floppy drive (unit 8) and
                another floppy drive (unit 9) attached to the same ribbon cable,
-               or mounted D81 disk images. Therefore, {\bf BACKUP} can be used to
+               or mounted D81 disk images. {\bf BACKUP} can be used to
                copy from floppy to floppy, floppy to image, image to floppy
                and image to image, depending on image mounts and the existence of
                a second physical floppy drive.
@@ -956,7 +962,7 @@ BACKGROUND  3 : REM SELECT BACKGROUND COLOUR CYAN
                drives for source and target, is meant to be used for
                dual drive units connected to the IEC bus.
    For example: CBM 4040, 8050, 8250 via an IEEE-488 to IEC adapter.
-   The backup is then done by the disk unit internally.
+   In this case, the backup is then done by the disk unit internally.
 
    {\bf source} unit or drive \# of source disk. \\
    {\bf target} unit or drive \# of target disk.
@@ -996,7 +1002,7 @@ BACKUP D0 TO D1, U10 : REM BACKUP ON DUAL DRIVE CONNECTED VIA IEC
 \ifdefined\printmanual
 the {\bf MEGA65 Book}
 \else
- \bookvref{cha:memory-map}
+\bookvref{cha:memory-map}
 \fi
 for more information.
 \item [Remarks:] A value > 127 selects memory mapped I/O.
@@ -1022,8 +1028,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$18
 \item [Format:] {\bf BEGIN} ... {\bf BEND}
-\item [Usage:] {\bf BEGIN} and {\bf BEND} act as
-               a pair of braces around a compound statement
+\item [Usage:] The beginning of a compound statement
                to be executed after {\bf THEN} or {\bf ELSE}.
                This overcomes the single line limitation of the
                standard {\bf IF} ... {\bf THEN} ... {\bf ELSE} clause.
@@ -1055,8 +1060,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$19
 \item [Format:] {\bf BEGIN} ... {\bf BEND}
-\item [Usage:] {\bf BEGIN} and {\bf BEND} act as
-               a pair of braces around a compound statement
+\item [Usage:] The end of a compound statement
                to be executed after {\bf THEN} or {\bf ELSE}.
                This overcomes the single line limitation of the
                standard {\bf IF} ... {\bf THEN} ... {\bf ELSE} clause.
@@ -1090,7 +1094,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 \item [Format:] {\bf BLOAD} filename [{\bf,B} bank] [{\bf,P} address] [{\bf,R}]
 		[{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   "Binary LOAD" loads a file of type {\bf PRG} into RAM at address P.
+   Loads a file of type {\bf PRG} into RAM at address P. (``Binary load.'')
 
    {\bf BLOAD} has two modes:
    The flat memory address mode can be used to load a program to any
@@ -1115,7 +1119,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
    If not specified, the current bank, as set with the last
    {\bf BANK} statement will be used.
 
-   {\bf address} can be used to override the load address
+   {\bf address} overrides the load address
    that is stored in the first two bytes of the {\bf PRG} file.
 
    \drivedefinition
@@ -1125,7 +1129,7 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
 \item [Remarks:]
    {\bf BLOAD} cannot cross bank boundaries.
 
-{\bf BLOAD} uses the load address from the file, if no P parameter is given.
+{\bf BLOAD} uses the load address from the file if no P parameter is given.
 
 \item [Examples:] Using {\bf BLOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1154,6 +1158,8 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
                 {\bf BOOT SYS} \\
                 {\bf BOOT}
 \item [Usage:]
+   Loads and runs a program or boot sector from a disk.
+
    {\bf BOOT filename} loads a file of type
    {\bf PRG} into RAM at address P and bank B, and starts executing
    the code at the load address.
@@ -1172,7 +1178,7 @@ BLOAD "CHUNK",P($8000000)          :REM LOAD TO ATTIC RAM
    If not specified, the current bank, as set with the last
    {\bf BANK} statement, will be used.
 
-   {\bf address} can be used to override the load address,
+   {\bf address} overrides the load address,
    that is stored in the first two bytes of the {\bf PRG} file.
 
    \drivedefinition
@@ -1208,8 +1214,11 @@ BOOT
 \item [Token:] \$FE \$3C
 \item [Format:] {\bf BORDER} colour
 \item [Usage:] Sets the border colour
-               of the screen to the argument, which must be in the
-               range of 0 to 255. All colours within this range are
+               of the screen.
+
+               {\bf colour} the palette entry number, in the range 0 -- 255
+
+               All colours within this range are
                customisable via the {\bf PALETTE} command. On
                startup, the MEGA65 only has the first 32 colours configured,
                which are described in the table under {\bf BACKGROUND}
@@ -1236,7 +1245,9 @@ BOOT
 \item [Format:] {\bf BOX} x0{\bf,}y0{\bf,} x2{\bf,}y2 [{\bf,} solid] \\
                 {\bf BOX} x0{\bf,}y0{\bf,} x1{\bf,}y1{\bf,}
                 x2{\bf,}y2{\bf,} x3{\bf,}y3 [{\bf,} solid]
-\item [Usage:] The first form of {\bf BOX} with
+\item [Usage:] Bitmap graphics: draws a box.
+
+               The first form of {\bf BOX} with
                two coordinate pairs and an optional {\bf solid} parameter
                draws a simple rectangle, assuming that the
                coordinate pairs declare two diagonally opposite corners.
@@ -1315,7 +1326,7 @@ BOOT
 \item [Format:] {\bf BSAVE} filename{\bf, P} start {\bf TO P} end
                 [{\bf,B} bank] [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   "Binary SAVE" saves a memory range to a file of type {\bf PRG}.
+   Saves a memory range to a file of type {\bf PRG}. (``Binary save.'')
 
    {\bf BSAVE} has two modes:
    The flat memory address mode can be used to save a memory block
@@ -1341,14 +1352,14 @@ BOOT
    to use this option on 1541 and 1571 drives, as they
    contain a "save and replace bug" in their DOS.
 
-    {\bf start} is the first address, where the saving begins.
+    {\bf start} the first address, where the saving begins.
     It also becomes the load address,
     which is stored in the first two bytes of the {\bf PRG} file.
 
    {\bf end} address where the saving ends.
    {\bf end-1} is the last address to be used for saving.
 
-   {\bf bank} specifies the RAM bank to be used.
+   {\bf bank} the RAM bank to be used.
    If not specified, the current bank, as set with the last
    {\bf BANK} statement, will be used.
 
@@ -1388,12 +1399,13 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 
 \newpage
 \subsection{BUMP}
-\index{BASIC 65 Commands!BUMP}
+\index{BASIC 65 Functions!BUMP}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$03
 \item [Format:] {\bf BUMP(}type{\bf )}
-\item [Usage:] Used to detect sprite-sprite (type=1) or sprite-screendata (type=2)
-  collisions.
+\item [Usage:] A bitfield of sprites currently colliding with other
+  sprites (type=1) or screen data (type=2).
+
   Each bit set in the returned value indicates that the
   sprite corresponding to that bit position was involved in a collision
   since the last call of {\bf BUMP}.
@@ -1449,8 +1461,8 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 \item [Format:] {\bf BVERIFY} filename [{\bf,P} address]
                 [{\bf,B} bank] [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   "Binary VERIFY" compares a memory range to
-   a file of type {\bf PRG}.
+   Compares a memory range to
+   a file of type {\bf PRG}. (``Binary verify.'')
 
    \filenamedefinition
 
@@ -1628,8 +1640,9 @@ width=28mm,height=3mm,valign=center]
 \item [Token:] \$FE \$2C
 \item [Format:] {\bf CHANGE /}findstring{\bf/ TO /}replacestring{\bf/} [{\bf,} line range] \\
 		{\bf CHANGE "}findstring{\bf" TO "}replacestring{\bf"} [{\bf,} line range]
-\item [Usage:]  {\bf CHANGE} performs a {\bf find and replace} of the BASIC program
-                that is currently in memory.
+\item [Usage:]  Edits the BASIC program
+                that is currently in memory to replace all instances of one string with another.
+
    An optional {\bf line range} limits the search to this range,
    otherwise the entire BASIC program is searched.
    At each occurrence of the {\bf findstring}, the line is
@@ -1678,8 +1691,7 @@ CHANGE &IN& TO &OUT&
 \item [Token:] \$E0
 \item [Format:] {\bf CHAR} column{\bf,} row{\bf,} height{\bf,} width{\bf,}
 		direction{\bf,} string [{\bf,} address of character set]
-\item [Usage:]  Displays text on a graphic screen.
-                It can be used in all resolutions.
+\item [Usage:]  Bitmap graphics: displays text on a graphic screen.
 
                 {\bf column} (in units of character positions) is the
                 start position of the output horizontally.
@@ -1787,10 +1799,11 @@ Will print the text "MEGA65" at the centre of a 640 x 400 graphic screen.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E0 \$96
 \item [Format:] {\bf CHARDEF} index, bit-matrix
-\item [Usage:] Change the bitmap matrix of characters
+\item [Usage:] Changes the appearance of a character.
 
-      {\bf index} is the character number in display code,
-      (@:0, A:1, B:2, ...)
+      {\bf index} is the screen code of the character to change
+      (@:0, A:1, B:2, ...).
+      % TODO: link to screen code reference when we have one
 
       {\bf bit-matrix} is a set of 8 byte values, which define
       the raster representation for the character from top row to bottom row.
@@ -1823,7 +1836,7 @@ CHARDEF 9,$18,$18,$18,$18,$18,$18,$18,$00 :REM MAKE 'I' SANS SERIF
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$4B
 \item [Format:] {\bf CHDIR} dirname [{\bf,U} unit]
-\item [Usage:] Change to a subdirectory or a parent directory.
+\item [Usage:] Changes the current working directory.
 
    \filenamedefinition
 
@@ -1831,11 +1844,11 @@ CHARDEF 9,$18,$18,$18,$18,$18,$18,$18,$00 :REM MAKE 'I' SANS SERIF
    different filesystems.
 
    {\bf UNIT 12} is reserved for the SD-Card (FAT filesystem).
-   There this command can be used to navigate to subdirectories
-   and mount disk images, that are stored there.
+   This command can be used to navigate to subdirectories
+   and mount disk images that are stored there.
    {\bf CHDIR "..",U12} changes to the parent directory on {\bf UNIT 12}.
 
-   For units, that are managed by CBDOS (typically 8 and 9),
+   For other units managed by CBDOS (typically 8 and 9),
    {\bf CHDIR} is used to change into or out of subdirectories
    on floppy or disk image of type {\bf D81}.
    Existing subdirectories are displayed as filetype {\bf CBM}
@@ -1879,15 +1892,15 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \newpage
 \index{Keyboard!PETSCII Codes and CHR\$}
 \subsection{CHR\$}
-\index{BASIC 65 Functions!CHR}
+\index{BASIC 65 Functions!CHR\$}
 \label{BASIC 65 Functions!CHR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C1
 \item [Format:] {\bf CHR\$(}numeric expression{\bf)}
-\item [Usage:] Returns a string containing one character, whose PETSCII
-               value is equal to the argument.
+\item [Usage:] A string containing one character of the given PETSCII
+               value.
 
-\item [Remarks:] The argument range is from 0 - 255, so this function may
+\item [Remarks:] The argument range is from 0 -- 255, so this function may
                  also be used to insert control codes into strings.
                  Even the NULL character, with code 0, is allowed. \\
                  {\bf CHR\$} is the inverse function to {\bf ASC}.
@@ -1916,17 +1929,19 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \item [Token:] \$E2
 \item [Format:] {\bf CIRCLE} xc{\bf,} yc{\bf,} radius [{\bf,} flags
                 {\bf,} start{\bf,} stop]
-\item [Usage:] A special case of
+\item [Usage:] Bitmap graphics: draws a circle.
+
+               This is a special case of
                {\bf ELLIPSE}, using the same value for
                horizontal and vertical radius.
 
-               {\bf xc} is the x coordinate of the centre in pixels
+               {\bf xc} the x coordinate of the centre in pixels
 
-               {\bf yc} is the y coordinate of the centre in pixels
+               {\bf yc} the y coordinate of the centre in pixels
 
-               {\bf radius} is the radius of the circle in pixels
+               {\bf radius} the radius of the circle in pixels
 
-               {\bf flags} control filling, arcs and
+               {\bf flags} controls filling, arcs and
                            the position of the 0 degree angle.
                Default setting (zero) is don't fill, draw legs
                and the 0 degree radian points to 3 o' clock.
@@ -1949,9 +1964,9 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
                Setting bit 2 of flags (value 4) moves the zero-radian
                to the 12 o' clock position.
 
-               {\bf start} start angle for drawing an arc.
+               {\bf start} start angle for drawing an arc
 
-               {\bf stop} stop angle for drawing an arc.
+               {\bf stop} stop angle for drawing an arc
 
 
 
@@ -2017,7 +2032,7 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
                {\bf CLOSE} flushes output buffers and
                updates the directory information on disks.
                Failing to {\bf CLOSE} can corrupt files and disks.
-               BASIC does NOT automatically close channels nor files
+               BASIC does {\em not} automatically close channels nor files
                when a program stops.
 
 \item [Example:] Using {\bf CLOSE}
@@ -2042,10 +2057,11 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \item [Token:] \$9C
 \item [Format:] {\bf CLR} \\
                 {\bf CLR} variable
-\item [Usage:] Used for management of BASIC variables, arrays
-               and strings. The run-time stack pointers,
-               and the table of open channels is reset.
-               After executing {\bf CLR} all variables and arrays will be undeclared.
+\item [Usage:] Clears BASIC variable memory.
+
+               After executing {\bf CLR}, all variables and arrays will be undeclared.
+               The run-time stack pointers
+               and the table of open channels are also reset.
                {\bf RUN} performs {\bf CLR} automatically.
 
                {\bf CLR variable} clears (zeroes) the variable.
@@ -2124,7 +2140,9 @@ RUN
 \item [Token:] \$9D
 \item [Format:] {\bf CMD} channel [{\bf,} string]
 \item [Usage:] Redirects the standard output
-               from screen to a channel. This enables you to
+               from screen to a channel.
+
+               This enables you to
                print listings and directories to other output channels.
                It is also possible to redirect this output to a disk file,
                or a modem.
@@ -2166,8 +2184,8 @@ CLOSE 1
 \item [Token:] \$F3
 \item [Format:] {\bf COLLECT} [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   Rebuilds the {\bf BAM}
-   (Block Availability Map) of a disk, deleting splat files (files which have been opened,
+   Rebuilds the Block Availability Map (BAM)
+   of a disk, deleting splat files (files which have been opened,
    but not properly closed) and marking unused blocks as free.
 
    \drivedefinition
@@ -2203,18 +2221,14 @@ CLOSE 1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$17
 \item [Format:] {\bf COLLISION} type [{\bf,} line number]
-\item [Usage:]  Enables or disables a user-programmed interrupt handler.
-                A call without the line number argument disables the handler,
-                while a call with line number enables it.
-                After the execution of {\bf COLLISION} with
-                line number, a sprite collision of the same type,
-                (as specified in the {\bf COLLISION} call)
+\item [Usage:]  Enables or disables a user-programmed interrupt handler for sprite collision.
+
+                With a handler enabled, a sprite collision of the given {\bf type}
                 interrupts the BASIC program and performs a {\bf GOSUB}
-                to {\bf line number}, which is expected to handle
-                the sprite collisions.
+                to {\bf line number}.
                 This handler must give control back with {\bf RETURN}.
 
-                {\bf type} specifies the collision type for
+                {\bf type} the collision type for
                 this interrupt handler:
                     \begin{center}
                     \begin{tabular}{|r|l|}
@@ -2228,9 +2242,11 @@ CLOSE 1
                     \end{tabular}
                     \end{center}
 
-                {\bf linenumber} must point to a subroutine
+                {\bf line number} the line number of a subroutine
                 which handles the sprite collision
-                and ends with {\bf RETURN}.
+                and ends with {\bf RETURN}
+
+                A call without the line number argument disables the handler.
 
 \item [Remarks:] It is possible to enable the interrupt handler for
                all types, but only one can execute at any time.
@@ -2240,9 +2256,7 @@ CLOSE 1
                {\bf RSPPOS} may be used for evaluation of the sprites
                which are involved, and their positions.
 
-\item [Info:] {\bf COLLISION} wasn't completed in BASIC 10, and
-               a working implementation will be available in a future BASIC 65 update.
-
+\item [Info:] {\bf COLLISION} wasn't completed in BASIC 10. It is available in BASIC 65.
 
 \item [Example:] Using {\bf COLLISION}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2270,13 +2284,15 @@ CLOSE 1
 \index{BASIC 65 Commands!COLOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E7
-\item [Format:] {\bf COLOR} colour-index
-\item [Usage:] The command works in the same way as {\bf FOREGROUND},
-               i.e: sets the foreground colour
-               (text colour) of the screen to the colour argument, which
-                must be in the range of 0 to 31. Refer to the table
-               under {\bf BACKGROUND} on page \pageref{colourtable} for
-               the colour values and their corresponding colours.
+\item [Format:] {\bf COLOR} colour
+\item [Usage:] Sets the foreground text colour for subsequent {\bf PRINT} commands.
+
+               {\bf colour} the palette entry number, in the range 0 -- 255
+
+               Refer to the table under {\bf BACKGROUND} on page \pageref{colourtable} for
+               the palette entry numebrs and their corresponding colours in the default system palette.
+
+\item [Remarks:] This is another name for {\bf FOREGROUND}.
 
 \item [Example:] Using {\bf COLOR}
 \item \begin{center}\includegraphics[width=0.8\linewidth]{images/colour-example.png}\end{center}
@@ -2294,8 +2310,8 @@ CLOSE 1
 \item [Format:] {\bf CONCAT} appendfile [{\bf,D} drive] {\bf TO}
                 targetfile [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   {\bf CONCAT} (concatenation) appends the contents of
-   {\bf appendfile} to the {\bf targetfile}. Afterwards, {\bf targetfile}
+   Appends (concatenates) the contents of the file
+   {\bf appendfile} to the file {\bf targetfile}. Afterwards, {\bf targetfile}
    contains the contents of both files, while {\bf appendfile}
    remains unchanged.
 
@@ -2340,10 +2356,11 @@ CLOSE 1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9A
 \item [Format:] {\bf CONT}
-\item [Usage:] Used to resume
+\item [Usage:] Resumes
                program execution after a break or stop caused by
                an {\bf END} or {\bf STOP} statement, or by pressing
                \specialkey{RUN STOP}.
+
                This is a useful debugging tool. The BASIC program may be stopped
                and variables can be examined, and even changed.
                The {\bf CONT} statement resumes execution.
@@ -2380,10 +2397,7 @@ CONT
 \item [Format:] {\bf COPY} source [{\bf,D} drive] [{\bf,U} unit] {\bf TO}
                 [target] [{\bf ,D} drive] [{\bf ,U} unit]
 \item [Usage:]
-   Copies the contents of
-   {\bf source} to {\bf target}.
-   It is used to copy either single files or, by using
-   wildcard characters, multiple files.
+   Copies a file to another file, or one or more files from one disk to another.
 
    {\bf source} is either a quoted string, e.g. \screentext{"DATA"} or
    a string expression in brackets, e.g. \screentext{(FI\$)}.
@@ -2400,8 +2414,8 @@ CONT
    itself, and the source and target files will be on the same disk.
 
    If the source unit (before TO) is different to the target unit (after TO),
-   {\bf COPY} is executed in MEGA65 BASIC by reading the source
-   files into a RAM buffer and writing to the target unit. In this case,
+   {\bf COPY} executes a CPU-driven routine that reads the source
+   files into a RAM buffer and writes to the target unit. In this case,
    the target file name cannot be chosen, it will be the same as the
    source filename. The extended unit-to-unit copy mode allows the copying of
    single files, pattern matching files or all files of a disk.
@@ -2441,11 +2455,12 @@ CONT
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BE
 \item [Format:] {\bf COS(}numeric expression{\bf )}
-\item [Usage:] Returns the cosine of the argument.
+\item [Usage:] The cosine of an angle.
+
                The argument is expected in units of radians.
                The result is in the range (-1.0 to +1.0)
 
-\item [Remarks:] An argument in units of {\bf degrees}
+\item [Remarks:] A value in units of {\bf degrees}
                  can be converted to {\bf radians}
                  by multiplying it with $\pi/180$.
 \item [Examples:] Using {\bf COS}
@@ -2470,16 +2485,13 @@ X=60:PRINT COS(X * ~ / 180)
 \index{BASIC 65 Commands!CURSOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 %\item [Token:] \$??
-\item [Format:] {\bf CURSOR} <{\bf ON} | {\bf OFF}> [\{{\bf,} column{\bf,} row{\bf,} style\}] \\
-		{\bf CURSOR} \{column{\bf,} row{\bf,} style\}
+\item [Format:] {\bf CURSOR} \{column{\bf,} row{\bf,} style\}
 \item [Usage:] Moves the text cursor to
                the specified position on the current text screen.
 
-               {\bf ON} or {\bf OFF} displays or hides the cursor.
-
                {\bf column} and {\bf row} specify the new position.
 
-               {\bf style} defines a solid (1) or flashing (0) cursor.
+               {\bf style} sets a solid (1) or flashing (0) cursor.
 %\item [Remarks:]
 % Ignore line 100's REM statement indentation. Needed to be there to be aligned in the PDF - Impakt
 \item [Example:] Using {\bf CURSOR}
@@ -2513,17 +2525,17 @@ X=60:PRINT COS(X * ~ / 180)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E4
 \item [Format:] {\bf CUT} x{\bf,} y{\bf,} width{\bf,} height
-\item [Usage:] {\bf CUT} is used on graphic screens and copies the content
+\item [Usage:] Bitmap graphics: copies the content
                of the specified rectangle
                with upper left position {\bf x, y} and the {\bf width}
-               and {\bf height} to a buffer and fills the region
+               and {\bf height} to a buffer, and fills the region
                afterwards with the colour of the currently selected pen.
 
                The cut out can be inserted at any position with the
                command {\bf PASTE}.
 
 \item [Remarks:] The size of the rectangle is limited by the 1K size of
-                 the cut/copy/paste buffer. The memory requirement for
+                 the buffer. The memory requirement for
                  a cut out region is width * height * number of bitplanes / 8.
                  It must not equal or exceed 1024 byte.
                  For a 4-bitplane screen for example, a 45 x 45 region
@@ -2555,9 +2567,11 @@ X=60:PRINT COS(X * ~ / 180)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$83
 \item [Format:] {\bf DATA} [constant [{\bf,} constant ...]]
-\item [Usage:] Used to define constants
+\item [Usage:] Defines constants
                which can be read by {\bf READ} statements
-               in a program. Numbers and strings are allowed, but expressions are not.
+               in a program.
+
+               Numbers and strings are allowed, but expressions are not.
                Items are separated by commas.
                Strings containing commas, colons or spaces must be placed
                in quotes.
@@ -2685,8 +2699,9 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D1
 \item [Format:] {\bf DEC(}string expression{\bf)}
-\item [Usage:] Returns the decimal value
-               of the argument, that is written as a hex string.
+\item [Usage:] The decimal value
+               of a hexadecimal string.
+
                The argument range is "0000" to "FFFF" (0 to 65535 in decimal).
                The argument must have 1-4 hex digits.
 
@@ -2698,7 +2713,8 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \verbatimfont{\codefont}
 \begin{verbatim}
   PRINT DEC("D000")
-   53248
+  53248
+
   POKE DEC("600"),255
 \end{verbatim}
 \end{tcolorbox}
@@ -2717,15 +2733,16 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \item [Format:] {\bf DEF FN} name{\bf(}real variable{\bf) =} [expression]
 \item [Usage:] Defines a single statement
                user function with one argument of type real,
-               returning a real value.
+               that returns a real value when evaluated.
+
                The definition must be executed before the function
                can be used in expressions. The argument is
                a dummy variable, which will be replaced by the
                argument when the function is used.
 
-\item [Remarks:] The value of the dummy variable will not change
-                 and the variable may be used in other contexts
-                 without side effects.
+\item [Remarks:] The function argument is not a real variable and will
+               not overwrite a variable with that name. It only represents
+               the argument value within the function definition.
 
 \item [Example:] Using {\bf DEF FN}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2760,8 +2777,9 @@ RUN
 \item [Token:] \$F7
 \item [Format:] {\bf DELETE} [line range] \\
                 {\bf DELETE} filename [{\bf,D} drive] [{\bf,U} unit] [{\bf,R}]
-\item [Usage:] Used to either delete
-               a range of lines from the BASIC program or to delete files from disk.
+\item [Usage:] The first form deletes
+               a range of lines from the BASIC program.
+               The second form deletes one or more files from a disk.
 
                {\bf line range} consists of the first and last
                line to delete, or a single line number.
@@ -2813,6 +2831,7 @@ RUN
 \item [Format:] {\bf DIM} name{\bf(}limits{\bf)} [{\bf,} name{\bf(}limits{\bf)} ...]
 \item [Usage:] Declares the shape,
                bounds and the type of a BASIC array.
+
                As a declaration statement, it must be executed
                only once and before any usage of the declared arrays.
                An array can have one or more dimensions.
@@ -2896,37 +2915,6 @@ RUN
 
 \item [Examples:] Using {\bf DIR}
 
-% Character test
-
-%\begin{tcolorbox}[colback=black,coltext=white]
-%\verbatimfont{\codefont}
-%\begin{verbatim}
-%
-% !"#$%&'()*+,-./
-%0123456789:;<=>?
-%@ABCDEFGHIJKLMNO
-%PQRSTUVWXYZ[\]^_
-%`abcdefghijklmno
-%pqrstuvwxyz{|}~
-%
-%ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ
-%ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß
-%àáâãäåæçèéêëìíîï
-%ðñòóôõö÷øùúûüýþÿ
-%
-%ĀāĂăĄąĆćĈĉĊċČčĎď
-%ĐđĒēĔĕĖėĘęĚěĜĝĞğ
-%ĠġĢģĤĥĦħĨĩĪīĬĭĮį
-%İıĲĳĴĵĶķĸĹĺĻļĽľĿ
-%
-%ŀŁłŃńŅņŇňŉŊŋŌōŎŏ
-%ŐőŒœŔŕŖŗŘřŚśŜŝŞş
-%ŠšŢţŤťŦŧŨũŪūŬŭŮů
-%ŰűŲųŴŵŶŷŸŹźŻżŽžſ
-%
-%\end{verbatim}
-%\end{tcolorbox}
-
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -2951,7 +2939,6 @@ DIR
 
 For a {\bf DIR} listing with the {\bf w}ide parameter, please refer to the example under {\bf CATALOG}
 on page \pageref{3columndirlisting}.
-%\includegraphics[width=\linewidth]{images/directory.png}
 
 \end{description}
 
@@ -2967,7 +2954,6 @@ on page \pageref{3columndirlisting}.
 \item [Format:] {\bf DISK} command [{\bf,U} unit] \\
                 \megakey{@} command [{\bf,U} unit]
 \item [Usage:]
-
    Sends a command string to the specified disk unit.
 
    \unitdefinition
@@ -3007,10 +2993,10 @@ on page \pageref{3columndirlisting}.
                 {\bf DLOAD} "\$\$[pattern=type]" [{\bf,D} drive] [{\bf,U} unit]
 
 \item [Usage:] The first form loads a file of type
-   {\bf PRG} into memory reserved for BASIC programs.
+   PRG into memory reserved for BASIC programs.
 
 The second form loads a directory into memory, which can then be viewed
-with {\bf LIST} or {\bf LISTP}. It is structured like a BASIC program,
+with {\bf LIST}. It is structured like a BASIC program,
 but file sizes are displayed instead of line numbers.
 
 The third form is similar to the second one, but the files are numbered.
@@ -3029,12 +3015,13 @@ or Relative file.
    \unitdefinition
 
 \item [Remarks:]
-   The load address, which is stored in the first two bytes
-   of the file is ignored. The program is loaded into
+   The load address that is stored in the first two bytes
+   of the PRG file is ignored. The program is always loaded into
    BASIC memory. This enables loading of BASIC programs
    that were saved on other computers with different memory
    configurations. After loading, the program is re-linked
    and ready to be {\bf RUN} or edited.
+
    It is possible to use {\bf DLOAD} in a running program. This is
    called overlaying, or chaining.
    If you do this, then the newly loaded program replaces the current one,
@@ -3042,8 +3029,8 @@ or Relative file.
    new program. Variables, arrays and strings from the current
    run are preserved and can also be used by the newly loaded program.
 
-   Every {\bf DLOAD} either program or directory, will replace
-   contents (programs), that are currently in memory.
+   Every {\bf DLOAD}, of either a program or a directory listing, will replace
+   a program that is currently in memory.
 
 \item [Examples:] Using {\bf DLOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3120,7 +3107,8 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Format:] {\bf DMODE} jam{\bf,} complement{\bf,}
 		stencil{\bf,} style{\bf,} thick
 \item [Usage:]
-   "Display MODE" sets several parameters of the graphics context, which is used by drawing commands.
+   Bitmap graphics: sets ``display mode'' parameters of the graphics
+   context, which is used by drawing commands.
 
 \begin{center}
 \begin{tabular}{|l|l|}
@@ -3152,6 +3140,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
                 {\bf LOOP} [<{\bf UNTIL} | {\bf WHILE}> logical expression]
 \item [Usage:] {\bf DO} and {\bf LOOP} define
                the start of a BASIC loop.
+
                Using {\bf DO} and {\bf LOOP} alone without any
                modifiers creates an infinite loop, which can only be exited
                by the {\bf EXIT} statement. The loop can be
@@ -3203,7 +3192,9 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
     \end{itemize}
 
    {\bf L} indicates, that the file is a relative file, which
-   is opened for read/write, as well as random access. The reclength
+   is opened for read/write, as well as random access.
+
+   The {\bf reclen} record length
    is mandatory for creating relative files. For existing
    relative files, {\bf reclen} is used as a safety check, if given.
 
@@ -3253,7 +3244,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$4C
 \item [Format:] {\bf DOT} x{\bf,} y [{\bf,}colour]
-\item [Usage:] Draws a pixel at screen coordinates x and y.
+\item [Usage:] Bitmap graphics: draws a pixel at screen coordinates x and y.
                The optional third parameter defines the colour
                to be used. If not specified, the current
                pen colour will be used.
@@ -3286,7 +3277,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Token:] \$FE \$36
 \item [Format:] {\bf DPAT} type [{\bf,} number{\bf,} pattern ...]
 \item [Usage:]
-   "Drawing PATtern" sets the pattern
+   Bitmap graphics: sets the drawing pattern
    of the graphics context for drawing commands.
 
    There a four predefined pattern types, that can be selected
@@ -3313,12 +3304,15 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{BASIC 65 System Variables!DS}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf DS}
-\item [Usage:]  {\bf DS} holds the status of the last disk operation.
-                It is a volatile variable.
+\item [Usage:]  The status of the last disk operation.
+
+                This is a volatile variable.
                 Each use triggers the reading of the disk status
                 from the current disk device in usage.
+
                 {\bf DS} is coupled to the string variable {\bf DS\$}
                 which is updated at the same time.
+
                 Reading the disk status from a disk device automatically
                 clears any error status on that device, so subsequent reads
                 will return 0, if no other activity has since occurred.
@@ -3343,7 +3337,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{BASIC 65 System Variables!DS\$}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf DS\$}
-\item [Usage:]  {\bf DS\$} holds the status of the last disk operation
+\item [Usage:]  The status of the last disk operation
                 in text form of the format:
                 Code,Message,Track,Sector.
 
@@ -3375,7 +3369,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \item [Token:] \$EF
 \item [Format:] {\bf DSAVE} filename [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   "Disk SAVE" saves the BASIC program to
+   Saves the BASIC program in memory to
    a file of type {\bf PRG}.
 
    \filenamedefinition
@@ -3414,19 +3408,19 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \index{BASIC 65 System Variables!DT\$}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf DT\$}
-\item [Usage:]  {\bf DT\$} holds the current date and is updated before
-                each usage from the RTC (Real-Time Clock).
+\item [Usage:]  The current date, as a string.
+
+                The date value is updated from RTC (Real-Time Clock).
                 The string {\bf DT\$} is formatted as:
                 "DD-MON-YYYY", for example: "04-APR-2021".
 \item[Remarks:] {\bf DT\$} is a reserved system variable.
                 For more information on how to set the Real-Time Clock,
                 refer to
 \ifdefined\printmanual
-the {\bf MEGA65 Book}
+the {\bf MEGA65 Book}.
 \else
- \bookvref{sec:configuration-utility}
+ \bookvref{sec:configuration-utility}.
 \fi
-				.
 
 \item [Example:] Using {\bf DT\$}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3448,8 +3442,8 @@ the {\bf MEGA65 Book}
 \item [Token:] \$FE \$14
 \item [Format:] {\bf DVERIFY} filename [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   "Disk VERIFY" compares the BASIC program
-   in memory with a disk file of type {\bf PRG}.
+   Verifies that the BASIC program
+   in memory is equivalent to a file of type {\bf PRG}.
 
    \filenamedefinition
 
@@ -3484,42 +3478,34 @@ the {\bf MEGA65 Book}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf EDIT} <{\bf ON} | {\bf OFF}>
 
-\item [Usage:]  {\bf EDIT} switches the built-in editor
-               either to text mode with {\bf EDIT ON},
-               or to the BASIC program editor with{\bf EDIT OFF}.
+\item [Usage:] Enables or disables the text editing mode of the screen editor.
 
-               After power up or reset, the editor
-               is initialised as BASIC program editor.
+{\bf EDIT ON} enables text editing mode. In this mode, you can create, edit,
+save, and load files of type SEQ as text files using the same line editor that
+you use to write BASIC programs. In this mode:
+\begin{itemize}
+\item The prompt appears as \screentext{OK}, instead of \screentext{READY.}
+\item The editor does no
+tokenising/parsing. All text entered after a linenumber remains pure text,
+BASIC keywords such as {\bf FOR} and {\bf GOTO} are not converted to BASIC
+tokens, as they are whilst in program mode.
+\item The line numbers are only used for text organisation,
+sorting, deleting, listing, etc.
+\item When the text is saved to file with {\bf DSAVE},
+a sequential file (type {\bf SEQ}) is written, not a
+program ({\bf PRG}) file. Line numbers are {\em not} written to the file.
+\item {\bf DLOAD} in text mode can load only sequential files.
+Line numbers are automatically generated for editing purposes.
+\item Text mode applies to lines entered with line numbers only.
+Lines with no line number are executed as BASIC commands,
+as usual.
+\end{itemize}
 
-               After setting the editor to text mode with
-               {\bf EDIT ON}, the differences to program mode are:
+{\bf EDIT OFF} disables text editing mode and returns to BASIC program editing
+mode. The MEGA65 starts in BASIC program editing mode.
 
-               The editor does no tokenising/parsing.
-               All text entered after a linenumber remains pure text,
-               BASIC keywords such as {\bf FOR} and {\bf GOTO} are not
-               converted to BASIC tokens, as they are whilst in program mode.
-
-               The line numbers are only used for text organisation,
-               sorting, deleting, listing etc.
-               When the text is saved to file with {\bf DSAVE},
-               a sequential file (type {\bf SEQ}) is written, not a
-               program ({\bf PRG}) file, which is how they're written whilst in program mode.
-               Line numbers are not written to the file.
-
-               {\bf DLOAD} in text mode can load only sequential files.
-               Line numbers are automatically generated for editing purposes.
-
-               The mode of the editor can be recognised by looking at the prompt:
-               In program mode, the prompt is \screentext{READY.}, whilst in text mode
-               the prompt is \screentext{OK}.
-
-               Text mode affects entered lines with leading numbers only,
-               lines with no line number are executed as BASIC commands,
-               as usual.
-
-               Sequential files, created with the text editor, can be displayed
-               (without loading them)
-               on the screen by using {\bf TYPE <filename>}.
+Sequential files created with the text editor can be displayed
+(without loading them) on the screen by using {\bf TYPE <filename>}.
 
 \newpage
 
@@ -3574,8 +3560,10 @@ ok.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$21
 \item [Format:] {\bf EDMA} command{\bf,} length{\bf,} source{\bf,}
-                 target [{\bf,} sub{\bf,} mod]
+                 target
 \item [Usage:]
+   Copies or updates a large amount of memory quickly.
+
    {\bf EDMA} ("Extended Direct Memory Access") is the fastest method
    to manipulate memory areas using the DMA controller. Please refer to
 \ifdefined\printmanual
@@ -3598,10 +3586,6 @@ the {\bf MEGA65 Book}
 
    {\bf target} 28-bit address of write area.
 
-   {\bf sub} sub command (see chapter on DMA controller in the MEGA65 Book).
-
-   {\bf mod} modifier (see chapter on DMA controller in the MEGA65 Book).
-
 \item [Remarks:]
 {\bf EDMA} can access the entire 256MB address range,
 using up to 28 bits for the addresses of the source and target.
@@ -3615,7 +3599,7 @@ EDMA 0, 80*25, 2048, $8000800 :REM COPY SCREEN TO ATTIC RAM
 \end{verbatim}
 \end{tcolorbox}
 
-   By adding 32 (bit 5) to the command parameter, the dma operation can be
+   By adding 32 (bit 5) to the command parameter, the DMA operation can be
    performed in reverse order:
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -3645,7 +3629,7 @@ EDMA 0, 80*25, 2048, $8000800 :REM COPY SCREEN TO ATTIC RAM
 \index{BASIC 65 System Variables!EL}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf EL}
-\item [Usage:]  {\bf EL} has the value of the line where
+\item [Usage:] The line number where
                the most recent BASIC error occurred,
                 or the value -1 if there was no error.
 \item [Remarks:] {\bf EL} is a reserved system variable.
@@ -3679,7 +3663,7 @@ where the error line is taken from {\bf EL}.
 \item [Token:] \$FE \$30
 \item [Format:] {\bf ELLIPSE} xc{\bf,} yc{\bf,} xr{\bf,} yr
 		[{\bf,} flags {\bf,} start{\bf,} stop]
-\item [Usage:] Draws an ellipse.
+\item [Usage:] Bitmap graphics: draws an ellipse.
 
                {\bf xc} is the x coordinate of the centre in pixels
 
@@ -3748,6 +3732,7 @@ where the error line is taken from {\bf EL}.
 \item \begin{center}\includegraphics[width=0.7\linewidth]{images/ellipse.png}\end{center}
 
 \end{description}
+
 % ****
 % ELSE
 % ****
@@ -3758,7 +3743,7 @@ where the error line is taken from {\bf EL}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D5
 \item [Format:] {\bf IF} expression {\bf THEN} true clause
-		[{\bf ELSE} false clause]
+		[{\bf :ELSE} false clause]
 \item [Usage:] {\bf ELSE} is an optional part of an {\bf IF}
                statement.
 
@@ -3834,16 +3819,18 @@ where the error line is taken from {\bf EL}.
 \item [Token:] \$80
 \item [Format:] {\bf END}
 \item [Usage:] Ends the execution
-               of the BASIC program. The \screentext{READY.} prompt
+               of the BASIC program.
+
+               The \screentext{READY.} prompt
                appears and the computer goes into direct mode
                waiting for keyboard input.
 
 \item [Remarks:]
                {\bf END} does {\bf not} clear channels nor close files.
-               Also, variable definitions are still valid after {\bf END}.
+               Variable definitions are still valid after {\bf END}.
                The program may be continued with the {\bf CONT}
                statement. After executing the last line of a
-               program, {\bf END} is automatically executed.
+               program, {\bf END} is executed automatically.
 
 
 \item [Example:]
@@ -3868,9 +3855,8 @@ where the error line is taken from {\bf EL}.
 \item [Token:] \$FE \$0A
 \item [Format:] {\bf ENVELOPE} n [\{{\bf,} attack{\bf,} decay{\bf,}
 		sustain{\bf,} release{\bf,} waveform{\bf,} pw\}]
-\item [Usage:] Used to define
-               the parameters for the synthesis of a musical
-               instrument.
+\item [Usage:] Sets the parameters for the synthesis of a musical
+               instrument for use with {\bf PLAY}.
 
       {\bf n} envelope slot (0-9).
 
@@ -3931,7 +3917,7 @@ where the error line is taken from {\bf EL}.
 \index{BASIC 65 System Variables!ER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf ER}
-\item [Usage:]  {\bf ER} has the value of the most recent BASIC error that has
+\item [Usage:] The number of the most recent BASIC error that has
                occurred, or -1 if there was no error.
 \item [Remarks:] {\bf ER} is a reserved system variable.
 
@@ -3964,7 +3950,7 @@ where the error number is taken from {\bf ER}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2A
 \item [Format:] {\bf ERASE} filename [{\bf,D} drive] [{\bf,U} unit] [{\bf,R}]
-\item [Usage:] Used to erase a disk file.
+\item [Usage:] Erases (deletes) a disk file.
 
    \filenamedefinition
 
@@ -3980,9 +3966,9 @@ where the error number is taken from {\bf ER}.
 \item [Remarks:] {\bf ERASE filename} is a synonym of {\bf SCRATCH filename}
                   and {\bf DELETE filename}.
 
-   In direct mode the success and the number of erased files is printed.
+   In direct mode, the success and the number of erased files is printed.
                  The second to last number from the message
-                 contains the number of successfully erased files,
+                 contains the number of successfully erased files.
 
 \item [Examples:] Using {\bf ERASE}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4008,10 +3994,9 @@ ERASE "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D3
 \item [Format:] {\bf ERR\$(}number{\bf)}
-\item [Usage:] Used to convert
-               an error number to an error string.
+\item [Usage:] The string description of a given BASIC error number.
 
-   {\bf number} is a BASIC error number (1-41).
+   {\bf number} a BASIC error number (1-41)
 
 This function is typically used in a {\bf TRAP} routine,
 where the error number is taken from the reserved variable {\bf ER}.
@@ -4081,8 +4066,7 @@ where the error number is taken from the reserved variable {\bf ER}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BD
 \item [Format:] {\bf EXP(}numeric expression{\bf)}
-\item [Usage:] The {\bf EXP} (EXPonential function) computes
-               the value of the mathematical constant
+\item [Usage:] The value of the mathematical constant
                Euler's number ({\bf 2.71828183})
                raised to the power of the
                argument.
@@ -4115,7 +4099,7 @@ PRINT EXP(LOG(2))
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$25
 \item [Format:] {\bf FAST} [speed]
-\item [Usage:] Set CPU clock to 1MHz, 3.5MHz or 40MHz.
+\item [Usage:] Sets CPU clock speed to 1MHz, 3.5MHz or 40MHz.
 
                 {\bf speed} CPU clock speed where:
                 \begin{itemize}
@@ -4154,11 +4138,12 @@ PRINT EXP(LOG(2))
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$48
 \item [Format:] {\bf FGOSUB} numeric expression
-\item [Usage:] Evaluates the given numeric expression, then calls ({\bf GOSUB}s) the subroutine at the resulting line number.
+\item [Usage:] Evaluates the given numeric expression, then
+    calls ({\bf GOSUB}s) the subroutine at the resulting line number.
 
-\item [Warning:] Using this feature can break your program if {\bf RENUMBER}
-is applied, as line numbers may change and the
-numeric expression will no longer address your intended line numbers.
+\item [Warning:] Take care when using {\bf RENUMBER} to change the line
+numbers of your program that any {\bf FGOSUB} statements still use the
+intended numbers.
 
 \item [Example:] Using {\bf FGOSUB}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4186,9 +4171,9 @@ numeric expression will no longer address your intended line numbers.
 \item [Format:] {\bf FGOTO} numeric expression
 \item [Usage:] Evaluates the given numeric expression, then jumps ({\bf GO}es{\bf TO}) to the resulting line number.
 
-\item [Warning:] Using this feature can break your program if {\bf RENUMBER}
-                 is applied, as line numbers may change and the
-                 numeric expression will no longer address your intended line numbers.
+\item [Warning:] Take care when using {\bf RENUMBER} to change the line
+numbers of your program that any {\bf FGOTO} statements still use the
+intended numbers.
 
 \item [Example:] Using {\bf FGOTO}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4269,11 +4254,15 @@ numeric expression will no longer address your intended line numbers.
 \item [Token:] \$FE \$2B
 \item [Format:] {\bf FIND /}string{\bf/} [{\bf,} line range] \\
 		{\bf FIND "}string{\bf"} [{\bf,} line range]
-\item [Usage:]  {\bf FIND} is an editor command that can only be used
-                in direct mode. It searches a given line range
+\item [Usage:]  Searches the BASIC program that is currently in memory for all
+                instances of a string.
+
+                It searches a given line range
                 (if specified), otherwise the entire BASIC program is searched.
+
                 At each occurrence of the "find string" the line is
                 listed with the string highlighted.
+
                 \specialkey{NO\\SCROLL} can be used to pause the output.
 
 \item [Remarks:] Any un-shifted character that is not part of
@@ -4296,6 +4285,8 @@ numeric expression will no longer address your intended line numbers.
                  keywords requires using the colon as the delimiter: {\bf FIND :REM TODO:}
                  This does not work with the {\bf CHANGE} command.
 
+                 {\bf FIND} is an editor command that can only be used
+                in direct mode.
 
 \item [Example:] Using {\bf FIND}
 \item \begin{center}\includegraphics[width=0.8\linewidth]{images/find-example.png}\end{center}
@@ -4349,16 +4340,19 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$46
 \item [Format:] {\bf FONT} <{\bf A} | {\bf B} | {\bf C}>
-\item [Usage:] {\bf FONT} is used to switch between fonts,
-               and the code pages PETSCII, and enhanced PETSCII.
-               The enhanced PETSCII includes all ASCII symbols that
-               are missing in the PETSCII code page, although the order
-               is still PETSCII.
-               The ASCII symbols are typed by pressing the keys in the table below,
+\item [Usage:] Updates all characters to the given built-in font.
+
+               {\bf FONT A} is the PETSCII font with several lowercase characters replaced with ASCII punctuation.
+
+               {\bf FONT B} is an alternate appearance of {\bf FONT A}.
+
+               {\bf FONT C} is the PETSCII font. This is the default when the MEGA65 is first switched on.
+
+               This resets any changes made by the {\bf CHARDEF} command.
+
+               The ASCII symbols of fonts {\bf A} and {\bf B} are typed by pressing the keys in the table below,
                some of which also require the holding down of the \megasymbolkey key.
-               The codes for uppercase and lowercase
-               are swapped compared to ASCII.
-               The uppercase/graphics character set is not changed.
+               The codes for uppercase and lowercase are swapped compared to ASCII.
 \begin{center}
 {\setlength{\tabcolsep}{1mm}
   \begin{tabular}{|C{1cm}|L{4.5cm}|C{1.4cm}|L{2.3cm}|}
@@ -4377,35 +4371,8 @@ RUN
 }
 \end{center}
 
-% \verbatimfont{\codefont}
-% \begin{verbatim}
-%  !"#$%&'()*+,-./    20
-% 0123456789:;<=>?    30
-% @ABCDEFGHIJKLMNO    40
-% PQRSTUVWXYZ[\]^_    50
-% `abcdefghijklmno    60
-% pqrstuvwxyz{|}~     70
-%
-% ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ  c380
-% ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß  c390
-% àáâãäåæçèéêëìíîï  c3a0
-% ðñòóôõö÷øùúûüýþÿ  c3b0
-%
-% ĀāĂăĄąĆćĈĉĊċČčĎď  c480
-% ĐđĒēĔĕĖėĘęĚěĜĝĞğ  c490
-% ĠġĢģĤĥĦħĨĩĪīĬĭĮį  c4a0
-% İıĲĳĴĵĶķĸĹĺĻļĽľĿ  c4b0
-% ŀŁłŃńŅņŇňŉŊŋŌōŎŏ  c580
-% ŐőŒœŔŕŖŗŘřŚśŜŝŞş  c590
-%
-% ŠšŢţŤťŦŧŨũŪūŬŭŮů  c5a0
-% ŰűŲųŴŵŶŷŸŹźŻżŽžſ  c5b0
-% ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏ  c680
-% ƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟ  c690
-% \end{verbatim}
-
 \item [Remarks:] The additional ASCII characters provided by FONT A and B are only available
-  while using the lowercase/uppercase character set.
+  while using the lowercase character set.
 
 \item [Examples:] Using {\bf FONT}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4484,14 +4451,14 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$39
 \item [Format:] {\bf FOREGROUND} colour
-\item [Usage:] Sets the foreground colour
-               (text colour) of the screen to the argument,
-               which must be in the
-               range of 0 to 31.
-               Refer to the table under
-               {\bf BACKGROUND} on page \pageref{colourtable}
-               for the colour values and their corresponding colours.
-\item [Remarks:] {\bf COLOR} also has the ability to change the foreground colour.
+\item [Usage:] Sets the foreground text colour for subsequent {\bf PRINT} commands.
+
+               {\bf colour} the palette entry number, in the range 0 -- 255
+
+               Refer to the table under {\bf BACKGROUND} on page \pageref{colourtable} for
+               the palette entry numebrs and their corresponding colours in the default system palette.
+
+\item [Remarks:] This is another name for {\bf COLOR}.
 
 \item [Example:] Using {\bf FOREGROUND}
 \item \begin{center}\includegraphics[width=0.7\linewidth]{images/foreground-example.png}\end{center}
@@ -4508,7 +4475,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Token:] \$FE \$37
 \item [Format:] {\bf FORMAT} diskname [{\bf,I} id] [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   Used to format (or clear) a disk.
+   Formats a disk. {\em This erases all data on the disk.}
 
    {\bf I} The disk ID.
 
@@ -4520,7 +4487,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 
    \unitdefinition
 
-\item [Remarks:] {\bf FORMAT} and {\bf HEADER} are aliases and call the same routine.
+\item [Remarks:] {\bf FORMAT} is another name for the {\bf HEADER} command.
 
    For new floppy disks which have not already been formatted in MEGA65 (1581) format,
    it is necessary to specify the disk ID with the
@@ -4558,7 +4525,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B8
 \item [Format:] {\bf FRE(}bank{\bf)}
-\item [Usage:] Returns the number of free bytes for banks 0 or 1,
+\item [Usage:] The number of free bytes for banks 0 or 1,
                or the ROM version if the argument is negative.
 
                {\bf FRE(0)} returns the number of free bytes in
@@ -4602,12 +4569,10 @@ FONT C :REM COMMODORE FONT (DEFAULT)
                starting at the 32-bit address {\bf pointer}.
 
                {\bf channel} number, which was given to a previous
-               call to commands such as {\bf DOPEN}, or {\bf OPEN}.
+               call to commands such as {\bf DOPEN}, or {\bf OPEN}
 
-
-               Care must be taken not to overwrite memory
-               that is used by the system or the interpreter.
-
+               {\bf FREAD} can be used to read data from disk directly
+               into a variable.
                It is recommended to use the {\bf POINTER} statement
                for the pointer argument, and to compute the size parameter
                by multiplying the number of elements with the item size.
@@ -4626,13 +4591,14 @@ Real     Array &  5     \\
 \end{center}
 
 Keep in mind that the {\bf POINTER} function with a string argument
-does NOT return the string address, but the string descriptor.
+does {\em not} return the string address, but the string descriptor.
 It is not recommended to use {\bf FREAD} for strings or string arrays
 unless you are fully aware on how to handle the string storage internals.
 
-Also, ensure that you always specify an index if you use an array.
-The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
-\screentext{POINTER(XY)} returns the address of the scalar variable \screentext{XY}.
+To read into an array, ensure that you always specify an array index so that {\bf
+POINTER} returns the address of an element. The start address of array
+\screentext{XY()} is \screentext{POINTER(XY(0))}. \screentext{POINTER(XY)}
+returns the address of the scalar variable \screentext{XY}.
 
 \item [Example:] Using {\bf FREAD}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4662,11 +4628,11 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$4A
 \item [Format:] {\bf FREEZER}
-\item [Usage:] {\bf FREEZER} calls the {\bf FREEZER} program.
+\item [Usage:] Invokes the Freezer menu.
 
 \item [Remarks:]
-      Calling {\bf FREEZER} via BASIC command is an alternative
-      to the keypress of \widekey{RESTORE}.
+      Entering the {\bf FREEZER} command is an alternative
+      to holding and releasing the \widekey{RESTORE} key.
 
 \item [Examples:] Using {\bf FREEZER}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4693,6 +4659,7 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
                {\bf channel} number, which was given to a previous
                call to commands such as {\bf APPEND}, {\bf DOPEN}, or {\bf OPEN}.
 
+               {\bf FWRITE} can be used to write the value of a variable to a file.
                It is recommended to use the {\bf POINTER} statement
                for the pointer argument and compute the size parameter
                by multiplying the number of elements with the item size.
@@ -4701,15 +4668,14 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
                for the item sizes.
 
 Keep in mind that the {\bf POINTER} function with a string argument
-does NOT return the string address, but the string descriptor.
+does {\em not} return the string address, but the string descriptor.
 It is not recommended to use {\bf FWRITE} for strings or string arrays
 unless you are fully aware on how to handle the string storage internals.
 
-
-Also, ensure that you always specify an index if you use an array.
-The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
-\screentext{POINTER(XY)} returns the address of the scalar variable \screentext{XY}.
-
+To write an array, ensure that you always specify an array index so that {\bf
+POINTER} returns the address of an element. The start address of array
+\screentext{XY()} is \screentext{POINTER(XY(0))}. \screentext{POINTER(XY)}
+returns the address of the scalar variable \screentext{XY}.
 
 \item [Example:] Using {\bf FWRITE}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4739,16 +4705,16 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$32
 \item [Format:] {\bf GCOPY} x{\bf,} y{\bf,} width{\bf,} height
-\item [Usage:] {\bf GCOPY} is used on graphic screens and copies the content
+\item [Usage:] Bitmap graphics: copies the content
                of the specified rectangle
                with upper left position {\bf x, y} and the {\bf width}
-               and {\bf height} to the cut/copy/paste buffer.
+               and {\bf height} to a buffer.
 
                The copied region can be inserted at any position with the
                command {\bf PASTE}.
 
 \item [Remarks:] The size of the rectangle is limited by the 1K size of
-                 the cut/copy/paste buffer. The memory requirement for
+                 the buffer. The memory requirement for
                  a region is width * height * number of bitplanes / 8.
                  It must not equal or exceed 1024 byte.
                  For a 4-bitplane screen for example, a 45 x 45 region
@@ -4778,8 +4744,9 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1
 \item [Format:] {\bf GET} variable
-\item [Usage:] Gets the next character (or byte value of the next character)
+\item [Usage:] Gets the next character, or byte value of the next character,
                from the keyboard queue.
+
                If the variable being set to the character is of type string and the queue is empty,
                an empty string is assigned to it,
                otherwise a one character string is created
@@ -4822,12 +4789,12 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
                and assigns single character strings to
                string variables, or an 8-bit binary value
                to numeric variables.
+
                This is useful for reading characters (or bytes) from
                an input stream one byte at a time.
 
                {\bf channel} number, which was given to a previous
                call to commands such as {\bf DOPEN}, or {\bf OPEN}.
-
 
 \item [Remarks:] All values from 0 to 255 are valid, so {\bf GET\#}
                  can also be used to read binary data.
@@ -4863,9 +4830,10 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A1 \$F9 (GET token and KEY token)
 \item [Format:] {\bf GETKEY} variable
-\item [Usage:] Gets the next character (or byte value of the next character)
+\item [Usage:] Gets the next character, or byte value of the next character,
                from the keyboard queue. If the queue is empty,
                the program will wait until a key has been pressed.
+
                After a key has been pressed, the variable will be set
                and program execution will continue. When used with
                a string variable, a one character string is created and assigned.
@@ -4899,11 +4867,14 @@ The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}.
 \item [Token:] \$CB \$36 \$34 (GO token and 64 )
 \item [Format:] {\bf GO64}
 \item [Usage:] Switches the
-               MEGA65 to C64-compatible -mode. If you're in direct
+               MEGA65 to C64-compatible mode.
+
+               If you're in direct
                mode, a security prompt \screentext{ARE YOU SURE?}
                is displayed, which must be responded with \screentext{Y} to
-               continue. \screentext{SYS58552} can be used to switch back
-               to C65-mode.
+               continue.
+
+               You can switch back to MEGA65 mode with this command: \screentext{SYS58552}
 
 \item [Example:] Using {\bf GO64}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5023,14 +4994,14 @@ ARE YOU SURE?
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$DE
 \item [Format:] {\bf GRAPHIC CLR}
-\item [Usage:] Initialises the BASIC graphic system.
+\item [Usage:] Bitmap graphics: initialises the BASIC bitmap graphics system.
                It clears the graphics memory and screen, and sets
                all parameters of the graphics context to their
                default values.
 
                Once the graphics system has been cleared, commands such as {\bf LINE},
                {\bf PALETTE}, {\bf PEN}, {\bf SCNCLR}, and {\bf SCREEN} can be
-               used to set graphic system parameters again.
+               used to set graphics system parameters.
 
 \item [Example:] Using {\bf GRAPHIC}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5063,7 +5034,7 @@ ARE YOU SURE?
 \item [Token:] \$F1
 \item [Format:] {\bf HEADER} diskname [{\bf,I} id] [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   Used to format (or clear) a disk.
+   Formats a disk. {\em This erases all data on the disk.}
 
    {\bf I} The disk ID.
 
@@ -5075,7 +5046,7 @@ ARE YOU SURE?
 
    \unitdefinition
 
-\item [Remarks:] {\bf FORMAT} and {\bf HEADER} are aliases and call the same routine.
+\item [Remarks:] {\bf HEADER} is another name for the {\bf FORMAT} command.
 
    For new floppy disks which have not already been formatted in MEGA65 (1581) format,
    it is necessary to specify the disk ID with the
@@ -5114,6 +5085,8 @@ ARE YOU SURE?
 \item [Token:] \$EA
 \item [Format:] {\bf HELP}
 \item [Usage:]
+   Displays information about where an error occurred in a BASIC program.
+
    When the BASIC program stops due to an error,
    {\bf HELP} can be used to gain further information.
    The interpreted line is listed, with the
@@ -5151,8 +5124,9 @@ HELP
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D2
 \item [Format:] {\bf HEX\$(}numeric expression{\bf)}
-\item [Usage:] Returns a four character hexadecimal
+\item [Usage:] A four character hexadecimal
                representation of the argument.
+
                The argument must be in the range of 0-65535,
                corresponding to the hex numbers \$0000-\$FFFF.
 
@@ -5180,7 +5154,9 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$3D
 \item [Format:] {\bf HIGHLIGHT} colour [{\bf,} mode]
-\item [Usage:] Sets the colours used for highlighting. Different colours can be
+\item [Usage:] Sets the colours used for code highlighting.
+
+                Different colours can be
                 set for system messages, {\bf REM} statements and BASIC 65 keywords.
 
                 {\bf colour} is one of the first 16 colours in the current palette.
@@ -5266,7 +5242,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
 \item [Token:] \$DD
 \item [Format:] {\bf IMPORT} filename [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:]
-   The {\bf IMPORT} command loads a BASIC program in text format and type
+   Loads BASIC code in text format from a file of type
    {\bf SEQ} into memory reserved for BASIC programs.
 
    \filenamedefinition
@@ -5279,6 +5255,7 @@ PRINT HEX$(10),HEX$(100),HEX$(1000.9)
    The program is loaded into BASIC memory and converted from text to the
    tokenised form of {\bf PRG} files. This enables loading of BASIC programs
    that were saved as plain text files as program listing.
+
    After loading, the program is re-linked
    and ready to be {\bf RUN} or edited.
    It is possible to use {\bf IMPORT} for merging a program text file
@@ -5926,7 +5903,7 @@ LIST P "MURX" :REM LIST FILE "MURX" IN PAGE MODE
    {\bf PRG} into memory reserved for BASIC programs.
 
 The second form loads a directory into memory, which can then be viewed
-with {\bf LIST} or {\bf LISTP}. It is structured like a BASIC program,
+with {\bf LIST}. It is structured like a BASIC program,
 but file sizes are displayed instead of line numbers.
 
 The third form is similar to the second one, but the files are numbered.
@@ -7170,13 +7147,13 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$E3
 \item [Format:] {\bf PASTE} x{\bf,} y{\bf,} width{\bf,} height
-\item [Usage:] {\bf PASTE} is used on graphic screens and pastes the content
-               of the cut/copy/paste buffer into the screen.
+\item [Usage:] Bitmap graphics: pastes the content
+               of the {\bf CUT} / {\bf GCOPY} buffer onto the screen.
                The arguments upper left position {\bf x, y} and the {\bf width}
                and {\bf height} specify the paste position on the screen.
 
 \item [Remarks:] The size of the rectangle is limited by the 1K size of
-                 the cut/copy/paste buffer. The memory requirement for
+                 the buffer. The memory requirement for
                  region is width * height * number of bitplanes / 8.
                  It must not equal or exceed 1024 byte.
                  For a 4-bitplane screen for example, a 45 x 45 region
@@ -8052,7 +8029,7 @@ RUN
                which {\bf RECORD} is writing to,
                the file is expanded to the requested record count by adding
                empty records. When this occurs, the disk
-               status will give the message RECORD NOT PRESENT, but
+               status will give the message \screentext{RECORD NOT PRESENT}, but
                this is not an error!
 
                After a call of {\bf INPUT\#} or {\bf PRINT\#}, the file pointer will proceed
@@ -9352,11 +9329,12 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BF
 \item [Format:] {\bf SIN(}numeric expression{\bf)}
-\item [Usage:] Returns the sine of the {\bf numeric expression}.
+\item [Usage:] The sine of an angle.
+
                The argument is expected in units of radians.
                The result is in the range (-1.0 to +1.0)
 
-\item [Remarks:] An argument in units of degrees
+\item [Remarks:] A value in units of degrees
                  can be converted to radians
                by multiplying it with $\pi/180$.
 \item [Examples:] Using {\bf SIN}
@@ -9997,12 +9975,12 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C0
 \item [Format:] {\bf TAN(}numeric expression{\bf)}
-\item [Usage:] Returns the tangent of the
-               argument.
+\item [Usage:] The tangent of an angle.
+
                The argument is expected in units of radians.
                The result is in the range (-1.0 to +1.0)
 
-\item [Remarks:] An argument in units of degrees
+\item [Remarks:] A value in units of degrees
                  can be converted to radians
                  by multiplying it with $\pi/180$.
 \item [Example:] Using {\bf TAN}

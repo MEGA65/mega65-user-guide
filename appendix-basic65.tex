@@ -7401,42 +7401,53 @@ PLAY "C","E","G"
 \screentext{\#} & Sharp \\
 \screentext{\$} & Flat \\
 \screentext{.}  & Dotted \\
-\screentext{H}  & Half Note \\
-\screentext{I}  & Eighth Note \\
-\screentext{Q}  & Quarter Note \\
-\screentext{R}  & Pause (rest) \\
-\screentext{S}  & Sixteenth Note \\
 \screentext{W}  & Whole Note \\
+\screentext{H}  & Half Note \\
+\screentext{Q}  & Quarter Note \\
+\screentext{I}  & Eighth Note \\
+\screentext{S}  & Sixteenth Note \\
+\screentext{R}  & Pause (rest) \\
 \hline
 \end{tabular}
 }
 \end{center}
 
-Embedded directives consist of a letter, followed by a digit:
+Notice that the dot ({\tt .}) modifier appears before the note name, not after
+it as in traditional sheet music.
+
+Directives consist of a letter, followed by a digit. Directives apply to all
+future notes, until the parameter is changed by another directive.
 
 \begin{center}
 {\setlength{\tabcolsep}{1mm}
 \begin{tabular}{*{1}{|C{9mm}}|l|l|}
 \hline
-{\bf Char}  & {\bf Directive} & {\bf Argument Range} \\
+{\bf Character}  & {\bf Directive} & {\bf Argument Range} \\
 \hline
-\screentext{O} & Octave              & 0 - 6 \\
-\screentext{T} & Instrument Envelope & 0 - 9 \\
-\screentext{U} & Volume              & 0 - 9 \\
-\screentext{X} & Filter              & 0 - 1 \\
-\screentext{M} & Modulation          & 0 - 9 \\
-\screentext{P} & Portamento          & 0 - 9 \\
+\screentext{O} & Octave              & 0 -- 6 \\
+\screentext{T} & Instrument Envelope & 0 -- 9 \\
+\screentext{U} & Volume              & 0 -- 9 \\
+\screentext{X} & Filter              & 0 -- 1 \\
+\screentext{M} & Modulation          & 0 -- 9 \\
+\screentext{P} & Portamento          & 0 -- 9 \\
 \screentext{L} & Loop                & N/A   \\
 \hline
 \end{tabular}
 }
 \end{center}
 
-  The modulation directive modulates your note by the magnitude you
-  specify (1-9), or use 0 to not use it.
+  An octave is a range of notes from C to B. The default octave is 4,
+  representing the ``middle'' octave.
+
+  Instrument envelopes describe the nature of the sound. See {\bf ENVELOPE}
+  for a list of default envelope styles, and information on how to adjust the
+  ten envelopes.
+
+  The modulation directive adds a pitch-based vibrato your note by the magnitude you
+  specify (1 -- 9). A value of 0 disables it.
 
   Similarly, the portamento directive slides between consecutive
-  notes at the speed you specify (1-9). A value of 0 disables it. Note that
+  notes at the speed you specify (1 -- 9). A value of 0 disables it. Note that
   the gate-off behaviour of notes is disabled while portamento is enabled.
   To re-enable the gate-off behavior, you must disable portamento (P0).
 
@@ -7474,11 +7485,12 @@ Embedded directives consist of a letter, followed by a digit:
   statement. The default settings for the envelopes are on
   page \pageref{envelopetable}.
 
-\item [Remarks:] The {\bf PLAY} statement makes use of an interrupt
-                 driven routine that starts parsing the string
-                 and playing the melody. Program execution continues
-                 with the next statement, and will not block until
-                 the melody has finished.
+\item [Remarks:] The {\bf PLAY} statement makes use of an interrupt driven
+                 routine that starts parsing the string and playing the
+                 melody. Program execution continues with the next statement,
+                 and will not block until the melody has finished. This is
+                 different from the Commodore 128, which stops program
+                 execution during playback.
 
                  The 6 voice channels used by the {\bf PLAY} command (on
                  SID1+SID3) are distinct to the 6 channels used by the {\bf

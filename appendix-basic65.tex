@@ -5788,6 +5788,59 @@ A=5      :REM SHORTER AND FASTER
 \end{tcolorbox}
 \end{description}
 
+
+
+
+\newpage
+\subsection{LINE INPUT}
+\index{BASIC 65 Commands!LINE INPUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$E5 \$85
+\item [Format:] {\bf LINE INPUT} [prompt <{\bf,} | {\bf;}>]
+		string variable [{\bf,} string variable ...]
+\item [Usage:] Prompts the user for keyboard input, printing an optional
+               prompt string and question mark to the screen.
+
+               {\bf prompt} optional string expression to be printed
+               as the prompt
+
+               If the separator between {\bf prompt} and the first {\bf string
+               variable} is a comma, the cursor is placed directly after the
+               prompt. If the separator is a semicolon, a question mark and a
+               space is added to the prompt instead.
+
+               {\bf string variable} one or more string variables that accept
+               one line of input each
+
+\item [Remarks:] This differs from {\bf INPUT} in how the input is parsed.
+                {\bf LINE INPUT} accepts every character entered on a line as
+                a single string value. Only the \specialkey{RETURN} key does
+                not produce a character.
+
+                If the variable list has more than one variable, {\bf LINE
+                INPUT} will use the entire first line for the first variable,
+                and present the \screentext{??} prompt for each subsequent
+                variable.
+
+                {\bf LINE INPUT} only works with string variables. If a
+                non-string variable is used, {\bf LINE INPUT} throws produces
+                a \screentext{TYPE MISMATCH ERROR} after data has been
+                entered.
+
+\item [Example:] Using {\bf LINE INPUT}:
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 LINE INPUT "ENTER A PHRASE: ",PH$
+20 PRINT "THE PHRASE YOU ENTERED:";CHR$(13);"  ";PH$
+RUN
+ENTER A PHRASE: YOU SAY "POTATO," I SAY "POTATO."
+THE PHRASE YOU ENTERED:
+  YOU SAY "POTATO," I SAY "POTATO."
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ************
 % LINE INPUT\#
 % ************

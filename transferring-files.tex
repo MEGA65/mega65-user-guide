@@ -18,15 +18,17 @@ The MEGA65 can use Ethernet to connect to or accept connections from other compu
 
 The MEGA65 Ethernet hardware presents a Media Access Control (MAC) address to the local network.\index{Networking!MAC address} Unlike other Ethernet hardware, the MEGA65's MAC address is not assigned at the factory: it is set in the Configuration Utility. (See chapter \vref{cha:configuringyourmega}.)
 
-% TODO: IP address handling may change before v0.96 is released. The new version will allow the PC to set the IP address of the MEGA65 for the session, and may or may not involve DHCP. It may also detect broadcast addresses automatically. Change pending as of September 6, 2023.
+For file transfers, you instruct the MEGA65 to listen for incoming connections, then use M65Connect (or another tool, such as \texttt{mega65\_ftp}) on your PC to initiate a connection. The tool assigns an IP address to the MEGA65 that is an address on your local network. You will need to know your local network's valid range of IP addresses to determine an appropriate address for the MEGA65. A typical home router establishes a local network with addresses such as \texttt{192.168.0.x}, where \texttt{x} is a number in the range 2 -- 254. One possible local IP address for the MEGA65 on such a network might be \texttt{192.168.0.65}.
 
-For file transfers, you instruct the MEGA65 to listen for incoming connections, then use M65Connect on your PC to initiate a connection. The MEGA65 always listens on IP address {\bf x.x.x.65} of your local subnet. You will need to know your local network's {\em broadcast address} to establish the connection. A typical home router establishes a local network with a broadcast address such as \texttt{192.168.0.255}. With this broadcast address, the local IP address of the MEGA65 would be \texttt{192.168.0.65}.
+% TODO: Our tools may eventually involve DHCP in the automatic selection of an IP address for the MEGA65.
 
-Modern computers typically use the Dynamic Host Configuration Protocol (DHCP) to obtain an IP address from the local router. The MEGA65 network listener does not support DHCP, and always listens on address 65. You will need to configure your router to prevent the address 65 from being assigned to another computer. See your router's documentation for information on how to do this. (It is possible to avoid this step if no other computer on your network is assigned address 65, but it's best to not leave this to chance.)
+Modern computers typically use the Dynamic Host Configuration Protocol (DHCP) to obtain an IP address from the local router. The MEGA65 network listener does not support DHCP. You will need to configure your router to prevent the IP address that you select for the MEGA65 from being assigned to another computer. See your router's documentation for information on how to do this. (It is possible to avoid this step if no other computer on your network is assigned to the address you pick, but it's best to not leave this to chance.)
 
 Most local network routers are configured to block incoming connections originating from the Internet (a ``firewall''). This is an important safety precaution in general. This is especially important for the MEGA65, because the MEGA65 network listener has no security protections of its own. {\em Do not configure your network router to allow incoming connections to reach the MEGA65 when using the network listener feature described below.}
 
-As an alternative to connecting the MEGA65 to your local network, if your PC has an Ethernet jack, you can connect your MEGA65 directly to your PC via Ethernet.
+% TODO: more info on how to pick an IP address based on a direct Ethernet connection
+
+As an alternative to connecting the MEGA65 to your local network, if your PC has an Ethernet jack, you can connect your MEGA65 directly to your PC via Ethernet. In this case, the IP address of the MEGA65 can be any valid address compatible with your PC's network configuration.
 
 \section{Obtaining the File Transfer Tools}
 \index{M65Connect Application}
@@ -116,12 +118,12 @@ Starting a file transfer session resets the MEGA65. As a precaution, the session
 
 The {\tt mega65\_ftp} command-line tool initiates a file transfer session with the MEGA65. It can run interactively in the terminal and accept multiple file transfer commands, or it can run non-interactively with those commands provided as arguments.
 
-% TODO: IP address handling may change before v0.96 is released. The new version will not require a broadcast address on the command line. Change pending as of September 6, 2023.
+% TODO: This may be updated in the future to allow for automatic selection of an IP address.
 
-To start an interactive file transfer session, run the {\tt mega65\_ftp} command, providing the broadcast address as the {\tt -i} argument.
+To start an interactive file transfer session, run the {\tt mega65\_ftp} command, providing the IP address you have selected for the MEGA65 as the {\tt -i} argument.
 
 \begin{verbatim}
-% mega65_ftp -i 192.168.0.255
+% mega65_ftp -i 192.168.0.65
 \end{verbatim}
 
 The tool will upload the file transfer client, and you will see it the client running on the MEGA65. If nothing happens, press Ctrl-C (on the PC) to abort, then double-check that the MEGA65 is connected and that network listening is enabled.
@@ -168,7 +170,7 @@ The following are several useful commands you can use during the file transfer s
 To invoke {\tt mega65\_ftp} commands without starting an interactive prompt, use the {\tt -c} argument once for each command:
 
 \begin{verbatim}
-% mega65_ftp -i 192.168.0.255 -c 'put mydisk.d81' -c 'exit'
+% mega65_ftp -i 192.168.0.65 -c 'put mydisk.d81' -c 'exit'
 \end{verbatim}
 
 The tool will start a session, execute the commands, then terminate. Be sure to issue the {\tt exit} command as the final command to reset the MEGA65, or reset the MEGA65 manually after the file transfer has completed.

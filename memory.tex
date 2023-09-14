@@ -812,51 +812,51 @@ BASIC commands, and comes with some limitations. Because {\bf SYS} transfers
 control to a custom routine, it needs to take extra precautions to preserve
 the system's access to memory used to support BASIC.
 
-With \stw{BANK 128} enabled (the default), {\bf SYS} uses the BASIC memory
-mapping for addresses in \$0000 -- \$FFFF. As usual, the first 8KB block of
-\$0000 -- \$1FFF maps to bank 0 RAM, and the rest map to ROM and I/O registers.
+Specifically, {\bf SYS} only the {\bf BANK} setting for addresses in the range
+\$2000 -- \$7FFF. Other addressees always go to either bank 0 RAM, KERNAL ROM,
+or I/O registers, as follows:
+
+\begin{tabular}{|l|l|}
+\hline
+{\bf Address range} & {\bf SYS destination} \\
+\hline
+\$0000 -- \$1FFF & RAM in bank 0 \\
+\$2000 -- \$7FFF & High word of address or {\bf BANK} setting \\
+\$8000 -- \$BFFF & RAM in bank 0 \\
+\$C000 -- \$CFFF & Character ROM, or bank 0 (ROMC bit of \$D030) \\
+\$D000 -- \$DFFF & I/O registers, or bank 0 (C64-style banking register \$01) \\
+\$E000 -- \$FFFF & KERNAL ROM in bank 3 \\
+\end{tabular}
+
+{\bf SYS} ignores bit 7 of the {\bf BANK} setting. \stw{BANK 128} is
+equivalent to \stw{BANK 0} for {\bf SYS}. This differs from {\bf PEEK},
+{\bf POKE}, et al., which see ROM code from \$2000 -- \$BFFF with
+\stw{BANK 128}.
 
 \begin{screenoutput}
 BANK 128
 SYS $1800        : rem Calls subroutine at 0.1800
-SYS $FFD2,65     : rem Calls kernel ROM routine (with an argument)
-\end{screenoutput}
-
-With \stw{BANK 0} enabled, {\bf SYS} uses bank 0 for addresses in \$0000 --
-\$BFFF only. Unlike other BASIC commands that use memory addresses, {\bf SYS}
-continues to interpret \$C000 -- \$FFFF as mapped to ROM and I/O registers with
-\stw{BANK 0} selected.
-
-\begin{screenoutput}
-BANK 0
-SYS $1800        : rem Calls subroutine at 0.1800
 SYS $7000        : rem Calls subroutine at 0.7000
 SYS $FFD2,65     : rem Calls kernel ROM routine (with an argument)
-\end{screenoutput}
 
-{\bf SYS} has limited access to banks 1 -- 5. When {\bf BANK} is set to any of
-those banks, {\bf SYS} uses that bank for addresses \$2000 -- \$7FFF only.
-Every other address behaves like \stw{BANK 0}, including the ROM and I/O
-registers at \$C000 -- \$FFFF.
-
-\begin{screenoutput}
 BANK 1
 SYS $1800        : rem Calls subroutine in bank 0 at 0.1800
 SYS $7000        : rem Calls subroutine in bank 1 at 1.7000
 SYS $FFD2,65     : rem Calls kernel ROM routine at 3.FFD2 (with an argument)
 \end{screenoutput}
 
-{\bf SYS} can accept an address larger than \$FFFF that refers to a location in
-banks 1 -- 5. However, these addresses have the same limitations as when using
-{\bf BANK}. Only offsets \$2000 -- \$7FFF within the bank actually refer to the
-memory of that bank, such as address \$47000 in bank 4. For other offsets, the
-{\bf SYS} command behaves as if it was called using a {\bf BANK} setting.
+{\bf SYS} can accept an address larger than \$FFFF that refers to a location
+in banks 1 -- 5. However, these addresses have the same limitations as when
+using {\bf BANK}. Only offsets \$2000 -- \$7FFF within the bank actually refer
+to the memory of that bank, such as address \$47000 in bank 4. For other
+offsets, the {\bf SYS} command behaves according to the table (RAM in bank 0,
+ROM, or I/O registers).
 
-This restriction produces the counterintuitive behavior that, for {\bf SYS}, a long address
-doesn't necessarily refer to the memory at that address, and multiple addresses
-may refer to the same location in memory. \stw{SYS \$11800} behaves like
-\stw{BANK 1:SYS \$1800}, which calls a subroutine at address 0.1800 in bank 0.
-\stw{SYS \$41800} has the same effect.
+This restriction produces the counterintuitive behavior that, for {\bf SYS}, a
+long address doesn't necessarily refer to the memory at that address, and
+multiple addresses may refer to the same location in memory. \stw{SYS \$11800}
+and \stw{SYS \$41800} both behave like \stw{SYS \$1800}, which calls a
+subroutine at address 0.1800 in bank 0.
 
 \begin{screenoutput}
 SYS $11800       : rem Calls subroutine in bank 0 at 0.1800
@@ -880,17 +880,20 @@ memory addresses, even when using long addresses.
 
 Despite these limitations, {\bf SYS} is quite powerful. It is common for a
 machine code program to start with a short BASIC program, so the user can type
-{\bf RUN} after loading it. This program selects \stw{BANK 0}, then calls {\bf SYS}
-to start the machine code stored in memory after the end of the BASIC text.
+{\bf RUN} after loading it. This program calls {\bf SYS} to start the machine
+code stored in memory after the end of the BASIC text.
+
+\begin{screenoutput}
+10 SYS $200F
+\end{screenoutput}
+
+In early versions of the MEGA65 ROM, it was necessary to set {\bf BANK} to 0
+before calling {\bf SYS} in this way. This is a best practice anyway, so that
+the program can start even if the user changed the {\bf BANK} setting:
 
 \begin{screenoutput}
 10 BANK 0:SYS $2014
 \end{screenoutput}
-
-Notice that this BASIC launcher must use \stw{BANK 0} so that BASIC interprets
-\stw{SYS \$2014} to refer to the machine code that starts at address 0.2014 in
-Chip RAM. In mapped memory mode (\stw{BANK 128}), \stw{SYS \$2014} would refer to the ROM
-address 3.2014, which is not what is intended.
 
 You can also use {\bf SYS} to augment a BASIC program with machine code
 subroutines. A convenient location for these subroutines is in the \$1600 --
@@ -2010,3 +2013,61 @@ to bank this memory into \$D800 -- \$DFFF.)
 
 Also as described earlier, the program must use MAP to access RAM at 0.0000
 and 0.0001.
+
+\subsection{Why the SYS Command Can Only Use Certain Addresses}
+
+Earlier, this chapter explained that the BASIC {\bf SYS} command has
+unintuitive restrictions on which addresses it can access. This can now be
+explained in full, using the more advanced concepts in this chapter.
+
+For BASIC functions and commands such as {\bf PEEK} and {\bf POKE}, the KERNAL
+uses the 45GS02's 32-bit indirect addressing feature to access large
+addresses. Given an address of \$10000 or larger, the command loads the full
+address into a base page variable, then invokes 32-bit indirect addressing to
+access the memory. Given an address of \$0000 -- \$FFFF with a {\bf BANK}
+setting of 0 -- 5, the command uses the {\bf BANK} setting as the upper part
+of the address. 32-bit indirect addressing ignores the MAP register and the
+memory banking features, and can access any address in the computer.
+
+If the address is \$0000 -- \$FFFF and the {\bf BANK} setting is 128, BASIC
+uses the CPU's 16-bit addressing mode, which honors the KERNAL's MAP register
+setting, as well as D030 and C64-style memory banking settings. This is how
+those commands access ROM and I/O registers with \stw{BANK 128}.
+
+{\bf SYS} tells the CPU to execute code at a location in memory. The CPU's
+program counter is a 16-bit register, and it cannot access larger addresses
+independently of the MAP register and other memory mapping features the way
+32-bit indirect addressing can. As a feature of the KERNAL, it must keep
+KERNAL ROM in memory at 16-bit addresses \$E000 -- \$FFFF to handle
+interrupts. It must also keep KERNAL variables accessible in addresses \$0000
+-- \$1FFF for the interrupt handler code to use. Code called by {\bf SYS} can
+make its own decisions about whether to keep the KERNAL functional, but {\bf
+SYS} keeps it enabled for the common case where the machine code wants to
+return control to a running BASIC program or the \screentext{READY.} prompt.
+
+The KERNAL uses the MAP register to access ROM in bank 3. To keep ROM in
+\$E000 -- \$FFFF, it sets the MAPH offset to 3, and marks that memory region
+as ``mapped.'' There is only one offset that MAP can use for all 8KB regions in
+\$8000 -- \$FFFF, so on entry to a {\bf SYS} call, the other regions in that
+range must either be un-mapped and refer to bank 0 (or D030/\$01 banking), or
+mapped to bank 3. The most useful choice for {\bf SYS} is to leave the
+remaining upper regions un-mapped.
+
+Similarly, for addresses in the range \$0000 -- \$1FFF to continue to refer to
+KERNAL variable memory in bank 0, either the region must be un-mapped, or
+mapped with an offset of zero. Naturally, it is more useful for {\bf SYS} to
+leave that region un-mapped so that it can access other banks for addresses
+\$2000 -- \$7FFF, so that's what it does. {\bf SYS} uses the MAP register to
+access upper banks for an address whose lower word is \$2000 -- \$7FFF, either
+when using {\bf BANK} or when given a large address.
+
+The MAP register is much more flexible than this: it can allow almost any
+address to be reached via 16-bit addresses \$2000 -- \$7FFF using a wide range
+of possible offsets. However, the machine code called by {\bf SYS} would need
+to be written in a way that is aware of what offset is being used. The program
+counter would be relative to the offset, and a {\tt JMP} instruction in the
+code would have to use an address based on the same offset. It is possible to
+write machine code using only relative branch instructions (such as {\tt
+BRA}), but historically this has not been a requirement of the {\bf SYS}
+command. Instead, {\bf SYS} restricts itself to 64KB offsets to keep the
+programming model simple.

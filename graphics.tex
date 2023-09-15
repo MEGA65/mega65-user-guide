@@ -145,18 +145,18 @@ Let's code! But let's do it in BASIC first before we switch over to machine lang
 \begin{itemize}
 	\item Make sure to have activated the VIC-registers you need (remember the MEGA65 offers different versions of the VIC-chip)
 	\item Set the resolution
-	\item Define a location for the bitmap data 
+	\item Define a location for the bitmap data
 	\item And finally turn on bitmap mode
 \end{itemize}
 
-All these settings can be configured in different registers of your MEGA65. A reference of the existing registers for the graphics chip (which of course is the VIC) can be found in \bookvref{cha:viciv}. 
+All these settings can be configured in different registers of your MEGA65. A reference of the existing registers for the graphics chip (which of course is the VIC) can be found in \bookvref{cha:viciv}.
 
-Your MEGA65 contains one graphics chip, the \textbf{VIC IV}, which builds on its two predecessors and adds new functions in the form of additional registers to it. These two predecessors are the \textbf{VIC II} as it was used in the original Commodore 64 and the \textbf{VIC III aka "Bill"} as it was planned for the Commodore 65. 
+Your MEGA65 contains one graphics chip, the \textbf{VIC IV}, which builds on its two predecessors and adds new functions in the form of additional registers to it. These two predecessors are the \textbf{VIC II} as it was used in the original Commodore 64 and the \textbf{VIC III aka "Bill"} as it was planned for the Commodore 65.
 
 It is important to understand that these different VIC-versions build on each other, think of it as modes you can turn on or off.
 VIC III expands the existing registers of the VIC II while the VIC IV provides you with all existing registers of VIC II and VIC III, building on them by adding new functionality to previously unused registers. This means in \bookvref{cha:viciv} not only the registers for the VIC IV are important to know, but also those from VIC II and VIC III depending on which VIC-mode you have activated or not. Please keep this in mind.
 
-\textbf{Make sure to have activated the VIC-registers you need} - what does this mean? Generally speaking, you use the new register \$D02F hex or 53295 decimal to switch between VIC-modes (i.e., to add or remove specific registers). In order to switch you use some kind of a "knocking-sequence" by poking two specific values one after the other: 
+\textbf{Make sure to have activated the VIC-registers you need} - what does this mean? Generally speaking, you use the new register \$D02F hex or 53295 decimal to switch between VIC-modes (i.e., to add or remove specific registers). In order to switch you use some kind of a "knocking-sequence" by poking two specific values one after the other:
 
 \begin{tabular}{|l|l|l|}
 	\hline
@@ -164,11 +164,11 @@ VIC III expands the existing registers of the VIC II while the VIC IV provides y
 	\hline
 	II  & \$00/0 & \$00/0\\
 	III & \$A5/165 & \$96/150\\
-	IV  & \$47/71 & \$53/83\\	
+	IV  & \$47/71 & \$53/83\\
 	\hline
 \end{tabular}
 
-By the way, the two values you use to activate the VIC IV are the ASCII characters "G" and "S". These are the initials of the creator of the VIC IV: Dr. Paul Gardner-Stephen. Funny easteregg, isn't it? 
+By the way, the two values you use to activate the VIC IV are the ASCII characters "G" and "S". These are the initials of the creator of the VIC IV: Dr. Paul Gardner-Stephen. Funny easteregg, isn't it?
 
 It is important to understand that, when you turn on your MEGA65, the computer will start in C64 mode and then looks for a C65-compatible ROM. If a C64 cartridge is detected or the MEGA-key is pressed the system stays in C64 mode. In this case, you only have the C64 registers available. If the system finds a C65 ROM, available registers will be activated. In case of the MEGA65 ROM this means, you can access all VIC-registers (II,III and IV). When you issue the GO64 command, the system will restrict you to the VIC II registers - but remember - by poking the knock-sequence as explained above you can add the registers again! This means it doesn't matter in which "mode" you are. All features are available from everywhere. The MEGA65 is a really flexible machine!
 
@@ -185,7 +185,7 @@ PRINT PEEK($D031)
  224
 \end{screenoutput}
 
-you get back a decimal value like 224. The decimal value does not help, you need to convert the number into its binary representation. 
+you get back a decimal value like 224. The decimal value does not help, you need to convert the number into its binary representation.
 
 \begin{tabular}{|l|l|l|l|l|l|l|l|l|}
 	\hline
@@ -193,7 +193,7 @@ you get back a decimal value like 224. The decimal value does not help, you need
 	H640 & FAST & ATTR & BPM & V400 & H1280 & MONO & INT & ~ \\
 	\hline
     1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 224 \\
-    0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 96 \\    
+    0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 96 \\
 	\hline
 \end{tabular}
 
@@ -205,33 +205,33 @@ POKE $D031,96
 
 But wait, poking the value directly is not always the correct way. If you know exactly what you do or better which state each bit of the register should have, can you continue like this. Storing the value 96 means setting all the databits. This is not always what we want. In some cases we might manipulate one specific bit, for instance databit 7 for the resolution while keeping the other bits in their existing state. You can achieve this with logical operations using the AND or OR operator.
 
-\begin{tabular}{ ccc }   
-	~ & ~ & ~ \\  
+\begin{tabular}{ ccc }
+	~ & ~ & ~ \\
 	% first table (AND)
-	\begin{tabular}{ |c|c| } 
+	\begin{tabular}{ |c|c| }
 		\hline
 		Operation & Result \\
 		\hline
 		0 AND 0 & 0  \\
 		1 AND 0 & 0  \\
 		0 AND 1 & 0  \\
-		1 AND 1 & 1  \\						
+		1 AND 1 & 1  \\
 		\hline
-	\end{tabular} &  
+	\end{tabular} &
     % some space between the two tables
 	\begin{tabular}{c}
 	    \hspace{1cm} \\
 	\end{tabular}
 	% second table (OR)
-	\begin{tabular}{ |c|c| } 
+	\begin{tabular}{ |c|c| }
    	    \hline
         Operation & Result \\
 		\hline
 		0 OR 0 & 0  \\
 		1 OR 0 & 1  \\
 		0 OR 1 & 1  \\
-		1 OR 1 & 1  \\						
-		\hline	
+		1 OR 1 & 1  \\
+		\hline
 	\end{tabular} \\
 \end{tabular}
 
@@ -242,9 +242,9 @@ The logic tables above are important because they show how the bits will be modi
   POKE $D031, PEEK($D031) OR 128  :REM SET BIT 7 (i.e., set it to one)
 \end{screenoutput}
 
-So that you understand these operations, again you need to convert each decimal number into its binary format. Next we apply the AND / OR operations bit by bit according to the rules in the prior logic tables. 
-\begin{tabular}{ ccc }   
-	~ & ~ & ~ \\  
+So that you understand these operations, again you need to convert each decimal number into its binary format. Next we apply the AND / OR operations bit by bit according to the rules in the prior logic tables.
+\begin{tabular}{ ccc }
+	~ & ~ & ~ \\
 	\begin{tabular}{|l|l|l|}
 		\hline
 		~ &  Binary & Decimal\\
@@ -283,7 +283,7 @@ PRINT 96 OR 128
 
 Armed with this knowledge, we can now start configuring the VIC to show bitmap graphics. For this we have to fine-tune a number of registers but before we can start with that, we need to understand a bit more about the graphics chip, how it is organised and most importantly how it accesses the memory.
 
-\underline{Side-note}: 
+\underline{Side-note}:
 
 An alternative approach available in BASIC 65 for setting/clearing bits is to use the new {\bf SETBIT} and {\bf CLRBIT} commands. For assembly coders, you have the new {\bf SMBx} (set bit x) and {\bf RMBx} (reset bit x) instructions available to you.
 
@@ -306,14 +306,14 @@ Bank 0 (from the perspective of the BASIC 65 operating system that runs when you
 
 By the way, the BASIC65 implementation itself is stored in ROM (bank 3), while the C64's BASIC is also stored in ROM (bank 2).
 
-If you want to know more about memory management in general please have a look at \bookvref{cha:memory-map}. In BASIC - sorry to say - the situation gets even more complex. Right after turning on the computer you are in Bank 128 which is a special bank with a special memory configuration. You can use the command BANK to switch between banks. A problem here is, that you can easily lose track of what is in which bank or in which bank you are currently working. It's actually a bit easier when working in machine language. For more information about the BANK-command and banks in general, please look into \bookvref{bankcommand}. Please keep in mind that you need to know about banks before you can safely use PEEK, POKE or SYS. Otherwise you may wonder why your program does not behave as expected. We will come back to this later. Back to graphics. 
+If you want to know more about memory management in general please have a look at \bookvref{cha:memory-map}. In BASIC - sorry to say - the situation gets even more complex. Right after turning on the computer you are in Bank 128 which is a special bank with a special memory configuration. You can use the command BANK to switch between banks. A problem here is, that you can easily lose track of what is in which bank or in which bank you are currently working. It's actually a bit easier when working in machine language. For more information about the BANK-command and banks in general, please look into \bookvref{BASIC 65 Commands!BANK}. Please keep in mind that you need to know about banks before you can safely use PEEK, POKE or SYS. Otherwise you may wonder why your program does not behave as expected. We will come back to this later. Back to graphics.
 
 Let's begin to write a simple BASIC program to show hires bitmap graphics. If you followed this chapter carefully up to this point, you should have no trouble understanding the following lines of code:
 
 \begin{screenoutput}
 10 POKE $D020,0 : POKE $D021,0          :REM MAKE SCREEN BLACK
 20 POKE $D031, PEEK($D031) AND 127      :REM SET RESOLUTION
-30 POKE $DD02, 3                        :REM MAKE VIRTUAL CIA-2 READ- AND WRITEABLE 
+30 POKE $DD02, 3                        :REM MAKE VIRTUAL CIA-2 READ- AND WRITEABLE
 40 POKE $$DD00, PEEK($DD00) AND 252 OR 2:REM SELECT VIDEO BANK 1
 \end{screenoutput}
 
@@ -330,4 +330,4 @@ As you have seen in the illustration on the page before, the VIC chip divides th
 	\hline
 \end{tabular}
 
-The table shows which bits must be set to select a video bank. 
+The table shows which bits must be set to select a video bank.

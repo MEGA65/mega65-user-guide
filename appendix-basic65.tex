@@ -223,8 +223,9 @@ example, \screentext{ENFORCEMENT} is not a valid variable name, because
 {\bf FOR} is a keyword. It is common to use short variable names to avoid
 these hazards.
 
-Once assigned a value, a variable can be used within an expression with other
-constants, variables, functions, and operators:
+A variable can be used within an expression with other constants, variables,
+functions, and operators. It is substituted with the value that it contains at
+that point in the program's execution.
 
 \begin{screenoutput}
 10 INPUT "WHAT IS YOUR NAME";NA$
@@ -236,7 +237,8 @@ Unlike some programming languages, BASIC variables do not need to be declared
 before use. A variable has a default value of zero for number type variables,
 or the empty string (\screentext{""}) for string type variables.
 
-The variable types and their values are as follows.
+A variable that stores a single value is also known as a {\em scalar
+variable}. The scalar variable types and their value ranges are as follows.
 
 \setlength{\tabcolsep}{1mm}
 \begin{center}
@@ -256,13 +258,13 @@ A variable whose name is a single letter followed by the type symbol (or no
 symbol for real number variables) is a {\em fast variable}. BASIC 65 stores
 the variable in a way that makes it faster to access or update the value than
 variables with longer names. It otherwise behaves like any other variable.
+This is also true for functions defined by {\bf DEF FN}.
 
 \subsection{BASIC 65 Arrays}
 \index{BASIC 65 Arrays}
 
-A variable that stores a single value is also known as a {\em scalar
-variable}. Commodore BASIC also supports a type of variable that can store
-multiple values, called an {\em array}.
+In addition to scalar variables, Commodore BASIC also supports a type of
+variable that can store multiple values, called an {\em array}.
 
 The following example stores three string values in an array, then uses a {\bf
 FOR} loop to {\bf PRINT} a message for each element:
@@ -292,9 +294,12 @@ Array variable names are considered separate from scalar variable names. The
 scalar variable \screentext{AA} has no relationship to the array variable
 \screentext{AA()}.
 
-Array variables must be declared before use with their maximum size. BASIC 65
-allocates the maximum amount of memory needed for the array. The {\bf DIM}
-command declares (``dimensions'') an array.
+BASIC needs to know the maximum size of the array before its first use, so
+that it can allocate the memory for the complete array. A program can declare
+an array's size using the {\bf DIM} keyword, with the ``dimensions'' of the
+array. If an array variable is used without an explicit declaration, BASIC
+allocates a one-dimensional array of 10 elements, and the array cannot be
+re-dimensioned later (unless you {\bf CLR} all variables).
 
 An array can have multiple dimensions, each with its own index separated by a
 comma. The array must be declared with the maximum value for each dimension.
@@ -353,8 +358,7 @@ text modes.
 
 An {\em operator} is a symbol or keyword that performs a function in an
 expression. It operates on one or two sub-expressions, called {\em operands}.
-The part of the expression that involves the operator is treated as the result
-of the operation: the operator {\em evaluates to} the result.
+The operator and its operands {\em evaluate to} the result of the operation.
 
 For example, the {\bf *} (asterisk) operator performs a multiplication of two
 number operands. The operator and its operands evaluate to the result of the
@@ -432,7 +436,7 @@ is an operator in that expression. It concludes that the operation is an
 equality test, and proceeds to evaluate the expression and assign the result.
 
 The operators {\bf NOT}, {\bf AND}, {\bf OR} and {\bf XOR} can be used either
-as logical operators or as boolean operators. A logical operator join two
+as logical operators or as boolean operators. A logical operator joins two
 conditional expressions as operands and evaluates to the logical comparison of
 their truth values.
 
@@ -482,7 +486,7 @@ first, then the subtraction. As in algebra, you can use parentheses to change
 the order of execution. In the expression \screentext{A * (A - B) * B}, the
 subtraction is performed first.
 
-The complete set of operators and their order of predecence are summarized in
+The complete set of operators and their order of precedence are summarised in
 the sections that follow.
 
 \subsubsection{Assignment Statement}
@@ -493,7 +497,7 @@ the sections that follow.
 \hline
 {\bf Symbol} & {\bf Description} & {\bf Examples}\\
 \hline
-\screentext{=}           & Assignment        & \screentext{A = 42}, \screentext{A\$ ="HELLO"}, \screentext{A = B < 42}\\
+\screentext{=}           & Assignment        & \screentext{A = 42}, \screentext{A\$ = "HELLO"}, \screentext{A = B < 42}\\
 \hline
 \end{tabular}
 \end{center}
@@ -640,7 +644,7 @@ Low              & \screentext{OR XOR}\\
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B6
 \item [Format:] {\bf ABS(}x{\bf)}
-\item [Usage:]  Returns the absolute value of the numeric
+\item [Returns:] The absolute value of the numeric
                 argument {\bf x}.
 
                {\bf x} numeric argument (integer or real expression)
@@ -776,11 +780,11 @@ Low              & \screentext{OR XOR}\\
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C6
 \item [Format:] {\bf ASC(}string{\bf)}
-\item [Usage:] The PETSCII code of the first character of
+\item [Returns:] The PETSCII code of the first character of
                the string argument, as a number.
 \item [Remarks:]
                {\bf ASC} returns zero for an empty string, whose behaviour
-               is different to BASIC 2, where \screentext{ASC("")} gave an error.
+               is different from BASIC 2, where \screentext{ASC("")} gave an error.
                The inverse function to {\bf ASC} is {\bf CHR\$}.
                Refer to the {\bf CHR\$} function on page \pageref{BASIC 65 Functions!CHR}
                for more information.
@@ -810,7 +814,7 @@ Low              & \screentext{OR XOR}\\
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C1
 \item [Format:] {\bf ATN(}numeric expression{\bf)}
-\item [Usage:] The arc tangent of the argument.
+\item [Returns:] The arc tangent of the argument.
 
                The result is in the range ($-\pi/2$ to $\pi/2$)
 
@@ -1404,7 +1408,7 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$03
 \item [Format:] {\bf BUMP(}type{\bf )}
-\item [Usage:] A bitfield of sprites currently colliding with other
+\item [Returns:] A bitfield of sprites currently colliding with other
   sprites (type=1) or screen data (type=2).
 
   Each bit set in the returned value indicates that the
@@ -1721,7 +1725,7 @@ CHANGE &IN& TO &OUT&
                 \end{itemize}
 
                 The optional {\bf address of character set} can be used
-                to select a character set, different to the default
+                to select a character set, different from the default
                 character set at \$29800, which includes upper and lower case
                 characters.
 
@@ -1898,7 +1902,7 @@ CHDIR "/",U8            :REM GO BACK TO ROOT DIRECTORY
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C1
 \item [Format:] {\bf CHR\$(}numeric expression{\bf)}
-\item [Usage:] A string containing one character of the given PETSCII
+\item [Returns:] A string containing one character of the given PETSCII
                value.
 
 \item [Remarks:] The argument range is from 0 -- 255, so this function may
@@ -2094,7 +2098,7 @@ RUN
 
 \newpage
 \subsection{CLRBIT}
-\index{BASIC 65 Functions!CLRBIT}
+\index{BASIC 65 Commands!CLRBIT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$9C \$FE \$4E
 \item [Format:] {\bf CLRBIT} address{\bf,} bit number
@@ -2288,10 +2292,10 @@ CLOSE 1
 \item [Format:] {\bf COLOR} colour
 \item [Usage:] Sets the foreground text colour for subsequent {\bf PRINT} commands.
 
-               {\bf colour} the palette entry number, in the range 0 -- 255
+               {\bf colour} the palette entry number, in the range 0 -- 31
 
                Refer to the table under {\bf BACKGROUND} on page \pageref{colourtable} for
-               the palette entry numebrs and their corresponding colours in the default system palette.
+               the palette entry numbers and their corresponding colours in the default system palette.
 
 \item [Remarks:] This is another name for {\bf FOREGROUND}.
 
@@ -2422,7 +2426,7 @@ CONT
    the TO token are equal, {\bf COPY} is executed on the disk drive
    itself, and the source and target files will be on the same disk.
 
-   If the source unit (before TO) is different to the target unit (after TO),
+   If the source unit (before TO) is different from the target unit (after TO),
    {\bf COPY} executes a CPU-driven routine that reads the source
    files into a RAM buffer and writes to the target unit. In this case,
    the target file name cannot be chosen, it will be the same as the
@@ -2464,7 +2468,7 @@ CONT
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BE
 \item [Format:] {\bf COS(}numeric expression{\bf )}
-\item [Usage:] The cosine of an angle.
+\item [Returns:] The cosine of an angle.
 
                The argument is expected in units of radians.
                The result is in the range (-1.0 to +1.0)
@@ -2708,7 +2712,7 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D1
 \item [Format:] {\bf DEC(}string expression{\bf)}
-\item [Usage:] The decimal value of a hexadecimal string.
+\item [Returns:] The decimal value of a hexadecimal string.
 
                The argument range is ``0'' to ``FFFFFFFF''. {\bf DEC()}
                ignores everything after the first non-hex digit or the eighth
@@ -3298,8 +3302,8 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    It defines how many pattern bytes (1, 2, 3, or 4) follow.
 
     \begin{itemize}
-       \item {\bf Type}    0-4
-       \item {\bf Number}  number of following pattern bytes (1-4)
+       \item {\bf Type}    0 -- 4
+       \item {\bf Number}  number of following pattern bytes (1 -- 4)
        \item {\bf Pattern} pattern bytes
     \end{itemize}
 \end{description}
@@ -3867,19 +3871,19 @@ where the error line is taken from {\bf EL}.
 \item [Usage:] Sets the parameters for the synthesis of a musical
                instrument for use with {\bf PLAY}.
 
-      {\bf n} envelope slot (0-9).
+      {\bf n} envelope slot (0 -- 9).
 
-      {\bf attack} attack rate (0-15).
+      {\bf attack} attack rate (0 -- 15).
 
-      {\bf decay} decay rate (0-15).
+      {\bf decay} decay rate (0 -- 15).
 
-      {\bf sustain} sustain rate (0-15).
+      {\bf sustain} sustain rate (0 -- 15).
 
-      {\bf release} release rate (0-15).
+      {\bf release} release rate (0 -- 15).
 
       {\bf waveform} 0: triangle, 1: sawtooth, 2: square/pulse, 3: noise, 4: ring modulation.
 
-      {\bf pw} pulse width (0-4095) for waveform.
+      {\bf pw} pulse width (0 -- 4095) for waveform.
 
 \label{envelopetable}
                There are 10 slots for storing instrument parameters,
@@ -4003,14 +4007,14 @@ ERASE "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D3
 \item [Format:] {\bf ERR\$(}number{\bf)}
-\item [Usage:] The string description of a given BASIC error number.
+\item [Returns:] The string description of a given BASIC error number.
 
-   {\bf number} a BASIC error number (1-41)
+   {\bf number} a BASIC error number (1 -- 41)
 
 This function is typically used in a {\bf TRAP} routine,
 where the error number is taken from the reserved variable {\bf ER}.
 
-\item [Remarks:] Arguments out of range (1-41) will
+\item [Remarks:] Arguments out of range (1 -- 41) will
                  produce an ILLEGAL QUANTITY error.
 
 \item [Example:] Using {\bf ERR\$}
@@ -4075,7 +4079,7 @@ where the error number is taken from the reserved variable {\bf ER}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BD
 \item [Format:] {\bf EXP(}numeric expression{\bf)}
-\item [Usage:] The value of the mathematical constant
+\item [Returns:] The value of the mathematical constant
                Euler's number ({\bf 2.71828183})
                raised to the power of the
                argument.
@@ -4462,10 +4466,10 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \item [Format:] {\bf FOREGROUND} colour
 \item [Usage:] Sets the foreground text colour for subsequent {\bf PRINT} commands.
 
-               {\bf colour} the palette entry number, in the range 0 -- 255
+               {\bf colour} the palette entry number, in the range 0 -- 31
 
                Refer to the table under {\bf BACKGROUND} on page \pageref{colourtable} for
-               the palette entry numebrs and their corresponding colours in the default system palette.
+               the palette entry numbers and their corresponding colours in the default system palette.
 
 \item [Remarks:] This is another name for {\bf COLOR}.
 
@@ -4534,7 +4538,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B8
 \item [Format:] {\bf FRE(}bank{\bf)}
-\item [Usage:] The number of free bytes for banks 0 or 1,
+\item [Returns:] The number of free bytes for banks 0 or 1,
                or the ROM version if the argument is negative.
 
                {\bf FRE(0)} returns the number of free bytes in
@@ -4570,7 +4574,7 @@ FONT C :REM COMMODORE FONT (DEFAULT)
 
 \newpage
 \subsection{FREAD}
-\index{BASIC 65 Functions!FREAD}
+\index{BASIC 65 Commands!FREAD}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1C
 \item [Format:] {\bf FREAD\#} channel{\bf,} pointer{\bf,} size
@@ -4658,7 +4662,7 @@ returns the address of the scalar variable \screentext{XY}.
 
 \newpage
 \subsection{FWRITE}
-\index{BASIC 65 Functions!FWRITE}
+\index{BASIC 65 Commands!FWRITE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1E
 \item [Format:] {\bf FWRITE\#} channel{\bf,} pointer{\bf,} size
@@ -5133,10 +5137,10 @@ HELP
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D2
 \item [Format:] {\bf HEX\$(}numeric expression{\bf)}
-\item [Usage:] A four character hexadecimal
+\item [Returns:] A four character hexadecimal
                representation of the argument.
 
-               The argument must be in the range of 0-65535,
+               The argument must be in the range of 0 -- 65535,
                corresponding to the hex numbers \$0000-\$FFFF.
 
 \item [Remarks:] If real numbers are used as arguments, the
@@ -5495,7 +5499,7 @@ TYPE "CBM-PEOPLE"
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B5
 \item [Format:] {\bf INT(}numeric expression{\bf)}
-\item [Usage:] The integer part of a number.
+\item [Returns:] The integer part of a number.
 
                This function is {\bf NOT} limited to the typical
                16-bit integer range (-32768 to 32767), as
@@ -5530,7 +5534,7 @@ TYPE "CBM-PEOPLE"
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CF
 \item [Format:] {\bf JOY(}port{\bf)}
-\item [Usage:] The state of the
+\item [Returns:] The state of the
                joystick for the selected controller port (1 or 2).
 
                Bit 7 contains the state of the fire button.
@@ -5669,7 +5673,7 @@ KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C8
 \item [Format:] {\bf LEFT\$(}string{\bf,} n{\bf)}
-\item [Usage:] The first {\bf n} characters from the
+\item [Returns:] A string containing the first {\bf n} characters from the
                argument {\bf string}.
 
                If the length of {\bf string} is equal to or less than {\bf n},
@@ -5677,7 +5681,7 @@ KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
 
                {\bf string} a string expression
 
-               {\bf n} a numeric expression (0-255)
+               {\bf n} a numeric expression (0 -- 255)
 
 \item [Remarks:] Empty strings and zero length strings are legal values.
 
@@ -5701,7 +5705,7 @@ MEGA
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C3
 \item [Format:] {\bf LEN(}string{\bf)}
-\item [Usage:] The length of a string.
+\item [Returns:] The length of a string.
 
                {\bf string} a string expression
 
@@ -5907,17 +5911,18 @@ THE PHRASE YOU ENTERED:
 
                Given a range of line numbers, {\bf LIST} lists all lines in
                that range. A range can be two numbers separated by a hyphen
-               (\screentext{-}), a starting number and a hyphen, or a hyphen
-               and an ending number.
+               (\screentext{-}), or it can omit the beginning or end of the
+               range to imply the beginning or end of the program. (See
+               examples below.)
 
 \item [Format:] {\bf LIST} [{\bf P}] filename [{\bf,U} unit]
 \item [Usage:] Lists a range of lines from a BASIC program directly from a file.
 
 \item [Remarks:]
-                The optional parameter {\bf P} enables page mode.
-                After listing 24 lines, the listing will stop and display
-                the prompt \screentext{[MORE]} at the bottom of the screen.
-                Pressing {\bf Q} quits page mode, while any other key
+                The optional parameter {\bf P} enables page mode. After
+                listing a screenful of lines, the listing will stop and
+                display the prompt \screentext{[MORE]} at the bottom of the
+                screen. Pressing {\bf Q} quits page mode, while any other key
                 continues to the next page.
 
                 {\bf LIST} output can be redirected
@@ -6156,7 +6161,7 @@ LOCK "BS*"    :REM LOCK ALL FILES BEGINNING WITH "BS"
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BC
 \item [Format:] {\bf LOG(}numeric expression{\bf)}
-\item [Usage:] The natural logarithm of a number.
+\item [Returns:] The natural logarithm of a number.
 
                The natural logarithm uses
                Euler's number ({\bf 2.71828183}) as base,
@@ -6195,7 +6200,7 @@ PRINT LOG(100) / LOG(10)
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$08
 \item [Format:] {\bf LOG10(}numeric expression{\bf)}
-\item [Usage:] The decimal logarithm of the argument.
+\item [Returns:] The decimal logarithm of the argument.
 
                The decimal logarithm uses 10 as base.
 
@@ -6274,7 +6279,7 @@ only exits the current loop.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$04
 \item [Format:] {\bf LPEN(}coordinate{\bf)}
-\item [Usage:] Reads the state of a light pen peripheral.
+\item [Returns:] The state of a light pen peripheral.
 
                This function requires the use of a
                CRT monitor (or TV), and a light pen.
@@ -6282,10 +6287,10 @@ only exits the current loop.
                The light pen must be connected to port 1.
 
                {\bf LPEN(0)} returns the X position of the light pen,
-               the range is 60-320.
+               the range is 60 -- 320.
 
                {\bf LPEN(1)} returns the Y position of the light pen,
-               the range is 50-250.
+               the range is 50 -- 250.
 
 \item [Remarks:] The X resolution is two pixels, therefore {\bf LPEN(0)} only
                  returns even numbers.
@@ -6352,7 +6357,7 @@ bit & memory segment \\
                  stops with a \screentext{?OUT OF MEMORY ERROR}.
 
                  Some direct mode commands like {\bf RENUMBER} use memory in
-                 banks 4 and 5 and do not honor {\bf MEM} reservations. Such
+                 banks 4 and 5 and do not honour {\bf MEM} reservations. Such
                  reservations are only guaranteed during program execution.
 
 \item [Example:] Using {\bf MEM}
@@ -6426,9 +6431,9 @@ bit & memory segment \\
 
                {\bf string} a string expression.
 
-               {\bf index} start index (1-255).
+               {\bf index} start index (1 -- 255).
 
-               {\bf n} length of sub-string (0-255).
+               {\bf n} length of sub-string (0 -- 255).
 
 \item [Remarks:] Empty strings and zero lengths are legal values.
 
@@ -6517,7 +6522,7 @@ DIR
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$NN
 \item [Format:] {\bf MOD(}dividend{\bf,} divisor{\bf)}
-\item [Usage:] The remainder of a division operation.
+\item [Returns:] The remainder of a division operation.
 \item [Remarks:] In other programming languages such as C, this function
       is implemented as an operator (\%). In BASIC 65 it is implemented as a function.
 
@@ -6698,7 +6703,7 @@ the {\bf MEGA65 Book}.
                 The movement is controlled by the BASIC interrupt handler and
                 happens concurrently with the program execution.
 
-                {\bf number} sprite number (0-7).
+                {\bf number} sprite number (0 -- 7).
 
                 {\bf position} x,y | xrel,y | x,yrel | xrel,yrel | angle\#speed.
 
@@ -6714,7 +6719,7 @@ the {\bf MEGA65 Book}.
                 0: up, 90: right, 180: down, 270: left, 45 upper right, etc.
 
                 {\bf speed} speed of movement, configured as a floating point number in the
-                range of 0.0-127.0, in pixels per frame.
+                range of 0.0 -- 127.0, in pixels per frame.
                 PAL has 50 frames per second whereas NTSC has 60 frames per second.
                 A speed value of 1.0 will move the sprite 50 pixels per second
                 in PAL mode.
@@ -7005,8 +7010,8 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 1    & System Default \\
 2    & RS232 Serial Connection \\
 3    & Screen \\
-4-7  & IEC Printer and Plotter \\
-8-31 & IEC Disk Drives \\
+4 -- 7  & IEC Printer and Plotter \\
+8 -- 31 & IEC Disk Drives \\
 \hline
 \end{tabular}
 }
@@ -7014,10 +7019,10 @@ In most cases, {\bf NOT} is used in {\bf IF} statements.
 
    The {\bf secondary address} has some reserved values for
    IEC disk units, 0: load, 1: save, 15: command channel.
-   The values 2-14 may be used for disk files.
+   The values 2 -- 14 may be used for disk files.
 
    {\bf filename} is either a quoted string, e.g. \screentext{"DATA"} or
-   a string expression. The syntax is different to {\bf DOPEN\#},
+   a string expression. The syntax is different from {\bf DOPEN\#},
    since the {\bf filename} for {\bf OPEN} includes all
    file attributes, for example: \screentext{"0:DATA,S,W"}.
 
@@ -7167,17 +7172,17 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                 {\bf PALETTE RESTORE} resets the system palette to
                 the default values.
 
-                {\bf screen} screen number (0-3).
+                {\bf screen} screen number (0 -- 3).
 
                 {\bf COLOR} keyword for changing system palette.
 
-                {\bf colour} index to palette (0-255).
+                {\bf colour} index to palette (0 -- 255).
 
-                {\bf red} red intensity (0-15).
+                {\bf red} red intensity (0 -- 15).
 
-                {\bf green} green intensity (0-15).
+                {\bf green} green intensity (0 -- 15).
 
-                {\bf blue} blue intensity (0-15).
+                {\bf blue} blue intensity (0 -- 15).
 
 \item [Example:] Using {\bf PALETTE}
 
@@ -7260,16 +7265,16 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C2
 \item [Format:] {\bf PEEK(}address{\bf)}
-\item [Usage:]  The byte value stored in memory at {\bf address}, as an
+\item [Returns:]  The byte value stored in memory at {\bf address}, as an
                 unsigned 8-bit number.
 
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                If the address is in the range of \$0000 to \$FFFF (0 -- 65535), the
                 memory bank set by {\bf BANK} is used.
 
                 Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
+\item [Remarks:] Banks 0 -- 127 give access to RAM or ROM banks.
                  Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
 \item [Example:] Using {\bf PEEK}
@@ -7298,7 +7303,7 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \item [Format:] {\bf PEN} [pen{\bf,}] colour
 \item [Usage:]  Bitmap graphics: sets the colour of the graphic pen for the current screen.
 
-                {\bf pen} pen number (0-2):
+                {\bf pen} pen number (0 -- 2):
                 \begin{itemize}
                     \item {\bf 0} drawing pen (default, if only single parameter provided).
                     \item {\bf 1} off bits in jam2 mode.
@@ -7350,7 +7355,7 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$0C
 \item [Format:] {\bf PIXEL(}x{\bf,} y{\bf)}
-\item [Usage:] Bitmap graphics: the colour of a pixel at the given position.
+\item [Returns:] Bitmap graphics: the colour of a pixel at the given position.
 
                {\bf x} absolute screen coordinate.
 
@@ -7454,8 +7459,8 @@ future notes, until the parameter is changed by another directive.
   If a string ends with the {\bf L} directive, the pattern loops back to the
   beginning of the string upon completion.
 
-  You can omit a string for a given voice, such as to allow a looping pattern
-  on that voice to continue playing, using empty arguments:
+  You can omit a string for a given voice to allow an already playing pattern
+  in that voice to continue, using empty arguments:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -7532,13 +7537,30 @@ future notes, until the parameter is changed by another directive.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$0A
 \item [Format:] {\bf POINTER(}variable{\bf)}
-\item [Usage:]  The current address of a variable
+\item [Returns:]  The current address of a variable
                 or an array element as a 32-bit pointer.
 
-                For string variables, it is the address of
-                the string descriptor, not the string itself.
-                The string descriptor consists of three bytes:
-                length, string address low, string address high.
+                For string variables, it is the address of the string
+                descriptor, not the string itself. The string descriptor
+                consists of three bytes: length, string address low, string
+                address high. The string address is an offset in bank 1.
+
+                For number-type scalar variables, it is the address of the
+                value. The format depends on the type. A byte variable ({\tt
+                A\&}) is one byte, in a ``two's complement'' signed integer
+                format. An integer variable ({\tt A\%}) is two bytes, with the
+                least significant byte first. A real variable ({\tt A}) is
+                five bytes, in a compact floating point number format.
+
+                To get the address of an array, use {\bf POINTER} with the
+                first element of the array (index {\tt 0} in each dimension).
+                Array elements are stored consecutively, in the format of the
+                scalar record, with the left-most index using the shortest
+                stride. For example, an array dimensioned as \screentext{DIM
+                A\%(3,2)} starts at address \screentext{POINTER(A\%(0,0))}, has
+                two-byte records, and is ordered as:
+
+                (0,0)  (1,0)  (2,0)  (3,0)  (0,1)  (1,1)  (2,1)  (3,1) ...
 
 \item [Remarks:] The address values of arrays and their elements
                  are constant while the program is executing. \\
@@ -7580,16 +7602,16 @@ HELLO
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$97
 \item [Format:] {\bf POKE} address{\bf,} value [{\bf,} value ...]
-\item [Usage:]  Writes one or more bytes into memory
+\item [Returns:]  Writes one or more bytes into memory
                 or memory mapped I/O, starting at {\bf address}.
 
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                If the address is in the range of \$0000 to \$FFFF (0 -- 65535), the
                 memory bank set by {\bf BANK} is used.
 
                 Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-                If {\bf value} is in the range of 0-255, this is poked into memory,
+                If {\bf value} is in the range of 0 -- 255, this is poked into memory,
                 otherwise the low byte of value is used. So a command like
                 \screentext{POKE AD,V AND 255} can be written as
                 \screentext{POKE AD,V} because {\bf POKE} uses the lowy byte anyway.
@@ -7675,7 +7697,7 @@ Results in:
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B9
 \item [Format:] {\bf POS(}dummy{\bf)}
-\item [Usage:]  The cursor column relative to the
+\item [Returns:]  The cursor column relative to the
                 currently used window.
 
                 {\bf dummy} a numeric value, which is ignored.
@@ -7703,7 +7725,7 @@ Results in:
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$02
 \item [Format:] {\bf POT(}paddle{\bf)}
-\item [Usage:]  The position of a paddle peripheral.
+\item [Returns:]  The position of a paddle peripheral.
 
                 {\bf paddle} paddle number (1 -- 4).
 
@@ -7935,7 +7957,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CD
 \item [Format:] {\bf RCOLOR(}colour source{\bf)}
-\item [Usage:]  The current colour index for the
+\item [Returns:]  The current colour index for the
                 selected colour source.
 
                 Colour sources are:
@@ -8058,7 +8080,7 @@ RUN
                 {\bf channel} number, which was given to a previous
                 call of commands such as {\bf DOPEN}, or {\bf OPEN}.
 
-                {\bf record} target record (1-65535).
+                {\bf record} target record (1 -- 65535).
 
                 {\bf byte} byte position in record.
 
@@ -8216,7 +8238,7 @@ RECORD # 4 RECORD # 2
                (more than than 64000 lines), it will stop with an error
                message and leave the program unchanged.
 
-               {\bf RENUMBER} may be called with 0-3 parameters.
+               {\bf RENUMBER} may be called with 0 -- 3 parameters.
                Unspecified parameters use their default values.
 
 \item [Remarks:] {\bf RENUMBER} may need several
@@ -8377,7 +8399,7 @@ RENUMBER100,10           :REM OPTIMISATION
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CC
 \item [Format:] {\bf RGRAPHIC(}screen{\bf,} parameter{\bf)}
-\item [Usage:]  Bitmap graphics: the status of a given graphic screen parameter.
+\item [Returns:]  Bitmap graphics: the status of a given graphic screen parameter.
 
 \begin{center}
 {\setlength{\tabcolsep}{1mm}
@@ -8388,12 +8410,12 @@ RENUMBER100,10           :REM OPTIMISATION
 0  & Open   (1), Closed (0), or Invalid (>1)  \\
 1  & Width  (0=320, 1=640)  \\
 2  & Height (0=200, 1=400)  \\
-3  & Depth (1-8 Bitplanes)  \\
+3  & Depth (1 -- 8 Bitplanes)  \\
 4  & Bitplanes Used  (Bitmask)  \\
 5  & Bank 4 Blocks Used (Bitmask)  \\
 6  & Bank 5 Blocks Used (Bitmask)  \\
-7  & Drawscreen \# (0-3)  \\
-8  & Viewscreen \# (0-3)  \\
+7  & Drawscreen \# (0 -- 3)  \\
+8  & Viewscreen \# (0 -- 3)  \\
 9  & Drawmodes  (Bitmask)  \\
 10 & pattern type  (bitmask)  \\
 \hline
@@ -8439,14 +8461,14 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C9
 \item [Format:] {\bf RIGHT\$(}string{\bf,} n{\bf)}
-\item [Usage:] The last {\bf n} characters from {\bf string}.
+\item [Returns:] A string containing the last {\bf n} characters from {\bf string}.
 
                If the length of {\bf string} is equal or less than {\bf n},
                the result string will be identical to the argument string.
 
                {\bf string} a string expression.
 
-               {\bf n} a numeric expression (0-255).
+               {\bf n} a numeric expression (0 -- 255).
 
 \item [Remarks:] Empty strings and zero lengths are legal values.
 
@@ -8521,13 +8543,13 @@ if the mouse is not connected or disabled.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BB
 \item [Format:] {\bf RND(}type{\bf)}
-\item [Usage:] Generates a new pseudo random number.
+\item [Returns:] A pseudo-random number.
 
-               This is called a "pseudo" random number as
-               the numbers are not {\em really} random. They are derived
-               from another number called a "seed" that generates
-               reproducible sequences. {\bf type}
-               determines which seed is used:
+               This is called a ``pseudo-random'' number as computers cannot
+               generate numbers that are truly random. Pseudo-random numbers
+               are derived mathematically from another number called a "seed"
+               that generates reproducible sequences. {\bf type} determines
+               which seed is used:
 
                 \begin{itemize}
                     \item {\bf type = 0} use system clock.
@@ -8559,10 +8581,10 @@ if the mouse is not connected or disabled.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$0D
 \item [Format:] {\bf RPALETTE(}screen{\bf,} index{\bf,} rgb{\bf)}
-\item [Usage:]  The red, green, or blue value of
+\item [Returns:]  The red, green, or blue value of
                 a palette colour index.
 
-                {\bf screen} screen number (0-3).
+                {\bf screen} screen number (0 -- 3).
 
                 {\bf index} palette colour index.
 
@@ -8596,9 +8618,9 @@ PALETTE INDEX 3 RGB = 0  15  15
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$D0
 \item [Format:] {\bf RPEN(}n{\bf)}
-\item [Usage:]  The colour index of pen {\bf n}.
+\item [Returns:]  The colour index of pen {\bf n}.
 
-                {\bf n} pen number (0-2), where:
+                {\bf n} pen number (0 -- 2), where:
 
                 \begin{itemize}
                     \item {0} draw pen
@@ -8638,7 +8660,7 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$0F
 \item [Format:] {\bf RPLAY(}voice{\bf)}
-\item [Usage:] Tests whether music is playing on the given voice channel.
+\item [Returns:] Tests whether music is playing on the given voice channel.
 
                {\bf voice} the voice channel to assess, ranging from 1 to 6.
 
@@ -8704,7 +8726,7 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$07
 \item [Format:] {\bf RSPCOLOR(}n{\bf)}
-\item [Usage:]  The colour setting of a multi-colour sprite colour.
+\item [Returns:]  The colour setting of a multi-colour sprite colour.
 
                 {\bf n} sprite multi-colour number:
 
@@ -8736,7 +8758,7 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$0E
 \item [Format:] {\bf RSPEED(}n{\bf)}
-\item [Usage:]  The current CPU clock in MHz.
+\item [Returns:]  The current CPU clock in MHz.
 
                 {\bf n} numeric dummy argument, which is ignored.
 
@@ -8768,7 +8790,7 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$05
 \item [Format:] {\bf RSPPOS(}sprite{\bf,} n{\bf)}
-\item [Usage:]  A sprite's position or speed.
+\item [Returns:]  A sprite's position or speed.
 
                 {\bf sprite} sprite number.
 
@@ -8804,15 +8826,15 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$06
 \item [Format:] {\bf RSPRITE(}sprite{\bf,} n{\bf)}
-\item [Usage:]  A sprite parameter.
+\item [Returns:]  A sprite parameter.
 
-                {\bf sprite} sprite number (0-7).
+                {\bf sprite} sprite number (0 -- 7).
 
-                {\bf n} the sprite parameter to return (0-5):
+                {\bf n} the sprite parameter to return (0 -- 5):
 
                 \begin{itemize}
                     \item {\bf 0} turned on (0 or 1) A 0 means the sprite is off.
-                    \item {\bf 1} foreground colour (0-15).
+                    \item {\bf 1} foreground colour (0 -- 15).
                     \item {\bf 2} background priority (0 or 1).
                     \item {\bf 3} x-expanded (0 or 1). 0 means it's not expanded.
                     \item {\bf 4} y-expanded (0 or 1). 0 means it's not expanded.
@@ -8901,7 +8923,7 @@ DRAW PEN COLOUR =  1
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$09
 \item [Format:] {\bf RWINDOW(}n{\bf)}
-\item [Usage:]  A parameter of the current text window.
+\item [Returns:]  A parameter of the current text window.
 
                 {\bf n} the screen parameter to retrieve:
 
@@ -9139,7 +9161,7 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
                {\bf SCREEN} [screen,] width, height, depth
 
                \begin{itemize}
-                \item {\bf screen} the screen number (0-3) is optional.
+                \item {\bf screen} the screen number (0 -- 3) is optional.
                 If no screen number is given, screen 0 is used. To keep
                    this approach as simple as possible, it is suggested to
                    use the default screen 0.
@@ -9187,10 +9209,10 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
                 whether high resolution (1) or low resolution (0) is chosen.
 
                 \begin{itemize}
-                  \item {\bf screen} screen number 0-3
-                  \item {\bf width flag} 0-1 (0:320, 1:640 pixel)
-                  \item {\bf height flag} 0-1 (0:200, 1:400 pixel)
-                  \item {\bf depth} 1-8 (2 - 256 colours)
+                  \item {\bf screen} screen number 0 -- 3
+                  \item {\bf width flag} 0 -- 1 (0:320, 1:640 pixel)
+                  \item {\bf height flag} 0 -- 1 (0:200, 1:400 pixel)
+                  \item {\bf depth} 1 -- 8 (2 -- 256 colours)
                 \end{itemize}
 
                 Note that the width and height values here are {\bf flags},
@@ -9198,7 +9220,7 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 
                 {\bf SCREEN SET} drawscreen, viewscreen \\
                 Sets screen numbers
-                ( 0-3 ) for the drawing and the viewing screen, i.e.,
+                (0 -- 3) for the drawing and the viewing screen, i.e.,
                 while one screen is being viewed, you can draw on a
                 separate screen and then later flip between them. This
                 is what's known as double buffering.
@@ -9206,12 +9228,12 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
                 {\bf SCREEN OPEN} screen \\
                 Allocates resources and
                 initialises the graphics context for the selected
-                {\bf screen} (0-3).  An optional variable name as
+                {\bf screen} (0 -- 3).  An optional variable name as
                 a further argument, gets the result of the
                 command that can be tested afterwards for success.
 
                 {\bf SCREEN CLOSE} [screen] \\
-                Closes {\bf screen} (0-3) and frees resources. If no value is given,
+                Closes {\bf screen} (0 -- 3) and frees resources. If no value is given,
                 it will default to 0. Also note that upon closing a screen,
                 {\bf PALETTE RESTORE} is automatically performed for you.
 
@@ -9294,20 +9316,20 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 
 \newpage
 \subsection{SETBIT}
-\index{BASIC 65 Functions!SETBIT}
+\index{BASIC 65 Commands!SETBIT}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$2D \$FE \$4E
 \item [Format:] {\bf SETBIT} address{\bf,} bit number
 \item [Usage:]  Sets a single bit at the {\bf address}.
 
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                If the address is in the range of \$0000 to \$FFFF (0 -- 65535), the
                 memory bank set by {\bf BANK} is used.
 
                 Addresses greater than or equal to \$10000 (decimal 65536)
                 are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-                The {\bf bit number} is a value in the range of 0-7.
+                The {\bf bit number} is a value in the range of 0 -- 7.
 
                  A bank value > 127 is used to access I/O,
                  and the underlying system hardware such as the
@@ -9335,11 +9357,11 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$B4
 \item [Format:] {\bf SGN(}numeric expression{\bf)}
-\item [Usage:] The sign of a numeric expression, as a number.
+\item [Returns:] The sign of a numeric expression, as a number.
 
                 \begin{itemize}
                     \item {\bf -1} negative argument.
-                    \item {\bf -0} zero.
+                    \item {\bf 0} zero.
                     \item {\bf 1} positive, non-zero argument.
                 \end{itemize}
 
@@ -9363,7 +9385,7 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BF
 \item [Format:] {\bf SIN(}numeric expression{\bf)}
-\item [Usage:] The sine of an angle.
+\item [Returns:] The sine of an angle.
 
                The argument is expected in units of radians.
                The result is in the range (-1.0 to +1.0)
@@ -9429,24 +9451,24 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 
 \item [Usage:] Plays a sound effect.
 
-               {\bf voice} voice number (1-6).
+               {\bf voice} voice number (1 -- 6).
 
-               {\bf freq} frequency (0-65535).
+               {\bf freq} frequency (0 -- 65535).
 
-               {\bf dur} duration in jiffies (0-32767).
+               {\bf dur} duration in jiffies (0 -- 32767).
                 The duration of a jiffy depends on the display standard.
                 There are 50 jiffies per second with PAL, 60 per second with NTSC.
 
                {\bf dir} direction (0:up, 1:down, 2:oscillate).
 
-               {\bf min} minimum frequency (0-65535).
+               {\bf min} minimum frequency (0 -- 65535).
 
-               {\bf sweep} sweep range (0-65535).
+               {\bf sweep} sweep range (0 -- 65535).
 
                {\bf wave} waveform (0:triangle, 1:sawtooth, 2:square,
                3:noise).
 
-               {\bf pulse} pulse width (0-4095).
+               {\bf pulse} pulse width (0 -- 4095).
 
 \item [Remarks:] {\bf SOUND} starts playing the sound
                effect and immediately continues with the execution
@@ -9476,33 +9498,33 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \end{description}
 
 % ***
-% SPC
+% SPC$
 % ***
 
 \newpage
-\subsection{SPC}
-\index{BASIC 65 Functions!SPC}
+\subsection{SPC\$}
+\index{BASIC 65 Functions!SPC\$}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A6
-\item [Format:] {\bf SPC(}columns{\bf)}
-\item [Usage:] A string of cursor-right PETSCII codes, suitable for printing
+\item [Format:] {\bf SPC\$(}columns{\bf)}
+\item [Returns:] A string of cursor-right PETSCII codes, suitable for printing
                to advance the cursor the given number of columns.
 
                Printing this is similar to pressing \megakey{$\rightarrow$}
                {\bf <column>} times.
 
 \item [Remarks:] The name of this function is derived from
-                 {\bf SPACES}, which is misleading.
+                 ``spaces,'' which is misleading.
                  The function prints {\bf cursor right characters},
                  not spaces. The contents of those character
                  cells that are skipped will not be changed.
 
-\item [Example:] Using {\bf SPC}
+\item [Example:] Using {\bf SPC\$}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 FOR I=8 TO 12
-20 PRINT SPC(-(I<10));I :REM TRUE = -1, FALSE = 0
+20 PRINT SPC$(-(I<10));I :REM TRUE = -1, FALSE = 0
 30 NEXT I
 RUN
  8
@@ -9704,7 +9726,7 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$BA
 \item [Format:] {\bf SQR(}numeric expression{\bf)}
-\item [Usage:] The square root of a numeric expression.
+\item [Returns:] The square root of a numeric expression.
 
 \item [Remarks:] The argument must not be negative.
 \item [Example:] Using {\bf SQR}
@@ -9844,7 +9866,7 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C4
 \item [Format:] {\bf STR\$(}numeric expression{\bf)}
-\item [Usage:] A string of the formatted value of the argument,
+\item [Returns:] A string of the formatted value of the argument,
                as if it were {\bf PRINT}ed to the string.
 
 \item [Example:] Using {\bf STR\$}:
@@ -9958,7 +9980,7 @@ the ``Memory'' chapter of the {\bf MEGA65 Book}.
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$A3
 \item [Format:] {\bf TAB(}column{\bf)}
-\item [Usage:] Positions the cursor at {\bf column}.
+\item [Returns:] Positions the cursor at {\bf column}.
 
                This is only done if the target column is {\it right}
                of the current cursor column, otherwise the cursor
@@ -10000,7 +10022,7 @@ RUN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C0
 \item [Format:] {\bf TAN(}numeric expression{\bf)}
-\item [Usage:] The tangent of an angle.
+\item [Returns:] The tangent of an angle.
 
                The argument is expected in units of radians.
                The result is in the range (-1.0 to +1.0)
@@ -10563,7 +10585,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
                After executing the assembly routine, BASIC returns
                the contents of the floating point accumulator 1.
 
-\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
+\item [Remarks:] Banks 0 -- 127 give access to RAM or ROM banks.
                  Banks greater than 127 are used to access I/O, and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
 
@@ -10595,7 +10617,7 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$C5
 \item [Format:] {\bf VAL(}string expression{\bf)}
-\item [Usage:] The decimal floating point value represented by a string.
+\item [Returns:] The decimal floating point value represented by a string.
 
 \item [Remarks:] {\bf VAL} parses characters from the beginning of the string
                that resemble a BASIC decimal number, including a leading
@@ -10922,16 +10944,16 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$CE \$10
 \item [Format:] {\bf WPEEK(}address{\bf)}
-\item [Usage:]  The 16-bit word value stored in memory at {\bf address} (low byte) and
+\item [Returns:]  The 16-bit word value stored in memory at {\bf address} (low byte) and
                 {\bf address} + 1 (high byte), as an unsigned 16-bit number.
 
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                If the address is in the range of \$0000 to \$FFFF (0 -- 65535), the
                 memory bank set by {\bf BANK} is used.
 
                 Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-\item [Remarks:] Banks 0-127 give access to RAM or ROM banks.
+\item [Remarks:] Banks 0 -- 127 give access to RAM or ROM banks.
                  Banks greater than 127 are used to access I/O,
                   and the underlying system hardware such as the
                  VIC, SID, FDC, etc.
@@ -10956,19 +10978,20 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$1D
 \item [Format:] {\bf WPOKE} address{\bf,} word [{\bf,} word ...]
-\item [Usage:]  Writes one or more 16-bit words into memory
+\item [Returns:]  Writes one or more 16-bit words into memory
                 or memory mapped I/O, starting at {\bf address}.
 
-                If the address is in the range of \$0000 to \$FFFF (0-65535), the
+                If the address is in the range of \$0000 to \$FFFF (0 -- 65535), the
                 memory bank set by {\bf BANK} is used.
 
                 Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory
                 addresses and used as such, ignoring the {\bf BANK} setting.
 
-                {\bf word} a value from 0-65535.
-                The first word is stored at address (low byte)
-                and address+1 (high byte). The second word is stored at
-                address+2 (low byte) and address+3 (high byte), etc.
+                {\bf word} a value from 0 -- 65535. The first word is stored
+                at address (low byte) and address+1 (high byte). The second
+                word is stored at address+2 (low byte) and address+3 (high
+                byte), etc. If a value is larger than 65535, only the lower
+                two bytes are used.
 
 \item [Remarks:] The address is increased by two for each data word,
                  so a memory range can be written to with a single {\bf WPOKE}.

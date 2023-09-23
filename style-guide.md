@@ -25,7 +25,8 @@ Below are some simple MEGA65 styling rules:
 * First and foremost,
   [British English spelling](https://www.bbc.co.uk/newsstyleguide/grammar-spelling-punctuation#spelling) is used.
     * Organise, not organize.
-    * Colours, not colors.
+    * Colours, not colors. (BASIC keywords use "COLOR" spelling, text uses "colour.")
+    * Different to, not different from.
 
 * **Clean as you go!** If you're changing certain properties/using commands of LaTeX to have your tables/images/text
   appear in a particular way, remember to reset anything you have changed back to the default. These especially include

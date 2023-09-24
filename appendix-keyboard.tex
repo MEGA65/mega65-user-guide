@@ -2,35 +2,63 @@
 \chapter{The MEGA65 Keyboard}
 
 The MEGA65 has a full mechanical keyboard which is compatible with the C65 and
-C64 keyboards, and features four distinct cursor keys which work in both C64 and
-C65-mode, as well as eleven new C65 keys that normally work only in C65-mode.
+C64 keyboards, and features four distinct cursor keys which work in both C64
+and C65-mode, as well as eleven new C65 keys that normally work only in
+C65-mode.
 
-\section{Hardware Accelerated Keyboard Scanning}
+There are several ways to read the keyboard from programs. BASIC programs can
+use the {\bf GET} or {\bf GETKEY} commands, which read a PETSCII keycode into
+a variable, without or with waiting for a typing event. Machine language
+programs that keep the KERNAL active can use the KERNAL {\tt getin} routine at
+\$FFE4, which loads a PETSCII code into the accumulator. These routines have
+the advantage of supporting other features of the KERNAL input stream, such as
+function key macros and input redirection.
 
-To make use of the new extended keyboard easier, the MEGA65 features a hardware
-accelerated keyboard scan circuit, that provides ASCII/Unicode (not PETSCII!) codes for
-keys and key-combinations.  This makes it very simple to use the full capabilities
-of the MEGA65's keyboard, including the entry of ASCII symbols such as \{, \_ and |,
-which are not possible to type on a normal C64 and C128 keyboards.
+The Commodore 64 uses the CIA chip as the hardware interface to the keyboard,
+and some C64 programs (including the C64 KERNAL) read the keyboard matrix
+directly off of the CIA lines. This is implemented in the MEGA65 chipset to
+support these programs. Reading the keyboard from the CIA has the potential to
+miss key presses, requires translating CIA signals to keyboard characters in
+software, and requires managing typing features such as key repeat in software
+as well.
 
-The hardware accelerated keyboard scanner has a buffer of 3 keys, which helps to
-make it easier to read from the keyboard without having check it too regularly.
-Further, the hardware acclerated keyboard scanner supports most Latin-1 code-page
-characters, allowing the entry of many accented characters.  These keys are
-entered by holding down \megasymbolkey and pressing other keys or key-combinations.
-The use of ASCII or Unicode basic-latin symbols not present in the PETSCII character set
-requires the use of a font that contains these symbols, and software which supports them.
+For greater accuracy and ease of coding in common typing-style keyboard
+applications, the MEGA65 provides a {\em typing event queue} implemented
+directly in hardware. A {\em typing event} occurs when the user presses a
+non-modifier key, holding zero or more modifier keys down while doing so. The
+typing event queue remembers the key being pressed and the modifiers being
+held, for up to a certain number of events. The program is expected to dequeue
+each event as it is processed, making room in hardware memory for new events.
+A program can read typing events as either PETSCII or ASCII values directly
+from hardware registers. The modifier keys associated with the event are also
+readable from a register.
 
-The hardware accelerated keyboard scanner is very simple to use: First, make sure
-that you have the MEGA65 I/O context activated, then read memory location \$D610
-(decimal 54800). If the register contains zero, no key has been pressed.  Otherwise the
-value will be the ASCII code of the most recent key or key-combination that has
-been pressed.  Reading \$D610 again will continue to read the same value until
-you {\bf POKE} any value into \$D610. This clears the key from the input buffer.
+The MEGA65 KERNAL uses the typing event queue to power {\tt getin} and the
+BASIC {\bf GET} and {\bf GETKEY} commands. Reading a key using any of these
+methods dequeues a typing event from the queue.
 
-The hardware accelerated keyboard scanner also provides a register that
-indicates which of the modifier keys are currently being held down.  This is
-accessed via the read-only register \$D611 (decimal 54801):
+\section{Using the Typing Event Queue}
+
+The status of the typing event queue is visible on these registers:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+    \hline
+    {\bf Name} & {\bf I/O address} & {\bf Description}
+    \hline
+    ASCIIKEY & \$D610 & The top event as ASCII, \$FF if no interpretation, or \$00 if queue is empty \\
+    \hline
+    PETSCIIKEY & \$D619 & The top event as PETSCII, or \$FF if no interpretation \\
+    \hline
+    MODKEY & \$D60A[0:6] & Modifier keys held during the event \\
+    \hline
+    KEYQUEUE & \$D60A[7] & 1 if the queue is non-empty \\
+    \hline
+\end{tabular}
+\end{center}
+
+The bits of MODKEY correspond to these modifier keys, with 1 meaning the key
+was held during the event:
 
 \begin{adjustwidth}{}{-2cm}
 \begin{multicols}{2}
@@ -42,23 +70,59 @@ accessed via the read-only register \$D611 (decimal 54801):
 \item[Bit 4] \specialkey{ALT}
 \item[Bit 5] \specialkey{NO\\SCROLL}
 \item[Bit 6] \specialkey{CAPS\\LOCK}
-\item[Bit 7] Reserved
 \end{description}
 \end{multicols}
 \end{adjustwidth}
 
-Note that the hardware accelerated keyboard scanner operates independently of the
-C64 or C65 KERNAL keyboard scanning routines.  That is, the KERNAL will still have
-any keys that you have entered buffered in the normal way. For assembly language
-programs the easiest solution to this is to disable interrupts via the SEI
-instruction.  This prevents the KERNAL keyboard scanner from running.
+If ASCIIKEY (\$D610) reads as \$00, then the typing queue is empty. A program
+must test ASCIIKEY for \$00, or test KEYQUEUE (bit 7 of \$D60A), to determine
+if the queue is empty. The PETSCIIKEY register does not have a value that
+represents the empty queue.
 
-\subsection{Key Combination Tables}
+A given typing event may or may not have an ASCII or PETSCII interpretation. A
+typing event that has neither is not added to the queue. If an event has an
+ASCII interpretation but not a PETSCII interpretation, then ASCIIKEY will
+contain the ASCII value, and PETSCIIKEY will contain \$FF. Similarly, ASCIIKEY
+will contain \$FF for typing events without an ASCII interpretation. The
+program is expected to use the other registers to determine whether the queue
+is empty, and skip typing events that do not have an interpretation useful to
+the program.
 
-The following tables show the hex value and unicode character that will be produced
-by each key combination. One table is provided for pressing a key on its own, and
-one table for each of the \specialkey{SHIFT}, \specialkey{CTRL}, \megasymbolkey, and
-\specialkey{ALT} keys.
+\underline{NOTE}: ASCII also uses \$FF to represent the "umlaut-y" character
+(Alt+Y). In this case (and only in this case), PETSCIIKEY is \$59 (regular Y).
+If your program needs to distinguish between a non-ASCII typing event and
+Alt+Y, test whether PETSCIIKEY is \$59 when ASCIIKEY is \$FF.
+
+To dequeue the top typing event, write any value to either ASCIIKEY (\$D610)
+or PETSCIIKEY (\$D619). If the queue has another event, it becomes visible on
+the registers. Otherwise, the registers go to their empty queue state.
+
+\subsection{Reading Immediate Modifier Keys}
+
+In addition to recording the modifier keys pressed during a typing event, a
+program can read the immediate state of the modifier keys with register
+\$D611. This uses the same bit pattern as MODKEY. See the table, above.
+
+Remember that the immediate modifier key register represents the current state
+of the modifier keys being held, which may be different from the modifier keys
+held during the typing event at the top of the queue.
+
+\subsection{Interpreting ASCII Typing Events}
+
+The ASCIIKEY register makes it possible to read entry of the ASCII symbols not
+available in PETSCII, including \{, \_ and |, which are not possible to type
+on a normal C64 and C128 keyboards. The keyboard and the ASCII interpretation
+supports most Latin-1 code-page characters, allowing the entry of many
+accented characters. These keys are entered by holding down \megasymbolkey and
+pressing other keys or key-combinations. The use of ASCII or Unicode
+basic-Latin symbols not present in the PETSCII character set requires the use
+of a font that contains these symbols, and software which supports them.
+
+The following tables show the hex value and Unicode character that will be
+produced by each key combination on the ASCIIKEY register. One table is
+provided for pressing a key on its own, and one table for each of the
+\specialkey{SHIFT}, \specialkey{CTRL}, \megasymbolkey, and \specialkey{ALT}
+keys.
 
 \begin{minipage}{\textwidth}
 \bf{Keys pressed alone:}
@@ -88,9 +152,9 @@ one table for each of the \specialkey{SHIFT}, \specialkey{CTRL}, \megasymbolkey,
 \subsection{Unicode Basic-Latin Keyboard Map}
 
 The following tables are a convenient reference to help you find a key combination
-that will produce the desired ASCII/Unicode basic-latin character code.  Note that
+that will produce the desired ASCII/Unicode basic-Latin character code.  Note that
 a very few codes are difficult to type in practice, because they are mapped to
-key combinations that perform other functions, in particular the combination of
+key combinations that perform other functions. In particular, the combination of
 \megasymbol + \specialkey{TAB} is normally overridden by the Matrix Mode hardware
 debug feature.
 

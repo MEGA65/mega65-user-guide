@@ -18,34 +18,54 @@ pipeline {
         */
         stage('Build MEGA65 Book') {
             steps {
-                sh "make REPOPATH=. mega65-book.pdf"
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh "make REPOPATH=. mega65-book.pdf"
+                }
             }
         }
         stage('Build MEGA65 BASIC65 Reference') {
             steps {
-                sh "make REPOPATH=. mega65-basic65-reference.pdf"
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh "make REPOPATH=. mega65-basic65-reference.pdf"
+                }
             }
         }
         stage('Build MEGA65 Chipset Reference') {
             steps {
-                sh "make REPOPATH=. mega65-chipset-reference.pdf"
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh "make REPOPATH=. mega65-chipset-reference.pdf"
+                }
             }
         }
         stage('Build MEGA65 Developer Guide') {
             steps {
-                sh "make REPOPATH=. mega65-developer-guide.pdf"
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh "make REPOPATH=. mega65-developer-guide.pdf"
+                }
             }
         }
         stage('Build MEGA65 Userguide') {
             steps {
-                sh "make REPOPATH=. mega65-userguide.pdf"
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh "make REPOPATH=. mega65-userguide.pdf"
+                }
+            }
+        }
+        stage('Set build result') {
+            steps {
+                script {
+                    def files = findFiles(glob: 'mega65-*.pdf')
+                    // if we did not build any PDF successfully, we need to set the build result
+                    if (files.length == 0) {
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
             }
         }
     }
     post {
         always {
             archiveArtifacts artifacts: "mega65-*.pdf*",
-                onlyIfSuccessful: true,
                 fingerprint: true
         }
     }

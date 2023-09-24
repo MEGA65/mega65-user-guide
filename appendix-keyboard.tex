@@ -42,37 +42,34 @@ methods dequeues a typing event from the queue.
 The status of the typing event queue is visible on these registers:
 
 \begin{center}
-\begin{tabular}{|l|l|}
-    \hline
-    {\bf Name} & {\bf I/O address} & {\bf Description}
-    \hline
-    ASCIIKEY & \$D610 & The top event as ASCII, \$FF if no interpretation, or \$00 if queue is empty \\
-    \hline
-    PETSCIIKEY & \$D619 & The top event as PETSCII, or \$FF if no interpretation \\
-    \hline
-    MODKEY & \$D60A[0:6] & Modifier keys held during the event \\
-    \hline
-    KEYQUEUE & \$D60A[7] & 1 if the queue is non-empty \\
-    \hline
+\begin{tabular}{|p{5.5em}|p{6em}|p{22em}|}
+\hline
+\bf{Name} & \bf{I/O address} & \bf{Description} \\
+\hline
+ASCIIKEY & \$D610 & The top event as ASCII, \$FF if no interpretation, or \$00 if queue is empty \\
+\hline
+PETSCIIKEY & \$D619 & The top event as PETSCII, or \$FF if no interpretation \\
+\hline
+MODKEY & \$D60A[0:6] & Modifier keys held during the event \\
+\hline
+KEYQUEUE & \$D60A[7] & 1 if the queue is non-empty \\
+\hline
 \end{tabular}
 \end{center}
 
 The bits of MODKEY correspond to these modifier keys, with 1 meaning the key
 was held during the event:
 
-\begin{adjustwidth}{}{-2cm}
-\begin{multicols}{2}
-\begin{description}[align=left,labelwidth=0.2cm]
-\item[Bit 0] Right \specialkey{SHIFT}
-\item[Bit 1] Left \specialkey{SHIFT}
-\item[Bit 2] \specialkey{CTRL}
-\item[Bit 3] \megasymbolkey
-\item[Bit 4] \specialkey{ALT}
-\item[Bit 5] \specialkey{NO\\SCROLL}
-\item[Bit 6] \specialkey{CAPS\\LOCK}
-\end{description}
-\end{multicols}
-\end{adjustwidth}
+\begin{center}
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{|*{7}{>{\centering\arraybackslash}p{3em}|}}
+\hline
+\bf{Bit 6} & \bf{Bit 5} & \bf{Bit 4} & \bf{Bit 3} & \bf{Bit 2} & \bf{Bit 1} & \bf{Bit 0} \\
+\hline
+\specialkey{CAPS\\LOCK} & \specialkey{NO\\SCROLL} & \specialkey{ALT} & \megasymbolkey & \specialkey{CTRL} & \specialkey{SHIFT\\left} & \specialkey{SHIFT\\right} \\
+\hline
+\end{tabular}}
+\end{center}
 
 If ASCIIKEY (\$D610) reads as \$00, then the typing queue is empty. A program
 must test ASCIIKEY for \$00, or test KEYQUEUE (bit 7 of \$D60A), to determine
@@ -126,27 +123,27 @@ keys.
 
 \begin{minipage}{\textwidth}
 \bf{Keys pressed alone:}
-\include{keymap_table_1}
+\input{keymap_table_1}
 \end{minipage}
 
 \begin{minipage}{\textwidth}
 \bf{Keys pressed with \specialkey{SHIFT}}
-\include{keymap_table_2}
+\input{keymap_table_2}
 \end{minipage}
 
 \begin{minipage}{\textwidth}
 \bf{Keys pressed with \specialkey{CTRL}}
-\include{keymap_table_3}
+\input{keymap_table_3}
 \end{minipage}
 
 \begin{minipage}{\textwidth}
 \bf{Keys pressed with \megasymbolkey}
-\include{keymap_table_4}
+\input{keymap_table_4}
 \end{minipage}
 
 \begin{minipage}{\textwidth}
 \bf{Keys pressed with \specialkey{ALT}}
-\include{keymap_table_5}
+\input{keymap_table_5}
 \end{minipage}
 
 \subsection{Unicode Basic-Latin Keyboard Map}
@@ -158,7 +155,7 @@ key combinations that perform other functions. In particular, the combination of
 \megasymbol + \specialkey{TAB} is normally overridden by the Matrix Mode hardware
 debug feature.
 
-\include{unicode_mapping}
+\input{unicode_mapping}
 
 
 \section{Keyboard Theory of Operation}

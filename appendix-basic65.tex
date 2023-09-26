@@ -2499,13 +2499,11 @@ X=60:PRINT COS(X * ~ / 180)
 \index{BASIC 65 Commands!CURSOR}
 \begin{description}[leftmargin=2cm,style=nextline]
 %\item [Token:] \$??
-\item [Format:] {\bf CURSOR} \{column{\bf,} row{\bf,} style\}
+\item [Format:] {\bf CURSOR} column{\bf,} row{\bf}
 \item [Usage:] Moves the text cursor to
                the specified position on the current text screen.
 
                {\bf column} and {\bf row} specify the new position.
-
-               {\bf style} sets a solid (1) or flashing (0) cursor.
 %\item [Remarks:]
 % Ignore line 100's REM statement indentation. Needed to be there to be aligned in the PDF - Impakt
 \item [Example:] Using {\bf CURSOR}
@@ -2513,16 +2511,14 @@ X=60:PRINT COS(X * ~ / 180)
 \verbatimfont{\codefont}
 \begin{verbatim}
 10  SCNCLR
-20  CURSOR ON,1,2,1         :REM DISPLAY A SOLID CURSOR AT COLUMN 1, ROW 2
+20  CURSOR 1,2
 30  PRINT "A"; : SLEEP 1
-40  CURSOR ,,0              :REM CHANGE TO A FLASHING CURSOR
-50  PRINT "B"; : SLEEP 1
-60  CURSOR OFF              :REM HIDE THE CURSOR
-70  PRINT "C"; : SLEEP 1
-80  CURSOR 20,10            :REM MOVE THE CURSOR TO COLUMN 20, ROW 10
-90  PRINT "D"; : SLEEP 1
-100 CURSOR ,50                  :REM MOVE THE CURSOR TO ROW 5 BUT DO NOT CHANGE THE COLUMN
-110 PRINT "E"; : SLEEP 1
+40  PRINT "B"; : SLEEP 1
+50  PRINT "C"; : SLEEP 1
+60  CURSOR 20,10
+70  PRINT "D"; : SLEEP 1
+80  CURSOR ,5               :REM MOVE THE CURSOR TO ROW 5 BUT DO NOT CHANGE THE COLUMN
+90  PRINT "E"; : SLEEP 1
 100 CURSOR 0                :REM MOVE THE CURSOR TO THE START OF THE ROW
 110 PRINT "F"; : SLEEP 1
 \end{verbatim}
@@ -4992,7 +4988,7 @@ ARE YOU SURE?
  80 RETURN
  90 *** MAIN PROGRAM ***
 100 DOPEN#2,"BIG DATA"
-110 GOSUB 30: IF DD THEN DCLOSE#2:GOTO 60:REM ASK
+110 GOSUB 30: IF DD THEN DCLOSE#2:GOSUB 60:REM ASK
 120 IF A$="N" THEN STOP
 130 GOTO 100: REM RETRY
 \end{verbatim}
@@ -7178,7 +7174,7 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 
                 {\bf COLOR} keyword for changing system palette.
 
-                {\bf colour} index to palette (0 -- 255).
+                {\bf colour} index to palette entry (0 -- 255). PALETTE can define colors beyond the default system palette entries 0 -- 31.
 
                 {\bf red} red intensity (0 -- 15).
 
@@ -8709,11 +8705,11 @@ DRAW PEN COLOUR =  1
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 BANK 128
- 20 BLOAD "ML PROG",8192
- 30 SYS 8192
- 40 RREG A,X,Y,Z,S
- 50 PRINT "REGISTER:";A;X;Y;Z;S
+ 10 POKE $1800, $18, $8A, $65, $06, $60
+ 20 REM         CLC  TXA  ADC   06  RTS
+ 30 SYS $1800, 77, 11  : REM A=77 X=11
+ 40 RREG AC,X,Y,Z,S
+ 50 PRINT "REGISTER:";AC;X;Y;Z;S
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -10603,12 +10599,9 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 UX = DEC("7F00")             :REM ADDRESS OF USER ROUTINE
- 20 BANK 128                     :REM SELECT SYSTEM BANK
- 30 BLOAD "ML-PROG",P(UX)        :REM LOAD USER ROUTINE
- 40 POKE (DEC("2F8")),UX AND 255 :REM USR JUMP TARGET LOW
- 50 POKE (DEC("2F9")),UX / 256   :REM USR JUMP TARGET HIGH
- 60 PRINT USR(~)                 :REM PRINT RESULT FOR ARGUMENT PI
+ 10 WPOKE $2F8, $7F33  : REM NEGATE ROUTINE
+ 20 PRINT USR(~)
+ 30 PRINT USR(-5)
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

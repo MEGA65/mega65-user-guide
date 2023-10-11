@@ -10,7 +10,7 @@ You can copy D81 virtual disk images to your MEGA65-formatted SD card using any 
 
 The fastest and most reliable way to transfer files between your PC and your MEGA65 is with an Ethernet cable.\index{Networking!Ethernet} You connect one end of the cable to the RJ45 jack on the rear of the MEGA65. You can connect the other end to your local area network (LAN) router or switch, or connect it directly to your PC. You use software on your PC to initiate file transfers, in either direction: from the PC to the MEGA65, or from the MEGA65 to the PC.
 
-It is also possible to transfer files using a JTAG or UART Serial interface connected to the main board. This is an advanced technique and is not described in this User's Guide. Most people will prefer the Ethernet method.\footnote{JTAG or UART Serial hardware provides access to a debugging interface that may be useful to some programmers. JTAG is also useful for developing FPGA cores. For more information, see {\it MEGA65 Developer's Guide.}}
+It is also possible to transfer files using a JTAG or UART Serial interface connected to the main board. This is an advanced technique and is not described in this User's Guide. Most people will prefer the Ethernet method.\footnote{JTAG or UART Serial hardware provides access to a debugging interface that may be useful to some programmers. JTAG is also useful for developing FPGA cores. For more information, see the {\it MEGA65 Developer's Guide.}}
 
 \section{Understanding Networking}
 
@@ -18,17 +18,9 @@ The MEGA65 can use Ethernet to connect to or accept connections from other compu
 
 The MEGA65 Ethernet hardware presents a Media Access Control (MAC) address to the local network.\index{Networking!MAC address} Unlike other Ethernet hardware, the MEGA65's MAC address is not assigned at the factory: it is set in the Configuration Utility. (See chapter \vref{cha:configuringyourmega}.)
 
-For file transfers, you instruct the MEGA65 to listen for incoming connections, then use M65Connect (or another tool, such as \texttt{mega65\_ftp}) on your PC to initiate a connection. The tool assigns an IP address to the MEGA65 that is an address on your local network. You will need to know your local network's valid range of IP addresses to determine an appropriate address for the MEGA65. A typical home router establishes a local network with addresses such as \texttt{192.168.0.x}, where \texttt{x} is a number in the range 2 -- 254. One possible local IP address for the MEGA65 on such a network might be \texttt{192.168.0.65}.
+To transfer files, you instruct the MEGA65 to make itself available for incoming connections, then use M65Connect (or another tool, such as \texttt{mega65\_ftp}) on your PC to initiate a connection. Your PC's operating system may prompt for permission to grant the tool access to the network when you run it for the first time. The tool uses UDP port 4510 to establish the initial connection with the MEGA65 and assign it a temporary IPv6 address for the file transfer session. This requires a local network router that supports IPv6, which most do.
 
-% TODO: Our tools may eventually involve DHCP in the automatic selection of an IP address for the MEGA65.
-
-Modern computers typically use the Dynamic Host Configuration Protocol (DHCP) to obtain an IP address from the local router. The MEGA65 network listener does not support DHCP. You will need to configure your router to prevent the IP address that you select for the MEGA65 from being assigned to another computer. See your router's documentation for information on how to do this. (It is possible to avoid this step if no other computer on your network is assigned to the address you pick, but it's best to not leave this to chance.)
-
-Most local network routers are configured to block incoming connections originating from the Internet (a ``firewall''). This is an important safety precaution in general. This is especially important for the MEGA65, because the MEGA65 network listener has no security protections of its own. {\em Do not configure your network router to allow incoming connections to reach the MEGA65 when using the network listener feature described below.}
-
-% TODO: more info on how to pick an IP address based on a direct Ethernet connection
-
-As an alternative to connecting the MEGA65 to your local network, if your PC has an Ethernet jack, you can connect your MEGA65 directly to your PC via Ethernet. In this case, the IP address of the MEGA65 can be any valid address compatible with your PC's network configuration.
+As an alternative to connecting the MEGA65 to your local network, if your PC has an Ethernet jack, you can connect your MEGA65 directly to your PC with an Ethernet cable. This forms a small local network with no access to the Internet. The procedure for transferring files is the same with a direct connection as with a local network connection.
 
 \section{Obtaining the File Transfer Tools}
 \index{M65Connect Application}
@@ -102,7 +94,7 @@ To enable a network listening session, press \specialkey{SHIFT} + \megakey{\poun
 
 To transfer files, you will start a file transfer session using the M65Connect application or the {\tt mega65\_ftp} command-line tool. This connects to the MEGA65 and uploads a file transfer client for use during the session. When you end the session, the MEGA65 resets.
 
-Starting a file transfer session resets the MEGA65. As a precaution, the session will not start if there is a program in memory. Save any programs or data, then clear program memory (such as with the {\bf NEW} command) before proceeding.
+Starting a file transfer session resets the MEGA65. Be sure to save any programs or data before proceeding.
 
 \underline{NOTE}: If you clear memory by resetting the computer, remember to re-enable network listening: press \specialkey{SHIFT} + \megakey{\pounds}, and ensure the power light is blinking.
 
@@ -115,12 +107,10 @@ Starting a file transfer session resets the MEGA65. As a precaution, the session
 
 The {\tt mega65\_ftp} command-line tool initiates a file transfer session with the MEGA65. It can run interactively in the terminal and accept multiple file transfer commands, or it can run non-interactively with those commands provided as arguments.
 
-% TODO: This may be updated in the future to allow for automatic selection of an IP address.
-
-To start an interactive file transfer session, run the {\tt mega65\_ftp} command, providing the IP address you have selected for the MEGA65 as the {\tt -i} argument.
+To start an interactive file transfer session, run the {\tt mega65\_ftp} command, providing the {\tt -e} argument to say you want to use an Ethernet connection.
 
 \begin{verbatim}
-% mega65_ftp -i 192.168.0.65
+% mega65_ftp -e
 \end{verbatim}
 
 The tool will upload the file transfer client, and you will see it the client running on the MEGA65. If nothing happens, press Ctrl-C (on the PC) to abort, then double-check that the MEGA65 is connected and that network listening is enabled.
@@ -169,7 +159,7 @@ The following are several useful commands you can use during the file transfer s
 To invoke {\tt mega65\_ftp} commands without starting an interactive prompt, use the {\tt -c} argument once for each command:
 
 \begin{verbatim}
-% mega65_ftp -i 192.168.0.65 -c 'put mydisk.d81' -c 'exit'
+% mega65_ftp -e -c 'put mydisk.d81' -c 'exit'
 \end{verbatim}
 
 The tool will start a session, execute the commands, then terminate. Be sure to issue the {\tt exit} command as the final command to reset the MEGA65, or reset the MEGA65 manually after the file transfer has completed.

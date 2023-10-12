@@ -4,6 +4,7 @@ REPOPATH=.
 
 BOOKS=	mega65-book.pdf \
 	mega65-userguide.pdf \
+	mega65-userguide-lulu.pdf \
 	mega65-developer-guide.pdf \
 	mega65-chipset-reference.pdf \
 	mega65-assembly-reference.pdf \
@@ -91,6 +92,10 @@ instructionset-6502.tex opcodetable-6502.tex:	instruction_sets/* instruction_set
 mega65-userguide.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-userguide.tex
+
+mega65-userguide-lulu.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+	./getgitinfo
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-userguide-lulu.tex
 
 mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo

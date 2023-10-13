@@ -31,9 +31,9 @@ argument and the string argument.
 
 Here is an example of using the {\bf KEY} command based on this pattern:
 
-\begin{screenoutput}
+\begin{screencode}
 KEY 8,"LIST"+CHR$(13)
-\end{screenoutput}
+\end{screencode}
 
 When you see square brackets around arguments, this indicates that the arguments
 are optional. You are not meant to type the square brackets. Consider this
@@ -44,11 +44,11 @@ description of the {\bf CIRCLE} command, which accepts optional arguments:
 The following examples of the {\bf CIRCLE} command are both valid. They have
 different behavior based on their different arguments.
 
-\begin{screenoutput}
+\begin{screencode}
 CIRCLE 100,150,30
 
 CIRCLE 100,150,30,0,45,135
-\end{screenoutput}
+\end{screencode}
 
 This arrangement of keywords, symbols, and arguments is called {\em syntax}. If
 you leave something out, or put the wrong thing in the wrong place, the computer
@@ -61,7 +61,7 @@ more easily find and fix the problem. For example, if you omit the comma in the
 a \screentext{?SYNTAX ERROR}:
 
 \newpage
-\begin{screenoutput}
+\begin{screencode}
 READY.
 KEY 8"FISH"
 
@@ -71,7 +71,7 @@ KEY 8."FISH"
 
 ?SYNTAX ERROR
 READY.
-\end{screenoutput}
+\end{screencode}
 
 Expressions can be a number value such as \screentext{23.7}, a string value such
 as \screentext{"HELLO"}, or a more complex calculation that combines values,
@@ -85,14 +85,14 @@ doesn't match what it expected. For example, the following command results in a
 \screentext{?TYPE MISMATCH ERROR}, because \screentext{"POTATO"} is a string
 expression, and a numeric expression is expected:
 
-\begin{screenoutput}
+\begin{screencode}
 KEY "POTATO","SOUP"
-\end{screenoutput}
+\end{screencode}
 
 Commands are statements that you can use directly from the \screentext{READY.}
 prompt, or from within a program, for example:
 
-\begin{screenoutput}
+\begin{screencode}
 READY.
 PRINT "HELLO"
 HELLO
@@ -101,16 +101,16 @@ READY.
 10 PRINT "HELLO"
 RUN
 HELLO
-\end{screenoutput}
+\end{screencode}
 
 You can place a sequence of statements within a single line by separating them with colons, for example:
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT "HELLO" : PRINT "HOW ARE YOU?" : PRINT "HOW IS THE WEATHER?"
 HELLO
 HOW ARE YOU?
 HOW IS THE WEATHER?
-\end{screenoutput}
+\end{screencode}
 
 \subsection{Direct Mode Commands}
 \index{BASIC 65 Commands!Direct Mode}
@@ -206,11 +206,11 @@ begin with \screentext{AA}.
 One way to store a value in a variable is with the assignment {\bf =}
 operator. For example:
 
-\begin{screenoutput}
+\begin{screencode}
 AA = 1.95
 
 AA$ = "HELLO, "
-\end{screenoutput}
+\end{screencode}
 
 Variable names must start with a letter, and contain only letters and
 numbers. They can be of any length, but Commodore BASIC only recognizes
@@ -227,11 +227,11 @@ A variable can be used within an expression with other constants, variables,
 functions, and operators. It is substituted with the value that it contains at
 that point in the program's execution.
 
-\begin{screenoutput}
+\begin{screencode}
 10 INPUT "WHAT IS YOUR NAME";NA$
 20 MSG$ = "HELLO, "+NA$+"!"
 20 PRINT MSG$
-\end{screenoutput}
+\end{screencode}
 
 Unlike some programming languages, BASIC variables do not need to be declared
 before use. A variable has a default value of zero for number type variables,
@@ -269,7 +269,7 @@ variable that can store multiple values, called an {\em array}.
 The following example stores three string values in an array, then uses a {\bf
 FOR} loop to {\bf PRINT} a message for each element:
 
-\begin{screenoutput}
+\begin{screencode}
 10 DIM NA$(3)
 20 NA$(0) = "DEFT"
 30 NA$(1) = "GARDNERS"
@@ -277,7 +277,7 @@ FOR} loop to {\bf PRINT} a message for each element:
 50 FOR I=0 TO 3
 60 PRINT "HELLO, ";NA$(I);"!"
 70 NEXT I
-\end{screenoutput}
+\end{screencode}
 
 Each value in an array is referenced by the name of the array variable and an
 integer index. For example, \screentext{AA(7)} refers to the element of the
@@ -306,13 +306,13 @@ comma. The array must be declared with the maximum value for each dimension.
 Keep in mind that BASIC 65 allocates memory for the entire array, so large
 arrays may be constrained by available memory.
 
-\begin{screenoutput}
+\begin{screencode}
 DIM BO$(3,3)
 BO$(1,1) = "X"
 BO$(0,0) = "O"
 BO$(0,2) = "X"
 BO$(1,0) = "O"
-\end{screenoutput}
+\end{screencode}
 
 \subsection{Screen Text and Colour Arrays}
 \label{sec:screentextandcolourarrays}
@@ -341,13 +341,13 @@ palette. Upper bits also set text attributes, such as blinking.
 Like regular arrays, the screen and colour array entries can be assigned new
 values, or used in expressions to refer to their current values.
 
-\begin{screenoutput}
+\begin{screencode}
 10 FOR X=10 TO 30
 20 T@&(X,2)=1
 30 C@&(X,2)=INT(RND(1)*16)
 40 NEXT X
 50 PRINT "COLOUR AT POSITION 15: ";C@&(15,2)
-\end{screenoutput}
+\end{screencode}
 
 The dimensions of these arrays depend on the current text screen mode. In 80
 $\times$ 25 text mode, the column is in the range 0 -- 79, and the row is in
@@ -365,35 +365,35 @@ For example, the {\bf *} (asterisk) operator performs a multiplication of two
 number operands. The operator and its operands evaluate to the result of the
 multiplication.
 
-\begin{screenoutput}
+\begin{screencode}
 A=6
 PRINT A*7
-\end{screenoutput}
+\end{screencode}
 
 The {\bf +} (plus) operator has a different meaning depending on the type of
 the operands. If both operands are numbers, then the operator performs an
 addition of the numbers. If both operands are strings, then the operator
 evaluates to a new string that is the concatenation of the operands.
 
-\begin{screenoutput}
+\begin{screencode}
 A=64
 PRINT A+1
 
 A$="MEGA"
 PRINT A$+"65"
-\end{screenoutput}
+\end{screencode}
 
 The {\bf -} (minus) operator accepts either one operand or two operands. Given
 one number operand on the right-hand side, it evaluates to the negation of
 that number. Given two number operands, one on either side, it evaluates to
 the subtraction of the second operand from the first operand.
 
-\begin{screenoutput}
+\begin{screencode}
 A=64
 PRINT -A
 
 PRINT A-16
-\end{screenoutput}
+\end{screencode}
 
 The {\bf =} symbol is used both as an assignment statement and as a relational
 operator. As an assignment, the {\bf =} symbol is a statement that updates the
@@ -402,10 +402,10 @@ reference, and its type must match the type of the expression on the
 right-hand side. The assignment is not an operator: it is not part of an
 expression.
 
-\begin{screenoutput}
+\begin{screencode}
 AA=7
 NA$="DEFT"
-\end{screenoutput}
+\end{screencode}
 
 As a relational operator, the {\bf =} symbol behaves as an expression.
 It evaluates the expressions on both sides of the operator, then tests whether
@@ -415,19 +415,19 @@ evaluates to 0, or ``false.'' The equality expression can be used with an {\bf
 IF} statement to control program flow, or it can be used as part of a numeric
 expression. Both expressions must be of the same type.
 
-\begin{screenoutput}
+\begin{screencode}
 100 IF X=99 THEN 130
 110 X=X+1
 120 GOTO 100
 130 PRINT "DONE."
-\end{screenoutput}
+\end{screencode}
 
 BASIC 65 knows the difference between assignment and equality based on
 context. Consider this line of code:
 
-\begin{screenoutput}
+\begin{screencode}
 A = B = 10
-\end{screenoutput}
+\end{screencode}
 
 BASIC 65 expects a statement, and notices a variable name followed by the
 {\bf =} symbol. It concludes that this is a statement assigning a value
@@ -441,19 +441,19 @@ as logical operators or as boolean operators. A logical operator joins two
 conditional expressions as operands and evaluates to the logical comparison of
 their truth values.
 
-\begin{screenoutput}
+\begin{screencode}
 IF X=99 OR Y<5 THEN 130
 
 IF Y>10 AND Y<20 THEN 150
-\end{screenoutput}
+\end{screencode}
 
 A boolean operator accepts two number operands and performs a calculation on
 the bits of the binary values.
 
-\begin{screenoutput}
+\begin{screencode}
 A=17
 PRINT A AND 20
-\end{screenoutput}
+\end{screencode}
 
 Unlike other cases where operators have different behaviors based on how they
 are used, BASIC 65 does not need to determine whether these operators are
@@ -469,9 +469,9 @@ and false'' is equivalent to the binary boolean expression {\tt \%....0000 \&
 Conditional expressions evaluating to numbers can be used in some clever
 programming tricks. Consider this example:
 
-\begin{screenoutput}
+\begin{screencode}
 A = A - (B > 7)
-\end{screenoutput}
+\end{screencode}
 
 This statement will increment the value in the \screentext{A} by 1 if the
 value in \screentext{B} is greater than 7. Otherwise it leaves it unchanged.
@@ -7340,10 +7340,10 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
                of the 4 SID chips of the system. By default, SID1 and SID2 are slightly
                right-biased and SID3 and SID4 are slightly left-biased in the stereo mix.
 
-\begin{screenoutput}
+\begin{screencode}
 PLAY "CEG"
 PLAY "C","E","G"
-\end{screenoutput}
+\end{screencode}
 
                Within a {\bf PLAY} string, a musical note is a character (A, B, C, D, E, F, or G),
                which may be preceded by an optional modifier.

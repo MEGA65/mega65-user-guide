@@ -21,7 +21,7 @@ void parse_basic_text(char* s)
     strcpy(prog_lines[prog_line_count++],s);
   } else {
     if (prog_line_count==MAX_PROG_LINES) {
-      fprintf(stderr,"ERROR: Program listing looks too long. Missing \\end{screenoutput}, perhaps?\n");
+      fprintf(stderr,"ERROR: Program listing looks too long. Missing \\end{screencode}, perhaps?\n");
       fprintf(stderr,"First few lines of program are:\n");
       for(int i=0;i<10;i++)
 	fprintf(stderr,"  %s\n",s);
@@ -232,12 +232,12 @@ void parse_tex_file(char *filename)
 	start_program(filename);
       }
     }
-    else if (!strncmp("\\begin{screenoutput}", line, strlen("\\begin{screentext}"))) {
+    else if (!strncmp("\\begin{screencode}", line, strlen("\\begin{screentext}"))) {
       //        fprintf(stderr, "BEGIN\n");
 	in_code=1;
 	start_program(filename);
     }
-    else if (!strncmp("\\end{screenoutput}", line, strlen("\\end{screentext}"))) {
+    else if (!strncmp("\\end{screencode}", line, strlen("\\end{screentext}"))) {
       //      fprintf(stderr, "END\n");
       
       if (in_code) end_program();

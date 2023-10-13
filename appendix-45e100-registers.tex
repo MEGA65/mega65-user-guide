@@ -138,41 +138,41 @@ memory area using one of the three mechanisms for accessing extended address spa
 The method of
 disabling interrupts differs depending on the context in which a program is being written. For programs being written using C64-mode's BASIC 2, the following will work:
 
-\begin{screenoutput}
+\begin{screencode}
   POKE56333,127: REM DISABLE CIA TIMER IRQS
-\end{screenoutput}
+\end{screencode}
 
 While for MEGA65's BASIC 65, the following must instead be used, because a VIC-III raster interrupt is used instead of a CIA-based timer interrupt:
 
-\begin{screenoutput}
+\begin{screencode}
 POKE53274,0: REM DISABLE VIC-II/III/IV RASTER IRQS
-\end{screenoutput}
+\end{screencode}
 
 Once this has been done, the I/O context for the ethernet controller can be activated by writing \$45 (69 in decimal, equal to the character 'E' in PETSCII)) and \$54 (84 in decimal, equal to the character 'T' in PETSCII) into the VIC-IV's KEY register (\$D02F, 53295 in decimal), for example:
 
-\begin{screenoutput}
+\begin{screencode}
 POKE53295,ASC("E"):POKE53295,ASC("T")
-\end{screenoutput}
+\end{screencode}
 
 At this point, the ethernet RX buffer can be read beginning at location \$D000 (53248 in decimal), and the TX buffer can be written to at the same address.  Refer to `Theory of Operation: Receiving Frames' above for further explanation on this.
 
 Once you have finished accessing the ethernet frame buffer, you can restore the normal C64, C65 or MEGA65 I/O context by writing to the VIC-III/IV's KEY register.  In most cases, it will make the most sense to revert to the MEGA65's I/O context by writing \$47 (71 decimal) in and \$53 (83 in decimal) to the KEY register, for example:
 
-\begin{screenoutput}
+\begin{screencode}
 POKE53295,ASC("G"):POKE53295,ASC("S")
-\end{screenoutput}
+\end{screencode}
 
 Finally, you should then re-enable interrupts, which will again depend on whether you are programming from C64 or C65-mode.  For C64-mode:
 
-\begin{screenoutput}
+\begin{screencode}
 POKE56333,129
-\end{screenoutput}
+\end{screencode}
 
 For C65-mode it would be:
 
-\begin{screenoutput}
+\begin{screencode}
 POKE53274,129
-\end{screenoutput}
+\end{screencode}
 
 
 
@@ -249,9 +249,9 @@ It is therefore only available in the MEGA65 I/O context.
 This is enabled by writing \$53 and then \$47 to VIC-IV register \$D02F.
 If programming in BASIC, this can be done with:
 
-\begin{screenoutput}
+\begin{screencode}
 POKE53295,ASC("G"):POKE53295,ASC("S")
-\end{screenoutput}
+\end{screencode}
 
 The 45E100 Fast Ethernet controller has the following registers
 
@@ -262,9 +262,9 @@ The 45E100 Fast Ethernet controller has the following registers
 The following values can be written to the COMMAND register to perform the described functions.
 In normal operation only the STARTTX command is required, for example, by performing the following {\bf POKE}:
 
-\begin{screenoutput}
+\begin{screencode}
 POKE55012,1
-\end{screenoutput}
+\end{screencode}
 
 \input{regtable_ETHCOMMAND.MEGA65}
 

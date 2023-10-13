@@ -15,18 +15,18 @@ For a complete catalog of available characters, refer to \bookvref{appendix:asci
 
 Here's an example of printing the exclamation mark using a character code:
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT CHR$(33)
 !
-\end{screenoutput}
+\end{screencode}
 
 Note that the '!' is actually visible on the display because it is a printable character.
 
 Here's an example of changing the foreground colour to white using character codes:
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT CHR$(5)
-\end{screenoutput}
+\end{screencode}
 
 Although no character is output, all subsequent printable characters displayed will be coloured white.
 
@@ -34,83 +34,83 @@ Sometimes it can be useful to do the conversion in reverse: from a character to 
 
 Here's an example of obtaining the code number for the exclamation mark.
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT ASC("!")
  33
-\end{screenoutput}
+\end{screencode}
 
 And here's an example of obtaining the code number for the exclamation mark and storing it in an integer variable:
-\begin{screenoutput}
+\begin{screencode}
 A% = ASC("!")
-\end{screenoutput}
+\end{screencode}
 
 Although we could output individual characters repeatedly by using {\bf CHR\$} it would be tedious to do this all the time.
 
 The concept of a string is needed because it embodies the idea of a contiguous block of text. Thus, a string can contain multiple printable and/or multiple non-printable characters in any combination. A string can potentially be empty and contain no characters at all. To write a string we enclose the character\(s\) inside quotation marks. So "HELLO WORLD!" is an example of a string literal.
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT "HELLO WORLD!"
 HELLO WORLD!
-\end{screenoutput}
+\end{screencode}
 
 All strings have a property called length which is how many printable and non-printable characters there are present in that string. The length can be as low as 0 (the empty string) or as high as 255. Attempting to create a string with a length in excess of 255 characters results in a {\bf ?STRING TOO LONG ERROR}.
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT LEN("HELLO WORLD!")
  12
-\end{screenoutput}
+\end{screencode}
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT LEN("")
  0
-\end{screenoutput}
+\end{screencode}
 
 It is possible to create variables specifically for strings. All such string variables have names that begin with a leading alphabetic character, have an optional second character that is alphanumeric, and end with a \$ sign. Once given a value, they can be used with {\bf PRINT}.
 
-\begin{screenoutput}
+\begin{screencode}
 AB$ = "HELLO WORLD!": PRINT AB$
 HELLO WORLD!
-\end{screenoutput}
+\end{screencode}
 
-\begin{screenoutput}
+\begin{screencode}
 A1$ = "HELLO WORLD!": PRINT LEN(A1$)
  12
-\end{screenoutput}
+\end{screencode}
 
 \section{String Literals}
 String literals can be joined with one or more other such string literals to form a compound string. This process is called {\it concatenation}. To concatenate two or more string literals, use the + operator to chain them together.
 
 Here are some examples:
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT ("SECOND" + "HAND")
 SECONDHAND
-\end{screenoutput}
+\end{screencode}
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT ("COUNTER" + "CLOCK" + "WISE")
 COUNTERCLOCKWISE
-\end{screenoutput}
+\end{screencode}
 
 Sometimes punctuation or spaces may be required to make the final output appear correctly formatted, as in the following example.
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT ("FRUIT: " + "APPLE, " + "PEAR AND " + "RASPBERRY.")
 FRUIT: APPLE, PEAR AND RASPBERRY.
-\end{screenoutput}
+\end{screencode}
 
 \section{String Variables}
 
 Concatenation is more commonly used with string variables combined with string literals. For example, in a text-based adventure game you might want to list some exits such as north or south. Because these exits will vary depending on the location you are currently at it would make sense to use variables for the exits themselves and use concatenation with literals such as commas, spaces and full stops to format the output appropriately.
 
-\begin{screenoutput}
+\begin{screencode}
 A$ = "PEA": B$ = "NUT": PRINT (A$ + B$ + "BUTTER")
 PEANUTBUTTER
-\end{screenoutput}
+\end{screencode}
 
 It is also possible to use strings as the parameters of {\bf DATA} statements, to be read later, using the {\bf READ} statement. The following example also demonstrates that arrays can hold strings too.
 
-\begin{screenoutput}
+\begin{screencode}
 10 DIM A$(6)
 20 PRINT "RAINBOW COLOURS: ";
 30 FOR I = 0 TO 5
@@ -118,7 +118,7 @@ It is also possible to use strings as the parameters of {\bf DATA} statements, t
 50 NEXT I
 60 READ A$(I): PRINT ("AND " + A$(I) + ".")
 70 DATA "RED", "ORANGE", "YELLOW", "GREEN", "BLUE", "INDIGO", "VIOLET"
-\end{screenoutput}
+\end{screencode}
 
 It is common for string data or single-character data to come directly from user input. When the user types some text, that text will often need to be be parsed or printed back to the screen. In general, there are three main ways that this can be done: via the {\bf GET} statement, via the {\bf GETKEY} statement or via the {\bf INPUT} statement.
 
@@ -126,33 +126,33 @@ All three statements have different behaviours, and it's important to understand
 
 The {\bf GET} statement is useful for storing the current keypress in a variable. The program does not wait for a keypress: it continues executing the next statement immediately. For this reason it is sometimes important to place the {\bf GET} statement inside some kind of loop---the loop is to be exited only when a valid keypress is detected. If the variable to {\bf GET} is a string variable and no keypress is detected, then that string variable is set to equal an empty string.
 
-\begin{screenoutput}
+\begin{screencode}
 10 GET A$: REM DO NOT WAIT FOR A KEYPRESS--READ ANY KEYPRESS INTO THE VARIABLE
 20 PRINT A$: IF (A$ = "Y" OR A$ = "N") THEN END
 30 GOTO 10
-\end{screenoutput}
+\end{screencode}
 
 The {\bf GETKEY} statement is also useful for storing the current keypress in a variable. In constast to the {\bf GET} statement, the {\bf GETKEY} statement, when executed, does wait for a single keypress before it continues executing the next statement.
 
-\begin{screenoutput}
+\begin{screencode}
 10 GETKEY A$: REM WAIT FOR A KEYPRESS--PAUSE AND READ IT INTO THE VARIABLE
 20 PRINT A$: IF (A$ = "Y" OR A$ = "N") THEN END
 30 GOTO 10
-\end{screenoutput}
+\end{screencode}
 
 While {\bf GET} and {\bf GETKEY} are fine for reading single characters, the {\bf INPUT} statement is useful for reading in entire strings---that is, zero or more characters at a time.
 
 When the {\bf INPUT} statement is used with a comma and a variable, the prompt string is displayed normally with a cursor that permits the user to type in some text. When the {\bf INPUT} statement is used with a semicolon and a variable, the prompt string is displayed with a question mark appended and a cursor that permits the user to type in some text.
 
-\begin{screenoutput}
+\begin{screencode}
 10 INPUT "ENTER YOUR NAME", A$: REM NOT A QUESTION
 20 PRINT ("HELLO " + A$)
-\end{screenoutput}
+\end{screencode}
 
-\begin{screenoutput}
+\begin{screencode}
 10 INPUT "WHAT IS YOUR NAME"; A$: REM A QUESTION
 20 PRINT ("HELLO " + A$)
-\end{screenoutput}
+\end{screencode}
 
 In either case, pressing \specialkey{RETURN} will complete the text entry---the text entered will be stored in the given variable. Note that if the string variable is already equal to some string and \specialkey{RETURN} is pressed without entering in new data, then the old string value currently stored in the variable is retained.
 
@@ -160,25 +160,25 @@ In either case, pressing \specialkey{RETURN} will complete the text entry---the 
 There are three commonly-used string manipultion commands: {\bf MID\$}, {\bf LEFT\$} and {\bf RIGHT\$}. These are good for isolating substrings, including individual characters.
 
 The following program asks for an input string and then prints all left substrings.
-\begin{screenoutput}
+\begin{screencode}
 10 INPUT "ENTER A WORD:", A$
 20 PRINT "ALL LEFT SUBSTRINGS ARE:"
 30 FOR I = 0 TO LEN(A$)
 40 :  PRINT LEFT$(A$, I)
 50 NEXT I
-\end{screenoutput}
+\end{screencode}
 
 The following program asks for an input string and then prints all right substrings.
-\begin{screenoutput}
+\begin{screencode}
 10 INPUT "ENTER A WORD:", A$
 20 PRINT "ALL RIGHT SUBSTRINGS ARE:"
 30 FOR I = 0 TO LEN(A$)
 40 :  PRINT RIGHT$(A$, I)
 50 NEXT I
-\end{screenoutput}
+\end{screencode}
 
 The following program ask for an input string consisting of a first name following by a space followed by a last name. It then outputs the initial letters of both names.
-\begin{screenoutput}
+\begin{screencode}
 10 INPUT "ENTER A FIRST NAME, A SPACE AND A LAST NAME:", A$
 20 N = -1
 30 FOR I = 1 TO LEN(A$)
@@ -186,25 +186,25 @@ The following program ask for an input string consisting of a first name followi
 50 NEXT I
 60 IF (N = -1) THEN GOTO 10
 70 PRINT "INITIALS ARE: "; MID$(A$, 1, 1)+"."+MID$(A$, N + 1, 1)+"."
-\end{screenoutput}
+\end{screencode}
 
 \section{Simple Formatting}
 
 \subsection{Suppressing New Lines}
 When using the {\bf PRINT} statement in a program, the default behaviour is to output the string and then move to the next line. To stop the behaviour of automatically moving to the next line, simply append a ; (semicolon) after the end of the string. Constrast lines 10, 20 and 30 in the following program.
 
-\begin{screenoutput}
+\begin{screencode}
 10 PRINT "THIS A SINGLE LINE OF TEXT": REM A NEW LINE IS ADDED AT THE END
 20 PRINT "THE SECOND LINE"; : REM A NEW LINE IS SUPPRESSED
 30 PRINT " USES A SEMICOLON" : REM A NEW LINE IS ADDED AT THE END
-\end{screenoutput}
+\end{screencode}
 
 \subsection{Automatic Tab Stops}
 Sometimes is can be convenient to use the {\bf PRINT} statement to output information neatly into columns. This can be done by appending a , (comma) after the end of the string. Consider the following example program.
 
-\begin{screenoutput}
+\begin{screencode}
 10 PRINT "TEXT 1", "TEXT 2", "TEXT 3", "TEXT 4"
-\end{screenoutput}
+\end{screencode}
 
 Note that each tab stop is 10 characters apart. So TEXT 1 begins at column 0, TEXT 2 begins at column 10, TEXT 3 begins at column 20, and TEXT 4 begins at column 30.
 
@@ -223,7 +223,7 @@ We conclude with some examples.
 
 A {\it palindrome} is a word or phrase or number that reads the same forwards as it does backwards. Some examples are: CIVIC, LEVEL, RADAR, MADAM and 1234321. The following program reverses the input text and then determines whether the original phrase is equal to the reversed phrase.
 
-% \begin{screenoutput}
+% \begin{screencode}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
@@ -237,7 +237,7 @@ A {\it palindrome} is a word or phrase or number that reads the same forwards as
 80 GOTO 20
 \end{verbatim}
 \end{tcolorbox}
-% \end{screenoutput}
+% \end{screencode}
 
 
 \subsection{Simple Ciphers}
@@ -288,9 +288,9 @@ As an example, the number 28 in modulo 26 is equal to 2:
 
 The program at the end of this chapter makes use of this formula by defining a corresponding function at line 30:
 
-\begin{screenoutput}
+\begin{screencode}
 DEF FN F(X)=X-INT(X/26)*26
-\end{screenoutput}
+\end{screencode}
 
 {\bf ROT13:} When we encrypt each plaintext letter we move forward 13 places. So the plaintext letter A becomes the ciphertext letter N, B becomes O, with latter letters "wrapping around" back to the beginning of the alphabet. Thus, the plaintext letter Z becomes the ciphertext letter M. This covers encryption. To decrypt each ciphertext letter we simply repeat the process by moving forward 13 places again, which brings us full circle, back to where we started. Thus, a ciphertext letter N becomes the plaintext letter A.
 
@@ -437,7 +437,7 @@ Encrypting the above text string using the Caesar cipher yields:
 
 \texttt{\bf WKH TXLFN EURZQ IRA MXPSV RYHU WKH ODCB GRJ}
 
-\begin{screenoutput}
+\begin{screencode}
 10 REM *** CRYPTOGRAPHY ***
 20 POKE 0,65: PRINT CHR$(142): PRINT CHR$(147)
 30 DEF FN F(X)=X-INT(X/26)*26
@@ -485,24 +485,24 @@ Encrypting the above text string using the Caesar cipher yields:
 450 REM ERROR MESSAGE
 460 PRINT: PRINT "USE LETTERS AND SPACES ONLY": PRINT
 470 RETURN
-\end{screenoutput}
+\end{screencode}
 
 If you wish to use the ROT13 cipher ensure that the following lines are changed:
-\begin{screenoutput}
+\begin{screencode}
 190 A=1: B=13
 310 A=1: B=13
-\end{screenoutput}
+\end{screencode}
 
 If you wish to use the Atbash cipher ensure that the following lines are changed:
-\begin{screenoutput}
+\begin{screencode}
 190 A=25: B=25
 310 A=25: B=25
-\end{screenoutput}
+\end{screencode}
 
 If you wish to use the Caesar cipher ensure that the following lines are changed:
-\begin{screenoutput}
+\begin{screencode}
 190 A=1: B=3
 310 A=1: B=-3
-\end{screenoutput}
+\end{screencode}
 
 The program listing, as written, uses the Caesar cipher by default.

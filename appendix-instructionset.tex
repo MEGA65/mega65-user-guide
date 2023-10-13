@@ -116,9 +116,9 @@ values to be entered in decimal, or in hexadecimal by preceding the value with a
 in binary, by preceding the value with a \% sign.  For example, to set the Accumulator
 Register to the value 5, you could use the following:
 
-\begin{screenoutput}
+\begin{screencode}
 LDA #5
-\end{screenoutput}
+\end{screencode}
 
 The immediate argument is encoded as a single byte following the instruction.  For the above
 case, the instruction stream would contain \$A9, the opcode for LDA immediate mode, followed
@@ -130,9 +130,9 @@ In this mode, the argument is a 16-bit value that is used directly. There is onl
 which uses this addressing mode, \screentext{PHW}.  For example, to push the word \$1234
 onto the stack, you could use:
 
-\begin{screenoutput}
+\begin{screencode}
 PHW #$1234
-\end{screenoutput}
+\end{screencode}
 
 The low byte of the immediate value follows the opcode of the instruction.  The high byte of the
 immediate value then follows that.  For the above example, the instruction stream would thus
@@ -151,9 +151,9 @@ Mode allows faster access to a 256 region of memory, and uses less instruction b
 The argument is encoded as a single byte that immediately follows the instruction opcode. For
 example,
 
-\begin{screenoutput}
+\begin{screencode}
 LDA $12
-\end{screenoutput}
+\end{screencode}
 
 would read the value stored in location \$12 in the Base-Page,
 and put it into the Accumulator Register.  The instruction byte stream for this would be
@@ -168,9 +168,9 @@ specified address.
 The argument is encoded as a single byte that immediately follows the instruction opcode. For
 example,
 
-\begin{screenoutput}
+\begin{screencode}
 LDQ $12
-\end{screenoutput}
+\end{screencode}
 
 would read the value stored in locations \$12 -- \$15 in the Base-Page,
 and put them into the Q Pseudo Register.
@@ -193,9 +193,9 @@ Mode.
 The argument is encoded as a single byte that immediately follows the instruction opcode.
 For example,
 
-\begin{screenoutput}
+\begin{screencode}
 LDA $12,X
-\end{screenoutput}
+\end{screencode}
 
 would read the value stored in location (\$12 + X) in the Base-Page,
 and put it into the A register.  The instruction byte stream for this would be \$B5 \$12.
@@ -213,9 +213,9 @@ Mode.
 The argument is encoded as a single byte that immediately follows the instruction opcode.
 For example,
 
-\begin{screenoutput}
+\begin{screencode}
 DEQ $12,X
-\end{screenoutput}
+\end{screencode}
 
 would increment the 32-bit word stored at (\$12 + X) through to (\$15 + X) in the Base-Page,
 and put it into the X register.  The instruction byte stream for this would be \$42 \$42 \$D6 \$12.
@@ -236,9 +236,9 @@ Mode.
 The argument is encoded as a single byte that immediately follows the instruction opcode.
 For example,
 
-\begin{screenoutput}
+\begin{screencode}
 LDX $12,Y
-\end{screenoutput}
+\end{screencode}
 
 would read the value stored in location (\$12 + Y) in the Base-Page,
 and put it into the X register.  The instruction byte stream for this would be \$B6 \$12.
@@ -297,9 +297,9 @@ In this mode, the argument is an 16-bit address.  The low 8-bits of the address 
 the byte immediately following the instruction opcode. The upper 8-bits are taken from the
 byte following that.  For example, the instruction
 
-\begin{screenoutput}
+\begin{screencode}
 LDA $1234
-\end{screenoutput}
+\end{screencode}
 
 would read the
 memory location \$1234, and place the read value into the Accumulator Register.  This would
@@ -312,9 +312,9 @@ the byte immediately following the instruction opcode. The upper 8-bits are take
 byte following that.
 For example, the instruction
 
-\begin{screenoutput}
+\begin{screencode}
 LDQ $1234
-\end{screenoutput}
+\end{screencode}
 
 would read the
 memory locations \$1234 -- \$1237, and place the read values into the Q Pseudo Register.  This would
@@ -331,9 +331,9 @@ to cross a page boundary, i.e., if the upper byte of the address changes, this m
 The encoding for this addressing mode is identical to Absolute Mode.
 For example, the instruction
 
-\begin{screenoutput}
+\begin{screencode}
 LDA $1234,X
-\end{screenoutput}
+\end{screencode}
 
 would read the
 memory location (\$1234 + X), and place the value read from there into the A Register.  This would
@@ -349,9 +349,9 @@ The encoding for this addressing mode is identical to Absolute Quad Mode.
 
 For example, the instruction
 
-\begin{screenoutput}
+\begin{screencode}
 ROLQ $1234,X
-\end{screenoutput}
+\end{screencode}
 
 would rotate left the 32-bit value
 at memory locations (\$1234+X) -- (\$1237+X), and write the result back to these same memory locations.  This would
@@ -368,9 +368,9 @@ to cross a page boundary, i.e., if the upper byte of the address changes, this m
 The encoding for this addressing mode is identical to Absolute Mode.
 For example, the instruction
 
-\begin{screenoutput}
+\begin{screencode}
 LDA $1234,Y
-\end{screenoutput}
+\end{screencode}
 
 would read the
 memory location (\$1234 + Y), and place the value read from there into the A Register.  This would
@@ -397,9 +397,9 @@ In this mode, the 16-bit argument is the address that points to, i.e., contains 
 address of actual byte to read.  For example, if memory location \$1234 contains \$78
 and memory location \$1235 contains \$56, then
 
-\begin{screenoutput}
+\begin{screencode}
 JMP (\$1234)
-\end{screenoutput}
+\end{screencode}
 
 would jump
 to address \$5678.  The encoding for this addressing mode is identical to Absolute Mode,
@@ -413,9 +413,9 @@ address of actual byte to read. It is identical to Absolute Indirect Mode, excep
 For example, if the X Register contains the value \$04, memory location \$1238 contains \$78
 and memory location \$1239 contains \$56, then
 
-\begin{screenoutput}
+\begin{screencode}
 JMP ($1234,X)
-\end{screenoutput}
+\end{screencode}
 
 would jump
 to address \$5678.
@@ -432,9 +432,9 @@ For example, if the X Register contains the value \$04, and the memory locations
 Base-Page contained \$34 and \$12, respectively,
 then
 
-\begin{screenoutput}
+\begin{screencode}
 LDA ($12,X)
-\end{screenoutput}
+\end{screencode}
 
 would read the contents of memory location \$1234,
 and store the result in the A register. This instruction would be encoded as \$A1 \$12.
@@ -468,9 +468,9 @@ For example, if the Y Register contains the value \$04, and the memory locations
 Base-Page contained \$78 and \$56, respectively,
 then
 
-\begin{screenoutput}
+\begin{screencode}
 LDA ($12),Y
-\end{screenoutput}
+\end{screencode}
 
 would read the contents of memory location \$567C (i.e., \$5678 + Y),
 and store the result in the A register. This instruction would be encoded as \$B1 \$12.
@@ -504,9 +504,9 @@ For example, if the Z Register contains the value \$04, and the memory locations
 Base-Page contained \$78 and \$56, respectively,
 then
 
-\begin{screenoutput}
+\begin{screencode}
 LDA ($12),Z
-\end{screenoutput}
+\end{screencode}
 
 would read the contents of memory location \$567C (i.e., \$5678 + Z),
 and store the result in the A register. This instruction would be encoded as \$B2 \$12.
@@ -525,9 +525,9 @@ For example, if the Z Register contains the value \$04, and the memory locations
 Base-Page contained \$AB and \$CD, respectively,
 then
 
-\begin{screenoutput}
+\begin{screencode}
 LDQ ($12),Z
-\end{screenoutput}
+\end{screencode}
 
 would read the contents of memory location \$ABD1 (i.e., \$ABCD + Y) -- \$ABD4
 and store the result in the Q Pseudo Register. This instruction would be encoded as \$42 \$42 \$B2 \$12.
@@ -551,11 +551,11 @@ For example, if addresses \$12 to \$15 contained the bytes \$20, \$30, \$FD, \$0
 Z index contained the value \$01, the following instruction sequence would change the screen
 colour to blue, because the screen colour register is at \$FFD3021, i.e., \$FFD3020 + Z:
 
-\begin{screenoutput}
+\begin{screencode}
 LDA #$06
 LDZ #$01
 STA [$12],Z
-\end{screenoutput}
+\end{screencode}
 
 See the note on page \pageref{Base-Page (Zero-Page) Mode} for more information about Base-Page and Zero-Page.
 
@@ -572,9 +572,9 @@ It is also important to note that most of the time Z is actually {\em not} added
 pointer, as it is part of the Q Pseudo Register. Only \screentext{LDQ (\$nn),Z} will add Z.
 For example,
 
-\begin{screenoutput}
+\begin{screencode}
 LDQ [$12],Z
-\end{screenoutput}
+\end{screencode}
 
 would read the memory locations at \$12 through \$15 from the Base-Page, and use those
 values to form the 32-bit address from which to load the Q Pseudo Register. The Z index is added to the 32-bit address. This instruction would be
@@ -595,9 +595,9 @@ high-level language.  It is encoded identically to the Base-Page Mode.
 
 For example,
 
-\begin{screenoutput}
+\begin{screencode}
 LDA ($12,SP),Y
-\end{screenoutput}
+\end{screencode}
 
 This would use the contents of memory at the current stack pointer plus \$12 to compute the address of the pointer.
 This pointer would then have the Y-Register value added to it to obtain the final address to read from, and to
@@ -618,9 +618,9 @@ branch is taken.
 
 For example,
 
-\begin{screenoutput}
+\begin{screencode}
 BNE $2003
-\end{screenoutput}
+\end{screencode}
 
 would jump to \$2003, if the Z flag of the processor was not set.  If this instruction were located at
 address \$2000, it would be encoded as \$D0 \$01, i.e., branching to +1 bytes after the PC.  Branch
@@ -639,9 +639,9 @@ addresses when calling routines.
 
 For example,
 
-\begin{screenoutput}
+\begin{screencode}
 BNE $3000
-\end{screenoutput}
+\end{screencode}
 
 would jump to \$3000 if the Z flag of the process was not set. If this instruction were located at
 address \$2002, it would be encoded as \$D3 \$FC \$0F, i.e., branching to +\$FFC = 4,092 bytes following

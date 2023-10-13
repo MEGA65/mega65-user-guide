@@ -60,15 +60,15 @@ The BASIC {\bf MOUNT} command\index{BASIC 65 Commands!MOUNT} can mount a D81 dis
 
 To mount a disk image on unit 8, enter {\bf MOUNT} with the full filename in double-quotes, including the {\tt .D81} suffix:
 
-\begin{screenoutput}
+\begin{screencode}
 MOUNT "MEGA65.D81"
-\end{screenoutput}
+\end{screencode}
 
 To mount a disk image to unit 9, 10, or 11, also provide the {\bf U} argument:
 
-\begin{screenoutput}
+\begin{screencode}
 MOUNT "MEGA65.D81",9
-\end{screenoutput}
+\end{screencode}
 
 \subsection{Creating a New Disk Image}
 \index{Disk Drives!D81 Images}
@@ -94,11 +94,11 @@ You can also create new disk images in sub-directories by navigating to the sub-
 
 The MEGA65 maintains a ``current working directory'' that is used as the base directory for BASIC commands such as {\bf MOUNT}. To change the current working directory from BASIC, use the {\bf CHDIR} command\index{BASIC 65 Commands!CHDIR} with the {\bf U12} argument:\index{BASIC 65 Examples!CHDIR}\index{BASIC 65 Examples!MOUNT}
 
-\begin{screenoutput}
+\begin{screencode}
 CHDIR "DEMOS",U12
 
 MOUNT "XANADU.D81"
-\end{screenoutput}
+\end{screencode}
 
 
 \section{Using the Internal 3.5" Floppy Disk Drive}
@@ -121,9 +121,9 @@ The internal 3.5" drive can only be mounted in the first managed drive with unit
 
 You can mount the internal 3.5" disk drive to unit 8 using the BASIC {\bf MOUNT} command. This command works from either the \screentext{READY} prompt or from a program. To mount the internal drive to unit 8, enter the command without arguments:\index{BASIC 65 Examples!MOUNT}
 
-\begin{screenoutput}
+\begin{screencode}
 MOUNT
-\end{screenoutput}
+\end{screencode}
 
 The {\bf MOUNT} command can only mount the internal drive to unit 8. You can only mount it to unit 10 from the Freezer menu.
 
@@ -157,9 +157,9 @@ To format a physical 3.5" floppy disk using the internal drive:
 \item Resume the computer: press \megakey{F3}.
 \item Insert the floppy disk you wish to format into the internal floppy drive.
 \item Enter the BASIC {\bf FORMAT} command, giving it a name ({\tt "MYDISK"}) and a two-character ID ({\tt XX}).\index{BASIC 65 Commands!FORMAT}\index{BASIC 65 Examples!FORMAT}
-\begin{screenoutput}
+\begin{screencode}
 FORMAT "MYDISK",IXX
-\end{screenoutput}
+\end{screencode}
 \item When prompted, enter {\tt YES} and press \widekey{RETURN}.
 \end{enumerate}
 
@@ -189,9 +189,9 @@ This method is still common, and the MEGA65 has a quick way to boot such disks: 
 
 With the C65, Commodore introduced a new way to boot disks. Instead of relying on file order, a disk can have a file named {\tt AUTOBOOT.C65}.\index{AUTOBOOT.C65 file} If this file exists and is a program, the BASIC {\bf BOOT} command will load and run this file.\index{BASIC 65 Commands!BOOT}\index{BASIC 65 Examples!BOOT}
 
-\begin{screenoutput}
+\begin{screencode}
 BOOT
-\end{screenoutput}
+\end{screencode}
 
 \subsection{Auto-Booting Disks}
 
@@ -212,27 +212,27 @@ Several BASIC 65 commands can operate directly on the MEGA65 SD card as if it we
 
 To list all of the files on the SD card, use the {\bf DIR} command with the \screentext{U12} argument:\index{BASIC 65 Commands!DIR}\index{BASIC 65 Examples!DIR}
 
-\begin{screenoutput}
+\begin{screencode}
 DIR U12
-\end{screenoutput}
+\end{screencode}
 
 To load or save a PRG file directly from the SD card (that isn't in a D81 disk image), use the \screentext{U12} argument with the {\bf DLOAD} and {\bf DSAVE} commands. You {\em must} include the {\tt .PRG} filename suffix in this case, which is different to using PRG files on disks or disk images.\index{BASIC 65 Commands!DLOAD}\index{BASIC 65 Commands!DSAVE}\index{BASIC 65 Examples!DLOAD}
 
-\begin{screenoutput}
+\begin{screencode}
 DLOAD "MYPROGRAM.PRG",U12
-\end{screenoutput}
+\end{screencode}
 
 As shown earlier, the MEGA65 supports sub-directories (sub-folders) on the SD card, and maintains a current working directory for disk operations. To change the current working directory to a subdirectory:\index{BASIC 65 Commands!CHDIR}\index{BASIC 65 Examples!CHDIR}
 
-\begin{screenoutput}
+\begin{screencode}
 CHDIR "SUBDIR",U12
-\end{screenoutput}
+\end{screencode}
 
 To change the current working directory to the parent of the current directory:
 
-\begin{screenoutput}
+\begin{screencode}
 CHDIR "..",U12
-\end{screenoutput}
+\end{screencode}
 
 The {\bf MOUNT} command can mount a D81 disk image to a unit number. Even though this command refers to a file on the SD card, it does not use the \screentext{U12} argument. Instead, it uses the {\bf U} argument to set the unit number for the disk being mounted. The {\bf MOUNT} command uses the current working directory set by {\bf CHDIR} to locate the file.
 
@@ -248,11 +248,11 @@ Most commands that accept filenames also accept a {\bf U} argument that says whi
 
 To display the directory (list of files) for a disk, use the {\bf DIR} command.
 
-\begin{screenoutput}
+\begin{screencode}
 DIR
 
 DIR U9
-\end{screenoutput}
+\end{screencode}
 
 Unlike the Commodore 64 method of loading the disk directory into BASIC memory, the {\bf DIR} command does not modify BASIC memory. It is safe to use {\bf DIR} with a program in memory.
 
@@ -264,31 +264,31 @@ To make larger directories easier to view, {\bf DIR W} (for ``wide'') displays t
 
 The {\bf DLOAD} command loads a program from disk into memory. The {\bf RUN} command runs the program currently in memory.
 
-\begin{screenoutput}
+\begin{screencode}
 DLOAD "COOLGAME"
 RUN
-\end{screenoutput}
+\end{screencode}
 
 You can combine these into one command by providing the filename directly to the {\bf RUN} command.
 
-\begin{screenoutput}
+\begin{screencode}
 RUN "COOLGAME"
-\end{screenoutput}
+\end{screencode}
 
 \subsection{DSAVE}
 \index{BASIC 65 Commands!DSAVE}\index{BASIC 65 Examples!DSAVE}
 
 The {\bf DSAVE} command saves the BASIC program currently in memory to disk.
 
-\begin{screenoutput}
+\begin{screencode}
 DSAVE "MYGAME"
-\end{screenoutput}
+\end{screencode}
 
 By default, this will not overwrite an existing file with the same name. To request that the existing file be overwritten, insert an {\tt @} (at) symbol before the filename, inside the double-quotes.
 
-\begin{screenoutput}
+\begin{screencode}
 DSAVE "@MYGAME"
-\end{screenoutput}
+\end{screencode}
 
 Note that save-with-replace is only recommended when using disk images and the 3.5" floppy drive. Older Commodore drives have bugs in this feature that could result in data loss.
 
@@ -297,9 +297,9 @@ Note that save-with-replace is only recommended when using disk images and the 3
 
 The {\bf BACKUP} command copies an entire disk from one unit to another. All existing data on the destination disk is erased as part of this process.
 
-\begin{screenoutput}
+\begin{screencode}
 BACKUP U8 TO U9
-\end{screenoutput}
+\end{screencode}
 
 You can use {\bf BACKUP} to make disk images from floppy disks, or write disk images to floppy disks, or copy everything from one disk drive to another.
 
@@ -308,29 +308,29 @@ You can use {\bf BACKUP} to make disk images from floppy disks, or write disk im
 
 The {\bf COPY} command makes a copy of a file. If the source and the destination are different filenames on the same unit, this duplicates the file on the disk.
 
-\begin{screenoutput}
+\begin{screencode}
 COPY "MYGAME",U8 TO "MYGAME",U9
 
 COPY "MYGAME" TO "MYGAME-V1"
-\end{screenoutput}
+\end{screencode}
 
 \subsection{RENAME}
 \index{BASIC 65 Commands!RENAME}\index{BASIC 65 Examples!RENAME}
 
 The {\bf RENAME} command changes the name of an existing file.
 
-\begin{screenoutput}
+\begin{screencode}
 RENAME "MYGAME-V29" TO "MYGAME-FINAL"
-\end{screenoutput}
+\end{screencode}
 
 \subsection{DELETE}
 \index{BASIC 65 Commands!DELETE}\index{BASIC 65 Examples!DELETE}
 
 The {\bf DELETE} command deletes a file.
 
-\begin{screenoutput}
+\begin{screencode}
 DELETE "JUNKFILE"
-\end{screenoutput}
+\end{screencode}
 
 
 \subsection{Shortcut Disk Commands}

@@ -196,7 +196,7 @@ To use the DMA controller from assembly language, set up a data structure with t
 set \$D702 -- \$D700 to the address of the list. For example, to clear the screen in C65-mode by filling
 it with spaces, the following routine could be used:
 
-\begin{screenoutput}
+\begin{screencode}
   LDA #$00       ; DMA list exists in BANK 0
   STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
@@ -214,13 +214,13 @@ dmalist:
   .byte $00   ; Screen is in bank 0
   .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
-\end{screenoutput}
+\end{screencode}
 
 It is also possible to execute more than one DMA job at the same time, by setting the CHAIN
 bit in the low byte of the command word. For example to clear the screen as above, and
 also clear the colour RAM for the screen, you could use something like:
 
-\begin{screenoutput}
+\begin{screencode}
   LDA #$00       ; DMA list exists in BANK 0
   STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
@@ -248,14 +248,14 @@ dmalist:
   .byte $01   ; colour RAM is in bank 1 ($1F800-$1FFFF)
   .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
-\end{screenoutput}
+\end{screencode}
 
 Copying memory is very similar to filling memory, except that the command
 low byte must be modified, and the source address field must be correctly initialised.
 For example, to copy the character set from where it lives in the ROM at \$2D000 -- \$2DFFF
 to \$5000, you could use something like:
 
-\begin{screenoutput}
+\begin{screencode}
   LDA #$00       ; DMA list exists in BANK 0
   STA $D702
   LDA #>dmalist  ; Set MSB of DMA list address
@@ -273,7 +273,7 @@ dmalist:
   .byte $00   ; Screen is in bank 0
   .byte $00   ; Command high byte
   .word $0000 ; Modulo (ignored due to selected commmand)
-\end{screenoutput}
+\end{screencode}
 
 It is also possible to perform a DMA operation from BASIC 2 in C64
 mode by POKEing the necessary values, after first making sure that
@@ -309,7 +309,7 @@ it uses MEGA65 Enhanced DMA Job option \$81 to set the destination megabyte in m
 complete address \$FFD0021.  This is the true location of the VIC-IV's border colour register.
 The program is written using ACME-compatible syntax.
 
-\begin{screenoutput}
+\begin{screencode}
 basicheader:
 	;; 2020 SYS 2061
 	!word $80a,2020
@@ -348,9 +348,9 @@ triggerdma:
 	lda #<rasterdmalist
 	sta $d705
 	rts
-\end{screenoutput}
+\end{screencode}
 
-\begin{screenoutput}
+\begin{screencode}
 rasterdmalist:
 	!byte $81,$ff,$00
 	!byte $00 		; COPY
@@ -361,9 +361,9 @@ rasterdmalist:
 	!byte $1d               ; destination bank + HOLD
 	;; unused modulo field
 	!word $0000
-\end{screenoutput}
+\end{screencode}
 
-\begin{screenoutput}
+\begin{screencode}
 rastercolours:
 	!byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	!byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
@@ -384,7 +384,7 @@ rastercolours:
 	!byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
 	!byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
 	!byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-\end{screenoutput}
+\end{screencode}
 
 \section{MEGA65 Enhanced DMA Jobs}
 
@@ -512,7 +512,7 @@ from any bank of memory, without having to worry about which bank it is in.
 
 For example, the following code would clear the C65-mode screen, before flashing the border endlessly:
 
-\begin{screenoutput}
+\begin{screencode}
         STA $D707
         .byte $00   ; end of job options
         .byte $03   ; fill
@@ -526,7 +526,7 @@ For example, the following code would clear the C65-mode screen, before flashing
 foo:
         INC $d020
         JMP foo
-\end{screenoutput}
+\end{screencode}
 
 \section{Audio DMA}
 \index{Digital Audio}
@@ -559,11 +559,11 @@ As the DMA controller is part of the processor of the MEGA65, and the MEGA65 doe
   loop.  To ensure that audio continues to play in the background, such loops should include a read instruction,
   such as:
 
-\begin{screenoutput}
+\begin{screencode}
 loop:   LDA $1234   // Ensure loop has at least one idle cycle for
                     // audio DMA
         JMP loop
-\end{screenoutput}
+\end{screencode}
 
 Each of the four DMA channels is configured using a block of 16
 registers at \$D720, \$D730, \$D740 and \$D750, respectively.

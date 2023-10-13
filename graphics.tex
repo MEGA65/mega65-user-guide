@@ -180,10 +180,10 @@ Next step is to \textbf{set the resolution}. According to the registers in \book
 
 The next question is, how can we control specific bits in a register? If you turn on your computer and enter the following command
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT PEEK($D031)
  224
-\end{screenoutput}
+\end{screencode}
 
 you get back a decimal value like 224. The decimal value does not help, you need to convert the number into its binary representation.
 
@@ -199,9 +199,9 @@ you get back a decimal value like 224. The decimal value does not help, you need
 
 The first line in the table shows the binary number for decimal 224, this should be the case when you turn on your MEGA65. Databit 7, H640-mode is activated as expected. In the second line you see the value you have to use when you want to reduce down to 320x200: databit 7 is set to 0, so H640-mode is turned off.
 
-\begin{screenoutput}
+\begin{screencode}
 POKE $D031,96
-\end{screenoutput}
+\end{screencode}
 
 But wait, poking the value directly is not always the correct way. If you know exactly what you do or better which state each bit of the register should have, can you continue like this. Storing the value 96 means setting all the databits. This is not always what we want. In some cases we might manipulate one specific bit, for instance databit 7 for the resolution while keeping the other bits in their existing state. You can achieve this with logical operations using the AND or OR operator.
 
@@ -237,10 +237,10 @@ But wait, poking the value directly is not always the correct way. If you know e
 
 The logic tables above are important because they show how the bits will be modified if you put an operator on it. If you think about the idea of logical operations in the example that follows, you will see that you can use AND to reset/clear a specific bit to zero (via a mask), and use OR can be used to set the bit to 1. To be honest, this method can not only be used to set a single bit, but also to change any number of bits but to keep things simple we modify only one. Back to the "bad" poke of 96 what we've seen above, it could be better written like this:
 
-\begin{screenoutput}
+\begin{screencode}
   POKE $D031, PEEK($D031) AND 127 :REM RESET BIT 7 (i.e., set it to zero)
   POKE $D031, PEEK($D031) OR 128  :REM SET BIT 7 (i.e., set it to one)
-\end{screenoutput}
+\end{screencode}
 
 So that you understand these operations, again you need to convert each decimal number into its binary format. Next we apply the AND / OR operations bit by bit according to the rules in the prior logic tables.
 \begin{tabular}{ ccc }
@@ -273,13 +273,13 @@ So that you understand these operations, again you need to convert each decimal 
 
 You can test this, by the way, with some simple PRINT commands:
 
-\begin{screenoutput}
+\begin{screencode}
 PRINT 224 AND 127
   96
 
 PRINT 96 OR 128
   224
-\end{screenoutput}
+\end{screencode}
 
 Armed with this knowledge, we can now start configuring the VIC to show bitmap graphics. For this we have to fine-tune a number of registers but before we can start with that, we need to understand a bit more about the graphics chip, how it is organised and most importantly how it accesses the memory.
 
@@ -310,12 +310,12 @@ If you want to know more about memory management in general please have a look a
 
 Let's begin to write a simple BASIC program to show hires bitmap graphics. If you followed this chapter carefully up to this point, you should have no trouble understanding the following lines of code:
 
-\begin{screenoutput}
+\begin{screencode}
 10 POKE $D020,0 : POKE $D021,0          :REM MAKE SCREEN BLACK
 20 POKE $D031, PEEK($D031) AND 127      :REM SET RESOLUTION
 30 POKE $DD02, 3                        :REM MAKE VIRTUAL CIA-2 READ- AND WRITEABLE
 40 POKE $$DD00, PEEK($DD00) AND 252 OR 2:REM SELECT VIDEO BANK 1
-\end{screenoutput}
+\end{screencode}
 
 As you have seen in the illustration on the page before, the VIC chip divides the memory into 4 video banks of 16KB each. It is important to understand that you do not use a register of the VIC to define the video bank inside the (memory-)bank 0, instead you use the data bits 0 and 1 of \$DD00 or 56576 decimal. This used to be a register of the CIA-2 chip on the Commodore 64 but in your MEGA65 it is implemented as a virtual register. The "preparation" needed to set the video bank happens in line 30 while in the following line the video bank itself is set. By the way, when you convert the decimal value 3 (line 30) into its binary format, it is 00000011 and proves: the data bits 0 and 1 are set to 1, so reading and writing is activated.
 

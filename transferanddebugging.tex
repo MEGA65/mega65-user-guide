@@ -40,9 +40,9 @@ include:
 
 To take a screenshot of the MEGA65 use:
 
-\begin{screenoutput}
+\begin{screencode}
 m65 -S
-\end{screenoutput}
+\end{screencode}
 
 This will create a file called \stw{mega65-screeen-000000.png},
 or if that file already exists, the first non-used number will be used
@@ -58,9 +58,9 @@ bitplanes, only text and bitmap-based video modes.
 
 To load and run a program on the MEGA65, you can use a command like:
 
-\begin{screenoutput}
+\begin{screencode}
 m65 -F -4 -r foo.prg
-\end{screenoutput}
+\end{screencode}
 
 The \stw{-F} option tells \stw{m65} to reset the MEGA65
 before loading the program.
@@ -80,9 +80,9 @@ is thus limited to loading programs into the lower 64KB of RAM
 To try out a different MEGA65 bitstream, a command like the following can be
 used:
 
-\begin{screenoutput}
+\begin{screencode}
 m65 -b bitstream.bit
-\end{screenoutput}
+\end{screencode}
 
 This will cause the named bitstream to be sent to the FPGA.  As the
 FPGA will be reconfigured by this action, and program currently
@@ -93,9 +93,9 @@ chips, and so the contents of them will not be erased.
 
 For non-MEGA65 bitstreams (such as zxunomega65 and gbc4mega65), use the '-q' argument instead:
 
-\begin{screenoutput}
+\begin{screencode}
 m65 -q bitstream.bit
-\end{screenoutput}
+\end{screencode}
 
 \subsection{Remote keyboard entry}
 
@@ -105,26 +105,26 @@ The \stw{m65} utility uses this to allow remote typing on the MEGA65
 in a way that is transparent to software.  There are three ways to use
 this:
 
-\begin{screenoutput}
+\begin{screencode}
 m65 -t sometext
-\end{screenoutput}
+\end{screencode}
 
 This form types the supplied text, in this case {\em sometext}, but
 does not simulate pressing \specialkey{RETURN}.  If you wish
 to simulate the pressing of \specialkey{RETURN}, use \stw{-T}
 instead of \stw{-t}, e.g.:
 
-\begin{screenoutput}
+\begin{screencode}
 m65 -T list
-\end{screenoutput}
+\end{screencode}
 
 This would cause the LIST command to be typed and executed.
 
 Finally, it is possible to begin general remote keyboard control via:
 
-\begin{screenoutput}
+\begin{screencode}
 m65 -t -
-\end{screenoutput}
+\end{screencode}
 
 In this mode, any key pressed on the keyboard of the computer
 where \stw{m65} is running will be relayed to the MEGA65.  Note that
@@ -145,9 +145,9 @@ Unit testing mode is entered by calling \stw{m65} with the \stw{-u} flag.
 To run a remote BASIC program in C65-mode and simultaneously put \stw{m65}
 into \textit{unit testing mode}, the following command can be used:
 
-\begin{screenoutput}
+\begin{screencode}
     m65 -Fur attic-ram.prg -w tests.log
-\end{screenoutput}
+\end{screencode}
 
 The \stw{-F} and \stw{-r} options tell \stw{m65} to reset the MEGA65
 before loading the program "attic-ram.prg" and then automatically run it. 
@@ -219,57 +219,57 @@ needed to communicate with the testing host.
 In an automated test scenario, you may want to inject the \stw{b65support.bin} 
 binary into MEGA65 RAM by using \stw{m65}:
 
-    \begin{screenoutput}
+    \begin{screencode}
         m65 -@ mega65-tools/bin65/b65support.bin@15fe
-    \end{screenoutput}
+    \end{screencode}
 
 
 Of course it's also possible to load \stw{b65support.bin} directly from the
 MEGA65 by mounting the \stw{M65UTILS.D81} image from the freezer and issuing
 
-\begin{screenoutput}
+\begin{screencode}
     BLOAD "B65SUPPORT.BIN"
-\end{screenoutput}
+\end{screencode}
 
 After loading, \stw{b65support.bin} is initialised with
 
-\begin{screenoutput}
+\begin{screencode}
     SYS $1600
-\end{screenoutput}
+\end{screencode}
 
 Once initialised, the following functions are provided by \stw{b65support.bin}:
 
-\begin{screenoutput}
+\begin{screencode}
     A=USR(<issueNum>)
-\end{screenoutput}
+\end{screencode}
 prepares a new test with number <issueNum> and resets subissue number to 0
 
-\begin{screenoutput}
+\begin{screencode}
     A=USR("=<testName>")
-\end{screenoutput}
+\end{screencode}
 sets test name and sends test start signal; for example: \stw{A=USR("=VIC-III")} 
 sets the test name to 'VIC-III' and signals the host computer that the test 
 has started.
 
-\begin{screenoutput}
+\begin{screencode}
     A=USR("/<logMessage>)
-\end{screenoutput}
+\end{screencode}
 sends a log message to the host computer
 
-\begin{screenoutput}
+\begin{screencode}
     A=USR("P")
-\end{screenoutput}
+\end{screencode}
 sends the 'passed' signal to the host computer and increases the sub issue number
 
-\begin{screenoutput}
+\begin{screencode}
     A=USR("F")
-\end{screenoutput}
+\end{screencode}
 sends the 'test failed' signal to the host computer and increases 
 the sub issue number
 
-\begin{screenoutput}
+\begin{screencode}
     A=USR("D")
-\end{screenoutput}
+\end{screencode}
 sends the 'test done' signal to the host computer 
 
 All calls return the current sub issue number or \stw{?ILLEGAL QUANTITY ERROR} in 
@@ -280,7 +280,7 @@ case of calling an invalid command.
 The following is a complete BASIC 65 example showing how to use \stw{m65}'s
 unit testing features:
 
-\begin{screenoutput}
+\begin{screencode}
     100 rem attic ram cache test
     110 poke $bfffff2,$e0         : rem enable attic ram cache
     120 sys $1600                 : rem init test module
@@ -309,7 +309,7 @@ unit testing features:
     350   print "peek($";hex$(t1);") [t1] is";b;"but should be 255"
     360 bend
     370 a=usr("d")                : rem test done    
-\end{screenoutput}
+\end{screencode}
 
 \section{M65Connect}
 

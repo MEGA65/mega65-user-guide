@@ -21,13 +21,26 @@ floppy disk controller supports HD and ED media, and similar to the
 determined user could develop disk formats that store more data,
 include robust copy protection schemes, or both.
 
-GCR encoding is not currently supported, but may be supported by a
-future revision of the controller.  It may also be possible with some
-creativity and effort to use the debug register interface to read
-double-density GCR formatted media.  This is because there are debug
-registers that can be queried to indicate the gap between each
-successive magnetic domain -- which is sufficient to decode any disk
-format. 
+Other disk formats, such as the GCR scheme used by the 1541 and 1571,
+or the track-at-once MFM scheme used by the Amiga\texttrademark{} family of computers
+can also be used, with varying amounts of effort. This is possible via
+the track DMA functionality that is jointly provided by the 45IO27 and
+the 45GS02 processor. These two devices work together to allow reading
+or writing raw flux signals from and to diskettes, thus allowing the
+reading or reproduction of practically any disk format.
+
+Also, for
+Amiga\texttrademark{} diskettes, there is experimental special circuitry in the 45IO27
+to ease the
+reading of these diskettes. Specifically, the 45IO27 is able to detect
+the unique sector sync signals used on Amiga\texttrademark{} diskettes, and read the
+data sectors. However, it does not retrieve the 16 bytes per sector of
+operating-system specific data, nor does it perform the de-interleaving
+of the separated vectors of odd and even bits from the order that the Amiga\texttrademark{}
+computer writes them to disk.  Use of this special circuitry is optional.
+That is, the track DMA functionality can also be used to read Amiga\texttrademark{}
+diskettes.
+
 
 \subsection{Multiple Drive Support}
 
@@ -131,7 +144,7 @@ that the complete sector has been read into the buffer.
 
 \end{itemize}
 
-\subsection{Track Auto-Tune Function Deprecated}
+\subsection{Track Auto-Tune Function}
 
 The 45IO27 also includes a track ``auto-tune'' function, which is enabled
 by clearing bit 7 of \$D696.  That function reads the sector headers to
@@ -203,10 +216,11 @@ The CMD\texttrademark{} FD2000\texttrademark{} high-density 3.5'' disk drives fo
 use an unusual disk layout that is quite different from PCs: They use 10 sectors,
 the same as on 720KB double-density (DD) disks, but double the {\em sector size}
 from 512 bytes to 1,024 bytes.  The 45IO27 does not currently support these
-larger sectors. At least read-only support is planned to be added via a core update
-in the future.
+larger sectors for buffered sector operation. At least read-only support is planned to be added via a core update
+in the future.  However, FD2000\texttrademark{} and FD4000\textrademark{} diskettes
+can be read and written using the track DMA functionality.
 
-However, the 45IO27 {\em does} already support high-density disks and drives, with much
+Also, for creating new diskettes, the 45IO27 {\em does} already support high-density disks and drives, with much
 higher capacities than the FD2000 was able to support.
 
 \subsection{High-Density and Variable-Density Disks}
@@ -360,6 +374,73 @@ sector buffer with the complete 512 bytes of data required.
 To write to disks that contain Track Information Blocks\index{Track Information Block}\index{TIB},
 you should first wait for the TIB to be read when changing tracks. This is done by waiting
 for \$D6A9 (sectors per track from the TIB) to contain a non-zero value.
+
+\subsection{Floppy Track DMA}
+\index{Track DMA}\index{Floppy DMA}\index{Track at once}
+
+As previously described, the 45IO27 connects to the 45GS02 CPU, and specifically its internal
+DMA controller, to provide a simple mechanism for reading and writing the raw magnetic flux
+transitions of floppy disks.  In addition to allowing writing softwar that can read any
+possible disk format, it also allows for the writing and duplication of almost any disk format.
+I say almost, because it is possible for diskettes to be written using special machines that
+have capabilities that exceed that of the floppy drive mechanism of the MEGA65.  Fat tracks is
+one example of this.  Another example is where the magnetic flux transitions are placed and/or
+spaced in a manner that prevents a normal floppy drive from reproducing them exactly.
+
+\subsubsection{Using Floppy Track DMA}
+
+The following DMA options tell the DMAgic controller to read or write raw floppy flux values
+instead of memory location. In this mode, the DMAgic controller waits for each successive
+pulse interval to be received from the 45IO27.  Thus the data that it reads (or writes) is
+the duration between each successive flux inversion, in units of 50ns.
+
+\begin{itemize}
+\item \$0D - Write raw flux intervals. Set DMA to COPY mode to use this.
+\item \$0E - Read raw flux intervals, ignoring implausibly long intervals. Set DMA mode to FILL to use this.
+\item \$0F - Read raw flux intervals, returning implausibly long intervals as \$FF. Set DMA mode to FILL to use this.
+\end{itemize}
+
+See floppytest.c in the mega65-tools repository of the MEGA65 github site at \url{https://github.com/mega65-tools}
+for example code that reads tracks using this functionality.
+
+\subsubsection{Understanding the Limitations of Floppy Drives}
+
+When writing raw flux transitions, care must be taken to understand the limitations of standard
+floppy drives. There are three key factors to be considered:
+
+\begin{itemize}
+\item No two transitions can be placed too close togther. The drive will simply refuse to write
+  them if they are below some distance apart. Also, even if you do manage to write them, the
+  read filtering circuitry of the floppy drive will merge pulses that are too close together.
+\item No two transitions can be placed too far apart. In this case, the drive will happily
+  write them, but the read filter circuitry will start getting worried if it doesn't see a pulse
+  for a while, and will start thinking that the background noise is real signals, and introduce
+  false pulses into the read stream that are not really there on the disk.
+\item Magnetic pulses move on the disk when you write them! The physics behind this is really
+  complex, and depends on the sequence of distances between successive pulses, the data that
+  was previously written to the track, and, it feels like, also the phase of the moon and colour
+  of your underpants.  There are some general rules of thumb that can be used at ``typical'' pulse
+  distance intervals to partially mitigate this. These rules are called Write Pre-compensation, where
+  the pulses are moved before writing, so that after writing they end up in the right place.
+  The 45IO27 already implements write pre-compensation for HD formatted disks.  The effects of
+  moving pulses is especially pronounced for pulses that are closer together.
+\item The higher numbered tracks are shorter. This means that the pulses have to be further apart
+  in time, to be the same distance apart on a track. This is why the 1541 fits less data on higher
+  numbered tracks.  This is especially pronounced at higher data rates, where the ``magnetic resolution''
+  of the disks becomes an issue.  To make matters worse, the strength of the magnetic signals
+  is proportional to the speed of the track going past. This means for the higher numbered tracks
+  that are nearer the middle of the disk, not only is the ``magnetic resolution'' lower due to the
+  shorter tracks, the linear velocity of the disk under the head is also lower, resulting in weaker
+  signals.
+\end{itemize}
+
+It is the combination of these factors that will tend to limit how densly you can pack data onto a
+floppy disk -- together of course with the quality and condition of the diskette and disk drive.
+The MEGA65's HD+ disk formats that are able to fit around 3MiB on a standard 1.44MiB diskette take
+special care to manage these factors. This is why those formats use many different density zones,
+as well as using RLL27 encoding instead of MFM encoding, because it increases the minimum distance
+between pulses. 
+
 
 \subsection{F011 Floppy Controller Registers}
 
@@ -774,7 +855,8 @@ The audio sources on the MEGA65 and MEGAphone devices are as follows:
 
 The OPL-compatible FM audio which is on source 15 is controlled by the
 coefficient for source 14.  This is because the coefficient for source
-15 provides the master volume level for each output.
+15 provides the master volume level for each output.  The OPL-compatible
+FM audio device is not currently functional in the MEGA65 core.
 
 The audio cross-bar mixer supports the following eight output
 channels:
@@ -823,12 +905,39 @@ to set the coefficient of the right SIDs to the 2nd modem bay audio
 output, the coefficient would be $32\times 3 + 1 \times 2 = 96 + 2 =
 98$.  
 
+\subsection{Other Audio Features}
 
+The audio sub-system supports several other features, that are currently
+pending further documentation.
 
-XXX - mixer stuff
-XXX - mixer feedback registers
-XXX - Left and right digi
-XXX - CPU register for selecting PWM/PDM
+\subsubsection{Mixer Feedback Registers}
+
+These registers allow the processor to access the mixed audio for a particular
+output channel. This can be used to implement displays of audio waveforms,
+or implement certain audio-effects, such as reverb.
+
+\subsubsection{8/16 Bit Stereo Digital Audio Registers}
+
+Registers are provided for injecting 8 or 16 bit audio samples directly into
+dedicated input channels of the audio mixer, providing a simple way to play
+digital audio data. This is particularly useful for procedurally generated
+audio data. For recorded samples, it is generally simpler and better to use the
+Audio DMA functionality that fully automates the play-back of digital audio.
+Audio DMA is especially heplful at higher sample rates, as it reduces the burden
+on the CPU, and greatly reduces sample jitter.
+
+\subsubsection{Pulse Width vs Pulse Density Modulation}
+
+For models of the MEGA65 that use a 1-bit over-sampled output for audio (upto and
+including the R3/R3A model), it is possible to select between these two different
+over-sampling methods.  Both have similar performance, but users may prefer one
+over the other.  This choice has no effect on the R4 or newer models that use a
+dedicated audio DAC to feed audio to the 3.5mm audio jack, and that has intrinsically
+better audio quality.  For owners of older models, the planned internal expansion
+board for the MEGA65 may include an improved audio output circuit, depending on
+the final configuration of that board.  No timeline is currently available for the
+availability of this board. In the interim, use of HDMI audio output is the recommended
+solution, as the audio is encoded digitally over the HDMI cable.
 
 \input{regtable_AUDIO.MEGA65}
 

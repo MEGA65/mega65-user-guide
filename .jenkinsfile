@@ -2,6 +2,14 @@ pipeline {
     agent {
         docker { image 'megatex' }
     }
+    environment {
+        FH_API_KEY = credentials('filehost-api-key')
+        FH_ID_UG_COMPLBOOK = 'd668168c-1fef-4560-a530-77e9e237536d'
+        FH_ID_UG_BASICREF = '42d0f1f9-610a-45f9-bad1-9502f0e6eb7d'
+        FH_ID_UG_CHIPSET = '5d042029-d3c9-4dcb-9ba3-6690505418de'
+        FH_ID_UG_DEVGUIDE = 'ffd575e5-5d9c-47ff-b553-fcec80fd77a3'
+        FH_ID_UG_USERGUIDE = 'a5081244-a976-4a21-9153-27cca13fd613'
+    }
     stages {
         stage('Cleanup') {
             steps {
@@ -67,6 +75,17 @@ pipeline {
         always {
             archiveArtifacts artifacts: "mega65-*.pdf*",
                 fingerprint: true
+        }
+        success {
+            script {
+                sh '''
+                filehost-upload -i ${FH_ID_UG_COMPLBOOK} -a replaceall -V 1.0 -I "latest build" mega65-book.pdf
+                filehost-upload -i ${FH_ID_UG_BASICREF} -a replaceall -V 1.0 -I "latest build" mega65-basic65-reference.pdf
+                filehost-upload -i ${FH_ID_UG_CHIPSET} -a replaceall -V 1.0 -I "latest build" mega65-chipset-reference.pdf
+                filehost-upload -i ${FH_ID_UG_DEVGUIDE} -a replaceall -V 1.0 -I "latest build" mega65-developer-guide.pdf
+                filehost-upload -i ${FH_ID_UG_USERGUIDE} -a replaceall -V 1.0 -I "latest build" mega65-userguide.pdf
+                '''
+            }
         }
     }
 }

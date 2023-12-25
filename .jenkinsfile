@@ -18,61 +18,81 @@ pipeline {
         }
         stage('Build MEGA65 Book') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
                     sh "make REPOPATH=. mega65-book.pdf"
                 }
             }
             post {
+                always { // without the always, the failure won't be executed!
+                    echo "end of build"
+                }
                 failure {
-                    sh "rm -f mega65-book.pdf"
+                    echo "removing failed build PDF"
+                    sh "rm -vf mega65-book.pdf"
                 }
             }
         }
         stage('Build MEGA65 BASIC65 Reference') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
                     sh "make REPOPATH=. mega65-basic65-reference.pdf"
                 }
             }
             post {
+                always { // without the always, the failure won't be executed!
+                    echo "end of build"
+                }
                 failure {
-                    sh "rm -f mega65-basic65-reference.pdf"
+                    echo "removing failed build PDF"
+                    sh "rm -vf mega65-basic65-reference.pdf"
                 }
             }
         }
         stage('Build MEGA65 Chipset Reference') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
                     sh "make REPOPATH=. mega65-chipset-reference.pdf"
                 }
             }
             post {
+                always { // without the always, the failure won't be executed!
+                    echo "end of build"
+                }
                 failure {
-                    sh "rm -f mega65-chipset-reference.pdf"
+                    echo "removing failed build PDF"
+                    sh "rm -vf mega65-chipset-reference.pdf"
                 }
             }
         }
         stage('Build MEGA65 Developer Guide') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
                     sh "make REPOPATH=. mega65-developer-guide.pdf"
                 }
             }
             post {
+                always { // without the always, the failure won't be executed!
+                    echo "end of build"
+                }
                 failure {
-                    sh "rm -f mega65-developer-guide.pdf"
+                    echo "removing failed build PDF"
+                    sh "rm -vf mega65-developer-guide.pdf"
                 }
             }
         }
         stage('Build MEGA65 Userguide') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
                     sh "make REPOPATH=. mega65-userguide.pdf"
                 }
             }
             post {
+                always { // without the always, the failure won't be executed!
+                    echo "end of build"
+                }
                 failure {
-                    sh "rm -f mega65-userguide.pdf"
+                    echo "removing failed build PDF"
+                    sh "rm -vf mega65-userguide.pdf"
                 }
             }
         }

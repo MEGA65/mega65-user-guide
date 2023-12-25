@@ -16,18 +16,15 @@ pipeline {
                 sh 'make realclean'
             }
         }
-        /*
-        stage('Clone libc and core') {
-            steps {
-                sh "rm -rf mega65-libc; git clone https://github.com/MEGA65/mega65-libc.git"
-                sh "rm -rf mega65-core; git clone --branch=development https://github.com/MEGA65/mega65-core.git"
-            }
-        }
-        */
         stage('Build MEGA65 Book') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh "make REPOPATH=. mega65-book.pdf"
+                }
+            }
+            post {
+                failure {
+                    sh "rm -f mega65-book.pdf"
                 }
             }
         }
@@ -37,11 +34,21 @@ pipeline {
                     sh "make REPOPATH=. mega65-basic65-reference.pdf"
                 }
             }
+            post {
+                failure {
+                    sh "rm -f mega65-basic65-reference.pdf"
+                }
+            }
         }
         stage('Build MEGA65 Chipset Reference') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh "make REPOPATH=. mega65-chipset-reference.pdf"
+                }
+            }
+            post {
+                failure {
+                    sh "rm -f mega65-chipset-reference.pdf"
                 }
             }
         }
@@ -51,11 +58,21 @@ pipeline {
                     sh "make REPOPATH=. mega65-developer-guide.pdf"
                 }
             }
+            post {
+                failure {
+                    sh "rm -f mega65-developer-guide.pdf"
+                }
+            }
         }
         stage('Build MEGA65 Userguide') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh "make REPOPATH=. mega65-userguide.pdf"
+                }
+            }
+            post {
+                failure {
+                    sh "rm -f mega65-userguide.pdf"
                 }
             }
         }

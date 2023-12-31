@@ -28,6 +28,7 @@ MONITOR
 \end{tcolorbox}
 
 \subsection{Numbers}
+\label{sec:numbers}
 
 The monitor uses hexadecimal (base 16) to display numbers, such as memory addresses and values. Hexadecimal values are printed without a leading `\$` character, such as {\tt 5A} or {\tt D020}.
 
@@ -176,7 +177,7 @@ X &     EXIT            & Exit Monitor mode\\
                The operand may be entered as hex, decimal, binary or character.
                Branch targets are automatically converted to relative distances.
                After each entered instruction, the mini assembler generates
-               the 1-3 byte long machine code, prints this code along with the
+               the 1-5 byte long machine code, prints this code along with the
                instruction and advances the program counter. A new line
                is generated with the command {\bf A} and the new value of the
                program counter printed. This eases the fast entry of instructions.
@@ -197,11 +198,12 @@ X &     EXIT            & Exit Monitor mode\\
                {\bf RTS} instruction.
 
 \item [Remarks:] The assembler recognises all 45GS02 instructions of the
-                 MEGA65, except the instructions, that use the Q register.
-                 These instructions can be entered by typing
-                 the NEG NEG prefix explicit. E.g. instead of LDQ \$1234,
-                 entering the 3 instructions (on 3 different rows)
-                 NEG NEG LDA \$1234 is assembled to the equivalent code.
+                 MEGA65, including the instructions that use the Q register.
+                 {\bf NOP} and {\bf AUG} can be entered, but will be interpreted
+                 as {\bf EOM} and {\bf MAP}, respectively.
+
+                 32-bit Base-Page Indirect instructions use square brackets
+                 ({\bf [} and {\bf ]}).
 
 \end{description}
 \includegraphics[width=\linewidth]{images/monitor-a}
@@ -281,9 +283,10 @@ FONT C : REM $02D000 : original C64 font
                  command of the cursor row back to memory, if writable RAM is there.
                  See monitor command {\bf .}.
 
-                 The disassembler knows the instruction set of the C65 CPU
-                 GS6502. Enhanced instructions from the 45GS02 CPU of the MEGA65
-                 are not recognised.
+                 The disassembler knows the instruction set of the MEGA65 CPU, the
+                 45GS02. When an instruction is prefixed by {\bf NEG NEG}, those hex values
+                 are elided and instead an asterisk ({\bf *}) is displayed between the address
+                 and the hex values.
 
 \item [Example:] Using {\bf D}
 \end{description}
@@ -373,7 +376,7 @@ FONT C : REM $02D000 : original C64 font
 
 \item [Remarks:] The filename must be surrounded by double-quotes.
 
-    The {\bf unit} number (such as 8 or 9) is required.
+    The {\bf unit} number (such as 8 or 9) is required. {\bf Unit} is specified using the monitor's normal number system (defaulting to hex). See \hyperref[sec:numbers]{Numbers}.
 
     If the {\bf start} address is omitted, the starting address is taken from the first two bytes of the file. The file must be of type {\tt PRG}. If {\bf start} is provided, the two byte {\tt PRG} header is ignored.
 
@@ -439,7 +442,7 @@ FONT C : REM $02D000 : original C64 font
 
 \item [Remarks:] The filename must be surrounded by double-quotes.
 
-    The {\bf unit} number (such as 8 or 9) is required.
+    The {\bf unit} number (such as 8 or 9) is required. {\bf Unit} is specified using the monitor's normal number system (defaulting to hex). See \hyperref[sec:numbers]{Numbers}.
 
     The end address is one beyond the last address to save.
 
@@ -479,11 +482,11 @@ FONT C : REM $02D000 : original C64 font
 
 \item [Remarks:] The filename must be surrounded by double-quotes.
 
-    The {\bf unit} number (such as 8 or 9) is required.
+    The {\bf unit} number (such as 8 or 9) is required. {\bf Unit} is specified using the monitor's normal number system (defaulting to hex). See \hyperref[sec:numbers]{Numbers}.
 
     The length of the data to verify is assumed to be the length of the file.
 
-    % TODO: How is verification status reported?
+    If the data in memory does not match, an error will be shown.  Otherwise, nothing more is shown, and success should be assumed.
 
 \end{description}
 % TODO: screenshot  \includegraphics[width=\linewidth]{images/monitor-v}
@@ -555,16 +558,18 @@ FONT C : REM $02D000 : original C64 font
 \subsubsection{@ : DISK COMMAND}
 \index{MONITOR Commands!@}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Format:] {\bf @ [unit] [command]}
+\item [Format:] {\bf @ [unit] [,command]}
 \item [Usage:] Perform a disk command.
 
-\item [Remarks:] Without a command, this displays the drive status.
+\item [Remarks:] Without a {\bf command}, this displays the drive status.
 
-    The default unit is 8.
+    The default {\bf unit} is 8. {\bf Unit} is specified using the monitor's normal number system (defaulting to hex). See \hyperref[sec:numbers]{Numbers}.
 
-    The command can be any Commodore DOS command. For example, to rename a file: {\tt @R0:NEWNAME=OLDNAME}
+    A {\bf command} of {\bf \$[pattern]} will request a directory listing from the specified {\bf unit} and display it.  An optional {\bf pattern} may be given to limit the files listed. The wildcard characters {\bf *} and {\bf ?} may be used
 
-    The command can be {\tt U1} to load raw disk sectors to memory, or {\tt U2} to save memory to raw disk sectors. These commands take this form:
+    The {\bf command} can be any Commodore DOS command. For example, to rename a file: {\tt @R0:NEWNAME=OLDNAME}
+
+    The {\bf command} can be {\tt U1} to load raw disk sectors to memory, or {\tt U2} to save memory to raw disk sectors. These {\bf command}s take this form:
 
     {\bf @8,U1 mem-start track sector [sector-count]}
 

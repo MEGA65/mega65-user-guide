@@ -282,6 +282,49 @@ The 4541 has the following registers:
 
 \input{regtable_AUTOIEC.MEGA65}
 
+\section{Serial Peripheral Bus Timing Diagrams}
+
+\subsection{Talker to Listener Turn-Around}
+
+\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-TurnAround}
+
+When the bus controller is commanding a device to talk, it finished
+the transmission with ATN asserted to 0V.  The controller is holding
+the CLK line at 0V, and the device it was talking to is holding the
+DATA line.  This situation needs to be reversed: The controller needs
+to give up control of the bus, and hand it over to the device.
+
+To summarise:
+
+\begin{enumerate}
+  \item The controller waits long enough before releasing the
+ATN line, to make sure that the peripheral(s) has finished acknowledging the
+byte that was just sent to it under attention. This is the T$_R$ delay.
+\item The controller releases the ATN line to 5V.
+\item The controller waits a while. This is the T$_{TK}$ delay.
+\item The controller releases the CLK line to 5V, and pulls the DATA
+  line to 0V. From this point
+  forward, the controller has relinquished control of the bus, and
+  becomes a listener.
+\item After some period of time, the peripheral that has been
+  commanded to talk asserts the CLK line to 0V, and releases the DATA
+  line, which remains at 0V, because the the controller is still
+  pulling it down to 0V in preparation to be the listener.
+  From this point
+  in time, the peripheral has become the sole talker on the
+  bus. The delay before the CLK line is pulled to 0V by the
+  peripheral is the T$_{DC}$ delay.
+\item The peripheral waits a while, before it is allowed to
+  begin talking. This is the T$_{DA}$ delay.
+\end{enumerate}
+
+Once this process is complete, the roles of the controller and
+peripheral have reversed, with the peripheral now having the role of
+talker, and the controller (and possibly other devices on the bus) of
+listener.
+
+
+
 \section{Optional Integrated Data-Logger}
 
 The 4541 is available in a variant that contains an embedded serial

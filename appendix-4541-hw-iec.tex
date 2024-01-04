@@ -288,18 +288,52 @@ The 4541 has the following registers:
 
 \includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-TurnAround}
 
+
+\newcolumntype{Y}[1]{%
+  >{\small\raggedright\everypar{\hangindent=1em}\arraybackslash}p{#1}%
+}
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
+      \hline
+        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{2}{|c|}{T$_{DA}$} & 4* & -- & -- & Talk-Attention hold acknowledge
+        time. \\
+        \hline
+        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
+          otherwise indicated.} \\
+        \multicolumn{6}{Y{10cm}}{* T$_{DA}$ is
+          provided by the peripheral, not the controller. The 4541 is
+          able to respond much faster than a C64 to serial bus events,
+          and thus requires only 4 usec to ensure the CLK line has
+          time to rise to 5V. 
+          For controllers using software
+          implementations of the protocol, such as the C64, the
+          minimum is 80 usec.
+%          \vfill\columnbreak
+          Therefore peripherals should always use
+          a value of at least 80 usec for T$_{DA}$.
+        }
+          \\
+    \end{longtable}
+\end{center}
+
 When the bus controller is commanding a device to talk, it finished
 the transmission with ATN asserted to 0V.  The controller is holding
 the CLK line at 0V, and the device it was talking to is holding the
 DATA line.  This situation needs to be reversed: The controller needs
 to give up control of the bus, and hand it over to the device.
 
+The SRQ line is not active in this transaction.
+
 To summarise:
 
 \begin{enumerate}
-  \item The controller waits long enough before releasing the
+\item The controller waits long enough before releasing the
 ATN line, to make sure that the peripheral(s) has finished acknowledging the
-byte that was just sent to it under attention. This is the T$_R$ delay.
+byte that was just sent to it under attention. This is the T$_{R}$ delay.
 \item The controller releases the ATN line to 5V.
 \item The controller waits a while. This is the T$_{TK}$ delay.
 \item The controller releases the CLK line to 5V, and pulls the DATA

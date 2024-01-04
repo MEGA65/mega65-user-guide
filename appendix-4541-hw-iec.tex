@@ -128,6 +128,65 @@ set before issuing each command, or reading the status bits, to make
 sure that the controller has finished whatever it was last asked to
 do.
 
+\section{Examples}
+
+\subsection{Reading the DOS channel status}
+
+The following BASIC65 program can be used to talk to a device
+connected to the serial peripheral bus. Note that because it uses the
+4541, and not the C65/MEGA65 CBDOS, it ignores the presence of the
+internal 3.5'' disk drive, because that drive is not connected to the
+serial peripheral bus.
+
+\begin{screencode}
+10 REM ABORT ANY EXISTING 4541 COMMAND IN PROGRESS
+20 POKE $D698,$00
+30 REM RESET THE SERIAL PERIPHERAL BUS BY PULLING
+40 REM THE RESET PIN LOW FOR 1 SECOND
+50 POKE $D698,$72 : SLEEP 1 : POKE $D698,$52
+60 REM GIVE CONNECTED DEVICES TIME TO GET READY AFTER RESET
+70 SLEEP 2: REM THE 1541 TAKES QUITE A WHILE TO RESET!
+80 REM SELECT THE DEVICE NUMBER TO TALK TO
+90 D = 8
+100 PRINT"DEVICE"; D; "TALK"
+110 POKE $D699,$40 + D : POKE $D698,$30 : GOSUB 1000
+120 PRINT "SECONDARY ADDRESS 15"
+130 POKE $D699,$6F : POKE $D698,$30 : GOSUB 1000
+140 PRINT"TURN AROUND TO LISTEN"
+150 POKE $D698,$35 : GOSUB 1000
+160 PRINT "READ DOS STATUS"
+170 POKE $D698,$32 : GOSUB 1000
+180 PRINT CHR$( PEEK($D699) );
+190 CC = CC + 1 : IF CC < 200 GOTO 180
+999 END
+1000 REM WAIT FOR 4541 TO FINISH COMMAND
+1010 S=PEEK($D697) : IF (S AND 32) = 32 GOTO 1020
+1020 GOTO 1000
+1030 IF S AND 128 THEN PRINT "DEVICE NOT PRESENT" : END
+1040 RETURN
+\end{screencode}
+
+If you have a 1581 with a JiffyDOS{\texttrademark} ROM connected, this
+program will display something like the following when run:
+
+\begin{screencode}
+READY.
+RUN
+DEVICE 8 TALK
+SECONDARY ADDRSS 15
+TURN AROUND TO LISTEN
+READ DOS STATUS
+73,(C) 1989 JIFFYDOS 6.0 1581,00,00
+00, OK,00,00
+00, OK,00,00
+00, OK,00,00
+...
+00, OK,0
+READY.
+\end{screencode}
+
+\section{4541 Command Reference}
+
 \section{Register Table}
 
 The 4541 has the following registers:

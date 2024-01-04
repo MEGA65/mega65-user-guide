@@ -1,0 +1,207 @@
+\chapter{4541 Serial Bus Controller}
+
+\section{Overview}
+
+The 4541 is a Commodore{\texttrademark} serial peripheral bus compatible
+bus controller, that greatly reduces the effort required to
+communicate with devices on this bus.
+
+\section{Features of the 4541}
+
+\subsection{Supports Enhanced Serial Protocol Varians}
+
+The 4541 supports the
+JiffyDOS{\texttrademark} extensions to this protocol, that allow data
+transfers approximately 10$\times$ faster than using the original
+protocol. It is also expected that a future revision of the 4541 will
+support Commodore's fast serial protocol, that is present in the 1571
+and 1581 disk drives. 
+
+\subsection{Interrupt Enabled Processor Offload}
+
+The 4541 performs serial communications independent of the
+microprocessor. Together with an IRQ functionality, this allows
+software to continue on other tasks while serial peripheral
+communications occurs, requiring only to be briefly interrupted when
+the next event on the serial peripheral bus occurs.
+
+\subsection{Processor Speed Independence}
+
+A major advantage of the 4541, is that it also handles all timing
+requirements of communications on this bus, allowing the bus to be
+driven by a processor that can run at different speeds, without having
+to modify the the bus controller software.
+
+\subsection{Co-Existence through Open-Collector Logic}
+
+Because the 4541 uses open-collector
+logic, it can be used in parallel with existing software-based
+implementations of the bus protocol, ensuring compatibility with
+existing software.  It is installed in this configuration in the
+MEGA65, allowing the legacy software-based serial peripheral
+communications software that controls the serial peripheral bus to
+continue to be used unmodified. 
+
+\section{Theory of Operation}
+
+The 4541 presents a quite simple interface: You issue commands, wait
+for a response, and retrieve any data that the command
+retrieved.  Some commands also require a data byte, which is provided
+by a dedicatetd register.  There is also a device info register, that lets you see
+what the 4541 believes about the current status of the most recently
+requested device, including whether it is present, and whether it
+supports either or both of the JiffyDOS{\texttrademark} or
+Commodore{\textrademark} 128 extensions to the standard protocol.
+
+So, for example, to release the Attention line, you can simply write
+the appropriate command byte value (65 = \$41) to the command register
+at \$D698, and then check for the completion status in the status
+register at \$D697, as shown in the following example written in
+BASIC65:
+
+\begin{screencode}
+  10 POKE $D698,$41
+  20 IF ( PEEK($D697) AND $20 ) = $00 GOTO 20
+  30 PRINT "DONE"
+\end{screencode}
+
+The 4541 implements a set of commands that map very closely to the
+KERNAL calls that are used to control the IEC bus on the C64 and
+related computers.  In most cases, there is a single corresponding
+command for the 4541, although in a few cases, you may need to issue
+two commands, as summarised in the following table:
+
+\index{IEC Controller Commands}
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|c|L{8cm}|}
+        \hline
+        \textbf{KERNAL Call} & \textbf{Meaning and Equivalent 4541 Command(s)}\\
+        \hline
+        \endhead
+        \$FF93 LSTNSA & Send LISTEN secondary address.  \\
+         & 4541 Equivalent: Data = Binary OR of \$60 and the desired
+        secondary address.  Command \$30. Then Command \$41 to release
+        the Attention line. \\
+        \hline
+        \$FF96 TALKSA & Sent TALK secondary address.  \\
+         & 4541 Equivalent: Data = Binary OR of \$60 and the desired
+        secondary address.  Command \$30. Then Command \$41 to release
+        the Attention line. \\
+        \hline
+        \$FFA5 IECIN & Receive a byte from the serial peripheral bus.  \\
+         & 4541 Equivalent : Command \$32. Received byte is available
+        in the data register on completion.  \\
+        \hline
+        \$FFA8 IECOUT & Send a byte to the serial peripheral bus.  \\
+         & 4541 Equivalent : Data = the byte to send. Command \$31 (or \$30 if the byte is to
+        be sent under Attention). \\
+        \hline
+        \$FFA8 UNTALK  & Send UNTALK command to serial peripheral bus.  \\
+        & 4541 Equivalent : Data = \$5F. Command \$30. \\    
+        \hline
+        \$FFAB UNLISTN  & Send UNLISTEN command to serial peripheral bus.  \\
+        & 4541 Equivalent : Data = \$3F. Command \$30. \\    
+        \hline
+        \$FFB1 LISTEN  & Send LISTEN command to the serial peripheral bus.  \\
+        & 4541 Equivalent : Data = \$20 plus the device number. Command \$30. \\    
+        \hline
+        \$FFB4 TALK  & Send TALK command to the serial peripheral bus.  \\
+        & 4541 Equivalent : Data = \$40 plus the device number. Command \$30. \\    
+        \hline
+        \$FFB7 READST & Read the status of the serial peripheral bus.  \\
+        & 4541 Equivalent : Read the status bits from \$D698. For
+        convenience, the
+        upper bits of this status byte have the same layout as used in
+        the KERNAL. \\    
+        \hline
+    \end{longtable}
+\end{center}
+
+The 4541 is very obedient: If you ask it to do something new, it
+will start doing that immediately, even if it was in the middle of
+doing something else -- even if it was half-way through sending a byte
+of data to the serial peripheral bus!  
+
+You should therefore always wait until the IRQREADY bit in \$D697 is
+set before issuing each command, or reading the status bits, to make
+sure that the controller has finished whatever it was last asked to
+do.
+
+\section{Register Table}
+
+The 4541 has the following registers:
+
+\input{regtable_AUTOIEC.MEGA65}
+
+\section{Optional Integrated Data-Logger}
+
+The 4541 is available in a variant that contains an embedded serial
+peripheral bus data-logger. This is designed to aid with debugging
+protocol errors on this bus. It commences capturing data whenever
+command \$30 (send byte under attention) is issued to the 4541, and
+will capture data for approximately 4 milli-seconds.
+
+\begin{itemize}
+  \item {\bf DATALOG0} The low-byte of the optional integrated serial
+    peripheral bus data logger.  Writing \$00 to this register causes
+    the read pointer to the data log to be reset to the beginning of
+    the capture. Writing any other value to this register, causes the
+    read point of the data logger to be advanced by one time step.
+    The time steps are approximately 1 micro-second, with additional
+    time steps added whenever one of the signals on the serial
+    peripheral bus changes state.
+    \item {\bf DATALOG1} The high-byte of the optional integrated serial
+      peripheral bus data logger.
+\end{itemize}
+
+Each time-step records 16 bits of information about the serial
+peripheral bus:
+\begin{itemize}
+\item {\bf DATALOG0 Bit 0} DATA line input value
+\item {\bf DATALOG0 Bit 1} CLK line input value
+\item {\bf DATALOG0 Bit 2} SRQ line input value
+\item {\bf DATALOG0 Bit 3} DATA line output state
+\item {\bf DATALOG0 Bit 4} CLK line output state
+\item {\bf DATALOG0 Bit 5} SRQ line output state
+\item {\bf DATALOG0 Bit 6} ATN line output state
+\item {\bf DATALOG0 Bit 7} RESET line output state
+\item {\bf DATALOG1} The lower 8-bits of the current state of the 4541's internal state machine.
+\end{itemize}
+
+The input values are the voltages that the 4541 reads on the
+respective pins.  Separately, the data-logger records whether the 4541
+is pulling each of those lines low.  This allows determination as to
+whether a connected peripheral or the 4541 is pulling a given signal
+low. This provides much more information than simply probing the lines
+of the serial peripheral bus, where you cannot readily determine who
+has pulled a given line low.
+
+The following truth table explains how to interpret these signals:
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|c|c|L{8cm}|}
+        \hline
+        \textbf{Input Value} & \textbf{Output Value} &
+        \textbf{Meaning}  \\
+        \hline
+        \endhead
+        1 & 1 & Signal is floating at 5V. No device is pulling it
+        low. \\
+        \hline
+        0 & 1 & Signal is at 0V. The 4541 is not pulling it low,
+        either a connected peripheral or the CIA is pulling it low. \\
+        \hline
+        0 & 0 & Signal is 0V. The 4541 is pulling it low. Other
+        devices might also be pulling it low, but it's not possible to
+        discriminate between these two situations.
+        low. \\
+        \hline
+        1 & 0 & Signal is floating at 5V, but the 4541 is pulling it
+        to 0V. Your computer is probably broken, or someone has
+        connected 5V to the signal, without a current-limiting
+        resistor, in which case, your computer is about to be broken. \\
+        \hline
+    \end{longtable}
+\end{center}

@@ -187,6 +187,95 @@ READY.
 
 \section{4541 Command Reference}
 
+The following table lists all commands that the 4541 understands.
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|c|L{8cm}|}
+        \hline
+        \textbf{Command Byte} & \textbf{Action} \\
+        \hline
+        \endhead
+        \multicolumn{2}{c}{\textbf{Abort Running Commands}} \\
+        \hline
+        \$00 & Abort any executing command. \\
+        \hline
+        \multicolumn{2}{c}{\textbf{Bit-Bashing Commands}} \\
+        \hline
+        \$41 & Release Attention (ATN) line to 5V. \\
+        \hline
+        \$61 & Pull Attention (ATN) line to 0V. \\
+        \hline
+        \$43 & Release clock (CLK) line to 5V. \\
+        \hline
+        \$63 & Pull clock (CLK) line to 0V. \\
+        \hline
+        \$44 & Release data (DATA) line to 5V. \\
+        \hline
+        \$64 & Pull data (DATA) line to 0V. \\
+        \hline
+        \$53 & Release fast serial clock (SRQ) line to 5V. \\
+        \hline
+        \$73 & Pull fast serial clock (SRQ) line to 0V. \\
+        \hline
+        \$52 & Pull reset (RESET) line to 0V, and release all other
+        lines to 5V. \\
+        \hline
+        \$72 & Release reset (RESET) line to 5V. \\
+        \hline
+        \multicolumn{2}{c}{\textbf{Protocol Variant Control Commands}} \\
+        \hline
+        \$4A & Enable solicitation of JiffyDOS{\texttrademark}
+        extension to the serial protocol. \\
+        \hline
+        \$6A & Disable solicitation of JiffyDOS{\texttrademark}
+        extension to the serial protocol. \\
+        \hline
+        \$46 & Enable solicitation of Commodore{\texttrademark} 1571/1581
+        fast serial extension to the serial protocol. \\
+        \hline
+        \$66 & Disable solicitation of Commodore{\texttrademark} 1571/1581
+        fast serial extension to the serial protocol. \\
+        \hline
+
+        \multicolumn{2}{c}{\textbf{Serial Bus Protocol Commands}} \\
+        \hline
+        \$30 & Send byte in \$D699 under attention. Attention line is
+        held at 0V at the end of the transaction. \\
+        \hline
+        \$31 & Send bye in \$D699 without attention. The attention
+        line is released, if it was previously asserted. \\
+        \hline
+        \$32 & Receive a byte from the peripheral serial bus. There
+        must be a previously activated talker. The received byte is
+        stored in \$D699. \\
+        \hline
+        \$33 & RESERVED \\
+        \hline
+        \$34 & Send a byte and indicate EOI. Attention is released
+        prior to transmission, if was asserted. \\
+        \hline
+        \$35 & Turn around from talker to listener. \\
+        \hline
+
+        \multicolumn{2}{c}{\textbf{Diagnostic Commands}} \\
+        \hline
+        \$D1 & Begin transmitting a 1KHz pulse train on the CLK and
+        DATA lines. Continues until aborted by another command. \\
+        \hline
+        \$D2 & Set alternate speed for JiffyDOS{\texttrademark}
+        protocol. Use only if normal speed does not work. This and the
+        following command exists to work-around a known problem with
+        the clocking in the 4541 that shows up only in synthesis, and
+        not under simulation. These commands will be removed when the
+        underlying cause has been rectified. \\
+        \hline
+        \$D3 & Set normal speed for JiffyDOS{\texttrademark} protocol. \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
 \section{Register Table}
 
 The 4541 has the following registers:

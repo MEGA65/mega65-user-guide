@@ -61,7 +61,9 @@ libc-doc:	libc-doc.c
 	$(CC) -g -Wall -o libc-doc libc-doc.c
 
 EXAMPLEDIR=	examples
-EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex
+EXAMPLES=	$(EXAMPLEDIR)/ledcycle.tex \
+		$(EXAMPLEDIR)/iec-data-logger.tex \
+		$(EXAMPLEDIR)/iec-data-logger-2.tex
 HYPPO_EXAMPLES= $(wildcard $(EXAMPLEDIR)/appendix-hypervisor-calls/*.asm)
 
 %.tex:	%.prg prg2tex Makefile
@@ -120,7 +122,7 @@ mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
-	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg
+	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg	
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
 
 #wrong.pdf: *.tex $(EXAMPLES) Makefile references.bib

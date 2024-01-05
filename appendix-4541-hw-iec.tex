@@ -286,7 +286,10 @@ The following table lists all commands that the 4541 understands.
         \$8A & Set T\textsubscript{AT} delay (1 -- 255 milli-seconds). Old value
         can be read from \$D699. \\ \hline        
         \$8B & Set T\textsubscript{H} delay (1 -- 255 milli-seconds). Old value
-        can be read from \$D699. \\ \hline        
+        can be read from \$D699. {\em This value currently has no
+          effect, as the 4541 allows truly infinite data-hold off by a
+          listener, except for bytes sent under attention, where
+          T\textsubscript{HA} is used instead.}\\ \hline        
         \$8C & Set T\textsubscript{NE} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
         \$8D & Set T\textsubscript{F} delay (1 -- 255 microseconds). Old value
@@ -555,7 +558,7 @@ listener.
         before becoming talker. {\em Can commence immediately when CLK is observed
         at 5V.}\\
         \hline
-        \multicolumn{2}{|c|}{T\textsubscript{H}} & -- & -- & -- & Listener
+        \multicolumn{2}{|c|}{T\textsubscript{H}} & -- & N/A & $\infty$ & Listener
         hold-off. {\em Listener can hold of for any desired period of
           time, or for no time at all.} \\
         \hline
@@ -651,7 +654,7 @@ To summarise:
         listener to register the end of the transmission of the
         previous byte, before the next byte can be sent. \\
         \hline
-        \multicolumn{2}{|c|}{T\textsubscript{H}} & 0 & -- & $\infty$ & Listener
+        \multicolumn{2}{|c|}{T\textsubscript{H}} & -- & N/A & $\infty$ & Listener
         hold-off. {\em Listener can hold of for any desired period of
           time, or for no time at all.} \\
         \hline

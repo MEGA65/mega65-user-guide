@@ -359,73 +359,6 @@ requirements affect peripherals: The
 
 \subsection{Send Byte Under Attention}
 
-\begin{center}
-\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-ATN-Send-Byte}
-\end{center}
-
-\begin{center}
-    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
-    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
-      \hline
-        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
-        \hline
-        \endhead
-        \multicolumn{2}{|c|}{T\textsubscript{AT}} & --  & 1000 & $\infty$ &
-        Device attention response timeout. {\em A device must
-          respond to the ATN request within this time. If not device
-          responds within this time, a DEVICE NOT PRESENT error will
-          result. Peripherals should therefore conform to the 1,000
-          usec typical value.} \\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{AC}} & --  & 20 & $\infty$? &
-        Time between pulling ATN low, before CLK is also pulled low. \\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{AL}} & --  & 1000 & $\infty$? &
-        Time between first device responds to ATN and the controller releases CLK
-        to 5V. \\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{HA}} & -- & 64 ms & $\infty$ & Listener
-        hold-off. {\em The protocol allows a listener can hold of for any desired period of
-          time, or for no time at all. The 4541 does not allow this
-          during ATN requests.} \\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{NE}} & --  & 40 & 200 &
-        Non-EOI timing-channel response to Ready For Data. {\em If
-          this interval is too long, the byte will be interpretted as
-          an EOI byte, and the peripherals will require an EOI
-          response (see T\textsubscript{EI}).} \\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{ST}} & 20*  & 35 & $\infty$ &
-        Data bit setup time. {\em Referred to as T\textsubscript{S} in
-          the C64 Programmer's Reference Guide.}\\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{VT}} & 20*  & 35 & $\infty$ &
-        Data bit valid hold time. {\em Referred to as
-          T\textsubscript{V} in the C64 Programmer's Reference Guide.} \\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{F}} & --  & 1000 & 1000 &
-        Frame handshake (acknowledge) timeout. \\
-        \hline
-        \multicolumn{2}{|c|}{T\textsubscript{R}} & 20  & 200 & $\infty$ &
-        Time between receiving end of frame acknowledgement and
-        releasing the ATN line to 5V. \\
-        \hline
-        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
-          otherwise indicated.} \\
-        \multicolumn{6}{Y{10cm}}{*{}
-          The Commodore{\texttrademark} 64 Programmer's Reference
-          Guide suggests that T\textsubscript{S} and
-          T\textsubscript{V} each have a minimum duration of 20 micro seconds.
-          Our investiations suggest that when communicating with a
-          1541, that safe values for 
-          T\textsubscript{ST} and T\textsubscript{VT} are closer to 70
-          micro seconds.
-        }
-          \\
-        
-    \end{longtable}
-\end{center}
-
 When the controller wishes to get the attention of one or more
 peripherals on the bus, it uses the attention (ATN) line to indicate
 this: It pulls it low to 0V, and then sends one or more bytes that
@@ -496,7 +429,111 @@ To summarise:
   time, and then releases the ATN line.
 \end{enumerate}
 
+\begin{center}
+\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-ATN-Send-Byte}
+\end{center}
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
+      \hline
+        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{2}{|c|}{T\textsubscript{AT}} & --  & 1000 & $\infty$ &
+        Device attention response timeout. {\em A device must
+          respond to the ATN request within this time. If not device
+          responds within this time, a DEVICE NOT PRESENT error will
+          result. Peripherals should therefore conform to the 1,000
+          usec typical value.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{AC}} & --  & 20 & $\infty$? &
+        Time between pulling ATN low, before CLK is also pulled low. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{AL}} & --  & 1000 & $\infty$? &
+        Time between first device responds to ATN and the controller releases CLK
+        to 5V. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{HA}} & -- & 64 ms & $\infty$ & Listener
+        hold-off. {\em The protocol allows a listener can hold of for any desired period of
+          time, or for no time at all. The 4541 does not allow this
+          during ATN requests.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{NE}} & --  & 40 & 200 &
+        Non-EOI timing-channel response to Ready For Data. {\em If
+          this interval is too long, the byte will be interpretted as
+          an EOI byte, and the peripherals will require an EOI
+          response (see T\textsubscript{EI}).} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{ST}} & 20*  & 35 & $\infty$ &
+        Data bit setup time. {\em Referred to as T\textsubscript{S} in
+          the C64 Programmer's Reference Guide.}\\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{VT}} & 20*  & 35 & $\infty$ &
+        Data bit valid hold time. {\em Referred to as
+          T\textsubscript{V} in the C64 Programmer's Reference Guide.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{F}} & --  & 1000 & 1000 &
+        Frame handshake (acknowledge) timeout. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{R}} & 20  & 200 & $\infty$ &
+        Time between receiving end of frame acknowledgement and
+        releasing the ATN line to 5V. \\
+        \hline
+        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
+          otherwise indicated.} \\
+        \multicolumn{6}{Y{10cm}}{*{}
+          The Commodore{\texttrademark} 64 Programmer's Reference
+          Guide suggests that T\textsubscript{S} and
+          T\textsubscript{V} each have a minimum duration of 20 micro seconds.
+          Our investiations suggest that when communicating with a
+          1541, that safe values for 
+          T\textsubscript{ST} and T\textsubscript{VT} are closer to 70
+          micro seconds.
+        }
+          \\
+        
+    \end{longtable}
+\end{center}
+
 \subsection{Talker to Listener Turn-Around}
+
+When the bus controller is commanding a device to talk, it finished
+the transmission with ATN asserted to 0V.  The controller is holding
+the CLK line at 0V, and the device it was talking to is holding the
+DATA line.  This situation needs to be reversed: The controller needs
+to give up control of the bus, and hand it over to the device.
+
+The SRQ line is not active in this transaction.
+
+To summarise:
+
+\begin{enumerate}
+\item The controller waits long enough before releasing the
+ATN line, to make sure that the peripheral(s) has finished acknowledging the
+byte that was just sent to it under attention. This is the T\textsubscript{R} delay.
+\item The controller releases the ATN line to 5V.
+\item The controller waits a while. This is the T\textsubscript{TK} delay.
+\item The controller releases the CLK line to 5V, and pulls the DATA
+  line to 0V. From this point
+  forward, the controller has relinquished control of the bus, and
+  becomes a listener.
+\item After some period of time, the peripheral that has been
+  commanded to talk asserts the CLK line to 0V, and releases the DATA
+  line, which remains at 0V, because the the controller is still
+  pulling it down to 0V in preparation to be the listener.
+  From this point
+  in time, the peripheral has become the sole talker on the
+  bus. The delay before the CLK line is pulled to 0V by the
+  peripheral is the T\textsubscript{DC} timeout.
+\item The peripheral waits a while, before it is allowed to
+  begin talking. This is the T\textsubscript{DA} delay.
+\end{enumerate}
+
+Once this process is complete, the roles of the controller and
+peripheral have reversed, with the peripheral now having the role of
+talker, and the controller (and possibly other devices on the bus) of
+listener.
 
 \begin{center}
 \includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-TurnAround}
@@ -554,44 +591,49 @@ To summarise:
     \end{longtable}
 \end{center}
 
-When the bus controller is commanding a device to talk, it finished
-the transmission with ATN asserted to 0V.  The controller is holding
-the CLK line at 0V, and the device it was talking to is holding the
-DATA line.  This situation needs to be reversed: The controller needs
-to give up control of the bus, and hand it over to the device.
+\subsection{Send Byte With End-or-Indicate (EOI)}
+
+After sending a stream of data, a device will often wish to indicate
+to the listener that it has reached the end of the data, for example,
+so that it can begin processing it.  This is accomplished by specially
+marking the byte with the End-or-Indicate (EOI) attribute.
+
+This is
+implemented using a timing side-channel, so that it does not require a
+whole dedicated wire. When the talker has floated CLK to 5V to indicate it
+wishes to send a byte, and when the listener has floated DATA to 5V to
+indicate that it is ready to receive, the talker can wait at least 200
+micro-seconds, to indicate to the listener that the byte should be
+received with EOI status.  The listener signals this to the talker by
+pulling the DATA line to 0V for a while, after which the transmission
+occurs much the same as normal.
 
 The SRQ line is not active in this transaction.
 
 To summarise:
 
 \begin{enumerate}
-\item The controller waits long enough before releasing the
-ATN line, to make sure that the peripheral(s) has finished acknowledging the
-byte that was just sent to it under attention. This is the T\textsubscript{R} delay.
-\item The controller releases the ATN line to 5V.
-\item The controller waits a while. This is the T\textsubscript{TK} delay.
-\item The controller releases the CLK line to 5V, and pulls the DATA
-  line to 0V. From this point
-  forward, the controller has relinquished control of the bus, and
-  becomes a listener.
-\item After some period of time, the peripheral that has been
-  commanded to talk asserts the CLK line to 0V, and releases the DATA
-  line, which remains at 0V, because the the controller is still
-  pulling it down to 0V in preparation to be the listener.
-  From this point
-  in time, the peripheral has become the sole talker on the
-  bus. The delay before the CLK line is pulled to 0V by the
-  peripheral is the T\textsubscript{DC} timeout.
-\item The peripheral waits a while, before it is allowed to
-  begin talking. This is the T\textsubscript{DA} delay.
+\item The talker releases CLK to 5V to indicate that it wishes to
+  send a byte.
+\item After an arbitrary period of time, the listener releases the
+  DATA line to 5V to indicate its readiness to receive a byte.
+\item Normally at this point, the talker would begin sending the bits
+  after a short period of time.  However, to indicate EOI, it instead
+  waits silently, unitl the listener gets the idea that this byte is
+  different, resulting in the listener pulling the DATA line back down
+  to 0V.
+\item The listener holds the DATA line at 0V for just long enough
+  for it to be sure that the talker has noticed, and then releases
+  it again.
+\item As soon as the talker has seen the listener pulle the DATA
+  line to 0V and release it again, it begins sending the byte
+  normally after a short delay.
+\item If it waits too long, the listener will assume that the talker
+  wanted to indicate EOI without actually sending a byte.
+  \item The transmission of the byte completes in an identical manner
+    to the non-EOI case.
 \end{enumerate}
 
-Once this process is complete, the roles of the controller and
-peripheral have reversed, with the peripheral now having the role of
-talker, and the controller (and possibly other devices on the bus) of
-listener.
-
-\subsection{Send Byte With End-or-Indicate (EOI)}
 
 \begin{center}
 \includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-Send-Byte-EOI}
@@ -674,7 +716,15 @@ listener.
     \end{longtable}
 \end{center}
 
+\subsection{Receive Byte}
 
+Receiving bytes on the IEC bus occurs identically to the sending
+case.  The key difference is that the 4541 is tolerant of a much wider
+range of timing parameters than software implementations of the bus
+protocol. The 4541 requires not more than 4 micro-seconds for any
+given bus state, which is the time required for the pull-up resistors
+on the bus to allow lines to float back to 5V.  Internally, the 4541
+is capable of detecting bit times shorter than 1 micro-second.
 
 \section{Optional Integrated Data-Logger}
 

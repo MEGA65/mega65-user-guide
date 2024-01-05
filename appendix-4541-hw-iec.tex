@@ -425,6 +425,75 @@ requirements affect peripherals: The
     \end{longtable}
 \end{center}
 
+When the controller wishes to get the attention of one or more
+peripherals on the bus, it uses the attention (ATN) line to indicate
+this: It pulls it low to 0V, and then sends one or more bytes that
+will be received by all devices on the bus.
+
+The SRQ line is not active in this transaction.
+
+To summarise:
+
+\begin{enumerate}
+\item The controller pulls the ATN to 0V and releases the CLK, DATA
+  and SRQ lines if it was holding any of them at 0V.
+\item All peripherals on the bus as they notice the ATN line at 0V
+  begin to indicate this by pulling the DATA line to 0V.
+  The controller can't tell how many, or whether all the devices
+  on the bus have responded: Rather, it can only tell that at least
+  one device has.
+\item If no device responds, DATA stays at 5V, because noone is
+  pulling it down, and the
+  controller will indicate a DEVICE NOT PRESENT error.
+\item While the controller is waiting for devices to respond, it
+  also pulls the CLK line to 0V, typically a short time after
+  pulling the ATN line to 0V.
+\item After the controller has waited a while, typically 1
+  milli-second, it assumes that all peripherals who are going to
+  answer the ATN request have.
+\item Next, the controller releasing the CLK line to 5V to indicate
+  that it wants to send a byte of data on the bus. This is the start
+  of the transmission of a byte under ATN. All of the previous steps
+  have had the purpose of establishing the ATN communications.
+\item The controller now waits for all devices to indicate
+  their readiness to receive a byte by releasing the DATA line
+  back to 5V. Because the bus is open-collector, if even a
+  single device is not ready, it will be able to keep pulling
+  the DATA line down to 0V, causing the controller to wait.
+  If this takes too long, the controller may give up and
+  indicate a timeout condition.
+\item Once the last device has indicate it is ready to receive data,
+  the controller waits a little longer, to make sure that all of the
+  devices are able to do their final preparations to receive a
+  byte. This doesn't take very long.
+\item After that delay, the controller begins sending the 8 bits of
+  data, beginning with the least significant bit (LSB), that is bit
+  0. For each bit, it first brinks the CLK line low to indicate that
+  data is being loaded onto the bus, pulls the DATA line to 0V if it
+  wants to send a 0 bit, or lets it float to 5V if it wants to send
+  a 1 bit, and then releases the CLK line back to 5V, and holds it
+  there for a while.  The timing of this process is critical: If the
+  CLK is low or high for too short a period of time, the peripherals
+  will get confused, and possibly miss one or more bits, resulting
+  in general chaos on the bus.
+\item After the controller has sent the last bit, it holds the CLK
+  line low, and releases the DATA line. It expects one or more
+  peripherals to pull the DATA line to 0V within a short time to
+  acknowledge receptionf of the byte. If this does not occur, the
+  controller may report a timeout or DEVICE NOT PRESENT error.
+\item At the conclusion of this, the controller is holding the
+  CLK line at 0V, and the peripheral(s) are holding the DATA
+  line at 0V. This combination serves to tell each other that
+  the controller is not yet wanting to send the next byte, and
+  that the peripheral(s) are not yet ready to receive the next
+  byte.
+\item If the controller wishes to send more bytes under
+  attention, it will repeat this process from the step where
+  it released the CLK line to 5V.
+\item Alternatively, if it was the last byte to be sent
+  under this attention request, the controller waits a short
+  time, and then releases the ATN line.
+\end{enumerate}
 
 \subsection{Talker to Listener Turn-Around}
 

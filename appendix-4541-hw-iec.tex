@@ -1,5 +1,9 @@
 \chapter{4541 Serial Bus Controller}
 
+\newcolumntype{Y}[1]{%
+  >{\small\raggedright\everypar{\hangindent=1em}\arraybackslash}p{#1}%
+}
+
 \section{Overview}
 
 The 4541 is a Commodore{\texttrademark} serial peripheral bus compatible
@@ -359,9 +363,6 @@ requirements affect peripherals: The
 \includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-ATN-Send-Byte}
 \end{center}
 
-\newcolumntype{Y}[1]{%
-  >{\small\raggedright\everypar{\hangindent=1em}\arraybackslash}p{#1}%
-}
 \begin{center}
     \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
     \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
@@ -501,9 +502,6 @@ To summarise:
 \includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-TurnAround}
 \end{center}
 
-\newcolumntype{Y}[1]{%
-  >{\small\raggedright\everypar{\hangindent=1em}\arraybackslash}p{#1}%
-}
 \begin{center}
     \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
     \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
@@ -592,6 +590,89 @@ Once this process is complete, the roles of the controller and
 peripheral have reversed, with the peripheral now having the role of
 talker, and the controller (and possibly other devices on the bus) of
 listener.
+
+\subsection{Send Byte With End-or-Indicate (EOI)}
+
+\begin{center}
+\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-Send-Byte-EOI}
+\end{center}
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
+      \hline
+        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{2}{|c|}{T\textsubscript{BB}} & 100 & 100 & $\infty$ &
+        Time between bytes. Talkers must wait long enough to allow the
+        listener to register the end of the transmission of the
+        previous byte, before the next byte can be sent. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{H}} & 0 & -- & $\infty$ & Listener
+        hold-off. {\em Listener can hold of for any desired period of
+          time, or for no time at all.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{YE}} & 200 & 250 & $\infty$ &
+        EOI indication delay.  The sender must wait at least 200
+        micro-seconds for the receiver to recognise that a byte is
+        being sent with EOI. If the delay is less than this, the
+        receiver will not acknowledge the EOI. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{EI}} & 60 & 80 & $\infty$ &
+        EOI acknowledge hold time. The receiver must pull the DATA
+        line to 0V again for at least 60 micro-seconds, to allow the
+        sender to detect this EOI acknowledgement pulse. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{RY}} & 60 & 80 & 100 &
+        The talker response limit is a relatively narrow time window
+        during which the talker must commence transmission of the
+        byte. If it is too early, the listener may become
+        desynchronised, because it has not hat time to prepare for
+        reception after sending the EOI acknowledgement. If it is too
+        long, the receiver may conclude the talker has stopped
+        talking. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{ST}} & 20*  & 35 & $\infty$ &
+        Data bit setup time. {\em Referred to as T\textsubscript{S} in
+          the C64 Programmer's Reference Guide.}\\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{VT}} & 20*  & 35 & $\infty$ &
+        Data bit valid hold time. {\em Referred to as
+          T\textsubscript{V} in the C64 Programmer's Reference Guide.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{F}} & --  & 1000 & 1000 &
+        Frame handshake (acknowledge) timeout. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{FR}} & 0/60\^ & 0 & $\infty$ &
+        EOI Frame acknowledge. The listener pulls DATA to 0V after a
+        short period of time to acknowledge the byte sent with EOI. \\
+        \hline
+        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
+          otherwise indicated.} \\
+        \multicolumn{6}{Y{10cm}}{* T\textsubscript{ST} is
+          provided by the peripheral, not the controller. The 4541 is
+          able to respond much faster than a C64 to serial bus events,
+          and thus requires only 4 usec to ensure the CLK line has
+          time to rise to 5V. 
+          For controllers using software
+          implementations of the protocol, such as the C64, the
+          minimum is 80 usec.
+          Therefore peripherals should always use
+          a value of at least 80 usec for T\textsubscript{DA}.
+        } \\
+        \multicolumn{6}{Y{10cm}}{\^{} The
+          Commodore{\texttrademark} 64 Programmer's Reference Guide
+          lists 
+          T\textsubscript{FR} as having a minimum duration of 60 usec.
+          We see no evidence that 
+          would suggest that any implementation requires a delay
+          before the DATA line can be pulled low by the listener to
+          acknowledge receipt of a byte.
+        }
+          \\
+    \end{longtable}
+\end{center}
 
 
 

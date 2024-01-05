@@ -267,6 +267,8 @@ The following table lists all commands that the 4541 understands.
         be read from \$D699. \\ \hline
         \$83 & Set T\textsubscript{DC} timeout (1 -- 255 milli-seconds). Old value
         can be read from \$D699. \\ \hline        
+        \$84 & Set T\textsubscript{BB} delay (1 -- 255 microseconds). Old value
+        can be read from \$D699. \\ \hline        
         
         \multicolumn{2}{c}{\textbf{Diagnostic Commands}} \\
         \hline
@@ -285,7 +287,88 @@ The 4541 has the following registers:
 
 \input{regtable_AUTOIEC.MEGA65}
 
-\section{Serial Peripheral Bus Timing Diagrams}
+\section{Serial Peripheral Bus Timing Diagrams and Requirements}
+
+This section describes the timing requirements primarily from the
+perspective of a bus controller. If you are designing serial bus
+peripherals, please take care to carefully understand how these time
+requirements affect peripherals: The 
+
+
+\subsection{Send Byte Under Attention}
+
+\begin{center}
+\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-ATN-Send-Byte}
+\end{center}
+
+\newcolumntype{Y}[1]{%
+  >{\small\raggedright\everypar{\hangindent=1em}\arraybackslash}p{#1}%
+}
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
+      \hline
+        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{2}{|c|}{T\textsubscript{AT}} & --  & 1000 & $\infty$ &
+        Device attention response timeout. {\em A device must
+          respond to the ATN request within this time. If not device
+          responds within this time, a DEVICE NOT PRESENT error will
+          result. Peripherals should therefore conform to the 1,000
+          usec typical value.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{AC}} & --  & 20 & $\infty$? &
+        Time between pulling ATN low, before CLK is also pulled low. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{AL}} & --  & 1000 & $\infty$? &
+        Time between first device responds to ATN and the controller releases CLK
+        to 5V. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{HA}} & -- & 64 ms & $\infty$ & Listener
+        hold-off. {\em The protocol allows a listener can hold of for any desired period of
+          time, or for no time at all. The 4541 does not allow this
+          during ATN requests.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{NE}} & --  & 40 & 200 &
+        Non-EOI timing-channel response to Ready For Data. {\em If
+          this interval is too long, the byte will be interpretted as
+          an EOI byte, and the peripherals will require an EOI
+          response (see T\textsubscript{EI}).} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{ST}} & 20*  & 35 & $\infty$ &
+        Data bit setup time. {\em Referred to as T\textsubscript{S} in
+          the C64 Programmer's Reference Guide.}\\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{VT}} & 20*  & 35 & $\infty$ &
+        Data bit valid hold time. {\em Referred to as
+          T\textsubscript{V} in the C64 Programmer's Reference Guide.} \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{F}} & --  & 1000 & 1000 &
+        Frame handshake (acknowledge) timeout. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{R}} & 20  & 200 & $\infty$ &
+        Time between receiving end of frame acknowledgement and
+        releasing the ATN line to 5V. \\
+        \hline
+        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
+          otherwise indicated.} \\
+        \multicolumn{6}{Y{10cm}}{*{}
+          The Commodore{\texttrademark} 64 Programmer's Reference
+          Guide suggests that T\textsubscript{S} and
+          T\textsubscript{V} each have a minimum duration of 20 usec.
+          Our investiations suggest that when communicating with a 1541,
+          T\textsubscript{ST} must be at least XXX micro seconds,
+          T\textsubscript{VT} must be at least XXX micro seconds,
+          and
+          the sum of T\textsubscript{ST} and T\textsubscript{VT} must
+          exceed XXX micro seconds.
+        }
+          \\
+        
+    \end{longtable}
+\end{center}
+
 
 \subsection{Talker to Listener Turn-Around}
 

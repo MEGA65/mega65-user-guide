@@ -738,13 +738,25 @@ will capture data for approximately 4 milli-seconds.
   \item {\bf DATALOG0} The low-byte of the optional integrated serial
     peripheral bus data logger.  Writing \$00 to this register causes
     the read pointer to the data log to be reset to the beginning of
-    the capture. Writing any other value to this register, causes the
+    the capture. Writing \$01 to this register, causes the
     read point of the data logger to be advanced by one time step.
     The time steps are approximately 1 micro-second, with additional
     time steps added whenever one of the signals on the serial
     peripheral bus changes state.
     \item {\bf DATALOG1} The high-byte of the optional integrated serial
-      peripheral bus data logger.
+      peripheral bus data logger. Different fields can be read at this
+      address by writing the following values to the DATALOG0
+      register:
+      \begin{itemize}
+        \item \$02 - Read low byte of IEC controller state machine
+          state number.
+        \item \$03 - Read high byte of IEC controller state machine
+          state number.
+        \item \$04 - Read low byte of number of cycles the previous bus state
+          was held for.
+        \item \$05 - Read high byte of number of cycles the previous bus state
+          was held for.
+        \end{itemize}
 \end{itemize}
 
 Each time-step records 16 bits of information about the serial
@@ -758,7 +770,7 @@ peripheral bus:
 \item {\bf DATALOG0 Bit 5} SRQ line output state
 \item {\bf DATALOG0 Bit 6} ATN line output state
 \item {\bf DATALOG0 Bit 7} RESET line output state
-\item {\bf DATALOG1} The lower 8-bits of the current state of the 4541's internal state machine.
+\item {\bf DATALOG1} Access to the additional data logger fields.
 \end{itemize}
 
 The input values are the voltages that the 4541 reads on the

@@ -300,8 +300,8 @@ The following table lists all commands that the 4541 understands.
         can be read from \$D699. \\ \hline        
         \$90 & Set T\textsubscript{AR} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
-        \$91 & Set T\textsubscript{JT} delay (1 -- 255 microseconds). Old value
-        can be read from \$D699. \\ \hline        
+        \$91 & Set T\textsubscript{JT} delay (4 -- 1020 microseconds). Old value
+        can be read from \$D699, scaled by 4. \\ \hline        
         \$92 & Set T\textsubscript{J0} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
         \$93 & Set T\textsubscript{J1} delay (1 -- 255 microseconds). Old value
@@ -334,6 +334,8 @@ The following table lists all commands that the 4541 understands.
         can be read from \$D699. \\ \hline        
         \$A1 & Set T\textsubscript{PULLUP} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
+        \$A2 & Set T\textsubscript{JD} delay (4 -- 1020 microseconds). Old value
+        can be read from \$D699, scaled by 4. \\ \hline        
         
         \multicolumn{2}{c}{\textbf{Diagnostic Commands}} \\
         \hline
@@ -498,6 +500,90 @@ To summarise:
         
     \end{longtable}
 \end{center}
+
+\subsection{JiffyDOS{\texttrademark} Protocol Solicitation}
+
+If support for the JiffyDOS{\texttrademark} protocol extension is
+enabled, the 4541 will solicit this during the transmission of TALK
+and LISTEN commands only. That is, when sending a byte under attention
+that is in the range \$20 -- \$5F.
+
+The SRQ line is not active in this transaction.
+
+To summarise:
+
+\begin{enumerate}
+  \item The transmission of the byte occurs normally, until the
+    T\textsubscript{ST} period just befor the last bit (bit 7) of the
+    byte.
+  \item Instead of waiting T\textsubscript{ST}, the controller must
+    instead wait for a much longer period, typically 300
+    micro-seconds, so that the listener will recognise that it is
+    being asked if it supports the JiffyDOS{\textrademark}
+    protocol. The controller also releases the DATA line to 5V.
+  \item If the listener supports the JiffyDOS{\texttrademark} protcol,
+    it pulls DATA to 0V when it observes that the CLK line has been
+    held low for the longer period.
+  \item After the listener has held DATA at 0V long enough for it
+    to be sure the controller has had the chance to notice, it
+    releases the DATA line to 5V. The device will now use the
+    JiffyDOS{\texttrademark} for the requested TALK or LISTEN session.
+  \item The controller notes if the DATA line was pulled to 0V, and if
+    so, records that the listener has selected the
+    JiffyDOS{\texttrademark} protcol, and will use this protocol for the
+    requested TALK or LISTEN session.
+  \item The controller now sends the final bit of the byte.
+  \item The controller ensures that the data bit value is visible on
+    DATA before asserting CLK, typically 1 -- 4 micro-seconds.
+  \item The controller releases the CLK line to 5V to indicate to
+    the listener that the final data bit is ready.
+  \item The remainder of the byte transfers as normal.
+\end{enumerate}
+
+\begin{center}
+\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-ATN-JD-Solicit}
+\end{center}
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
+      \hline
+        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{2}{|c|}{T\textsubscript{JD}} & 300  & 300 & $\infty$ &
+        Time that CLK is held at 0V between the two final bits of the
+        byte to provide the side-channel indication that the
+        controller wishes to use the JiffyDOS{\texttrademark} protocol extension.
+        \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{IJ}} & 100  & -- & 295 &
+        Time before the listener accepts and begins to acknowledge the
+        selection of the JiffyDOS{\texttrademark} protocol extension.
+        \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{IJ}} & 4/100*  & -- & 200 &
+        The duration that the listener holds the DATA line low to
+        acknowledge the 
+        selection of the JiffyDOS{\texttrademark} protocol extension.
+        \\
+        \hline
+        \multicolumn{6}{l}{\em All other timing values are identical to the sending a byte
+          under attention case.}
+          \\
+        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
+          otherwise indicated.} \\
+        \multicolumn{6}{Y{10cm}}{*{}
+          The 4541 can detect pulse-widths as narrow as 4
+          micro-seconds. However, software implementations of the
+          protocol will require a larger value. JiffyDOS\texttrademark
+          uses 100 micro-seconds.
+        }
+
+        
+    \end{longtable}
+\end{center}
+
 
 \subsection{Talker to Listener Turn-Around}
 

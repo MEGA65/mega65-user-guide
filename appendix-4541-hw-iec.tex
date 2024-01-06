@@ -12,7 +12,7 @@ communicate with devices on this bus.
 
 \section{Features of the 4541}
 
-\subsection{Supports Enhanced Serial Protocol Varians}
+\subsection{Supports Enhanced Serial Protocol Variants}
 
 The 4541 supports the
 JiffyDOS{\texttrademark} extensions to this protocol, that allow data
@@ -177,7 +177,7 @@ program will display something like the following when run:
 READY.
 RUN
 DEVICE 8 TALK
-SECONDARY ADDRSS 15
+SECONDARY ADDRESS 15
 TURN AROUND TO LISTEN
 READ DOS STATUS
 73,(C) 1989 JIFFYDOS 6.0 1581,00,00
@@ -269,7 +269,7 @@ The following table lists all commands that the 4541 understands.
         read from \$D699. \\ \hline
         \$82 & Set T\textsubscript{TK} delay (1 -- 255 microseconds). Old value can
         be read from \$D699. \\ \hline
-        \$83 & Set T\textsubscript{DC} timeout (1 -- 255 milli-seconds). Old value
+        \$83 & Set T\textsubscript{DC} timeout (1 -- 255 milliseconds). Old value
         can be read from \$D699. \\ \hline        
         \$84 & Set T\textsubscript{BB} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
@@ -283,9 +283,9 @@ The following table lists all commands that the 4541 understands.
         can be read from \$D699. \\ \hline        
         \$89 & Set T\textsubscript{AC} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
-        \$8A & Set T\textsubscript{AT} delay (1 -- 255 milli-seconds). Old value
+        \$8A & Set T\textsubscript{AT} delay (1 -- 255 milliseconds). Old value
         can be read from \$D699. \\ \hline        
-        \$8B & Set T\textsubscript{H} delay (1 -- 255 milli-seconds). Old value
+        \$8B & Set T\textsubscript{H} delay (1 -- 255 milliseconds). Old value
         can be read from \$D699. {\em This value currently has no
           effect, as the 4541 allows truly infinite data-hold off by a
           listener, except for bytes sent under attention, where
@@ -381,14 +381,14 @@ To summarise:
   The controller can't tell how many, or whether all the devices
   on the bus have responded: Rather, it can only tell that at least
   one device has.
-\item If no device responds, DATA stays at 5V, because noone is
+\item If no device responds, DATA stays at 5V, because no one is
   pulling it down, and the
   controller will indicate a DEVICE NOT PRESENT error.
 \item While the controller is waiting for devices to respond, it
   also pulls the CLK line to 0V, typically a short time after
   pulling the ATN line to 0V.
 \item After the controller has waited a while, typically 1
-  milli-second, it assumes that all peripherals who are going to
+  millisecond, it assumes that all peripherals who are going to
   answer the ATN request have.
 \item Next, the controller releasing the CLK line to 5V to indicate
   that it wants to send a byte of data on the bus. This is the start
@@ -418,7 +418,7 @@ To summarise:
 \item After the controller has sent the last bit, it holds the CLK
   line low, and releases the DATA line. It expects one or more
   peripherals to pull the DATA line to 0V within a short time to
-  acknowledge receptionf of the byte. If this does not occur, the
+  acknowledge reception of the byte. If this does not occur, the
   controller may report a timeout or DEVICE NOT PRESENT error.
 \item At the conclusion of this, the controller is holding the
   CLK line at 0V, and the peripheral(s) are holding the DATA
@@ -450,7 +450,7 @@ To summarise:
           respond to the ATN request within this time. If not device
           responds within this time, a DEVICE NOT PRESENT error will
           result. Peripherals should therefore conform to the 1,000
-          usec typical value.} \\
+          microsecond typical value.} \\
         \hline
         \multicolumn{2}{|c|}{T\textsubscript{AC}} & --  & 20 & $\infty$? &
         Time between pulling ATN low, before CLK is also pulled low. \\
@@ -466,7 +466,7 @@ To summarise:
         \hline
         \multicolumn{2}{|c|}{T\textsubscript{NE}} & --  & 40 & 200 &
         Non-EOI timing-channel response to Ready For Data. {\em If
-          this interval is too long, the byte will be interpretted as
+          this interval is too long, the byte will be interpreted as
           an EOI byte, and the peripherals will require an EOI
           response (see T\textsubscript{EI}).} \\
         \hline
@@ -491,7 +491,7 @@ To summarise:
           The Commodore{\texttrademark} 64 Programmer's Reference
           Guide suggests that T\textsubscript{S} and
           T\textsubscript{V} each have a minimum duration of 20 micro seconds.
-          Our investiations suggest that when communicating with a
+          Our investigations suggest that when communicating with a
           1541, that safe values for 
           T\textsubscript{ST} and T\textsubscript{VT} are closer to 70
           micro seconds.
@@ -514,14 +514,14 @@ To summarise:
 
 \begin{enumerate}
   \item The transmission of the byte occurs normally, until the
-    T\textsubscript{ST} period just befor the last bit (bit 7) of the
+    T\textsubscript{ST} period just before the last bit (bit 7) of the
     byte.
   \item Instead of waiting T\textsubscript{ST}, the controller must
     instead wait for a much longer period, typically 300
-    micro-seconds, so that the listener will recognise that it is
+    microseconds, so that the listener will recognise that it is
     being asked if it supports the JiffyDOS{\textrademark}
     protocol. The controller also releases the DATA line to 5V.
-  \item If the listener supports the JiffyDOS{\texttrademark} protcol,
+  \item If the listener supports the JiffyDOS{\texttrademark} protocol,
     it pulls DATA to 0V when it observes that the CLK line has been
     held low for the longer period.
   \item After the listener has held DATA at 0V long enough for it
@@ -530,11 +530,11 @@ To summarise:
     JiffyDOS{\texttrademark} for the requested TALK or LISTEN session.
   \item The controller notes if the DATA line was pulled to 0V, and if
     so, records that the listener has selected the
-    JiffyDOS{\texttrademark} protcol, and will use this protocol for the
+    JiffyDOS{\texttrademark} protocol, and will use this protocol for the
     requested TALK or LISTEN session.
   \item The controller now sends the final bit of the byte.
   \item The controller ensures that the data bit value is visible on
-    DATA before asserting CLK, typically 1 -- 4 micro-seconds.
+    DATA before asserting CLK, typically 1 -- 4 microseconds.
   \item The controller releases the CLK line to 5V to indicate to
     the listener that the final data bit is ready.
   \item The remainder of the byte transfers as normal.
@@ -575,9 +575,9 @@ To summarise:
           otherwise indicated.} \\
         \multicolumn{6}{Y{10cm}}{*{}
           The 4541 can detect pulse-widths as narrow as 4
-          micro-seconds. However, software implementations of the
+          microseconds. However, software implementations of the
           protocol will require a larger value. JiffyDOS\texttrademark
-          uses 100 micro-seconds.
+          uses 100 microseconds.
         }
 
         
@@ -659,18 +659,18 @@ listener.
         \multicolumn{6}{Y{10cm}}{* T\textsubscript{DA} is
           provided by the peripheral, not the controller. The 4541 is
           able to respond much faster than a C64 to serial bus events,
-          and thus requires only 4 usec to ensure the CLK line has
+          and thus requires only 4 microsecond to ensure the CLK line has
           time to rise to 5V. 
           For controllers using software
           implementations of the protocol, such as the C64, the
-          minimum is 80 usec.
+          minimum is 80 microsecond.
           Therefore peripherals should always use
-          a value of at least 80 usec for T\textsubscript{DA}.
+          a value of at least 80 microsecond for T\textsubscript{DA}.
         } \\
         \multicolumn{6}{Y{10cm}}{\^{} The
           Commodore{\texttrademark} 64 Programmer's Reference Guide
           lists 
-          T\textsubscript{R} as having a minimum duration of 20 usec.
+          T\textsubscript{R} as having a minimum duration of 20 microsecond.
           We see no evidence that 
           would suggest that any implementation requires a delay
           before the ATN line can be released following the transfer of
@@ -692,7 +692,7 @@ implemented using a timing side-channel, so that it does not require a
 whole dedicated wire. When the talker has floated CLK to 5V to indicate it
 wishes to send a byte, and when the listener has floated DATA to 5V to
 indicate that it is ready to receive, the talker can wait at least 200
-micro-seconds, to indicate to the listener that the byte should be
+microseconds, to indicate to the listener that the byte should be
 received with EOI status.  The listener signals this to the talker by
 pulling the DATA line to 0V for a while, after which the transmission
 occurs much the same as normal.
@@ -708,13 +708,13 @@ To summarise:
   DATA line to 5V to indicate its readiness to receive a byte.
 \item Normally at this point, the talker would begin sending the bits
   after a short period of time.  However, to indicate EOI, it instead
-  waits silently, unitl the listener gets the idea that this byte is
+  waits silently, until the listener gets the idea that this byte is
   different, resulting in the listener pulling the DATA line back down
   to 0V.
 \item The listener holds the DATA line at 0V for just long enough
   for it to be sure that the talker has noticed, and then releases
   it again.
-\item As soon as the talker has seen the listener pulle the DATA
+\item As soon as the talker has seen the listener pull the DATA
   line to 0V and release it again, it begins sending the byte
   normally after a short delay.
 \item If it waits too long, the listener will assume that the talker
@@ -746,13 +746,13 @@ To summarise:
         \hline
         \multicolumn{2}{|c|}{T\textsubscript{YE}} & 200 & 250 & $\infty$ &
         EOI indication delay.  The sender must wait at least 200
-        micro-seconds for the receiver to recognise that a byte is
+        microseconds for the receiver to recognise that a byte is
         being sent with EOI. If the delay is less than this, the
         receiver will not acknowledge the EOI. \\
         \hline
         \multicolumn{2}{|c|}{T\textsubscript{EI}} & 60 & 80 & $\infty$ &
         EOI acknowledge hold time. The receiver must pull the DATA
-        line to 0V again for at least 60 micro-seconds, to allow the
+        line to 0V again for at least 60 microseconds, to allow the
         sender to detect this EOI acknowledgement pulse. \\
         \hline
         \multicolumn{2}{|c|}{T\textsubscript{RY}} & 60 & 80 & 100 &
@@ -784,18 +784,18 @@ To summarise:
         \multicolumn{6}{Y{10cm}}{* T\textsubscript{ST} is
           provided by the peripheral, not the controller. The 4541 is
           able to respond much faster than a C64 to serial bus events,
-          and thus requires only 4 usec to ensure the CLK line has
+          and thus requires only 4 microsecond to ensure the CLK line has
           time to rise to 5V. 
           For controllers using software
           implementations of the protocol, such as the C64, the
-          minimum is 80 usec.
+          minimum is 80 microsecond.
           Therefore peripherals should always use
-          a value of at least 80 usec for T\textsubscript{DA}.
+          a value of at least 80 microsecond for T\textsubscript{DA}.
         } \\
         \multicolumn{6}{Y{10cm}}{\^{} The
           Commodore{\texttrademark} 64 Programmer's Reference Guide
           lists 
-          T\textsubscript{FR} as having a minimum duration of 60 usec.
+          T\textsubscript{FR} as having a minimum duration of 60 microsecond.
           We see no evidence that 
           would suggest that any implementation requires a delay
           before the DATA line can be pulled low by the listener to
@@ -810,10 +810,10 @@ To summarise:
 Receiving bytes on the IEC bus occurs identically to the sending
 case.  The key difference is that the 4541 is tolerant of a much wider
 range of timing parameters than software implementations of the bus
-protocol. The 4541 requires not more than 4 micro-seconds for any
+protocol. The 4541 requires not more than 4 microseconds for any
 given bus state, which is the time required for the pull-up resistors
 on the bus to allow lines to float back to 5V.  Internally, the 4541
-is capable of detecting bit times shorter than 1 micro-second.
+is capable of detecting bit times shorter than 1 microsecond.
 
 \section{Optional Integrated Data-Logger}
 
@@ -821,7 +821,7 @@ The 4541 is available in a variant that contains an embedded serial
 peripheral bus data-logger. This is designed to aid with debugging
 protocol errors on this bus. It commences capturing data whenever
 command \$D0 is issued to the 4541, and
-will capture data for approximately 4 milli-seconds.
+will capture data for approximately 4 milliseconds.
 
 \begin{itemize}
   \item {\bf DATALOG0} The low-byte of the optional integrated serial
@@ -829,7 +829,7 @@ will capture data for approximately 4 milli-seconds.
     the read pointer to the data log to be reset to the beginning of
     the capture. Writing \$01 to this register, causes the
     read point of the data logger to be advanced by one time step.
-    The time steps are approximately 1 micro-second, with additional
+    The time steps are approximately 1 microsecond, with additional
     time steps added whenever one of the signals on the serial
     peripheral bus changes state.
     \item {\bf DATALOG1} The high-byte of the optional integrated serial
@@ -901,8 +901,8 @@ The following truth table explains how to interpret these signals:
 
 \subsection{Extracting Data from the Data Logger}
 
-The following program displays the contents of the Data Logger as a
-PETSCII graph, like the one shown here:
+The following program extracts and displays the contents of the Data Logger as a
+PETSCII waveform, like the one shown here:
 
 \begin{center}
   \includegraphics[width=0.7\linewidth]{images/IEC-Timing-Diagrams/iec-waveform-cropped}

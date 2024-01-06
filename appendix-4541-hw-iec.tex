@@ -292,8 +292,8 @@ The following table lists the set of command codes suppoprted by the 4541.
           T\textsubscript{HA} is used instead.}\\ \hline        
         \$8C & Set T\textsubscript{NE} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
-        \$8D & Set T\textsubscript{F} delay (1 -- 255 microseconds). Old value
-        can be read from \$D699. \\ \hline        
+        \$8D & Set T\textsubscript{F} delay (4 -- 1020 microseconds). Old value
+        can be read from \$D699, scaled by 4. \\ \hline        
         \$8E & Set T\textsubscript{YE} delay (1 -- 255 microseconds). Old value
         can be read from \$D699. \\ \hline        
         \$8F & Set T\textsubscript{EI} delay (1 -- 255 microseconds). Old value
@@ -697,6 +697,124 @@ problem with the 4541, because it has a latency of less than 50ns.
         carries the EOI notification, and DATA is set to 0V to
         indicate successful transmission. The receiver may indicate a
         frame error if DATA is observed to be 5V.  \\
+        \hline
+        \multicolumn{6}{l}{\em All other timing values are identical to the sending a byte
+          under attention case.}
+          \\
+        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
+          otherwise indicated.} \\
+        
+    \end{longtable}
+\end{center}
+
+\subsection{JiffyDOS{\texttrademark} Controller Receive from Peripheral}
+
+Unlike the standard serial protocol, the JiffyDOS{\texttrademark} protocol uses
+different protocols for sending and receiving. This is necessary on software
+imeplementations to obtain the maximum speed, because the serial peripheral
+lines are mapped to different register bits, and part of the magic of
+the JiffyDOS{\texttrademark} protocol is how it cleverly manipulates
+the received bits to reconstruct the complete byte in the least
+possible time, and similarly when transmitting.
+
+The result is quite amazing: JiffyDOS{\texttrademark} can send a byte
+in approximately the same time it takes the original protocol to send
+a bit!
+
+Unlike when transmitting via the JiffyDOS{\texttrademark} protocol
+where the data bits are inverted, when receiving from a peripheral
+speaking the JiffyDOS{\texttrademark} protocol, the bits are
+represented naturally, i.e., with 1 = 5V and 0 = 0V.
+
+The SRQ line is not active in this transaction.
+
+To summarise:
+
+\begin{enumerate}
+\item The peripheral may wait an arbitrary period of time, before it
+  has a byte to send to the controller. When it does, it releases CLK
+  to 5V.
+\item When the controller notices this, it releases DATA to 5V, and
+  begins the critical timing section of the protocol.
+\item The peripheral waits a short while. For peripherals using a
+  software-implementation, i.e., all Commodore{\texttrademark}
+  drives, the delay is a natural consequence of the processor
+  instruction involved in commencing sending of the byte,
+  similarly for the following steps.
+\item The peripheral places the first di-bit of data on the CLK
+  and DATA lines, and waits a short while.
+\item The peripheral places the second di-bit of data on the CLK
+  and DATA lines, and waits a short while.
+\item The peripheral places the third di-bit of data on the CLK
+  and DATA lines, and waits a short while.
+\item The peripheral places the fourth di-bit of data on the CLK
+  and DATA lines, and waits a short while.
+\item The peripheral places the status bits for the byte onto
+  the CLK and DATA lines, and waits a short while.
+\item The controller pulls DATA to 0V to acknowledge receipt
+  of the byte, and to prevent the peripheral from sending
+  another byte before it is ready.
+\item The peripheral pulls the CLK line to 0V if it does not
+  have another byte ready to send immediately, lease it
+  remains at 5V.
+\end{enumerate}
+
+The status bits have the following interpretation:
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|c|c|L{6cm}|}
+      \hline
+        \textbf{CLK} & \textbf{DATA} & \textbf{Meaning} \\
+        \hline
+        \endhead
+        0V & 0V & An error occurred. \\ 
+        \hline
+        0V & 5V & Byte received with EOI. \\
+        \hline
+        5V & 0V & Normal byte received (no EOI). \\
+        \hline
+        5V & 5V & An error occurred. \\
+        \hline
+    \end{longtable}
+\end{center}
+
+\begin{center}
+\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-Receive-Byte-JD}
+\end{center}
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
+      \hline
+        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{2}{|c|}{T\textsubscript{JH}} & 10  & -- & $\infty$ & 
+        Peripheral hold-off until it has data to send. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J0}} & 0  & -- & $\infty$ &
+        Controller hold-off until ready to receive a byte. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J1}} & 37  & 37 & $\infty$ &
+        The time is
+        used by software implementations to prepare the byte for
+        immediate transmission. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J2}} & 14  & 14 & 14 &
+        Send first di-bit of data \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J3}} & 10  & 10 & 10 &
+        Send first di-bit of data \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J4}} & 11  & 11 & 11 &
+        Send first di-bit of data \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J5}} & 11  & 11 & 11 &
+        Send first di-bit of data \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{JH}} & 13  & 13 & 13 &
+        Send status bits \\
         \hline
         \multicolumn{6}{l}{\em All other timing values are identical to the sending a byte
           under attention case.}

@@ -189,9 +189,9 @@ READ DOS STATUS
 READY.
 \end{screencode}
 
-\section{4541 Command Reference}
+\section{Command Reference}
 
-The following table lists all commands that the 4541 understands.
+The following table lists the set of command codes suppoprted by the 4541.
 
 \begin{center}
     \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
@@ -583,6 +583,130 @@ To summarise:
         
     \end{longtable}
 \end{center}
+
+\subsection{JiffyDOS{\texttrademark} Send from Controller to Peripheral}
+
+Unlike the standard serial protocol, the JiffyDOS{\texttrademark} protocol uses
+different protocols for sending and receiving. This is necessary on software
+imeplementations to obtain the maximum speed, because the serial peripheral
+lines are mapped to different register bits, and part of the magic of
+the JiffyDOS{\texttrademark} protocol is how it cleverly manipulates
+the received bits to reconstruct the complete byte in the least
+possible time, and similarly when transmitting.
+
+The result is quite amazing: JiffyDOS{\texttrademark} can send a byte
+in approximately the same time it takes the original protocol to send
+a bit!
+
+Note that the JiffyDOS{\texttrademark} protocol transmits data bits with the opposite polarity
+to the standard protocol, that is a 1 bit is indicated by 0V, while a
+0 bit is indicated by 5V.
+
+The SRQ line is not active in this transaction.
+
+In summary,
+
+\begin{enumerate}
+\item Depending on the state of the controller when it begins
+  transmitting, it may be holding the CLK line at 0V. If so it
+  releases it immediately.
+\item Next, after some arbitrary time, the peripheral indicates
+  it's readiness to receive a byte from the controller by
+  releasing the DATA line to 5V.
+\item The timing for the remainder of the byte transfer is now
+  critical, because immediately following releasing DATA, the
+  peripheral will start reading the CLK and DATA signals to
+  transfer the byte.
+\item The controller waits a few microseconds
+  (T\textsubscript{J6}).
+\item The controller sets CLK to 0V if data bit 4 is 1, else
+  releases it to 5V.  The controller sets DATA to 0V if data
+  bit 5 is 1, else releases it to 5V.
+\item The controller waits a few microseconds
+  (T\textsubscript{J7}).
+\item The controller sets CLK to 0V if data bit 6 is 1, else
+  releases it to 5V.  The controller sets DATA to 0V if data
+  bit 7 is 1, else releases it to 5V.
+\item The controller waits a few microseconds
+  (T\textsubscript{J8}).
+\item The controller sets CLK to 0V if data bit 3 is 1, else
+  releases it to 5V.  The controller sets DATA to 0V if data
+  bit 1 is 1, else releases it to 5V.
+\item The controller waits a few microseconds
+  (T\textsubscript{J9}).
+\item The controller sets CLK to 0V if data bit 2 is 1, else
+  releases it to 5V.  The controller sets DATA to 0V if data
+  bit 0 is 1, else releases it to 5V.
+\item The controller waits a few microseconds
+  (T\textsubscript{J10}).
+\item The controller pulls the DATA line to 0V. It also releases the
+  CLK line to 5V, unless it wishes to indicate EOI, in which
+  case it pulls the CLK line to 0V.
+\item The controller waits a few microseconds, during which time the
+  peripheral reads the EOI value, and then pulls DATA to 0V.
+  (T\textsubscript{J11}).
+\item The byte transfer is complete.
+\end{enumerate}
+
+Note when sending the first byte under the JiffyDOS{\texttrademark}
+protocol, that the CLK signal may be at 0V.  The time between bytes
+(T\textsubscript{JBB}) is not required (set to zero), because the
+tight receive loop on the peripheral simply indicates when it is ready
+to receive each next byte, which also contributes to it's high speed.
+
+Note also that the timing below is based on when the signals should be
+set. For software implementations, the latency of the necessary
+processor instructions must be taken into account. This is not a
+problem with the 4541, because it has a latency of less than 50ns.
+
+\begin{center}
+\includegraphics{images/IEC-Timing-Diagrams/IEC-Timing-Diagram-Send-Byte-JD}
+\end{center}
+
+\begin{center}
+    \setlength{\def\arraystretch{1.5}\tabcolsep}{6pt}
+    \begin{longtable}{|L{0.6cm}|c|c|c|c|L{6cm}|}
+      \hline
+        \multicolumn{2}{|c|}{\textbf{Symbol}} & \textbf{Min} & \textbf{4541} & \textbf{Max} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{2}{|c|}{T\textsubscript{JBB}} & 0  & 0 & $\infty$ &
+        Time between bytes.
+        There is no minimum time between bytes with the 
+        JiffyDOS{\texttrademark} protocol,
+        provided T\textsubscript{J11} is sufficiently large, as that
+        effectively hides the latency of the receive routine. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J6}} & 10  & 10 & 10 &
+        JiffyDOS{\texttrademark} transmit receiver setup time. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J7}} & 13  & 13 & 13 &
+        JiffyDOS{\texttrademark} transmit hold time, first di-bit. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J8}} & 11  & 11 & 11 &
+        JiffyDOS{\texttrademark} transmit hold time, second di-bit. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J9}} & 11  & 11 & 11 &
+        JiffyDOS{\texttrademark} transmit hold time, third di-bit. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J10}} & 12  & 12 & 12 &
+        JiffyDOS{\texttrademark} transmit hold time, fourth di-bit. \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J11}} & 28  & 28 & 28 &
+        JiffyDOS{\texttrademark} transmit hold time, status bits. CLK
+        carries the EOI notification, and DATA is set to 0V to
+        indicate successful transmission. The receiver may indicate a
+        frame error if DATA is observed to be 5V.  \\
+        \hline
+        \multicolumn{6}{l}{\em All other timing values are identical to the sending a byte
+          under attention case.}
+          \\
+        \multicolumn{6}{l}{\em All time units are in micro seconds, unless
+          otherwise indicated.} \\
+        
+    \end{longtable}
+\end{center}
+
 
 
 \subsection{Talker to Listener Turn-Around}

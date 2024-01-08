@@ -125,6 +125,9 @@ sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg	
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
 
+registration_code_template.pdf: *.tex $(EXAMPLES) Makefile references.bib
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make registration_code_template.tex
+
 #wrong.pdf: *.tex $(EXAMPLES) Makefile references.bib
 #	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make wrong.tex
 

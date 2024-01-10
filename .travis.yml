@@ -2,14 +2,14 @@ language: minimal
 os: linux
 arch: amd64
 dist: focal
-branches: 
+branches:
   except:
     - CI-latest
     - jenkins_test
 script:
-- sudo apt-get install -y texlive-latex-extra texlive-xetex latexmk xzdec 
+- sudo apt-get install -y texlive-latex-extra texlive-xetex latexmk xzdec
 - sudo apt-get install -y sshpass
-- sudo tlmgr init-usertree 
+- sudo tlmgr init-usertree
 - sudo tlmgr option repository http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2019/tlnet-final/
 - sudo tlmgr --no-verify-downloads install bibtex IEEEtran tools url arydshln booktabs sttools etoolbox titlesec appendix parskip kvoptions ltxcmds kvsetkeys float caption tikzpagenodes pgf ifoddpage imakeidx xkeyval nowidow hyperref infwarerr textpos enumitem tcolorbox environ listings wrapfig needspace ean ocr-b changepage tabulary multirow geometry zapfding helvetic || true
 - sudo updmap-sys
@@ -40,7 +40,7 @@ deploy:
 - provider: releases
   api_key: $GITHUB_API_KEY
   file_glob: true
-  file: 
+  file:
   - $TRAVIS_BUILD_DIR/*.pdf
   - $TRAVIS_BUILD_DIR/*.log
   skip_cleanup: true

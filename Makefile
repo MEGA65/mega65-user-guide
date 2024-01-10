@@ -20,6 +20,10 @@ GENERATED_TEX_FILES= 	document-memory \
 		 	api-conio.tex \
 			appendix-basic65-indexed.tex \
 			appendix-basic65-condensed.tex \
+			examples/iec-data-logger-2.tex \
+			examples/iec-data-logger-2.txt \
+			examples/iec-data-logger.tex \
+			examples/iec-data-logger.txt \
 			examples/ledcycle.tex \
 			examples/ledcycle.txt \
 			keymap_table_1.tex \
@@ -122,7 +126,7 @@ mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
-	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg	
+	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
 
 registration_code_template.pdf: *.tex $(EXAMPLES) Makefile references.bib

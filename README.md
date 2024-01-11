@@ -38,6 +38,27 @@ This project uses the LaTeX typesetting system, specifically XeLaTeX. Select and
 - Linux: [TeX Live](https://tug.org/texlive/), often available via package manager (e.g. `sudo apt install texlive`)
 - macOS: [MacTeX](https://www.tug.org/mactex/)
 
+## Installing Inkscape
+
+Some diagrams are implemented as SVG source files that need to be converted to EPS files for inclusion in the book. This is currently a manual step: when you update the SVG file, you must run a build command to generate the EPS files, then commit both the SVG and EPS files to the project repo.
+
+This build step uses Inkscape v1.3.2 or later for the conversion.
+
+* Homebrew (macOS or Linux): `brew install inkscape`
+* Linux: `sudo apt-get install inkscape`
+
+Check that Inkscape installed the `inkscape` command line tool and the version number is at least 1.3.2:
+
+```
+inkscape --version
+```
+
+To regenerate the EPS files from the SVG files:
+
+```
+make generate-diagrams
+```
+
 ## GCC and build tools
 
 This project uses GNU Make for coordinating build logic, and also some supplemental tools written in C. The build uses a GCC-compatible C compiler to prepare some tools. For your operating system:

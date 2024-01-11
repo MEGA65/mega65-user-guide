@@ -43,7 +43,7 @@ COMPILED_BINARIES= 	document-memory \
 			libc-doc \
 			prg2tex
 
-.PHONY: $(BOOKS) all clean
+.PHONY: $(BOOKS) all clean generate-diagrams
 
 all:	$(BOOKS)
 
@@ -106,7 +106,6 @@ mega65-userguide-lulu.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATE
 mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
-	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
 
 mega65-assembly-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
@@ -126,7 +125,6 @@ mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
-	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex
 
 registration_code_template.pdf: *.tex $(EXAMPLES) Makefile references.bib
@@ -143,7 +141,6 @@ referenceguide.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory $(
 mega65-developer-guide.pdf: *.tex $(EXAMPLES) $(HYPPO_EXAMPLES) lstlang0.sty Makefile references.bib document-memory  $(GENERATED_TEX_FILES) $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
-	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg
 	latexmk -f -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-developer-guide.tex
 
 hardwareguide.pdf: *.tex  $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
@@ -153,7 +150,6 @@ hardwareguide.pdf: *.tex  $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_F
 mega65-book.pdf: *.tex $(EXAMPLES) $(HYPPO_EXAMPLES) lstlang0.sty Makefile references.bib document-memory $(GENERATED_TEX_FILES) $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
-	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-book.tex
 
 mega65-book-cmyk.pdf:	mega65-book.pdf
@@ -194,6 +190,12 @@ generate_condensed: generate_condensed.c Makefile
 
 appendix-basic65-condensed.tex: appendix-basic65-indexed.tex generate_condensed
 	./generate_condensed
+
+# Use this to build EPS files from SVG diagrams. This requires Inkscape 1.3 or later.
+# Please commit both generated EPS and SVG files to the repo. This is currently
+# a manual step because we need to upgrade the version of Inkscape on the Jenkins host.
+generate-diagrams:
+	inkscape --export-overwrite --export-type=eps images/IEC-Timing-Diagrams/*.svg
 
 clean:
 	latexmk -CA

@@ -22,7 +22,7 @@ To transfer files, you instruct the MEGA65 to make itself available for incoming
 
 As an alternative to connecting the MEGA65 to your local network, if your PC has an Ethernet jack, you can connect your MEGA65 directly to your PC with an Ethernet cable. This forms a small local network with no access to the Internet. The procedure for transferring files is the same with a direct connection as with a local network connection.
 
-\section{Obtaining the File Transfer Tools}
+\section{Obtaining M65Connect}
 \index{M65Connect Application}
 
 {\bf M65Connect} is an application for Windows, Mac, or Linux that facilitates file transfers and other useful features for MEGA65 users. The application has a windowed interface, and also includes command-line tools useful for programming.
@@ -98,9 +98,36 @@ Starting a file transfer session resets the MEGA65. Be sure to save any programs
 
 \underline{NOTE}: If you clear memory by resetting the computer, remember to re-enable network listening: press \specialkey{SHIFT} + \megakey{\pounds}, and ensure the power light is blinking.
 
-% \subsection{Transferring Files with M65Connect}
-% \index{M65Connect Application}
-% TODO: M65Connect instructions are pending an update to M65Connect that implements this procedure.
+\subsection{Transferring Files with M65Connect}
+\index{M65Connect Application}
+
+M65Connect detects whether a MEGA65 is listening for connections automatically. Open M65Connect, then enable the network listening session on the MEGA65. M65Connect reports a status of "Connected to MEGA65 via LAN," and several buttons including the {\bf PRG} and {\bf SD Card} buttons are enabled in the M65Connect window.
+
+\begin{center}
+\includegraphics[width=\linewidth]{images/m65connect_macos.png}
+\end{center}
+
+If M65Connect reports a status of "Not connected to MEGA65," check the following:
+
+\begin{itemize}
+\item The MEGA65 and the PC are connected to the same network, or directly to each other via a network cable.
+\item The MEGA65 is in network listening mode, with a blinking power light.
+\item In M65Connect, open the Settings menu, and select Connections. The "LAN Port" field should contain an IPv6 address. If it doesn't, wait a few seconds, or click the "Autodetect LAN Port" button.
+\end{itemize}
+
+To start a file transfer session, click the {\bf SD Card} button. The SD Card Manager window opens.
+
+\underline{NOTE}: Starting a file transfer session resets the MEGA65 to load the file transfer utility. Be sure to save any data on the MEGA65 before starting the session.
+
+\begin{center}
+\includegraphics[width=\linewidth]{images/m65connect_files.png}
+\end{center}
+
+Use the pane on the left to navigate files on your PC. Use the pane on the right to navigate files on the MEGA65 SD card. To transfer a file, select the file, then click the arrow button. The button indicates the direction the file will transfer.
+
+You can also use M65Connect to create D81 disk images, and copy files to and from D81 disk images. Locate a D81 disk image on your PC or click the {\bf + D81} button to create one, then click the "Open" command in the file browser to open the disk image in the left pane. Transfer files to and from the image with the arrow button. Click the {\bf X} button in the upper right to return to the file browser.
+
+Click the {\bf Close} button to end the file transfer session and close the SD Card Manager window. This resets the MEGA65.
 
 \subsection{The mega65\_ftp Command-Line Tool}
 \index{mega65\_ftp command@\texttt{mega65\_ftp command}}
@@ -108,6 +135,8 @@ Starting a file transfer session resets the MEGA65. Be sure to save any programs
 The {\tt mega65\_ftp} command-line tool initiates a file transfer session with the MEGA65. It can run interactively in the terminal and accept multiple file transfer commands, or it can run non-interactively with those commands provided as arguments.
 
 To start an interactive file transfer session, run the {\tt mega65\_ftp} command, providing the {\tt -e} argument to say you want to use an Ethernet connection.
+
+\underline{NOTE}: Starting a file transfer session resets the MEGA65 to load the file transfer utility. Be sure to save any data on the MEGA65 before starting the session.
 
 \begin{verbatim}
 % mega65_ftp -e

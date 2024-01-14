@@ -337,7 +337,8 @@ The following table lists the set of command codes suppoprted by the 4541.
         can be read from \$D699. \\ \hline
         \$A2 & Set T\textsubscript{JD} delay (4 -- 1020 microseconds). Old value
         can be read from \$D699, scaled by 4. \\ \hline
-
+        \$A3 & Set T\textsubscript{J12} delay (1 -- 255 microseconds). Old value
+        can be read from \$D699. \\ \hline        
         \multicolumn{2}{c}{\textbf{Diagnostic Commands}} \\
         \hline
         \$D0 & Trigger optional integrated data logger, if enabled. \\
@@ -675,7 +676,7 @@ problem with the 4541, because it has a latency of less than 50ns.
         Time between bytes.
         There is no minimum time between bytes with the
         JiffyDOS{\texttrademark} protocol,
-        provided T\textsubscript{J11} is sufficiently large, as that
+        provided T\textsubscript{J12} is sufficiently large, as that
         effectively hides the latency of the receive routine. \\
         \hline
         \multicolumn{2}{|c|}{T\textsubscript{J6}} & 10  & 10 & 10 &
@@ -693,10 +694,16 @@ problem with the 4541, because it has a latency of less than 50ns.
         \multicolumn{2}{|c|}{T\textsubscript{J10}} & 12  & 12 & 12 &
         JiffyDOS{\texttrademark} transmit hold time, fourth di-bit. \\
         \hline
-        \multicolumn{2}{|c|}{T\textsubscript{J11}} & 28  & 28 & 28 &
+        \multicolumn{2}{|c|}{T\textsubscript{J11}} & 5  & 5 & 5 &
         JiffyDOS{\texttrademark} transmit hold time, status bits. CLK
         carries the EOI notification, and DATA is set to 0V to
         indicate successful transmission. The receiver may indicate a
+        frame error if DATA is observed to be 5V.  \\
+        \hline
+        \multicolumn{2}{|c|}{T\textsubscript{J12}} & 18  & 18 & 18 &
+        JiffyDOS{\texttrademark} post transmit recovery time. CLK is pulled to 0V,
+        and DATA is set to 0V to indicate successful transmission.
+        The receiver may indicate a
         frame error if DATA is observed to be 5V.  \\
         \hline
         \multicolumn{6}{l}{\em All other timing values are identical to the sending a byte

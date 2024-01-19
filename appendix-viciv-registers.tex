@@ -369,7 +369,7 @@ The complete set of VIC-II ``hot'' registers that affect VIC-IV registers includ
 \item The VIC-II bank bits of \$DD00 (56576) (CIA 2 PORTA)
 \end{itemize}
 
-Whenever any of those registers are modified, even by writing the existing value back into them, all of the correponding VIC-IV registers will be updated based on the VIC-II register values, even those unrelated to the register that was written to. This includes the FAST flag, which resides in a hot register byte location (\$D031) but is unrelated to video parameters and does not have a corresponding VIC-IV register.
+Whenever any of those registers are modified, even by writing the existing value back into them, all of the corresponding VIC-IV registers will be updated based on the VIC-II register values, even those unrelated to the register that was written to. This includes the FAST flag, which resides in a hot register byte location (\$D031) but is unrelated to video parameters and does not have a corresponding VIC-IV register.
 
 The registers that are modified during this process are listed below. Note that some of these registers are internal to the VIC-IV, and cannot be directly queried or modified by the user. Where this is the case, no addresses are listed for the registers.
 
@@ -883,6 +883,43 @@ The following BASIC program draws a Full-Colour Sprite in either C64 or C65-mode
 2210 DATA "END"
 \end{screencode}
 \clearpage
+
+\section{VIC-III Errata Level}
+
+There are a few cases where the VIC-III chip in the Commodore 65 prototypes that are known to exist either do not behave as specified, the specification lacks detail and the implementation is oddly inconsistent, or the design itself has flaws or inconsistencies. The default behavior of the VIC-IV is to emulate the VIC-III as closely as possible in these cases. In some cases where the VIC-III behavior is lacking, the VIC-IV provides improved behaviors that can be selected by software using the HWERRATA register at \$D08F.
+
+Because these fixes are backwards incompatible with the VIC-III and with earlier versions of the VIC-IV and the MEGA65 core, software must opt in to these fixes by setting the HWERRATA register. This protects software from further changes that may be introduced in future versions of the MEGA65 core. The boot state of this register is \$00, which requests full compatibility with the VIC-III, including buggy behaviors. The MEGA65 ROM will always leave this set to \$00 when launching programs. A program can set HWERRATA to enable a set of fixes known to the developer at the time the program is written, and exclude backwards incompatible fixes that might be introduced in later versions.
+
+Requesting an errata level enables all fixes up to that level. By design, there is no way to request a level and exclude specific fixes at lower levels. You must write your program to accommodate all fixes up to the requested level.
+
+In cases where enabling a fix changes the behavior of a hot register, setting the errata level does {\em{not}} trigger hot register propagation. The program must trigger hot register propagation by writing a 1 to the HOTREG register.
+
+The errata levels implemented so far are as follows:
+
+\subsubsection{VIC-III Errata Levels}
+
+\begin{longtable}{|p{2cm}|p{7.1cm}|p{2cm}|}
+\hhline{---}
+{\bf{Level}} & {\bf{Fixed behavior}} & {\bf{Release introduced}} \\
+\hhline{---}
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+
+{\bf{0}} & No fixes. Fully VIC-III compatible. & N/A \\
+
+\hline
+{\bf{1}} & {\bf{X scroll position shifted in H640 mode.}} The VIC-III renders the text smooth scroll X position (\$D016 XSCL) incorrectly in H640 mode. The fix offsets the scroll position 1 logical pixel (2 physical pixels) to the right. This does not take effect until hot register propagation. &
+v0.96 \\
+
+\hline
+{\bf{2}} & {\bf{Character attribute combinations.}} When the upper palette ("bold") character attribute (bit 6) is set, the VIC-III has counterintuitive behaviors when "blink" (bit 4) or "reverse" (bit 5) are also set: blink will toggle the upper palette attribute and not blink the character, and reverse has no effect. With this fix, upper palette + blink will blink the character, and bold + reverse will reverse the character, displayed with the upper palette in both cases. &
+v0.96 \\
+
+\end{longtable}
+
 
 \section{VIC-II / C64 Registers}
 

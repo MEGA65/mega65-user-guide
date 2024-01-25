@@ -137,11 +137,17 @@ def main(raw_args):
     args = arg_parser.parse_args(raw_args)
 
     dnrs = Donors.from_donor_file(args.donor_file)
-    for name in args.add:
-        dnrs.add_name(name)
-    for name in args.delete:
-        dnrs.delete_name(name)
+    if args.add is not None:
+        for name in args.add:
+            print(f'Added "{name}"')
+            dnrs.add_name(name)
+    if args.delete is not None:
+        for name in args.delete:
+            print(f'Deleted "{name}"')
+            dnrs.delete_name(name)
     dnrs.to_donor_file()
+
+    return 0
 
 
 if __name__ == '__main__':

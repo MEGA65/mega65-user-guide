@@ -1259,17 +1259,23 @@ VIC-IV supports relocating the sprite pointers and the image data to anywhere
 in Chip RAM. The VIC-IV maintains some VIC-II compatibility by default, so
 additional register lines are needed to fully enable relocation.
 
-The location of the sprite pointers is stored in registers at \$D06C -- \$D06E.
+With the VIC-IV, the sprite pointers themselves can also be located anywhere
+in chip RAM. The location of the sprite pointers is stored in registers at
+\$D06C -- \$D06E. This address must be aligned to a 16-byte boundary: when
+writing out the address in hexadecimal, its rightmost digit must be 0. For
+example, address \$2C60 is 16-byte aligned.
+
 Bit 7 of \$D06E tells the VIC-IV that the sprite pointers are
 16 bits (two bytes) wide. If not set, the VIC-IV assumes 8-bit (one byte)
-values for the pointers.
+values for the pointers, similar to the VIC-II.
 
-A sprite pointer value is the address of the sprite's image data divided by 64.
-This unusual property originally allowed the VIC-II to locate sprite data in a
-16KB range using a single byte value. The VIC-IV maintains this for
-compatibility, and also allows this value to be 16 bits wide. One consequence
-of this design is that the address of a sprite image must be ``aligned'' to a
-64-byte region on a page: \$00, \$40, \$80, or \$C0.
+A sprite pointer value is the address of the sprite's image data divided by
+64. This unusual property originally allowed the VIC-II to locate sprite data
+in a 16KB range using a single byte value. The VIC-IV maintains this property
+for compatibility, and also allows this value to be 16 bits wide. One
+consequence of this design is that the address of a sprite image must be
+aligned to a 64-byte region on a page: the two rightmost hexadecimal digits of
+a sprite address must be \$00, \$40, \$80, or \$C0.
 
 For example, to relocate sprite pointers to 0.3200 and enable 16-bit pointer
 values:

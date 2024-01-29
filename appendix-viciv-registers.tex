@@ -22,22 +22,23 @@ features and enhancements of the VIC-IV include:
 \item New 16-colour (16$\times$8 pixels per character cell) and 256-colour (8$\times$8 pixels per character cell) {\bf full-colour text modes}.
 \item Support for up to {\bf 8,192 unique characters in a character set}.
 \item {\bf Four 256-colour palette banks} (versus the VIC-III's single palette bank), each supporting {\bf 23-bit colour depth} (versus the VIC-III's 12-bit colour depth), and which can be rapidly alternated to create even more colourful graphics than is possible with the VIC-III.
-\item Screen, bitmap, colour and character data can be positioned at any {\bf address with byte-level granularity} (compared with fixed 1KB -- 16KB boundaries with the VIC-II/III)
+\item Screen, bitmap, colour and character data can be positioned at any {\bf address with byte-level granularity} (compared with fixed 1KB -- 16KB boundaries with the VIC-II/III).
 \item {\bf Virtual screen dimensioning}, which combined with byte-level data position granularity provides effective {\bf hardware support for scrolling and panning in both X and Y directions}.
-\item {\bf New sprite modes}: Bitplane modification, {\bf full-colour} (15 foreground colours + transparency) and tiled modes, allowing a wide variety of new and exciting sprite-based effects
-  \item The ability to stack sprites in a bit-planar manner to produce {\bf sprites with up to 256 colours}.
+\item {\bf New sprite modes}: Bitplane modification, {\bf full-colour} (15 foreground colours + transparency) and tiled modes, allowing a wide variety of new and exciting sprite-based effects.
+\item The ability to stack sprites in a bit-planar manner to produce {\bf sprites with up to 256 colours}.
 \item Sprites can use 64 bits of data per raster line, allowing {\bf sprites to be 64 pixels wide} when using VIC-II/III mono/multi-colour mode, or 16 pixels wide when using the new VIC-IV full-colour sprite mode.
 \item {\bf Sprite tile mode}, which allows a sprite to be repeated horizontally across an entire raster line, allowing sprites to be used to create  animated backgrounds in a memory-efficient manner.
-  \item Sprites can be configured to use a {\bf separate 256-colour palette} to that used to draw other text and graphics, allowing for a more colourful display.
-  \item {\bf Super-extended attribute mode} which uses two screen RAM bytes and two colour RAM bytes per character mode, which supports a wide variety of new features including {\bf alpha-blending/anti-aliasing}, {\bf hardware kerning/variable-width characters}, hardware horizontal/vertical flipping, alternate palette selection and other powerful features that make it easy to create highly dynamic and colourful displays.
-  \item {\bf Raster-Rewrite Buffer} which allows {\bf hardware-generated pseudo-sprites}, similar to ``bobs'' on Amiga\texttrademark{} computers, but with the advantage that they are rendered in the display pipeline, and thus do not need to be un-drawn and redrawn to animate them.
-    \item {\bf Multiple 8-bit colour play-fields} are also possible using the Raster-Rewrite Buffer.
-
-      In short, the VIC-IV is a powerful evolution of the VIC-II/III, while retaining the character and distinctiveness of the VIC-series of
-      video controllers.
-
-      For a full description of the additional registers that the VIC-IV provides, as well as documentation of the legacy VIC-II and VIC-III registers, refer to the corresponding sections of this appendix. The remainder of the appendix will focus on describing the capabilities and use of many of the VIC-IV's new features.
+\item Sprites can be configured to use a {\bf separate 256-colour palette} to that used to draw other text and graphics, allowing for a more colourful display.
+\item {\bf Super-extended attribute mode} which uses two screen RAM bytes and two colour RAM bytes per character mode, which supports a wide variety of new features including {\bf alpha-blending/anti-aliasing}, {\bf hardware kerning/variable-width characters}, hardware horizontal/vertical flipping, alternate palette selection and other powerful features that make it easy to create highly dynamic and colourful displays.
+\item {\bf Raster-Rewrite Buffer} which allows {\bf hardware-generated pseudo-sprites}, similar to ``bobs'' on Amiga\texttrademark{} computers, but with the advantage that they are rendered in the display pipeline, and thus do not need to be un-drawn and redrawn to animate them.
+\item {\bf Multiple 8-bit colour play-fields} are also possible using the Raster-Rewrite Buffer.
 \end{itemize}
+
+In short, the VIC-IV is a powerful evolution of the VIC-II/III, while retaining the character and distinctiveness of the VIC-series of
+video controllers.
+
+For a full description of the additional registers that the VIC-IV provides, as well as documentation of the legacy VIC-II and VIC-III registers, refer to the corresponding sections of this appendix. The remainder of the appendix will focus on describing the capabilities and use of many of the VIC-IV's new features.
+
 
 \section{VIC-II/III/IV Register Access Control}
 Because the new features of the VIC-IV are all extensions to the existing VIC-II/III designs, there is no concept of having to select the mode in which the VIC-IV will operate: It is always in VIC-IV mode. However, for backwards compatibility with software, the many additional registers of the VIC-IV can be hidden, so that it appears to be either a VIC-II or VIC-III. This is done in the same manner that the VIC-III uses to hide its new features from legacy VIC-II software.
@@ -331,9 +332,12 @@ POKE $D065,$40
 
 The location of the sprite pointers can also be moved, and sprites can be made to have their data anywhere in first 4MB of memory.
 This is accomplished by first setting the location of the sprite pointers by setting the SPRPTRADR registers (\$D06C -- \$D06E, 53356 -- 53358 decimal, but note that only the bottom 7 bits of \$D06E are used, as the highest bit is used for the SPRPTR16 signal).  This allows the list of
-eight sprite pointers to be moved from the end of screen RAM to an arbitrary location in the first 8MB of RAM.  To allow sprites themselves
+eight sprite pointers to be moved from the end of screen RAM to an arbitrary location in the first 8MB of RAM. SPRPTRADR must be aligned to a 16-byte boundary (a multiple of 16).
+
+To allow sprites themselves
 to be located anywhere in the first 4MB of RAM, the SPRPTR16 bit in \$D06E must be set. In this mode, two bytes are used to indicate the
 location of each sprite, instead of one. That is, the list of sprite pointers will be 16 bytes long, instead of 8 bytes long as on the VIC-II/III.  When SPRPTR16 is enabled, the location of the sprite pointers should always be set explicitly via the SPRPTRADR registers.
+
 For example, to position the sprite pointers at location 800 -- 815, you could use something like the following code. Note that a little gymnastics is required to keep the SPRPTR16 bit unchanged, and also to work around the AND binary operator not working with values greater than 65535:
 
 \begin{screencode}
@@ -764,14 +768,15 @@ Sprites can be one of three widths with the VIC-IV:
   This results in sprites that are 64 pixels wide, unless Full-Colour Sprite Mode is selected for a sprite,
   in which case the sprite will be 64 bits $\div$ 4 bits per pixel = 16 pixels wide.
 \item Tiled mode, where the sprite is drawn repeatedly until the end of the raster line. \\
-  Tiled mode should normally only be used with Extra Wide sprite mode, as the tiling always occurs using the full
-64-bit sprite data. Thus if you use tiled mode with normal 24 pixel wide mono or multi-colour sprites, the tiling will treat each 2 and 2/3 rows of sprite data as a single row, resulting in garbled displays.
+  Tiled mode should normally only be used with Extra Wide sprite mode, as the tiling always occurs using 64 bits of sprite data per line. Enabling tiled mode with normal 24 bit wide mono or multi-colour sprite data will draw 2 and 2/3 rows of sprite data as a single row, even if the given sprite is not in Extra Wide mode, resulting in garbled displays.
 \end{enumerate}
 
 To enable a sprite to be 64 pixels (or 16 pixels if in Full-Colour Sprite Mode), set the corresponding bit for the sprite in the SPRX64EN register at (\$D057, 53335 decimal).  Enabling Full Colour mode for a sprite implicitly enables extended width mode, causes these sprites to be 16 pixels wide.
 
 Similarly, sprites can be various heights:  Sprites will be either the 21 pixels high of the VIC-II, or if the corresponding bit for the sprite is enabled in the SPRHGTEN signal (\$D055, 53333 decimal), then that sprite will be the number of pixels tall that is set in the SPRHGT
-register (\$D056, 53334 decimal).
+register (\$D056, 53334 decimal), from 0 to 255. Notice that all sprites with SPRHGTEN enabled share the same height. A sprite can always leave the bottom of its image data transparent.
+
+To enable tiled mode for a sprite, set the corresponding bit of SPRTILEN. For sprites 0 through 3, set bits 4 through 7 of \$D04D (53325 decimal). For sprites 4 through 7, set bits 4 through 7 of \$D04F (55327 decimal).
 
 \subsection{Variable Sprite Resolution}
 

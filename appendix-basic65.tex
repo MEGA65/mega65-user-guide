@@ -3870,7 +3870,7 @@ where the error line is taken from {\bf EL}.
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 ENVELOPE 9,10,5,10,5,2,4000
-20 VOL 9
+20 VOL 9,9
 30 TEMPO 30
 40 PLAY "T9O4Q CDEFGAB U3T8 CDEFGAB L","T5O3Q H CGEQG T7 HCGEQG L"
 \end{verbatim}
@@ -6586,29 +6586,43 @@ the {\bf MEGA65 Book}.
 \index{BASIC 65 Commands!MOUSE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$3E
-\item [Format:] {\bf MOUSE ON} [\{{\bf,} port{\bf,} sprite{\bf,} pos\}] \\
+\item [Format:] {\bf MOUSE ON} [\{{\bf,} port{\bf,} sprite{\bf,} hotspot{\bf,} pos\}] \\
                 {\bf MOUSE OFF}
 \item [Usage:]  Enables the mouse driver
                 and connects the mouse at the specified port
                 with the mouse pointer sprite.
 
-                {\bf port} mouse port 1, 2 (default) or 3 (both).
+                {\bf port} mouse port 1 or 2 (default 2).
 
                 {\bf sprite} sprite number for mouse pointer (default 0).
 
-                {\bf pos} initial mouse position (x,y).
+                {\bf hostpot} location of the "hot spot" that determines the position
+                and click target (x,y) (default 0,0).
+
+                {\bf pos} initial mouse position (x,y). If not specified, uses the
+                last known position of the sprite.
 
                 {\bf MOUSE OFF} disables the mouse
-                driver and frees the associated sprite.
+                driver and hides the associated sprite.
 
-\item [Remarks:] The "hot spot" of the mouse pointer is the upper left
-                pixel of the sprite.
+\item [Remarks:] The "hot spot" of the mouse specifies where in the mouse
+                sprite image is considered the click target, such as the top
+                of an arrow or the center of a target reticle. The hot spot is
+                always kept within the screen border. The default
+                {\bf hotspot} is 0,0, representing the top left corner of the
+                sprite.
 
                 When the system boots, sprite 0 is initialised to a picture of
-                a mouse pointer.
+                a mouse pointer, with the hot spot at 0,0.
 
-                Use {\bf RMOUSE()} to test the location and button status of
-                the mouse.
+                Use {\bf RMOUSE} to test the location and button status of
+                the mouse. This returns the coordinates of the top-left corner
+                of the sprite, not the coordinates of the hot spot. To get the
+                coordinates of the hot spot, add the hot spot location to the
+                sprite coordinates.
+
+                {\bf pos} can be an absolute coordinate, or a relative coordinate
+                to the current mouse position, similar to {\bf MOVSPR}.
 
 \item [Examples:] Using {\bf MOUSE}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -6617,6 +6631,13 @@ the {\bf MEGA65 Book}.
  REM LOAD DATA INTO SPRITE #0 BEFORE USING IT
  MOUSE ON, 1       :REM ENABLE  MOUSE WITH SPRITE #0
  MOUSE OFF         :REM DISABLE MOUSE
+
+ MOUSE ON,1,0,2,4  :REM SET THE HOT SPOT TO (2,4)
+ RMOUSE X,Y,B      :REM FETCH MOUSE SPRITE COORDINATES
+ X=X+2 : Y=Y+4     :REM CALCULATE THE COORDINATES OF THE HOT SPOT
+
+ REM SET THE INITIAL POSITION TO X=300 Y=75
+ MOUSE ON,1,0,0,0,300,75
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6688,8 +6709,6 @@ the {\bf MEGA65 Book}.
                 PAL has 50 frames per second whereas NTSC has 60 frames per second.
                 A speed value of 1.0 will move the sprite 50 pixels per second
                 in PAL mode.
-
-\item [Remarks:] The "hot spot" is the upper left pixel of the sprite.
 
 \item [Example:] Using {\bf MOVSPR}:
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -7473,7 +7492,7 @@ future notes, until the parameter is changed by another directive.
 \begin{verbatim}
  5 REM *** SIMPLE LOOPING EXAMPLE ***
 10 ENVELOPE 9,10,5,10,5,0,300
-20 VOL 8
+20 VOL 8,8
 30 TEMPO 30
 40 PLAY "O5T9HCIDCDEHCG IGAGFEFDEWCL", "O2T0QCGEGCGEG DBGB CGEGL"
 \end{verbatim}
@@ -9432,9 +9451,10 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
 \item [Token:] \$DA
 \item [Format:] {\bf SOUND} voice{\bf,} freq{\bf,} dur
                 [\{{\bf,} dir{\bf,} min{\bf,} sweep{\bf,} wave
-                {\bf,} pulse\}]
+                {\bf,} pulse\}] \\
+                {\bf SOUND CLR}
 
-\item [Usage:] Plays a sound effect.
+\item [Usage:] {\bf SOUND} plays a sound effect.
 
                {\bf voice} voice number (1 -- 6).
 
@@ -9454,6 +9474,9 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
                3:noise).
 
                {\bf pulse} pulse width (0 -- 4095).
+
+               {\bf SOUND CLR} silences all sound from {\bf SOUND} and {\bf PLAY},
+               and resets the sound system and all parameters.
 
 \item [Remarks:] {\bf SOUND} starts playing the sound
                effect and immediately continues with the execution
@@ -9478,6 +9501,8 @@ SCRATCH "R*=PRG" :REM ERASE PROGRAM FILES STARTING WITH 'R'
  SOUND 1, 7382, J                    :REM PLAY SQUARE WAVE ON VOICE 1 FOR 1 SECOND
  SOUND 2,  800, J*60                 :REM PLAY SQUARE WAVE ON VOICE 2 FOR 1 MINUTE
  SOUND 3, 4000, 120, 2, 2000, 400, 1 :REM PLAY SWEEPING SAWTOOTH WAVE ON VOICE 3
+
+ SOUND CLR   :REM SILENCE SOUND, RESET PARAMETERS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -10053,7 +10078,7 @@ RUN
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 VOL 8
+10 VOL 8,8
 20 FOR T = 24 TO 18 STEP -2
 30 TEMPO T
 40 PLAY "T0M3O4QGAGFED","T2O4M5P0H.DP5GB","T5O3IGAGAGAABABAB"
@@ -10722,25 +10747,32 @@ A$="###,###,###.#":PRINT USING A$;1E8/3
 \index{BASIC 65 Commands!VOL}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$DB
-\item [Format:] {\bf VOL} volume
+\item [Format:] {\bf VOL} right, left
 \item [Usage:] Sets the volume for sound output with
                {\bf SOUND} or {\bf PLAY}.
 
-               {\bf volume} 0 (off) to 15 (loudest).
+               {\bf right} is the volume for SIDs 1 and 2, and {\bf left} is
+               the volume for SIDs 3 and 4. The value ranges from 0 (off) to
+               15 (loudest).
 
-\item [Remarks:] This volume setting affects all voices.
+\item [Remarks:]
+               The terms "right" and "left" refer to the default pan settings
+               for the MEGA65 SID chips in the audio mixer. The actual volume
+               and pan position for each pair of SIDs depends on the audio
+               mixer settings. You can adjust the audio settings in the
+               Freezer.
 
 \item [Example:] Using {\bf VOL}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 TEMPO 22
-20 FOR V = 2 TO 8 STEP 2
-30 VOL V
-40 PLAY "T0M3O4QGAGFED","T2O4M5P0H.DP5GB","T5O3IGAGAGAABABAB"
+20 FOR V = 2 TO 12 STEP 2
+30 VOL V,16-V
+40 PLAY "T0M3O4QGAGFED","T2O4M5P0H.DP5GB","T5O3IGAGAGAABABAB","G"
 50 IF RPLAY(1) THEN GOTO 50
 60 NEXT V
-70 PLAY "T0O5QCO4GEH.C","T2O5IEFEDEDCEGO6P9CP0R","T5O3ICDCDEFEDCO4C"
+70 PLAY "T0O5QCO4GEH.C","T2O5IEFEDEDCEGO6P9CP0R","T5O3ICDCDEFEDCO4C","C"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

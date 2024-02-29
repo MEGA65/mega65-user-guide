@@ -184,6 +184,7 @@ Decimal Integer         &  \screentext{32000} & \screentext{-55}      \\
 Decimal Fixed Point     &  \screentext{3.14}  & \screentext{-7654.321}\\
 Decimal Floating Point  &  \screentext{1.5E03}& \screentext{7.7E-02}  \\
 Hex                     &  \screentext{\$D020}& \screentext{\$FF}     \\
+Binary                  &  \screentext{\%11010010}& \screentext{\%101} \\
 String                  &  \screentext{"X"}   & \screentext{"TEXT"}   \\
 \hline
 \end{tabular}
@@ -2690,6 +2691,33 @@ N-POINT GAUSSLEGENDRE FACTORS E1
 \end{description}
 
 % ***
+% DECBIN
+% ***
+
+\newpage
+\subsection{DECBIN}
+\index{BASIC 65 Functions!DECBIN}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$CE \$11
+\item [Format:] {\bf DECBIN(}string expression{\bf)}
+\item [Returns:] The decimal value of a binary string.
+
+               The argument range is ``0'' to ``11111111111111111111111111111111''. {\bf DECBIN()}
+               ignores everything after the first non-binary digit or the 32nd
+               character.
+
+\item [Example:] Using {\bf DECBIN}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+  PRINT DECBIN("1101000000000000")
+  53248
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+
+% ***
 % DEF
 % ***
 
@@ -2850,14 +2878,20 @@ RUN
 \index{BASIC 65 Commands!DIR}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$EE (DIR) \$FE \$29 (ECTORY)
-\item [Format:] {\bf DIR} [filepattern] [{\bf,W}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
-		{\bf DIRECTORY} [filepattern] [{\bf,W}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
-		{\bf \$} [filepattern] [{\bf,W}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit]
+\item [Format:] {\bf DIR} [filepattern] [{\bf,W}] [{\bf,P}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
+		{\bf DIRECTORY} [filepattern] [{\bf,W}] [{\bf,P}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
+		{\bf \$} [filepattern] [{\bf,W}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
+      {\bf DIR U12} [{\bf,P}]
 \item [Usage:]  Prints a file directory/catalog of the specified disk.
 
    The {\bf W} (Wide) parameter lists the directory three columns wide
    on the screen and pauses after the screen has been filled with a page
    (63 directory entries). Pressing any key displays the next page.
+
+   The {\bf P} (Pagination) parameter lists the directory one column wide,
+   and pauses for each screenful of output. Press the Q key to
+   interrupt the listing at the current page. Press any other key to display
+   the next page.
 
    The {\bf R} (Recoverable) parameter includes files in the
    directory, which are flagged as deleted but are still
@@ -2865,6 +2899,9 @@ RUN
 
    {\bf filepattern} is either a quoted string, for example: \screentext{"DA*"} or
    a string expression in brackets, e.g. \screentext{(DI\$)}
+
+   The {\bf U12} argument lists the contents of the SD card. It can be used with
+   the {\bf P} argument for a paginated display. It does not support other arguments.
 
    \drivedefinition
 
@@ -8622,7 +8659,10 @@ if the mouse is not connected or disabled.
 \item [Returns:]  The red, green, or blue value of
                 a palette colour index.
 
-                {\bf screen} screen number (0 -- 3).
+                {\bf screen} screen number (0 -- 3), or a negative value to
+                select one of the four system palettes: -1 for system palette
+                0 (the default system palette), -2 for system palette 1,
+                -3 for palette 2, or -4 for palette 3.
 
                 {\bf index} palette colour index.
 
@@ -9928,6 +9968,28 @@ THE VALUE OF PI IS 3.14159265
 \end{tcolorbox}
 \end{description}
 
+% ****
+% STRBIN\$
+% ****
+
+\newpage
+\subsection{STRBIN\$}
+\index{BASIC 65 Functions!STRBIN\$}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:] \$C2 \$12
+\item [Format:] {\bf STRBIN\$(}numeric expression{\bf)}
+\item [Returns:] The number value as a string of its binary representation.
+
+\item [Example:] Using {\bf STRBIN\$}:
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT STRBIN$(245)
+11110101
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ***
 % SYS
 % ***
@@ -10422,9 +10484,13 @@ READY.
 \index{BASIC 65 Commands!TYPE}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$27
-\item [Format:] {\bf TYPE} filename [{\bf,D} drive] [{\bf,U} unit]
+\item [Format:] {\bf TYPE} [{\bf P}] filename [{\bf,D} drive] [{\bf,U} unit]
 \item [Usage:] Prints the contents of a file containing
                text encoded as PETSCII.
+
+   If the {\bf P} flag is specified, the listing will pause for each screenful
+   of text. Pressing {\bf Q} quits page mode, while any other key continues to
+   the next page.
 
    \filenamedefinition
 
@@ -10449,6 +10515,8 @@ READY.
 \begin{verbatim}
   TYPE "README"
   TYPE "README 1ST",U9
+
+  TYPE P "MOBYDICK"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

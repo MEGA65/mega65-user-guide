@@ -479,8 +479,13 @@ of the screen memory and colour RAM for each character shown on the
 display. Thus, in contrast to the 12 bits of information that the C64
 uses per character, and the 16 bits that the VIC-III uses, the VIC-IV
 has 32 bits of information.  How those 32 bits are used varies slightly
-among the particular modes.  The default is as follows:
+among the particular modes, as described in the following tables, 
+including whether the GOTOX bit is set.
 
+Note also that enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
+
+% Force table to sit on a single page for more convenient reading.
+\newpage
 \subsubsection{Default Bit Fields (when GOTOX bit is cleared):}
 
 \setlength{\tabcolsep}{3pt}
@@ -501,7 +506,7 @@ among the particular modes.  The default is as follows:
   \hline
   \multicolumn{2}{|l|}{\small \textbf{Screen RAM byte 0}} \\
   \hline
-  \small \qquad Bits 7 - 0 & {\small Lower 8 bits of character number, the same as the VIC-II and VIC-III }\\
+  \small \qquad Bits 7 - 0 & {\small Low byte of character number, the same as the VIC-II and VIC-III }\\
   \hline
   \multicolumn{2}{|l|}{\small \textbf{Screen RAM byte 1}} \\
   \hline
@@ -517,7 +522,7 @@ among the particular modes.  The default is as follows:
   \hline
 \small \qquad Bit 5 & {\small Enable alpha blend mode, pixel values are treated as alpha values blending between foreground colour and background colour (needs bit 7 of \$d054 set) }\\
   \hline
-  \small \qquad \textbf{Bit 4} & {\small \textbf{GOTOX is \underline{cleared} (set to 0)} \linebreak GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later). Must be set to 0 for displaying characters }\\
+  \small \qquad \textbf{Bit 4} & {\small \textbf{GOTOX is \underline{cleared} (set to 0)} \linebreak GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later). Must be set to 0 for displaying characters -- when set, it moves the position where the next character will be drawn, without actually drawing anything. See the following table for more explanation of this mode. }\\
   \hline
 \small \qquad Bit 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right-hand side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
   \hline
@@ -546,10 +551,8 @@ among the particular modes.  The default is as follows:
 \small \qquad Bits 3 -- 0 & {\small Low 4 bits of colour of character }\\
 \end{longtable}
 
-* Enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
-
-If the GOTOX bit is set, some of the fields have different meanings:
-
+% Force table to sit on a single page for more convenient reading.
+\newpage
 \subsubsection{Bit Fields when GOTOX bit is set:}
 
 \setlength{\tabcolsep}{3pt}
@@ -588,11 +591,11 @@ If the GOTOX bit is set, some of the fields have different meanings:
   \hline
 \small \qquad Bit 5 & {\small RESERVED, set to 0 }\\
   \hline
-  \small \qquad \textbf{Bit 4} & {\small \textbf{GOTOX, set to 1} \linebreak GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later). Must be set to 0 for displaying characters }\\
+  \small \qquad \textbf{Bit 4} & {\small \textbf{GOTOX, set to 1}. GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later).}\\
   \hline
 \small \qquad Bit 3 & {\small ROWMASK. If set, then the pixel row mask is used to determine which pixel rows of the following characters should be rendered. This can be used to vertically scroll characters using the Raster-Rewrite Buffer, by drawing each character twice, once shifted down on the screen line on which it appears, and a second time, shifted up in the following screen line, and masked so that only the pixel rows belonging to the scrolled character are displayed, and not data from either before or after that character's data.}\\
   \hline
-\small \qquad Bit 2 & {\small If set, the following characters will be rendered as foreground, regardless of their colouring, allowing sprites to appear behind them. }\\
+\small \qquad Bit 2 & {\small If set, the following characters will be drawn as foreground, regardless of their colour, allowing sprites to appear behind them. }\\
   \hline
 \small \qquad Bits 1 - 0 & {\small RESERVED, set to 0 }\\
   \hline

@@ -4,6 +4,10 @@ pipeline {
             name: 'RELEASE_TO_FILEHOST',
             defaultValue: false,
             description: 'If set to true, this build will copy the pdfs to the filehost with an incremented filehost version number')
+
+        text(name: 'RELEASE_DESCRIPTION',
+        defaultValue: 'latest build',
+        description: 'The description to appear against the filehost version upload')
     }
     agent {
         docker { image 'megatex' }
@@ -123,11 +127,11 @@ pipeline {
             script {
                 if (params.RELEASE_TO_FILEHOST) {
                     sh '''
-                    filehost-upload -i ${FH_ID_UG_COMPLBOOK} -a replaceall -I "latest build" mega65-book.pdf
-                    filehost-upload -i ${FH_ID_UG_BASICREF} -a replaceall -I "latest build" mega65-basic65-reference.pdf
-                    filehost-upload -i ${FH_ID_UG_CHIPSET} -a replaceall -I "latest build" mega65-chipset-reference.pdf
-                    filehost-upload -i ${FH_ID_UG_DEVGUIDE} -a replaceall -I "latest build" mega65-developer-guide.pdf
-                    filehost-upload -i ${FH_ID_UG_USERGUIDE} -a replaceall -I "latest build" mega65-userguide.pdf
+                    filehost-upload -i ${FH_ID_UG_COMPLBOOK} -a addversion -I "${params.RELEASE_DESCRIPTION}" mega65-book.pdf
+                    filehost-upload -i ${FH_ID_UG_BASICREF} -a addversion -I "${params.RELEASE_DESCRIPTION}" mega65-basic65-reference.pdf
+                    filehost-upload -i ${FH_ID_UG_CHIPSET} -a addversion -I "${params.RELEASE_DESCRIPTION}" mega65-chipset-reference.pdf
+                    filehost-upload -i ${FH_ID_UG_DEVGUIDE} -a addversion -I "${params.RELEASE_DESCRIPTION}" mega65-developer-guide.pdf
+                    filehost-upload -i ${FH_ID_UG_USERGUIDE} -a addversion -I "${params.RELEASE_DESCRIPTION}" mega65-userguide.pdf
                 '''
                 }
             }

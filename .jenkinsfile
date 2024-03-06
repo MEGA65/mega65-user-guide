@@ -126,11 +126,11 @@ If set to false (default), this build will copy the pdfs to the filehost, replac
         }
         success {
             script {
-                def FH_ACTION = "replace"
+                fhaction = "replace"
                 if (params.INCREMENT_FILEHOST_VERSION)
-                    FH_ACTION = "addversion"
+                    fhaction = "addversion"
 
-                withEnv(["FH_ACTION=${FH_ACTION}"]) {
+                withEnv(["FH_ACTION=${fhaction}"]) {
                     sh '''
                         filehost-upload -i ${FH_ID_UG_COMPLBOOK} -a ${FH_ACTION} -I "${RELEASE_DESCRIPTION}" mega65-book.pdf
                         filehost-upload -i ${FH_ID_UG_BASICREF} -a ${FH_ACTION} -I "${RELEASE_DESCRIPTION}" mega65-basic65-reference.pdf

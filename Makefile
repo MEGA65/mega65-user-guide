@@ -121,6 +121,10 @@ mega65-basic65-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENER
 #	./getgitinfo
 #	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-basic65-programming.tex
 
+styleguide.pdf: *.tex Makefile references.bib
+	./getgitinfo
+	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make styleguide.tex
+
 
 sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
 	./getgitinfo

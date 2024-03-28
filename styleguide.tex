@@ -1,4 +1,3 @@
-\def\printmanual{true}
 \input{common-header}
 
 \megabookstart{MEGA65 DOCUMENTATION STYLE GUIDE}{WORK IN PROGRESS}
@@ -38,9 +37,9 @@ For an introduction to LaTeX in general, see \href{https://www.overleaf.com/lear
 
 \textbf{Use Visual Studio Code} with the \href{https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop}{LaTeX Workshop extension}.
 
-\textbf{Write each paragraph on a single line,} and enable ``word wrap'' in your editor. In MEGA65 LaTeX source, paragraph text in LaTeX source code uses long lines, one paragraph per line. This makes it easier to search for multi-word phrases using common text search tools, at the expense of requiring that authors use a programming text editor capable of ``soft wrapping.'' In Visual Studio Code, open the \textbf{View} menu, then select \textbf{Word Wrap}.
+\textbf{Write each paragraph on a single line,} and enable ``word wrap'' in your editor. This makes it easier to search for multi-word phrases using common text search tools. This requires that authors use a programming text editor capable of ``soft wrapping.'' In Visual Studio Code, open the \textbf{View} menu, then select \textbf{Word Wrap}.
 
-\textbf{Perform test builds frequently.} Be aware that small changes can introduce build errors, especially unescaped special characters. Use the \texttt{sandbox.tex} file and \texttt{make sandbox.pdf} command to troubleshoot sections of code. Be sure \texttt{make all} succeeds before creating a Github pull request.
+\textbf{Perform test builds frequently.} Be aware that small changes can introduce build errors, especially unescaped special characters. Use the \texttt{sandbox.tex} file and the \texttt{make sandbox.pdf} command to troubleshoot sections of code. Be sure \texttt{make all} succeeds before creating a Github pull request.
 
 \textbf{Look for the first error.} If the build output ends with lines such as:
 
@@ -81,14 +80,14 @@ The following characters must be escaped with a backslash to be rendered as lite
 
 This is a summary of commonly used and custom LaTeX directives. See the related topics for more information on how to use them.
 
-\begin{longtable}{|L{2cm}|p{4.5cm}|L{3.5cm}|L{3cm}|}
+\begin{longtable}{|L{3cm}|p{5cm}|L{4cm}|}
 \hline
-\textbf{Element} & \textbf{LaTeX} & \textbf{Example} & \textbf{Related Topics} \\
+\textbf{Element} & \textbf{LaTeX} & \textbf{Example} \\
 \hline
 \endfirsthead
 \multicolumn{3}{l@{}}{\ldots continued}\\
 \hline
-\textbf{Element} & \textbf{LaTeX} & \textbf{Example} & \textbf{Related Topics} \\
+\textbf{Element} & \textbf{LaTeX} & \textbf{Example} \\
 \hline
 \endhead
 \multicolumn{3}{l@{}}{continued \ldots}\\
@@ -96,42 +95,42 @@ This is a summary of commonly used and custom LaTeX directives. See the related 
 \hline
 \endlastfoot
 
-Sections &
+\makecell[l]{
+    Sections \\
+    \textbullet~\sg{headings}
+} &
 \makecell[l]{
     \texttt{{\textbackslash}chapter\{Chapter Title\}} \\
     \texttt{{\textbackslash}section\{Section Title\}} \\
     \texttt{{\textbackslash}subsection\{Subsection\}}
 } &
-&
-\makecell[l]{
-    \sg{headings}
-} \\
+\\
 \hline
 
-Boldface &
+\makecell[l]{
+    Boldface \\
+    \textbullet~\sg{basic} \\
+    \textbullet~\sg{user-interfaces}
+} &
 \texttt{The {\textbackslash}textbf\{View\} menu} &
-The \textbf{View} menu &
-\makecell[l]{
-    \sg{basic} \\
-    \sg{user-interfaces}
-} \\
+The \textbf{View} menu \\
 \hline
 
-Emphasis &
+\makecell[l]{
+    Emphasis \\
+    \textbullet~\sg{emphasis} \\
+    \textbullet~\sg{introducing-terms}
+} &
 \texttt{The {\textbackslash}emph\{job list\} is a binary format...} &
-The \emph{job list} is a binary format... &
-\makecell[l]{
-    \sg{emphasis} \\
-    \sg{introducing-terms}
-} \\
+The \emph{job list} is a binary format... \\
 \hline
 
-Underline &
-\texttt{{\textbackslash}underline\{NOTE\}: Be good.} &
-\underline{NOTE}: Be good. &
 \makecell[l]{
-    \sg{callouts}
-} \\
+    Underline \\
+    \textbullet~\sg{callouts}
+} &
+\texttt{{\textbackslash}underline\{NOTE\}: Be good.} &
+\underline{NOTE}: Be good. \\
 \hline
 
 Bulleted list &
@@ -143,8 +142,7 @@ Bulleted list &
 \begin{itemize}
 \item One
 \item Two
-\end{itemize} &
-\\
+\end{itemize} \\
 \hline
 
 Numbered list &
@@ -156,11 +154,13 @@ Numbered list &
 \begin{enumerate}
 \item One
 \item Two
-\end{enumerate} &
-\\
+\end{enumerate} \\
 \hline
 
-Cross reference &
+\makecell[l]{
+    Cross reference \\
+    \textbullet~\sg{cross-references}
+} &
 \makecell[l]{
     \texttt{{\textbackslash}label\{...\}} \\
     \\
@@ -172,46 +172,57 @@ Cross reference &
     \bookref{cha:terms-and-topics} \\
     \vref{cha:terms-and-topics} \\
     \pageref{cha:terms-and-topics} \\
+} \\
+\hline
+
+\makecell[l]{
+    Web link \\
+    \textbullet~\sg{links}
 } &
-\sg{cross-references} \\
-\hline
-
-Web link &
 \texttt{{\textbackslash}url\{https://mega65.org/\}} &
-\url{https://mega65.org/} &
-\sg{links} \\
+\url{https://mega65.org/} \\
 \hline
 
-Footnote &
+\makecell[l]{
+    Footnote \\
+    \textbullet~\sg{footnotes}
+} &
 \texttt{Example{\textbackslash}footnote\{This is an example footnote.\}} &
-Example\footnote{This is an example footnote.} &
-\sg{footnotes} \\
+Example\footnote{This is an example footnote.} \\
 \hline
 
-Index term &
+\makecell[l]{
+    Index term \\
+    \textbullet~\sg{index-terms}
+} &
 \makecell[l]{
     \texttt{{\textbackslash}index\{Term\}} \\
     \texttt{{\textbackslash}index\{Term!Child term\}}
 } &
-&
-\sg{index-terms} \\
+\\
+\hline
+
+\makecell[l]{
+    Table \\
+    \textbullet~\sg{tables}
+} &
+\makecell[l]{
+    \texttt{{\textbackslash}begin\{center\}} \\
+    \texttt{{\textbackslash}begin\{tabular\}\{|l|c|r|\}} \\
+    \texttt{{\textbackslash}hline} \\
+    \texttt{{\textbackslash}textbf\{...\} \& ... \& ... {\textbackslash}{\textbackslash}} \\
+    \texttt{{\textbackslash}hline} \\
+    \texttt{... \& ... \& ... {\textbackslash}{\textbackslash}} \\
+    \texttt{{\textbackslash}hline} \\
+    \texttt{... \& ... \& ... {\textbackslash}{\textbackslash}} \\
+    \texttt{{\textbackslash}hline} \\
+    \texttt{{\textbackslash}end\{tabular\}} \\
+    \texttt{{\textbackslash}end\{center\}}
+} &
+\\
 \hline
 
 \end{longtable}
-
-* Tables
-
-% \begin{center}
-% \begin{tabular}{|.|.|.|}
-% \hline
-% \textbf{...} & ... & ... \\
-% \hline
-% ... & ... & ... \\
-% \hline
-% \end{tabular}
-% \end{center}
-
-% longtable...
 
 * Figures, diagrams, and images
 * Screenshots
@@ -276,11 +287,6 @@ Index term &
 \label{cha:terms-and-topics}
 % Please keep this organized alphabetically.
 
-WORK IN PROGRESS
-
-* GO64 mode
-
-
 \begin{sgentry}{abbreviations}{Abbreviations}
     Spell out the first use of an abbreviation, followed by the abbreviation in brackets. Use emphasis for the spelled-out phrase, but not the abbreviation.
 
@@ -289,6 +295,14 @@ WORK IN PROGRESS
     \end{quote}
 
     Do not use dot punctuation within the abbreviation: ``RRB,'' not ``R.R.B.''
+\end{sgentry}
+
+\begin{sgentry}{addresses}{Addresses}
+    Prefer hexadecimal numbers for memory addresses: ``\$D021'' ``FFD.2FFF'' Hexadecimal numbers reflect the structure of a memory map, and can be used as literals in BASIC 65 and assembly language programs.
+
+    In the context of Commodore 64 BASIC, it is useful to represent a 16-bit memory address as a decimal value, because C64 BASIC lacks hexadecimal literals. In this case, omit the grouping comma: ``53281''
+
+    See also \sg{numbers}, \sg{hexadecimal-numbers}, \sg{registers}.
 \end{sgentry}
 
 \begin{sgentry}{assembly-language}{assembly language}
@@ -311,6 +325,8 @@ WORK IN PROGRESS
     \begin{quote}
         \texttt{the {\textbackslash}textbf\{PRINT\} command}
 
+        \hrulefill
+
         the \textbf{PRINT} command
     \end{quote}
 
@@ -318,6 +334,8 @@ WORK IN PROGRESS
 
     \begin{quote}
         \texttt{the {\textbackslash}textbf\{speed\} argument}
+
+        \hrulefill
 
         the \textbf{speed} argument
     \end{quote}
@@ -327,6 +345,16 @@ WORK IN PROGRESS
 
 \begin{sgentry}{basic-65}{BASIC 65}
     The dialect of the BASIC programming language available in MEGA65 mode. Not ``BASIC65.''
+\end{sgentry}
+
+\begin{sgentry}{binary}{binary}
+    The base-2 numbering system. Avoid ``bin'' except as an abbreviation in a table heading.
+\end{sgentry}
+
+\begin{sgentry}{binary-numbers}{Binary numbers}
+    To represent a binary number, use 0's and 1's, and a leading percent symbol (\%). Always use the percent symbol to avoid confusion with decimal or hexadecimal numbers.
+
+    If needed for clarity, use a period symbol (.) to separate groups of four digits, counting from the right: \%0010.1101 Use leading zeroes to indicate the value width, if appropriate. Avoid representing bitfields larger than eight bits in body text.
 \end{sgentry}
 
 \begin{sgentry}{brackets}{brackets}
@@ -356,6 +384,8 @@ WORK IN PROGRESS
 
     \begin{quote}
         \texttt{{\textbackslash}underline\{NOTE\}: If the denominator is zero, the computer may crash.}
+
+        \hrulefill
 
         \underline{NOTE}: If the denominator is zero, the computer may crash.
     \end{quote}
@@ -392,10 +422,7 @@ WORK IN PROGRESS
         \hline
 
         \texttt{{\textbackslash}bookref\{...\}} &
-        \makecell{
-            \bookref{cha:terms-and-topics} \\
-            \bookref{cha:cpu}
-        } &
+        \bookref{cha:terms-and-topics} &
         The chapter number. This has special support for the MEGA65 Compendium: if the chapter is in the current book, this refers to the chapter by number. If the chapter is not in the current book, it is assumed to be a chapter of the Compendium. The Compendium must be built before the current document to generate a chapter index (\texttt{make mega65-book.pdf}). \\
         \hline
 
@@ -411,55 +438,9 @@ WORK IN PROGRESS
     \end{tabular}
     \end{center}
 
+    When \texttt{{\textbackslash}bookref} refers to a chapter outside of the current book, it looks like this: \bookref{cha:cpu}
+
     See also \sg{links}.
-\end{sgentry}
-
-\begin{sgentry}{footnotes}{Footnotes}
-    To add a footnote, use the \texttt{{\textbackslash}footnote\{...\}} directive at the location of the footnote marker. A typical footnote appears at the end of a sentence, after the sentence-ending punctuation. A footnote may also appear at the end of a word, after any word-ending punctuation (such as a comma).
-
-    \begin{quote}
-        \texttt{This is an example.{\textbackslash}footnote\{This is an example footnote.\}}
-
-        This is an example.\footnote{This is an example footnote.}
-    \end{quote}
-
-    The footnote is rendered at the bottom of the page where the footnote marker appears. Be judicious about the use of space on the page.
-\end{sgentry}
-
-\begin{sgentry}{index-terms}{Index terms}
-    To add a term reference to the book index, use the \texttt{{\textbackslash}index\{...\}} directive at the location of the reference.
-
-    \begin{quote}
-        \texttt{{\textbackslash}index\{Term\}}
-
-        \texttt{{\textbackslash}index\{Term!Child term\}}
-    \end{quote}
-
-    This does not add text at the reference location. It adds an entry to the book's index.
-
-    Be sure to use child terms consistently. Refer to the existing index to understand the indexing conventions already in use.
-\end{sgentry}
-
-\begin{sgentry}{links}{Links}
-    To create a link to a web page, with the URL as the link text:
-
-    \begin{quote}
-        \texttt{{\textbackslash}url\{https://mega65.org/\}}
-
-        \url{https://mega65.org/}
-    \end{quote}
-
-    If the URL is long or difficult to type, consider requesting a \texttt{mega65.org} shortened URL, e.g. \texttt{https://mega65.org/docs}.
-
-    While it is possible to create a link with alternate link text, this will appear without the link in printed form. Only use such a link if a reader of the printed text does not need the address. Consider putting the URL in brackets after the title, or in a footnote.
-
-    \begin{quote}
-        \texttt{{\textbackslash}href\{https://files.mega65.org/\}\{Filehost\}}
-
-        \href{https://files.mega65.org/}{Filehost}
-    \end{quote}
-
-    See also \sg{cross-references}, \sg{footnotes}.
 \end{sgentry}
 
 \begin{sgentry}{decimal}{decimal}
@@ -474,8 +455,28 @@ WORK IN PROGRESS
     \begin{quote}
         \texttt{{\textbackslash}underline\{NOTE\}: {\textbackslash}emph\{Leave the computer switched on until this process is complete.\}}
 
+        \hrulefill
+
         \underline{NOTE}: \emph{Leave the computer switched on until this process is complete.}
     \end{quote}
+\end{sgentry}
+
+\begin{sgentry}{footnotes}{Footnotes}
+    To add a footnote, use the \texttt{{\textbackslash}footnote\{...\}} directive at the location of the footnote marker. A typical footnote appears at the end of a sentence, after the sentence-ending punctuation. A footnote may also appear at the end of a word, after any word-ending punctuation (such as a comma).
+
+    \begin{quote}
+        \texttt{This is an example.{\textbackslash}footnote\{This is an example footnote.\}}
+
+        \hrulefill
+
+        This is an example.\footnote{This is an example footnote.}
+    \end{quote}
+
+    The footnote is rendered at the bottom of the page where the footnote marker appears. Be judicious about the use of space on the page.
+\end{sgentry}
+
+\begin{sgentry}{go64-mode}{GO64 mode}
+    The Commodore 64 running mode of the MEGA65 core and ROM, activated by a program or by the immediate mode command \textbf{GO64}. Not ``C64 mode.''
 \end{sgentry}
 
 \begin{sgentry}{headings}{Headings}
@@ -484,20 +485,38 @@ WORK IN PROGRESS
     \begin{quote}
         \texttt{{\textbackslash}subsection\{Using 28-bit Addresses in Machine Code\}}
 
-        {\huge USING 28-BIT ADDRESSES IN MACHINE CODE}
+        \hrulefill
+
+        {\large USING 28-BIT ADDRESSES IN MACHINE CODE}
     \end{quote}
-\end{sgentry}
-
-\begin{sgentry}{hexadecimal-numbers}{Hexadecimal numbers}
-    To represent a hexadecimal number in the range \$0000 -- \$FFFF, use uppercase letters and a leading dollar symbol (\$). Using leading zeroes to indicate the value width, if appropriate: \$C for a 4-bit value, \$0C for an 8-bit value, \$000C for a 16-bit value. Omit the leading \$ if it is clear from context that the value is in hexadecimal format, such as in a table of register addresses.
-
-    To represent a hexadecimal number larger than \$FFFF, use a period symbol (.) to separate groups of four digits, counting from the right: 1.3000, FFD.2FFF. The dot implies hexadecimal, so the dollar symbol can be omitted in most cases.
-
-    See also \sg{registers}.
 \end{sgentry}
 
 \begin{sgentry}{hexadecimal}{hexadecimal}
     The base-16 numbering system. Avoid ``hex'' except as an abbreviation in a table heading.
+\end{sgentry}
+
+\begin{sgentry}{hexadecimal-numbers}{Hexadecimal numbers}
+    To represent a hexadecimal number in the range \$0000 -- \$FFFF, use uppercase letters and a leading dollar symbol (\$). Use leading zeroes to indicate the value width, if appropriate: \$C for a 4-bit value, \$0C for an 8-bit value, \$000C for a 16-bit value. Omit the leading \$ if it is clear from context that the value is in hexadecimal format, such as in a table of register addresses.
+
+    To represent a hexadecimal number larger than \$FFFF, use a period symbol (.) to separate groups of four digits, counting from the right: 1.3000, FFD.2FFF. The dot implies hexadecimal, so the dollar symbol can be omitted in most cases.
+
+    See also \sg{addresses}, \sg{registers}.
+\end{sgentry}
+
+\begin{sgentry}{index-terms}{Index terms}
+    To add a term reference to the book index, use the \texttt{{\textbackslash}index\{...\}} directive at the location of the reference.
+
+    \begin{quote}
+        \texttt{{\textbackslash}index\{Term\}}
+
+        \hrulefill
+
+        \texttt{{\textbackslash}index\{Term!Child term\}}
+    \end{quote}
+
+    This does not add text at the reference location. It adds an entry to the book's index.
+
+    Be sure to use child terms consistently. Refer to the existing index to understand the indexing conventions already in use.
 \end{sgentry}
 
 \begin{sgentry}{introducing-terms}{Introducing terms}
@@ -505,6 +524,8 @@ WORK IN PROGRESS
 
     \begin{quote}
         \texttt{The {\textbackslash}emph\{job list\} is a binary format with values packed into bytes.}
+
+        \hrulefill
 
         The \emph{job list} is a binary format with values packed into bytes.
     \end{quote}
@@ -516,6 +537,32 @@ WORK IN PROGRESS
     1,024 bytes. The unit abbreviation is KB: 64 KB. See also \sg{units}.
 \end{sgentry}
 
+\begin{sgentry}{links}{Links}
+    To create a link to a web page, with the URL as the link text:
+
+    \begin{quote}
+        \texttt{{\textbackslash}url\{https://mega65.org/\}}
+
+        \hrulefill
+
+        \url{https://mega65.org/}
+    \end{quote}
+
+    If the URL is long or difficult to type, consider requesting a \texttt{mega65.org} shortened URL, e.g. \texttt{https://mega65.org/docs}.
+
+    While it is possible to create a link with alternate link text, this will appear without the link in printed form. Only use such a link if a reader of the printed text does not need the address. Consider putting the URL in brackets after the title, or in a footnote.
+
+    \begin{quote}
+        \texttt{{\textbackslash}href\{https://files.mega65.org/\}\{Filehost\}}
+
+        \hrulefill
+
+        \href{https://files.mega65.org/}{Filehost}
+    \end{quote}
+
+    See also \sg{cross-references}, \sg{footnotes}.
+\end{sgentry}
+
 \begin{sgentry}{machine-code}{machine code}
 \end{sgentry}
 
@@ -524,9 +571,15 @@ WORK IN PROGRESS
 \end{sgentry}
 
 \begin{sgentry}{numbers}{Numbers}
+    When a number represents a count, use the general rule to spell out numbers less than ten: ``Hold the key for one second.'' ``The computer will beep three times.'' (\href{https://learn.microsoft.com/en-us/style-guide/numbers}{MSG: Numbers}.)
 
+    When a number represents an amount, use the decimal value followed by units. See \sg{units}.
 
-    See also \sg{hexadecimal-numbers}, \sg{units}.
+    For decimal values, use commas (\texttt{,}) to separate decimal digits to the left of the decimal point in groups of three, counting from the right: ``1,024''
+
+    Prefer hexadecimal numbers for memory addresses. Use hexadecimal numbers for memory values if appropriate to the application. See \sg{hexadecimal-numbers}.
+
+    It is occasionally useful to present binary numbers in text. See \sg{binary-numbers}.
 \end{sgentry}
 
 \begin{sgentry}{parentheses}{parentheses}
@@ -540,6 +593,8 @@ WORK IN PROGRESS
         \begin{verbatim}
 ``The time has come,'' the walrus said, ``to talk of many things.''
         \end{verbatim}
+
+        \hrulefill
 
         ``The time has come,'' the walrus said, ``to talk of many things.''
     \end{quote}
@@ -559,6 +614,8 @@ WORK IN PROGRESS
 
         To change the character set address, set CB \$D018.3--1 to the address divided by 1,024 (1 KB).
     \end{quote}
+
+    See also \sg{addresses}.
 \end{sgentry}
 
 \begin{sgentry}{source-code}{Source code}
@@ -571,6 +628,8 @@ WORK IN PROGRESS
         10 PRINT "MEGA65 RULES!" \\
         20 GOTO 10 \\
         {\textbackslash}end\{basiccode\}}
+
+        \hrulefill
 
 \begin{basiccode}
 10 PRINT "MEGA65 RULES!"
@@ -588,6 +647,8 @@ WORK IN PROGRESS
         \\
         READY. \\
         {\textbackslash}end\{screencode\}}
+
+        \hrulefill
 
 \begin{screencode}
 READY.
@@ -610,6 +671,8 @@ READY.
         EOM \\
         {\textbackslash}end\{asmcode\}}
 
+        \hrulefill
+
 \begin{asmcode}
 LDA #$52   ; MAPLO = select $2 offset $45200
 LDX #$24
@@ -629,6 +692,82 @@ EOM
 
         \texttt{{\textbackslash}lstinputlisting[language=C]\{examples/bounce.c\}}
     \end{quote}
+\end{sgentry}
+
+\begin{sgentry}{tables}{Tables}
+    Use a table to represent an ordered collection of values with more than one property.
+
+    In general, tables in MEGA65 documentation are typeset centered, with border lines surrounding and between every cell, including around the entire table and heading cells. Heading cells are boldface. Tables are not numbered and do not have captions.
+
+    A table intended to appear unbroken on a single page can use the \texttt{tabular} environment.
+
+    \begin{quote}
+\begin{verbatim}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+{\bf Command} & {\bf Description} \\
+\hline
+{\tt put {\it filename}} & Send a file from the PC to the MEGA65. \\
+\hline
+{\tt get {\it filename}} & Retrieve a file from the MEGA65 to the PC. \\
+\hline
+{\tt dir} & Display a directory listing of the MEGA65 SD card. \\
+\hline
+\end{tabular}
+\end{center}
+\end{verbatim}
+
+\hrulefill
+
+        \begin{center}
+        \begin{tabular}{|l|l|}
+        \hline
+        {\bf Command} & {\bf Description} \\
+        \hline
+        {\tt put {\it filename}} & Send a file from the PC to the MEGA65. \\
+        \hline
+        {\tt get {\it filename}} & Retrieve a file from the MEGA65 to the PC. \\
+        \hline
+        {\tt dir} & Display a directory listing of the MEGA65 SD card. \\
+        \hline
+        \end{tabular}
+        \end{center}
+    \end{quote}
+
+    If the table may span multiple pages, use \texttt{longtable}.
+
+\begin{quote}
+\begin{verbatim}
+\begin{longtable}{|L{2cm}|p{4.5cm}|L{3.5cm}|}
+\hline
+\textbf{Element} & \textbf{LaTeX} & \textbf{Example} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+\textbf{Element} & \textbf{LaTeX} & \textbf{Example} \\
+\hline
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+
+... & ... & ... & ... \\
+\hline
+... & ... & ... & ... \\
+\hline
+... & ... & ... & ... \\
+\hline
+
+\end{longtable}
+\end{verbatim}
+\end{quote}
+
+    Use your discretion to modify this style and use other LaTeX table features in the best interests of the information being conveyed. Table cell alignment, column sizing, \texttt{{\textbackslash}multicolumn} cells, and \texttt{{\textbackslash}multicell} cells are just a few useful features.
+
+    See \href{https://www.overleaf.com/learn/latex/Tables}{Overleaf.com: Tables}, \href{https://en.wikibooks.org/wiki/LaTeX/Tables}{WikiBooks: LaTeX/Tables}, \href{https://ctan.org/pkg/longtable?lang=en}{CTAN.org: longtable}.
 \end{sgentry}
 
 \begin{sgentry}{titles}{Titles}
@@ -682,6 +821,8 @@ EOM
     \begin{quote}
         \texttt{the {\textbackslash}textbf\{File\} menu}
 
+        \hrulefill
+
         the \textbf{File} menu
     \end{quote}
 
@@ -689,6 +830,8 @@ EOM
 
     \begin{quote}
         \texttt{the {\textbackslash}texttt\{mega65{\textbackslash}\_ftp\} command}
+
+        \hrulefill
 
         the \texttt{mega65\_ftp} command
     \end{quote}
@@ -700,9 +843,11 @@ EOM
         mega65\_ftp -e -c 'put file.d81' -c 'exit' \\
         {\textbackslash}end\{verbatim\}}
 
-        % \begin{verbatim}
-        %     mega65_ftp -e -c 'put file.d81' -c 'exit'
-        % \end{verbatim}
+        \hrulefill
+
+\begin{verbatim}
+mega65_ftp -e -c 'put file.d81' -c 'exit'
+\end{verbatim}
     \end{quote}
 
     For information on typesetting BASIC keywords, see \sg{basic}. Prefer the \texttt{basiccode} environment for typesetting BASIC commands, and \texttt{screencode} for typesetting BASIC commands with expected replies. See \sg{source-code}.

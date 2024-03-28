@@ -71,9 +71,9 @@ This project uses GNU Make for coordinating build logic, and also some supplemen
 
 The User Guide project is defined using a Makefile to build.
 
-> If you are using an environment like TeXworks, do not use the built in Build button. That is for single file building only.
+> If you are using an environment like TeXworks, do not use the built-in Build button. That is for single file building only.
 
-For MingW32 users, use the `mingw32-make` command where `make` is indicate below. Linux and macOS users, simply use `make`.
+For MingW32 users, use the `mingw32-make` command where `make` is indicated below. Linux and macOS users, simply use `make`.
 
 `make` or `make all` will build all PDF manuals. You can also specify the name of the PDF file to build just one manual, like so:
 
@@ -92,10 +92,11 @@ The complete list of guides that can be individually built are:
 | Reference Guide                                          | make referenceguide.pdf           |
 | Developer's Guide                                        | make mega65-developer-guide.pdf   |
 | Guide to MEGA65 and FPGA Hardware                        | make hardwareguide.pdf            |
-| All books combined                                       | make mega65-book.pdf              |
+| The Compendium                                           | make mega65-book.pdf              |
 | As above but in CYMK for printing (Ghostscript required) | make mega65-book-cmyk.pdf         |
+| Documentation Style Guide                                | make styleguide.pdf               |
 
-There is also a `sandbox.pdf` for experimenting with typesetting or components for the manuals. But it is not included in the makefile. Instead, it is able to be built directly using software like TeXworks. The sandbox is faster to build and test changes more quickly. You can then transfer your work directly to the userguide.
+Some books take several minutes to build. To make drafting easier, you can write or `\include{...}` new text in `sandbox.tex`, then either `make sandbox.pdf` or use a TeX IDE's build feature to test the result quickly. Move your text to the appropriate files, and revert `sandbox.tex`, before creating a pull request.
 
 To delete all LaTeX-built files: `make clean`
 
@@ -107,6 +108,10 @@ To delete every generated file: `make realclean`
 
 Combined with the `LaTeX Workshop` extension, this is a great IDE for working with the project. However be careful of the using the built-in terminal for compiling the guides. It's a powershell-based terminal and won't work with the Makefile. Nor will Command Prompt. Use a more Unix styled terminal like Git Bash.
 
-## Style Guide
+# Style Guide
 
-If you wish to contribute to the MEGA65 literature, please try to read and follow the [style-guide](style-guide.md).
+If you wish to contribute to the MEGA65 literature, please read and follow the Documentation Style Guide. Build this document with this command:
+
+```
+make styleguide.pdf
+```

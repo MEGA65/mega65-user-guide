@@ -147,6 +147,20 @@
      \newpage\pagecolor{white}\clearpage
 }
 
+% Commands for Style Guide entries
+%   \sgentry{itemid}{Item Name Text}{Description of the item...}
+\makeatletter
+\newenvironment{sgentry}[2]{
+  \phantomsection\def\@currentlabelname{#2}\label{sgentry:#1}{\bf #2}
+  \begin{adjustwidth}{1cm}{}
+}{
+  \end{adjustwidth}
+  \vspace{3mm}
+}
+\makeatother
+\newcommand{\sg}[1]{\nameref{sgentry:#1}}
+
+
 \makeatletter\chardef\pdf@shellescape=\@ne\makeatother
 
 \setcounter{tocdepth}{5}
@@ -182,23 +196,10 @@
 
 \pagestyle{empty}
 
-\begin{document}
-\raggedbottom
-
-% relax word wrapping with sloppy
-\sloppy
-% reduce overfull \hbox warnings
-\hfuzz=5pt
-
 % macro for changing the verbatim font
 \makeatletter
 \newcommand{\verbatimfont}[1]{\def\verbatim@font{#1}}%
 \makeatother
-
-\setstretch{0.9}
-%% big numbers are not in bold, because latex gets confused
-\newcommand*{\justifyheading}{\raggedleft}
-\definecolor{headingblue}{rgb}{0.5,0.5,1}
 
 % \megabookstart : Book title page, copyright page, table of contents
 %
@@ -270,6 +271,9 @@
 % Define color "RED" so that titles can use "red" without worrying about \uppercase.
 \colorlet{RED}{red}
 
+\newcommand*{\justifyheading}{\raggedleft}
+\definecolor{headingblue}{rgb}{0.5,0.5,1}
+
 \titleclass{\part}{top}
 \titleformat{\part}[display]
    {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
@@ -291,3 +295,16 @@
    {20pt}
    {\huge\bf\color{headingblue}\uppercase}
    [\color{black}]
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\raggedbottom
+
+% relax word wrapping with sloppy
+\sloppy
+% reduce overfull \hbox warnings
+\hfuzz=5pt
+
+\setstretch{0.9}

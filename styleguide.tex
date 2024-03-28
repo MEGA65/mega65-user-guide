@@ -1,53 +1,712 @@
+\def\printmanual{true}
 \input{common-header}
+
 \megabookstart{MEGA65 DOCUMENTATION STYLE GUIDE}{WORK IN PROGRESS}
-
-%%%
-
-\chapter{Welcome}
-
-Lorem ipsum.
 
 %%%
 
 \chapter{Style Overview}
 
-* British English
-* Base style guides
-* Audience
-* Voice
-* Numbers
-* Units
-* LaTeX code style
+Thank you for your interest in contributing to the MEGA65 documentation! This style guide describes the language and typesetting choices we have made for this project. Adhering to a style guide makes the documentation easier to read, and easier to write consistently. Some style choices are based on linguistic best practices, some are arbitrary, and some are somewhere in between. These are ours.
+
+The MEGA65 documentation uses British English spelling. For more information, see \sg{british-english}.
+
+Our base style guides are the \href{https://www.bbc.co.uk/newsstyleguide/}{BBC News Style Guide} and the \href{https://docs.microsoft.com/en-us/style-guide/welcome/}{Microsoft Style Guide}. This style guide supplements and overrides the base guides.
+
+The target audience for the MEGA65 documentation consists of hobbyist personal computer users and programmers, of varying interests and levels of technical expertise. Be mindful of the level of expertise expected for each category of documentation. For example, readers of the User's Guide may have limited experience with the PC command line.
+
+The voice of the documentation is casual, warm, and polite. {\emph MEGA65 enthusiasts are international.} Avoid colloquialisms or examples that depend on cultural context. Use concise and consistent language. Avoid jargon: define special terms, and avoid unnecessary synonyms. Keep sentences and paragraphs short. Use tables, lists, and diagrams to organise concepts visually.
+
+This style guide is organised alphabetically by topic and term. Writing and typesetting concepts begin with a capital letter.
+
+If you have any questions, please ask in the {\tt \#documentation} channel on the MEGA65 Discord, or file an issue in the {\tt mega65-user-guide} Github repo.
+
+\begin{itemize}
+\item \url{https://mega65.org/chat}
+\item \url{https://github.com/MEGA65/mega65-user-guide/issues}
+\end{itemize}
 
 %%%
 
-\chapter{Typesetting}
+\chapter{LaTeX Typesetting}
 
-* Reference typesetting styles: Commodore books
-* Structure
-* Body text
-* Introducing terms
-* Emphasis
-* BASIC keywords
-* Assembly opcode mnemonics
-* Register names
-* User interface elements
-* PC command line interface elements
-* Keyboard keys
-* PETSCII glyphs
-* Code listings
-* Inline code
-* Screen text
-* Callouts ("note")
+The MEGA65 documentation is implemented using the LaTeX typesetting system. This chapter provides guidance on how LaTeX is used in this project.
+
+For an introduction to LaTeX in general, see \href{https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes}{Overleaf.com: Learn LaTeX in 30 minutes}. Google is your friend, especially the \href{https://tex.stackexchange.com/}{TeX StackExchange}.
+
+\section{General Advice}
+
+\textbf{Use Visual Studio Code} with the \href{https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop}{LaTeX Workshop extension}.
+
+\textbf{Write each paragraph on a single line,} and enable ``word wrap'' in your editor. In MEGA65 LaTeX source, paragraph text in LaTeX source code uses long lines, one paragraph per line. This makes it easier to search for multi-word phrases using common text search tools, at the expense of requiring that authors use a programming text editor capable of ``soft wrapping.'' In Visual Studio Code, open the \textbf{View} menu, then select \textbf{Word Wrap}.
+
+\textbf{Perform test builds frequently.} Be aware that small changes can introduce build errors, especially unescaped special characters. Use the \texttt{sandbox.tex} file and \texttt{make sandbox.pdf} command to troubleshoot sections of code. Be sure \texttt{make all} succeeds before creating a Github pull request.
+
+\textbf{Look for the first error.} If the build output ends with lines such as:
+
+\begin{verbatim}
+Latexmk: Errors, so I did not complete making targets
+...
+make: *** [styleguide.pdf] Error 12
+\end{verbatim}
+
+There was a build error. Examine the build output, or the \texttt{.log} file for the build target, for lines that begin with an exclamation point (\texttt{!}). The word ``error'' may or may not appear near the error message. Look for the first error: subsequent error messages may be caused by the first.
+
+
+\section{Special Characters}
+
+The following characters must be escaped with a backslash to be rendered as literal characters, \emph{except} in source code listing environments that know to treat them literally:
+
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Symbol} & \textbf{LaTeX} \\
+\hline
+\& & \verb|\&| \\
+\% & \verb|\%| \\
+\$ & \verb|\$| \\
+\# & \verb|\#| \\
+\_ & \verb|\_| \\
+\{ & \verb|\{| \\
+\} & \verb|\}| \\
+\texttt{\textasciitilde} & \verb|\textasciitilde| \\
+\textasciicircum & \verb|\textasciicircum| \\
+\textbackslash & \verb|\textbackslash| \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\section{Common Directives}
+
+This is a summary of commonly used and custom LaTeX directives. See the related topics for more information on how to use them.
+
+\begin{longtable}{|L{2cm}|p{4.5cm}|L{3.5cm}|L{3cm}|}
+\hline
+\textbf{Element} & \textbf{LaTeX} & \textbf{Example} & \textbf{Related Topics} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+\textbf{Element} & \textbf{LaTeX} & \textbf{Example} & \textbf{Related Topics} \\
+\hline
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+
+Sections &
+\makecell[l]{
+    \texttt{{\textbackslash}chapter\{Chapter Title\}} \\
+    \texttt{{\textbackslash}section\{Section Title\}} \\
+    \texttt{{\textbackslash}subsection\{Subsection\}}
+} &
+&
+\makecell[l]{
+    \sg{headings}
+} \\
+\hline
+
+Boldface &
+\texttt{The {\textbackslash}textbf\{View\} menu} &
+The \textbf{View} menu &
+\makecell[l]{
+    \sg{basic} \\
+    \sg{user-interfaces}
+} \\
+\hline
+
+Emphasis &
+\texttt{The {\textbackslash}emph\{job list\} is a binary format...} &
+The \emph{job list} is a binary format... &
+\makecell[l]{
+    \sg{emphasis} \\
+    \sg{introducing-terms}
+} \\
+\hline
+
+Underline &
+\texttt{{\textbackslash}underline\{NOTE\}: Be good.} &
+\underline{NOTE}: Be good. &
+\makecell[l]{
+    \sg{callouts}
+} \\
+\hline
+
+Bulleted list &
+\makecell[l]{
+\texttt{{\textbackslash}begin\{itemize\}} \\
+\texttt{{\textbackslash}item One} \\
+\texttt{{\textbackslash}item Two} \\
+\texttt{{\textbackslash}end\{itemize\}}} &
+\begin{itemize}
+\item One
+\item Two
+\end{itemize} &
+\\
+\hline
+
+Numbered list &
+\makecell[l]{
+\texttt{{\textbackslash}begin\{enumerate\}} \\
+\texttt{{\textbackslash}item One} \\
+\texttt{{\textbackslash}item Two} \\
+\texttt{{\textbackslash}end\{enumerate\}}} &
+\begin{enumerate}
+\item One
+\item Two
+\end{enumerate} &
+\\
+\hline
+
+Cross reference &
+\makecell[l]{
+    \texttt{{\textbackslash}label\{...\}} \\
+    \\
+    \texttt{{\textbackslash}bookref\{...\}} \\
+    \texttt{{\textbackslash}vref\{...\}} \\
+    \texttt{{\textbackslash}pageref\{...\}}
+} &
+\makecell[l]{
+    \bookref{cha:terms-and-topics} \\
+    \vref{cha:terms-and-topics} \\
+    \pageref{cha:terms-and-topics} \\
+} &
+\sg{cross-references} \\
+\hline
+
+Web link &
+\texttt{{\textbackslash}url\{https://mega65.org/\}} &
+\url{https://mega65.org/} &
+\sg{links} \\
+\hline
+
+Footnote &
+\texttt{Example{\textbackslash}footnote\{This is an example footnote.\}} &
+Example\footnote{This is an example footnote.} &
+\sg{footnotes} \\
+\hline
+
+Index term &
+\makecell[l]{
+    \texttt{{\textbackslash}index\{Term\}} \\
+    \texttt{{\textbackslash}index\{Term!Child term\}}
+} &
+&
+\sg{index-terms} \\
+\hline
+
+\end{longtable}
+
 * Tables
+
+% \begin{center}
+% \begin{tabular}{|.|.|.|}
+% \hline
+% \textbf{...} & ... & ... \\
+% \hline
+% ... & ... & ... \\
+% \hline
+% \end{tabular}
+% \end{center}
+
+% longtable...
+
 * Figures, diagrams, and images
 * Screenshots
 
+% \begin{center}
+% \includegraphics[width=0.9\linewidth]{images/...}
+% \end{center}
+
+* Code listings
+* Inline code
+
+
+\section{MEGA65 and Commodore elements}
+
+* Keyboard keys
+
+% \specialkey{...}
+% RETURN
+% SHIFT
+% SHIFT\\LOCK
+% CTRL
+% RUN STOP
+% INST\\DEL
+% CLR\\HOME
+% ESC
+% TAB
+% NO\\SCROLL
+
+% \widekey{...}
+% RESTORE
+
+% \megakey{...}
+% J
+% F1
+% $\leftarrow$
+% $\uparrow$
+% $\rightarrow$
+% $\downarrow$
+
+% \megakeywhite{...}
+% $\leftarrow$
+% $\uparrow$
+
+% \megasymbolkey
+
+* PETSCII glyphs
+
+% \graphicsymbol{...}
+% See appendix-petsciicodes.tex and appendix-screencodes.tex
+% Not actually used anywhere else yet
+
+* Screen text
+
+% \screentext{...}
+% \screentextwide{...} \stw{...}
+% \begin{screencode} ... \end{screencode}
+% How is the (broken) PETSCII char stuff supposed to work?
+
 %%%
 
-\chapter{Word List}
+\chapter{Terms and Topics}
+\label{cha:terms-and-topics}
+% Please keep this organized alphabetically.
 
 WORK IN PROGRESS
+
+* GO64 mode
+
+
+\begin{sgentry}{abbreviations}{Abbreviations}
+    Spell out the first use of an abbreviation, followed by the abbreviation in brackets. Use emphasis for the spelled-out phrase, but not the abbreviation.
+
+    \begin{quote}
+        The VIC-IV can draw sprite-like graphical objects using the \emph{Raster Rewrite Buffer} (RRB). To use the RRB...
+    \end{quote}
+
+    Do not use dot punctuation within the abbreviation: ``RRB,'' not ``R.R.B.''
+\end{sgentry}
+
+\begin{sgentry}{assembly-language}{assembly language}
+    A programming language that represents machine code directly in syntax for human authoring. Assembly language is \emph{assembled} using a tool called an \emph{assembler} to produce a machine code program. An assembly language program listing consists of \emph{instructions} that represent machine code, and \emph{directives} that tell the assembler how to assemble the program. An instruction consists of a \emph{mnemonic} and an optional \emph{operand}, with syntax that indicates the \emph{addressing mode}. The mnemonic and addressing mode together are the \emph{opcode}.
+
+    When referring to a machine code instruction in the abstract, use the assembly language mnemonic as spelled in the 45GS02 instruction set reference, with uppercase letters: ``the STQ instruction.''
+
+    Do not shorten ``assembly language'' as ``assembly.''
+
+    See also \sg{machine-code}.
+\end{sgentry}
+
+\begin{sgentry}{basic}{BASIC}
+    The BASIC programming language. When referring specifically to the dialect of BASIC in MEGA65 mode, use ``BASIC 65.''
+
+    When referring to a BASIC keyword (instruction or function) in the abstract, use uppercase letters: ``the PRINT command.''
+
+    In the context of the BASIC reference, also use bold text for the keyword:
+
+    \begin{quote}
+        \texttt{the {\textbackslash}textbf\{PRINT\} command}
+
+        the \textbf{PRINT} command
+    \end{quote}
+
+    When referring to an argument named in the BASIC reference prototype for the statement or function, use lowercase letters and bold text:
+
+    \begin{quote}
+        \texttt{the {\textbackslash}textbf\{speed\} argument}
+
+        the \textbf{speed} argument
+    \end{quote}
+
+    Outside of the BASIC reference, refer to the keyword using uppercase letters without bold text, and avoid referring to arguments by name.
+\end{sgentry}
+
+\begin{sgentry}{basic-65}{BASIC 65}
+    The dialect of the BASIC programming language available in MEGA65 mode. Not ``BASIC65.''
+\end{sgentry}
+
+\begin{sgentry}{brackets}{brackets}
+    The preferred term for parentheses punctuation. The three common bracket types are ``brackets,'' ``square brackets,'' and ``curly brackets.''
+\end{sgentry}
+
+\begin{sgentry}{british-english}{British English}
+    The MEGA65 documentation uses \textbf{British English}. Some notable differences between British English and other dialects include:
+
+    \begin{itemize}
+        \item \textbf{-our} suffixes: \textbf{colour}, \textbf{humour}, \textbf{flavour}
+        \item \textbf{-ise} suffixes: \textbf{initialise}, \textbf{summarise}, \textbf{organise}, \textbf{specialise}
+        \item \textbf{-yse} suffixes: \textbf{analyse}
+        \item \textbf{-ogue} suffixes: \textbf{dialogue}
+        \item \textbf{Doubled el} when conjugating verbs: \textbf{cancelled}, \textbf{labelling}
+        \item \textbf{different to}, not ``different from'' or ``different than''
+        \item Colour names: \textbf{grey}
+    \end{itemize}
+
+    Commodore used American English spellings in API names (e.g. \textbf{COLOR}). Use British spellings when referring to concepts, and use API typesetting and spellings when referring to specific API names.
+\end{sgentry}
+
+\begin{sgentry}{callouts}{Callouts}
+    A short paragraph, typeset to attract the reader's attention.
+
+    To typeset a callout, underline the callout tag, then follow it with a colon and the callout text. Today, the only callout tag used in the MEGA65 documentation is ``NOTE.''
+
+    \begin{quote}
+        \texttt{{\textbackslash}underline\{NOTE\}: If the denominator is zero, the computer may crash.}
+
+        \underline{NOTE}: If the denominator is zero, the computer may crash.
+    \end{quote}
+
+    (We may change this to a macro in the future. Typesetting this consistently will make it easier to update.)
+\end{sgentry}
+
+\begin{sgentry}{cross-references}{Cross references}
+    Text can refer to a chapter, appendix, or section. LaTeX will generate text and a link suitable for printing, with the correct chapter and page number.
+
+    The section to reference must have a label. By convention, a label for a chapter, appendix, or section begins with a prefix indicating its type.     The rest of the label should use lowercase letters and hyphens, and approximate the section heading.
+
+    \begin{itemize}
+        \item Chapter: \texttt{cha:...}
+        \item Appendix: \texttt{appendix:...}
+        \item Section: \texttt{sec:...}
+    \end{itemize}
+
+    The \texttt{{\textbackslash}label} directive sets the label. This does not add any text to the document. Place the label immediately beneath the section marker.
+
+    \begin{quote}
+        \begin{verbatim}
+\chapter{Terms and Topics}
+\label{cha:terms-and-topics}
+        \end{verbatim}
+    \end{quote}
+
+    To create a cross reference to a labelled chapter, use one of these:
+
+    \begin{center}
+    \begin{tabular}{|l|l|p{6cm}|}
+        \hline
+        \textbf{LaTeX} & \textbf{Example} & \textbf{Description} \\
+        \hline
+
+        \texttt{{\textbackslash}bookref\{...\}} &
+        \makecell{
+            \bookref{cha:terms-and-topics} \\
+            \bookref{cha:cpu}
+        } &
+        The chapter number. This has special support for the MEGA65 Compendium: if the chapter is in the current book, this refers to the chapter by number. If the chapter is not in the current book, it is assumed to be a chapter of the Compendium. The Compendium must be built before the current document to generate a chapter index (\texttt{make mega65-book.pdf}). \\
+        \hline
+
+        \texttt{{\textbackslash}vref\{...\}} &
+        \vref{cha:terms-and-topics} &
+        The chapter or appendix number, and the page number. Provide the word ``chapter'' or ``appendix,'' as appropriate. \\
+        \hline
+
+        \texttt{{\textbackslash}pageref\{...\}} &
+        \pageref{cha:terms-and-topics} &
+        The page number. Use this when referring to a section or other labelled element that isn't a chapter or appendix. \\
+        \hline
+    \end{tabular}
+    \end{center}
+
+    See also \sg{links}.
+\end{sgentry}
+
+\begin{sgentry}{footnotes}{Footnotes}
+    To add a footnote, use the \texttt{{\textbackslash}footnote\{...\}} directive at the location of the footnote marker. A typical footnote appears at the end of a sentence, after the sentence-ending punctuation. A footnote may also appear at the end of a word, after any word-ending punctuation (such as a comma).
+
+    \begin{quote}
+        \texttt{This is an example.{\textbackslash}footnote\{This is an example footnote.\}}
+
+        This is an example.\footnote{This is an example footnote.}
+    \end{quote}
+
+    The footnote is rendered at the bottom of the page where the footnote marker appears. Be judicious about the use of space on the page.
+\end{sgentry}
+
+\begin{sgentry}{index-terms}{Index terms}
+    To add a term reference to the book index, use the \texttt{{\textbackslash}index\{...\}} directive at the location of the reference.
+
+    \begin{quote}
+        \texttt{{\textbackslash}index\{Term\}}
+
+        \texttt{{\textbackslash}index\{Term!Child term\}}
+    \end{quote}
+
+    This does not add text at the reference location. It adds an entry to the book's index.
+
+    Be sure to use child terms consistently. Refer to the existing index to understand the indexing conventions already in use.
+\end{sgentry}
+
+\begin{sgentry}{links}{Links}
+    To create a link to a web page, with the URL as the link text:
+
+    \begin{quote}
+        \texttt{{\textbackslash}url\{https://mega65.org/\}}
+
+        \url{https://mega65.org/}
+    \end{quote}
+
+    If the URL is long or difficult to type, consider requesting a \texttt{mega65.org} shortened URL, e.g. \texttt{https://mega65.org/docs}.
+
+    While it is possible to create a link with alternate link text, this will appear without the link in printed form. Only use such a link if a reader of the printed text does not need the address. Consider putting the URL in brackets after the title, or in a footnote.
+
+    \begin{quote}
+        \texttt{{\textbackslash}href\{https://files.mega65.org/\}\{Filehost\}}
+
+        \href{https://files.mega65.org/}{Filehost}
+    \end{quote}
+
+    See also \sg{cross-references}, \sg{footnotes}.
+\end{sgentry}
+
+\begin{sgentry}{decimal}{decimal}
+    The base-10 numbering system. Avoid ``dec'' except as an abbreviation in a table heading.
+\end{sgentry}
+
+\begin{sgentry}{emphasis}{Emphasis}
+    It is sometimes useful to emphasize a phrase or sentence. You can typeset this with the \texttt{{\textbackslash}emph\{...\}} directive.
+
+    Emphasis is not especially visible in the MEGA65 typesetting. For important information, reinforce this with other structures. See \sg{callouts}, \sg{footnotes}.
+
+    \begin{quote}
+        \texttt{{\textbackslash}underline\{NOTE\}: {\textbackslash}emph\{Leave the computer switched on until this process is complete.\}}
+
+        \underline{NOTE}: \emph{Leave the computer switched on until this process is complete.}
+    \end{quote}
+\end{sgentry}
+
+\begin{sgentry}{headings}{Headings}
+    Use title-style capitalisation in titles and headings. While this goes against modern style guides, our LaTeX styles will convert these to all capital letters automatically, so this is mostly for consistency with existing text. (\href{https://learn.microsoft.com/en-us/style-guide/capitalization}{MSG: Capitalization}.)
+
+    \begin{quote}
+        \texttt{{\textbackslash}subsection\{Using 28-bit Addresses in Machine Code\}}
+
+        {\huge USING 28-BIT ADDRESSES IN MACHINE CODE}
+    \end{quote}
+\end{sgentry}
+
+\begin{sgentry}{hexadecimal-numbers}{Hexadecimal numbers}
+    To represent a hexadecimal number in the range \$0000 -- \$FFFF, use uppercase letters and a leading dollar symbol (\$). Using leading zeroes to indicate the value width, if appropriate: \$C for a 4-bit value, \$0C for an 8-bit value, \$000C for a 16-bit value. Omit the leading \$ if it is clear from context that the value is in hexadecimal format, such as in a table of register addresses.
+
+    To represent a hexadecimal number larger than \$FFFF, use a period symbol (.) to separate groups of four digits, counting from the right: 1.3000, FFD.2FFF. The dot implies hexadecimal, so the dollar symbol can be omitted in most cases.
+
+    See also \sg{registers}.
+\end{sgentry}
+
+\begin{sgentry}{hexadecimal}{hexadecimal}
+    The base-16 numbering system. Avoid ``hex'' except as an abbreviation in a table heading.
+\end{sgentry}
+
+\begin{sgentry}{introducing-terms}{Introducing terms}
+    When introducing a new special term, emphasize its first use and define it in the same sentence.
+
+    \begin{quote}
+        \texttt{The {\textbackslash}emph\{job list\} is a binary format with values packed into bytes.}
+
+        The \emph{job list} is a binary format with values packed into bytes.
+    \end{quote}
+
+    See also \sg{abbreviations}.
+\end{sgentry}
+
+\begin{sgentry}{kilobyte}{kilobyte}
+    1,024 bytes. The unit abbreviation is KB: 64 KB. See also \sg{units}.
+\end{sgentry}
+
+\begin{sgentry}{machine-code}{machine code}
+\end{sgentry}
+
+\begin{sgentry}{megabyte}{megabyte}
+    1,048,576 bytes, or 1,024 kilobytes. The unit abbreviation is MB: 8 MB. See also \sg{units}.
+\end{sgentry}
+
+\begin{sgentry}{numbers}{Numbers}
+
+
+    See also \sg{hexadecimal-numbers}, \sg{units}.
+\end{sgentry}
+
+\begin{sgentry}{parentheses}{parentheses}
+    See \sg{brackets}.
+\end{sgentry}
+
+\begin{sgentry}{quotes}{Quotes}
+    To render double-quotes in paragraph text, use two backticks (\verb|``|) for the opening quote and two apostrophes (\verb|''|) for the closing quote.
+
+    \begin{quote}
+        \begin{verbatim}
+``The time has come,'' the walrus said, ``to talk of many things.''
+        \end{verbatim}
+
+        ``The time has come,'' the walrus said, ``to talk of many things.''
+    \end{quote}
+
+    To render double-quotes in source code listings, use the double-quote (\verb|"|) character.
+\end{sgentry}
+
+\begin{sgentry}{registers}{Registers}
+    A MEGA65 hardware register has a label, a byte address, and an optional bit range. When referring to a register for the first time in a section, provide all three, omitting the bit range for 8-bit registers. On subsequent uses, you can use just the label; include the rest if it would help the reader.
+
+    Indicate the bit range by following the address with a dot then the range. Bits are numbered from 0 to 7, from least significant to most significant. If the register is 1-bit, only provide the bit address. If the register is multi-bit (but not 8-bit), specify the range from most significant to least significant, inclusive, with an N-dash (\texttt{--}).
+
+    \begin{quote}
+        To adjust the border color, set BORDERCOL \$D020 with the number of the system palette entry. You can read BORDERCOL to determine the current border color.
+
+        The VFAST \$D054.6 register is set when the CPU is in 40 MHz mode.
+
+        To change the character set address, set CB \$D018.3--1 to the address divided by 1,024 (1 KB).
+    \end{quote}
+\end{sgentry}
+
+\begin{sgentry}{source-code}{Source code}
+    LaTeX supports typesetting source code listings, either listed directly in the \texttt{.tex} file, or included from another file. Do not escape LaTeX special characters inside listings: LaTeX knows to do that automatically.
+
+    To typeset a block of BASIC code, use the \texttt{basiccode} environment. This mode typesets BASIC 65 keywords. Use uppercase letters, and avoid upper PETSCII characters. (We currently do not use a petcat-style convention for PETSCII control character literals.)
+
+    \begin{quote}
+        \texttt{{\textbackslash}begin\{basiccode\} \\
+        10 PRINT "MEGA65 RULES!" \\
+        20 GOTO 10 \\
+        {\textbackslash}end\{basiccode\}}
+
+\begin{basiccode}
+10 PRINT "MEGA65 RULES!"
+20 GOTO 10
+\end{basiccode}
+    \end{quote}
+
+    When demonstrating BASIC code that contains PETSCII control code literals, or when including both BASIC commands and responses together, use the \texttt{screencode} environment. \emph{In the BASIC reference only,} use \texttt{screencode} consistently throughout the reference.
+
+    \begin{quote}
+        \texttt{{\textbackslash}begin\{screencode\} \\
+        READY. \\
+        PRINT "HELLO" \\
+        HELLO \\
+        \\
+        READY. \\
+        {\textbackslash}end\{screencode\}}
+
+\begin{screencode}
+READY.
+PRINT "HELLO"
+HELLO
+
+READY.
+\end{screencode}
+    \end{quote}
+
+    To typeset a block of assembly language code, use \texttt{asmcode}. This mode typesets 45GS02 instructions and Acme assembler directives. Use uppercase letters for opcodes, and mixed case ASCII as it would appear in a source file otherwise.
+
+    \begin{quote}
+        \texttt{{\textbackslash}begin\{asmcode\} \\
+        LDA \#\$52   ; MAPLO = select \$2 offset \$45200 \\
+        LDX \#\$24 \\
+        LDY \#\$00   ; MAPHI = select \$B offset \$30000 \\
+        LDZ \#\$B3 \\
+        MAP \\
+        EOM \\
+        {\textbackslash}end\{asmcode\}}
+
+\begin{asmcode}
+LDA #$52   ; MAPLO = select $2 offset $45200
+LDX #$24
+LDY #$00   ; MAPHI = select $B offset $30000
+LDZ #$B3
+MAP
+EOM
+\end{asmcode}
+    \end{quote}
+
+    To include a source code listing from another file, use the \texttt{{\textbackslash}basicinput} directive for BASIC, \texttt{{\textbackslash}asminput} for assembly language, or \texttt{{\textbackslash}lstinputlisting} for all others. For more information, see \href{https://mirror.ox.ac.uk/sites/ctan.org/macros/latex/contrib/listings/listings.pdf}{the Listings package documentation}.
+
+    \begin{quote}
+        \texttt{{\textbackslash}basicinput\{examples/ex1.bas\}}
+
+        \texttt{{\textbackslash}asminput\{examples/mapdemo.s\}}
+
+        \texttt{{\textbackslash}lstinputlisting[language=C]\{examples/bounce.c\}}
+    \end{quote}
+\end{sgentry}
+
+\begin{sgentry}{titles}{Titles}
+    See \sg{headings}.
+\end{sgentry}
+
+\begin{sgentry}{units}{Units}
+    When a number refers to a measure of something, follow the number with a space, then the unit of measure: 3.5 mm.
+
+    When referring to a unit in the abstract, spell out the word: ``Sound data can be many megabytes in size.''
+
+    Data sizes use vintage binary prefixes (\emph{not} modern IEC 60027-2 standard prefixes):
+
+    \begin{center}
+    \begin{tabular}{|c|c|l|}
+        \hline
+        \textbf{Unit} & \textbf{Abbreviation} & \textbf{Amount in bytes} \\
+        \hline
+        byte & B & 1 \\
+        kilobyte & KB & 1,024 \\
+        megabyte & MB & 1,048,576 \\
+        gigabyte & GB & 1,073,741,824 \\
+        \hline
+    \end{tabular}
+    \end{center}
+
+    Typically, there is no need to provide additional clarification when data sizes with decimal units are used. This is only likely to matter when referring to the capacity of SD cards. The reader is expected to know the difference.
+
+    Frequencies use the SI unit abbreviations, with decimal multiples:
+
+    \begin{center}
+    \begin{tabular}{|c|c|l|}
+        \hline
+        \textbf{Unit} & \textbf{Abbreviation} & \textbf{Amount in hertz} \\
+        \hline
+        hertz & Hz & 1 \\
+        kilohertz & kHz & 1,000 \\
+        megahertz & MHz & 1,000,000 \\
+        \hline
+    \end{tabular}
+    \end{center}
+
+    See also \sg{numbers}, \sg{8-bit}.
+\end{sgentry}
+
+\begin{sgentry}{user-interfaces}{User interfaces}
+    There are three major categories of user interface described by MEGA65 documentation: visual user interfaces (PC or MEGA65), a PC command line interface (Linux shell, Windows command prompt), and the BASIC 65 ``READY.'' prompt.
+
+    When referring to a text label of a visual user interface, use bold text, and describe it as it appears in the interface. Refer to menus and buttons with the noun ``menu'' or ``button,'' and use only the label in other cases.
+
+    \begin{quote}
+        \texttt{the {\textbackslash}textbf\{File\} menu}
+
+        the \textbf{File} menu
+    \end{quote}
+
+    When referring to a PC command line command or flag name, use typewriter text.
+
+    \begin{quote}
+        \texttt{the {\textbackslash}texttt\{mega65{\textbackslash}\_ftp\} command}
+
+        the \texttt{mega65\_ftp} command
+    \end{quote}
+
+    Prefer verbatim code blocks to inline text when referring to full commands.
+
+    \begin{quote}
+        \texttt{{\textbackslash}begin\{verbatim\} \\
+        mega65\_ftp -e -c 'put file.d81' -c 'exit' \\
+        {\textbackslash}end\{verbatim\}}
+
+        % \begin{verbatim}
+        %     mega65_ftp -e -c 'put file.d81' -c 'exit'
+        % \end{verbatim}
+    \end{quote}
+
+    For information on typesetting BASIC keywords, see \sg{basic}. Prefer the \texttt{basiccode} environment for typesetting BASIC commands, and \texttt{screencode} for typesetting BASIC commands with expected replies. See \sg{source-code}.
+\end{sgentry}
 
 %%%
 

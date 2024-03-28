@@ -34,6 +34,50 @@ GENERATED_TEX_FILES= 	document-memory \
 			unicode_mapping.tex
 			#images/illustrations/screen-40x25-addresses16-80.pdf
 
+DOCUMENT_MEMORY_FILES= \
+			regtable_AUDIO.MEGA65.tex \
+			regtable_AUDIOMIX.MEGA65.tex \
+			regtable_AUTOIEC.MEGA65.tex \
+			regtable_AUXFPGA.MEGA65.tex \
+			regtable_CIA1.C64.tex \
+			regtable_CIA1.MEGA65.tex \
+			regtable_CIA2.C64.tex \
+			regtable_CIA2.MEGA65.tex \
+			regtable_CPU.C64.tex \
+			regtable_CPU.MEGA65.tex \
+			regtable_DEBUG.MEGA65.tex \
+			regtable_DMA.C65.tex \
+			regtable_DMA.MEGA65.tex \
+			regtable_ETH.MEGA65.tex \
+			regtable_ETHCOMMAND.MEGA65.tex \
+			regtable_F011.MEGA65.tex \
+			regtable_FDC.C65.tex \
+			regtable_FDC.MEGA65.tex \
+			regtable_FPGA.MEGA65.tex \
+			regtable_FSERIAL.MEGA65.tex \
+			regtable_HCPU.MEGA65.tex \
+			regtable_KBD.MEGA65.tex \
+			regtable_MATH.MEGA65.tex \
+			regtable_MISC.MEGA65.tex \
+			regtable_MISCIO.MEGA65.tex \
+			regtable_NONE.MEGA65.tex \
+			regtable_QSPI.MEGA65.tex \
+			regtable_RTC.MEGA65.tex \
+			regtable_SD.MEGA65.tex \
+			regtable_SDFDC.MEGA65.tex \
+			regtable_SID.MEGA65.tex \
+			regtable_SUMMARY.C65.tex \
+			regtable_SUMMARY.MEGA65.tex \
+			regtable_SYSCTL.MEGA65.tex \
+			regtable_TOUCH.MEGA65.tex \
+			regtable_TOUGH.MEGA65.tex \
+			regtable_UART.C65.tex \
+			regtable_UART.MEGA65.tex \
+			regtable_UARTMISC.MEGA65.tex \
+			regtable_VIC-II.C64.tex \
+			regtable_VIC-III.C65.tex \
+			regtable_VIC-IV.MEGA65.tex
+
 COMPILED_BINARIES= 	document-memory \
 			generate_condensed \
 			keymap \
@@ -42,6 +86,20 @@ COMPILED_BINARIES= 	document-memory \
 			instruction_set \
 			libc-doc \
 			prg2tex
+
+BIBLIOGRAPHIES=	mega65-assembly-reference.bbl \
+			mega65-basic65-reference.bbl \
+			mega65-book.bbl \
+			mega65-chipset-reference.bbl \
+			mega65-developer-guide.bbl
+
+LISTING_FILES=	mega65-assembly-reference.listing \
+			mega65-basic65-reference.listing \
+			mega65-book.listing \
+			mega65-chipset-reference.listing \
+			mega65-developer-guide.listing \
+			mega65-userguide-lulu.listing \
+			mega65-userguide.listing
 
 .PHONY: $(BOOKS) all clean generate-diagrams
 
@@ -203,11 +261,14 @@ generate-diagrams:
 
 clean:
 	latexmk -CA
+	rm -f $(BIBLIOGRAPHIES)
 
 realclean: clean
 	rm -f gitinfo.tex
 	rm -f $(GENERATED_TEX_FILES)
 	rm -f $(COMPILED_BINARIES)
+	rm -f $(LISTING_FILES)
+	rm -f $(DOCUMENT_MEMORY_FILES)
 
 format:
 	find . -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' | xargs clang-format --style=file -i

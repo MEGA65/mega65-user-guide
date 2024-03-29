@@ -16,8 +16,6 @@ The target audience for the MEGA65 documentation consists of hobbyist personal c
 
 The voice of the documentation is casual, warm, and polite. {\emph MEGA65 enthusiasts are international.} Avoid colloquialisms or examples that depend on cultural context. Use concise and consistent language. Avoid jargon: define special terms, and avoid unnecessary synonyms. Keep sentences and paragraphs short. Use tables, lists, and diagrams to organise concepts visually.
 
-This style guide is organised alphabetically by topic and term. Writing and typesetting concepts begin with a capital letter.
-
 If you have any questions, please ask in the {\tt \#documentation} channel on the MEGA65 Discord, or file an issue in the {\tt mega65-user-guide} Github repo.
 
 \begin{itemize}
@@ -51,6 +49,7 @@ make: *** [styleguide.pdf] Error 12
 
 There was a build error. Examine the build output, or the \texttt{.log} file for the build target, for lines that begin with an exclamation point (\texttt{!}). The word ``error'' may or may not appear near the error message. Look for the first error: subsequent error messages may be caused by the first.
 
+Many ``warning'' messages can be ignored, especially ``undefined references'' and ``Overfull {\textbackslash}hbox'' or ``Underfull {\textbackslash}hbox.'' These messages may or may not indicate problems.
 
 \section{Special Characters}
 
@@ -206,6 +205,7 @@ Example\footnote{This is an example footnote.} \\
     Table \\
     \textbullet~\sg{tables}
 } &
+\multicolumn{2}{l@{}|}{
 \makecell[l]{
     \texttt{{\textbackslash}begin\{center\}} \\
     \texttt{{\textbackslash}begin\{tabular\}\{|l|c|r|\}} \\
@@ -218,68 +218,151 @@ Example\footnote{This is an example footnote.} \\
     \texttt{{\textbackslash}hline} \\
     \texttt{{\textbackslash}end\{tabular\}} \\
     \texttt{{\textbackslash}end\{center\}}
+}}
+\\
+\hline
+
+\makecell[l]{
+    Images \\
+    \textbullet~\sg{figures} \\
+    \textbullet~\sg{screenshots}
 } &
+\multicolumn{2}{l@{}|}{
+\makecell[l]{
+    \texttt{{\textbackslash}begin\{center\}} \\
+    \texttt{{\textbackslash}includegraphics[width=0.9{\textbackslash}linewidth]\{images/...\}} \\
+    \texttt{{\textbackslash}end\{center\}}
+}}
+\\
+\hline
+
+\makecell[l]{
+    Code blocks \\
+    \textbullet~\sg{source-code}
+} &
+\multicolumn{2}{l@{}|}{
+\makecell[l]{
+    \texttt{{\textbackslash}begin\{basiccode\}} \\
+    \texttt{10 PRINT "MEGA65 RULES!"} \\
+    \texttt{20 GOTO 10} \\
+    \texttt{{\textbackslash}end\{basiccode\}} \\
+    \\
+    \texttt{{\textbackslash}begin\{asmcode\}} \\
+    \texttt{LDA \#\$52} \\
+    \texttt{LDX \#\$24} \\
+    \texttt{LDY \#\$00} \\
+    \texttt{LDZ \#\$B3} \\
+    \texttt{MAP} \\
+    \texttt{EOM} \\
+    \texttt{{\textbackslash}end\{asmcode\}} \\
+    \\
+    \texttt{{\textbackslash}begin\{lstlisting\}} \\
+    \texttt{...} \\
+    \texttt{{\textbackslash}end\{lstlisting\}}
+}}
 \\
 \hline
 
 \end{longtable}
 
-* Figures, diagrams, and images
-* Screenshots
 
-% \begin{center}
-% \includegraphics[width=0.9\linewidth]{images/...}
-% \end{center}
+\section{Keyboard keys}
 
-* Code listings
-* Inline code
+The MEGA65 documentation includes special typesetting support for keyboard keys.
 
+When referring to a keyboard key, use one of the following commands.
 
-\section{MEGA65 and Commodore elements}
+\begin{center}
+\begin{tabular}{l l}
+\multicolumn{2}{l@{}}{Character, function, cursor keys} \\
+\hline
+\texttt{{\textbackslash}megakey\{A\}} & \megakey{A} \\
+\texttt{{\textbackslash}megakey\{F1\}} & \megakey{F1} \\
+\texttt{{\textbackslash}megakey\{\${\textbackslash}leftarrow\$\}} & \megakey{$\leftarrow$} \\
+\texttt{{\textbackslash}megakey\{\${\textbackslash}rightarrow\$\}} & \megakey{$\rightarrow$} \\
+\texttt{{\textbackslash}megakey\{\${\textbackslash}uparrow\$\}} & \megakey{$\uparrow$} \\
+\texttt{{\textbackslash}megakey\{\${\textbackslash}downarrow\$\}} & \megakey{$\downarrow$}
+\end{tabular}
+\end{center}
 
-* Keyboard keys
+\begin{center}
+\begin{tabular}{l l}
+\multicolumn{2}{l@{}}{Arrow character keys} \\
+\hline
+\texttt{{\textbackslash}megakeywhite\{\${\textbackslash}leftarrow\$\}} & \megakeywhite{$\leftarrow$} \\
+\texttt{{\textbackslash}megakeywhite\{\${\textbackslash}uparrow\$\}} & \megakeywhite{$\uparrow$}
+\end{tabular}
+\end{center}
 
-% \specialkey{...}
-% RETURN
-% SHIFT
-% SHIFT\\LOCK
-% CTRL
-% RUN STOP
-% INST\\DEL
-% CLR\\HOME
-% ESC
-% TAB
-% NO\\SCROLL
+\begin{center}
+\begin{tabular}{l l}
+\multicolumn{2}{l@{}}{Special keys} \\
+\hline
+\texttt{{\textbackslash}specialkey\{RUN{\textbackslash}{\textbackslash}STOP\}} & \specialkey{RUN\\STOP} \\
+\texttt{{\textbackslash}specialkey\{ESC\}} & \specialkey{ESC} \\
+\texttt{{\textbackslash}specialkey\{ALT\}} & \specialkey{ALT} \\
+\texttt{{\textbackslash}specialkey\{CAPS{\textbackslash}{\textbackslash}LOCK\}} & \specialkey{CAPS\\LOCK} \\
+\texttt{{\textbackslash}specialkey\{NO{\textbackslash}{\textbackslash}SCROLL\}} & \specialkey{NO\\SCROLL} \\
+\texttt{{\textbackslash}specialkey\{HELP\}} & \specialkey{HELP} \\
+\texttt{{\textbackslash}specialkey\{CLR{\textbackslash}{\textbackslash}HOME\}} & \specialkey{CLR\\HOME} \\
+\texttt{{\textbackslash}specialkey\{INST{\textbackslash}{\textbackslash}DEL\}} & \specialkey{INST\\DEL} \\
+\texttt{{\textbackslash}specialkey\{TAB\}} & \specialkey{TAB} \\
+\texttt{{\textbackslash}specialkey\{CTRL\}} & \specialkey{CTRL} \\
+\texttt{{\textbackslash}specialkey\{SHIFT{\textbackslash}{\textbackslash}LOCK\}} & \specialkey{SHIFT\\LOCK} \\
+\texttt{{\textbackslash}specialkey\{RETURN\}} & \specialkey{RETURN} \\
+\texttt{{\textbackslash}specialkey\{SHIFT\}} & \specialkey{SHIFT}
+\end{tabular}
+\end{center}
 
-% \widekey{...}
-% RESTORE
+\begin{center}
+\begin{tabular}{l l}
+\multicolumn{2}{l@{}}{Other keys} \\
+\hline
+\texttt{{\textbackslash}widekey\{RESTORE\}} & \widekey{RESTORE} \\
+\texttt{{\textbackslash}megasymbolkey} & \megasymbolkey \\
+\end{tabular}
+\end{center}
 
-% \megakey{...}
-% J
-% F1
-% $\leftarrow$
-% $\uparrow$
-% $\rightarrow$
-% $\downarrow$
+\section{PETSCII Glyphs}
 
-% \megakeywhite{...}
-% $\leftarrow$
-% $\uparrow$
+The MEGA65 documentation uses a special font for rendering PETSCII graphics characters as vector art. This is used exclusively in the PETSCII and screen code reference tables. For a complete list, see the tables themselves: \texttt{appendix-petsciicodes.tex} and \texttt{appendix-screencodes.tex}.
 
-% \megasymbolkey
+\begin{quote}
 
-* PETSCII glyphs
+\texttt{{\textbackslash}graphicsymbol\{a\}}
+\texttt{{\textbackslash}graphicsymbol\{A\}}
+\texttt{{\textbackslash}graphicsymbol\{j\}}
+\texttt{{\textbackslash}graphicsymbol\{J\}}
 
-% \graphicsymbol{...}
-% See appendix-petsciicodes.tex and appendix-screencodes.tex
-% Not actually used anywhere else yet
+\hrulefill
 
-* Screen text
+\graphicsymbol{a}
+\graphicsymbol{A}
+\graphicsymbol{j}
+\graphicsymbol{J}
 
-% \screentext{...}
-% \screentextwide{...} \stw{...}
-% \begin{screencode} ... \end{screencode}
-% How is the (broken) PETSCII char stuff supposed to work?
+\end{quote}
+
+\section{Screen Text}
+
+You can typeset text in a PETSCII font to represent text as it would appear on the MEGA65 screen. 80-column and 40-column variants are available.
+
+\begin{quote}
+    \texttt{Type your command at the {\textbackslash}screentext\{READY.\} prompt.}
+
+    \texttt{The message {\textbackslash}screentextwide\{38911 BASIC BYTES FREE\} indicates the available memory for your program.}
+
+    \hrulefill
+
+    Type your command at the \screentext{READY.} prompt.
+
+    The message \screentextwide{38911 BASIC BYTES FREE} indicates the available memory for your program.
+
+\end{quote}
+
+The \texttt{screencode} environment uses this font to render a block of verbatim text, to represent on-screen messages. See \sg{source-code}.
+
+\underline{NOTE}: There is a method to access PETSCII graphics characters in this environment using upper Unicode code points, but it is currently broken. (See \texttt{wrong.tex}.)
 
 %%%
 
@@ -339,12 +422,20 @@ Example\footnote{This is an example footnote.} \\
 
         the \textbf{speed} argument
     \end{quote}
-
-    Outside of the BASIC reference, refer to the keyword using uppercase letters without bold text, and avoid referring to arguments by name.
 \end{sgentry}
 
 \begin{sgentry}{basic-65}{BASIC 65}
     The dialect of the BASIC programming language available in MEGA65 mode. Not ``BASIC65.''
+\end{sgentry}
+
+\begin{sgentry}{basic-errors}{BASIC errors}
+    When referring to a BASIC error type, spell its message using initial capital letters, followed by the word ``error.''
+
+    \begin{quote}
+        This program terminates with a Division By Zero error.
+    \end{quote}
+
+    Do not use all-caps or the leading question mark as it appears on screen (not ``?DIVISION BY ZERO ERROR''). If presenting the error message as it appears on screen is necessary for orientation, use a \texttt{screencode} block. See \sg{source-code}.
 \end{sgentry}
 
 \begin{sgentry}{binary}{binary}
@@ -447,6 +538,10 @@ Example\footnote{This is an example footnote.} \\
     The base-10 numbering system. Avoid ``dec'' except as an abbreviation in a table heading.
 \end{sgentry}
 
+\begin{sgentry}{diagrams}{Diagrams}
+    See \sg{figures}.
+\end{sgentry}
+
 \begin{sgentry}{emphasis}{Emphasis}
     It is sometimes useful to emphasize a phrase or sentence. You can typeset this with the \texttt{{\textbackslash}emph\{...\}} directive.
 
@@ -459,6 +554,28 @@ Example\footnote{This is an example footnote.} \\
 
         \underline{NOTE}: \emph{Leave the computer switched on until this process is complete.}
     \end{quote}
+\end{sgentry}
+
+\begin{sgentry}{figures}{Figures}
+    In MEGA65 documentation, figures are centered, and unnumbered.
+
+    Authors are encouraged to use LaTeX diagramming markup to produce figures. This describes the diagram as revision-controlled text, can be generated by a script, and doesn't depend on external tools. It is also not everyone's idea of a good time. See \href{https://www.overleaf.com/learn/latex/Picture_environment}{Overleaf.com: Picture environment}.
+
+    Another option is to use an open source vector art tool. Draw.io (\url{https://app.diagrams.net/}) is a free diagramming tool, available for download or as a browser-based web app, and saves an open format. Inkscape (\url{https://inkscape.org/}) can edit SVG files directly.
+
+    When using an external tool, try to match the style of the rest of the document. Use black-on-white lines with no shadows. For label text, use the font \href{https://en.wikipedia.org/wiki/Liberation_fonts}{Liberation Sans}. For code-like text, use \href{https://fonts.google.com/specimen/Inconsolata}{Inconsolata}. Export as PDF, and commit both the PDF and the original source files (SVG or other) to the source repo.
+
+    \begin{quote}
+\begin{verbatim}
+\begin{center}
+\includegraphics[width=0.9\linewidth]{images/figure.pdf}
+\end{center}
+\end{verbatim}
+    \end{quote}
+
+    Avoid bitmap image formats (PNG, GIF, JPEG) for line art. Prefer line art to photographs when line art is an option.
+
+    See also \sg{screenshots}.
 \end{sgentry}
 
 \begin{sgentry}{footnotes}{Footnotes}
@@ -618,8 +735,38 @@ Example\footnote{This is an example footnote.} \\
     See also \sg{addresses}.
 \end{sgentry}
 
+\begin{sgentry}{screenshots}{Screenshots}
+    MEGA65 documentation can include images of the MEGA65 screen, or of PC software, to orient the user or illustrate a visual effect.
+
+    When depicting on-screen text, such as a command and its printed output, prefer \texttt{screencode}. See \sg{source-code}.
+
+    When depicting a full MEGA65 text screen that does not involve bitmap graphics or sprites, use the \texttt{m65} tool and a JTAG adapter to capture the image. This tool reproduces the text display in a way that produces a crisp image, without interference of video capture hardware.
+
+    \begin{quote}
+        \texttt{m65 -S}
+    \end{quote}
+
+    When depicting a MEGA65 screen not supported by the \texttt{m65} tool, you can use the Xemu emulator and take a PC screenshot, or you can use video capture hardware with the MEGA65. When using Xemu, be sure to crop the image to remove emulator UI. When using real hardware, be sure to disable CRT emulation to get the brightest, sharpest image.
+
+    You can also include screenshots of PC software. Take care to crop the screenshot to just the relevant portion of the image. PC screenshots tend to appear small in print.
+
+    Store the screenshot using the PNG file format.
+
+    \begin{quote}
+\begin{verbatim}
+\begin{center}
+\includegraphics[width=0.9\linewidth]{images/screen1.png}
+\end{center}
+\end{verbatim}
+    \end{quote}
+
+    See also \sg{figures}.
+\end{sgentry}
+
 \begin{sgentry}{source-code}{Source code}
-    LaTeX supports typesetting source code listings, either listed directly in the \texttt{.tex} file, or included from another file. Do not escape LaTeX special characters inside listings: LaTeX knows to do that automatically.
+    Computer source code is typeset as a block element, using tools specific to the programming language.
+
+    LaTeX supports typesetting source code listings, either listed directly in the \texttt{.tex} file, or included from another file. Do not escape LaTeX special characters inside listing environments: LaTeX knows to do that automatically.
 
     To typeset a block of BASIC code, use the \texttt{basiccode} environment. This mode typesets BASIC 65 keywords. Use uppercase letters, and avoid upper PETSCII characters. (We currently do not use a petcat-style convention for PETSCII control character literals.)
 
@@ -691,6 +838,28 @@ EOM
         \texttt{{\textbackslash}asminput\{examples/mapdemo.s\}}
 
         \texttt{{\textbackslash}lstinputlisting[language=C]\{examples/bounce.c\}}
+    \end{quote}
+
+    Prefer code blocks to code inline with paragraph text. You can usually use code name typesetting inline, then follow the paragraph with a code sample. See \sg{assembly-language}, \sg{basic}, \sg{user-interfaces}.
+
+    When inline code text is the best choice, typeset it with typewriter text:
+
+    \begin{quote}
+        \texttt{To set the border colour register: {\textbackslash}texttt\{POKE {\textbackslash}\$D020,6\} This has the same effect as the {\textbackslash}textbf\{BORDER\} command.}
+
+        \hrulefill
+
+        To set the border colour register: \texttt{POKE \$D020,6} This has the same effect as the \textbf{BORDER} command.
+    \end{quote}
+
+    There are ways to render inline text in a PETSCII-style font. Prefer typewriter text for legibility. If a situation calls for it:
+
+    \begin{quote}
+        \texttt{Type the command at the {\textbackslash}screentext\{READY.\} prompt.}
+
+        \hrulefill
+
+        Type the command at the \screentext{READY.} prompt.
     \end{quote}
 \end{sgentry}
 

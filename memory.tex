@@ -9,26 +9,26 @@ processing happens in memory, and programs are stored in and executed from memor
 With a Commodore-style hardware register architecture, every aspect of the
 computer's input and output involves manipulating values through the memory system.
 
-You can write a substantial program in MEGA65 BASIC without having to
-think about the computer's memory. The BASIC system and most of its commands
-represent data in terms of numbers, arrays, and strings stored in named variables.
-You never have to know how that data is represented as 1's and 0's, or which addresses
-refer to which data. That said, understanding how memory works can take your
-BASIC programs to the next level. You can invent new ways to manage your
-program's data, and interface directly with MEGA65 hardware. Some of the
-MEGA65's advanced capabilities are only accessible from memory registers.
+When you write programs in MEGA65 BASIC, you barely have to think about memory
+at all. The BASIC system and most of its commands represent data in terms of
+numbers, arrays, and strings stored in named variables. You never have to know
+how that data is represented as 1's and 0's, or which addresses refer to which
+data. That said, understanding how memory works can take your BASIC programs
+to the next level. You can invent new ways to manage your program's data, and
+interface directly with MEGA65 hardware. Some of the MEGA65's advanced
+capabilities are only accessible from memory registers.
 
 Like several systems in the MEGA65, the memory system is more sophisticated than you
-might expect, with multiple modes of operation. When you first turn on your
+might expect, with multiple modes of operation. When you first switch on your
 MEGA65, it starts with a memory configuration intended to support the
 BASIC 65 environment. A program can reconfigure the memory to take full
 advantage of the MEGA65's capabilities, or to make the memory environment
-compatible with a Commodore 64 (as \stw{GO64} does) or a Commodore 65.
+compatible with a Commodore 64 (as \textbf{GO64} does) or a Commodore 65.
 
 In this chapter, you will learn all about the MEGA65 memory system, with a
-focus on writing programs for the MEGA65 in BASIC or machine language. Complete
-descriptions of the memory features, including backwards compatibility features
-for the C64 and C65, are available in the appendicies.
+focus on writing programs for the MEGA65 in BASIC and assembly language.
+Complete descriptions of the memory features, including backwards
+compatibility features for the C64 and C65, are available in the appendices.
 
 \newpage
 \section{Memory Concepts}
@@ -47,11 +47,12 @@ A {\em bit} is a single digital signal with two possible values: off or on. A
 bit is often combined with other bits to represent more possible values. A byte
 is 8 bits, with 256 possible values.
 
-Bits and bytes are often used to represent numbers, and often have their values
-described as positive integers even when they represent other kinds of data.
-When discussing the bits of a byte, the bits are arranged in increasing place
-value from right to left. Bit 0 is the rightmost bit, also known as the
-``lowest'' bit.  Bit 7 is the leftmost bit, also known as the ``highest'' bit.\footnote{See
+Bits and bytes are often used to represent numbers, and often have their
+values described as positive integers even when they represent other kinds of
+data. When discussing the bits of a byte, the bits are arranged in increasing
+place value from right to left. Bit 0 is the rightmost bit, also known as the
+``least significant'' bit.  Bit 7 is the leftmost bit, also known as the
+``most significant'' bit.\footnote{See
 \bookvref{cha:decimal-binary-and-hexadecimal} for a complete explanation of
 binary and hexadecimal notation.}
 
@@ -85,14 +86,14 @@ binary and hexadecimal notation.}
 \end{center}
 
 A {\em nibble} is 4 bits. In computer architecture, the term ``nibble'' refers
-exclusively to one of the two halves of a byte. The {\em high nibble} is bits 7 --
-4, and the {\em low nibble} is bits 3 -- 0.
+to one of the two halves of a byte. The {\em high nibble} is bits 7 -- 4, and
+the {\em low nibble} is bits 3 -- 0.
 
 \subsection{Hexadecimal Notation}
 
-Hexadecimal (``hex'') is a numbering system using sixteen possible values per digit,
+Hexadecimal is a numbering system using sixteen possible values per digit,
 written as numerals 0 -- 9 followed by letters A -- F. It is especially
-convenient when describing values in computer memory because each hex digit
+convenient when describing values in computer memory because each hexadecimal digit
 represents a nibble (4 bits) of data. The 8-bit binary value \texttt{\%01101011} can be
 read as the two nibbles \texttt{0110 1011}, or \$6B in hexadecimal.
 
@@ -129,7 +130,8 @@ with ``0'' digits on the right, and stop just before the start of the next regio
 For example, \$2000 -- \$2FFF represents a 4KB region.
 
 You can enter numbers as hexadecimal in BASIC using the dollar sign prefix
-(\$). To display the decimal equivalent of a hexadecimal number in BASIC:
+(\$). For example, to display the decimal equivalent of a hexadecimal number
+in BASIC:
 
 \begin{basiccode}
 PRINT $C000
@@ -145,22 +147,21 @@ PRINT HEX$(127)
 When programming in assembly language or using a machine language
 monitor, addresses and values are presented in hexadecimal by default.
 
-Much like how commas are used to separate decimal digits in long numbers, this
-book sometimes uses a dot (.) to separate groups of four hex digits to make
-them easier to read: FFF.FFFF. You do not type the dot when entering a long
-address into a program or command. To enter FFF.FFFF in BASIC, type
-\stw{\$FFFFFFF}.
+This book sometimes uses a dot (.) to separate groups of four hex digits to
+make them easier to read: FFF.FFFF. You do not type the dot when entering a
+long address into a program or command. To enter FFF.FFFF in BASIC, type:
+\texttt{\$FFFFFFF}
 
 Each hex digit represents a nibble of a value. The value FFF.FFFF can be
 represented in seven nibbles (28 bits).
 
 \subsection{Random Access Memory}
 
-{\em Random Access Memory}, or RAM, is memory that contains data temporarily. A
-program can read from and write to this data. When the computer is turned off,
-this data is deleted. A program that needs to
-preserve this data must save it to a long-term storage device like a floppy
-disk (or the MEGA65 SD card) before the computer is powered down.
+{\em Random Access Memory} (RAM) is memory that contains data temporarily.
+A program can read from and write to this data. When the computer is switched
+off, this data is deleted. A program that needs to preserve this data must
+save it to a long-term storage device like a floppy disk (or the MEGA65 SD
+card) before the computer is switched off.
 
 Try this. Enter the following command at the \screentext{READY.} prompt:
 
@@ -179,14 +180,14 @@ The {\bf PEEK()}\index{BASIC 65 Commands!PEEK} function evaluates to the byte
 value stored at the memory address \$1800, in this case 127. The {\bf
 PRINT}\index{BASIC 65 Commands!PRINT} command outputs this value.
 
-Try turning off your MEGA65, turning it back on, and executing
-\screentext{PRINT PEEK(\$1800)} again. The RAM value is reset.
+Switch off your MEGA65, switch it back on, and execute
+\texttt{PRINT PEEK(\$1800)} again. The RAM value is reset.
 
 \subsection{Read-Only Memory}
 
-{\em Read-Only Memory}, or ROM, contains data that is written permanently at
+{\em Read-Only Memory} (ROM) contains data that is written permanently at
 the factory. Like other vintage microcomputers, the Commodore 65 has a ROM chip
-that contains the program code for the operating system: BASIC, the kernel,
+that contains the program code for the operating system: BASIC, the KERNAL,
 routines for accessing peripherals and performing common calculations. ROM
 data cannot be overwritten directly by a program, and it remains in the
 computer when the computer is turned off.
@@ -214,10 +215,11 @@ as ROM when accessed in this way.
 \subsection{I/O Registers}
 
 Some addresses refer to special memory cells used by the computer's hardware.
-These are known as {\em I/O registers}. You can interact with the hardware by writing
-data to and reading data from these addresses. This is how BASIC commands
-display graphics, play sounds, and read joysticks: they read and set values in
-the I/O registers.
+These are known as {\em I/O registers}. You can interact with the hardware by
+writing data to and reading data from these addresses. This is how BASIC
+commands display graphics, play sounds, and read joysticks: they read and set
+values in the I/O registers. (``I/O'' refers to the data behaving as
+\emph{input} to and \emph{output} from these devices.)
 
 Try this command. Try replacing 7 with another number between 0 and 31.
 
@@ -249,7 +251,7 @@ eight-digit number with the leftmost digit of 0. (This digit is typically
 omitted from notation.)
 
 The BASIC {\bf POKE} command and {\bf PEEK()} function can use 28-bit
-addresses. For example, to store then retrieve a value from RAM at address \$8000000:
+addresses. For example, to store then retrieve a value from RAM at address 800.0000:
 
 \begin{basiccode}
 POKE $8000000,63
@@ -264,14 +266,14 @@ at that address, and will ignore attempts to write it.
 The MEGA65's memory system allows programs to refer to memory using 16-bit
 addresses. To determine the full 28-bit address, the memory system translates
 the address according to rules that can be set by the program. This translation
-is also known as {\em remapping}, or, in some contexts, {\em
-banking}.
+is also known as {\em remapping}, or, in some contexts, {\em banking}.
 
-16-bit address translation provides many advantages. The 45GS02 CPU processes
-16-bit addresses faster than 32-bit addresses. 16-bit addresses take up less
-space in memory when stored. Most program tasks operate in a single 64KB region
-of memory, so it is often convenient for a program to set the memory
-configuration at the beginning of a task and use 16-bit addresses.
+16-bit address translation provides several advantages. The 45GS02 CPU
+processes 16-bit addresses faster than 32-bit addresses. 16-bit addresses take
+up less space in memory when stored. Most program tasks operate in a single
+64KB region of memory, so it is often convenient for a program to set the
+memory configuration at the beginning of a task and use 16-bit addresses to
+access that region.
 
 Address translation is a common feature of most microcomputers. The Commodore
 64 uses banking to allow programs to access 64KB of RAM {\em and} additional
@@ -280,16 +282,16 @@ designed such that the memory system could be configured to resemble a
 Commodore 64 memory map through 16-bit address translation, and also support
 C64-style banking of ROM and I/O registers.
 
-Overall, the MEGA65 provides multiple mechanisms of address translation. Memory
+The MEGA65 provides multiple mechanisms of address translation. Memory
 system configuration is one of the more complex topics of MEGA65 programming,
 and this chapter covers it in detail.
 
 \subsection{Banks and Pages}
 
-MEGA65 addresses can be divided into regions of 64KB known as {\em banks}. It's
-easy to identify the bank given an address specified in hexadecimal: the bank
-number is the leftmost digits of the address, and the rightmost four digits are
-a location within the bank.
+MEGA65 addresses can be divided into regions of 64KB known as {\em banks}.
+It's easy to identify the bank given an address specified in hexadecimal: the
+leftmost digits of the address are the bank number, and the rightmost four
+digits are a location within the bank.
 
 \medskip
 \begin{center}
@@ -308,7 +310,7 @@ a location within the bank.
 \end{center}
 \medskip
 
-For example, the address 3.FDA8 (or \$003FDA8) is an address in bank \$3. The
+For example, the address 3.FDA8 (\$003FDA8) is an address in bank \$3. The
 address 0.1800 (\$0001800) is an address in bank \$0. The address 880.12AB
 (\$88012AB) is in bank \$880.\footnote{In a few cases, this is better understood as
 ``megabyte \$88, bank \$0, offset \$12AB.''}
@@ -335,12 +337,12 @@ group them in pairs, starting from the {\em rightmost} pair. Each pair of
 digits is a byte value. For example, the address \$853FDA8 can be represented
 by the bytes \$A8, \$FD, \$53, and \$08.
 
-This ordering of the bytes from right to left is known as {\em Little Endian
-byte order}. The MEGA65 stores multi-byte values using Little Endian byte
+This ordering of the bytes from right to left is known as {\em little-endian
+byte order}. The MEGA65 stores multi-byte values using little-endian byte
 order by convention. The 45GS02 CPU, I/O registers, and other routines expect
 addresses to be stored in this way.\footnote{There exist computers that use the
-opposite ordering convention, known as {\em Big Endian} byte order. Most
-microcomputers use the Little Endian convention.}
+opposite ordering convention, known as {\em big-endian} byte order. Most
+microcomputers use the little-endian convention.}
 
 For example, to store the 28-bit address 853.FDA8, you need four bytes of
 memory. To store this at memory locations 0.1800 -- 0.1803, you would
@@ -368,7 +370,7 @@ bits for something else. You must take care when writing such addresses that
 the upper bits retain appropriate values. This is typically done with Boolean
 logic to ``mask'' the upper bits.
 
-The following BASIC example sets the variable \stw{B} to \$A9, then updates it
+The following BASIC example sets the variable \texttt{B} to \$A9, then updates it
 such that the upper nibble is preserved and the lower nibble is set to \$3.
 Try to guess what this will print before running it.
 
@@ -385,10 +387,10 @@ addition to a ``bank nibble'' and two bytes for the lower part of the address.
 An example of this will be explained later in this chapter.
 
 BASIC 65 includes commands for reading and writing 16-bit values as bytes
-without having to convert to Little Endian explicitly. {\bf WPOKE addr,val}
-sets {\bf addr} to the low byte of {\bf val} and {\bf addr+1} to the high byte.
-Similarly, {\bf WPEEK(addr)} reads the bytes at {\bf addr} and {\bf addr+1} and
-evaluates to the 16-bit number.
+without having to convert to little-endian ordering explicitly. {\bf WPOKE
+addr,val} sets {\bf addr} to the low byte of {\bf val}, and {\bf addr+1} to
+the high byte of {\bf val}. Similarly, {\bf WPEEK(addr)} reads the bytes at
+{\bf addr} and {\bf addr+1} and evaluates to the 16-bit number.
 
 \begin{basiccode}
 WPOKE $1900,$FFD2
@@ -396,7 +398,7 @@ WPOKE $1900,$FFD2
 
 BASIC does not have dedicated commands for reading or writing 32-bit values,
 but you can use the 16-bit commands to handle two bytes at a time. Take care to
-use Little Endian order for each half:
+use little-endian order for each half:
 
 \begin{basiccode}
 WPOKE $1802, $0853
@@ -413,8 +415,7 @@ The 28-bit addresses form an {\em address space} in the range 000.0000
 registers and other specialty devices. The remaining addresses are unassigned, reserved
 for future use by expansion hardware and future versions of the computer.
 
-A MEGA65 (board revision R3A) and a DevKit (R3) have three major regions of
-assigned address space:
+The MEGA65 and the DevKit have three major regions of assigned address space:
 
 \begin{itemize}
 \item {\bf Chip RAM}, 384KB, in range 000.0000 -- 005.FFFF
@@ -429,7 +430,7 @@ and future models. Nexys boards do not have Attic RAM. See
 Chip RAM is the primary working space for the MEGA65. It contains program code,
 the MEGA65 ROM code, and space for variables and other data. It is called ``Chip
 RAM'' because it can be accessed by the CPU running at full speed. BASIC and
-kernel functions use portions of Chip RAM, and your BASIC and machine code
+KERNAL functions use portions of Chip RAM, and your BASIC and machine code
 programs will make extensive use of it as well.
 
 Attic RAM provides expanded memory for general use, with a few limitations.
@@ -450,7 +451,7 @@ registers. See \bookvref{cha:memory-map} for a detailed list of upper I/O region
 \newpage
 \section{The Chip RAM Memory Map}
 
-The following table summarizes how the MEGA65 kernel and BASIC use Chip RAM.
+The following table summarizes how the MEGA65 KERNAL and BASIC use Chip RAM.
 
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{|L{1.5cm}|L{1.5cm}|p{6cm}|}
@@ -471,7 +472,7 @@ The following table summarizes how the MEGA65 kernel and BASIC use Chip RAM.
 \hline
 \small 0.0001 & \small 0.0001 & \multicolumn{1}{p{6cm}|}{CPU I/O Port Data}\\
 \hline
-\small 0.0002 & \small 0.15FF & \multicolumn{1}{p{6cm}|}{Kernel variables and data}\\
+\small 0.0002 & \small 0.15FF & \multicolumn{1}{p{6cm}|}{KERNAL variables and data}\\
 \hline
 \small 0.1600 & \small 0.1EFF & \multicolumn{1}{p{6cm}|}{Free for program use}\\
 \hline
@@ -536,7 +537,7 @@ addresses directly.
 \small 2.D000 & \small 2.DFFF & \multicolumn{1}{p{6cm}|}{C64 character set
 (C)}\\
 \hline
-\small 2.E000 & \small 2.FFFF & \multicolumn{1}{p{6cm}|}{C64 BASIC and kernel}\\
+\small 2.E000 & \small 2.FFFF & \multicolumn{1}{p{6cm}|}{C64 BASIC and KERNAL}\\
 \hline
 \hline
 \small 3.0000 & \small 3.1FFF & \multicolumn{1}{p{6cm}|}{Monitor}\\
@@ -549,13 +550,13 @@ addresses directly.
 \hline
 \small 3.D000 & \small 3.DFFF & \multicolumn{1}{p{6cm}|}{Character set B}\\
 \hline
-\small 3.E000 & \small 3.FFFF & \multicolumn{1}{p{6cm}|}{C65 kernel}\\
+\small 3.E000 & \small 3.FFFF & \multicolumn{1}{p{6cm}|}{C65 KERNAL}\\
 \hline
 \end{longtable}
 
 \subsection{How Programs Use Chip RAM}
 
-There are two common kinds of MEGA65 programs: programs written entirely in BASIC,
+The two most common kinds of MEGA65 programs are programs written entirely in BASIC,
 and programs written entirely in machine code (via assembly language, or a
 compiled language such as C or Rust).
 
@@ -564,20 +565,21 @@ A typical BASIC 65 program never accesses memory directly.\footnote{Commodore
 access memory and I/O registers for most functions like graphics, sound, and
 input devices. BASIC 65 provides dedicated commands for these functions.} It
 uses BASIC commands and language features to manipulate variables, arrays,
-strings, sprites, and bitmap graphics. The BASIC system uses all of Chip RAM to
-support these features, and manages memory configuration to access registers on
-behalf of the program. This requires that most of the ROM loaded and protected
-by the Hypervisor remain in place.
+strings, sounds, sprites, and bitmap graphics. The BASIC system uses all of
+Chip RAM to support these features, and manages memory configuration to access
+registers on behalf of the program. This requires that the ROM loaded and
+protected by the Hypervisor remain in place.
 
 A BASIC program that does not use the bitmap graphics system can repurpose the
-related memory regions for other purposes. This includes the region 0.1F00 --
-0.1FFF, and all of banks 4 and 5. If you intend to use bitmap graphics but
-need some spare Chip RAM for another purpose, you can use the {\bf
-MEM}\index{BASIC Commands!MEM} command to reserve blocks in banks 4 and 5. The
-graphics system knows to avoid regions reserved by {\bf MEM}, at the expense
-of needing to use fewer screens, lower resolution, or lower colour bit depth.
-For a description of the {\bf MEM} command, see \pageref{BASIC 65 Commands!MEM}.
-
+memory regions assigned to that feature for other purposes. This includes the
+region 0.1F00 -- 0.1FFF, and all of banks 4 and 5. If you intend to use bitmap
+graphics but need some spare Chip RAM for another purpose, you can use the
+{\bf MEM}\index{BASIC Commands!MEM} command to reserve blocks in banks 4 and
+5. The graphics system knows to avoid regions reserved by {\bf MEM}, at the
+expense of having less memory for more screens, higher resolution, or higher
+colour bit depth. For a description of the {\bf MEM} command, see
+\bookref{BASIC 65 Commands!MEM}.
+ß
 Some immediate mode BASIC tools, such as {\bf RENUMBER}, make temporary use of
 memory in banks 4 and 5. This does not affect a program that initialises its
 memory when it starts, but it may interfere with interactive tasks
@@ -594,7 +596,7 @@ program use.
 \begin{center}
 \begin{tabular}{m{0.14cm}m{0.06cm}m{1.45cm}m{0.21cm}m{1.4cm}m{0.1cm}m{0.1cm}m{3.3cm}m{3.3cm}l}
 \cline{1-1}\cline{3-9}
-\multicolumn{1}{|l|}{\rotatebox{90}{Kernel}} & \multicolumn{1}{l}{\ldots} &
+\multicolumn{1}{|l|}{\rotatebox{90}{KERNAL}} & \multicolumn{1}{l}{\ldots} &
 \multicolumn{1}{|l}{\rotatebox{90}{BASIC}} & \multicolumn{1}{|l}{\rotatebox{90}{DOS}} &
 \multicolumn{1}{|l}{\rotatebox{90}{BASIC}} & \multicolumn{1}{|l}{\rotatebox{90}{Res.}} &
 \multicolumn{1}{|l}{\rotatebox{90}{Colour}} & \multicolumn{1}{|l}{\rotatebox{90}{ROM}} &
@@ -614,14 +616,14 @@ start the program, but never returns control to the system after the program
 is invoked. Such a program is free to use any region of Chip RAM that would
 otherwise be used by BASIC.
 
-If the program calls the kernel, such as for disk functions, the program must
-avoid the areas of Chip RAM reserved for kernel use. It can do whatever it likes
+If the program calls the KERNAL, such as for disk functions, the program must
+avoid the areas of Chip RAM reserved for KERNAL use. It can do whatever it likes
 with the rest.
 
 \begin{center}
 \begin{tabular}{m{0.14cm}m{0.06cm}m{1.45cm}m{0.21cm}m{1.4cm}m{0.1cm}m{0.1cm}m{3.3cm}m{3.3cm}l}
 \cline{1-1}\cline{4-4}\cline{6-8}
-\multicolumn{1}{|l|}{\rotatebox{90}{Kernel}} & \multicolumn{1}{l}{\ldots} &
+\multicolumn{1}{|l|}{\rotatebox{90}{KERNAL}} & \multicolumn{1}{l}{\ldots} &
 \multicolumn{1}{l}{\ldots} & \multicolumn{1}{|l|}{\rotatebox{90}{DOS}} &
 \multicolumn{1}{l}{\ldots} & \multicolumn{1}{|l}{\rotatebox{90}{Res.}} &
 \multicolumn{1}{|l}{\rotatebox{90}{Colour }} & \multicolumn{1}{|l|}{\rotatebox{90}{ROM}} &
@@ -635,11 +637,11 @@ with the rest.
 \end{tabular}
 \end{center}
 
-If the program never needs to call the kernel, it can unlock and remove the
+If the program never needs to call the KERNAL, it can unlock and remove the
 ROM entirely, and claim every byte of the 384KB Chip RAM for its own purposes.
 Using a technique discussed later, if you don't need all 32KB of the MEGA65's
 colour RAM, you can repurpose the ``colour RAM window'' at 1.F800 as regular
-chip RAM.
+Chip RAM.
 
 \subsection{The Memory Map Contract}
 
@@ -658,26 +660,26 @@ It is a goal of the project to keep the Chip RAM memory map consistent with
 the table above across future versions of the MEGA65 ROM. To maintain future
 compatibility, programs should avoid relying on ``reserved'' regions as if
 they were free space. If a new mode or feature is introduced that changes the
-memory map, it will be something a program must request, such that older
-programs can expect the original memory map.
+memory map, the feature will be something a program must request, such that older
+programs that don't use the new feature can expect the original memory map.
 
 Within each block of the memory map, only some addresses are guaranteed to
 remain constant between ROM versions. For example, a machine code program can
-invoke kernel routines by calling addresses in a ``jump table,'' a set of
+invoke KERNAL routines by calling addresses in a ``jump table,'' a set of
 fixed addresses in ROM guaranteed to remain the same in future
 versions.\footnote{The jump table is not yet described in this book. The C65
-used the same jump table as the C128, and so far the MEGA65 ROM has not
-extended it. If a ROM revision expands this table, existing entries will
-remain constant. See the MEGA65 Wiki for a list:
+used the same jump table as the C128 with minor changes, and so far the MEGA65
+ROM has not extended it. If a ROM revision expands this table, existing
+entries will remain constant. See the MEGA65 Wiki for a list:
 \url{https://mega65.atlassian.net/}}
 
-Programs are not expected to read or modify kernel data directly, so these
-locations are not documented. Some memory locations, such as the location of
-screen memory, can be determined from (and adjusted by) registers. (See
+Except where explicitly documented, programs are not expected to read or
+modify KERNAL variables directly. Some memory locations, such as the location
+of screen memory, can be determined from (and adjusted by) registers. (See
 \bookvref{cha:viciv}.)
 
 The region of Chip RAM in 0.1600 -- 0.1EFF is guaranteed to be unused by the
-MEGA65 kernel and BASIC. 0.1F00 -- 0.1FFF is also available if you do not use the
+MEGA65 KERNAL and BASIC. 0.1F00 -- 0.1FFF is also available if you do not use the
 BASIC bitmap graphics system. This region is exposed as RAM in the default memory
 configuration, so it is useful for storing machine code and data that can be
 accessed from a BASIC program.
@@ -690,8 +692,8 @@ BASIC 65 includes several commands for accessing and manipulating memory, and
 for calling machine code subroutines:
 
 \begin{itemize}
-\item {\bf POKE address,value} : stores a value at an address
-\item {\bf WPOKE address,value} : stores a 16-bit value starting at an address
+\item {\bf POKE address, value} : stores a value at an address
+\item {\bf WPOKE address, value} : stores a 16-bit value starting at an address
 \item {\bf PEEK(address)} : reads a value at an address
 \item {\bf WPEEK(address)} : reads a 16-bit value starting at an address
 \item {\bf BLOAD filename [,args...]} : loads data into memory from a file
@@ -713,12 +715,12 @@ RAM described in the memory map as either ``Free for program use,'' or ``BASIC:
 program text.'' However, they seem to behave differently:
 
 \begin{itemize}
-\item \stw{POKE \$1800,127} behaves like RAM: it sets the memory at the address,
-and the memory can be read with \stw{PRINT PEEK(\$1800)}.
-\item \stw{POKE \$2010,63} behaves like ROM: attempting to set the memory does nothing,
-and reading the memory with \stw{PRINT PEEK(\$2010)} returns the original ROM value.
-\item \stw{POKE \$D020,7} behaves like an I/O register: it changes the colour of
-the border immediately. While this value can be read with \stw{PRINT
+\item \texttt{POKE \$1800,127} behaves like RAM: it sets the memory at the address,
+and the memory can be read with \texttt{PRINT PEEK(\$1800)}.
+\item \texttt{POKE \$2010,63} behaves like ROM: attempting to set the memory does nothing,
+and reading the memory with \texttt{PRINT PEEK(\$2010)} returns the original ROM value.
+\item \texttt{POKE \$D020,7} behaves like an I/O register: it changes the colour of
+the border immediately. While this value can be read with \texttt{PRINT
 PEEK(\$D020)}, it is not useful as memory because the border colour changes with the value.
 \end{itemize}
 
@@ -766,7 +768,7 @@ POKE $FFD2020,7
 
 The BASIC system itself uses Chip RAM directly in accordance with the Chip RAM
 memory map. For example, BASIC stores program text starting at 0.2000 in Chip
-RAM, even though the BASIC function \stw{PEEK(\$2000)} reads from 3.2000 using
+RAM, even though the BASIC function \texttt{PEEK(\$2000)} reads from 3.2000 using
 the default mapping mode.
 
 BASIC 65's remapping of addresses only applies to addresses in the range \$0000
@@ -790,7 +792,7 @@ to reach Attic RAM or upper I/O registers.
 
 To re-enable BASIC address remapping, execute {\bf BANK} with the argument 128.
 This does not refer to a bank in memory. Instead, it tells the {\bf BANK}
-command to re-enable mapped addresses.
+command to re-enable mapped addresses according to the table above.
 
 \begin{basiccode}
 BANK 128
@@ -814,7 +816,7 @@ BASIC commands, and comes with some limitations. Because {\bf SYS} transfers
 control to a custom routine, it needs to take extra precautions to preserve
 the system's access to memory used to support BASIC.
 
-Specifically, {\bf SYS} only the {\bf BANK} setting for addresses in the range
+Specifically, {\bf SYS} only uses the {\bf BANK} setting for addresses in the range
 \$2000 -- \$7FFF. Other addressees always go to either bank 0 RAM, KERNAL ROM,
 or I/O registers, as follows:
 
@@ -824,7 +826,7 @@ or I/O registers, as follows:
 \hline
 \$0000 -- \$1FFF & RAM in bank 0 \\
 \hline
-\$2000 -- \$7FFF & High word of address or {\bf BANK} setting \\
+\$2000 -- \$7FFF & Address with {\bf BANK} setting \\
 \hline
 \$8000 -- \$BFFF & RAM in bank 0 \\
 \hline
@@ -836,22 +838,22 @@ or I/O registers, as follows:
 \hline
 \end{tabular}
 
-{\bf SYS} ignores bit 7 of the {\bf BANK} setting. \stw{BANK 128} is
-equivalent to \stw{BANK 0} for {\bf SYS}. This differs from {\bf PEEK},
+{\bf SYS} ignores bit 7 of the {\bf BANK} setting. \texttt{BANK 128} is
+equivalent to \texttt{BANK 0} for {\bf SYS}. This differs from {\bf PEEK},
 {\bf POKE}, et al., which see ROM code from \$2000 -- \$BFFF with
-\stw{BANK 128}.
+\texttt{BANK 128}.
 
 \begin{basiccode}
 BANK 128
 SYS $1800        : rem Calls subroutine at 0.1800
 SYS $7000        : rem Calls subroutine at 0.7000
-SYS $FFD2,65     : rem Calls kernel ROM routine
+SYS $FFD2,65     : rem Calls KERNAL ROM routine
                  : rem (with an argument)
 
 BANK 1
 SYS $1800        : rem Calls subroutine in bank 0 at 0.1800
 SYS $7000        : rem Calls subroutine in bank 1 at 1.7000
-SYS $FFD2,65     : rem Calls kernel ROM routine at 3.FFD2
+SYS $FFD2,65     : rem Calls KERNAL ROM routine at 3.FFD2
                  : rem (with an argument)
 \end{basiccode}
 
@@ -864,8 +866,8 @@ ROM, or I/O registers).
 
 This restriction produces the counterintuitive behavior that, for {\bf SYS}, a
 long address doesn't necessarily refer to the memory at that address, and
-multiple addresses may refer to the same location in memory. \stw{SYS \$11800}
-and \stw{SYS \$41800} both behave like \stw{SYS \$1800}, which calls a
+multiple addresses may refer to the same location in memory. \texttt{SYS \$11800}
+and \texttt{SYS \$41800} both behave like \texttt{SYS \$1800}, which calls a
 subroutine at address 0.1800 in bank 0.
 
 \begin{basiccode}
@@ -877,7 +879,7 @@ SYS $17000       : rem Calls subroutine in bank 1 at 1.7000
 SYS $47000       : rem Calls subroutine in bank 4 at 4.7000
 SYS $57000       : rem Calls subroutine in bank 5 at 5.7000
 
-SYS $1FFD2,65    : rem Calls kernel ROM routine at 3.FFD2
+SYS $1FFD2,65    : rem Calls KERNAL ROM routine at 3.FFD2
                  : rem (with an argument)
 \end{basiccode}
 
@@ -908,50 +910,69 @@ the program can start even if the user changed the {\bf BANK} setting:
 
 You can also use {\bf SYS} to augment a BASIC program with machine code
 subroutines. A convenient location for these subroutines is in the \$1600 --
-\$1FFF range of bank 0. {\bf SYS} can access this location regardless of the
+\$1EFF range of bank 0. {\bf SYS} can access this location regardless of the
 current {\bf BANK} setting.
 
 
 \newpage
 \section{Using Memory from Machine Code}
 
-Every 45GS02 machine code instruction that operates on memory has one or more
-variants that can locate memory via {\em addressing modes}. One of these
-addressing modes operates on full 28-bit addresses, reading the full address
-from four consecutive bytes of memory in Little Endian order.
+Machine code programs access memory and registers, perform calculations, and
+make decisions about what code to execute next. This is all they do! A
+program performs input/output operations such as displaying an image, playing
+a sound, or reading a joystick all by interacting with memory and registers.
 
-For speed, space efficiency, and backwards compatibility with processors
-earlier in the MOS 6502 lineage, most 45GS02 addressing modes operate on 16-bit
-addresses. The 45GS02 calculates the complete 28-bit address from a special
-purpose register known as {\em the MAP register}. Setting this register
+Every 45GS02 machine code instruction that operates on memory supports one or
+more {\em addressing modes} that describes how the instruction accesses
+memory. One of these addressing modes operates on full 28-bit addresses,
+reading the full address from four consecutive bytes of memory in
+little-endian order. This mode is useful, but it is not the most efficient way
+to access memory in many cases: the CPU must spend time reading the 28-bit
+address and finding the memory location for the operation.
+
+Addressing modes that operate on 16-bit addresses are faster and more space
+efficient than 28-bit indirect addressing. Also, the CPU uses 16-bit addresses
+when referring to locations of machine code instructions: the CPU stores the
+address of the next instruction (the {\em program counter}) as a 16-bit value,
+and \texttt{jmp} and \texttt{jsr} instructions use 16-bit addresses.
+
+To make it possible to access any memory location with a 16-bit address, the
+45GS02 CPU maintains a {\em memory map} that associates 16-bit addresses with
+28-bit addresses. Your program can change the memory map using a special
+purpose register known as {\em the MAP register}. Setting the MAP register
 involves executing a sequence of special-purpose CPU instructions.
 
 With the MEGA65, three other mechanisms affect 16-bit memory address
-translation. The Commodore 64 ROM and I/O banking mechanism controlled by the
-CPU registers at addresses 0.0000 and 0.0001 is supported for backwards
-compatibility and access to I/O registers. The Commodore 65 has another ROM
-banking mechanism using a register at address \$D030. Finally, if a cartridge
-is inserted in the expansion port, additional rules expose cartridge data
-lines at specific 16-bit address banks.
+translation:
 
-Programs written for the MEGA65 can rely entirely on the MAP register for
-accessing memory. The C64, C65, and cartridge memory mapping mechanisms are
-included in the MEGA65 primarily for compatibility purposes.
+\begin{itemize}
+\item Commodore 64 ROM and I/O banking, controlled by the CPU registers at addresses 0.0000 and 0.0001
+\item Commodore 65 ROM banking, using a register at address \$D030
+\item Cartridge memory: if a cartridge is inserted in the expansion port, additional rules expose cartridge data lines at specific 16-bit address banks
+\end{itemize}
+
+Machine code programs written for the MEGA65 can rely entirely on the MAP
+register for accessing memory, and can leave the C64 and C65 memory
+configuration registers at their default settings. MAP overrides the other
+mechanisms for when the affected regions of 16-bit addresses are needed for
+other purposes.
 
 This section describes accessing memory with 45GS02 addressing modes and the
 MAP register. The other mapping mechanisms are discussed briefly later in the
 chapter. For complete documentation on addressing modes, see
-\bookvref{sec:addressing-modes}. For a detailed explantion of the banking
+\bookvref{sec:addressing-modes}. For a detailed explanation of the banking
 mechanisms, see \bookvref{cha:45gs02}.
 
 \subsection{The MAP Register}
 
-The MAP register remaps 8KB (\$2000) blocks of the 16-bit address space using an {\em
-offset}, an amount that's added to the 16-bit address to determine the final
-address. The offset must be a multiple of 256 bytes (\$100).
+The MAP register associates 16-bit addresses with 28-bit addresses using an
+{\em offset}, an amount added to the 16-bit address to calculate the final
+address.
 
-For example, if the block \$2000 -- \$3FFF is offset by \$45200, then accessing
-the 16-bit address \$335F will access physical address \$4855F (in bank 4).
+For example, say your program needs to access memory at address \$4855F using
+a 16-bit addressing mode. One possible memory map would be to assign an offset
+of \$45200 to the address region \$2000 -- \$3FFF. With this configuration,
+the 16-bit address \$335F accesses the actual address \$4855F in bank 4.
 
 \begin{center}
 \begin{tabular}{ccccc}
@@ -961,15 +982,11 @@ the 16-bit address \$335F will access physical address \$4855F (in bank 4).
 \end{tabular}
 \end{center}
 
-The 4510 CPU from the Commodore 65, on which the MEGA65's 45GS02 is based,
-supports offsets up to \$FFF00. This allows any 8KB block to be remapped anywhere in
-Chip RAM on a 256-byte boundary, including possible future RAM expansions up to
-1MB. (The 45GS02 also has a way to set larger offsets, discussed later.)
-
-The MAP register can store two offsets at a time, one for blocks in the range
-\$0000 -- \$7FFF (``MAPLO''), and one for blocks in the range \$8000 -- \$FFFF
-(``MAPHI''). It also stores a selection flag for each 8KB block that says
-whether the offset should be applied to that block.
+The MAP register remaps 8KB (\$2000) blocks of the 16-bit address space at a
+time. The MAP register can store two offsets, one for blocks in the
+range \$0000 -- \$7FFF (``MAPLO''), and one for blocks in the range \$8000 --
+\$FFFF (``MAPHI''). It also stores a selection flag for each 8KB block that
+says whether the offset should be applied to that block.
 
 Each 8KB address block is either ``unmapped'' or uses the MAP offset for its
 half (MAPLO or MAPHI). All mapped address blocks in the same half must share
@@ -1014,11 +1031,18 @@ X & A & Z & Y \\
 \end{tabular}
 \end{center}
 
-To set the MAP register, load the encoded bytes for MAPLO and MAPHI into the four CPU
-registers X, A, Z, and Y, then call the {\bf MAP} and {\bf EOM} (``end of MAP'')
-instructions. Notice the order of assignment of the registers. To set MAPLO, load X
-with the selection flags and the upper nibble of the offset, and load A with the lower
-nibbles of the offset. To set MAPHI, load Z and Y accordingly.
+The offset must be a multiple of 256 bytes (\$100). The 4510 CPU from the
+Commodore 65, on which the MEGA65's 45GS02 is based, supports offsets up to
+\$FFF00. This allows any 8KB block to be remapped anywhere in Chip RAM on a
+256-byte boundary, including possible future RAM expansions up to 1MB. (The
+45GS02 also has a way to set larger offsets, discussed later.)
+
+To set the MAP register, load the encoded bytes for MAPLO and MAPHI into the
+four CPU registers X, A, Z, and Y, then call the {\bf MAP} and {\bf EOM}
+(``end of MAP'') instructions. Notice the order of assignment of the
+registers. To set MAPLO, load X with the selection flags and the upper nibble
+of the offset, and load A with the lower nibbles of the offset. To set MAPHI,
+load Z and Y accordingly.
 
 \begin{asmcode}
 LDA #$52   ; MAPLO = select $2 offset $45200
@@ -1034,9 +1058,11 @@ the EOM instruction. You can substitute the NOP instruction for EOM, which
 uses the same encoding. Assemblers that support 65CE02 instructions use the
 AUG instruction for MAP.
 
-The MAP setting stays active until it is changed. Be aware that kernel
-routines change MAP for their own purposes. If your program depends on a MAP
-setting, it must restore that setting after calling a kernel routine.
+The MAP setting stays active until it is changed. Be aware that KERNAL
+routines depend on the default MAP setting, so be sure to restore the original
+memory map before calling the KERNAL.
+
+\subsection{Examining the MAP Register}
 
 You can examine the value of the MAP register using the Matrix Mode debugger, a
 serial console provided by the MEGA65 Hypervisor. To access the Matrix Mode
@@ -1052,7 +1078,7 @@ To see this in action, try the following:
 \begin{enumerate}
 \item Start the MEGA65 monitor with the {\bf MONITOR} command.
 \item Assemble the following machine language program at address \$1800 by
-entering the first line as: \stw{A1800 LDA \#\$52} The monitor will calculate
+entering the first line as: \texttt{A1800 LDA \#\$52} The monitor will calculate
 the subsequent addresses for each line. Press \specialkey{RETURN} without an
 instruction after the last line.
 
@@ -1062,23 +1088,39 @@ LDX #$24
 LDY #$00
 LDZ #$B3
 MAP
-NOP
+EOM
 JMP $180A
 \end{asmcode}
 
-\item Call this routine with the monitor's ``jump'' command: \stw{J1800} The
+\item Call this routine with the monitor's ``jump'' command: \texttt{J1800} The
 MEGA65 will enter an infinite loop and not return from the call, appearing to hang.
 \item Open the Matrix Mode debugger: hold \megasymbolkey, press \specialkey{TAB}.
 \item Press \specialkey{RETURN} to print a fresh set of registers. Notice the
-MAPH and MAPL values.
+\texttt{MAPH} and \texttt{MAPL} values.
 \end{enumerate}
 
-Be sure to set memory configuration correctly to avoid interrupt vectors jumping to
-invalid code. In this example, MAPHI is set to \$B300 to keep kernel ROM mapped
-into the higher banks. This is required to keep the default interrupt vectors
-pointing at valid kernel code. In general, use the SEI and CLI instructions to
-disable and re-enable interrupts while adjusting interrupt vectors and related
-memory configuration.
+\underline{NOTE}: The MAP instruction changes the MAP register value immediately. Take care not to change the memory map for the memory that contains the code that changes the memory map! If the memory map changes for the code's own address, control will never reach the EOM instruction.
+
+\subsection{MAP and Interrupts}
+
+When a CPU interrupt occurs, it pauses execution of the program, then calls an
+interrupt handler routine. The address of the interrupt handler routines (the
+interrupt {\em vectors}) are stored at 16-bit addresses \$FFFA -- \$FFFF, and
+are themselves 16-bit addresses.
+
+Both the location of the vectors and the addresses of the handlers are
+affected by the memory map. To give your code a chance to clean up the memory
+map without being interrupted, the MAP instruction disables interrupts
+(similar to SEI), and the EOM instruction re-enables interrupts (similar to
+CLI). This is true even if interrupts are already disabled when MAP is called:
+EOM will re-enable interrupts. If necessary, your program can perform
+additional instructions between the MAP and EOM.
+
+The default memory map keeps the MEGA65 KERNAL ROM mapped to \$E000 -- \$FFFF.
+This includes the KERNAL interrupt handlers and their vector addresses. If
+your program keeps the KERNAL interrupt handlers active, it must make sure
+\$E000 -- \$FFFF is mapped to 3.E000 -- 3.FFFF (with a MAPHI offset of
+\$30000) while interrupts are enabled.
 
 \subsection{Using 28-bit Addresses in Machine Code}
 
@@ -1086,7 +1128,7 @@ The 45GS02 CPU includes an addressing mode for accessing 28-bit addresses
 directly, without 16-bit address translation. While technically this mode
 requires more CPU cycles to execute, the convenience often outweighs this cost
 when accessing single upper-memory addresses, or when accessing memory via
-pointers, compared to using the MAP register. They also bypass banking and
+pointers, compared to using the MAP register. This mode also bypasses banking and
 remapping, allowing a program to preserve a MAP register value that might be
 used by other code.
 
@@ -1100,7 +1142,7 @@ page address where the address is stored:
 
 \begin{asmcode}
 ; Select base page $1600.
-; (This preserves compatibility with the kernel, which
+; (This preserves compatibility with the KERNAL, which
 ; reserves base page $0000.)
 LDA #$16
 TAB
@@ -1137,7 +1179,7 @@ See \bookvref{cha:45gs02} for more information about addressing modes.
 This is primarily how BASIC's BANK system works. If BANK is set to 0 -- 5, or
 a program accesses an address greater than \$FFFF, commands like POKE and PEEK
 use Base-Page Quad Indirect Z-Indexed Addressing Mode, writing the full
-address to a location reserved in the kernel's base page. This bypasses
+address to a location reserved in the KERNAL's base page. This bypasses
 address translation without having to change the memory configuration. (The
 SYS command does something more complex, which is why it comes with unusual
 limitations.)
@@ -1478,24 +1520,36 @@ possible MEGA65 extended job tokens, see \bookvref{cha:dmagic}.
 
 \subsection{Invoking an Enhanced Job List in Memory}
 
-To invoke an enhanced DMA job list from a record stored in memory, set the
-\$D702 register to the highest byte of the address, then set \$D701
-to the middle byte, then finally set {\bf \$D705} to the lowest byte.
+An enhanced DMA job list can reside anywhere in memory, and can be referred to
+using either a physical 28-bit address, or a 16-bit address reassigned via
+MAP.
 
-Notice two important things:
+To invoke an enhanced DMA job list from a record stored at a 28-bit address,
+write the address to the following registers, in this order:
 
-\begin{itemize}
-\item The final low byte goes in register \$D705. This indicates that you are using an
-enhanced DMA job list and not a C65-compatible DMA job list (which would put
-the low byte in \$D700).
-\item The registers must be set {\em in this order}, with the low
-byte in \$D705 set last. Setting this register immediately pauses the execution of CPU
-instructions and begins execution of the DMA job.
-\end{itemize}
+\begin{enumerate}
+\item \$D704: highest address byte (the megabyte)
+\item \$D702: 2nd highest address byte (the bank)
+\item \$D701: 3rd highest addresss byte (the page)
+\item \$D705: lowest address byte
+\end{enumerate}
+
+Notice that the register locations are not arranged consecutively.
+
+Writing the lowest address byte to \$D705 triggers execution of the job list,
+interpreting the address as a 32-bit physical address. To tell it to interpret
+the job list address using the CPU's view of the 16-bit address space
+(honoring the MAP register), write the final low byte to {\bf \$D706} instead.
+
+Addresses in the job list itself are never MAP'd addresses: DMA jobs always
+operate on physical addresses. Using {\bf \$D706} only changes the way the
+address of the job list is interpreted, and only if it's a 16-bit address.
 
 For example, to invoke an enhanced DMA job list stored at label {\tt dmajob}:
 
 \begin{asmcode}
+LDA #0
+STA $D704
 LDA #^dmajob
 STA $D702
 LDA #>dmajob
@@ -1519,13 +1573,12 @@ assembler syntax for the bank byte of the 24-bit address of the {\tt dmajob}
 symbol. Adapt this to your assembler's syntax, or hard-code this value if you
 know which bank will contain the {\tt dmajob} memory.
 
-
 \subsection{Invoking an Enhanced Job List Inline with Code}
 
 As an alternative to preparing a job list in memory, you can put the job list
 inline with your machine code. This is a convenient way to write a DMA job as
 if it were an instruction with pre-determined values. To do so, use the
-\stw{STA \$D707} instruction (with any accumulator value), followed by assembler
+\texttt{STA \$D707} instruction (with any accumulator value), followed by assembler
 directives to assemble the enhanced job list data structure. The 45GS02 CPU
 knows to give control to the DMA and advance the program counter beyond the end
 of the DMA job data.
@@ -1541,6 +1594,9 @@ STA $D707  ; DMA executes immediately
 ; Program continues...
 RTS
 \end{asmcode}
+
+Inline job lists are always read through the CPU's view of memory, as if the
+job list were CPU instructions.
 
 \subsection{The Enhanced Job List Format}
 
@@ -1698,7 +1754,7 @@ can never be truly compatible with the Commodore 65 prototype.
 In the Matrix Mode debugger,\footnote{Remember: To activate the Matrix Mode
 debugger, hold down \megasymbolkey and press \specialkey{TAB}. For more
 information about the Matrix Mode debugger, see \bookvref{sec:matrix-mode}.}
-the \stw{m} command displays data at a given memory location. For example,
+the \texttt{m} command displays data at a given memory location. For example,
 to display the contents of RAM starting at address 0.2000:
 
 \begin{basiccode}
@@ -1727,7 +1783,7 @@ space, just as they do on a C64.
 
 In a MEGA65, these registers serve two purposes: they bank in the I/O registers
 at \$D000 -- \$DFFF to overlay Chip RAM, and they provide access to the C64
-BASIC and kernel for C64 mode (\stw{GO64}).
+BASIC and KERNAL for C64 mode (\textbf{GO64}).
 
 To bank out the I/O registers such that the 16-bit addresses \$D000 -- \$DFFF
 access the underlying Chip RAM at 0.D000 -- 0.DFFF, clear bits 0 and 1 of
@@ -1814,8 +1870,8 @@ then those addresses refer to ROM in bank 2. Each of these ROM banking
 mechanisms use ROM in bank 2, so there is no conflict if they are both
 enabled.
 
-Notice that \$D030 does not bank in any of the MEGA65 kernel ROM from bank 3.
-The kernel itself uses the MAP register to access its own code, and only uses
+Notice that \$D030 does not bank in any of the MEGA65 KERNAL ROM from bank 3.
+The KERNAL itself uses the MAP register to access its own code, and only uses
 \$D030 banking to access ROM code at 2.C000 with ROMC enabled. As with the
 C64-style banking register, a typical MEGA65 program can leave the banking
 bits of \$D030 alone and use MAP to access RAM or ROM at these addresses as
@@ -1848,7 +1904,7 @@ configuration. Cartridge ROM mapping overrides \$D030-style memory mapping.
 
 \subsection{I/O Personalities}
 
-The I/O registers are the primary way the kernel, the BASIC interpreter, or a
+The I/O registers are the primary way the KERNAL, the BASIC interpreter, or a
 machine code program engage with the MEGA65 hardware. These registers behave
 like memory locations for setting values in hardware such as displaying
 graphics or making sound, or reading values from hardware such as user input on
@@ -1864,7 +1920,7 @@ configurations for these registers, known as {\em I/O personalities:}
 \item {\bf MEGA65}. Enables all features of the MEGA65 VIC-IV and Commodore 65
 VIC-III. This is the default.
 \item {\bf Commodore 65}. The VIC-III without the VIC-IV enhancements. For C65 compatibility.
-\item {\bf Commodore 64}. The VIC-II. Used by C64 mode (\stw{GO64}).
+\item {\bf Commodore 64}. The VIC-II. Used by C64 mode (\textbf{GO64}).
 \item {\bf MEGA65 Ethernet}. A special-purpose personality for accessing the
 MEGA65 Ethernet port.
 \end{itemize}
@@ -1889,7 +1945,7 @@ desired personality when your program launches, see \bookvref{cha:memory-map}.
 
 \subsection{Converting ROM to RAM}
 
-The MEGA65 stores kernel and BASIC program code in banks 2 and 3. To protect
+The MEGA65 stores KERNAL and BASIC program code in banks 2 and 3. To protect
 this code from being overwritten by other programs, it enforces that these
 banks are read-only, simulating having Commodore-style ROM chips connected to
 those addresses. The MEGA65 Hypervisor loads the ROM data during boot, and
@@ -1902,7 +1958,7 @@ RAM Memory Map describes which ROM regions are used for each purpose.
 
 A carefully written program that doesn't need the built-in routines at all can
 repurpose the entire 128KB region. For example, it can load in alternate BASIC
-and kernel code. Naturally, this overrides the MEGA65 ROM that the user has
+and KERNAL code. Naturally, this overrides the MEGA65 ROM that the user has
 installed, and so can't take advantage of improvements in newer versions of
 the ROM.
 
@@ -2054,7 +2110,7 @@ memory banking features, and can access any address in the computer.
 If the address is \$0000 -- \$FFFF and the {\bf BANK} setting is 128, BASIC
 uses the CPU's 16-bit addressing mode, which honors the KERNAL's MAP register
 setting, as well as D030 and C64-style memory banking settings. This is how
-those commands access ROM and I/O registers with \stw{BANK 128}.
+those commands access ROM and I/O registers with \texttt{BANK 128}.
 
 {\bf SYS} tells the CPU to execute code at a location in memory. The CPU's
 program counter is a 16-bit register, and it cannot access larger addresses

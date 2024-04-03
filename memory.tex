@@ -946,7 +946,7 @@ With the MEGA65, three other mechanisms affect 16-bit memory address
 translation:
 
 \begin{itemize}
-\item Commodore 64 ROM and I/O banking, controlled by the CPU registers at addresses 0.0000 and 0.0001
+\item Commodore 64 ROM and I/O banking, controlled by the CPU registers at addresses \$0000 and \$0001
 \item Commodore 65 ROM banking, using a register at address \$D030
 \item Cartridge memory: if a cartridge is inserted in the expansion port, additional rules expose cartridge data lines at specific 16-bit address banks
 \end{itemize}
@@ -1148,7 +1148,7 @@ LDA #$16
 TAB
 
 ; Store address 810.4AB0 at base page address $40-$43.
-; (Remember to use Little Endian order.)
+; (Remember to use little-endian order.)
 LDA #$B0
 STA $40
 LDA #$4A
@@ -1246,7 +1246,7 @@ STA $D063
 If you experiment with this in the MEGA65 monitor, note that the BASIC editor
 will not automatically use the new screen location after you change it. You can
 type blindly to set memory and see that it's using the new location. Press
-\specialkey{RUN STOP} + \specialkey{RESTORE} to reset.
+\specialkey{RUN STOP} + \widekey{RESTORE} to reset.
 
 If your program writes to screen memory without initializing this register, be
 sure to read the location of screen memory from the register. Do not assume
@@ -1304,10 +1304,10 @@ The VIC-IV supports eight hardware sprites. The image data for these sprites is
 referred to by a set of sprite pointers. Unlike the Commodore 64's VIC-II, the
 VIC-IV supports relocating the sprite pointers and the image data to anywhere
 in Chip RAM. The VIC-IV maintains some VIC-II compatibility by default, so
-additional register lines are needed to fully enable relocation.
+additional register bits are needed to fully enable relocation.
 
 With the VIC-IV, the sprite pointers themselves can also be located anywhere
-in chip RAM. The location of the sprite pointers is stored in registers at
+in Chip RAM. The location of the sprite pointers is stored in registers at
 \$D06C -- \$D06E. This address must be aligned to a 16-byte boundary: when
 writing out the address in hexadecimal, its rightmost digit must be 0. For
 example, address \$2C60 is 16-byte aligned.
@@ -1348,7 +1348,7 @@ STA $D06E
 \end{asmcode}
 
 To set the first sprite to use image data at address 4.3100, set the 16-bit
-pointer to 4.3100 / 64 = \$10C4 (in Little Endian order):
+pointer to 4.3100 / 64 = \$10C4 (in little-endian order):
 
 \begin{asmcode}
 LDA #$C4
@@ -1356,9 +1356,6 @@ STA $3200
 LDA #$10
 STA $3201
 \end{asmcode}
-
-Notice that it is convenient to locate the sprite pointers in bank 0 to make
-them easy to update. The image data itself can live in bank 4 comfortably.
 
 \subsection{Colour Memory}
 
@@ -1371,8 +1368,6 @@ colour memory are the colours for those characters.
 The VIC-IV has 64KB of dedicated memory for colour data, capable of supporting
 all of the possible screen modes. This memory can be accessed directly using
 the upper memory addresses FF8.0000 -- FF8.FFFF.
-
-% TODO: confirm that R3 boards have 64KB of colour RAM; some places only cite 32KB
 
 For convenience, the first 2KB of colour memory is
 also exposed at addresses 1.F800 -- 1.FFFF. This window of addresses in bank 1
@@ -1390,7 +1385,7 @@ all 64KB of colour memory for your display, you can offset the start address
 and use the beginning of colour memory for other purposes.
 
 For example, to offset the start of colour memory by 2KB, set the register to
-\$0800 (in Little Endian order):
+\$0800 (in little-endian order):
 
 \begin{center}
 \begin{tabular}{|c|c|}
@@ -1452,8 +1447,8 @@ a special kind of CPU instruction, without additional logic to wait for jobs
 to complete. There's even a method of invoking the DMA where you can include
 the DMA job list directly in your code, without having to reserve additional
 memory to describe the job. In general, if the operation you're trying to
-perform is supported by DMA and involves more than eight bytes, a DMA job will
-be faster than equivalent CPU instructions.
+perform is supported by DMA and involves more than eight bytes of memory, a
+DMA job will be faster than equivalent CPU instructions.
 
 This section introduces DMA briefly, as part of this overall discussion of
 memory. For a complete description of the DMA controller and the MEGA65
@@ -1464,8 +1459,7 @@ extended features, including graphics and audio DMA, see \bookvref{cha:dmagic}.
 To perform a DMA job, you describe the job in memory, then invoke the DMA by
 writing the job description's address to registers. The DMA executes the job
 as soon as you write the final job address value to the register. The CPU
-pauses until the job is complete, and execution continues at the next program
-instruction.
+pauses to perform the job, then continues at the next program instruction.
 
 Conceptually, a job description contains the following fields:
 
@@ -1480,12 +1474,11 @@ traversed (``addressing'')
 \end{enumerate}
 
 More than one job can be described in a single invocation of the DMA, in a ``job
-list'' structure. The jobs are executed in order.
+list'' structure. The jobs are executed in the order they appear in the list.
 
-The MEGA65 extends the C65 DMA job list format to include a list of
-job option tokens that apply to every job in a list. Many of the MEGA65's
-extended features, like copying image data with transparency, use job
-option tokens.
+The MEGA65 extends the C65 DMA job record format to include a list of job
+option tokens. Many of the MEGA65's extended features, like copying image data
+with transparency, use job option tokens.
 
 \subsection{Using DMA from BASIC}
 
@@ -1493,7 +1486,7 @@ In BASIC 65, the {\bf EDMA} command performs a single DMA job, with limited
 options. The Commodore 65 {\bf DMA} command is also supported, but EDMA is
 recommended for all new programs that don't need to run on a C65.
 
-The EDMA command accepts four comma-delimited arguments: the command (0=copy,
+The \textbf{EDMA} command accepts four comma-delimited arguments: the command (0=copy,
 3=fill), the number of bytes, either a fill byte (for fill) or a source start
 address (for copy), and the destination start address.
 
@@ -1505,8 +1498,8 @@ address (for copy), and the destination start address.
 50 NEXT
 \end{basiccode}
 
-Other DMA features are not easily accessible from the EDMA command. To perform
-more sophisticated DMA jobs, a BASIC program can POKE job data into memory and
+Other DMA features are not easily accessible from the \textbf{EDMA} command. To perform
+more sophisticated DMA jobs, a BASIC program can \textbf{POKE} job data into memory and
 invoke the job via registers, as described below.
 
 \subsection{Using DMA from Machine Code}
@@ -1534,15 +1527,20 @@ write the address to the following registers, in this order:
 \item \$D705: lowest address byte
 \end{enumerate}
 
-Notice that the register locations are not arranged consecutively.
+Notice that the register locations are \emph{not} arranged consecutively.
 
 Writing the lowest address byte to \$D705 triggers execution of the job list,
 interpreting the address as a 32-bit physical address. To tell it to interpret
 the job list address using the CPU's view of the 16-bit address space
-(honoring the MAP register), write the final low byte to {\bf \$D706} instead.
+(honoring the MAP register), write the final low byte to \$D706
+instead.\footnote{The MEGA65 supports a C65-compatible DMA job list format,
+which a program can request by setting the low address byte in \$D700 instead
+of \$D705 / \$D706. You'd only use this if you intend for your program to run
+on compatible C65 prototype hardware. Note that some C65 prototypes have
+incomplete DMA implementations.}
 
 Addresses in the job list itself are never MAP'd addresses: DMA jobs always
-operate on physical addresses. Using {\bf \$D706} only changes the way the
+operate on physical addresses. Using \$D706 only changes the way the
 address of the job list is interpreted, and only if it's a 16-bit address.
 
 For example, to invoke an enhanced DMA job list stored at label {\tt dmajob}:
@@ -1577,7 +1575,7 @@ know which bank will contain the {\tt dmajob} memory.
 
 As an alternative to preparing a job list in memory, you can put the job list
 inline with your machine code. This is a convenient way to write a DMA job as
-if it were an instruction with pre-determined values. To do so, use the
+if it were a CPU instruction with pre-determined values. To do so, use the
 \texttt{STA \$D707} instruction (with any accumulator value), followed by assembler
 directives to assemble the enhanced job list data structure. The 45GS02 CPU
 knows to give control to the DMA and advance the program counter beyond the end
@@ -1595,9 +1593,6 @@ STA $D707  ; DMA executes immediately
 RTS
 \end{asmcode}
 
-Inline job lists are always read through the CPU's view of memory, as if the
-job list were CPU instructions.
-
 \subsection{The Enhanced Job List Format}
 
 This section presents a simplified version of the enhanced job list format.
@@ -1610,8 +1605,8 @@ job except the final job in the list.
 
 An enhanced {\em job record} consists of a list of one or more job
 option tokens that always ends with the ``end of job option list'' token (\$00),
-followed by a 12-byte data structure. Each job option token is a byte value.
-Some tokens are followed by a one-byte argument value. Unless you're writing a
+followed by a 12-byte data structure. Each job option token is a byte value, and
+some tokens are followed by a one-byte argument value. Unless you're writing a
 program intended for a Commodore 65, your token list will typically use the
 \$0B token (no arguments) to select the 12-byte job record format.
 
@@ -1659,7 +1654,7 @@ Addressing modes: \newline
 \end{center}
 
 Source and destination addresses are stored in the job record as 20-bit
-addresses, in Little Endian order. To access the full 28-bit address space, use
+addresses, in little-endian order. To access the full 28-bit address space, use
 the job option tokens for setting the highest byte of the start (\$80 \$xx) and
 destination (\$81 \$xx) addresses. The token applies to all jobs in the job list.
 
@@ -1703,9 +1698,9 @@ dmajob:
 !byte $00, $00, $00  ;
 \end{asmcode}
 
-DMA jobs ignore all mapping and banking settings. They access I/O registers at
-\$D000 -- \$DFFF only when requested by the flag at bit 23 of the source or
-destination address.
+DMA jobs ignore all mapping and banking settings. You can request that a
+source or destination address treat \$D000 -- \$DFFF as I/O registers by
+setting bit 23 of the address record.
 
 You can imagine a DMA job maintaining two cursors, one for the source (when
 copying) and one for the destination. The DMA advances each cursor according to
@@ -1860,7 +1855,7 @@ highest bit.)
 \end{longtable}
 \end{center}
 
-For example, if \$D030 is set to \$64 = ``0 1 1 0 0 1 0 0,'' then ROMC is
+For example, if \$D030 is set to \$64 = \%01100100, then ROMC is
 enabled, and the 16-bit addresses \$C000 -- \$CFFF access 2.C000 -- 2.CFFF.
 
 As with C64-style banking, \$D030 banking only applies to 8KB address blocks not
@@ -1883,8 +1878,8 @@ When a Commodore 64 cartridge is inserted in the expansion port, the memory
 system overrides regions of the 16-bit address space to access lines to the
 port, typically connected to ROM chips in the cartridge. The cartridge
 controls two additional lines that allow it to request different memory
-configurations using the \$0000 and \$0001 CPU registers, known as {\bf EXROM}
-and {\bf GAME}. These configurations are identical to that of a Commodore 64.
+configurations using the \$0000 and \$0001 CPU registers, known as EXROM
+and GAME. These configurations are identical to that of a Commodore 64.
 See a Commodore 64 reference book for more information.
 
 The Commodore 64 recognizes that a C64 cartridge is installed if one or both
@@ -1895,9 +1890,9 @@ If both lines are high, then no cartridge ROM is mapped to 16-bit addresses.
 Cartridge hardware is connected to the entire 16-bit address bus, and can
 potentially return values for all 65,536 addresses. On the MEGA65, all 64KB of
 the cartridge addresses are available at the dedicated upper addresses
-400.0000 -- 400.FFFF.\footnote{The MEGA65 team is developing a protocol and
-tools for making MEGA65 cartridges that boot automatically in MEGA65 mode.
-This will be documented in a later version of this manual.}
+400.0000 -- 400.FFFF.\footnote{The MEGA65 supports a protocol for
+MEGA65 cartridges that boot automatically in MEGA65 mode. This will be
+documented in a later version of this manual.}
 
 MAP register address translation takes precedent over C64 cartridge memory
 configuration. Cartridge ROM mapping overrides \$D030-style memory mapping.
@@ -1945,22 +1940,21 @@ desired personality when your program launches, see \bookvref{cha:memory-map}.
 
 \subsection{Converting ROM to RAM}
 
-The MEGA65 stores KERNAL and BASIC program code in banks 2 and 3. To protect
-this code from being overwritten by other programs, it enforces that these
-banks are read-only, simulating having Commodore-style ROM chips connected to
-those addresses. The MEGA65 Hypervisor loads the ROM data during boot, and
-manages the write protection.
+The MEGA65 stores the code for the KERNAL and BASIC interpreter in banks 2 and
+3. To protect this code from being overwritten by other programs, it enforces
+that these banks are read-only, simulating having Commodore-style ROM chips
+connected to those addresses. The MEGA65 Hypervisor loads the ROM data during
+boot, and manages the write protection.
 
 A program can disable write protection on banks 2 and 3 to use those regions
 as Chip RAM. Most programs don't need all of ROM in memory. For example, a
 program running in C65 mode is unlikely to need C64 BASIC ROM code. The Chip
-RAM Memory Map describes which ROM regions are used for each purpose.
+RAM Memory Map earlier in this chapter describes which ROM regions are used
+for each purpose.
 
 A carefully written program that doesn't need the built-in routines at all can
-repurpose the entire 128KB region. For example, it can load in alternate BASIC
-and KERNAL code. Naturally, this overrides the MEGA65 ROM that the user has
-installed, and so can't take advantage of improvements in newer versions of
-the ROM.
+repurpose the entire 128KB region. Take care to disable interrupts and replace
+the interrupt handler vectors when overwriting the KERNAL.
 
 To toggle the read-only status of banks 2 and 3, invoke the Hypervisor Toggle
 ROM Write-protect system trap ({\tt hyppo\_toggle\_rom\_writeprotect}), like so:
@@ -1972,10 +1966,11 @@ CLV
 \end{asmcode}
 
 You must use the MAP register, 32-bit instructions, or DMA to write to RAM in
-banks 2 and 3. When C64-style banking or \$D030 banking is active for unmapped
-16-bit addresses, reading those addresses will access bank 2, but writing to
-those addresses will write to RAM in bank 0. (This is similar to what happens
-when writing to a ROM-banked address on a Commodore 64.)
+banks 2 and 3. When C64-style banking or \$D030 banking is active (and the
+affected 16-bit addresses are unmapped), reading those addresses will access
+bank 2, but writing to those addresses will write to RAM in bank 0. This is
+similar to what happens when writing to a ROM-banked address on a Commodore
+64.
 
 The state of this write-protection is not readable in a register. To test
 whether the region is write-protected, simply attempt to write a value to the
@@ -1984,8 +1979,8 @@ region. The MEGA65 boots with write protection enabled.
 The \$D640 register is only available in the MEGA65 I/O personality.
 
 Notice that this is {\em not} a banking mechanism, like it is on a Commodore
-64. If you want access to the original ROM code after overwriting it (such as
-to restore it), use DMA to copy the original ROM to Attic RAM first.
+64. If your program needs access to the original ROM code after overwriting it
+(such as to restore it), use DMA to copy the original ROM to Attic RAM first.
 
 \subsection{Using MAP to Access Upper Memory}
 
@@ -2032,7 +2027,7 @@ EOM
 \end{asmcode}
 
 Be careful not to change the high byte of the 32KB address region that contains
-the code doing the mapping! The high byte settings takes effect upon the first
+the code doing the mapping! The high byte setting takes effect upon the first
 MAP instruction, and if the code is accidentally mapped out, the program
 counter won't be able to reach the remaining instructions, even if the final
 mapping is compatible.
@@ -2080,17 +2075,17 @@ A summary of the procedure:
 Colour RAM Window can be used as general purpose RAM.
 \item Disable ROM write-protect on banks 2 and 3.
 \item Load custom interrupt handler code into bank 0, configure interrupt
-vectors, then re-enable interrupts. (Or just leave interrupts disabled.)
+vectors, then re-enable interrupts.
 \end{enumerate}
 
-As described earlier, the program must only use display modes that need 30KB or
-less colour data in order to use the first 2KB as general purpose memory. A
-program that uses all 32KB of colour memory must allow the first 2KB to be
-visible in the Colour RAM Window at 1.F800 -- 1.FFFF. (There is no requirement
-to bank this memory into \$D800 -- \$DFFF.)
+The program must only use display modes that need 30KB or less colour data in
+order to use the first 2KB as general purpose memory. A program that uses all
+32KB of colour memory must allow the first 2KB to be visible in the Colour RAM
+Window at 1.F800 -- 1.FFFF. (There is no requirement to bank this memory into
+\$D800 -- \$DFFF.)
 
-Also as described earlier, the program must use MAP to access RAM at 0.0000
-and 0.0001.
+The program must use MAP to access RAM at 0.0000 and 0.0001, by enabling MAP
+for \$0000 -- \$1FFF with an offset of 0.
 
 \subsection{Why the SYS Command Can Only Use Certain Addresses}
 

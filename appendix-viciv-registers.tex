@@ -929,6 +929,10 @@ v0.96 \\
 {\bf{2}} & {\bf{Character attribute combinations.}} When the upper palette ("bold") character attribute (bit 6) is set, the VIC-III has counterintuitive behaviors when "blink" (bit 4) or "reverse" (bit 5) are also set: blink will toggle the upper palette attribute and not blink the character, and reverse has no effect. With this fix, upper palette + blink will blink the character, and bold + reverse will reverse the character, displayed with the upper palette in both cases. &
 v0.96 \\
 
+\hline
+{\bf{3}} & {\bf{SD Card Busy Flag behaviour.}} The SD card busy flag (bit 1 of \$D680) indicates if the low-level SD card controller is busy.  The addition of the SD card controller read-ahead functionality means that older software that expectes this bit to clear on completion of a read operation will incorrectly wait for the entire read-ahead sequence to complete. This may in turn result in software incorrectly believing the sector read has failed due to the longer time required, or that another read request cannot be immediately submitted.  Therefore below this errata level the SD card busy flag does not indicate if the SD card controller is performing a background sector read-ahead operation. At or above this errata level this information is not concealed, i.e., bit 0 will clear when the requested sector is available, but bit 1 will remain set while any read-ahead operation continues. 
+
+
 \end{longtable}
 
 

@@ -479,7 +479,7 @@ of the screen memory and colour RAM for each character shown on the
 display. Thus, in contrast to the 12 bits of information that the C64
 uses per character, and the 16 bits that the VIC-III uses, the VIC-IV
 has 32 bits of information.  How those 32 bits are used varies slightly
-among the particular modes, as described in the following tables, 
+among the particular modes, as described in the following tables,
 including whether the GOTOX bit is set.
 
 Note also that enabling BOLD and REVERSE attributes at the same time on the MEGA65 selects an alternate palette, effectively allowing 512 colours on screen, but each 8$\times$8 character can use colours only from one 256 colour palette.
@@ -582,7 +582,9 @@ Note also that enabling BOLD and REVERSE attributes at the same time on the MEGA
   \hline
 \small \qquad Bits 7 - 5 & {\small FCM Character data Y offset: Characters display normally when set to zero. When non-zero, 8 $\times$ the value is added to the character address. With careful planning, this can be used to smoothly vertically scroll multiple layers of RRB content.  }\\
   \hline
-\small \qquad Bits 4 - 3 & {\small RESERVED, set to 0 }\\
+\small \qquad Bit 4 & {\small If set, the FCM Character data Y offset is subtracted instead of added. }\\
+  \hline
+\small \qquad Bits 3 - 2 & {\small RESERVED, set to 0 }\\
   \hline
 \small \qquad Bits 1 - 0 & {\small Upper 2 bits of new X position (Highest bit is 2's complement signed bit) }\\
   \hline
@@ -930,7 +932,7 @@ v0.96 \\
 v0.96 \\
 
 \hline
-{\bf{3}} & {\bf{SD Card Busy Flag behaviour.}} The SD card busy flag (bit 1 of \$D680) indicates if the low-level SD card controller is busy.  The addition of the SD card controller read-ahead functionality means that older software that expectes this bit to clear on completion of a read operation will incorrectly wait for the entire read-ahead sequence to complete. This may in turn result in software incorrectly believing the sector read has failed due to the longer time required, or that another read request cannot be immediately submitted.  Therefore below this errata level the SD card busy flag does not indicate if the SD card controller is performing a background sector read-ahead operation. At or above this errata level this information is not concealed, i.e., bit 0 will clear when the requested sector is available, but bit 1 will remain set while any read-ahead operation continues. 
+{\bf{3}} & {\bf{SD Card Busy Flag behaviour.}} The SD card busy flag (bit 1 of \$D680) indicates if the low-level SD card controller is busy.  The addition of the SD card controller read-ahead functionality means that older software that expectes this bit to clear on completion of a read operation will incorrectly wait for the entire read-ahead sequence to complete. This may in turn result in software incorrectly believing the sector read has failed due to the longer time required, or that another read request cannot be immediately submitted.  Therefore below this errata level the SD card busy flag does not indicate if the SD card controller is performing a background sector read-ahead operation. At or above this errata level this information is not concealed, i.e., bit 0 will clear when the requested sector is available, but bit 1 will remain set while any read-ahead operation continues.
 
 
 \end{longtable}

@@ -1,0 +1,1291 @@
+\chapter{KERNAL Jump Table}
+\label{cha:kernal-jump-table}
+
+\section{Using the KERNAL Jump Table}
+
+The \emph{KERNAL} is the centerpiece of the MEGA65 operating system. It is responsible for setting up the operating system when the computer is switched on or reset, interfacing with peripherals, invoking disk operations, managing input and output streams, and driving key features of the screen editor and BASIC. While it is running, the KERNAL owns the CPU memory map and interrupt handlers, and reserves regions of memory to support its features.
+
+The KERNAL provides an \emph{Application Programming Interface} (API) so that machine code programs can take advantage of its features, such as to read a file from disk, by calling subroutines. A program accesses these subroutines by calling addresses in a \emph{jump table}, a region of ROM code that is guaranteed by the API to always access the same subroutines in the same way, even across different versions of the ROM code. The program uses \texttt{jsr} or \texttt{jmp} (as required by the routine) using the jump table address as an absolute target. Memory at the jump table address contains a \texttt{jmp} instruction to the appropriate internal address.
+
+For example, to write a character to the output stream (the screen terminal, by default), a program sets the accumulator (A) register to the PETSCII code to write, then calls the CHROUT subroutine with the jump table address \$FFD2:
+
+\begin{asmcode}
+    lda #$41
+    jsr $ffd2
+\end{asmcode}
+
+\subsection{Prerequisites of Jump Table Routines}
+
+All KERNAL jump table routines expect the following conditions to be true when called:
+
+\begin{enumerate}
+\item The 16-bit address range \$E000 -- \$FFFF must be mapped to the KERNAL ROM at 3.E000 -- 3.FFFF.
+\item The 16-bit address range \$0000 -- \$1FFF must be mapped to KERNAL internal variable memory at 0.0000 -- 0.1FFF.
+\item The CPU base page register (B) must be \$00.
+\end{enumerate}
+
+Some jump table routines have additional prerequisites. See the reference below.
+
+The KERNAL BASIC and SYS memory maps maintain these conditions by default. If a machine code program does not change the MAP or B registers, it can call KERNAL jump table routines without additional set-up.
+
+\subsection{History and Compatibility}
+
+The MEGA65 KERNAL jump table is based on, and compatible with, the Commodore 65 jump table. This API is derived from, but \emph{not} entirely compatible with, the KERNAL APIs of the Commodore 64 and Commodore 128.
+
+This documentation adopts the names of the routines from Commodore 65 documentation where possible, and invents unique names for routines new to the MEGA65. A routine with a name similar to C64 or C128 documentation may \emph{not} be API compatible. Differences are noted in this reference, where known.
+
+The MEGA65's ``GO64'' mode uses the C64 KERNAL. Refer to a C64 programming reference for information on how to use the C64 KERNAL.
+
+For a complete history of the KERNAL jump table across all Commodore computers, see: \url{https://www.pagetable.com/?p=926}
+
+\newpage
+\section{MEGA65 KERNAL Jump Table Quick Reference}
+
+The following is a quick reference for the MEGA65 KERNAL jump table, in address order. See the full reference for details and examples.
+
+\begin{longtable}{|L{2cm}|p{2cm}|L{7cm}|}
+\hline
+\textbf{Address} & \textbf{Name} & \textbf{Description} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots continued}\\
+\hline
+\textbf{Address} & \textbf{Name} & \textbf{Description} \\
+\hline
+\endhead
+\multicolumn{3}{l@{}}{continued \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+
+\$FF4D & SPIN\_SPOUT & Set up fast serial ports \\
+\hline
+\$FF50 & CLOSE\_ALL & Close all files on a device \\
+\hline
+\$FF53 & C64MODE & Reset to GO64 mode \\
+\hline
+\$FF56 & MonitorCall & Invoke monitor \\
+\hline
+\$FF59 & BOOT\_SYS & Boot an alternate system from disk \\
+\hline
+\$FF5C & PHOENIX & Call cartridge cold start or disk boot loader \\
+\hline
+\$FF5F & LKUPLA & Search for logical file number in use \\
+\hline
+\$FF62 & LKUPSA & Search for secondary address in use \\
+\hline
+\$FF65 & SWAPPER & Toggle between 40x25 and 80x25 text modes / ``swap to alternate display device'' \\
+\hline
+\$FF68 & PFKEY & Program an editor function key \\
+\hline
+\$FF6B & SETBNK & Set bank for I/O and filename memory \\
+\hline
+\$FF6E & JSRFAR & Call subroutine in any bank \\
+\hline
+\$FF71 & JMPFAR & Jump to address in any bank \\
+\hline
+\$FF74 & LDA\_FAR & Read a byte from an address in any bank \\
+\hline
+\$FF77 & STA\_FAR & Store a byte to an address in any bank \\
+\hline
+\$FF7A & CMP\_FAR & Compare a byte with an address in any bank \\
+\hline
+\$FF7D & PRIMM & Print an inline null-terminated short string \\
+\hline
+\$FF81 & CINT & Initialize screen editor \\
+\hline
+\$FF84 & IOINIT & Initialize I/O devices \\
+\hline
+\$FF87 & RAMTAS & Initialize RAM and buffers \\
+\hline
+\$FF8A & RESTOR & Initialize KERNAL vector table \\
+\hline
+\$FF8D & VECTOR & Read/set KERNAL vector table \\
+\hline
+\$FF90 & SETMSG & Enable/disable KERNAL messages \\
+\hline
+\$FF93 & SECND & Serial: send secondary address to listener \\
+\hline
+\$FF96 & TKSA & Serial: send secondary address to talker \\
+\hline
+\$FF99 & MEMTOP & Read/set top of system RAM \\
+\hline
+\$FF9C & MEMBOT & Read/set bottom of system RAM \\
+\hline
+\$FF9F & KEY & Scan keyboard \\
+\hline
+\$FFA2 & MONEXIT & Monitor's exit to BASIC \\
+\hline
+\$FFA5 & ACPTR & Serial: accept a byte from talker \\
+\hline
+\$FFA8 & CIOUT & Serial: send a byte to listener \\
+\hline
+\$FFAB & UNTLK & Serial: send ``untalk'' command (see CLRCH) \\
+\hline
+\$FFAE & UNLSN & Serial: send ``unlisten'' command (see CLRCH) \\
+\hline
+\$FFB1 & LISTN & Serial: send ``listen'' command (see CKOUT) \\
+\hline
+\$FFB4 & TALK & Serial: send ``talk'' command (see CHKIN) \\
+\hline
+\$FFB7 & READSS & Get status of last I/O operation \\
+\hline
+\$FFBA & SETLFS & Set file, device, secondary address \\
+\hline
+\$FFBD & SETNAM & Set filename pointers \\
+\hline
+\$FFC0 & OPEN & Open logical file \\
+\hline
+\$FFC3 & CLOSE & Close logical file \\
+\hline
+\$FFC6 & CHKIN & Set input channel \\
+\hline
+\$FFC9 & CKOUT & Set output channel \\
+\hline
+\$FFCC & CLRCH & Restore default channels \\
+\hline
+\$FFCF & BASIN & Read a character from input device \\
+\hline
+\$FFD2 & BSOUT & Write a character to output device \\
+\hline
+\$FFD5 & LOAD & Load/verify from file \\
+\hline
+\$FFD8 & SAVE & Save to file \\
+\hline
+\$FFDB & SETTIM & Set CIA1 24-hour clock \\
+\hline
+\$FFDE & RDTIM & Read CIA1 24-hour clock \\
+\hline
+\$FFE1 & STOP & Report Stop key (see ScanStopKey) \\
+\hline
+\$FFE4 & GETIN & Read a character from input device, buffered \\
+\hline
+\$FFE7 & CLALL & Close all files and channels \\
+\hline
+\$FFEA & ScanStopKey & Scan Stop key \\
+\hline
+\$FFED & SCRORG & Get current screen window size \\
+\hline
+\$FFF0 & PLOT & Read/set cursor position \\
+\hline
+\$FFF3 & IOBASE & Report base address of I/O block \\
+\hline
+\end{longtable}
+
+
+\newpage
+\section{MEGA65 KERNAL Jump Table Reference}
+\titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ****
+% ACPTR
+% ****
+
+\newpage
+\subsection{ACPTR}
+\index{KERNAL Jump Table!ACPTR}
+\label{KERNAL Jump Table!ACPTR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFA5
+    \item [Description:] Serial: accept a byte from talker
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% BASIN
+% ****
+
+\newpage
+\subsection{BASIN}
+\index{KERNAL Jump Table!BASIN}
+\label{KERNAL Jump Table!BASIN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFCF
+    \item [Description:] Read a character from input device
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% BOOT\_SYS
+% ****
+
+\newpage
+\subsection{BOOT{\_}SYS}
+\index{KERNAL Jump Table!BOOT_SYS}
+\label{KERNAL Jump Table!BOOT_SYS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF59
+    \item [Description:] Boot an alternate system from disk
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% BSOUT
+% ****
+
+\newpage
+\subsection{BSOUT}
+\index{KERNAL Jump Table!BSOUT}
+\label{KERNAL Jump Table!BSOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFD2
+    \item [Description:] Write a character to output device
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% C64MODE
+% ****
+
+\newpage
+\subsection{C64MODE}
+\index{KERNAL Jump Table!C64MODE}
+\label{KERNAL Jump Table!C64MODE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF53
+    \item [Description:] Reset to GO64 mode
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CHKIN
+% ****
+
+\newpage
+\subsection{CHKIN}
+\index{KERNAL Jump Table!CHKIN}
+\label{KERNAL Jump Table!CHKIN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFC6
+    \item [Description:] Set input channel
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CINT
+% ****
+
+\newpage
+\subsection{CINT}
+\index{KERNAL Jump Table!CINT}
+\label{KERNAL Jump Table!CINT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF81
+    \item [Description:] Initialize screen editor
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CIOUT
+% ****
+
+\newpage
+\subsection{CIOUT}
+\index{KERNAL Jump Table!CIOUT}
+\label{KERNAL Jump Table!CIOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFA8
+    \item [Description:] Serial: send a byte to listener
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CKOUT
+% ****
+
+\newpage
+\subsection{CKOUT}
+\index{KERNAL Jump Table!CKOUT}
+\label{KERNAL Jump Table!CKOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFC9
+    \item [Description:] Set output channel
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CLALL
+% ****
+
+\newpage
+\subsection{CLALL}
+\index{KERNAL Jump Table!CLALL}
+\label{KERNAL Jump Table!CLALL}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFE7
+    \item [Description:] Close all files and channels
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CLOSE
+% ****
+
+\newpage
+\subsection{CLOSE}
+\index{KERNAL Jump Table!CLOSE}
+\label{KERNAL Jump Table!CLOSE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFC3
+    \item [Description:] Close logical file
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CLOSE\_ALL
+% ****
+
+\newpage
+\subsection{CLOSE{\_}ALL}
+\index{KERNAL Jump Table!CLOSE_ALL}
+\label{KERNAL Jump Table!CLOSE_ALL}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF50
+    \item [Description:] Close all files on a device
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CLRCH
+% ****
+
+\newpage
+\subsection{CLRCH}
+\index{KERNAL Jump Table!CLRCH}
+\label{KERNAL Jump Table!CLRCH}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFCC
+    \item [Description:] Restore default channels
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% CMP\_FAR
+% ****
+
+\newpage
+\subsection{CMP{\_}FAR}
+\index{KERNAL Jump Table!CMP_FAR}
+\label{KERNAL Jump Table!CMP_FAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF7A
+    \item [Description:] Compare a byte with an address in any bank
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% GETIN
+% ****
+
+\newpage
+\subsection{GETIN}
+\index{KERNAL Jump Table!GETIN}
+\label{KERNAL Jump Table!GETIN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFE4
+    \item [Description:] Read a character from input device, buffered
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% IOBASE
+% ****
+
+\newpage
+\subsection{IOBASE}
+\index{KERNAL Jump Table!IOBASE}
+\label{KERNAL Jump Table!IOBASE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFF3
+    \item [Description:] Report base address of I/O block
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% IOINIT
+% ****
+
+\newpage
+\subsection{IOINIT}
+\index{KERNAL Jump Table!IOINIT}
+\label{KERNAL Jump Table!IOINIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF84
+    \item [Description:] Initialize I/O devices
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% JMPFAR
+% ****
+
+\newpage
+\subsection{JMPFAR}
+\index{KERNAL Jump Table!JMPFAR}
+\label{KERNAL Jump Table!JMPFAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF71
+    \item [Description:] Jump to address in any bank
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% JSRFAR
+% ****
+
+\newpage
+\subsection{JSRFAR}
+\index{KERNAL Jump Table!JSRFAR}
+\label{KERNAL Jump Table!JSRFAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF6E
+    \item [Description:] Call subroutine in any bank
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% KEY
+% ****
+
+\newpage
+\subsection{KEY}
+\index{KERNAL Jump Table!KEY}
+\label{KERNAL Jump Table!KEY}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF9F
+    \item [Description:] Perform a keyboard scan.
+    \item [Remarks:]
+        On the MEGA65, typing events are managed by a hardware buffer mechanism and not the KERNAL. A program that wants to consume a typing event can call GETIN, or access the typing event buffer registers directly, without calling KEY.
+
+        KEY manages special keyboard behaviors, including Mega + Shift, No Scroll, and Ctrl-S. It also calls the \texttt{keyscan\_char} vector. The MEGA65 KERNAL calls KEY in the KERNAL IRQ handler many times per second, similar to other Commodores. A program that disables the KERNAL IRQ handler but wants to maintain these behaviors can call KEY from a custom handler.
+    \item [Example:]
+        \begin{asmcode}
+key = $ff9f
+
+    jsr key
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% LDA\_FAR
+% ****
+
+\newpage
+\subsection{LDA{\_}FAR}
+\index{KERNAL Jump Table!LDA_FAR}
+\label{KERNAL Jump Table!LDA_FAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF74
+    \item [Description:] Read a byte from an address in any bank
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% LISTN
+% ****
+
+\newpage
+\subsection{LISTN}
+\index{KERNAL Jump Table!LISTN}
+\label{KERNAL Jump Table!LISTN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFB1
+    \item [Description:] Serial: send ``listen'' command (see CKOUT)
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% LKUPLA
+% ****
+
+\newpage
+\subsection{LKUPLA}
+\index{KERNAL Jump Table!LKUPLA}
+\label{KERNAL Jump Table!LKUPLA}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF5F
+    \item [Description:] Search for logical file number in use
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% LKUPSA
+% ****
+
+\newpage
+\subsection{LKUPSA}
+\index{KERNAL Jump Table!LKUPSA}
+\label{KERNAL Jump Table!LKUPSA}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF62
+    \item [Description:] Search for secondary address in use
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% LOAD
+% ****
+
+\newpage
+\subsection{LOAD}
+\index{KERNAL Jump Table!LOAD}
+\label{KERNAL Jump Table!LOAD}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFD5
+    \item [Description:] Load/verify from file
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% MEMBOT
+% ****
+
+\newpage
+\subsection{MEMBOT}
+\index{KERNAL Jump Table!MEMBOT}
+\label{KERNAL Jump Table!MEMBOT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF9C
+    \item [Description:] Read/set bottom of system RAM
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% MEMTOP
+% ****
+
+\newpage
+\subsection{MEMTOP}
+\index{KERNAL Jump Table!MEMTOP}
+\label{KERNAL Jump Table!MEMTOP}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF99
+    \item [Description:] Read/set top of system RAM
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% MONEXIT
+% ****
+
+\newpage
+\subsection{MONEXIT}
+\index{KERNAL Jump Table!MONEXIT}
+\label{KERNAL Jump Table!MONEXIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFA2
+    \item [Description:] Monitor's exit to BASIC
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% MonitorCall
+% ****
+
+\newpage
+\subsection{MonitorCall}
+\index{KERNAL Jump Table!MonitorCall}
+\label{KERNAL Jump Table!MonitorCall}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF56
+    \item [Description:] Invoke monitor
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% OPEN
+% ****
+
+\newpage
+\subsection{OPEN}
+\index{KERNAL Jump Table!OPEN}
+\label{KERNAL Jump Table!OPEN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFC0
+    \item [Description:] Open logical file
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% PFKEY
+% ****
+
+\newpage
+\subsection{PFKEY}
+\index{KERNAL Jump Table!PFKEY}
+\label{KERNAL Jump Table!PFKEY}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF68
+    \item [Description:] Program an editor function key
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% PHOENIX
+% ****
+
+\newpage
+\subsection{PHOENIX}
+\index{KERNAL Jump Table!PHOENIX}
+\label{KERNAL Jump Table!PHOENIX}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF5C
+    \item [Description:] Call cartridge cold start or disk boot loader
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% PLOT
+% ****
+
+\newpage
+\subsection{PLOT}
+\index{KERNAL Jump Table!PLOT}
+\label{KERNAL Jump Table!PLOT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFF0
+    \item [Description:] Read/set cursor position
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% PRIMM
+% ****
+
+\newpage
+\subsection{PRIMM}
+\index{KERNAL Jump Table!PRIMM}
+\label{KERNAL Jump Table!PRIMM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF7D
+    \item [Description:] Print an inline null-terminated short string.
+    \item [Remarks:]
+        The string to print immediately follows the JSR instruction in memory.
+
+        The string must end in a null (0) byte, and must be at most 255 bytes in length including the null byte.
+
+        Characters are written to the output stream, as with BSOUT.
+
+        Only use JSR to call PRIMM.
+
+        PRIMM preserves registers. This makes it suitable for dropping in the middle of a program temporarily for troubleshooting purposes.
+    \item [Example:]
+        \begin{asmcode}
+primm = $ff7d
+
+    jsr primm
+    !pet "this is a petscii string to print.",0
+
+    ; Program continues...
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% RAMTAS
+% ****
+
+\newpage
+\subsection{RAMTAS}
+\index{KERNAL Jump Table!RAMTAS}
+\label{KERNAL Jump Table!RAMTAS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF87
+    \item [Description:] Initialize RAM and buffers
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% RDTIM
+% ****
+
+\newpage
+\subsection{RDTIM}
+\index{KERNAL Jump Table!RDTIM}
+\label{KERNAL Jump Table!RDTIM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFDE
+    \item [Description:] Read CIA1 24-hour clock
+    \item [Outputs:]
+        \textbf{Y} Hours, 0-23, in BCD \\
+        \textbf{X} Minutes, 0-59, in BCD \\
+        \textbf{A} Seconds, 0-59, in BCD \\
+        \textbf{Z} Tenths of a second, 0-9
+    \item [Remarks:]
+        This reads the time-of-day (TOD) clock feature of the CIA1 device. This clock counts tenths of seconds, and maintains hours, minutes, seconds, and tenths of seconds.
+
+        Use SETTIM to set the value of the TOD clock.
+
+        On the MEGA65, the CIA1 TOD clock has no relationship to the battery-backed Real-Time Clock (RTC). The value returned by RDTIM is the CIA1 TOD value, not the RTC value. BASIC 65's TI\$ and DT\$ special variables use the RTC, and not the TOD.
+
+        Values are in Binary Coded Decimal format, where each nibble represents a decimal digit. For example, when RDTIM returns the hexadecimal value \$59 in the accumulator, this represents a value of 59 (decimal) seconds.
+    \item [Example:]
+        \begin{asmcode}
+rdtim = $ffde
+bsout = $ffd2
+
+    ; Print hours and minutes, as HH:MM
+    jsr rdtim
+    tya
+    jsr print_bcd
+    lda #':'
+    jsr bsout
+    txa
+    jsr print_bcd
+    rts
+
+print_bcd:
+    pha
+    lsr
+    lsr
+    lsr
+    lsr
+    adc #'0'
+    jsr bsout
+    pla
+    and #$0f
+    adc #'0'
+    jsr bsout
+    rts
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% READSS
+% ****
+
+\newpage
+\subsection{READSS}
+\index{KERNAL Jump Table!READSS}
+\label{KERNAL Jump Table!READSS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFB7
+    \item [Description:] Get status of last I/O operation
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% RESTOR
+% ****
+
+\newpage
+\subsection{RESTOR}
+\index{KERNAL Jump Table!RESTOR}
+\label{KERNAL Jump Table!RESTOR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF8A
+    \item [Description:] Initialize KERNAL vector table
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% SAVE
+% ****
+
+\newpage
+\subsection{SAVE}
+\index{KERNAL Jump Table!SAVE}
+\label{KERNAL Jump Table!SAVE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFD8
+    \item [Description:] Save to file
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% ScanStopKey
+% ****
+
+\newpage
+\subsection{ScanStopKey}
+\index{KERNAL Jump Table!ScanStopKey}
+\label{KERNAL Jump Table!ScanStopKey}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFEA
+    \item [Description:] Scan Stop key
+    \item [Outputs:]
+        \textbf{A} \$7F if the Stop key is pressed, \$FF otherwise \\
+        \textbf{N flag} Clear if the Stop key is pressed, set otherwise
+    \item [Remarks:]
+        Unlike STOP, ScanStopKey does not invoke the \texttt{istop} vector, and does not close channels or flush the keyboard buffer.
+    \item [Example:]
+        \begin{asmcode}
+scan_stop_key = $ffea
+
+    ; Wait for Stop key
+-   jsr scan_stop_key
+    bmi -
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SCRORG
+% ****
+
+\newpage
+\subsection{SCRORG}
+\index{KERNAL Jump Table!SCRORG}
+\label{KERNAL Jump Table!SCRORG}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFED
+    \item [Description:] Get current screen window size
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% SECND
+% ****
+
+\newpage
+\subsection{SECND}
+\index{KERNAL Jump Table!SECND}
+\label{KERNAL Jump Table!SECND}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF93
+    \item [Description:] Serial: send secondary address to listener
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% SETBNK
+% ****
+
+\newpage
+\subsection{SETBNK}
+\index{KERNAL Jump Table!SETBNK}
+\label{KERNAL Jump Table!SETBNK}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF6B
+    \item [Description:] Set bank for I/O and filename memory
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% SETLFS
+% ****
+
+\newpage
+\subsection{SETLFS}
+\index{KERNAL Jump Table!SETLFS}
+\label{KERNAL Jump Table!SETLFS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFBA
+    \item [Description:] Set file, device, secondary address
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% SETMSG
+% ****
+
+\newpage
+\subsection{SETMSG}
+\index{KERNAL Jump Table!SETMSG}
+\label{KERNAL Jump Table!SETMSG}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF90
+    \item [Description:] Enable/disable KERNAL messages
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% SETNAM
+% ****
+
+\newpage
+\subsection{SETNAM}
+\index{KERNAL Jump Table!SETNAM}
+\label{KERNAL Jump Table!SETNAM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFBD
+    \item [Description:] Set filename pointers
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% SETTIM
+% ****
+
+\newpage
+\subsection{SETTIM}
+\index{KERNAL Jump Table!SETTIM}
+\label{KERNAL Jump Table!SETTIM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFDB
+    \item [Description:] Set CIA1 24-hour clock
+    \item [Inputs:]
+        \textbf{Y} Hours, 0-23, in BCD \\
+        \textbf{X} Minutes, 0-59, in BCD \\
+        \textbf{A} Seconds, 0-59, in BCD \\
+        \textbf{Z} Tenths of a second, 0-9
+    \item [Remarks:]
+        This sets the time-of-day (TOD) clock feature of the CIA1 device. This clock counts tenths of seconds, and maintains hours, minutes, seconds, and tenths of seconds.
+
+        Use RDTIM to read the current value of the TOD clock.
+
+        On the MEGA65, the CIA1 TOD clock has no relationship to the battery-backed Real-Time Clock (RTC). Setting the TOD clock does not affect the RTC. BASIC 65's TI\$ and DT\$ special variables use the RTC, and not the TOD.
+
+        Values are in Binary Coded Decimal format, where each nibble represents a decimal digit. For example, to set the seconds value to 59 seconds, use the hexadecimal value \$59.
+    \item [Example:]
+        \begin{asmcode}
+settim = $ffdb
+
+    ; Set the TOD clock to 14:30:57.5
+    ; (aka 2:30:57.5 PM)
+    ldy #$14
+    ldx #$30
+    lda #$57
+    ldz #$05
+    jsr settim
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SPIN\_SPOUT
+% ****
+
+\newpage
+\subsection{SPIN{\_}SPOUT}
+\index{KERNAL Jump Table!SPIN_SPOUT}
+\label{KERNAL Jump Table!SPIN_SPOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF4D
+    \item [Description:] Set up fast serial ports
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% STA\_FAR
+% ****
+
+\newpage
+\subsection{STA{\_}FAR}
+\index{KERNAL Jump Table!STA_FAR}
+\label{KERNAL Jump Table!STA_FAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF77
+    \item [Description:] Store a byte to an address in any bank
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% STOP
+% ****
+
+\newpage
+\subsection{STOP}
+\index{KERNAL Jump Table!STOP}
+\label{KERNAL Jump Table!STOP}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFE1
+    \item [Description:] Report Stop key, and reset I/O if pressed
+    \item [Outputs:]
+        \textbf{Z flag} Set if Stop is pressed
+    \item [Remarks:]
+        If the Stop key (Shift + Run/Stop) is pressed when this is called, STOP sets the Zero (Z) flag, closes all active channels, and flushes the keyboard queue.
+
+        This behavior can be overridden or extended with the \texttt{istop} vector.
+
+        To test for the Stop key without side effects, see ScanStopKey.
+    \item [Example:]
+        \begin{asmcode}
+stop = $ffe1
+
+    ; Wait for the Stop key
+-   jsr stop
+    bne -
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SWAPPER
+% ****
+
+\newpage
+\subsection{SWAPPER}
+\index{KERNAL Jump Table!SWAPPER}
+\label{KERNAL Jump Table!SWAPPER}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF65
+    \item [Description:] Toggle between 40x25 and 80x25 text modes / ``swap to alternate display device''
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% TALK
+% ****
+
+\newpage
+\subsection{TALK}
+\index{KERNAL Jump Table!TALK}
+\label{KERNAL Jump Table!TALK}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFB4
+    \item [Description:] Serial: send ``talk'' command (see CHKIN)
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% TKSA
+% ****
+
+\newpage
+\subsection{TKSA}
+\index{KERNAL Jump Table!TKSA}
+\label{KERNAL Jump Table!TKSA}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF96
+    \item [Description:] Serial: send secondary address to talker
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% UNLSN
+% ****
+
+\newpage
+\subsection{UNLSN}
+\index{KERNAL Jump Table!UNLSN}
+\label{KERNAL Jump Table!UNLSN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFAE
+    \item [Description:] Serial: send ``unlisten'' command (see CLRCH)
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% UNTLK
+% ****
+
+\newpage
+\subsection{UNTLK}
+\index{KERNAL Jump Table!UNTLK}
+\label{KERNAL Jump Table!UNTLK}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FFAB
+    \item [Description:] Serial: send ``untalk'' command (see CLRCH)
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+% ****
+% VECTOR
+% ****
+
+\newpage
+\subsection{VECTOR}
+\index{KERNAL Jump Table!VECTOR}
+\label{KERNAL Jump Table!VECTOR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF8D
+    \item [Description:] Read/set KERNAL vector table
+    \item [Inputs:]
+    \item [Outputs:]
+    \item [Remarks:]
+    \item [Example:]
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

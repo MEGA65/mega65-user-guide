@@ -454,9 +454,35 @@ cint = $ff81
     \item [Address:] JSR \$FF7A
     \item [Description:] Compare a byte with an address in any bank
     \item [Inputs:]
+        \textbf{A} Data to compare \\
+        \textbf{X} Base page pointer \\
+        \textbf{Y} Index from pointed address \\
+        \textbf{Z} Bank
     \item [Outputs:]
+        CPU status flags based on the comparison
     \item [Remarks:]
+        Conceptually, this is the equivalent of \texttt{cmp (X),y} in bank Z.
+
+        This can access any address in the first 1MB of memory. Unlike JMPFAR, this does not change the memory map. It uses a DMA job to access the long address.
+
+        For the MEGA65, the 45GS02 supports an instruction that can do this with a 32-bit address stored on the base page, without the need for a KERNAL routine: \texttt{cmp [zp4],z}
     \item [Example:]
+        \begin{asmcode}
+cmp_far = $ff7a
+
+    ; Compare memory at address 4.4502 to the accumulator
+    lda #$00
+    sta $fe
+    lda #$45
+    sta $ff
+    ldx #$fe  ; base page pointer -> $4500
+    ldy #$02  ; Y index
+    ldz #$04  ; bank
+    lda #$99  ; data to compare
+    jsr cmp_far
+    beq they_are_equal  ; ...
+        \end{asmcode}
+
 \end{description}
 
 
@@ -489,10 +515,19 @@ cint = $ff81
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FFF3
     \item [Description:] Report base address of I/O block
-    \item [Inputs:]
     \item [Outputs:]
+        \textbf{X} Address low \\
+        \textbf{Y} Address high
     \item [Remarks:]
+        RESERVED. DO NOT USE.
+
+        This is not used in the C65 KERNAL. As implemented, it returns \$D000, regardless of other settings.
     \item [Example:]
+        \begin{asmcode}
+iobase = $fff3
+
+    jsr iobase
+        \end{asmcode}
 \end{description}
 
 
@@ -531,12 +566,42 @@ ioinit = $ff84
 \index{KERNAL Jump Table!JMPFAR}
 \label{KERNAL Jump Table!JMPFAR}
 \begin{description}[leftmargin=2cm,style=nextline]
-    \item [Address:] JSR \$FF71
+    \item [Address:] JMP \$FF71
     \item [Description:] Jump to address in any bank
     \item [Inputs:]
-    \item [Outputs:]
+        \textbf{\$02} Address bank (0-5) \\
+        \textbf{\$03} Address high \\
+        \textbf{\$04} Address low \\
+        \textbf{\$05} CPU status register \\
+        \textbf{\$06} CPU A register \\
+        \textbf{\$07} CPU X register \\
+        \textbf{\$08} CPU Y register \\
+        \textbf{\$09} CPU Z register
     \item [Remarks:]
+        This updates the CPU memory map to make a requested address visible as a 16-bit address, then JMPs to it. It does not return.
+
+        This routine has similar restrictions as the \textbf{SYS} BASIC command, and cannot reach every address. It can only jump to addresses in non-zero banks from X.2000 -- X.7FFF.
+
+        The revised memory map keeps \$0000--\$1FFF and \$8000--\$DFFF un-mapped (so they refer to bank 0 and I/O registers), and \$E000--\$FFFF mapped to KERNAL ROM.
+
+        A program sets parameters to JMPFAR by writing to the KERNAL's base page. Parameters include the three address bytes, and the state of the CPU registers expected on entry to the new location.
+
+        This routine does not return. Only use JMP to call this routine.
     \item [Example:]
+        \begin{asmcode}
+jmpfar = $ff71
+
+    ; MAP $2000-$7FFF to bank 4, then JMP to 4.4500
+    lda #$04
+    sta $02
+    lda #$45
+    sta $03
+    lda #$00
+    sta $04
+    lda #$04  ; Start routine with interrupts disabled
+    sta $05
+    jmp jmpfar
+        \end{asmcode}
 \end{description}
 
 
@@ -552,9 +617,43 @@ ioinit = $ff84
     \item [Address:] JSR \$FF6E
     \item [Description:] Call subroutine in any bank
     \item [Inputs:]
+        \textbf{\$02} Address bank (0-5) \\
+        \textbf{\$03} Address high \\
+        \textbf{\$04} Address low \\
+        \textbf{\$05} CPU status register \\
+        \textbf{\$06} CPU A register \\
+        \textbf{\$07} CPU X register \\
+        \textbf{\$08} CPU Y register \\
+        \textbf{\$09} CPU Z register
     \item [Outputs:]
+        CPU status, A, X, Y, and Z registers are as they were at the end of the subroutine.
     \item [Remarks:]
+        This updates the CPU memory map to make a requested address visible as a 16-bit address, then JSRs to it. On return, it restores the previous KERNAL-managed memory map (e.g. the SYS map).
+
+        This routine has similar restrictions as the \textbf{SYS} BASIC command, and cannot reach every address. It can only jump to addresses in non-zero banks from X.2000 -- X.7FFF.
+
+        The revised memory map keeps \$0000--\$1FFF and \$8000--\$DFFF un-mapped (so they refer to bank 0 and I/O registers), and \$E000--\$FFFF mapped to KERNAL ROM.
+
+        A program sets parameters to JSRFAR by writing to the KERNAL's base page. Parameters include the three address bytes, and the state of the CPU registers expected on entry to the new location.
+
+        Only use JSR to call this routine.
     \item [Example:]
+        \begin{asmcode}
+jsrfar = $ff6e
+
+    ; MAP $2000-$7FFF to bank 4, then JSR to 4.4500
+    lda #$04
+    sta $02
+    lda #$45
+    sta $03
+    lda #$00
+    sta $04
+    lda #$04  ; Start routine with interrupts disabled
+    sta $05
+    jsr jsrfar
+
+    ; Program continues...
+        \end{asmcode}
 \end{description}
 
 
@@ -596,9 +695,32 @@ key = $ff9f
     \item [Address:] JSR \$FF74
     \item [Description:] Read a byte from an address in any bank
     \item [Inputs:]
+        \textbf{X} Base page pointer \\
+        \textbf{Y} Index from pointed address \\
+        \textbf{Z} Bank
     \item [Outputs:]
+        \textbf{A} The value at the address
     \item [Remarks:]
+        Conceptually, this is the equivalent of \texttt{lda (X),y} in bank Z.
+
+        This can access any address in the first 1MB of memory. Unlike JMPFAR, this does not change the memory map. It uses a DMA job to access the long address.
+
+        For the MEGA65, the 45GS02 supports an instruction that can do this with a 32-bit address stored on the base page, without the need for a KERNAL routine: \texttt{lda [zp4],z}
     \item [Example:]
+        \begin{asmcode}
+lda_far = $ff74
+
+    ; Load memory at address 4.4502 into the accumulator
+    lda #$00
+    sta $fe
+    lda #$45
+    sta $ff
+    ldx #$fe  ; base page pointer -> $4500
+    ldy #$02  ; Y index
+    ldz #$04  ; bank
+    jsr lda_far
+        \end{asmcode}
+
 \end{description}
 
 
@@ -686,9 +808,33 @@ key = $ff9f
     \item [Address:] JSR \$FF9C
     \item [Description:] Read/set bottom of system RAM
     \item [Inputs:]
+        To set: \\
+        \textbf{C flag} = 0 \\
+        \textbf{X} Address low \\
+        \textbf{Y} Address high
+
+        To read: \\
+        \textbf{C flag} = 1
     \item [Outputs:]
+        When reading: \\
+        \textbf{X} Address low \\
+        \textbf{Y} Address high
     \item [Remarks:]
+        RESERVED. DO NOT USE.
+
+        This is not useful. The C65 KERNAL does not use the ``memory size'' variable. This routine was included in the C65 KERNAL for completeness.
     \item [Example:]
+        \begin{asmcode}
+membot = $ff9c
+
+    clc
+    ldx #$00
+    ldy #$20
+    jsr membot
+
+    sec
+    jsr membot
+        \end{asmcode}
 \end{description}
 
 
@@ -704,9 +850,33 @@ key = $ff9f
     \item [Address:] JSR \$FF99
     \item [Description:] Read/set top of system RAM
     \item [Inputs:]
+        To set: \\
+        \textbf{C flag} = 0 \\
+        \textbf{X} Address low \\
+        \textbf{Y} Address high
+
+        To read: \\
+        \textbf{C flag} = 1
     \item [Outputs:]
+        When reading: \\
+        \textbf{X} Address low \\
+        \textbf{Y} Address high
     \item [Remarks:]
+        RESERVED. DO NOT USE.
+
+        This is not useful. The C65 KERNAL does not use the ``memory size'' variable. This routine was included in the C65 KERNAL for completeness.
     \item [Example:]
+        \begin{asmcode}
+memtop = $ff99
+
+    clc
+    ldx #$00
+    ldy #$ff
+    jsr memtop
+
+    sec
+    jsr memtop
+        \end{asmcode}
 \end{description}
 
 
@@ -1330,9 +1500,32 @@ settim = $ffdb
     \item [Address:] JSR \$FF77
     \item [Description:] Store a byte to an address in any bank
     \item [Inputs:]
-    \item [Outputs:]
+        \textbf{A} Data to store \\
+        \textbf{X} Base page pointer \\
+        \textbf{Y} Index from pointed address \\
+        \textbf{Z} Bank
     \item [Remarks:]
+        Conceptually, this is the equivalent of \texttt{sta (X),y} in bank Z.
+
+        This can access any address in the first 1MB of memory. Unlike JMPFAR, this does not change the memory map. It uses a DMA job to access the long address.
+
+        For the MEGA65, the 45GS02 supports an instruction that can do this with a 32-bit address stored on the base page, without the need for a KERNAL routine: \texttt{sta [zp4],z}
     \item [Example:]
+            \begin{asmcode}
+sta_far = $ff77
+
+    ; Store value to address 4.4502
+    lda #$00
+    sta $fe
+    lda #$45
+    sta $ff
+    ldx #$fe  ; base page pointer -> $4500
+    ldy #$02  ; Y index
+    ldz #$04  ; bank
+    lda #$99  ; the value to store
+    jsr sta_far
+            \end{asmcode}
+
 \end{description}
 
 
@@ -1517,7 +1710,8 @@ vector = $ff8d
     ldy #>vectable
     jsr vector
 
-    ; Copy the iirq vector to custom_irq's jmp instruction
+    ; Copy the iirq vector to custom_irq's
+    ; jmp instruction
     lda vectable
     sta $1600+custom_irq_return-custom_irq+1
     lda vectable+1
@@ -1539,14 +1733,15 @@ vector = $ff8d
     rts
 
 custom_irq:
-    ; Demonstration: rotate the top left character
+    ; Rotate the top left character
     inc $0800
 custom_irq_return:
     jmp $0000
 custom_irq_end:
 
 vectable:
-    ; See vector table documentation for the table size
+    ; See vector table documentation for the
+    ; table size
     !fill $1f
         \end{asmcode}
 

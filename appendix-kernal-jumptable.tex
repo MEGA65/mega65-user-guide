@@ -224,12 +224,25 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \index{KERNAL Jump Table!BOOT_SYS}
 \label{KERNAL Jump Table!BOOT_SYS}
 \begin{description}[leftmargin=2cm,style=nextline]
-    \item [Address:] JSR \$FF59
+    \item [Address:] JMP \$FF59
     \item [Description:] Boot an alternate system from disk
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        The Commodore 65 intended a feature where a floppy disk in the internal 3-1/2" disk drive could bootstrap software using up to 512 bytes of machine code in a ``home'' sector, at track 0, sector 1.
+
+        When the BOOT\_SYS KERNAL routine is called, or the user performs the \textbf{BOOT SYS} command, or the user holds the Alt key during start-up, the KERNAL reads the home sector of the disk. If the first byte is \$4C, the KERNAL loads the sector into memory at 0.0400, then invokes it with JMP. If no disk is present or the first byte is not \$4C, no action is taken.
+
+        The boot sector feature is distinct from the BASIC 10 \textbf{BOOT} command that loads and runs a file named \texttt{AUTOBOOT.C65}. It is not compatible with C128-style boot sectors.
+
+        This routine does not return. Only use JMP with this routine.
+
+        \underline{NOTE}: For the MEGA65, this feature is untested.
     \item [Example:]
+        \begin{asmcode}
+boot_sys = $ff59
+
+    jmp $ff59
+        \end{asmcode}
+
 \end{description}
 
 
@@ -260,12 +273,18 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \index{KERNAL Jump Table!C64MODE}
 \label{KERNAL Jump Table!C64MODE}
 \begin{description}[leftmargin=2cm,style=nextline]
-    \item [Address:] JSR \$FF53
+    \item [Address:] JMP \$FF53
     \item [Description:] Reset to GO64 mode
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        This switches to the GO64 mode memory map, resets the VIC modes, and jumps to the GO64 start routine.
+
+        This routine does not return. Only use JMP with this routine.
     \item [Example:]
+        \begin{asmcode}
+c64mode = $ff53
+
+    jmp c64mode
+        \end{asmcode}
 \end{description}
 
 
@@ -298,10 +317,20 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF81
     \item [Description:] Initialize screen editor
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        CINT resets all properties of the screen editor, including indirect vectors, function key macros, VIC registers, and SID registers. It also clears the screen.
+
+        CINT is typically called along with IOINIT, which resets additional properties of the screen editor.
+
+        Because it updates indirect vectors, it must be called with IRQs disabled.
     \item [Example:]
+        \begin{asmcode}
+cint = $ff81
+
+    sei
+    jsr cint
+    cli
+        \end{asmcode}
 \end{description}
 
 
@@ -478,10 +507,18 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF84
     \item [Description:] Initialize I/O devices
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        IOINIT resets the CIA chips, the 45GS02 port, the VIC chip, the UART, and the DOS.
+
+        It must be called with IRQs disabled.
     \item [Example:]
+    \begin{asmcode}
+ioinit = $ff84
+
+    sei
+    jsr ioinit
+    cli
+    \end{asmcode}
 \end{description}
 
 
@@ -533,9 +570,11 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
     \item [Address:] JSR \$FF9F
     \item [Description:] Perform a keyboard scan.
     \item [Remarks:]
-        On the MEGA65, typing events are managed by a hardware buffer mechanism and not the KERNAL. A program that wants to consume a typing event can call GETIN, or access the typing event buffer registers directly, without calling KEY.
+        For the MEGA65, typing events are managed by a hardware buffer mechanism and not the KERNAL. A program that wants to consume a typing event can call GETIN, or access the typing event buffer registers directly, without calling KEY.
 
-        KEY manages special keyboard behaviors, including Mega + Shift, No Scroll, and Ctrl-S. It also calls the \texttt{keyscan\_char} vector. The MEGA65 KERNAL calls KEY in the KERNAL IRQ handler many times per second, similar to other Commodores. A program that disables the KERNAL IRQ handler but wants to maintain these behaviors can call KEY from a custom handler.
+        KEY manages special keyboard behaviors, including Mega + Shift, No Scroll, and Ctrl-S. The MEGA65 KERNAL calls KEY in the KERNAL IRQ handler many times per second, similar to other Commodores. A program that disables the KERNAL IRQ handler but wants to maintain these behaviors can call KEY from a custom handler.
+
+        \underline{NOTE}: For the MEGA65, KEY diverges from the C65 and does not offer vector hooks. Keyboard intercept vectors are a work in progress.
     \item [Example:]
         \begin{asmcode}
 key = $ff9f
@@ -680,12 +719,17 @@ key = $ff9f
 \index{KERNAL Jump Table!MONEXIT}
 \label{KERNAL Jump Table!MONEXIT}
 \begin{description}[leftmargin=2cm,style=nextline]
-    \item [Address:] JSR \$FFA2
+    \item [Address:] JMP \$FFA2
     \item [Description:] Monitor's exit to BASIC
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        This is only used by the monitor, and is not useful to programs.
     \item [Example:]
+        \begin{asmcode}
+monexit = $ffa2
+
+    jmp monexit
+        \end{asmcode}
+
 \end{description}
 
 
@@ -698,12 +742,20 @@ key = $ff9f
 \index{KERNAL Jump Table!MonitorCall}
 \label{KERNAL Jump Table!MonitorCall}
 \begin{description}[leftmargin=2cm,style=nextline]
-    \item [Address:] JSR \$FF56
+    \item [Address:] JMP \$FF56
     \item [Description:] Invoke monitor
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        This stops the program, then invokes the monitor.
+
+        This routine does not return. Only use JMP to call this routine.
+
+        When the monitor exits, it returns to the \texttt{READY.} prompt.
     \item [Example:]
+        \begin{asmcode}
+monitor_call = $ff56
+
+    jmp monitor_call
+        \end{asmcode}
 \end{description}
 
 
@@ -737,9 +789,45 @@ key = $ff9f
     \item [Address:] JSR \$FF68
     \item [Description:] Program an editor function key
     \item [Inputs:]
+        \textbf{A} Base page pointer to string address (lo/hi/bank) \\
+        \textbf{X} Function key number (1-16) \\
+        \textbf{Y} String length
     \item [Outputs:]
+        \textbf{C flag} Set if the update failed
     \item [Remarks:]
+        The screen editor supports user-defined macros associated with function keys. The PFKEY call updates a macro's definition, similar to the \textbf{KEY} BASIC command.
+
+        As input, the program sets the accumulator to a base page address that contains the 24-bit address of the macro string, in little-endian format. The Y register is the string's length, up to 240 characters.
+
+        The X register is the key to define: 1 -- 14 for the corresponding numbered function key, 15 for the Help key, and 16 for the Stop (Shift + Run/Stop) key.
+
+        The string contains the PETSCII codes that the macro will type when executed. This is unlike the BASIC string expression that you would use with the \textbf{KEY} command: special characters like double-quotes must appear as PETSCII codes in the string used with PFKEY. (See the example below.)
+
+        If successful, PFKEY copies the string into macro memory, and does not need the string at the provided address to persist.
     \item [Example:]
+        \begin{asmcode}
+pfkey = $ff68
+
+    ; Store string address in base page $fd-$ff
+    lda #<macro
+    sta $fd
+    lda #>macro
+    sta $fe
+    lda #0
+    sta $ff
+
+    ; Install macro string for F6 key
+    lda #$fd
+    ldy #macro_end-macro
+    ldx #6
+    jsr pfkey
+
+    rts
+
+macro:
+    !pet "print ",34,"it works!",34,13
+macro_end:
+        \end{asmcode}
 \end{description}
 
 
@@ -752,12 +840,24 @@ key = $ff9f
 \index{KERNAL Jump Table!PHOENIX}
 \label{KERNAL Jump Table!PHOENIX}
 \begin{description}[leftmargin=2cm,style=nextline]
-    \item [Address:] JSR \$FF5C
-    \item [Description:] Call cartridge cold start or disk boot loader
-    \item [Inputs:]
-    \item [Outputs:]
+    \item [Address:] JMP \$FF5C
+    \item [Description:] Call disk boot loader
     \item [Remarks:]
+        See BOOT\_SYS for a description of boot disks.
+
+        Some early Commodore 65 prototype ROMs replaced this routine with one that performed diagnostics and printed results. Later versions replaced this with a call to the boot sequence.
+
+        This routine does not return. Only use JMP with this routine.
+
+        \underline{NOTE}: For the MEGA65, this feature is untested.
+
     \item [Example:]
+        \begin{asmcode}
+phoenix = $ff5c
+
+    jmp phoenix
+        \end{asmcode}
+
 \end{description}
 
 
@@ -773,9 +873,44 @@ key = $ff9f
     \item [Address:] JSR \$FFF0
     \item [Description:] Read/set cursor position
     \item [Inputs:]
+        To set: \\
+        \textbf{C flag} = 0 \\
+        \textbf{X} Cursor line \\
+        \textbf{Y} Cursor column
+
+        To read: \\
+        \textbf{C flag} = 1
     \item [Outputs:]
+        When setting: \\
+        \textbf{C flag} Set on error
+
+        When reading: \\
+        \textbf{X} Cursor line \\
+        \textbf{Y} Cursor column
     \item [Remarks:]
+        The cursor position is relative to the active window. Use SCRORG to read the current window size.
+
+        When setting, if the requested position is outside the active window, the routine returns with the Carry flag set.
     \item [Example:]
+        \begin{asmcode}
+plot = $fff0
+primm = $ff7d
+
+    ; Move the cursor to the 78th column of the 3rd row
+    clc
+    ldy #77
+    ldx #2
+    jsr plot
+
+    jsr primm
+    !pet "message",0
+
+    ; Read the new cursor position
+    sec
+    jsr plot
+    stx $1600
+    sty $1601
+        \end{asmcode}
 \end{description}
 
 
@@ -823,10 +958,16 @@ primm = $ff7d
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF87
     \item [Description:] Initialize RAM and buffers
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        RAMTAS resets KERNAL base page variables, and resets pointers to the top and bottom of system RAM.
+
+        This is primarily for use by the system start-up and reset sequences. A machine code program executed from a BASIC bootstrap program cannot cleanly return to BASIC after calling RAMTAS, nor can RAMTAS be called from the monitor.
     \item [Example:]
+        \begin{asmcode}
+ramtas = $ff87
+
+    jsr ramtas
+        \end{asmcode}
 \end{description}
 
 
@@ -851,7 +992,7 @@ primm = $ff7d
 
         Use SETTIM to set the value of the TOD clock.
 
-        On the MEGA65, the CIA1 TOD clock has no relationship to the battery-backed Real-Time Clock (RTC). The value returned by RDTIM is the CIA1 TOD value, not the RTC value. BASIC 65's TI\$ and DT\$ special variables use the RTC, and not the TOD.
+        For the MEGA65, the CIA1 TOD clock has no relationship to the battery-backed Real-Time Clock (RTC). The value returned by RDTIM is the CIA1 TOD value, not the RTC value. BASIC 65's TI\$ and DT\$ special variables use the RTC, and not the TOD.
 
         Values are in Binary Coded Decimal format, where each nibble represents a decimal digit. For example, when RDTIM returns the hexadecimal value \$59 in the accumulator, this represents a value of 59 (decimal) seconds.
     \item [Example:]
@@ -915,10 +1056,22 @@ print_bcd:
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF8A
     \item [Description:] Initialize KERNAL vector table
-    \item [Inputs:]
-    \item [Outputs:]
     \item [Remarks:]
+        This resets all KERNAL-related vectors to their default values, pointing to routines in ROM.
+
+        It does not reset vectors used by the screen editor and BASIC.
+
+        It must be called with interrupts disabled.
+
+        See VECTOR.
     \item [Example:]
+    \begin{asmcode}
+restor = $ff8a
+
+    sei
+    jsr restor
+    cli
+    \end{asmcode}
 \end{description}
 
 
@@ -978,10 +1131,30 @@ scan_stop_key = $ffea
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FFED
     \item [Description:] Get current screen window size
-    \item [Inputs:]
     \item [Outputs:]
+        \textbf{C flag} Text screen width: 0=80, 1=40 \\
+        \textbf{X} Window width \\
+        \textbf{Y} Window height \\
+        \textbf{A} Window top-left screen memory address, low \\
+        \textbf{Z} Window top-left screen memory address, high
     \item [Remarks:]
+        The screen editor maintains a ``window,'' a rectangle on the text screen, where terminal output is written and input is accepted. The window size and position defaults to the full screen, and can be adjusted with the \textbf{WINDOW} BASIC command.
+
+        SCRORG returns properties of this window that can be used to plot characters in screen memory.
     \item [Example:]
+        \begin{asmcode}
+scrorg = $ffed
+
+    ; Plot a spade glyph in the top left corner
+    ; of the active window.
+    jsr scrorg
+    sta $fe
+    stz $ff
+    lda #65
+    ldy #0
+    sta ($fe),y
+        \end{asmcode}
+
 \end{description}
 
 
@@ -1051,9 +1224,22 @@ scan_stop_key = $ffea
     \item [Address:] JSR \$FF90
     \item [Description:] Enable/disable KERNAL messages
     \item [Inputs:]
-    \item [Outputs:]
+        \textbf{A} bit 7 = control messages, bit 6 = error messages
     \item [Remarks:]
+        The KERNAL can print messages to the screen when performing disk operations, such as ``LOADING,'' ``SAVING,'' ``VERIFYING,'' and ``I/O ERROR.'' These are disabled by default.
+
+        To enable KERNAL control messages, set bit 7. To enable KERNAL I/O error messages, set bit 6.
+
+        KERNAL messages are not the same as those output by BASIC.
     \item [Example:]
+        \begin{asmcode}
+setmsg = $ff90
+
+    ; Enable all KERNAL messages
+    lda #$c0
+    jsr setmsg
+        \end{asmcode}
+
 \end{description}
 
 
@@ -1096,7 +1282,7 @@ scan_stop_key = $ffea
 
         Use RDTIM to read the current value of the TOD clock.
 
-        On the MEGA65, the CIA1 TOD clock has no relationship to the battery-backed Real-Time Clock (RTC). Setting the TOD clock does not affect the RTC. BASIC 65's TI\$ and DT\$ special variables use the RTC, and not the TOD.
+        For the MEGA65, the CIA1 TOD clock has no relationship to the battery-backed Real-Time Clock (RTC). Setting the TOD clock does not affect the RTC. BASIC 65's TI\$ and DT\$ special variables use the RTC, and not the TOD.
 
         Values are in Binary Coded Decimal format, where each nibble represents a decimal digit. For example, to set the seconds value to 59 seconds, use the hexadecimal value \$59.
     \item [Example:]
@@ -1164,7 +1350,7 @@ settim = $ffdb
     \item [Outputs:]
         \textbf{Z flag} Set if Stop is pressed
     \item [Remarks:]
-        If the Stop key (Shift + Run/Stop) is pressed when this is called, STOP sets the Zero (Z) flag, closes all active channels, and flushes the keyboard queue.
+        If the Stop key (Shift + Run/Stop) was pressed in the most recent call to ScanStopKey, STOP sets the Zero (Z) flag, closes all active channels, and flushes the keyboard queue. ScanStopKey is called routinely by the KERNAL, or can be called explicitly by the program if the KERNAL is disabled.
 
         This behavior can be overridden or extended with the \texttt{istop} vector.
 
@@ -1190,11 +1376,13 @@ stop = $ffe1
 \label{KERNAL Jump Table!SWAPPER}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF65
-    \item [Description:] Toggle between 40x25 and 80x25 text modes / ``swap to alternate display device''
-    \item [Inputs:]
-    \item [Outputs:]
+    \item [Description:] Toggle between 40x25 and 80x25 text modes
     \item [Remarks:]
+        This does not yet support 80x50 text mode.
     \item [Example:]
+swapper = \$ff65
+
+    jsr swapper
 \end{description}
 
 
@@ -1282,9 +1470,86 @@ stop = $ffe1
     \item [Address:] JSR \$FF8D
     \item [Description:] Read/set KERNAL vector table
     \item [Inputs:]
-    \item [Outputs:]
+        To read: \\
+        \textbf{C flag} = 1 \\
+        \textbf{X} Destination address, low \\
+        \textbf{Y} Destination address, high
+
+        To set: \\
+        \textbf{C flag} = 0 \\
+        \textbf{X} Source address, low \\
+        \textbf{Y} Source address, high
+
     \item [Remarks:]
+        A program can override or extend some behaviors of the KERNAL, screen editor, and BASIC by installing a set of addresses of custom routines, known as \emph{vectors}. By default, KERNAL vectors point to routines in ROM.
+
+        To install new vectors:
+
+        \begin{enumerate}
+            \item Use VECTOR to copy the existing vector addresses to a location in memory.
+            \item As needed, copy the original vector address into the custom routine's code, such as to return control to the original KERNAL routine after performing a custom action.
+            \item Write the custom routine's address into the vector table in memory.
+            \item Use VECTOR to install the updated vector addresses.
+        \end{enumerate}
+
+        \underline{NOTE}: The KERNAL uses a memory map for BASIC that hides most program memory from the CPU. Custom routines must live in the range \$1600 -- \$1EFF to be visible when BASIC and the screen editor are running.
+
+        Some Commodore programmers are accustomed to reading and writing custom vector addresses directly from internal KERNAL memory, without using the VECTOR routine. For the MEGA65, it is important for programs to use the VECTOR accessor routine, and to not depend on the internal KERNAL memory location, to assure compatibility with future versions of the ROM.
+
+        Use RESTOR to reset the vector table to the KERNAL defaults.
+
     \item [Example:]
+        \begin{asmcode}
+vector = $ff8d
+
+    ; Install custom_irq routine to $1600,
+    ; so that it will be visible when BASIC
+    ; is active.
+    ldx #custom_irq_end-custom_irq+1
+-   lda custom_irq-1,x
+    sta $1600-1,x
+    dex
+    bne -
+
+    ; Read vector table into memory
+    sec
+    ldx #<vectable
+    ldy #>vectable
+    jsr vector
+
+    ; Copy the iirq vector to custom_irq's jmp instruction
+    lda vectable
+    sta $1600+custom_irq_return-custom_irq+1
+    lda vectable+1
+    sta $1600+custom_irq_return-custom_irq+2
+
+    ; Write custom_irq address to iirq
+    lda #$00
+    sta vectable
+    lda #$16
+    sta vectable+1
+
+    ; Install updated vector table
+    clc
+    ldx #<vectable
+    ldy #>vectable
+    jsr vector
+
+    ; Return to BASIC
+    rts
+
+custom_irq:
+    ; Demonstration: rotate the top left character
+    inc $0800
+custom_irq_return:
+    jmp $0000
+custom_irq_end:
+
+vectable:
+    ; See vector table documentation for the table size
+    !fill $1f
+        \end{asmcode}
+
 \end{description}
 
 

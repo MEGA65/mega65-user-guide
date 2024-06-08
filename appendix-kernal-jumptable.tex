@@ -2188,7 +2188,7 @@ untlk = $ffab
         \textbf{Y} Source address, high
 
     \item [Remarks:]
-        A program can override or extend some behaviors of the KERNAL, screen editor, and BASIC by installing a set of addresses of custom routines, known as \emph{vectors}. By default, KERNAL vectors point to routines in ROM.
+        A program can override or extend some behaviors of the KERNAL, screen editor, and BASIC by installing custom routines. The KERNAL has a fixed set of extension points, known as \emph{vectors}, where KERNAL behaviors jump to vector addresses under certain circumstances. The default values of these vectors point to routines in KERNAL ROM. A program installs a routine by replacing the original vector address with a custom routine's address, and typically (but optionally) rewriting the custom routine to also call the original KERNAL vector address.
 
         To install new vectors:
 
@@ -2199,13 +2199,99 @@ untlk = $ffab
             \item Use VECTOR to install the updated vector addresses.
         \end{enumerate}
 
-        \underline{NOTE}: The KERNAL uses a memory map for BASIC that hides most program memory from the CPU. Custom routines must live in the range \$1600 -- \$1EFF to be visible when BASIC and the screen editor are running.
-
         Some Commodore programmers are accustomed to reading and writing custom vector addresses directly from internal KERNAL memory, without using the VECTOR routine. For the MEGA65, it is important for programs to use the VECTOR accessor routine, and to not depend on the internal KERNAL memory location, to assure compatibility with future versions of the ROM.
+
+        \underline{NOTE}: The KERNAL uses a memory map for BASIC that hides most program memory from the CPU. Custom routines must live in the range \$1600 -- \$1EFF to be visible when BASIC and the screen editor are running. This only applies to cases when the program returns control to BASIC or the screen editor, but extending BASIC or the screen editor is a common use of vectors. For longer custom routines, a small dispatch routine can be installed in this range that disables interrupts, changes the CPU memory map, then calls a routine somewhere else in memory. When that routine returns, the dispatch routine restores the KERNAL memory map and enables interrupts, then jumps to the KERNAL's original vector.
 
         Use RESTOR to reset the vector table to the KERNAL defaults.
 
+    \item [Vector table:]
+        The vector table is 56 bytes, two bytes for each 16-bit vector address.
+
+        Nearly all vectors are for KERNAL jump table routines. Replacing one of these vectors will cause all calls to the KERNAL jump table entry to instead call the custom routine. The custom routine is expected to support the documented preconditions (such as CPU register arguments) of the KERNAL routine. If it subsequently calls the KERNAL routine, it must also meet those preconditions on exit. If it doesn't call the KERNAL routine, it must meet the routine's postconditions (such as CPU register return values) on exit.
+
+        The IIRQ, IBRK, and INMI vectors refer to the KERNAL's interrupt handlers. The KERNAL uses a once-per-frame raster IRQ. The KERNAL's interrupt handlers preserve all CPU registers on the stack, pushed in this order: A, X, Y, Z, B. For an IRQ, the handler then tests whether the IRQ is caused by the raster frame or by a BRK instruction, and JMPs to either the IIRQ or IBRK handler accordingly. For an NMI, the handler disables IRQs, then calls the INMI handler. If a custom routine calls the original KERNAL vector when it is finished, the KERNAL will restore the CPU registers, then exit the interrupt handler cleanly. If the custom routine opts to not invoke the original KERNAL vector, it must handle the five bytes on the stack.
+
+        CTLVEC, SHFVEC, and ESCVEC allow a custom routine an opportunity to intercept printed and typed characters that involve the Control, Shift, or Escape keys. The accumulator contains the unmodified PETSCII code. A custom routine can cancel further processing by returning with RTS, or it can yield back to the KERNAL by calling the original KERNAL vector. While this is intended primarily to add interactive behaviors to the screen editor when these characters are typed, all such codes can be printed by programs to achieve these effects as well.
+
+        \underline{NOTE}: There is not yet an official way to intercept any given keystroke via a vector. This may be added in a future version.
+
+        \begin{longtable}{|L{2cm}|p{2cm}|p{4cm}|}
+        \hline
+        \textbf{Offset} & \textbf{Name} & \textbf{Description} \\
+        \hline
+        \endfirsthead
+        \multicolumn{3}{l@{}}{\ldots continued}\\
+        \hline
+        \textbf{Offset} & \textbf{Name} & \textbf{Description} \\
+        \hline
+        \endhead
+        \multicolumn{3}{l@{}}{continued \ldots}\\
+        \endfoot
+        \hline
+        \endlastfoot
+        \hline
+        0 & IIRQ & Raster IRQ handler \\
+        \hline
+        2 & IBRK & BRK handler \\
+        \hline
+        4 & INMI & NMI handler \\
+        \hline
+        6 & IOPEN & OPEN \\
+        \hline
+        8 & ICLOSE & CLOSE \\
+        \hline
+        10 & ICHKIN & CHKIN \\
+        \hline
+        12 & ICKOUT & CKOUT \\
+        \hline
+        14 & ICLRCH & CLRCH \\
+        \hline
+        16 & IBASIN & BASIN \\
+        \hline
+        18 & IBSOUT & BSOUT \\
+        \hline
+        20 & ISTOP & STOP \\
+        \hline
+        22 & IGETIN & GETIN \\
+        \hline
+        24 & ICLALL & CLALL \\
+        \hline
+        26 & EXMON & Reserved, do not modify \\
+        \hline
+        28 & ILOAD & LOAD \\
+        \hline
+        30 & ISAVE & SAVE \\
+        \hline
+        32 & ITALK & TALK \\
+        \hline
+        34 & ILISTEN & LISTN \\
+        \hline
+        36 & ITALKSA & TKSA \\
+        \hline
+        38 & ISECOND & SECND \\
+        \hline
+        40 & IACPTR & ACPTR \\
+        \hline
+        42 & ICIOUT & CIOUT \\
+        \hline
+        44 & IUNTALK & UNTLK \\
+        \hline
+        46 & IUNLISTEN & UNLSN \\
+        \hline
+        48 & CTLVEC & Control code \\
+        \hline
+        50 & SHFVEC & Shift code \\
+        \hline
+        52 & ESCVEC & Escape code \\
+        \hline
+        54 & KEYSCAN & Reserved, do not modify \\
+        \hline
+        \end{longtable}
+
     \item [Example:]
+        The following example installs a short routine at \$1600 that increments the screen code in the top left corner of the screen, then sets the IIRQ vector such that the KERNAL calls this routine once per raster frame. After this program returns to BASIC, the screen code updates continuously while BASIC and the screen editor remain operational.
+
         \begin{asmcode}
 vector = $ff8d
 
@@ -2254,9 +2340,7 @@ custom_irq_return:
 custom_irq_end:
 
 vectable:
-    ; See vector table documentation for the
-    ; table size
-    !fill $1f
+    !fill $30
         \end{asmcode}
 
 \end{description}

@@ -28,6 +28,10 @@ Some jump table routines have additional prerequisites. See the reference below.
 
 The KERNAL BASIC and SYS memory maps maintain these conditions by default. If a machine code program does not change the MAP or B registers, it can call KERNAL jump table routines without additional set-up.
 
+The KERNAL makes use of other regions of memory. See \bookref{cha:memory}.
+
+Unless otherwise noted, a program must assume that a call to a KERNAL routine overwrites data in all CPU registers and value-related status flags. Implications for the stack and mode-related status flags (interrupts) are noted explicitly.
+
 \subsection{History and Compatibility}
 
 The MEGA65 KERNAL jump table is based on, and compatible with, the Commodore 65 jump table. This API is derived from, but \emph{not} entirely compatible with, the KERNAL APIs of the Commodore 64 and Commodore 128.
@@ -45,12 +49,12 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 
 \begin{longtable}{|L{2cm}|p{2cm}|p{2cm}|L{6cm}|}
 \hline
-\textbf{Address} & & \textbf{Category} & \textbf{Name} & \textbf{Description} \\
+\textbf{Address} & \textbf{Category} & \textbf{Name} & \textbf{Description} \\
 \hline
 \endfirsthead
 \multicolumn{4}{l@{}}{\ldots continued}\\
 \hline
-\textbf{Address} & \textbf{Name} & \textbf{Description} \\
+\textbf{Address} & \textbf{Category} & \textbf{Name} & \textbf{Description} \\
 \hline
 \endhead
 \multicolumn{4}{l@{}}{continued \ldots}\\
@@ -258,7 +262,7 @@ read_more:
 
 \newpage
 \subsection{BOOT{\_}SYS}
-\index{KERNAL Jump Table!BOOT_SYS}
+\index{KERNAL Jump Table!BOOT\_SYS}
 \label{KERNAL Jump Table!BOOT_SYS}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JMP \$FF59
@@ -543,7 +547,7 @@ clrch = $ffcc
 
 \newpage
 \subsection{CLOSE{\_}ALL}
-\index{KERNAL Jump Table!CLOSE_ALL}
+\index{KERNAL Jump Table!CLOSE\_ALL}
 \label{KERNAL Jump Table!CLOSE_ALL}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF50
@@ -596,7 +600,7 @@ clrch = $ffcc
 
 \newpage
 \subsection{CMP{\_}FAR}
-\index{KERNAL Jump Table!CMP_FAR}
+\index{KERNAL Jump Table!CMP\_FAR}
 \label{KERNAL Jump Table!CMP_FAR}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF7A
@@ -845,7 +849,7 @@ key = $ff9f
 
 \newpage
 \subsection{LDA{\_}FAR}
-\index{KERNAL Jump Table!LDA_FAR}
+\index{KERNAL Jump Table!LDA\_FAR}
 \label{KERNAL Jump Table!LDA_FAR}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF74
@@ -1584,7 +1588,7 @@ restor = $ff8a
     \item [Remarks:]
         Before calling SAVE, the program must call SETBNK, SETLFS, and SETNAM to set parameters for the file to load. SAVE cannot be used with RS-232 devices, the screen, or the keyboard. The logical file number is not used.
 
-        When used with a disk drive, SAVE only saves a file of type PRG. To save a file of another type, use SETNAM with the type mentioned in the name string (such as \textt{"MYFILE,S"} for a SEQ file), along with OPEN, CKOUT, BSOUT, and CLOSE. See OPEN for an example.
+        When used with a disk drive, SAVE only saves a file of type PRG. To save a file of another type, use SETNAM with the type mentioned in the name string (such as \texttt{"MYFILE,S"} for a SEQ file), along with OPEN, CKOUT, BSOUT, and CLOSE. See OPEN for an example.
 
         SAVE writes a region of memory to a file on a serial device. The start address of the memory region must be stored as a 16-bit address, little-endian, on the base page. The program provides the base page address of this pointer in the A register.
 
@@ -1928,7 +1932,7 @@ settim = $ffdb
 
 \newpage
 \subsection{SPIN{\_}SPOUT}
-\index{KERNAL Jump Table!SPIN_SPOUT}
+\index{KERNAL Jump Table!SPIN\_SPOUT}
 \label{KERNAL Jump Table!SPIN_SPOUT}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF4D
@@ -1965,7 +1969,7 @@ spin_spout = $ff4d
 
 \newpage
 \subsection{STA{\_}FAR}
-\index{KERNAL Jump Table!STA_FAR}
+\index{KERNAL Jump Table!STA\_FAR}
 \label{KERNAL Jump Table!STA_FAR}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF77

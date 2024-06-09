@@ -200,6 +200,8 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
         This is a low-level serial routine. Most programs will prefer the higher level I/O routines (OPEN et al.).
 
         After sending the TALK command to a serial device to tell it to provide output, and optionally a secondary address with TKSA, a program calls ACPTR to read data from the device, one byte at a time. See TALK.
+
+        This behavior can be overridden or extended with the IACPTR vector.
     \item [Example:]
         \begin{asmcode}
 acptr = $ffa5
@@ -237,12 +239,13 @@ acptr = $ffa5
 
         To attempt to read a character without waiting on an empty buffer, use GETIN.
 
-        This routine can be overridden or extended using the \texttt{ibasin} vector.
+        This routine can be overridden or extended using the IBASIN vector.
     \item [Example:]
        \begin{asmcode}
 basin = $ffcf
 
-    ; Read a line into memory, up to 255 characters
+    ; Read a line into memory, up to
+    ; 255 characters
     ldy #0
 read_more:
     jsr basin
@@ -314,7 +317,7 @@ boot_sys = $ff59
 
         If the device is the screen, the character is written to screen memory at the current cursor position.
 
-        This routine can be overridden or extended using the \texttt{ibsout} vector.
+        This routine can be overridden or extended using the IBSOUT vector.
     \item [Example:]
         \begin{asmcode}
 bsout = $ffd2
@@ -373,7 +376,7 @@ c64mode = $ff53
 
         CHKIN performs device-specific tasks, such as sending a TALK command to a serial channel. Setting a non-input device results in an error.
 
-        This routine can be overridden or extended using the \texttt{ichkin} vector.
+        This routine can be overridden or extended using the ICHKIN vector.
     \item [Example:]
         \begin{asmcode}
 chkin = $ffc6
@@ -429,6 +432,8 @@ cint = $ff81
         This is a low-level serial routine. Most programs will prefer the higher level I/O routines (OPEN et al.).
 
         After sending the LISTN command to a serial device to tell it to listen for input, and optionally a secondary address with SECND, a program uses CIOUT to send data to the device, one byte at a time.
+
+        This behavior can be overridden or extended with the ICIOUT vector.
     \item [Example:]
         \begin{asmcode}
 ciout = $ffa8
@@ -462,7 +467,7 @@ ciout = $ffa8
 
         CKOUT performs device-specific tasks, such as sending a LISTN command to a serial channel. Setting a non-output device results in an error.
 
-        This routine can be overridden or extended using the \texttt{ickout} vector.
+        This routine can be overridden or extended using the ICKOUT vector.
     \item [Example:]
         \begin{asmcode}
 ckout = $ffc9
@@ -487,7 +492,7 @@ ckout = $ffc9
     \item [Remarks:]
         All open logical files are closed, as if closed with CLOSE. This includes performing device-specific closing tasks, as well as restoring the default input and output channels (as if via CLRCH).
 
-        This behavior can be overridden or extended with the \texttt{iclall} vector.
+        This behavior can be overridden or extended with the ICLALL vector.
     \item [Example:]
         \begin{asmcode}
 clall = $ffe7
@@ -527,7 +532,7 @@ clall = $ffe7
 
         \underline{NOTE}: When CLOSE is used on a file that was set as the input or output channel by CHKIN or CKOUT, it does \emph{not} reset the input/output channel, and a subsequent read/write may misbehave. Use CLRCH after CLOSE to reset the input/output channels.
 
-        This behavior can be overridden or extended with the \texttt{iclose} vector.
+        This behavior can be overridden or extended with the ICLOSE vector.
     \item [Example:]
         \begin{asmcode}
 close = $ffc3
@@ -536,7 +541,8 @@ clrch = $ffcc
     clc          ; normal close
     lda #$01
     jsr close
-    jsr clrch    ; clear I/O channels after closing the file
+    jsr clrch    ; clear I/O channels after
+                 ; closing the file
     \end{asmcode}
 \end{description}
 
@@ -584,7 +590,7 @@ close_all = $ff50
 
         If the current input or output channels are to serial devices, CLRCH sends UNTLK or UNLSN, as appropriate.
 
-        This routine can be overridden or extended using the \texttt{iclrch} vector.
+        This routine can be overridden or extended using the ICLRCH vector.
     \item [Example:]
         \begin{asmcode}
 clrch = $ffcc
@@ -622,7 +628,8 @@ clrch = $ffcc
         \begin{asmcode}
 cmp_far = $ff7a
 
-    ; Compare memory at address 4.4502 to the accumulator
+    ; Compare memory at address 4.4502
+    ; to the accumulator
     lda #$00
     sta $fe
     lda #$45
@@ -661,7 +668,7 @@ cmp_far = $ff7a
 
         If the input device is serial or the screen, it behaves like BASIN.
 
-        This routine can be overridden or extended using the \texttt{igetin} vector.
+        This routine can be overridden or extended using the IGETIN vector.
     \item [Example:]
         \begin{asmcode}
 getin = $ffe4
@@ -751,14 +758,16 @@ ioinit = $ff84
         \begin{asmcode}
 jmpfar = $ff71
 
-    ; MAP $2000-$7FFF to bank 4, then JMP to 4.4500
+    ; MAP $2000-$7FFF to bank 4, then JMP
+    ; to 4.4500
     lda #$04
     sta $02
     lda #$45
     sta $03
     lda #$00
     sta $04
-    lda #$04  ; Start routine with interrupts disabled
+    lda #$04  ; Start routine with
+              ; interrupts disabled
     sta $05
     jmp jmpfar
         \end{asmcode}
@@ -801,14 +810,16 @@ jmpfar = $ff71
         \begin{asmcode}
 jsrfar = $ff6e
 
-    ; MAP $2000-$7FFF to bank 4, then JSR to 4.4500
+    ; MAP $2000-$7FFF to bank 4, then
+    ; JSR to 4.4500
     lda #$04
     sta $02
     lda #$45
     sta $03
     lda #$00
     sta $04
-    lda #$04  ; Start routine with interrupts disabled
+    lda #$04  ; Start routine with
+              ; interrupts disabled
     sta $05
     jsr jsrfar
 
@@ -870,7 +881,8 @@ key = $ff9f
         \begin{asmcode}
 lda_far = $ff74
 
-    ; Load memory at address 4.4502 into the accumulator
+    ; Load memory at address 4.4502
+    ; into the accumulator
     lda #$00
     sta $fe
     lda #$45
@@ -907,6 +919,8 @@ lda_far = $ff74
         The computer gives one device at a time permission to ``talk'' on the serial bus. To change talkers, the computer broadcasts an ``untalk'' command to all devices, then sends another ``talk'' command.
 
         Use UNLSN to tell all devices to stop talking.
+
+        This behavior can be overridden or extended with the ILISTEN vector.
     \item [Example:]
         \begin{asmcode}
 listn = $ffb1
@@ -1030,7 +1044,7 @@ lkupsa = $ff62
 
         SAVE sets the I/O status as appropriate. This can be read with READSS.
 
-        This behavior can be overridden or extended with the \texttt{iload} vector.
+        This behavior can be overridden or extended with the ILOAD vector.
     \item [Example:]
         \begin{asmcode}
 load = $ffd5
@@ -1176,7 +1190,7 @@ monitor_call = $ff56
 
         A program must close an open file when it is done using it. To close a specific file, use CLOSE. To close all files for a device, use CLOSE\_ALL. To close all open files, use CLALL. When closing a disk command channel, set the Carry flag before calling CLOSE; see CLOSE for more information.
 
-        This behavior can be overridden or extended with the \texttt{iopen} vector.
+        This behavior can be overridden or extended with the IOPEN vector.
     \item [Examples:]
         Disk drives accept arguments in the filename string set with SETNAM, following the filename and delimited with commas. The following example opens a file of type SEQ for writing (\texttt{"...,s,w"}), then writes the bytes 0 to 255. (Error checking is elided for brevity.)
 
@@ -1195,7 +1209,8 @@ setnam = $ffbd
 
     lda #$01    ; logical file number
     ldx #$08    ; device number
-    ldy #$02    ; secondary address (not 0, 1, or 15)
+    ldy #$02    ; secondary address
+                ; (not 0, 1, or 15)
     jsr setlfs
 
     lda #filename_end-filename
@@ -1380,7 +1395,8 @@ phoenix = $ff5c
 plot = $fff0
 primm = $ff7d
 
-    ; Move the cursor to the 78th column of the 3rd row
+    ; Move the cursor to the 78th column
+    ; of the 3rd row
     clc
     ldy #77
     ldx #2
@@ -1600,7 +1616,7 @@ restor = $ff8a
 
         SAVE sets the I/O status as appropriate. This can be read with READSS.
 
-        This behavior can be overridden or extended with the \texttt{isave} vector.
+        This behavior can be overridden or extended with the ISAVE vector.
     \item [Example:]
         \begin{asmcode}
 save = $ffd8
@@ -1665,7 +1681,7 @@ filename_end:
         \textbf{A} \$7F if the Stop key is pressed, \$FF otherwise \\
         \textbf{N flag} Clear if the Stop key is pressed, set otherwise
     \item [Remarks:]
-        Unlike STOP, ScanStopKey does not invoke the \texttt{istop} vector, and does not close channels or flush the keyboard buffer.
+        Unlike STOP, ScanStopKey does not invoke the ISTOP vector, and does not close channels or flush the keyboard buffer.
     \item [Example:]
         \begin{asmcode}
 scan_stop_key = $ffea
@@ -1734,6 +1750,8 @@ scrorg = $ffed
         After sending the LISTN command to a serial device to tell it to accept input, SECND sends a secondary address to the device. This is typically used to configure the device prior to sending it data. The behavior depends on the device.
 
         To send a secondary address to a TALKing device, use TKSA.
+
+        This behavior can be overridden or extended with the ISECOND vector.
     \item [Example:]
         \begin{asmcode}
 listn = $ffb1
@@ -2020,7 +2038,7 @@ sta_far = $ff77
     \item [Remarks:]
         If the Stop key (Shift + Run/Stop) was pressed in the most recent call to ScanStopKey, STOP sets the Zero (Z) flag, closes all active channels, and flushes the keyboard queue. ScanStopKey is called routinely by the KERNAL, or can be called explicitly by the program if the KERNAL is disabled.
 
-        This behavior can be overridden or extended with the \texttt{istop} vector.
+        This behavior can be overridden or extended with the ISTOP vector.
 
         To test for the Stop key without side effects, see ScanStopKey.
     \item [Example:]
@@ -2048,9 +2066,11 @@ stop = $ffe1
     \item [Remarks:]
         This does not yet support 80x50 text mode.
     \item [Example:]
+        \begin{asmcode}
 swapper = \$ff65
 
     jsr swapper
+        \end{asmcode}
 \end{description}
 
 
@@ -2075,6 +2095,8 @@ swapper = \$ff65
         When the computer wants to read data from a device, the computer sends the device the ``talk'' command. Only one device at a time has permission to ``talk'' on the serial bus. To change talkers, the computer broadcasts an ``untalk'' command to all devices, then sends another ``talk'' command with a different device number.
 
         Use UNTLK to tell all devices to stop talking.
+
+        This behavior can be overridden or extended with the ITALK vector.
     \item [Example:]
         \begin{asmcode}
 talk = $ffb4
@@ -2104,6 +2126,8 @@ talk = $ffb4
         After sending the TALK command to a serial device to tell it to provide output, TKSA sends a secondary address to the device. This is typically used to configure the device prior to reading data. The behavior depends on the device.
 
         To send a secondary address to a LISTNing device, use SECND.
+
+        This behavior can be overridden or extended with the ITALKSA vector.
     \item [Example:]
         \begin{asmcode}
 talk = $ffb4
@@ -2132,6 +2156,8 @@ tksa = $ff96
         This is a low-level serial routine. Most programs will prefer the higher level I/O routines (OPEN et al.).
 
         UNLSN sends the ``unlisten'' command to all serial devices. See LISTN.
+
+        This behavior can be overridden or extended with the IUNLISTEN vector.
     \item [Example:]
         \begin{asmcode}
 unlsn = $ffae
@@ -2156,6 +2182,8 @@ unlsn = $ffae
         This is a low-level serial routine. Most programs will prefer the higher level I/O routines (OPEN et al.).
 
         UNTLK sends the ``untalk'' command to all serial devices. See TALK.
+
+        This behavior can be overridden or extended with the IUNTALK vector.
     \item [Example:]
         \begin{asmcode}
 untlk = $ffab

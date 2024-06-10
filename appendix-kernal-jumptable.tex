@@ -1775,24 +1775,54 @@ secnd = $ff93
 \label{KERNAL Jump Table!SETBNK}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF6B
-    \item [Description:] Set bank for I/O and filename memory
+    \item [Description:] Set megabyte and bank for I/O and filename memory address
     \item [Inputs:]
-        \textbf{A} The memory bank (\$00--\$FF) \\
+        For banks 0 -- 5: \\
+        \textbf{A} The memory bank \\
         \textbf{X} The filename bank
+
+        For 28-bit addresses: \\
+        \textbf{A} Bit 7 set, bits 0 -- 3 = bits 24 -- 27 of memory address \\
+        \textbf{Y} Bits 16 -- 23 of memory address \\
+        \textbf{X} Bit 7 set, bits 0 -- 3 = bits 24 -- 27 of filename address \\
+        \textbf{Z} Bits 16 -- 23 of filename address
     \item [Remarks:]
-        \underline{NOTE}: For the MEGA65, AS OF ROM 920397, THIS IS NOT YET IMPLEMENTED. Only bank 0 is formally supported for the load/save address at this time. SETBNK will be improved to support 28-bit addresses. \url{https://github.com/MEGA65/mega65-rom-public/issues/124}
+        \underline{NOTE}: For the MEGA65, this is newly implemented in ROM 920398. In previous MEGA65 ROMs, SETBNK had no effect.
 
-        SETBNK must be used for any memory I/O operation, along with SETLFS and SETNAM for opening files. The lower two bytes of each address are arguments to those other calls.
+        SETBNK must be used for any memory I/O operation, along with SETLFS and SETNAM for opening files. The lower two bytes of each address are arguments to other calls.
 
-        The I/O operation memory bank and filename bank can be different.
+        For backwards compatibility with the C65 KERNAL, SETBNK has two separate modes, one for banks 0 -- 5 in the first megabyte of memory, and another for 28-bit addresses.
+
+        If the first register's bit 7 is clear, it represents an address in the first megabyte, and the value is the bank number. For example, if A = \$04, then the memory address is in bank 4 of the first megabyte (\$004.xxxx).
+
+        If the first register's bit 7 is set, it represents a 28-bit address, and the lower nibble of the first register is the top-most nibble of the address. The second register represents the next two nibbles of the address. For example, if A = \$88 and Y = \$03, then the memory address is a 28-bit addresss of the form \$803.xxxx.
+
+        The memory address is set with input registers A and Y. The filename address is set with input registers X and Z. The memory bank and filename bank can be different, and can use bank mode or 28-bit mode independently.
 
         See OPEN for a complete example.
     \item [Example:]
         \begin{asmcode}
 setbnk = $ff6b
 
+    ; Memory address:     $4.xxxx
+    ; Filename address:   $0.xxxx
     lda #$04
     ldx #$00
+    jsr setbnk
+
+    ; Memory address:   $803.xxxx
+    ; Filename address:   $0.xxxx
+    lda #$88
+    ldy #$03
+    ldx #$00
+    jsr setbnk
+
+    ; Memory address:   $803.xxxx
+    ; Filename address: $805.xxxx
+    lda #$88
+    ldy #$03
+    ldx #$88
+    ldz #$05
     jsr setbnk
         \end{asmcode}
 \end{description}

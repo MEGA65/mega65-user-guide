@@ -62,6 +62,14 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \hline
 \endlastfoot
 
+\$FF41 & I/O & GETIO & Read the current input and output devices \\
+\hline
+\$FF44 & Files & GETLFS & Read file, device, secondary address \\
+\hline
+\$FF47 & Editor & KEYLOCKS & Read/set keyboard locks \\
+\hline
+\$FF4A & Editor & ADDKEY & Add a character to the soft keyboard input buffer \\
+\hline
 \$FF4D & Reserved & SPIN\_SPOUT & Set up fast serial ports \\
 \hline
 \$FF50 & Files & CLOSE\_ALL & Close all files on a device \\
@@ -209,6 +217,53 @@ acptr = $ffa5
     jsr $ffa5
     sta data
         \end{asmcode}
+\end{description}
+
+
+% ****
+% ADDKEY
+% ****
+
+\newpage
+\subsection{ADDKEY}
+\index{KERNAL Jump Table!ADDKEY}
+\label{KERNAL Jump Table!ADDKEY}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF4A
+    \item [Description:] Add a character to the keyboard input buffer
+    \item [Inputs:]
+        \textbf{A} The PETSCII code
+    \item [Outputs:]
+        \textbf{C flag} 0 on success, 1 on failure
+    \item [Remarks:]
+        The MEGA65 KERNAL reads keyboard events from three sources: the active function key macro, a keyboard buffer managed by the KERNAL, and the hardware typing event queue. When GETIN reads from the keyboard, it checks each of these sources, in order.
+
+        ADDKEY adds a PETSCII code to the keyboard buffer. This buffer is processed by GETIN when no function key macro is active. It supercedes the hardware typing event queue.
+
+        The keyboard buffer has a fixed size. If the buffer is full, the key will not be added, and the C flag will be set.
+
+        \underline{NOTE}: For the MEGA65, the buffer is consumed by calls to GETIN, and not by the KERNAL IRQ as on a C64. A program must return to the screen editor for GETIN to be called. If a program needs to enqueue more than a few characters, one option is to use an IIRQ vector to feed characters into the buffer gradually.
+
+    \item [Example:]
+        \begin{asmcode}
+addkey = $ff4a
+
+    ; Cause RUN and a carriage return to be typed
+    ; once control returns to the screen editor.
+    lda #'R'
+    jsr addkey
+    bcs err
+    lda #'U'
+    jsr addkey
+    bcs err
+    lda #'N'
+    jsr addkey
+    bcs err
+    lda #13
+    jsr addkey
+    bcs err
+        \end{asmcode}
+
 \end{description}
 
 
@@ -683,6 +738,67 @@ get_a_key:
 
 
 % ****
+% GETIO
+% ****
+
+\newpage
+\subsection{GETIO}
+\index{KERNAL Jump Table!GETIO}
+\label{KERNAL Jump Table!GETIO}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF41
+    \item [Description:] Read the current input and output devices
+    \item [Outputs:]
+        \textbf{X} current input device (FA) \\
+        \textbf{Y} current output device (FA)
+    \item [Remarks:]
+        An input device of 0 represents the keyboard.
+
+        An output device of 3 represents the screen.
+
+        These settings are modified by CHKIN and CKOUT.
+    \item [Example:]
+        \begin{asmcode}
+getio = $ff41
+
+    jsr getio
+    cpy #3
+    beq is_screen_output
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% GETLFS
+% ****
+
+\newpage
+\subsection{GETLFS}
+\index{KERNAL Jump Table!GETLFS}
+\label{KERNAL Jump Table!GETLFS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF44
+    \item [Description:] Read file, device, secondary address
+    \item [Outputs:]
+        \textbf{A} The logical file number (LA) \\
+        \textbf{X} The device number (FA) \\
+        \textbf{Y} The secondary address, or \$FF (SA)
+    \item [Remarks:]
+        These settings are modified by SETLFS, as well as other KERNAL calls and BASIC commands that look up information about open files via the logical file number.
+
+        A program can use this to determine from which disk drive the program was loaded by calling it just after starting, before performing other disk I/O.
+    \item [Example:]
+        \begin{asmcode}
+getlfs = $ff44
+
+    jsr getlfs
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
 % IOBASE
 % ****
 
@@ -851,6 +967,49 @@ key = $ff9f
 
     jsr key
         \end{asmcode}
+\end{description}
+
+
+% ****
+% KEYLOCKS
+% ****
+
+\newpage
+\subsection{KEYLOCKS}
+\index{KERNAL Jump Table!KEYLOCKS}
+\label{KERNAL Jump Table!KEYLOCKS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF47
+    \item [Description:] Read/set keyboard locks
+    \item [Inputs:]
+        To set: \\
+        \textbf{C flag} = 0 \\
+        \textbf{A} The new locks value
+
+        To read: \\
+        \textbf{C flag} = 1
+    \item [Outputs:]
+        When reading:
+        \textbf{A} The locks value
+    \item [Remarks:]
+        Locks bits:
+        \textbf{Bit 5:} Function keys (0=macros, 1=raw keys) \\
+        \textbf{Bit 6:} No Scroll locked (0=unlocked, 1=locked) \\
+        \textbf{Bit 7:} Mega+Shift locked (0=unlocked, 1=locked)
+
+        Bits 0--4 are reserved for future use. To maintain future compatibility, always read the locks value and preserve the values of these bits.
+
+    \item [Example:]
+        \begin{asmcode}
+keylocks = $ff47
+
+    sec
+    jsr keylocks
+    ora #%00100000  ; Disable function key macros
+    clc
+    jsr keylocks
+        \end{asmcode}
+
 \end{description}
 
 
@@ -1787,8 +1946,6 @@ secnd = $ff93
         \textbf{X} Bit 7 set, bits 0 -- 3 = bits 24 -- 27 of filename address \\
         \textbf{Z} Bits 16 -- 23 of filename address
     \item [Remarks:]
-        \underline{NOTE}: For the MEGA65, this is newly implemented in ROM 920398. In previous MEGA65 ROMs, SETBNK had no effect.
-
         SETBNK must be used for any memory I/O operation, along with SETLFS and SETNAM for opening files. The lower two bytes of each address are arguments to other calls.
 
         For backwards compatibility with the C65 KERNAL, SETBNK has two separate modes, one for banks 0 -- 5 in the first megabyte of memory, and another for 28-bit addresses.
@@ -2246,12 +2403,12 @@ untlk = $ffab
         \textbf{Y} Source address, high
 
     \item [Remarks:]
-        A program can override or extend some behaviors of the KERNAL, screen editor, and BASIC by installing custom routines. The KERNAL has a fixed set of extension points, known as \emph{vectors}, where KERNAL behaviors jump to vector addresses under certain circumstances. The default values of these vectors point to routines in KERNAL ROM. A program installs a routine by replacing the original vector address with a custom routine's address, and typically (but optionally) rewriting the custom routine to also call the original KERNAL vector address.
+        A program can override or extend some behaviors of the KERNAL, screen editor, and BASIC by installing custom routines. The KERNAL has a fixed set of extension points, known as \emph{vectors}, where KERNAL behaviors jump to vector addresses under certain circumstances. The default values of these vectors point to routines in KERNAL ROM. A program installs a routine by replacing the original vector address with a custom routine's address, and typically (but optionally) rewriting the custom routine to call the original KERNAL vector address.
 
         To install new vectors:
 
         \begin{enumerate}
-            \item Use VECTOR to copy the existing vector addresses to a location in memory.
+            \item Use VECTOR to copy the vector table to a location in the program's memory.
             \item As needed, copy the original vector address into the custom routine's code, such as to return control to the original KERNAL routine after performing a custom action.
             \item Write the custom routine's address into the vector table in memory.
             \item Use VECTOR to install the updated vector addresses.
@@ -2259,7 +2416,11 @@ untlk = $ffab
 
         Some Commodore programmers are accustomed to reading and writing custom vector addresses directly from internal KERNAL memory, without using the VECTOR routine. For the MEGA65, it is important for programs to use the VECTOR accessor routine, and to not depend on the internal KERNAL memory location, to assure compatibility with future versions of the ROM.
 
-        \underline{NOTE}: The KERNAL uses a memory map for BASIC that hides most program memory from the CPU. Custom routines must live in the range \$1600 -- \$1EFF to be visible when BASIC and the screen editor are running. This only applies to cases when the program returns control to BASIC or the screen editor, but extending BASIC or the screen editor is a common use of vectors. For longer custom routines, a small dispatch routine can be installed in this range that disables interrupts, changes the CPU memory map, then calls a routine somewhere else in memory. When that routine returns, the dispatch routine restores the KERNAL memory map and enables interrupts, then jumps to the KERNAL's original vector.
+        \underline{NOTE}: The KERNAL uses a memory map for BASIC that hides most program memory from the CPU. Custom routines must live in the range \$1600 -- \$1EFF to be visible when BASIC and the screen editor are running. This only applies to cases when the program returns control to BASIC or the screen editor, a common use of vectors. For longer custom routines, you can use a small dispatch routine that disables interrupts, changes the CPU memory map, then calls a routine somewhere else in memory. When that routine returns, the dispatch routine restores the KERNAL memory map and enables interrupts, then jumps to the KERNAL's original vector.
+
+        When updating vectors related to interrupt handling, disable interrupts before calling VECTOR.
+
+        When installing vectors that return control to the original KERNAL routines, it's a good practice to call RESTOR before reading the table with VECTOR. This ensures that the installation routine sees the original KERNAL addresses, and not the addresses from a previous installation.
 
         Use RESTOR to reset the vector table to the KERNAL defaults.
 
@@ -2272,7 +2433,7 @@ untlk = $ffab
 
         CTLVEC, SHFVEC, and ESCVEC allow a custom routine an opportunity to intercept printed and typed characters that involve the Control, Shift, or Escape keys. The accumulator contains the unmodified PETSCII code. A custom routine can cancel further processing by returning with RTS, or it can yield back to the KERNAL by calling the original KERNAL vector. While this is intended primarily to add interactive behaviors to the screen editor when these characters are typed, all such codes can be printed by programs to achieve these effects as well.
 
-        \underline{NOTE}: There is not yet an official way to intercept any given keystroke via a vector. This may be added in a future version.
+        KEYSCAN allows a custom routine to intercept typing events as they are read from the keyboard. This vector is called during the KERNAL's implementation of GETIN when the input device is the keyboard. The accumulator contains the unmodified PETSCII code, or \$FF to indicate no keypress. Y contains a bitmask of modifier keys; see a description of MODKEY in \bookref{cha:keyboard}. If the C flag is clear, the typing event is eligible to trigger a function key macro; if set, the event will not trigger a macro. The vector routine can read or change any of these attributes. It must return control to the original KERNAL address in the vector.
 
         \begin{longtable}{|L{2cm}|p{2cm}|p{4cm}|}
         \hline
@@ -2343,11 +2504,11 @@ untlk = $ffab
         \hline
         52 & ESCVEC & Escape code \\
         \hline
-        54 & KEYSCAN & Reserved, do not modify \\
+        54 & KEYSCAN & Handling keyboard input \\
         \hline
         \end{longtable}
 
-    \item [Example:]
+    \item [Examples:]
         The following example installs a short routine at \$1600 that increments the screen code in the top left corner of the screen, then sets the IIRQ vector such that the KERNAL calls this routine once per raster frame. After this program returns to BASIC, the screen code updates continuously while BASIC and the screen editor remain operational.
 
         \begin{asmcode}
@@ -2363,6 +2524,9 @@ vector = $ff8d
     bne -
 
     ; Read vector table into memory
+    sei
+    jsr restor
+    cli
     sec
     ldx #<vectable
     ldy #>vectable
@@ -2375,7 +2539,7 @@ vector = $ff8d
     lda vectable+1
     sta $1600+custom_irq_return-custom_irq+2
 
-    ; Write custom_irq address to iirq
+    ; Write custom_irq address to iirq (the first table entry)
     lda #$00
     sta vectable
     lda #$16
@@ -2385,7 +2549,9 @@ vector = $ff8d
     clc
     ldx #<vectable
     ldy #>vectable
+    sei
     jsr vector
+    cli
 
     ; Return to BASIC
     rts
@@ -2398,7 +2564,22 @@ custom_irq_return:
 custom_irq_end:
 
 vectable:
-    !fill $30
+    !fill $38
+        \end{asmcode}
+
+        The following example uses the KEYSCAN vector to intercept the Help key. Instead of invoking the F15 function key macro, pressing the Help key changes the border color. The PHP and PLP instructions ensure that the C flag is preserved. Only the vector routine is shown; the installation code is similar to the previous example, using \texttt{vectable+54} as the address of the KEYSCAN vector tabel entry.
+
+        \begin{asmcode}
+custom_keyscan:
+    php
+    cmp #132  ; Help key
+    bne +
+    lda #$ff  ; cancel "Help"
+    inc $d020
++   plp
+custom_keyscan_return:
+    jmp $0000
+custom_keyscan_end:
         \end{asmcode}
 
 \end{description}

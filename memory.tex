@@ -278,6 +278,8 @@ Chip RAM is the primary working space for the MEGA65. It contains program code, 
 
 Attic RAM provides expanded memory for general use, with a few limitations. Typically, a program uses Attic RAM via the MEGA65's Direct Memory Access (DMA) capability to copy data between Attic RAM and Chip RAM (described later). Attic RAM cannot be used directly by the VIC chip for graphics data, nor can it be used directly for audio sample playback (``audio DMA''). The CPU can run code stored in Attic RAM, but it runs more slowly than code stored in Chip RAM. In general, accessing Attic RAM is about ten times slower than accessing Chip RAM.
 
+\underline{NOTE}: The MEGA65's Freezer utility does not save or restore Attic RAM. In theory, a user can start a program, activate the Freezer, store a freeze state, then start a new session from that freeze state at a later time with Attic RAM erased. In practice, it would be unreasonable to write programs in a way that expects that Attic RAM could disappear at any moment. The best compromise is to advise users of when a program uses Attic RAM, and discourage the use of freeze states under certain circumstances. (Simply activating the Freezer does not change Attic RAM. It is only restoring a freeze state after the computer has been switched off and on that might cause problems.)
+
 The upper I/O register space is the permanent home for device registers, and memory for the Hypervisor functions. Most programs access these features indirectly using the memory configuration features described later in this chapter, especially the VIC colour RAM, character ROM, and VIC and SID I/O registers. See \bookvref{cha:memory-map} for a detailed list of upper I/O regions.
 
 

@@ -1349,6 +1349,24 @@ EOM
 
 Be careful not to change the high byte of the 32KB address region that contains the code doing the mapping! The high byte setting takes effect upon the first MAP instruction, and if the code is accidentally mapped out, the program counter won't be able to reach the remaining instructions, even if the final mapping is compatible.
 
+\underline{NOTE}: The MAP high bytes retain their values until they are updated again with this two-MAP-instruction procedure. They are \emph{not} reset to zero by the one-MAP-instruction procedure. The MAP high bytes initialise to zero when the CPU is reset, and the KERNAL does not set these bytes to non-zero values, so a program can assume they are zero at the start of the program in most cases. The following example sets all MAP offset bytes to zero.
+
+\begin{asmcode}
+LDA #$00
+LDX #$0F
+LDY #$00
+LDZ #$0F
+MAP        ; MAPHI and MAPLO megabyte offsets are now zero
+           ; Disable interrupts
+
+LDA #$00
+LDX #$00
+LDY #$00
+LDZ #$00
+MAP        ; MAPHI and MAPLO bank offsets are now zero
+EOM        ; End MAP, enable interrupts
+\end{asmcode}
+
 In most cases, it is easier for programs to access upper memory through 28-bit addressing modes or DMA. This extended MAP feature is included for completeness.
 
 \subsection{Reading the MAP Register}

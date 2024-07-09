@@ -3379,11 +3379,12 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    a file of type {\bf PRG}.
 
    \filenamedefinition
+
    The maximum length of the filename is 16 characters.
-   If the first character of the filename is an at sign '@' it
-   is interpreted as a "save and replace" operation. It is not recommended
-   to use this option on 1541 and 1571 drives, as they
-   contain a "save and replace bug" in their DOS.
+
+   {\bf DSAVE} will report an error if a file with the given name already exists. To replace an existing file, put an at-sign (\texttt{@}) before the filename, inside the quotes.
+
+   \underline{NOTE}: Save-with-replace is not recommended on 1541 and 1571 drives, due to a bug in older versions of the disk operating system that may lose data.
 
    \drivedefinition
 
@@ -3399,6 +3400,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \verbatimfont{\codefont}
 \begin{verbatim}
   DSAVE "ADVENTURE"
+  DSAVE "@MYPROG"
   DSAVE "ZORK-I",U9
   DSAVE "DUNGEON",D1,U10
 \end{verbatim}
@@ -9044,15 +9046,9 @@ DRAW PEN COLOUR =  1
 
    \filenamedefinition
 
-   The maximum length of the filename is 16 characters,
-   not counting the optional save and replace character '@'
-   and the in-file drive definition.
-   If the first character of the filename is an at sign '@', it
-   is interpreted as a "save and replace" operation. It is not recommended
-   to use this option on 1541 and 1571 drives, as they
-   contain a "save and replace bug" in their DOS.
-   The filename may be preceded by the drive number definition
-   "0:" or "1:", which is only relevant for dual drive disk units.
+   {\bf SAVE} uses legacy syntax for control characters in the filename. For example, \texttt{"@0:FILENAME"} will replace an existing file on drive 0 of a multi-drive unit with the name \texttt{FILENAME}. This syntax is different for newer commands such as {\bf DSAVE}.
+
+   \underline{NOTE}: Save-with-replace is not recommended on 1541 and 1571 drives, due to a bug in older versions of the disk operating system that may lose data.
 
    \unitdefinition
 

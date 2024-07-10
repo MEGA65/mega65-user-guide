@@ -161,12 +161,12 @@ mega65-userguide-lulu.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATE
 	./getgitinfo
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-userguide-lulu.tex
 
-mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+mega65-chipset-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib $(GENERATED_TEX_FILES)
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-chipset-reference.tex
 
-mega65-assembly-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib  $(GENERATED_TEX_FILES)
+mega65-assembly-reference.pdf: *.tex $(EXAMPLES) Makefile references.bib $(GENERATED_TEX_FILES)
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make mega65-assembly-reference.tex
@@ -184,7 +184,7 @@ styleguide.pdf: *.tex Makefile references.bib
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make styleguide.tex
 
 
-sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib
+sandbox.pdf: *.tex $(EXAMPLES) Makefile references.bib document-memory
 	./getgitinfo
 	./document-memory -q $(REPOPATH)/mega65-core/src/vhdl/*.vhdl $(REPOPATH)/mega65-core/src/vhdl/*/*.vhdl
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make sandbox.tex

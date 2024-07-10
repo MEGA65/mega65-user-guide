@@ -324,33 +324,49 @@ void table_output_add_reg(struct reg_line* r)
 void emit_table_output(FILE* f)
 {
   char *buftxt; // used to convert special chars to latex
+  int omit_dec_address = 0;
+
+  for (int row = 0; row < table_len; row++) {
+    if (table_stuff[row].low_addr > 65535) {
+      omit_dec_address = 1;
+      break;
+    }
+  }
 
   if (table_uses_bits) {
     // Table has 10 columns: HEX addr, DEC addr, 8 x signal names
     fprintf(f, "\\setlength{\\tabcolsep}{0pt}\n"
-               "\\begin{longtable}{|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|}\n"
+               "\\begin{longtable}{|%s%sC{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|C{12.5mm}|}\n"
                "\\hline\n"
-               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
+               "{\\bf{HEX}} & %s{\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
                "{\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n"
                "\\hline\n"
                "\\endfirsthead\n"
                "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
                "\\hline\n"
-               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
-               "{\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n");
+               "{\\bf{HEX}} & %s{\\bf{DB7}} & {\\bf{DB6}} & {\\bf{DB5}} & {\\bf{DB4}} & {\\bf{DB3}} & "
+               "{\\bf{DB2}} & {\\bf{DB1}} & {\\bf{DB0}} \\\\\n",
+               (omit_dec_address ? "C{16.5mm}|" : "C{12.5mm}|"),
+               (omit_dec_address ? "" : "C{12.5mm}|"),
+               (omit_dec_address ? "" : "{\\bf{DEC}} & "),
+               (omit_dec_address ? "" : "{\\bf{DEC}} & "));
   }
   else {
     // Table has 4 columns: HEX addr, DEC addr, signal name, description
     fprintf(f, "\\setlength{\\tabcolsep}{3pt}\n"
-               "\\begin{longtable}{|L{1.2cm}|L{1.1cm}|C{2cm}|L{6cm}|}\n"
+               "\\begin{longtable}{|%s%sC{2cm}|L{6cm}|}\n"
                "\\hline\n"
-               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
+               "{\\bf{HEX}} & %s{\\bf{Signal}} & {\\bf{Description}} \\\\\n"
                "\\hline\n"
                "\\endfirsthead\n"
                "\\multicolumn{3}{l@{}}{\\ldots continued}\\\\\n"
                "\\hline\n"
-               "{\\bf{HEX}} & {\\bf{DEC}} & {\\bf{Signal}} & {\\bf{Description}} \\\\\n"
-               "\\hline\n");
+               "{\\bf{HEX}} & %s{\\bf{Signal}} & {\\bf{Description}} \\\\\n"
+               "\\hline\n",
+               (omit_dec_address ? "L{1.6cm}|" : "L{1.2cm}|"),
+               (omit_dec_address ? "" : "L{1.1cm}|"),
+               (omit_dec_address ? "" : "{\\bf{DEC}} & "),
+               (omit_dec_address ? "" : "{\\bf{DEC}} & "));
   }
 
   fprintf(f, "\\endhead\n"
@@ -362,23 +378,40 @@ void emit_table_output(FILE* f)
   for (int row = 0; row < table_len; row++) {
     fprintf(f, "\\footnotesize ");
     if (table_stuff[row].low_addr < 0x0100) {
-      if (table_stuff[row].low_addr != table_stuff[row].high_addr)
-        fprintf(f, " %02X -- %02X\\index{\\$%02X (%s)}\\index{%s} & \\footnotesize %d -- %d ", table_stuff[row].low_addr,
-            table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].bit_signals_idx[0],
-            table_stuff[row].bit_signals_idx[0], table_stuff[row].low_addr, table_stuff[row].high_addr);
-      else
-        fprintf(f, " %02X\\index{\\$%02X (%s)}\\index{%s} & \\footnotesize %d ", table_stuff[row].low_addr,
-            table_stuff[row].low_addr, table_stuff[row].bit_signals_idx[0], table_stuff[row].bit_signals_idx[0],
+      if (table_stuff[row].low_addr != table_stuff[row].high_addr) {
+        fprintf(f, " %02X -- %02X\\index{\\$%02X (%s)}\\index{%s} ",
+            table_stuff[row].low_addr, table_stuff[row].high_addr,
+            table_stuff[row].low_addr, table_stuff[row].bit_signals_idx[0],
+            table_stuff[row].bit_signals_idx[0]);
+        if (!omit_dec_address) {
+          fprintf(f, "& \\footnotesize %d -- %d ",
+            table_stuff[row].low_addr, table_stuff[row].high_addr);
+        }
+      } else {
+        fprintf(f, " %02X\\index{\\$%02X (%s)}\\index{%s} ", table_stuff[row].low_addr,
+            table_stuff[row].low_addr, table_stuff[row].bit_signals_idx[0], table_stuff[row].bit_signals_idx[0]);
+        if (!omit_dec_address) {
+          fprintf(f, "& \\footnotesize %d ",
             table_stuff[row].low_addr);
+        }
+      }
     }
     else {
-      if (table_stuff[row].low_addr != table_stuff[row].high_addr)
-        fprintf(f, " %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X}\\index{Registers!%d -- %d} & \\footnotesize %d -- %d ",
-            table_stuff[row].low_addr, table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].high_addr,
+      if (table_stuff[row].low_addr != table_stuff[row].high_addr) {
+        fprintf(f, " %04X -- %04X\\index{Registers!\\$%04X -- \\$%04X} ",
             table_stuff[row].low_addr, table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].high_addr);
-      else
-        fprintf(f, " %04X\\index{Registers!\\$%04X}\\index{Registers!%d} & \\footnotesize %d ", table_stuff[row].low_addr,
-            table_stuff[row].low_addr, table_stuff[row].low_addr, table_stuff[row].low_addr);
+        if (!omit_dec_address) {
+          fprintf(f, "\\index{Registers!%d -- %d} & \\footnotesize %d -- %d ",
+            table_stuff[row].low_addr, table_stuff[row].high_addr, table_stuff[row].low_addr, table_stuff[row].high_addr);
+        }
+      } else {
+        fprintf(f, " %04X\\index{Registers!\\$%04X} ", table_stuff[row].low_addr,
+            table_stuff[row].low_addr);
+        if (!omit_dec_address) {
+          fprintf(f, "\\index{Registers!%d} & \\footnotesize %d ",
+            table_stuff[row].low_addr, table_stuff[row].low_addr);
+        }
+      }
     }
 
     if (table_uses_bits) {

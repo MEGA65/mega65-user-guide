@@ -30,7 +30,7 @@ char *keys[72]={
 		"\\megakey{I}",
 		"\\megakey{P}",
 		"\\megakey{*}",
-		"\\megakey{$\\leftarrow$}", // NOT cursor left!
+		"\\megakeywhite{$\\leftarrow$}", // NOT cursor left!
 		"\\specialkey{TAB}",
 		"\\megakey{$\\rightarrow$}",
 		"\\megakey{A}",
@@ -74,7 +74,7 @@ char *keys[72]={
 		"\\megakey{U}",
 		"\\megakey{O}",
 		"\\megakey{@}",
-		"\\megakey{$\\uparrow$}",
+		"\\megakeywhite{$\\uparrow$}",
 		"\\megakey{Q}",
 		"\\megakey{F13}",
 		"\\megakey{$\\downarrow$}",

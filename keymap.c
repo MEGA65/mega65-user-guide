@@ -2,7 +2,7 @@
   Generate Unicode key mapping tables from the VHDL source of the keyboard
   mapper, so that people can see how to generate the various keys.
 
-  Also generate reverse diagrams that show the key you will get if you 
+  Also generate reverse diagrams that show the key you will get if you
   use various combinations.
 
 */
@@ -84,7 +84,7 @@ char *keys[72]={
 		"\\megakey{N}",
 		"\\megakey{,}",
 		"\\megakey{/}",
-		"\\specialkey{RUN STOP}",
+		"\\specialkey{RUN\\\\STOP}",
 		"\\specialkey{ESC}"
 };
 
@@ -119,7 +119,7 @@ int main(int argc,char **argv)
 
   // Clear reverse map info
   for(int i=0;i<256;i++) for(int j=0;j<16;j++) unimap[i][j]=-1;
-  
+
   // Clear mapping ready for next table
   for(int i=0;i<72;i++) mapping[i]=0;
 
@@ -142,7 +142,7 @@ int main(int argc,char **argv)
       // End of table
       if (table) {
 	fprintf(stderr,"End of table %d\n",table);
-	
+
 	char filename[1024];
 	snprintf(filename,1024,"keymap_table_%d.tex",table);
 	FILE *o=fopen(filename,"w");
@@ -156,7 +156,7 @@ int main(int argc,char **argv)
 		"\\bf{Key} & \\bf{Code} & \\bf{Unicode} &"
 		"\\bf{Key} & \\bf{Code} & \\bf{Unicode}"
 		"  \\\\\n");
-	
+
 	for(int k=0;k<72;k++) {
 	  if (!(k%3)) fprintf(o,"\\hline\n");
 	  fprintf(o,
@@ -167,15 +167,15 @@ int main(int argc,char **argv)
 	  } else {
 	    fprintf(o," & ");
 	  }
-	  
+
 	}
-	
+
 	fprintf(o,"\\hline\n"
 		"\\end{tabular}\n"
 		"\\end{center}\n"
 		"}}\n");
 	fclose(o);
-	
+
 	// Clear mapping ready for next table
 	for(int i=0;i<72;i++) mapping[i]=0;
 	table=0;
@@ -193,16 +193,16 @@ int main(int argc,char **argv)
 	if ((unimap[unicode][0]==-1)||((unimap[unicode][0]>>8)!=5))
 	  unimap[unicode][0]=(table<<8)+key_num;
       }
-    
+
     line[0]=0; fgets(line,1024,f);
   }
-  
+
   fclose(f);
 
   FILE *o=fopen("unicode_mapping.tex","w");
 
   for(int p=0;p<0x100;p+=0x40) {
-  
+
     fprintf(o,"{\\ttfamily\n"
 	    "{\n"
 	    "\\setlength{\\def\\arraystretch{1.5}\\tabcolsep}{1mm}\n"
@@ -212,7 +212,7 @@ int main(int argc,char **argv)
 	    " & & \\bf{+\\$%02X} & & \\bf{+\\$%02X} & & \\bf{+\\$%02X} & & \\bf{+\\$%02X}"
 	    "  \\\\\n",
 	    p,p+0x10,p+0x20,p+0x30);
-  
+
     for(int k=0;k<16;k++) {
       fprintf(o,"\\hline\n\\small \\$0%x & ",k);
       for(int x=0;x<4;x++) {
@@ -239,14 +239,14 @@ int main(int argc,char **argv)
 	}
 	if (x!=3) fprintf(o," & ");
       }
-      fprintf(o," \\\\\n");    
+      fprintf(o," \\\\\n");
     }
-    
+
     fprintf(o,"\\hline\n"
 	    "\\end{tabular}\n"
 	    "\\end{center}\n"
 	    "}}\n\n");
   }
-  
-  fclose(o);  
+
+  fclose(o);
 }

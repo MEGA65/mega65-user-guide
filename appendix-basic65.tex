@@ -2897,8 +2897,8 @@ RUN
    directory, which are flagged as deleted but are still
    recoverable.
 
-   {\bf filepattern} is either a quoted string, for example: \screentext{"DA*"} or
-   a string expression in brackets, e.g. \screentext{(DI\$)}
+   {\bf filepattern} is either a quoted string: \screentext{"DA*"} \\
+   Or a string expression in brackets: \screentext{(DI\$)}
 
    The {\bf U12} argument lists the contents of the SD card. It can be used with
    the {\bf P} argument for a paginated display. It does not support other arguments.
@@ -2910,8 +2910,15 @@ RUN
 \item [Remarks:]
    {\bf DIR} is a synonym of {\bf CATALOG}
    and {\bf DIRECTORY}, and produces the same listing.
-   The {\bf filepattern} can be used to filter the listing.
-   The wildcard characters {\bf *} and {\bf ?} may be used.
+
+   The {\bf filepattern} can be used to filter the listing. Within the pattern:
+   \begin{itemize}
+      \item \texttt{*} matches any number of characters of any type
+      \item \texttt{*\#} matches any number of digits
+      \item \texttt{*\$} matches any number of letters
+      \item \texttt{?} matches a single character of any type
+   \end{itemize}
+
    Adding {\bf ,T=} to the pattern string, with {\bf T} specifying
    a filetype of {\bf P}, {\bf S}, {\bf U} or {\bf R}
    (for {\bf P}RG, {\bf S}EQ, {\bf U}SR, {\bf R}EL) filters the
@@ -5566,6 +5573,8 @@ TYPE "CBM-PEOPLE"
 \item [Format:] {\bf JOY(}port{\bf)}
 \item [Returns:] The state of the
                joystick for the selected controller port (1 or 2).
+
+               A {\bf port} value of 3 will return the merged state of both joystick ports, for the purpose of allowing a single joystick connected to either port. (The return value of ``port 3'' for two joysticks connected and moved simultaneously is undefined.)
 
                Bit 7 contains the state of the fire button.
                The stick can be moved in eight directions, which
@@ -8262,7 +8271,7 @@ RECORD # 4 RECORD # 2
 \index{BASIC 65 Commands!RENUMBER}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$F8
-\item [Format:] {\bf RENUMBER} [\{new{\bf,} inc{\bf,} range\}]
+\item [Format:] {\bf RENUMBER} [{\bf C}] [\{new{\bf,} inc{\bf,} range\}]
 \item [Usage:] Renumbers lines of a BASIC program.
 
                {\bf new} new starting line of the
@@ -8275,19 +8284,12 @@ RECORD # 4 RECORD # 2
                {\bf range} line range to renumber.
                The default values are from first to last line.
 
-               {\bf RENUMBER} executes in either space conserving mode
-               or optimisation mode. Optimisation mode removes space
-               characters before line numbers, thereby reducing code size
-               and decreasing execution time, while the space conserving
-               leaves spaces untouched. Optimisation mode is triggered
-               by typing the first argument, (the {\bf new} starting number),
-               adjacent to the keyword {\bf RENUMBER} with no space in
-               between.
+               Given the {\bf C} flag, {\bf RENUMBER} will remove space characters that appear before line numbers. This improves the chances that the revised line numbers won't make the line too long for display on the screen, in rare cases when the line is already near the maximum logical line length. This has no impact on the way the code runs.
 
                {\bf RENUMBER} changes all line numbers in
                the chosen range and also changes all references
                in statements that use {\bf GOSUB}, {\bf GOTO},
-               {\bf RESTORE}, {\bf RUN}, {\bf TRAP}, etc.
+               {\bf RESTORE}, {\bf RUN}, {\bf TRAP}, {\bf COLLISION}, etc.
 
                {\bf RENUMBER} can only be executed in direct mode.
                If it detects a problem such as memory overflow,
@@ -9011,6 +9013,7 @@ DRAW PEN COLOUR =  1
                     \item {\bf 0} width of current text window.
                     \item {\bf 1} height of current text window.
                     \item {\bf 2} number of columns on screen (40 or 80).
+                    \item {\bf 3} number of rows on screen (25 or 50).
                 \end{itemize}
 
 \item [Remarks:] Older versions of {\bf RWINDOW} reported
@@ -10629,9 +10632,8 @@ UNLOCK "BS*"    :REM UNLOCK ALL FILES BEGINNING WITH "BS"
 
                 {\bf format} string variable or a string constant
                 which defines the rules for formatting.
-                When using a number as the {\bf argument}, formatting can be done in either
-                CBM style, providing a pattern such as  \screentext{\#\#\#.\#\#}
-                or in C style using a <width.precision> specifier, such as \screentext{\%3D \%7.2F \%4X }.
+                When using a number as the {\bf argument}, the pattern can be specified as a template such as  \screentext{\#\#\#.\#\#}
+                or using a \%[0]<width>.<precision> specifier, such as: \screentext{\%3D \%7.2F \%4X } When a width specifier has a leading zero, the pattern left-pads a positive number with zeroes to the left of the decimal point: \screentext{\%07.2F }
 
                 {\bf argument} the number to be formatted. If the argument does not fit into the format
                 e.g. trying to print a 4 digit variable into a series of three
@@ -10651,14 +10653,21 @@ UNLOCK "BS*"    :REM UNLOCK ALL FILES BEGINNING WITH "BS"
                 If the first character of the format string
                 is a greater than '>' sign, the argument string is right justified.
 
+                While the width-precision format pattern resembles the \texttt{printf()} function of the C language, it does not behave quite the same way. The width argument is the total number of digits in the pattern. The dot and optional precision argument specify to use a decimal point, with the given number of precision digits to the right of the point. \screentext{\%7.2F} is equivalent to: \screentext{\#\#\#\#\#.\#\#}
+
+                Left-padding of zeroes is only available using a width-precision pattern.
+
 \newpage
 \item [Example:] {\bf USING} with a corresponding {\bf PRINT\#}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-PRINT USING "##.##";~, USING " [%6.4F] ";SQR(2)
- 3.14 [1.4142]
+PRINT USING "##.##";~, USING " [%7.4F] ";SQR(2)
+ 3.14 [  1.4142]
+
+PRINT USING "##.##";~, USING " [%07.4F] ";SQR(2)
+ 3.14 [001.4142]
 
 PRINT USING " < # # # > ";12*31
  < 3 7 2 >

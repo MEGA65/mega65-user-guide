@@ -13,24 +13,21 @@ If set to false (default), this build will copy the pdfs to the filehost, replac
     agent {
         docker { image 'megatex' }
     }
-    environment {
-        FH_API_KEY = credentials('filehost-api-key')
-        FH_ID_UG_COMPLBOOK = 'd668168c-1fef-4560-a530-77e9e237536d'
-        FH_ID_UG_BASICREF = '42d0f1f9-610a-45f9-bad1-9502f0e6eb7d'
-        FH_ID_UG_CHIPSET = '5d042029-d3c9-4dcb-9ba3-6690505418de'
-        FH_ID_UG_DEVGUIDE = 'ffd575e5-5d9c-47ff-b553-fcec80fd77a3'
-        FH_ID_UG_USERGUIDE = 'a5081244-a976-4a21-9153-27cca13fd613'
-    }
     stages {
         stage('Cleanup') {
             steps {
                 sh 'make realclean'
             }
         }
+        stage('Fetch mega65-core dev branch') {
+            steps {
+                sh 'rm -rf m65dev && mkdir m65dev && git clone --depth 1 --branch development https://github.com/MEGA65/mega65-core.git m65dev/mega65-core'
+            }
+        }
         stage('Build MEGA65 Book') {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
-                    sh "make REPOPATH=. mega65-book.pdf"
+                    sh "make REPOPATH=m65dev mega65-book.pdf"
                 }
             }
             post {
@@ -43,103 +40,11 @@ If set to false (default), this build will copy the pdfs to the filehost, replac
                 }
             }
         }
-        stage('Build MEGA65 BASIC65 Reference') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
-                    sh "make REPOPATH=. mega65-basic65-reference.pdf"
-                }
-            }
-            post {
-                always { // without the always, the failure won't be executed!
-                    echo "end of build"
-                }
-                failure {
-                    echo "removing failed build PDF"
-                    sh "rm -vf mega65-basic65-reference.pdf"
-                }
-            }
-        }
-        stage('Build MEGA65 Chipset Reference') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
-                    sh "make REPOPATH=. mega65-chipset-reference.pdf"
-                }
-            }
-            post {
-                always { // without the always, the failure won't be executed!
-                    echo "end of build"
-                }
-                failure {
-                    echo "removing failed build PDF"
-                    sh "rm -vf mega65-chipset-reference.pdf"
-                }
-            }
-        }
-        stage('Build MEGA65 Developer Guide') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
-                    sh "make REPOPATH=. mega65-developer-guide.pdf"
-                }
-            }
-            post {
-                always { // without the always, the failure won't be executed!
-                    echo "end of build"
-                }
-                failure {
-                    echo "removing failed build PDF"
-                    sh "rm -vf mega65-developer-guide.pdf"
-                }
-            }
-        }
-        stage('Build MEGA65 Userguide') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE', catchInterruptions: false) {
-                    sh "make REPOPATH=. mega65-userguide.pdf"
-                }
-            }
-            post {
-                always { // without the always, the failure won't be executed!
-                    echo "end of build"
-                }
-                failure {
-                    echo "removing failed build PDF"
-                    sh "rm -vf mega65-userguide.pdf"
-                }
-            }
-        }
-        stage('Set build result') {
-            steps {
-                script {
-                    def files = findFiles(glob: 'mega65-*.pdf')
-                    // if we did not build any PDF successfully, we need to set the build result
-                    if (files.length == 0) {
-                        currentBuild.result = 'FAILURE'
-                    }
-                }
-            }
-        }
     }
     post {
         always {
             archiveArtifacts artifacts: "mega65-*.pdf*",
                 fingerprint: true
-        }
-        success {
-            script {
-                fhaction = "replacekeepversion"
-                if (params.INCREMENT_FILEHOST_VERSION)
-                    fhaction = "addversion"
-
-                withEnv(["FH_ACTION=${fhaction}"]) {
-                    sh """
-                        filehost-upload -i ${FH_ID_UG_COMPLBOOK} -a ${env.FH_ACTION} -I "${RELEASE_DESCRIPTION}" mega65-book.pdf
-                        filehost-upload -i ${FH_ID_UG_BASICREF} -a ${env.FH_ACTION} -I "${RELEASE_DESCRIPTION}" mega65-basic65-reference.pdf
-                        filehost-upload -i ${FH_ID_UG_CHIPSET} -a ${env.FH_ACTION} -I "${RELEASE_DESCRIPTION}" mega65-chipset-reference.pdf
-                        filehost-upload -i ${FH_ID_UG_DEVGUIDE} -a ${env.FH_ACTION} -I "${RELEASE_DESCRIPTION}" mega65-developer-guide.pdf
-                        filehost-upload -i ${FH_ID_UG_USERGUIDE} -a ${env.FH_ACTION} -I "${RELEASE_DESCRIPTION}" mega65-userguide.pdf
-                    """
-                }
-            }
         }
     }
 }

@@ -267,35 +267,22 @@ All MEGA65 models presently support 32KB of colour RAM, however there are plans 
 
 The VIC-IV supports all legacy VIC-II and VIC-III methods for accessing this RAM, including the VIC-II's use of 16KB banks, and the VIC-III's Display Address Translator (DAT).  This additional memory can be used for character and bitmap displays, as well as for sprites.  However, the VIC-III bitplane modes remain limited to using only the first 128KB of RAM, as the VIC-IV does not enhance the bitplane mode.
 
-\subsection{Startup Base Addresses}
+\subsection{Locating and Relocating Screen Memory}
 
-If no mappings are changed and no screen memory is relocated (see the following paragraph
-for more on this) the base addresses can be used to place characters on the screen and
-set colour and attributes accordingly:
-
-\begin{itemize}
-  \item \bf{\$0800} \index{screen RAM} Screen RAM
-  \item \bf{\$ff80000} \index{colour RAM} Colour RAM
-\end{itemize}
-
-These values are the upper left character on the screen no matter if in 40 or 80 column
-mode. In BASIC you can use the dollar sign directly to use the hexadecimal format. For
-a far better method in BASIC see
-\ifdefined\printmanual
-the {\bf MEGA65 Book}
-\else
- \bookvref{sec:screentextandcolourarrays}
-\fi
-.
-
-\subsection{Relocating Screen Memory}
-
-To use the additional memory for screen RAM, the screen RAM start address can be adjusted to any location in memory with byte-level granularity by setting the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal).  For example, to set the screen memory to address 12345:
+The VIC can be configured to look for text screen memory anywhere in the first 384KB. Your program can decide where to put screen memory and set the start address in hardware registers. This address is stored in the SCRNPTR registers (\$D060 -- \$D063, 53344 -- 53347 decimal). For example, to set the screen memory to address 12345:
 
 \begin{screencode}
 REM ENABLE C65+MEGA65 I/O
 IF PEEK($D018)<32 THEN POKE $D02F,ASC("G"):POKE $D02F,ASC("S")
-POKE $D060,$45:POKE $D061,$23:POKE $D062,$1
+
+WPOKE $D060,$2345:POKE $D062,$1
+\end{screencode}
+
+To use an existing screen set up by the KERNAL (the one visible to the user at boot), you can read the start address from these registers. Note that the KERNAL changes the location of screen memory under some circumstances, so the best practice is to read this address from the registers within the program, and not assume its location.
+
+\begin{screencode}
+10 SC=WPEEK($D060)+(PEEK($D063)*65536)
+20 POKE SC,1 : REM WRITE AN "A" TO THE UPPER RIGHT CORNER
 \end{screencode}
 
 \subsection{Relocating Character Generator Data}

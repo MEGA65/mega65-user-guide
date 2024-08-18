@@ -528,7 +528,7 @@ ciout = $ffa8
 ckout = $ffc9
 
     ldx #8
-    jsr chkout
+    jsr ckout
         \end{asmcode}
 \end{description}
 
@@ -613,17 +613,16 @@ clrch = $ffcc
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF50
     \item [Description:] Close all files on a device
-    \item [Inputs:]
-        \textbf{A} The device number (0-31)
     \item [Remarks:]
-        This calls CLOSE for each open file for the given device (FA).
+        This clears the logical file table and restores default I/O channels.
 
-        If one of the closed files is the current input or output channel, the default is restored.
-    \item [Example:]
+        This does not close any open files. Be sure to close files as needed before calling this routine.
+
+        Some documentation for this routine says it takes a device ID in the A register as an argument, to close just the files for that device. This does not match the C65 implementation.
+        \item [Example:]
         \begin{asmcode}
 close_all = $ff50
 
-    lda #$08
     jsr close_all
         \end{asmcode}
 \end{description}

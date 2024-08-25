@@ -346,7 +346,7 @@ int main(int argc, char** argv) {
         exit(-3);
       }
 
-      if (!strcmp(name, "RESQ") || !strcmp(name, "RESV")) continue;
+      if (!strcmp(name, "RESQ") || !strcmp(name, "RSVQ")) continue;
 
       opc_offset = bytes&0xff;
 

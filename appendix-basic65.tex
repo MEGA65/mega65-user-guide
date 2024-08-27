@@ -1072,9 +1072,9 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
    accepts the syntax with a 16-bit address at P and a bank number at B as well.
    The attic RAM is out of range for this compatibility mode.
 
-   The optional parameter {\bf R} (RAW MODE) does not interpret or use the
+   The optional parameter {\bf R} (``raw mode'') does not interpret or use the
    first two bytes of the program file as the load address, which is otherwise the
-   default behaviour. In RAW MODE every byte is read as data.
+   default behaviour. In raw mode, every byte is read as data.
 
    \filenamedefinition
 
@@ -1093,6 +1093,8 @@ BANK 1   :REM SELECT MEMORY CONFIGURATION 1
    {\bf BLOAD} cannot cross bank boundaries.
 
 {\bf BLOAD} uses the load address from the file if no P parameter is given.
+
+   It is possible to coerce {\bf BLOAD} to load a file of type {\bf SEQ} by using a filename suffix of: \texttt{,S} Be sure to also enable ``raw mode'' to avoid treating the first two bytes as a {\bf PRG} load address: \texttt{BLOAD "DATA,S",R,P(\$C000)}
 
 \item [Examples:] Using {\bf BLOAD}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -1342,6 +1344,8 @@ BOOT
    are written. Loading the file with the {\bf BLOAD} command will then
    require the full 16-bit range of the load address as a parameter.
 
+   While it is possible to coerce {\bf BSAVE} to create a file of type {\bf SEQ} using a filename suffix of \texttt{,S}, the command does not have a way to omit the two-byte load address, which is typically not desired for a {\bf SEQ} file. The ``raw'' mode of {\bf BLOAD} is not supported by {\bf BSAVE}.
+
 \item [Examples:] Using {\bf BSAVE}
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -1458,6 +1462,30 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
+
+
+% ***
+% C@&
+% ***
+
+\newpage
+\subsection{C@\&}
+\index{BASIC 65 System Variables!C}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf C@\&(}column{\bf ,} row{\bf)}
+\item [Usage:] Reads or sets the colour code of a character at given screen coordinates.
+
+   This behaves as an array variable. Assigning a value changes the colour code for the given character immediately.
+
+\item[Remarks:] {\bf C@\&} is a reserved system variable.
+
+   See appendix \vref{appendix:colourtable} for the list of colours in the default system palette. Upper bits also set text attributes, such as blinking.
+
+   Coordinates start at (0, 0) for the top-left corner. If the given coordinates are outside the current screen mode, accessing the array throws a Bad Subscript Error.
+
+\item [Example:] See {\bf T@\&}.
+\end{description}
+
 
 % *******
 % CATALOG
@@ -10078,6 +10106,45 @@ the ``Memory'' chapter of the {\bf MEGA65 Book}.
 \end{tcolorbox}
 
 \end{description}
+
+
+% ***
+% T@&
+% ***
+
+\newpage
+\subsection{T@\&}
+\index{BASIC 65 System Variables!T@\&}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Format:] {\bf T@\&(}column{\bf ,} row{\bf)}
+\item [Usage:] Reads or sets the screen code of a character at given screen coordinates.
+
+   This behaves as an array variable. Assigning a value changes the screen code for the given character immediately.
+
+\item[Remarks:] {\bf T@\&} is a reserved system variable.
+
+   Screen codes are not the same as PETSCII codes. See appendix \vref{appendix:screencodes} for a list of screen codes.
+
+   Coordinates start at (0, 0) for the top-left corner. If the given coordinates are outside the current screen mode, accessing the array throws a Bad Subscript Error.
+
+\item [Example:] Using {\bf T@\&} and {\bf C@\&}:
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 PRINT CHR$(147)
+20 FOR R=0 TO 3
+30 FOR C=0 TO 63
+40 T@&(C,R)=R*64+C
+50 C@&(C,R)=MOD(C,16)
+60 NEXT C
+70 NEXT R
+80 CURSOR 0,4
+\end{verbatim}
+\end{tcolorbox}
+
+\end{description}
+
+
 
 % ***
 % TAB

@@ -3136,6 +3136,7 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 \end{tcolorbox}
 \end{description}
 
+
 % *****
 % DMODE
 % *****
@@ -3149,22 +3150,39 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
 		stencil{\bf,} style{\bf,} thick
 \item [Usage:]
    Bitmap graphics: sets ``display mode'' parameters of the graphics
-   context, which is used by drawing commands.
+   context, used by drawing commands.
 
-\begin{center}
-\begin{tabular}{|l|l|}
-\hline
-   {\bf Mode} & {\bf Values}\\
-\hline
-   {\bf jam}        &  0 - 1 \\
-   {\bf complement} &  0 - 1 \\
-   {\bf stencil}    &  0 - 1 \\
-   {\bf style}      &  0 - 3 \\
-   {\bf thick}      &  1 - 8 \\
-\hline
-\end{tabular}
-\end{center}
+   If {\bf jam} is 1, drawing a pixel at the same location as another pixel combines the color values. The default is 0: overwrite the pixel.
+
+   If {\bf complement} is 1, drawing a pixel at the same location as another pixel produces a new color based on the XOR of the bitplanes. The default is 0: overwrite the pixel.
+
+   If {\bf style} is 1, drawing use the pattern specified by {\bf DPAT} for lines and fills. The default is 0: solid lines and fills.
+
+\item[Remarks:]
+   The {\bf stencil} and {\bf thick} parameters are not implemented and have no effect. These arguments are retained from the C65 design documentation for possible future implementation. Similarly, the C65 documentation suggests a third {\bf style} value that is also not implemented.
+
+   The C65 documentation suggests that {\bf jam} mode uses a separate pen color when drawing over the background, set by {\bf PEN 1,C}. This does not appear to be implemented.
+
+   See also {\bf DPAT}.
+
+\item [Example:] Using {\bf DPAT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 SCREEN 320,200,5
+20 PEN 2
+30 BOX 50,50,100,100,1
+40 PEN 6
+50 DMODE 1,0,0,0,0
+60 BOX 40,80,170,84,1
+70 DMODE 0,1,0,0,0
+80 BOX 40,90,170,94,1
+90 GETKEY A$
+100 SCREEN CLOSE
+\end{verbatim}
+\end{tcolorbox}
 \end{description}
+
 
 % **
 % DO
@@ -3321,8 +3339,15 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
    Bitmap graphics: sets the drawing pattern
    of the graphics context for drawing commands.
 
-   There a four predefined pattern types, that can be selected
+   There a four predefined pattern types that can be selected
    by specifying the type number (1, 2, 3, or 4) as a single parameter.
+
+   \begin{enumerate}
+      \item Thin dot
+      \item Thick dot
+      \item Dashed
+      \item Dot-dash
+   \end{enumerate}
 
    A value of zero for the type number indicates a user defined pattern.
    This pattern can be set by using a bit string that consists of either 8, 16, 24, or 32 bits.
@@ -3334,6 +3359,30 @@ DMA 2, 80, 2048, 0, 2048+80, 0 :REM SWAP CONTENTS OF LINE 1 & 2 OF SCREEN
        \item {\bf Number}  number of following pattern bytes (1 -- 4)
        \item {\bf Pattern} pattern bytes
     \end{itemize}
+
+\item[Remarks:]
+    To use the draw pattern, use {\bf DMODE} to set the {\bf style} mode to 1.
+
+    The effect of a draw pattern depends on the command doing the drawing. {\bf LINE} and perimeters of {\bf BOX} and {\bf POLYGON} will draw the pattern in the direction of the line. A filled rectangle drawn with {\bf BOX} will render the pattern horizontally in the fill. Other filled figures, such as {\bf CIRCLE}, {\bf ELLIPSE}, and non-rectangular {\bf BOX}, may apply the pattern in unpredictable ways based on their fill algorithm.
+
+    See also {\bf DMODE}.
+
+\item [Example:] Using {\bf DPAT}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 SCREEN 320,200,5
+20 DMODE 0,0,0,1,0
+30 PEN 2
+40 DPAT 1
+50 BOX 100,100,150,150,1
+60 PEN 3
+70 DPAT 0,4,%00110011,%00111100,%00001111,%11110000
+80 BOX 150,150,200,200,1
+90 GETKEY A$
+100 SCREEN CLOSE
+\end{verbatim}
+\end{tcolorbox}
 \end{description}
 
 % **
@@ -7393,25 +7442,16 @@ In most cases, {\bf OR} is used in {\bf IF} statements.
 \index{BASIC 65 Commands!PEN}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:] \$FE \$33
-\item [Format:] {\bf PEN} [pen{\bf,}] colour
-\item [Usage:]  Bitmap graphics: sets the colour of the graphic pen for the current screen.
+\item [Format:] {\bf PEN} colour
+\item [Usage:]  Bitmap graphics: sets the colour (palette entry) of the graphic pen for the current screen.
 
-                {\bf pen} pen number (0 -- 2):
-                \begin{itemize}
-                    \item {\bf 0} drawing pen (default, if only single parameter provided).
-                    \item {\bf 1} off bits in jam2 mode.
-                    \item {\bf 2} currently unused.
-                \end{itemize}
+  {\bf colour} palette index, from the palette of the current screen
 
-                {\bf colour} palette index, from the palette of the current screen
+  See appendix \vref{appendix:colourtable}
+  for the list of colours in the default system palette.
 
-                See appendix \vref{appendix:colourtable}
-                for the list of colours in the default system palette.
-
-\item [Remarks:] The colour selected by {\bf PEN} will be used by all
-                 graphic/drawing commands that follow it.
-                 If you intend to set the drawing {\bf pen} 0 to a colour, you can
-                 omit the first parameter, and only provide the {\bf colour} parameter.
+\item [Remarks:]
+  The C65 design documentation describes a two-argument form of {\bf PEN} that sets the palette entry for one of two pens: the drawing pen color (pen 0), and a secondary color used by the {\bf jam} drawing mode (pen 1). This feature of {\bf jam} does not appear to be implemented. See {\bf DMODE}.
 
 \item [Example:] Using {\bf PEN}
 

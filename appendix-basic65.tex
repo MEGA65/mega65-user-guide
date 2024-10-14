@@ -21,7 +21,7 @@ Punctuation and other letters in bold text represent other characters that are t
 Here is an example of using the {\bf KEY} command based on this pattern:
 
 \begin{screencode}
-KEY 6, "LIST"+CHR$(13)
+KEY 6, "LIST" + CHR$(13)
 \end{screencode}
 
 When you see square brackets around arguments, this indicates that the arguments are optional. You are not meant to type the square brackets. Consider this description of the {\bf CIRCLE} command, which accepts optional arguments:
@@ -52,7 +52,7 @@ KEY 8."FISH"
 READY.
 \end{screencode}
 
-Expressions can be a number value such as \screentext{23.7}, a string value such as \screentext{"HELLO"}, or a more complex calculation that combines values, functions, and operators to describe a number or string value: \screentext{"LIST"+CHR\$(13)}.
+Expressions can be a number value such as \screentext{23.7}, a string value such as \screentext{"HELLO"}, or a more complex calculation that combines values, functions, and operators to describe a number or string value: \screentext{"LIST"+CHR\$(13)}
 
 It is important to use the correct type of expression when writing your programs. If you accidentally use the wrong type, the MEGA65 will display a Type Mismatch error, to say that the type of expression you gave doesn't match what it expected. For example, the following command results in a Type Mismatch error, because \screentext{"POTATO"} is a string expression, and a numeric expression is expected:
 
@@ -60,7 +60,7 @@ It is important to use the correct type of expression when writing your programs
 KEY "POTATO", "SOUP"
 \end{screencode}
 
-Commands are statements that you can use directly from the \screentext{READY} prompt, or from within a program, for example:
+Commands are statements that you can use directly from the \screentext{READY.} prompt, or from within a program, for example:
 
 \begin{screencode}
 READY.
@@ -157,7 +157,7 @@ A program manipulates data by storing values in the computer's memory, referring
 
 For example, the variable \screentext{AA} can store a number value. The variable \screentext{AA\$} can store a string value. Commodore BASIC considers these to be separate variables, even though the names both begin with \screentext{AA}.
 
-One way to store a value in a variable is with the '{\bf =}' (assignment) operator. For example:
+One way to store a value in a variable is with the assignment operator ({\bf =}). For example:
 
 \begin{screencode}
 AA = 1.95
@@ -172,8 +172,8 @@ Variable names cannot contain any of the BASIC keywords. This makes using long n
 A variable can be used within an expression with other constants, variables, functions, and operators. It is substituted with the value that it contains at that point in the program's execution.
 
 \begin{screencode}
-10 INPUT "WHAT IS YOUR NAME";NA$
-20 MSG$ = "HELLO, "+NA$+"!"
+10 INPUT "WHAT IS YOUR NAME"; NA$
+20 MSG$ = "HELLO, " + NA$ + "!"
 30 PRINT MSG$
 \end{screencode}
 
@@ -209,8 +209,8 @@ The following example stores three string values in an array, then uses a {\bf F
 20 NA$(0) = "DEFT"
 30 NA$(1) = "GARDNERS"
 40 NA$(2) = "LYDON"
-50 FOR I=0 TO 2
-60 PRINT "HELLO, ";NA$(I);"!"
+50 FOR I = 0 TO 2
+60 PRINT "HELLO, "; NA$(I); "!"
 70 NEXT I
 \end{screencode}
 
@@ -225,11 +225,11 @@ BASIC needs to know the maximum size of the array before its first use, so that 
 An array can have multiple dimensions, each with its own index separated by a comma. The array must be declared with the maximum value for each dimension. Keep in mind that BASIC 65 allocates memory for the entire array, so large arrays may be constrained by available memory.
 
 \begin{screencode}
-DIM BO$(3,3)
-BO$(1,1) = "X"
-BO$(0,0) = "O"
-BO$(0,2) = "X"
-BO$(1,0) = "O"
+DIM BO$(3, 3)
+BO$(1, 1) = "X"
+BO$(0, 0) = "O"
+BO$(0, 2) = "X"
+BO$(1, 0) = "O"
 \end{screencode}
 
 \subsection{Screen Text and Colour Arrays}
@@ -247,11 +247,11 @@ A program can access individual characters on the screen using the special built
 Similar to regular arrays, the screen and colour array entries can be assigned new values, or used in expressions to refer to their current values.
 
 \begin{screencode}
-10 FOR X=10 TO 30
-20 T@&(X, 2)=1
-30 C@&(X, 2)=INT(RND(1)*16)
+10 FOR X = 10 TO 30
+20 T@&(X, 2) = 1
+30 C@&(X, 2) = INT(RND(1) * 16)
 40 NEXT X
-50 PRINT "COLOUR AT POSITION 15: ";C@&(15, 2)
+50 PRINT "COLOUR AT POSITION 15: "; C@&(15, 2)
 \end{screencode}
 
 The dimensions of these arrays depend on the current text screen mode. In 80 $\times$ 25 text mode, the column is in the range 0 -- 79, and the row is in the range 0 -- 24. The MEGA65 also supports 80 $\times$ 50 and 40 $\times$ 25 text modes.
@@ -264,41 +264,41 @@ An {\em operator} is a symbol or keyword that performs a function in an expressi
 For example, the {\bf *} (asterisk) operator performs a multiplication of two number operands. The operator and its operands evaluate to the result of the multiplication.
 
 \begin{screencode}
-A=6
-PRINT A*7
+A = 6
+PRINT A * 7
 \end{screencode}
 
 The {\bf +} (plus) operator has a different meaning depending on the type of the operands. If both operands are numbers, then the operator performs an addition of the numbers. If both operands are strings, then the operator evaluates to a new string that is the concatenation of the operands.
 
 \begin{screencode}
-A=64
-PRINT A+1
+A = 64
+PRINT A + 1
 
-A$="MEGA"
-PRINT A$+"65"
+A$ = "MEGA"
+PRINT A$ + "65"
 \end{screencode}
 
 The {\bf -} (minus) operator accepts either one operand or two operands. Given one number operand on the right-hand side, it evaluates to the negation of that number. Given two number operands, one on either side, it evaluates to the subtraction of the second operand from the first operand.
 
 \begin{screencode}
-A=64
+A = 64
 PRINT -A
 
-PRINT A-16
+PRINT A - 16
 \end{screencode}
 
-The {\bf =} (equals) symbol is used both as an assignment statement and as a relational operator. As an assignment, the {\bf =} symbol is a statement that updates the value of a variable. The left-hand side must be a variable or array element reference, and its type must match the type of the expression on the right-hand side. The assignment is not an operator: it is not part of an expression.
+The equals symbol ({\bf =}) is used both as an assignment statement and as a relational operator. As an assignment, the '{\bf =}' symbol is a statement that updates the value of a variable. The left-hand side must be a variable or array element reference, and its type must match the type of the expression on the right-hand side. The assignment is not an operator: it is not part of an expression.
 
 \begin{screencode}
-AA=7
-NA$="DEFT"
+AA = 7
+NA$ = "DEFT"
 \end{screencode}
 
-As a relational operator, the {\bf =} symbol behaves as an expression. It evaluates the expressions on both sides of the operator, then tests whether the values are equal. If they are equal, the equality operator evaluates to $-1$, BASIC's representation of ``true.'' If they are not equal, the operator evaluates to 0, or ``false.'' The equality expression can be used with an {\bf IF} statement to control program flow, or it can be used as part of a numeric expression. Both expressions must be of the same type.
+As a relational operator, the '{\bf =}' symbol behaves as an expression. It evaluates the expressions on both sides of the operator, then tests whether the values are equal. If they are equal, the equality operator evaluates to $-1$, BASIC's representation of ``true.'' If they are not equal, the operator evaluates to 0, or ``false.'' The equality expression can be used with an {\bf IF} statement to control program flow, or it can be used as part of a numeric expression. Both expressions must be of the same type.
 
 \begin{screencode}
-100 IF X=99 THEN 130
-110 X=X+1
+100 IF X = 99 THEN 130
+110 X = X + 1
 120 GOTO 100
 130 PRINT "DONE."
 \end{screencode}
@@ -314,15 +314,15 @@ BASIC 65 expects a statement, and notices a variable name followed by the {\bf =
 The operators {\bf NOT}, {\bf AND}, {\bf OR} and {\bf XOR} can be used either as logical operators or as boolean operators. A logical operator joins two conditional expressions as operands and evaluates to the logical comparison of their truth values.
 
 \begin{screencode}
-IF X=99 OR Y<5 THEN 130
+IF X = 99 OR Y < 5 THEN 130
 
-IF Y>10 AND Y<20 THEN 150
+IF Y > 10 AND Y < 20 THEN 150
 \end{screencode}
 
 A boolean operator accepts two number operands and performs a calculation on the bits of the binary values.
 
 \begin{screencode}
-A=17
+A = 17
 PRINT A AND 20
 \end{screencode}
 
@@ -534,18 +534,18 @@ PRINT ABS(-4.5)
 
 \item [Usage:]    Performs a bit-wise logical AND operation on two 16-bit values.
 
-                  Integer operands are used as they are. Real operands are converted to a signed 16-bit integer (losing precision). Logical operands are converted to 16-bit integer using \$FFFF (-1) for TRUE, and \$0000 (0) for FALSE.
+                  Integer operands are used as they are. Real operands are converted to a signed 16-bit integer (losing precision) in ``two's complement'' format. Logical operands are converted to 16-bit integer using \$FFFF (-1) for TRUE, and \$0000 (0) for FALSE.
 
                   \begin{center}
                   \setlength{\tabcolsep}{1mm}
                   \begin{tabular}{|c|c|}
                      \hline
-                     {\bf Expression} & {\bf Result}  \\
+                        {\bf Expression} & {\bf Result}  \\
                      \hline
-                     \screentext{0 AND 0}  &  \screentext{0} \\
-                     \screentext{0 AND 1}  &  \screentext{0} \\
-                     \screentext{1 AND 0}  &  \screentext{0} \\
-                     \screentext{1 AND 1}  &  \screentext{1} \\
+                        \texttt{0 AND 0} & \texttt{0} \\
+                        \texttt{0 AND 1} & \texttt{0} \\
+                        \texttt{1 AND 0} & \texttt{0} \\
+                        \texttt{1 AND 1} & \texttt{1} \\
                      \hline
                   \end{tabular}
                   \end{center}
@@ -591,8 +591,8 @@ IF (C >= 0 AND C < 256) THEN PRINT "BYTE VALUE"
 
                   {\bf channel} number where:
                   \begin{itemize}
-                     \item {\bf 1 <= channel <= 127}: line terminator is CR.
-                     \item {\bf 128 <= channel <= 255}: line terminator is CR LF.
+                     \item 1 <= channel <= 127: Line terminator is CR.
+                     \item 128 <= channel <= 255: Line terminator is CR LF.
                   \end{itemize}
 
                   \filenamedefinition
@@ -733,7 +733,7 @@ AUTO    : REM SWITCH AUTO OFF
 
 \item [Usage:]   Sets the background colour of the screen.
 
-                 {\bf colour} palette entry number, in the range 0 -- 255.
+                 {\bf colour} palette entry number, in the range 0 -- 255
 
                  All colours within this range are customisable via the {\bf PALETTE} command.
                  
@@ -781,9 +781,9 @@ BACKGROUND 3 : REM SELECT BACKGROUND COLOUR CYAN
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-BACKUP U8 TO U9      : REM BACKUP (INTERNAL) UNIT 8 TO UNIT 9
+BACKUP U8 TO U9      : REM BACKUP FDC UNIT 8 TO FDC UNIT 9
 
-BACKUP U9 TO U8      : REM BACKUP UNIT 9 TO (INTERNAL) UNIT 8
+BACKUP U9 TO U8      : REM BACKUP FDC UNIT 9 TO FDC UNIT 8
 
 BACKUP D0 TO D1, U10 : REM BACKUP ON DUAL DRIVE CONNECTED VIA IEC
 \end{verbatim}
@@ -847,12 +847,12 @@ BANK 1 : REM SELECT MEMORY CONFIGURATION 1
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 GET A$
-20 IF A$>="A" AND A$<="Z" THEN BEGIN : REM IGNORE ALL EXCEPT (A-Z)
-30 PW$=PW$+A$
-40 IF LEN(PW$)>7 THEN 90
+20 IF A$ >= "A" AND A$ <= "Z" THEN BEGIN : REM IGNORE ALL EXCEPT (A-Z)
+30 PW$ = PW$ + A$
+40 IF LEN(PW$) > 7 THEN 90
 50 BEND
-60 IF A$<>CHR$(13) GOTO 10
-90 PRINT "PW=";PW$
+60 IF A$ <> CHR$(13) GOTO 10
+90 PRINT "PW="; PW$
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -879,9 +879,9 @@ BANK 1 : REM SELECT MEMORY CONFIGURATION 1
 \verbatimfont{\codefont}
 \begin{verbatim}
 5 REM DEMOS THE "QUIRK" DESCRIBED
-10 IF Z>1 THEN BEGIN : A$="ONE"
-20 B$="TWO"
-30 PRINT A$;" ";B$; : BEND : PRINT " QUIRK"
+10 IF Z > 1 THEN BEGIN : A$ = "ONE"
+20 B$ = "TWO"
+30 PRINT A$; " "; B$; : BEND : PRINT " QUIRK"
 40 REM EXECUTION RESUMES HERE FOR Z <= 1
 \end{verbatim}
 \end{tcolorbox}
@@ -921,9 +921,9 @@ BANK 1 : REM SELECT MEMORY CONFIGURATION 1
 
 \item [Remarks:]  {\bf BLOAD} cannot cross bank boundaries.
 
-                  {\bf BLOAD} uses the load address from the file if no {\bf,P} parameter is given.
+                  {\bf BLOAD} uses the load address from the file if no {\bf P} parameter is given.
 
-                  It is possible to coerce {\bf BLOAD} to load a file of type {\bf SEQ} by using a filename suffix of: \screentext{",S"}. Be sure to also enable raw mode to avoid treating the first two bytes as a {\bf PRG} load address: \screentext{BLOAD "DATA,S",R,P(\$C000)}.
+                  It is possible to coerce {\bf BLOAD} to load a file of type {\bf SEQ} by using a filename suffix of: \screentext{",S"}. Be sure to also enable raw mode to avoid treating the first two bytes as a {\bf PRG} load address: \screentext{BLOAD "DATA,S",R,P(\$C000)}
 
 \item [Examples:] Using {\bf BLOAD}
 
@@ -963,7 +963,7 @@ BLOAD "CHUNK", P($8000000)
 
                   {\bf BOOT SYS} loads the boot sector (512 bytes in total) from sector 0, track 1 and unit 8 to address \$0400 in bank 0, and performs a \texttt{JSR \$0400} afterwards (Jump To Subroutine).
 
-                  {\bf BOOT} with no parameters attempts to load and execute a file named \screentext{AUTOBOOT.C65} from the default unit. It's short for \screentext{RUN "AUTOBOOT.C65"}.
+                  {\bf BOOT} with no parameters attempts to load and execute a file named \screentext{AUTOBOOT.C65} from the default unit. It's short for \screentext{RUN "AUTOBOOT.C65"}
 
                   \filenamedefinition
 
@@ -1081,7 +1081,7 @@ BOX 0, 0,  160, 80,  160, 0,  0, 80
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-BOX 20,0, 140,0, 160,80, 0,80
+BOX 20, 0,  140, 0, 160, 80,  0, 80
 \end{verbatim}
 \end{tcolorbox}
 \begin{center}
@@ -1119,7 +1119,7 @@ BOX 20,0, 140,0, 160,80, 0,80
 
                   \filenamedefinition
 
-                  If the first character of the filename is an '@' (at sign), it is interpreted as a "save and replace" operation. It is not recommended to use this option on 1541 and 1571 drives, as they contain a "save and replace bug" in their DOS.
+                  If the first character of the filename is an at sign ({\bf @}), it is interpreted as a "save and replace" operation. It is not recommended to use this option on 1541 and 1571 drives, as they contain a "save and replace bug" in their DOS.
 
                   {\bf start} address where saving begins. It also becomes the load address, which is stored in the first two bytes of the {\bf PRG} file.
 
@@ -1171,7 +1171,7 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 
 \item [Returns:]  A bitfield of sprites currently colliding with other sprites or screen data.
 
-                  {\bf type} of collision where 1:sprite-sprite and 2:sprite-screen data.
+                  {\bf type} the type of collision where 1:sprite-sprite and 2:sprite-screen data.
 
                   Each bit set in the returned value indicates that the sprite corresponding to that bit position was involved in a collision since the last call of {\bf BUMP}. Calling {\bf BUMP} resets the collision mask, so you will always get a summary of collisions encountered since the last call of {\bf BUMP}.
 
@@ -1201,11 +1201,11 @@ BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 S% = BUMP(1) : REM SPRITE<->SPRITE COLLISION
+10 S% = BUMP(1) : REM SPRITE <-> SPRITE COLLISION
 20 IF (S% AND 6) = 6 THEN PRINT "SPRITE 1 & 2 COLLISION"
 30 REM ---
-40 S% = BUMP(2) : REM SPRITE<->DATA COLLISION
-50 IF (S%<>0) THEN PRINT "SOME SPRITE HIT DATA REGION"
+40 S% = BUMP(2) : REM SPRITE <-> DATA COLLISION
+50 IF (S% <> 0) THEN PRINT "SOME SPRITE HIT DATA REGION"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -1467,10 +1467,10 @@ CHANGE &IN& TO &OUT&
 
                  {\bf direction} controls the printing direction:
                  \begin{itemize}
-                    \item {\bf 1}: up
-                    \item {\bf 2}: right
-                    \item {\bf 4}: down
-                    \item {\bf 8}: left
+                    \item 1: up
+                    \item 2: right
+                    \item 4: down
+                    \item 8: left
                  \end{itemize}
 
                  The optional {\bf address of character set} can be used to select a character set, different to the default character set at \$29800, which includes upper and lower case characters.
@@ -1645,8 +1645,8 @@ CHDIR "/", U8            : REM GO BACK TO ROOT DIRECTORY
 \begin{verbatim}
 10 QUOTE$  = CHR$(34)
 20 ESCAPE$ = CHR$(27)
-30 PRINT QUOTE$;"MEGA65";QUOTE$ : REM PRINT "MEGA65"
-40 PRINT ESCAPE$;"Q";           : REM CLEAR TO END OF LINE
+30 PRINT QUOTE$; "MEGA65"; QUOTE$ : REM PRINT "MEGA65"
+40 PRINT ESCAPE$; "Q";            : REM CLEAR TO END OF LINE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -1665,11 +1665,11 @@ CHDIR "/", U8            : REM GO BACK TO ROOT DIRECTORY
 
 \item [Usage:]   Bitmap graphics: draws a circle. This is a special case of {\bf ELLIPSE}, using the same value for horizontal and vertical radius.
 
-                 {\bf xc} x coordinate of the centre in pixels.
+                 {\bf xc} the x coordinate of the centre in pixels.
 
-                 {\bf yc} y coordinate of the centre in pixels.
+                 {\bf yc} the y coordinate of the centre in pixels.
 
-                 {\bf radius} radius of the circle in pixels.
+                 {\bf radius} the radius of the circle in pixels.
 
                  {\bf flags} controls filling, arcs and the position of the 0 degree angle. Default setting (zero) is don't fill, draw legs and the 0 degree radian points to 3 o' clock.
 
@@ -1687,9 +1687,9 @@ CHDIR "/", U8            : REM GO BACK TO ROOT DIRECTORY
 
                  The units for the start- and stop-angle are degrees in the range of 0 to 360. The 0 radian starts at 3 o' clock and moves clockwise. Setting bit 2 of flags (value 4) moves the zero-radian to the 12 o' clock position.
 
-                 {\bf start} start angle for drawing an arc.
+                 {\bf start} the start angle for drawing an arc.
 
-                 {\bf stop} stop angle for drawing an arc.
+                 {\bf stop} the stop angle for drawing an arc.
 
 \item [Remarks:] {\bf CIRCLE} is used to draw circles on screens with an aspect ratio of 1:1 (for example: 320 x 200 or 640 x 400). Whilst using other resolutions (such as 640 x 200), the shape will be an ellipse instead.
 
@@ -1699,29 +1699,29 @@ CHDIR "/", U8            : REM GO BACK TO ROOT DIRECTORY
 \verbatimfont{\codefont}
 \begin{verbatim}
 100 REM CIRCLE (AFTER F.BOWEN)
-110 BORDER 0                                      : REM BLACK
-120 SCREEN 320, 200, 4                            : REM SIMPLE SCREEN SETUP
-130 PALETTE 0, 0,         0,         0,         0 : REM BLACK
-140 PALETTE 0, 1, RND(.)*16, RND(.)*16,        15 : REM RANDOM COLOURS
-150 PALETTE 0, 2, RND(.)*16,        15, RND(.)*16
-160 PALETTE 0, 3,        15, RND(.)*16, RND(.)*16
-170 PALETTE 0, 4, RND(.)*16, RND(.)*16,        15
-180 PALETTE 0, 5, RND(.)*16,        15, RND(.)*16
-190 PALETTE 0, 6,        15, RND(.)*16, RND(.)*16
-200 SCNCLR 0                                      : REM CLEAR SCREEN
-210 FOR I=0 TO 32                                 : REM CIRCLE LOOP
-220 PEN 0, RND(.)*6+1                             : REM RANDOM PEN
-230 R =RND(.)*36+1                                : REM RADIUS
-240 XC=R+RND(.)*320 : IF (XC+R)>319 THEN 240      : REM X CENTRE
-250 YC=R+RND(.)*200 : IF (YC+R)>199 THEN 250      : REM Y CENTRE
-260 CIRCLE XC, YC, R, .                           : REM DRAW
+110 BORDER 0                                            : REM BLACK
+120 SCREEN 320, 200, 4                                  : REM SIMPLE SCREEN SETUP
+130 PALETTE 0, 0,           0,           0,           0 : REM BLACK
+140 PALETTE 0, 1, RND(.) * 16, RND(.) * 16,          15 : REM RANDOM COLOURS
+150 PALETTE 0, 2, RND(.) * 16,          15, RND(.) * 16
+160 PALETTE 0, 3,          15, RND(.) * 16, RND(.) * 16
+170 PALETTE 0, 4, RND(.) * 16, RND(.) * 16,          15
+180 PALETTE 0, 5, RND(.) * 16,          15, RND(.) * 16
+190 PALETTE 0, 6,          15, RND(.) * 16, RND(.) * 16
+200 SCNCLR 0                                            : REM CLEAR SCREEN
+210 FOR I = 0 TO 32                                     : REM CIRCLE LOOP
+220 PEN 0, RND(.) * 6 + 1                               : REM RANDOM PEN
+230 R  = RND(.) * 36 + 1                                : REM RADIUS
+240 XC = R + RND(.) * 320 : IF (XC + R) > 319 THEN 240  : REM X CENTRE
+250 YC = R + RND(.) * 200 : IF (YC + R) > 199 THEN 250  : REM Y CENTRE
+260 CIRCLE XC, YC, R, .                                 : REM DRAW
 270 NEXT
-280 GETKEY A$                                     : REM WAIT FOR KEY
+280 GETKEY A$                                           : REM WAIT FOR A KEY
 290 SCREEN CLOSE : BORDER 6
 \end{verbatim}
 \end{tcolorbox}
 
-                 The example program uses the random number function {\bf RND} for circle colour, size and position. So it shows a different picture for each run.
+                 The example program uses the random number function {\bf RND} for circle colour, size and position. So it shows a different picture for each run:
 
 \item \begin{center}\includegraphics[width=\linewidth]{images/circle.png}\end{center}
 
@@ -1779,7 +1779,7 @@ CHDIR "/", U8            : REM GO BACK TO ROOT DIRECTORY
 
                  After executing {\bf CLR}, all variables and arrays will be undeclared. The run-time stack pointers and the table of open channels are also reset.
                  
-                 If {\bf variable} is set provided, it will be cleared (zeroed). {\bf variable} can be a numeric variable or a string variable, but not an array.
+                 If {\bf variable} is provided, it will be cleared (zeroed). {\bf variable} can be a numeric variable or a string variable, but not an array.
 
 \item [Remarks:] {\bf CLR} should not be used inside loops or subroutines, as it destroys the return address.
                
@@ -1792,9 +1792,9 @@ CHDIR "/", U8            : REM GO BACK TO ROOT DIRECTORY
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 A=5 : P$="MEGA65"
+10 A = 5 : P$ = "MEGA65"
 20 CLR
-30 PRINT A;P$
+30 PRINT A; P$
 
 RUN
  0
@@ -1961,14 +1961,14 @@ COLLECT D0, U9
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 COLLISION 1, 70                                   : REM ENABLE
-20 SPRITE 1, 1 : MOVSPR 1, 120,   0 : MOVSPR 1,0#5
-30 SPRITE 2, 1 : MOVSPR 2, 120, 100 : MOVSPR 2,180#5
-40 FOR I=1 TO 50000 : NEXT
-50 COLLISION 1                                       : REM DISABLE
+20 SPRITE 1, 1 : MOVSPR 1, 120,   0 : MOVSPR 1, 0#5
+30 SPRITE 2, 1 : MOVSPR 2, 120, 100 : MOVSPR 2, 180#5
+40 FOR I = 1 TO 50000 : NEXT
+50 COLLISION 1                                        : REM DISABLE
 60 END
 70 REM SPRITE <-> SPRITE INTERRUPT HANDLER
-80 PRINT "BUMP RETURNS";BUMP(1)
-90 RETURN                                            : REM RETURN FROM INTERRUPT
+80 PRINT "BUMP RETURNS"; BUMP(1)
+90 RETURN                                             : REM RETURN FROM INTERRUPT
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -2019,9 +2019,9 @@ COLOR 3 : PRINT "THIS IS CYAN"
 
 \item [Usage:]    Appends (concatenates) the contents of the {\bf appendfile} to the {\bf targetfile}. Afterwards, {\bf targetfile} contains the contents of both files, while {\bf appendfile} remains unchanged.
 
-                  {\bf appendfile} is either a quoted string, for example: \screentext{"DATA"} or a string expression in brackets, for example: \screentext{(FI\$)}.
+                  {\bf appendfile} is either a quoted string, for example: \screentext{"DATA"} or a string expression in brackets, for example: \screentext{(FI\$)}
 
-                  {\bf targetfile} is either a quoted string, for example: \screentext{"SAFE"} or a string expression in brackets, for example: \screentext{(FS\$)}.
+                  {\bf targetfile} is either a quoted string, for example: \screentext{"SAFE"} or a string expression in brackets, for example: \screentext{(FS\$)}
 
                   If the disk unit has dual drives, it is possible to apply {\bf CONCAT} to files which are stored on different disks. In this case, it is necessary to specify the drive\# for both files. This is also necessary if both files are stored on drive\#1.
 
@@ -2072,7 +2072,7 @@ CONCAT "ADDRESS", D0 TO "ADDRESS BOOK", D1
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 I=I+1 : GOTO 10
+10 I = I + 1 : GOTO 10
 
 RUN
 
@@ -2100,9 +2100,9 @@ CONT
 
 \item [Usage:]    Copies a file to another file, or one or more files from one disk to another.
 
-                  {\bf source} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(FI\$)}.
+                  {\bf source} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(FI\$)}
 
-                  {\bf target} is either a quoted string, e.g. \screentext{"BACKUP"} or a string expression in brackets, e.g. \screentext{(FS\$)}.
+                  {\bf target} is either a quoted string, e.g. \screentext{"BACKUP"} or a string expression in brackets, e.g. \screentext{(FS\$)}
 
                   \drivedefinition
 
@@ -2159,7 +2159,7 @@ COPY "M*", U9 TO U11     : REM PATTERN COPY
 PRINT COS(0.7)
  0.76484219
 
-X=60 : PRINT COS(X * ~ / 180)
+X = 60 : PRINT COS(X * ~ / 180)
  0.5
 \end{verbatim}
 \end{tcolorbox}
@@ -2265,7 +2265,7 @@ X=60 : PRINT COS(X * ~ / 180)
 
 \item [Remarks:] It is good programming practice to put large amounts of {\bf DATA} statements at the end of the program, so they don't slow down the search for line numbers after {\bf GOTO}, and other statements with line number targets.
 
-                 Empty items with no constant between commas are allowed and will be interpreted as zero for numeric constants and an empty string for string constants.
+                 Empty items with no constant between commas are allowed and will be returned as a zero for numeric constants and an empty string for string constants.
 
 \item [Example:] Using {\bf DATA}
 
@@ -2274,9 +2274,9 @@ X=60 : PRINT COS(X * ~ / 180)
 \begin{verbatim}
 10 READ NA$, VE
 20 READ N% : FOR I=2 TO N% : READ GL(I) : NEXT I
-30 PRINT "PROGRAM: ";NA$;"  VERSION:";VE
+30 PRINT "PROGRAM: "; NA$; "  VERSION:"; VE
 40 PRINT "N-POINT GAUSSLEGENDRE FACTORS E1:"
-50 FOR I=2 TO N% : PRINT I;GL(I) : NEXT I
+50 FOR I = 2 TO N% : PRINT I; GL(I) : NEXT I
 60 END
 80 DATA "MEGA65", 1.1
 90 DATA 5, 0.5120, 0.3573, 0.2760, 0.2252
@@ -2389,7 +2389,7 @@ DCLOSE U9 : REM CLOSE ALL FILES OPEN ON UNIT 9
 PRINT DEC("D000")
 53248
 
-POKE DEC("600"),255
+POKE DEC("600"), 255
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -2449,13 +2449,13 @@ PRINT DECBIN("1101000000000000")
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 PD=~ / 180
-20 DEF FN CD(X)=COS(X*PD) : REM COS FOR DEGREES
-30 DEF FN SD(X)=SIN(X*PD) : REM SIN FOR DEGREES
-40 FOR D=0 TO 360 STEP 90
-50 PRINT USING "###";D;
-60 PRINT USING " ##.##";FNCD(D);
-70 PRINT USING " ##.##";FNSD(D)
+10 PD = ~ / 180
+20 DEF FN CD(X) = COS(X * PD) : REM COS FOR DEGREES
+30 DEF FN SD(X) = SIN(X * PD) : REM SIN FOR DEGREES
+40 FOR D = 0 TO 360 STEP 90
+50 PRINT USING "###"; D;
+60 PRINT USING " ##.##"; FNCD(D);
+70 PRINT USING " ##.##"; FNSD(D)
 80 NEXT D
 
 RUN
@@ -2485,7 +2485,7 @@ RUN
 
                  {\bf line range} consists of the first and last line to delete, or a single line number. If the first number is omitted, the first BASIC line is assumed. The second number in the range specifier defaults to the last BASIC line.
 
-                 {\bf filename} is either a quoted string, for example: \screentext{"SAFE"} or a string expression in brackets, for example: \screentext{(FS\$)}.
+                 {\bf filename} is either a quoted string, for example: \screentext{"SAFE"} or a string expression in brackets, for example: \screentext{(FS\$)}
 
                  \drivedefinition
 
@@ -2542,10 +2542,10 @@ DELETE "R*=PRG"  : REM DELETE PROGRAM FILES STARTING WITH 'R'
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 DIM A%(8)    : REM ARRAY OF 9 ELEMENTS
-20 DIM XX(2,3)  : REM ARRAY OF 3X4 = 12 ELEMENTS
-30 FOR I=0 TO 8 : A%(I)=PEEK(256+I) : PRINT A%(I); : NEXT : PRINT
-40 FOR I=0 TO 2 : FOR J=0 TO 3 : READ XX(I,J) : PRINT XX(I,J); : NEXT J,I
+10 DIM A%(8)     : REM ARRAY OF 9 ELEMENTS
+20 DIM XX(2, 3)  : REM ARRAY OF 3X4 = 12 ELEMENTS
+30 FOR I = 0 TO 8 : A%(I) = PEEK(256 + I) : PRINT A%(I); : NEXT : PRINT
+40 FOR I = 0 TO 2 : FOR J = 0 TO 3 : READ XX(I, J) : PRINT XX(I, J); : NEXT J, I
 50 END
 60 DATA 1, -2, 3, -4, 5, -6, 7, -8, 9, -10, 11, -12
 
@@ -2579,7 +2579,7 @@ RUN
 
                   The {\bf R} (Recoverable) parameter includes files in the directory, which are flagged as deleted but are still recoverable.
 
-                  {\bf filepattern} is either a quoted string (\screentext{"DA*"}) or a string expression in brackets (\screentext{DI\$}).
+                  {\bf filepattern} is either a quoted string (\screentext{"DA*"}) or a string expression in brackets (\screentext{DI\$})
 
                   The {\bf U12} argument lists the contents of the SD card. It can be used with the {\bf P} argument for a paginated display. It does not support other arguments.
 
@@ -2591,10 +2591,10 @@ RUN
 
                   The {\bf filepattern} can be used to filter the listing. Within the pattern:
                   \begin{itemize}
-                     \item "\texttt{*}" matches any number of characters of any type
-                     \item "\texttt{*\#}" matches any number of digits
-                     \item "\texttt{*\$}" matches any number of letters
-                     \item "\texttt{?}" matches a single character of any type
+                     \item \texttt{*} matches any number of characters of any type.
+                     \item \texttt{*\#} matches any number of digits.
+                     \item \texttt{*\$} matches any number of letters.
+                     \item \texttt{?} matches a single character of any type.
                   \end{itemize}
 
                   Adding {\bf ,T=} to the pattern string, with {\bf T} specifying a filetype of {\bf P}, {\bf S}, {\bf U}, {\bf R} or {\bf C} (for {\bf P}RG, {\bf S}EQ, {\bf U}SR, {\bf R}EL, {\bf C}BM) filters the output to that filetype.
@@ -2683,7 +2683,7 @@ DISK "U0>9" : REM CHANGE UNIT# TO 9
 
                   The third form is similar to the second one, but the files on are consecutive line numbers. This listing can be scrolled like a BASIC program with the keys \megakey{F9} or \megakey{F11}, edited, listed, saved or printed.
 
-                  A filter can be applied by specifying a pattern or a pattern and a type. The asterisk '*' matches the rest of the name, while the '?' matches any single character. The type specifier can be a character of (P, S, U, R, C), that is Program, Sequential, User, Relative, or CBM file.
+                  A filter can be applied by specifying a pattern or a pattern and a type. The asterisk \texttt{*} matches the rest of the name, while the \texttt{?} matches any single character. The type specifier can be a character of (P, S, U, R, C), that is Program, Sequential, User, Relative, or CBM file.
 
                   \filenamedefinition
 
@@ -2730,11 +2730,11 @@ DLOAD "$$X*=P" : REM DIRECTORY WITH PRG FILES STARTING WITH 'X'
 \item [Format:]   {\bf DMA} command [{\bf,} length{\bf,} source address{\bf,} source bank{\bf,} target address{\bf,} target bank[{\bf,} sub]]
 \item [Usage:]    {\bf DMA} ("Direct Memory Access") is obsolete, and has been replaced by {\bf EDMA}.
 
-                  The {\bf command} control the function using the lower two bits: 0: copy, 1: mix, 2: swap, 3: fill. \underline{NOTE}: Only copy and fill are implemented in the MEGA65 DMAcontroller at the time of writing. Other DMAgic command bits can also be set, for example, to allow copying data in the reverse direction, or holding the source or destination address.
+                  The {\bf command} control the function using the lower two bits: 0: copy, 1: mix, 2: swap, 3: fill.
 
                   {\bf length} number of bytes (in the range 0 to 65535). \underline{NOTE}: Specifying a length of 0 will be interpreted as a length of 65536 (exactly 64KB).
 
-                  {\bf source address} (16-bit) of read area or fill byte
+                  {\bf source address} (16-bit) of read area or fill byte.
 
                   {\bf source bank} number for source (ignored for fill mode).
 
@@ -2745,6 +2745,8 @@ DLOAD "$$X*=P" : REM DIRECTORY WITH PRG FILES STARTING WITH 'X'
                   {\bf sub} command to use.
 
 \item [Remarks:]  {\bf DMA} has access to the lower 1MB address range organised in 16 banks of 64KB. To avoid this limitation, use {\bf EDMA}, which has access to the full 256MB address range.
+
+                  \underline{NOTE}: Only copy and fill are implemented in the MEGA65 DMAcontroller at the time of writing. Other DMAgic command bits can also be set, for example, to allow copying data in the reverse direction, or holding the source or destination address.
 
 \item [Examples:] Using {\bf DMA}
 
@@ -2828,21 +2830,21 @@ DMA 0, 80*25, 0, 4, 2048, 0  : REM RESTORE SCREEN FROM $0000 BANK 4
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 PW$="" : DO
-20 GET A$ : PW$=PW$+A$
-30 LOOP UNTIL LEN(PW$)>7 OR A$=CHR$(13)
+10 PW$ = "" : DO
+20 GET A$ : PW$ = PW$ + A$
+30 LOOP UNTIL LEN(PW$) > 7 OR A$ = CHR$(13)
 
 10 DO                          : REM WAIT FOR USER DECISION
 20 GET A$
-30 LOOP UNTIL A$="Y" OR A$="N"
+30 LOOP UNTIL A$ = "Y" OR A$ = "N"
 
-10 DO WHILE ABS(EPS)>0.001
+10 DO WHILE ABS(EPS) > 0.001
 20 GOSUB 2000                  : REM ITERATION SUBROUTINE
 30 LOOP
 
-10 I%=0                        : REM INTEGER LOOP 1-100
-20 DO : I%=I%+1
-30 LOOP WHILE I%<101
+10 I% = 0                      : REM INTEGER LOOP 1-100
+20 DO : I% = I %+ 1
+30 LOOP WHILE I% < 101
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -2860,8 +2862,8 @@ DMA 0, 80*25, 0, 4, 2048, 0  : REM RESTORE SCREEN FROM $0000 BANK 4
 
                   {\bf channel} number, where:
                   \begin{itemize}
-                     \item {\bf 1 <= channel <= 127}: line terminator is CR.
-                     \item {\bf 128 <= channel <= 255}: line terminator is CR LF.
+                     \item 1 <= channel <= 127: Line terminator is CR.
+                     \item 128 <= channel <= 255: Line terminator is CR LF.
                   \end{itemize}
 
                   {\bf L} indicates that the file is a relative file, which is opened for read/write, as well as random access.
@@ -2920,8 +2922,8 @@ DOPEN#4, "MYPROG,P"
 10 SCREEN 320, 200, 5
 20 BOX 50, 50, 270, 150
 30 VIEWPORT 50, 50, 220, 100
-40 FOR I=0 TO 127
-50 DOT I+I+I, I+I, I
+40 FOR I = 0 TO 127
+50 DOT I + I + I, I + I, I
 60 NEXT
 70 GETKEY A
 80 SCREEN CLOSE
@@ -2948,18 +2950,18 @@ DOPEN#4, "MYPROG,P"
                   There are four predefined pattern types that can be selected by specifying the type number (1, 2, 3, or 4) as a single parameter.
 
                   \begin{itemize}
-                     \item {\bf 1}: Thin dot
-                     \item {\bf 2}: Thick dot
-                     \item {\bf 3}: Dashed
-                     \item {\bf 4}: Dot-dash
+                     \item 1: Thin dot.
+                     \item 2: Thick dot.
+                     \item 3: Dashed.
+                     \item 4: Dot-dash.
                   \end{itemize}
 
                   A value of zero for the type number indicates a user defined pattern. This pattern can be set by using a bit string that consists of either 8, 16, 24, or 32 bits. The number of used pattern bytes is given as the second parameter. It defines how many pattern bytes (1, 2, 3, or 4) follow.
 
                   \begin{itemize}
-                     \item {\bf Type}:    0 -- 4
-                     \item {\bf Number}:  number of following pattern bytes (1 -- 4)
-                     \item {\bf Pattern}: pattern bytes
+                     \item Type: 0 -- 4.
+                     \item Number: Number of following pattern bytes (1 -- 4).
+                     \item Pattern: Pattern bytes.
                   \end{itemize}
 
 \item[Remarks:]   To use the draw pattern, use {\bf DMODE} to set the {\bf style} mode to 1.
@@ -3015,7 +3017,7 @@ DOPEN#4, "MYPROG,P"
 \verbatimfont{\codefont}
 \begin{verbatim}
 100 DOPEN#1, "DATA"
-110 IF DS<>0 THEN PRINT "COULD NOT OPEN FILE DATA" : STOP
+110 IF DS <> 0 THEN PRINT "COULD NOT OPEN FILE DATA" : STOP
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3046,7 +3048,7 @@ DOPEN#4, "MYPROG,P"
 \verbatimfont{\codefont}
 \begin{verbatim}
 100 DOPEN#1, "DATA"
-110 IF DS<>0 THEN PRINT DS$ : STOP
+110 IF DS <> 0 THEN PRINT DS$ : STOP
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3069,7 +3071,7 @@ DOPEN#4, "MYPROG,P"
 
                   The maximum length of the filename is 16 characters.
 
-                  {\bf DSAVE} will report an error if a file with the given name already exists. To replace an existing file, put an '(\texttt{@})' (at sign) before the filename, inside the quotes.
+                  {\bf DSAVE} will report an error if a file with the given name already exists. To replace an existing file, put an at sign ({\bf @}) before the filename, inside the quotes.
 
                   \underline{NOTE}: Save-with-replace is not recommended on 1541 and 1571 drives, due to a bug in older versions of the disk operating system that may lose data.
 
@@ -3110,7 +3112,7 @@ DSAVE "DUNGEON", D1, U10
 
 \item [Usage:]    The current date, as a string.
 
-                  The date value is updated from the RTC (Real-Time Clock). The string {\bf DT\$} is formatted as \texttt{"DD-MMM-YYYY"}, for example \texttt{"04-APR-2021"}.
+                  The date value is updated from the RTC (Real-Time Clock). The string {\bf DT\$} is formatted as \texttt{DD-MMM-YYYY}, for example \texttt{04-APR-2021}.
 
 \item[Remarks:]   {\bf DT\$} is a reserved system variable. For more information on how to set the Real-Time Clock, refer to \ifdefined\printmanual
                      the {\bf MEGA65 Book}.
@@ -3123,7 +3125,7 @@ DSAVE "DUNGEON", D1, U10
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 PRINT "TODAY IS: ";DT$
+100 PRINT "TODAY IS: "; DT$
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3148,7 +3150,7 @@ DSAVE "DUNGEON", D1, U10
 
                   \unitdefinition
 
-\item [Remarks:]  {\bf DVERIFY} can only test for equality. It gives no information about the number or position of different valued bytes. {\bf DVERIFY} exits either with the message \texttt{OK} or with \texttt{VERIFY ERROR}. If a Verify error is raised, the address displayed will always be at \$2001.
+\item [Remarks:]  {\bf DVERIFY} can only test for equality. It gives no information about the number or position of different valued bytes. {\bf DVERIFY} exits either with the message \texttt{OK} or with a Verify error. If a Verify error is raised, the address displayed will always be at \$2001.
 
 \item [Examples:] Using {\bf DVERIFY}
 
@@ -3284,7 +3286,7 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \end{verbatim}
 \end{tcolorbox}
 
-                  By adding 32 (bit 5) to the command parameter, the DMA operation can be performed in reverse order
+                  By adding 32 (bit 5) to the command parameter, the DMA operation can be performed in reverse order:
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
@@ -3296,7 +3298,7 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \end{tcolorbox}
 \clearpage
 
-                  Listing and output of the reverse example
+                  Listing and output of the reverse example:
 
 \item \begin{center}\includegraphics[width=\linewidth]{images/basic-example-edma.png}\end{center}
 \end{description}
@@ -3325,12 +3327,12 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 TRAP 100
- 20 PRINT SQR(-1)                         : REM PROVOKE ERROR
- 30 PRINT "AT LINE 30"                    : REM HERE TO RESUME
+ 20 PRINT SQR(-1)                           : REM PROVOKE ERROR
+ 30 PRINT "AT LINE 30"                      : REM HERE TO RESUME
  40 END
-100 IF ER>0 THEN PRINT ERR$(ER);" ERROR"
-110 PRINT " IN LINE";EL
-120 RESUME NEXT                           : REM RESUME AFTER ERROR
+100 IF ER > 0 THEN PRINT ERR$(ER); " ERROR"
+110 PRINT " IN LINE"; EL
+120 RESUME NEXT                             : REM RESUME AFTER ERROR
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3349,13 +3351,13 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 
 \item [Usage:]    Bitmap graphics: draws an ellipse.
 
-                  {\bf xc} x coordinate of the centre in pixels.
+                  {\bf xc} the x coordinate of the centre in pixels.
 
-                  {\bf yc} y coordinate of the centre in pixels.
+                  {\bf yc} the y coordinate of the centre in pixels.
 
-                  {\bf xr} x radius of the ellipse in pixels.
+                  {\bf xr} the x radius of the ellipse in pixels.
 
-                  {\bf yr} y radius of the ellipse in pixels.
+                  {\bf yr} the y radius of the ellipse in pixels.
 
                   {\bf flags} controls the filling, arcs and orientation of the zero radian (combs flag named after {\bf retroCombs}). Default setting (zero) is: Don't fill, draw legs, start drawing at 3 'o clock.
 
@@ -3384,20 +3386,20 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 S%=2 : D%=3 : W%=320*S% : H%=200*S%                 : REM SCREEN SETTINGS
-110 CX%=W%/2 : CY%=H%/2                                 : REM CENTRE AND RADII
-120 RX%=W%/2 : RY%=H%/2
-130 SCREEN W%, H%, D%                                   : REM OPEN SCREEN
-140 ELLIPSE CX%, CY%, CX%-4, CY%-4
-150 PEN 2 : CIRCLE CX%, CY%, RY%-4, 2
-160 PEN 3 : CIRCLE CX%, CY%, RY%-14, 2
-170 PEN 4 : CIRCLE CX%, CY%, RY%-24, 0, 135, 45
-180 PEN 5 : ELLIPSE CX%, CY%/2, RX%/4, RY%/4, 1
-190 PEN 6 : CIRCLE 120*S%, CY%, 40, 1, 45, 315
-200 PEN 7 : CIRCLE 200*S%, CY%, 40, 1, 225, 135
-210 PEN 0 : CHAR 34, CY%/2-8, 2, 2, 2, "MEGA65", $3D000
-220 GETKEY A&                                           : REM WAIT FOR ANY KEY
-230 SCREEN CLOSE                                        : REM CLOSE GRAPHICS SCREEN
+100 S% = 2 : D% = 3 : W% = 320 * S% : H% = 200 * S%         : REM SCREEN SETTINGS
+110 CX% = W% / 2 : CY% = H% / 2                             : REM CENTRE AND RADII
+120 RX% = W% / 2 : RY% = H% / 2
+130 SCREEN W%, H%, D%                                       : REM OPEN SCREEN
+140 ELLIPSE CX%, CY%, CX% - 4, CY% - 4
+150 PEN 2 : CIRCLE CX%, CY%, RY% - 4, 2
+160 PEN 3 : CIRCLE CX%, CY%, RY% - 14, 2
+170 PEN 4 : CIRCLE CX%, CY%, RY% - 24, 0, 135, 45
+180 PEN 5 : ELLIPSE CX%, CY% / 2, RX% / 4, RY% / 4, 1
+190 PEN 6 : CIRCLE 120 * S%, CY%, 40, 1, 45, 315
+200 PEN 7 : CIRCLE 200 * S%, CY%, 40, 1, 225, 135
+210 PEN 0 : CHAR 34, CY% / 2 - 8, 2, 2, 2, "MEGA65", $3D000
+220 GETKEY A&                                               : REM WAIT FOR ANY KEY
+230 SCREEN CLOSE                                            : REM CLOSE GRAPHICS SCREEN
 \end{verbatim}
 \end{tcolorbox}
 
@@ -3436,14 +3438,14 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \verbatimfont{\codefont}
 \begin{verbatim}
 100 REM ELSE
-110 RED$=CHR$(28) : BLACK$=CHR$(144) : WHITE$=CHR$(5)
-120 INPUT "ENTER A NUMBER";V
-130 IF V<0 THEN PRINT RED$; : ELSE PRINT BLACK$;
-140 PRINT V                                           : REM PRINT NEGATIVE NUMBERS IN RED
+110 RED$ = CHR$(28) : BLACK$ = CHR$(144) : WHITE$ = CHR$(5)
+120 INPUT "ENTER A NUMBER"; V
+130 IF V < 0 THEN PRINT RED$; : ELSE PRINT BLACK$;
+140 PRINT V                                                 : REM PRINT NEGATIVE NUMBERS IN RED
 150 PRINT WHITE$
-160 INPUT "END PROGRAM (Y/N)";A$
-170 IF A$="Y" THEN END
-180 IF A$="N" THEN 120 : ELSE 160
+160 INPUT "END PROGRAM (Y/N)"; A$
+170 IF A$ = "Y" THEN END
+180 IF A$ = "N" THEN 120 : ELSE 160
 \end{verbatim}
 \end{tcolorbox}
 
@@ -3492,7 +3494,7 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 IF V<0 THEN END : REM NEGATIVE NUMBERS END THE PROGRAM
+10 IF V < 0 THEN END : REM NEGATIVE NUMBERS END THE PROGRAM
 20 PRINT V
 \end{verbatim}
 \end{tcolorbox}
@@ -3511,6 +3513,7 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \item [Format:]   {\bf ENVELOPE} n [\{{\bf,} attack{\bf,} decay{\bf,} sustain{\bf,} release{\bf,} waveform{\bf,} pw\}]
 
 \item [Usage:]    Sets the parameters for the synthesis of a musical instrument for use with {\bf PLAY}.
+                  
                   {\bf n} envelope slot (0 -- 9).
 
                   {\bf attack} attack rate (0 -- 15).
@@ -3586,12 +3589,12 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 TRAP 100
-20 PRINT SQR(-1)        : REM PROVOKE ERROR
-30 PRINT "AT LINE 30"   : REM HERE TO RESUME
+20 PRINT SQR(-1)         : REM PROVOKE ERROR
+30 PRINT "AT LINE 30"    : REM HERE TO RESUME
 40 END
-100 IF ER>0 THEN PRINT ERR$(ER);" ERROR";
-110 PRINT " IN LINE";EL
-120 RESUME NEXT         : REM RESUME AFTER ERROR
+100 IF ER > 0 THEN PRINT ERR$(ER); " ERROR";
+110 PRINT " IN LINE"; EL
+120 RESUME NEXT          : REM RESUME AFTER ERROR
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -3658,7 +3661,7 @@ ERASE "R*=PRG"            : REM ERASE PROGRAM FILES STARTING WITH "R"
 
                   This function is typically used in a {\bf TRAP} routine, where the error number is taken from the reserved variable {\bf ER}.
 
-\item [Remarks:]  A BASIC error number out of range (1 -- 44) will produce an \screentext{OK}.
+\item [Remarks:]  A BASIC error number out of range (1 -- 44) will produce an \screentext{OK}
 
 \item [Examples:] Using {\bf ERR\$}
 
@@ -3666,10 +3669,10 @@ ERASE "R*=PRG"            : REM ERASE PROGRAM FILES STARTING WITH "R"
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 TRAP 100
-20 PRINT SQR(-1)        : REM PROVOKE ERROR
-30 PRINT "AT LINE 30"   : REM HERE TO RESUME
+20 PRINT SQR(-1)         : REM PROVOKE ERROR
+30 PRINT "AT LINE 30"    : REM HERE TO RESUME
 40 END
-100 IF ER>0 THEN PRINT ERR$(ER);" ERROR";
+100 IF ER > 0 THEN PRINT ERR$(ER); " ERROR";
 110 PRINT " IN LINE"; EL
 120 RESUME NEXT          : REM RESUME AFTER ERROR
 \end{verbatim}
@@ -3681,9 +3684,9 @@ ERASE "R*=PRG"            : REM ERASE PROGRAM FILES STARTING WITH "R"
 \verbatimfont{\codefont}
 \begin{verbatim}
 100 SCNCLR
-110 FOR N=0 TO 255
-120 PRINT USING "###";N;": ";ERR$(N)
-130 IF MOD(N, 16)<>15 THEN 160
+110 FOR N = 0 TO 255
+120 PRINT USING "###"; N; ": "; ERR$(N)
+130 IF MOD(N, 16) <> 15 THEN 160
 140 PRINT "[ MORE ]"
 150 GETKEY A$
 160 NEXT N
@@ -3721,9 +3724,9 @@ ERASE "R*=PRG"            : REM ERASE PROGRAM FILES STARTING WITH "R"
 30   GET#2, D$, D$             : REM DISCARD LINE LINK
 35   IF ST THEN EXIT           : REM END-OF-FILE
 40   GET#2, LO, HI             : REM FILE SIZE BYTES
-45   S=LO + 256 * HI           : REM FILE SIZE
+45   S = LO + 256 * HI         : REM FILE SIZE
 50   LINE INPUT#2, F$          : REM FILE NAME
-55   PRINT S;F$                : REM PRINT FILE ENTRY
+55   PRINT S; F$               : REM PRINT FILE ENTRY
 60 LOOP
 65 CLOSE 2
 \end{verbatim}
@@ -3780,8 +3783,8 @@ PRINT EXP(LOG(2))
                   {\bf speed} CPU clock speed where:
 
                   \begin{itemize}
-                     \item {\bf 1} sets CPU to 1 MHz.
-                     \item {\bf 3} sets CPU to 3.5 MHz.
+                     \item 1: Sets CPU to 1 MHz.
+                     \item 3: Sets CPU to 3.5 MHz.
                      \item Anything other than {\bf 1} or {\bf 3} sets the CPU to 40 MHz.
                   \end{itemize}
 
@@ -3821,14 +3824,14 @@ FAST 3.5 : REM SET SPEED TO 3.5 MHZ
 
 \item [Usage:]    Evaluates the given numeric expression, then call {\bf GOSUB}s the subroutine at the resulting line number.
 
-\item [Remarks:]  Take care when using {\bf RENUMBER} to change the line numbers of your program that any {\bf FGOSUB} statements still use the intended numbers. If the line number doesn't exist, an Undefined Statement error will occur.
+\item [Remarks:]  Take care when using {\bf RENUMBER} to change the line numbers of your program that any {\bf FGOSUB} statements still use the intended numbers. If the line number doesn't exist, FGOSUB throws an Undefined Statement error.
 
 \item [Example:]  Using {\bf FGOSUB}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 INPUT "WHICH SUBROUTINE TO EXECUTE 100, 200, 300";LI
+ 10 INPUT "WHICH SUBROUTINE TO EXECUTE 100, 200, 300"; LI
  20 FGOSUB LI                    : REM HOPEFULLY THIS LINE # EXISTS
  30 GOTO 10                      : REM REPEAT
 100 PRINT "AT LINE 100" : RETURN
@@ -3857,7 +3860,7 @@ FAST 3.5 : REM SET SPEED TO 3.5 MHZ
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 INPUT "WHICH LINE # TO EXECUTE 100, 200, 300";LI
+ 10 INPUT "WHICH LINE # TO EXECUTE 100, 200, 300"; LI
  20 FGOTO LI            : REM HOPEFULLY THIS LINE # EXISTS
  30 END
 100 PRINT "AT LINE 100" : END
@@ -3902,13 +3905,13 @@ FAST 3.5 : REM SET SPEED TO 3.5 MHZ
 \begin{verbatim}
  10 PLAY "T7X1O3P9C"
  15 SLEEP 0.02
- 20 PRINT "LOW PASS SWEEP"  : L=1 : B=0 : H=0 : GOSUB 100
- 30 PRINT "BAND PASS SWEEP" : L=0 : B=1 : H=0 : GOSUB 100
- 40 PRINT "HIGH PASS SWEEP" : L=0 : B=0 : H=1 : GOSUB 100
+ 20 PRINT "LOW PASS SWEEP"  : L = 1 : B = 0 : H = 0 : GOSUB 100
+ 30 PRINT "BAND PASS SWEEP" : L = 0 : B = 1 : H = 0 : GOSUB 100
+ 40 PRINT "HIGH PASS SWEEP" : L = 0 : B = 0 : H = 1 : GOSUB 100
  50 GOTO 20
 100 REM *** SWEEP ***
-110 FOR F=50 TO 1950 STEP 50
-120 IF F>=1000 THEN FF=2000-F : ELSE FF=F
+110 FOR F = 50 TO 1950 STEP 50
+120 IF F >= 1000 THEN FF = 2000 - F : ELSE FF = F
 130 FILTER 1, FF, L, B, H, 15
 140 PLAY "X1"
 150 SLEEP 0.02
@@ -3941,13 +3944,13 @@ FAST 3.5 : REM SET SPEED TO 3.5 MHZ
 
 \item [Remarks:]  Almost any character that is not part of the string, including letters and punctuation, can be used instead of the '/' (slash).
 
-                  Using '{\bf "}' (double quotes) as a delimiter has a special effect: The search text is not tokenised. {\bf FIND "FOR"} will search for the three letters 'F', 'O', and 'R', not the BASIC keyword {\bf FOR}. Therefore, it can find the word {\bf FOR} in string constants or {\bf REM} statements, but not in program code.
+                  Using double quotes ({\bf "}) as a delimiter has a special effect: The search text is not tokenised. {\bf FIND "FOR"} will search for the three letters ``F,'' ``O,'', and ``R,'' not the BASIC keyword {\bf FOR}. Therefore, it can find the word {\bf FOR} in string constants or {\bf REM} statements, but not in program code.
 
                   On the other hand, {\bf FIND /FOR/} will find all occurrences of the BASIC keyword, but not the text "FOR" in strings.
 
                   Partial keywords cannot be searched. For example, {\bf FIND /LOO/} will not find the keyword {\bf LOOP}.
 
-                  Due to how BASIC is parsed, finding the {\bf REM} and {\bf DATA} keywords requires using the colon as the delimiter: {\bf FIND :REM TODO:}. This does not work with the {\bf CHANGE} command.
+                  Due to how BASIC is parsed, finding the {\bf REM} and {\bf DATA} keywords requires using the colon as the delimiter: {\bf FIND :REM TODO:} This does not work with the {\bf CHANGE} command.
 
                   {\bf FIND} is an editor command that can only be used in direct mode.
 
@@ -3979,12 +3982,12 @@ FAST 3.5 : REM SET SPEED TO 3.5 MHZ
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 PD = ~ / 180
-20 DEF FN CD(X)=COS(X*PD)        : REM COS FOR DEGREES
-30 DEF FN SD(X)=SIN(X*PD)        : REM SIN FOR DEGREES
-40 FOR D=0 TO 360 STEP 90
-50 PRINT USING "###";D;
-60 PRINT USING " ##.##";FNCD(D);
-70 PRINT USING " ##.##";FNSD(D)
+20 DEF FN CD(X) = COS(X * PD)     : REM COS FOR DEGREES
+30 DEF FN SD(X) = SIN(X * PD)     : REM SIN FOR DEGREES
+40 FOR D = 0 TO 360 STEP 90
+50 PRINT USING "###"; D;
+60 PRINT USING " ##.##"; FNCD(D);
+70 PRINT USING " ##.##"; FNSD(D)
 80 NEXT D
 
 RUN
@@ -4082,15 +4085,15 @@ FONT C : REM COMMODORE FONT (DEFAULT)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 FOR D=0 TO 360 STEP 30
-20 R=D*~/180
-30 PRINT D;R;SIN(R);COS(R);TAN(R)
+10 FOR D = 0 TO 360 STEP 30
+20 R = D * ~ / 180
+30 PRINT D; R; SIN(R); COS(R); TAN(R)
 40 NEXT D
 
 10 DIM M(20, 20)
-20 FOR I=0 TO 20
-30 FOR J=I TO 20
-40 M(I, J)=I+100*J
+20 FOR I = 0 TO 20
+30 FOR J = I TO 20
+40 M(I, J) = I + 100 * J
 50 NEXT J, I
 \end{verbatim}
 \end{tcolorbox}
@@ -4138,7 +4141,7 @@ FONT C : REM COMMODORE FONT (DEFAULT)
 
                   {\bf I} disk ID. The maximum length is 2 characters.
 
-                  {\bf diskname} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(DN\$)}. The maximum length of is 16 characters.
+                  {\bf diskname} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(DN\$)} The maximum length of is 16 characters.
 
                   \drivedefinition
 
@@ -4180,7 +4183,7 @@ FORMAT "DUNGEON", D1, U10 : REM QUICK FORMAT DISK IN DRIVE 1 UNIT 10 WITH NAME "
 
                   {\bf FRE(1)} returns the number of free bytes in bank 1, which is the bank for BASIC variables, arrays and strings. {\bf FRE(1)} also triggers ``garbage collection'', which is a process that collects strings in use at the top of the bank, thereby defragmenting string memory.
 
-                  {\bf FRE(-1)} returns the ROM version, a six-digit number on the form "\texttt{92XXXX}".
+                  {\bf FRE(-1)} returns the ROM version, a six-digit number on the form \texttt{92XXXX}.
 
 \item [Example:]  Using {\bf FRE}
 
@@ -4190,9 +4193,9 @@ FORMAT "DUNGEON", D1, U10 : REM QUICK FORMAT DISK IN DRIVE 1 UNIT 10 WITH NAME "
 10 PM = FRE(0)
 20 VM = FRE(1)
 30 RV = FRE(-1)
-40 PRINT PM;" BYTES FREE FOR PROGRAM"
-50 PRINT VM;" BYTES FREE FOR VARIABLES"
-60 PRINT RV;" ROM VERSION"
+40 PRINT PM; " BYTES FREE FOR PROGRAM"
+50 PRINT VM; " BYTES FREE FOR VARIABLES"
+60 PRINT RV; " ROM VERSION"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4229,21 +4232,21 @@ FORMAT "DUNGEON", D1, U10 : REM QUICK FORMAT DISK IN DRIVE 1 UNIT 10 WITH NAME "
 
 \item [Remarks:]  Keep in mind that the {\bf POINTER} function with a string argument does {\em not} return the string address, but the string descriptor. It is not recommended to use {\bf FREAD} for strings or string arrays unless you are fully aware on how to handle the string storage internals.
 
-                  To read into an array, ensure that you always specify an array index so that {\bf POINTER} returns the address of an element. The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}. \screentext{POINTER(XY)} returns the address of the scalar variable \screentext{XY}.
+                  To read into an array, ensure that you always specify an array index so that {\bf POINTER} returns the address of an element. The start address of array \screentext{XY()} is \screentext{POINTER(XY(0))}. \screentext{POINTER(XY)} returns the address of the scalar variable \screentext{XY}
 
 \item [Example:]  Using {\bf FREAD}
 
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 N=23
+100 N = 23
 110 DIM B&(N), C&(N)
 120 DOPEN#2, "TEXT"
 130 FREAD#2, POINTER(B&(0)), N
 140 DCLOSE#2
-150 FOR I=0 TO N-1 : PRINT CHR$(B&(I)); : NEXT
-160 FOR I=0 TO N-1 : C&(I)=B&(N-1-I) : NEXT
-170 DOPEN#2, "REVERS",W
+150 FOR I = 0 TO N - 1 : PRINT CHR$(B&(I)); : NEXT
+160 FOR I = 0 TO N - 1 : C&(I) = B&(N - 1 - I) : NEXT
+170 DOPEN#2, "REVERS,W"
 180 FWRITE#2, POINTER(C&(0)), N
 190 DCLOSE#2
 \end{verbatim}
@@ -4307,14 +4310,14 @@ FREEZER : REM CALL FREEZER MENU
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 N=23
+100 N = 23
 110 DIM B&(N), C&(N)
 120 DOPEN#2, "TEXT"
 130 FREAD#2, POINTER(B&(0)), N
 140 DCLOSE#2
-150 FOR I=0 TO N-1 : PRINT CHR$(B&(I)); : NEXT
-160 FOR I=0 TO N-1 : C&(I)=B&(N-1-I) : NEXT
-170 DOPEN#2, "REVERS",W
+150 FOR I = 0 TO N - 1 : PRINT CHR$(B&(I)); : NEXT
+160 FOR I = 0 TO N - 1 : C&(I) = B&(N - 1 - I) : NEXT
+170 DOPEN#2, "REVERS,W"
 180 FWRITE#2, POINTER(C&(0)), N
 190 DCLOSE#2
 \end{verbatim}
@@ -4370,7 +4373,7 @@ FREEZER : REM CALL FREEZER MENU
 
                   If the {\bf variable} being set to the character is of type string and the queue is empty, an empty string is assigned to it, otherwise a one character string is created and assigned instead.
                
-                  If the e {\bf variable} is of type numeric, the byte value of the key is assigned to it, otherwise zero will be assigned if the queue is empty. {\bf GET} does not wait for keyboard input, so it's useful to check for key presses at regular intervals or in loops.
+                  If the {\bf variable} is of type numeric, the byte value of the key is assigned to it, otherwise zero will be assigned if the queue is empty. {\bf GET} does not wait for keyboard input, so it's useful to check for key presses at regular intervals or in loops.
 
 \item [Remarks:]  {\bf GETKEY} is similar, but waits until a key has been pressed.
 
@@ -4379,7 +4382,7 @@ FREEZER : REM CALL FREEZER MENU
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 DO : GET A$ : LOOP UNTIL A$<>""
+10 DO : GET A$ : LOOP UNTIL A$ <> ""
 20 IF A$ = "W" THEN PRINT "NORTH"  : REM GO NORTH
 30 IF A$ = "A" THEN PRINT "WEST"   : REM GO WEST
 40 IF A$ = "S" THEN PRINT "EAST"   : REM GO EAST
@@ -4452,12 +4455,12 @@ FREEZER : REM CALL FREEZER MENU
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 GETKEY A$                    : REM WAIT AND GET CHARACTER
-20 IF A$="W" THEN PRINT "NORTH" : REM GO NORTH
-30 IF A$="A" THEN PRINT "WEST"  : REM GO WEST
-40 IF A$="S" THEN PRINT "EAST"  : REM GO EAST
-50 IF A$="Z" THEN PRINT "SOUTH" : REM GO SOUTH
-60 IF A$=CHR$(13) THEN END      : REM EXIT
+10 GETKEY A$                      : REM WAIT AND GET CHARACTER
+20 IF A$ = "W" THEN PRINT "NORTH" : REM GO NORTH
+30 IF A$ = "A" THEN PRINT "WEST"  : REM GO WEST
+40 IF A$ = "S" THEN PRINT "EAST"  : REM GO EAST
+50 IF A$ = "Z" THEN PRINT "SOUTH" : REM GO SOUTH
+60 IF A$ = CHR$(13) THEN END      : REM EXIT
 70 GOTO 10
 \end{verbatim}
 \end{tcolorbox}
@@ -4478,11 +4481,11 @@ FREEZER : REM CALL FREEZER MENU
 
 \item [Usage:]    Switches the MEGA65 to C64-compatible mode.
 
-                  If you're in direct mode, a security prompt \screentext{"ARE YOU SURE?"} is displayed, which must be responded with 'Y' to continue.
+                  If you're in direct mode, a security prompt \screentext{ARE YOU SURE?} is displayed, which must be responded with \texttt{Y} to continue.
 
-                  You can switch back to MEGA65 mode with the command \screentext{"SYS 58552"}.
+                  You can switch back to MEGA65 mode with the command \screentext{SYS 58552}.
 
-\item [Remarks:]  If you switch back to the MEGA65 using the \screentext{"SYS 58552"}, the switch will be immediate. No confirmation will be asked for.
+\item [Remarks:]  If you switch back to the MEGA65 using the \screentext{SYS 58552}, the switch will be immediate. No confirmation will be asked for.
 
 \item [Example:]  Using {\bf GO64}
 
@@ -4531,19 +4534,19 @@ SYS 58552
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 GOTO 100                                  : REM TO MAIN PROGRAM
+ 10 GOTO 100                                     : REM TO MAIN PROGRAM
  20 REM *** SUBROUTINE DISK STATUS CHECK ***
- 30 DD=DS : IF DD THEN PRINT "DISK ERROR";DS$
+ 30 DD = DS : IF DD THEN PRINT "DISK ERROR"; DS$
  40 RETURN
  50 REM *** SUBROUTINE PROMPT Y/N ***
- 60 DO : INPUT "CONTINUE (Y/N)";A$
- 70 LOOP UNTIL A$="Y" OR A$="N"
+ 60 DO : INPUT "CONTINUE (Y/N)"; A$
+ 70 LOOP UNTIL A$ = "Y" OR A$ = "N"
  80 RETURN
  90 REM *** MAIN PROGRAM ***
 100 DOPEN#2, "BIG DATA"
-110 GOSUB 30 : IF DD THEN DCLOSE#2 : GOSUB 60 : REM ASK
-120 IF A$="N" THEN END
-130 GOTO 100                                  : REM RETRY
+110 GOSUB 30 : IF DD THEN DCLOSE#2 : GOSUB 60    : REM ASK
+120 IF A$ = "N" THEN END
+130 GOTO 100                                     : REM RETRY
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4572,19 +4575,19 @@ SYS 58552
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 GOTO 100                                  : REM TO MAIN PROGRAM
+ 10 GOTO 100                                     : REM TO MAIN PROGRAM
  20 REM *** SUBROUTINE DISK STATUS CHECK ***
- 30 DD=DS : IF DD THEN PRINT "DISK ERROR";DS$
+ 30 DD = DS : IF DD THEN PRINT "DISK ERROR"; DS$
  40 RETURN
  50 REM *** SUBROUTINE PROMPT Y/N ***
- 60 DO : INPUT "CONTINUE (Y/N)";A$
- 70 LOOP UNTIL A$="Y" OR A$="N"
+ 60 DO : INPUT "CONTINUE (Y/N)"; A$
+ 70 LOOP UNTIL A$ = "Y" OR A$ = "N"
  80 RETURN
  90 REM *** MAIN PROGRAM ***
 100 DOPEN#2, "BIG DATA"
-110 GOSUB 30 : IF DD THEN DCLOSE#2 : GOSUB 60 : REM ASK
-120 IF A$="N" THEN END
-130 GOTO 100                                  : REM RETRY
+110 GOSUB 30 : IF DD THEN DCLOSE#2 : GOSUB 60    : REM ASK
+120 IF A$ = "N" THEN END
+130 GOTO 100                                     : REM RETRY
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4641,7 +4644,7 @@ SYS 58552
 
                   {\bf I} disk ID. Maximum length is 2 characters.
 
-                  {\bf diskname} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(DN\$)}. The maximum length is 16 characters.
+                  {\bf diskname} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(DN\$)} The maximum length is 16 characters.
 
                   \drivedefinition
 
@@ -4690,15 +4693,15 @@ HEADER "DUNGEON", D1, U10 : REM QUICK FORMAT DISK IN DRIVE 1 UNIT 10 WITH NAME "
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 A=1.E20
-20 B=A+A : C=EXP(A) : PRINT A, B, C
+10 A = 1.E20
+20 B = A + A : C = EXP(A) : PRINT A, B, C
 RUN
 
 ?OVERFLOW ERROR IN 20
 READY.
 HELP
 
-20 B=A+A : ţŝťŸŰňšŉ : PRINT A, B, C
+20 B = A + A : ţŝťŸŰňšŉ : PRINT A, B, C
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4755,9 +4758,9 @@ FFFFFFFF
 
                   {\bf mode} indicates what the colour will be used for.
                   \begin{itemize}
-                     \item {\bf 0}: System messages (the default mode)
-                     \item {\bf 1}: {\bf REM} statements
-                     \item {\bf 2}: BASIC keywords
+                     \item 0: System messages (the default mode).
+                     \item 1: {\bf REM} statements.
+                     \item 2: BASIC keywords.
                   \end{itemize}
 
 \item [Remarks:]  The system messages colour is used when displaying error messages, and in the output of {\bf CHANGE}, {\bf FIND}, and {\bf HELP}. The colours for {\bf REM} statements and BASIC keywords are used by {\bf LIST}.
@@ -4795,14 +4798,14 @@ FFFFFFFF
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 RED$=CHR$(28) : BLACK$=CHR$(144) : WHITE$=CHR$(5)
-20 INPUT "ENTER A NUMBER";V
-30 IF V<0 THEN PRINT RED$; : ELSE PRINT BLACK$;
-40 PRINT V                                      : REM PRINT NEGATIVE NUMBERS IN RED
+10 RED$ = CHR$(28) : BLACK$ = CHR$(144) : WHITE$ = CHR$(5)
+20 INPUT "ENTER A NUMBER"; V
+30 IF V < 0 THEN PRINT RED$; : ELSE PRINT BLACK$;
+40 PRINT V                                        : REM PRINT NEGATIVE NUMBERS IN RED
 50 PRINT WHITE$
 60 INPUT "END PROGRAM (Y/N)"; A$
-70 IF A$="Y" THEN END
-80 IF A$="N" THEN 20 : ELSE 60
+70 IF A$ = "Y" THEN END
+80 IF A$ = "N" THEN 20 : ELSE 60
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -4864,11 +4867,11 @@ IMPORT (FI$), U(UN%)
 \item [Remarks:]  The {\bf INFO} command displays information about the BASIC runtime environment, including:
 
                   \begin{itemize}
-                     \item The video mode (PAL, NTSC)
-                     \item The version of the ROM
-                     \item The CPU speed
-                     \item The current {\bf MEM} setting
-                     \item Memory used and memory available for program text and variables
+                     \item The video mode (PAL, NTSC).
+                     \item The version of the ROM.
+                     \item The CPU speed.
+                     \item The current {\bf MEM} setting.
+                     \item Memory used and memory available for program text and variables.
                   \end{itemize}
 
 \item [Example:]  Using {\bf INFO}
@@ -4905,7 +4908,7 @@ BANK5 --------   ARRAYS :    0 / 54980
 
                   {\bf prompt} optional string expression to be printed as the prompt.
 
-                  If the separator between {\bf prompt} and {\bf variable list} is a ',' (comma), the cursor is placed directly after the prompt. If the separator is a ';' (semicolon), a question mark and a space is added to the prompt instead.
+                  If the separator between {\bf prompt} and {\bf variable list} is a comma ({\bf ,}), the cursor is placed directly after the prompt. If the separator is a semicolon ({\bf ;}), a question mark and a space is added to the prompt instead.
 
                   {\bf variable list} one or more variables that receive the input.
 
@@ -4915,7 +4918,7 @@ BANK5 --------   ARRAYS :    0 / 54980
                
                   Typing non-numeric characters for integer or real variables will produce a Type Mismatch error.
                   
-                  Strings for string variables must be in '"' (double quotes) if they contain spaces or commas.
+                  Strings for string variables must be in double quotes ({\bf "}) if they contain spaces or commas.
                
                   Many programs that need a safe input routine use {\bf LINE INPUT} and a custom parser, in order to avoid program errors by wrong user input.
 
@@ -4927,13 +4930,13 @@ BANK5 --------   ARRAYS :    0 / 54980
  10 DIM N$(100), A%(100), S$(100)
  20 DO
  30 INPUT "NAME, AGE, GENDER";NA$, AG%, SE$
- 40 IF NA$="" THEN 30
- 50 IF NA$="END" THEN EXIT
- 60 IF AG%<18 OR AG%>100 THEN PRINT "AGE?" : GOTO 30
- 70 IF SE$<>"M" AND SE$<>"F" THEN PRINT "GENDER?" : GOTO 30
+ 40 IF NA$ = "" THEN 30
+ 50 IF NA$ = "END" THEN EXIT
+ 60 IF AG% < 18 OR AG% > 100 THEN PRINT "AGE?" : GOTO 30
+ 70 IF SE$ <> "M" AND SE$ <> "F" THEN PRINT "GENDER?" : GOTO 30
  80 REM CHECK OK. ENTER INTO ARRAY
- 90 N$(N)=NA$ : A%(N)=AG% : S$(N)=SE$ : N=N+1
-100 LOOP UNTIL N=100
+ 90 N$(N) = NA$ : A%(N) = AG% : S$(N) = SE$ : N = N + 1
+100 LOOP UNTIL N = 100
 110 PRINT "RECEIVED";N;" NAMES"
 \end{verbatim}
 \end{tcolorbox}
@@ -4995,14 +4998,14 @@ READY.
  10 DIM N$(100), B%(100), S$(100)
  20 DOPEN#2, "CBM-PEOPLE"          : REM OPEN SEQ FILE
  25 IF DS THEN PRINT DS$ : STOP    : REM OPEN ERROR
- 30 FOR I=0 TO 100
+ 30 FOR I = 0 TO 100
  40 INPUT#2, N$(I), B%(I), S$(I)
  50 IF ST AND 64 THEN 80           : REM END OF FILE
  60 IF DS THEN PRINT DS$ : GOTO 80 : REM DISK ERROR
  70 NEXT I
  80 DCLOSE#2
-110 PRINT "READ";I+1;"RECORDS"
-120 FOR J=0 TO I : PRINT N$(J) : NEXT J
+110 PRINT "READ"; I + 1; "RECORDS"
+120 FOR J = 0 TO I : PRINT N$(J) : NEXT J
 
 RUN
 READ 3 RECORDS
@@ -5045,11 +5048,11 @@ TYPE "CBM-PEOPLE"
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-I=INSTR("ABCDEF", "CD")    : REM I = 3
-I=INSTR("ABCDEF", "XY")    : REM I = 0
-I=INSTR("RAIIIN", "\A*IN") : REM I = 5
-I=INSTR("ABCDEF", "\C.E")  : REM I = 3
-I=INSTR(A$+B$, C$)
+I = INSTR("ABCDEF", "CD")    : REM I = 3
+I = INSTR("ABCDEF", "XY")    : REM I = 0
+I = INSTR("RAIIIN", "\A*IN") : REM I = 5
+I = INSTR("ABCDEF", "\C.E")  : REM I = 3
+I = INSTR(A$ + B$, C$)
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5077,10 +5080,10 @@ I=INSTR(A$+B$, C$)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- X =INT(1.9)      : REM X = 1
- X =INT(-3.1)     : REM X = -3
- X =INT(100000.5) : REM X = 100000
- N%=INT(100000.5) : REM ?ILLEGAL QUANTITY ERROR
+ X = INT(1.9)       : REM X = 1
+ X = INT(-3.1)      : REM X = -3
+ X = INT(100000.5)  : REM X = 100000
+ N% = INT(100000.5) : REM ?ILLEGAL QUANTITY ERROR
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5124,7 +5127,7 @@ I=INSTR(A$+B$, C$)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 N=JOY(1)
+ 10 N = JOY(1)
  20 IF N AND 128 THEN PRINT "FIRE!"
  30 REM                N    NE   E    SE   S    SW   W    NW
  40 ON N AND 15 GOSUB 100, 200, 300, 400, 500, 600, 700, 800
@@ -5175,9 +5178,9 @@ I=INSTR(A$+B$, C$)
                   {\bf number} can be any value within this range:
 
                   \begin{itemize}
-                     \item {\bf 1 - 14}: corresponds to keys ranging from \megakey{F1} to \megakey{F14}
-                     \item {\bf 15}: corresponds to \specialkey{HELP}
-                     \item {\bf 16}: corresponds to \specialkey{SHIFT}\specialkey{RUN\\STOP}
+                     \item 1 - 14: Corresponds to keys ranging from \megakey{F1} to \megakey{F14}
+                     \item 15: Corresponds to \specialkey{HELP}
+                     \item 16: Corresponds to \specialkey{SHIFT}\specialkey{RUN\\STOP}
                   \end{itemize}
 
                   Default assignments:
@@ -5212,12 +5215,12 @@ KEY 16,"RUN "+CHR$(34)+"*"+CHR$(34)+CHR$(13)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-KEY ON                    : REM ENABLE  FUNCTION KEYS
-KEY OFF                   : REM DISABLE FUNCTION KEYS
-KEY                       : REM LIST ASSIGNMENTS
-KEY 2, "PRINT ~"+CHR$(14) : REM ASSIGN PRINT PI TO F2
-KEY SAVE "MY KEY SET"     : REM SAVE CURRENT DEFINITIONS TO FILE
-KEY LOAD "ELEVEN-SET"     : REM LOAD DEFINITIONS FROM FILE
+KEY ON                      : REM ENABLE  FUNCTION KEYS
+KEY OFF                     : REM DISABLE FUNCTION KEYS
+KEY                         : REM LIST ASSIGNMENTS
+KEY 2, "PRINT ~" + CHR$(14) : REM ASSIGN PRINT PI TO F2
+KEY SAVE "MY KEY SET"       : REM SAVE CURRENT DEFINITIONS TO FILE
+KEY LOAD "ELEVEN-SET"       : REM LOAD DEFINITIONS FROM FILE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5238,7 +5241,7 @@ KEY LOAD "ELEVEN-SET"     : REM LOAD DEFINITIONS FROM FILE
 
                   If the length of {\bf string} is equal to or less than {\bf n}, the resulting string will be identical to the argument string.
 
-                  {\bf string} string expression.
+                  {\bf string} the string expression.
 
                   {\bf n} numeric expression (0 -- 255).
 
@@ -5269,7 +5272,7 @@ MEGA
 
 \item [Returns:]  The length of a string.
 
-                  {\bf string} is a string expression.
+                  {\bf string} the string expression.
 
 \item [Remarks:]  BASIC strings can contain any character, including the null character. Internally, the length of a string is stored in a string descriptor.
 
@@ -5278,7 +5281,7 @@ MEGA
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-PRINT LEN("MEGA65"+CHR$(13))
+PRINT LEN("MEGA65" + CHR$(13))
  7
 \end{verbatim}
 \end{tcolorbox}
@@ -5305,9 +5308,9 @@ PRINT LEN("MEGA65"+CHR$(13))
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-LET A=5 : REM LONGER  AND SLOWER
+LET A = 5 : REM LONGER  AND SLOWER
 
-A=5     : REM SHORTER AND FASTER
+A = 5     : REM SHORTER AND FASTER
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5383,8 +5386,8 @@ A=5     : REM SHORTER AND FASTER
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 LINE INPUT "ENTER A PHRASE: ",PH$
-20 PRINT "THE PHRASE YOU ENTERED:";CHR$(13);"  ";PH$
+10 LINE INPUT "ENTER A PHRASE: ", PH$
+20 PRINT "THE PHRASE YOU ENTERED:"; CHR$(13); "  "; PH$
 
 RUN
 ENTER A PHRASE: YOU SAY "POTATO," I SAY "POTATO."
@@ -5423,13 +5426,13 @@ THE PHRASE YOU ENTERED:
 \begin{verbatim}
  10 DIM N$(100)
  20 DOPEN#2, "DATA"
- 30 FOR I=0 TO 100
+ 30 FOR I = 0 TO 100
  40 LINE INPUT#2, N$(I)
- 50 IF ST=64 THEN 80               : REM END OF FILE
+ 50 IF ST = 64 THEN 80             : REM END OF FILE
  60 IF DS THEN PRINT DS$ : GOTO 80 : REM DISK ERROR
  70 NEXT I
  80 DCLOSE#2
-110 PRINT "READ";I;" RECORDS"
+110 PRINT "READ"; I; " RECORDS"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5505,7 +5508,7 @@ LIST P "MURX" : REM LIST FILE "MURX" IN PAGE MODE
 
                   The third form is similar to the second one, but the files on are consecutive line numbers. This listing can be scrolled like a BASIC program with the keys \megakey{F9} or \megakey{F11}, edited, listed, saved or printed.
 
-                  A filter can be applied by specifying a pattern or a pattern and a type. The asterisk '*' (asterisk) matches the rest of the name, while the '?' matches any single character. The type specifier can be a character of (P, S, U, R), that is Program, Sequential, User, or Relative file.
+                  A filter can be applied by specifying a pattern or a pattern and a type. The asterisk ({\bf *}) matches the rest of the name, while the \screentext(?) matches any single character. The type specifier can be a character of (P, S, U, R), that is Program, Sequential, User, or Relative file.
 
                   A common use of the shortcut symbol {\bf /} is to quickly load {\bf PRG} files. To do this:
 
@@ -5517,7 +5520,7 @@ LIST P "MURX" : REM LIST FILE "MURX" IN PAGE MODE
 
                   After pressing \specialkey{RETURN}, the listed file on the line with the leading '/' will be loaded. Characters before and after the file name '"' (double quotes) will be ignored. This applies to {\bf PRG} files only.
 
-                  {\bf filename} is either a quoted string, e.g. \screentext{"PROG"}, or a string expression \screentext{("N\$)}.
+                  {\bf filename} is either a quoted string, e.g. \screentext{"PROG"}, or a string expression \screentext{("N\$)}
 
                   The {\bf unit} number is optional. If not present, the default disk unit is assumed.
 
@@ -5597,7 +5600,9 @@ LOAD "$$X*=P"        : REM DIRECTORY, WITH PRG FILES STARTING with 'X'
                   For example, {\bf ImageMagick} is a free graphics package that includes a tool called {\bf convert}, which can be used to create IFF files in conjunction with the {\bf ppmtoilbm} tool from the {\bf Netbpm} package.
 
                   To use \texttt{convert} and \texttt{ppmtoilbm} for converting a JPG file to an IFF file on Linux: \\
+                  \\
                   \texttt{convert <myImage.jpg> <myImage.ppm>} \\
+                  \\
                   \texttt{ppmtoilbm -aga <myImage.ppm> > <myImage.iff>}
 
 \item [Example:]  Using {\bf LOADIFF}
@@ -5608,7 +5613,7 @@ LOAD "$$X*=P"        : REM DIRECTORY, WITH PRG FILES STARTING with 'X'
 100 BANK 128 : SCNCLR
 110 REM DISPLAY PICTURES IN 320 X 200 X 7 RESOLUTION
 120 GRAPHIC CLR : SCREEN DEF 0, 0, 0, 7 : SCREEN OPEN 0 : SCREEN SET 0, 0
-130 FOR I=1 TO 7 : READF$
+130 FOR I = 1 TO 7 : READF$
 140 LOADIFF(F$+".IFF") : SLEEP 4 : NEXT
 150 DATA ALIEN, BEAKER, JOKER, PICARD, PULP, TROOPER, RIPLEY
 160 SCREEN CLOSE 0
@@ -5725,7 +5730,7 @@ PRINT LOG10(0)
 PRINT LOG10(5)
  0.69897001
 
-PRINT LOG10(100);LOG10(10);LOG10(1);LOG10(0.1);LOG10(0.01)
+PRINT LOG10(100); LOG10(10); LOG10(1); LOG10(0.1); LOG10(0.01)
  2  1  0 -1 -2
 \end{verbatim}
 \end{tcolorbox}
@@ -5754,21 +5759,21 @@ PRINT LOG10(100);LOG10(10);LOG10(1);LOG10(0.1);LOG10(0.01)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 PW$="" : DO
-20 GET A$ : PW$=PW$+A$
-30 LOOP UNTIL LEN(PW$)>7 OR A$=CHR$(13)
+10 PW$ = "" : DO
+20 GET A$ : PW$ = PW$ + A$
+30 LOOP UNTIL LEN(PW$) > 7 OR A$ = CHR$(13)
 
 10 DO : REM WAIT FOR USER DECISION
 20 GET A$
-30 LOOP UNTIL A$="Y" OR A$="N"
+30 LOOP UNTIL A$ = "Y" OR A$ = "N"
 
 10 DO WHILE ABS(EPS) > 0.001
 20 GOSUB 2000                : REM ITERATION SUBROUTINE
 30 LOOP
 
-10 I%=0                      : REM INTEGER LOOP 1-100
-20 DO : I%=I%+1
-30 LOOP WHILE I%<101
+10 I% = 0                    : REM INTEGER LOOP 1-100
+20 DO : I% = I% + 1
+30 LOOP WHILE I% < 101
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5914,7 +5919,7 @@ MERGE "LIBRARY"
 
 \item [Usage:]    As a function, the substring of a string. As a statement, replaces a substring of a string variable with another string.
 
-                  {\bf string} string expression.
+                  {\bf string} the string expression.
 
                   {\bf index} start index (1 -- 255).
 
@@ -6011,7 +6016,7 @@ DIR
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-FOR I=0 TO 8 : PRINT MOD(I, 4); : NEXT I
+FOR I = 0 TO 8 : PRINT MOD(I, 4); : NEXT I
  0  1  2  3  0  1  2  3  0
 \end{verbatim}
 \end{tcolorbox}
@@ -6030,7 +6035,7 @@ FOR I=0 TO 8 : PRINT MOD(I, 4); : NEXT I
 
 \item [Format:]   {\bf MONITOR}
 
-\item [Usage:]    Invokes the built-in machine language monitor.
+\item [Usage:]    Invokes the KERNAL machine language monitor.
 
 \item [Remarks:]  Using the {\bf MONITOR} requires knowledge of the CSG4510 / 6502 / 6510 CPUs, the assembly language they use, and their architectures. More information on the {\bf MONITOR} is available in \ifdefined\printmanual
                      the {\bf MEGA65 Book}.
@@ -6052,7 +6057,6 @@ MONITOR
 \end{tcolorbox}
 
 \item \begin{center}\includegraphics[width=0.8\linewidth]{images/monitor-h.png}\end{center}
-\item 
 \end{description}
 
 % *****
@@ -6118,9 +6122,9 @@ MOUNT                  : REM INTERNAL DRIVE TO UNIT 8
 
                   {\bf MOUSE OFF} disables the mouse driver and hides the associated sprite.
 
-\item [Remarks:]  The "hot spot" of the mouse specifies where in the mouse sprite image is considered the click target, such as the top of an arrow or the center of a target reticle. The hot spot is always kept within the screen border. The default {\bf hotspot} is [0,0], representing the top left corner of the sprite.
+\item [Remarks:]  The "hot spot" of the mouse specifies where in the mouse sprite image is considered the click target, such as the top of an arrow or the center of a target reticle. The hot spot is always kept within the screen border. The default {\bf hotspot} is (0, 0), representing the top left corner of the sprite.
 
-                  When the system boots, sprite 0 is initialised to a picture of a mouse pointer, with the hot spot at [0,0].
+                  When the system boots, sprite 0 is initialised to a picture of a mouse pointer, with the hot spot at (0, 0).
 
                   Use {\bf RMOUSE} to test the location and button status of the mouse. This returns the coordinates of the top-left corner of the sprite, not the coordinates of the hot spot. To get the coordinates of the hot spot, add the hot spot location to the sprite coordinates.
 
@@ -6132,15 +6136,15 @@ MOUNT                  : REM INTERNAL DRIVE TO UNIT 8
 \verbatimfont{\codefont}
 \begin{verbatim}
 REM LOAD DATA INTO SPRITE #0 BEFORE USING IT
-MOUSE ON, 1          : REM ENABLE  MOUSE WITH SPRITE #0
-MOUSE OFF            : REM DISABLE MOUSE
+MOUSE ON, 1           : REM ENABLE  MOUSE WITH SPRITE #0
+MOUSE OFF             : REM DISABLE MOUSE
 
-MOUSE ON, 1, 0, 2, 4 : REM SET THE HOT SPOT TO [2,4]
-RMOUSE X, Y, B       : REM FETCH MOUSE SPRITE COORDINATES
-X=X+2 : Y=Y+4        : REM CALCULATE THE COORDINATES OF THE HOT SPOT
+MOUSE ON, 1, 0, 2, 4  : REM SET THE HOT SPOT TO (2,4)
+RMOUSE X, Y, B        : REM FETCH MOUSE SPRITE COORDINATES
+X = X + 2 : Y = Y + 4 : REM CALCULATE THE COORDINATES OF THE HOT SPOT
 
-REM SET THE INITIAL POSITION TO X=300 Y=75
-MOUSE ON, 1, 0, 0, 0, 300, 75
+REM SET THE INITIAL POSITION TO (300,75)
+MOUSE ON, 1, 0, 0, 0, 300,75
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -6207,13 +6211,13 @@ MOUSE ON, 1, 0, 0, 0, 300, 75
 \begin{verbatim}
 100 CLR : SCNCLR : SPRITECLR
 110 BLOAD "DEMOSPRITES1", B0, P1536
-130 FOR I=0 TO 7 : C=I+1 : SP=0.07*(I+1)
+130 FOR I = 0 TO 7 : C = I + 1 : SP = 0.07 * (I + 1)
 140 MOV SPR I, 160, 120
 145 MOV SPR I, 45*I#SP
 150 SPRITE I, 1, C,, 0, 0
 160 NEXT
 170 SLEEP 3
-180 FOR I=0 TO 7 : MOVSPR I, 0#0 : NEXT
+180 FOR I = 0 TO 7 : MOVSPR I, 0#0 : NEXT
 \end{verbatim}
 \end{tcolorbox}
 
@@ -6279,15 +6283,15 @@ NEW RESTORE : REM TRY TO RECOVER NEW'ED PROGRAM
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 FOR D=0 TO 360 STEP 30
-20 R=D*~/180
+10 FOR D = 0 TO 360 STEP 30
+20 R = D * ~ / 180
 30 PRINT D;R;SIN(R);COS(R);TAN(R)
 40 NEXT D
 
 10 DIM M(20, 20)
-20 FOR I=0 TO 20
-30 FOR J=I TO 20
-40 M(I, J)=I+100*J
+20 FOR I = 0 TO 20
+30 FOR J = I TO 20
+40 M(I, J) = I + 100 * J
 50 NEXT J, I
 \end{verbatim}
 \end{tcolorbox}
@@ -6307,7 +6311,7 @@ NEW RESTORE : REM TRY TO RECOVER NEW'ED PROGRAM
 
 \item [Usage:]    Performs a bit-wise logical NOT operation on a 16-bit value.
 
-                  Integer operands are used as they are, whereas real operands are converted to a signed 16-bit integer (losing precision).
+                  Integer operands are used as they are, whereas real operands are converted to a signed 16-bit integer (losing precision) in ``two's complement'' format.
                   
                   Logical operands are converted to a 16-bit integer, using \$FFFF (decimal -1) for TRUE, and \$0000 (decimal 0) for FALSE.
 
@@ -6317,8 +6321,8 @@ NEW RESTORE : REM TRY TO RECOVER NEW'ED PROGRAM
                      \hline
                         {\bf Expression} & {\bf Result}  \\
                      \hline
-                        \screentext{NOT 0}  &  \screentext{1} \\
-                        \screentext{NOT 1}  &  \screentext{0} \\
+                        \texttt{NOT 0}  &  \texttt{1} \\
+                        \texttt{NOT 1}  &  \texttt{0} \\
                      \hline
                   \end{tabular}
                   \end{center}
@@ -6336,7 +6340,7 @@ PRINT NOT 3
 PRINT NOT 64
 -65
 
-OK=C<256 AND C>=0
+OK = C < 256 AND C >= 0
 IF (NOT OK) THEN PRINT "NOT A BYTE VALUE"
 \end{verbatim}
 \end{tcolorbox}
@@ -6390,7 +6394,7 @@ MOUSE OFF : REM DISABLE MOUSE DRIVER
 
                   When used as a secondary keyword, {\bf ON} is used in combination with primary keywords, such as {\bf KEY} and {\bf MOUSE}.
 
-                  {\bf expression} positive numeric value. Real values are converted to integer (losing precision). Logical operands are converted to a 16-bit integers, using \$FFFF (decimal -1) for TRUE, and \$0000 (decimal 0) for FALSE.
+                  {\bf expression} positive numeric value. Real values are converted to integer (losing precision) in ``two's complement'' format. Logical operands are converted to a 16-bit integers, using \$FFFF (decimal -1) for TRUE, and \$0000 (decimal 0) for FALSE.
 
 \item [Remarks:]  Negative values for {\bf expression} will stop the program with an Illegal Quantity error. 
 
@@ -6405,7 +6409,7 @@ MOUSE OFF : REM DISABLE MOUSE DRIVER
 \begin{verbatim}
  20 KEY   ON : REM ENABLE FUNCTION KEY STRINGS
  30 MOUSE ON : REM ENABLE MOUSE DRIVER
- 40 N=JOY(1) : IF N AND 128 THEN PRINT "FIRE! ";
+ 40 N = JOY(1) : IF N AND 128 THEN PRINT "FIRE! ";
  60 REM                N    NE   E    SE   S    SW   W    NW
  70 ON N AND 15 GOSUB 100, 200, 300, 400, 500, 600, 700, 800
  80 GOTO 40
@@ -6437,8 +6441,8 @@ MOUSE OFF : REM DISABLE MOUSE DRIVER
 
                   {\bf channel} number, where:
                   \begin{itemize}
-                     \item {\bf 1 <= channel <= 127}: line terminator is CR.
-                     \item {\bf 128 <= channel <= 255}: line terminator is CR LF.
+                     \item 1 <= channel <= 127: Line terminator is CR.
+                     \item 128 <= channel <= 255: Line terminator is CR LF.
                   \end{itemize}
 
                   {\bf first address} device number. For IEC devices the unit number is the primary address. Following primary address values are possible:
@@ -6462,7 +6466,7 @@ MOUSE OFF : REM DISABLE MOUSE DRIVER
 
                   The {\bf secondary address} has some reserved values for IEC disk units, 0: load, 1: save, 15: command channel. The values 2 -- 14 may be used for disk files.
 
-                  {\bf filename} is either a quoted string, e.g. \screentext{"DATA"} or a string expression. The syntax is different to {\bf DOPEN\#}, since the {\bf filename} for {\bf OPEN} includes all file attributes, for example: \screentext{"0:DATA,S,W"}.
+                  {\bf filename} is either a quoted string, e.g. \screentext{"DATA"} or a string expression. The syntax is different to {\bf DOPEN\#}, since the {\bf filename} for {\bf OPEN} includes all file attributes, for example: \screentext{"0:DATA,S,W"}
 
 \item [Remarks:]  For IEC disk units the usage of {\bf DOPEN\#} is recommended.
 
@@ -6496,7 +6500,7 @@ OPEN 2, 9, 2, "0:DATA,S,W"
 
 \item [Usage:]    Performs a bit-wise logical OR operation on two 16-bit values.
 
-                  Integer operands are used as they are. Real operands are converted to a signed 16-bit integers (losing precision). Logical operands are converted to a 16-bit integers using \$FFFF (decimal -1) for TRUE, and \$0000 (decimal 0), for FALSE.
+                  Integer operands are used as they are. Real operands are converted to a signed 16-bit integers (losing precision) in ``two's complement'' format. Logical operands are converted to 16-bit integers using \$FFFF (decimal -1) for TRUE, and \$0000 (decimal 0), for FALSE.
 
                   \begin{center}
                   \setlength{\tabcolsep}{1mm}
@@ -6504,10 +6508,10 @@ OPEN 2, 9, 2, "0:DATA,S,W"
                         \hline
                         {\bf Expression} & {\bf Result}  \\
                         \hline
-                           0 OR 0  &  0 \\
-                           0 OR 1  &  1 \\
-                           1 OR 0  &  1 \\
-                           1 OR 1  &  1 \\
+                           \texttt{0 OR 0}  &  \texttt{0} \\
+                           \texttt{0 OR 1}  &  \texttt{1} \\
+                           \texttt{1 OR 0}  &  \texttt{1} \\
+                           \texttt{1 OR 1}  &  \texttt{1} \\
                         \hline
                      \end{tabular}
                   \end{center}
@@ -6548,9 +6552,9 @@ IF (C<0 OR C>255) THEN PRINT "NOT A BYTE VALUE"
 
                   {\bf mode} specifies the paint mode:
                   \begin{itemize}
-                     \item {\bf 0} The colour of pixel (x,y ) defines the colour, which is replaced by the pen colour.
-                     \item {\bf 1} The {\bf region border colour} defines the region to be painted with the pen colour.
-                     \item {\bf 2} Paint the region connected to pixel (x, y).
+                     \item 0: The colour of pixel (x,y ) defines the colour, which is replaced by the pen colour.
+                     \item 1: The {\bf region border colour} defines the region to be painted with the pen colour.
+                     \item 2: Paint the region connected to pixel (x, y).
                   \end{itemize}
 
                   {\bf region border colour} defines the colour index for mode 1.
@@ -6775,13 +6779,13 @@ IF (C<0 OR C>255) THEN PRINT "NOT A BYTE VALUE"
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 SCREEN 320, 200, 4        : REM SETUP SCREEN WITH 10,000 RANDOM PIXELS
-20 FOR I=1 TO 10000 : DOT RND(1)*320, RND(1)*200, RND(1)*16 : NEXT
+10 SCREEN 320, 200, 4          : REM SETUP SCREEN WITH 10,000 RANDOM PIXELS
+20 FOR I = 1 TO 10000 : DOT RND(1) * 320, RND(1) * 200, RND(1) * 16 : NEXT
 30 MOUSE ON, 1, 0
-40 RMOUSE X, Y, B            : REM READ MOUSE X, Y
-50 MOVSPR 0, X, Y            : REM MOVE POINTER
-60 BORDER PIXEL(X, Y)        : REM SET THE BORDER COLOUR TO THE COLOUR AT THE POSITION
-70 GET A$ : IF A$="" THEN 40 : REM ANY KEY WILL END THE PROGRAM
+40 RMOUSE X, Y, B              : REM READ MOUSE X, Y
+50 MOVSPR 0, X, Y              : REM MOVE POINTER
+60 BORDER PIXEL(X, Y)          : REM SET THE BORDER COLOUR TO THE COLOUR AT THE POSITION
+70 GET A$ : IF A$ = "" THEN 40 : REM ANY KEY WILL END THE PROGRAM
 80 BORDER 6 : MOUSE OFF
 90 SCREEN CLOSE
 \end{verbatim}
@@ -6837,13 +6841,13 @@ PLAY "C", "E", "G"
                   }
                   \end{center}
 
-                  Notice that the dot ('{\tt .}') modifier appears before the note name, not after it as in traditional sheet music.
+                  Notice that the dot ({\bf .}) modifier appears before the note name, not after it as in traditional sheet music.
 
                   Directives consist of a letter, followed by a digit. Directives apply to all future notes, until the parameter is changed by another directive.
 
                   \begin{center}
                   {\setlength{\tabcolsep}{1mm}
-                  \begin{tabular}{*{1}{|C{9mm}}|l|l|}
+                  \begin{tabular}{*{1}{|C{12mm}}|l|l|}
                   \hline
                   {\bf Character}  & {\bf Directive} & {\bf Argument Range} \\
                   \hline
@@ -6941,9 +6945,9 @@ PLAY , "O5T2IGAGFEDCEGO6.QCL",,, "O3T2.QG.B O4ICO3GE.QCL"
 
                   For number-type scalar variables, it is the address of the value. The format depends on the type. A byte variable ({\tt A\&}) is one byte, in a ``two's complement'' signed integer format. An integer variable ({\tt A\%}) is two bytes, with the least significant byte first. A real variable ({\tt A}) is five bytes, in a compact floating point number format.
 
-                  To get the address of an array, use {\bf POINTER} with the first element of the array (index {\tt 0} in each dimension). Array elements are stored consecutively, in the format of the scalar record, with the left-most index using the shortest stride. For example, an array dimensioned as \screentext{DIM A\%(3,2)} starts at address \screentext{POINTER(A\%(0,0))}, has two-byte records, and is ordered as:
+                  To get the address of an array, use {\bf POINTER} with the first element of the array (index {\tt 0} in each dimension). Array elements are stored consecutively, in the format of the scalar record, with the left-most index using the shortest stride. For example, an array dimensioned as \screentext{DIM A\%(3, 2)} starts at address \screentext{POINTER(A\%(0, 0))}, has two-byte records, and is ordered as:
 
-                  (0,0)  (1,0)  (2,0)  (3,0)  (0,1)  (1,1)  (2,1)  (3,1) ...
+                  (0, 0)  (1, 0)  (2, 0)  (3, 0)  (0, 1)  (1, 1)  (2, 1)  (3, 1) ...
 
 \item [Remarks:]  The address values of arrays and their elements are constant while the program is executing. However, the addresses of strings (not their descriptors) may change at any time due to ``garbage collection.''
 
@@ -6952,15 +6956,15 @@ PLAY , "O5T2IGAGFEDCEGO6.QCL",,, "O3T2.QG.B O4ICO3GE.QCL"
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 BANK 0                  : REM SCALARS ARE IN BANK 0
-20 H$="HELLO"              : REM ASSIGN STRING TO H$
-30 P=POINTER(H$)           : REM GET DESCRIPTOR ADDRESS
-40 PRINT "DESCRIPTOR AT: $";HEX$(P)
-50 L=PEEK(P) : SP=WPEEK(P+1) : REM LENGTH & STRING POINTER
-60 PRINT "LENGTH = ";L       : REM PRINT LENGTH
-70 BANK 1                    : REM STRINGS ARE IN BANK 1
-80 FOR I%=0 TO L-1 : PRINT PEEK(SP+I%); : NEXT : PRINT
-90 FOR I%=0 TO L-1 : PRINT CHR$(PEEK(SP+I%)); : NEXT : PRINT
+10 BANK 0                            : REM SCALARS ARE IN BANK 0
+20 H$ = "HELLO"                      : REM ASSIGN STRING TO H$
+30 P = POINTER(H$)                   : REM GET DESCRIPTOR ADDRESS
+40 PRINT "DESCRIPTOR AT: $"; HEX$(P)
+50 L = PEEK(P) : SP = WPEEK(P+1)     : REM LENGTH & STRING POINTER
+60 PRINT "LENGTH = "; L              : REM PRINT LENGTH
+70 BANK 1                            : REM STRINGS ARE IN BANK 1
+80 FOR I% = 0 TO L - 1 : PRINT PEEK(SP + I%); : NEXT : PRINT
+90 FOR I% = 0 TO L - 1 : PRINT CHR$(PEEK(SP + I%)); : NEXT : PRINT
 
 RUN
 DESCRIPTOR AT: $FD75
@@ -7080,7 +7084,7 @@ HELLO
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 IF POS(0)>72 THEN PRINT : REM INSERT RETURN
+10 IF POS(0) > 72 THEN PRINT : REM INSERT RETURN
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -7114,9 +7118,9 @@ HELLO
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 X=POT(1)    : REM READ PADDLE #1
-20 B=X>255     : REM TRUE (-1) IF FIRE BUTTON IS PRESSED
-30 V=X AND 255 : REM PADDLE #1 VALUE
+10 X = POT(1)    : REM READ PADDLE #1
+20 B = X > 255   : REM TRUE (-1) IF FIRE BUTTON IS PRESSED
+30 V = X AND 255 : REM PADDLE #1 VALUE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -7141,8 +7145,8 @@ HELLO
                   \begin{itemize}
                      \item {\bf numeric}: The printout starts with a space for positive and zero values, or a minus sign for negative values. Integer values are printed with the necessary number of digits. Real values are printed in either fixed point form (typically 9 digits), or scientific form if the value is outside the range of 0.01 to 999999999.
                      \item {\bf string}: The string may consist of printable characters and control codes. Printable characters are printed at the cursor position. Control codes are executed.
-                     \item ';' (semicolon) separates arguments of the list. It does not print any characters. A semicolon at the end of the argument list suppresses the automatic return (carriage return) character.
-                     \item ',' (comma) moves the cursor to the next tab position.
+                     \item '{\bf ;}'; Semicolon separates arguments of the list. It does not print any characters. A semicolon at the end of the argument list suppresses the automatic return (carriage return) character.
+                     \item '{\bf ,}': Comma moves the cursor to the next tab position.
                  \end{itemize}
 
 \item [Remarks:]  The {\bf SPC} and {\bf TAB} functions may be used in the argument list for positioning.
@@ -7154,8 +7158,8 @@ HELLO
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 FOR I=1 TO 10
-20 PRINT I, I*I, SQR(I)
+10 FOR I = 1 TO 10
+20 PRINT I, I * I, SQR(I)
 30 NEXT
 \end{verbatim}
 \end{tcolorbox}
@@ -7183,8 +7187,8 @@ HELLO
                   \begin{itemize}
                      \item {\bf numeric} printout starts with a space for positive and zero values, or a minus sign for negative values. Integer values are printed with the necessary number of digits. Real values are printed in either fixed point form (typically 9 digits), or scientific form if the value is outside the range of 0.01 to 999999999.
                      \item {\bf string} may consist of printable characters and control codes. Printable characters are printed at the cursor position, while control codes are executed.
-                     \item ';' (semicolon) separates arguments of the list. It does not print any characters. A semicolon at the end of the argument list suppresses the automatic return (carriage return) character.
-                     \item ',' (comma) moves the cursor to the next tab position.
+                     \item '{\bf ;}'; Semicolon separates arguments of the list. It does not print any characters. A semicolon at the end of the argument list suppresses the automatic return (carriage return) character.
+                     \item '{\bf ,}'; Comma moves the cursor to the next tab position.
                   \end{itemize}
 
 \item [Remarks:]  The {\bf SPC} and {\bf TAB} functions are not suitable for devices other than the screen.
@@ -7195,8 +7199,8 @@ HELLO
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 DOPEN#2, "TABLE", W, U8
-20 FOR I=1 TO 10
-30 PRINT#2, I, I*I, SQR(I)
+20 FOR I = 1 TO 10
+30 PRINT#2, I, I * I, SQR(I)
 40 NEXT
 50 DCLOSE#2
 \end{verbatim}
@@ -7232,9 +7236,9 @@ HELLO
 
                   {\bf argument} may consist of printable characters and control codes. Printable characters are printed to the cursor position, while control codes are executed.
                 
-                  The number of '\#' characters sets the width of the output. If the first character of the format string is an '=' (equals), the argument string is centered. If the first character of the format string is a '>' (greater than), the argument string is right justified.
+                  The number of '\#' characters sets the width of the output. If the first character of the format string is an equals ({\bf =}), the argument string is centered. If the first character of the format string is a greater than ({\bf >}), the argument string is right justified.
 
-                  With a C-style pattern, you can request left-padding with zeroes instead of spaces by preceding the {\bf width} with a '0', such as: "\%07.2F" Left zero padding is cancelled if the value is negative. Right-of-decimal fields and hexadecimal patterns are always left-padded with zeroes.
+                  With a C-style pattern, you can request left-padding with zeroes instead of spaces by preceding the {\bf width} with a '0', such as: \texttt{\%07.2F} Left zero padding is cancelled if the value is negative. Right-of-decimal fields and hexadecimal patterns are always left-padded with zeroes.
 
 \newpage
 \item [Examples:] Using {\bf PRINT USING}
@@ -7242,7 +7246,7 @@ HELLO
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-PRINT USING "##.##";~, USING " [%6.4F] ";SQR(2)
+PRINT USING "##.##"; ~, USING " [%6.4F] "; SQR(2)
  3.14 [1.4142]
 
 PRINT USING " < # # # > ";12*31
@@ -7257,7 +7261,7 @@ CDE
 PRINT USING "ADDRESS:$%4X";65000
 ADDRESS:$FDE8
 
-A$="###,###,###.#" : PRINT USING A$;1E7/3
+A$ = "###,###,###.#" : PRINT USING A$; 1E7 / 3
   3,333,333.3
 \end{verbatim}
 \end{tcolorbox}
@@ -7279,10 +7283,10 @@ A$="###,###,###.#" : PRINT USING A$;1E7/3
 
                   Colour sources are:
                   \begin{itemize}
-                     \item {\bf 0}: Background colour (VIC \$D021).
-                     \item {\bf 1}: Text colour (\$F1).
-                     \item {\bf 2}: Highlight colour (\$02D8).
-                     \item {\bf 3}: Border colour (VIC \$D020).
+                     \item 0: Background colour (VIC \$D021).
+                     \item 1: Text colour (\$F1).
+                     \item 2: Highlight colour (\$02D8).
+                     \item 3: Border colour (VIC \$D020).
                   \end{itemize}
 
 \item [Example:]  Using {\bf RCOLOR}
@@ -7290,7 +7294,7 @@ A$="###,###,###.#" : PRINT USING A$;1E7/3
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 C=RCOLOR(3) : REM COLOUR INDEX OF BORDER COLOUR
+10 C = RCOLOR(3) : REM COLOUR INDEX OF BORDER COLOUR
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -7319,7 +7323,7 @@ A$="###,###,###.#" : PRINT USING A$;1E7/3
 100 CURSOR ON, 20, 10
 110 PRINT "[HERE]";
 120 RCURSOR X, Y
-130 PRINT " COL:";X;" ROW:";Y
+130 PRINT " COL:"; X; " ROW:"; Y
 
 RUN
 
@@ -7359,10 +7363,10 @@ RUN
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 READ NA$, VE
-20 READ N% : FOR I=2 TO N% : READ GL(I) : NEXT I
-30 PRINT "PROGRAM:";NA$;"   VERSION:";VE
+20 READ N% : FOR I = 2 TO N% : READ GL(I) : NEXT I
+30 PRINT "PROGRAM:"; NA$; "   VERSION:"; VE
 40 PRINT "N-POINT GAUSS-LEGENDRE FACTORS E:"
-50 FOR I=2 TO N% : PRINT I;GL(I) : NEXT I
+50 FOR I = 2 TO N% : PRINT I; GL(I) : NEXT I
 30 STOP
 80 DATA "MEGA65", 1.1
 90 DATA 5, 0.5120, 0.3573, 0.2760, 0.2252
@@ -7403,19 +7407,19 @@ RUN
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 DOPEN#2, "DATA BASE", L240        : REM OPEN OR CREATE
-110 FOR I%=1 TO 20                    : REM WRITE LOOP
-120 PRINT#2, "RECORD #";I%            : REM WRITE RECORD
-130 NEXT I%                           : REM END LOOP
-140 DCLOSE#2                          : REM CLOSE FILE
-150                                   : REM NOW TESTING
-160 DOPEN#2, "DATA BASE", L240        : REM REOPEN
-170 FOR I%=20 TO 2 STEP -2            : REM READ FILE BACKWARDS
-180 RECORD#2, I%                      : REM POSITION TO RECORD
-190 INPUT#2, A$                       : REM READ RECORD
-200 PRINT A$;: IF I% AND 2 THEN PRINT
-210 NEXT I%                           : REM LOOP
-220 DCLOSE#2                          : REM CLOSE FILE
+100 DOPEN#2, "DATA BASE", L240         : REM OPEN OR CREATE
+110 FOR I% = 1 TO 20                   : REM WRITE LOOP
+120 PRINT#2, "RECORD #"; I%            : REM WRITE RECORD
+130 NEXT I%                            : REM END LOOP
+140 DCLOSE#2                           : REM CLOSE FILE
+150                                    : REM NOW TESTING
+160 DOPEN#2, "DATA BASE", L240         : REM REOPEN
+170 FOR I% = 20 TO 2 STEP -2           : REM READ FILE BACKWARDS
+180 RECORD#2, I%                       : REM POSITION TO RECORD
+190 INPUT#2, A$                        : REM READ RECORD
+200 PRINT A$; : IF I% AND 2 THEN PRINT
+210 NEXT I%                            : REM LOOP
+220 DCLOSE#2                           : REM CLOSE FILE
 
 RUN
 RECORD # 20 RECORD # 18
@@ -7447,7 +7451,7 @@ RECORD # 4 RECORD # 2
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 REM *** PROGRAM TITLE ***
-20 N=1000     : REM NUMBER OF ITEMS
+20 N = 1000     : REM NUMBER OF ITEMS
 30 DIM NA$(N)
 \end{verbatim}
 \end{tcolorbox}
@@ -7467,9 +7471,9 @@ RECORD # 4 RECORD # 2
 
 \item [Usage:]    Renames a disk file.
 
-                  {\bf old} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(FI\$)}.
+                  {\bf old} is either a quoted string, e.g. \screentext{"DATA"} or a string expression in brackets, e.g. \screentext{(FI\$)}
 
-                  {\bf new} is either a quoted string, e.g. \screentext{"BACKUP"} or a string expression in brackets, e.g. \screentext{(FS\$)}.
+                  {\bf new} is either a quoted string, e.g. \screentext{"BACKUP"} or a string expression in brackets, e.g. \screentext{(FS\$)}
 
                   \drivedefinition
 
@@ -7571,9 +7575,9 @@ RENUMBER C 100,10        : REM OPTIMISATION
 10 DATA 3, 1, 4, 1, 5, 9, 2, 6
 20 DATA "MEGA65"
 30 DATA 2, 7, 1, 8, 2, 8, 9, 5
-40 FOR I=1 TO 8 : READ P : PRINT P : NEXT
+40 FOR I = 1 TO 8 : READ P : PRINT P : NEXT
 50 RESTORE 30
-60 FOR I=1 TO 8 : READ P : PRINT P : NEXT
+60 FOR I = 1 TO 8 : READ P : PRINT P : NEXT
 70 RESTORE 20
 80 READ A$ : PRINT A$
 \end{verbatim}
@@ -7608,10 +7612,10 @@ RENUMBER C 100,10        : REM OPTIMISATION
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 TRAP 100
- 20 FOR I=1 TO 100
+ 20 FOR I = 1 TO 100
  30 PRINT EXP(I)
  40 NEXT
- 50 PRINT "STOPPED FOR I =";I
+ 50 PRINT "STOPPED FOR I ="; I
  60 END
 100 PRINT ERR$(ER) : RESUME 50
 \end{verbatim}
@@ -7642,7 +7646,7 @@ RENUMBER C 100,10        : REM OPTIMISATION
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 SCNCLR             : REM CLEAR SCREEN
- 20 FOR I=1 TO 20      : REM DEFINE LOOP
+ 20 FOR I = 1 TO 20    : REM DEFINE LOOP
  30 GOSUB 100          : REM CALL SUBROUTINE
  40 NEXT I             : REM LOOP
  50 END                : REM END PROGRAM
@@ -7696,16 +7700,16 @@ RENUMBER C 100,10        : REM OPTIMISATION
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
- 10 GRAPHIC CLR                               : REM INITIALISE
- 20 SCREEN DEF 0, 1, 0, 4                     : REM SCREEN 0: 640 X 200 X 4
- 30 SCREEN OPEN 0                             : REM OPEN
- 40 SCREEN SET 0, 0                           : REM DRAW = VIEW = 0
- 50 SCNCLR 0                                  : REM CLEAR
- 60 PEN 0, 1                                  : REM SELECT COLOUR
- 70 LINE 0, 0, 639, 199                       : REM DRAW LINE
- 80 FOR I=0 TO 10 : A(I)=RGRAPHIC(0,I) : NEXT
+ 10 GRAPHIC CLR                                    : REM INITIALISE
+ 20 SCREEN DEF 0, 1, 0, 4                          : REM SCREEN 0: 640 X 200 X 4
+ 30 SCREEN OPEN 0                                  : REM OPEN
+ 40 SCREEN SET 0, 0                                : REM DRAW = VIEW = 0
+ 50 SCNCLR 0                                       : REM CLEAR
+ 60 PEN 0, 1                                       : REM SELECT COLOUR
+ 70 LINE 0, 0, 639, 199                            : REM DRAW LINE
+ 80 FOR I = 0 TO 10 : A(I) = RGRAPHIC(0, I) : NEXT
  90 SCREEN CLOSE 0
-100 FOR I=0 TO 6 : PRINT I;A(I) : NEXT        : REM PRINT INFO
+100 FOR I = 0 TO 6 : PRINT I; A(I) : NEXT          : REM PRINT INFO
 
 RUN
  0  1
@@ -7772,7 +7776,7 @@ PRINT RIGHT$("MEGA65", 2)
 
                   {\bf button variable} numeric variable receiving button status. Left button sets bit 7, while right button sets bit 0.
 
-                  Coordinates are reported to be compatible with sprite coordinates, limited to the visible screen inside the border. In the top-left corner (X=24 and Y=50).
+                  Coordinates are reported to be compatible with sprite coordinates. This is limited to the visible screen inside the border at the top-left corner with the coordinates (24, 50).
 
                   \begin{center}
                   {\setlength{\tabcolsep}{1mm}
@@ -7789,9 +7793,7 @@ PRINT RIGHT$("MEGA65", 2)
                   }
                   \end{center}
 
-\item [Remarks:]  Active mice in both ports will give a merged result.
-
-                  {\bf RMOUSE} places -1 into all variables if the mouse is not connected or disabled.
+\item [Remarks:]  {\bf RMOUSE} places -1 into all variables if the mouse is not connected or disabled.
 
 \item [Example:]  Using {\bf RMOUSE}
 
@@ -7800,8 +7802,8 @@ PRINT RIGHT$("MEGA65", 2)
 \begin{verbatim}
 10 MOUSE ON, 1, 1                                   : REM MOUSE ON PORT 1 WITH SPRITE 1
 20 RMOUSE XP, YP, BU                                : REM READ MOUSE STATUS
-30 IF XP<0 THEN PRINT "NO MOUSE IN PORT 1" : STOP
-40 PRINT "MOUSE:";XP;YP;BU
+30 IF XP < 0 THEN PRINT "NO MOUSE IN PORT 1" : STOP
+40 PRINT "MOUSE:"; XP; YP; BU
 50 MOUSE OFF                                        : REM DISABLE MOUSE
 \end{verbatim}
 \end{tcolorbox}
@@ -7824,9 +7826,9 @@ PRINT RIGHT$("MEGA65", 2)
                   This is called a ``pseudo-random'' number as computers cannot generate numbers that are truly random. Pseudo-random numbers are derived mathematically from another number called a ``seed'' that generates reproducible sequences. {\bf type} determines which seed method is used:
 
                   \begin{itemize}
-                     \item {\bf type = 0}: Use system clock.
-                     \item {\bf type < 0}: Use the value of {\bf type} as seed.
-                     \item {\bf type > 0}: Derive a new random number from previous one.
+                     \item type = 0: Use system clock.
+                     \item type < 0: Use the value of {\bf type} as seed.
+                     \item type > 0: Derive a new random number from previous one.
                   \end{itemize}
 
 \item [Remarks:]  Seeded random number sequences produce the same sequence for identical seeds.
@@ -7840,9 +7842,9 @@ PRINT RIGHT$("MEGA65", 2)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 DEF FNDI(X)=INT(RND(0)*6)+1 : REM DICE FUNCTION
-20 FOR I=1 TO 10               : REM THROW 10 TIMES
-30 PRINT I;FNDI(0)             : REM PRINT DICE POINTS
+10 DEF FN DI(X) = INT(RND(0) * 6) + 1 : REM DICE FUNCTION
+20 FOR I = 1 TO 10                    : REM THROW 10 TIMES
+30 PRINT I; FN DI(0)                  : REM PRINT DICE POINTS
 40 NEXT
 \end{verbatim}
 \end{tcolorbox}
@@ -7874,11 +7876,11 @@ PRINT RIGHT$("MEGA65", 2)
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 SCREEN 320, 200, 4                  : REM DEFINE AND OPEN SCREEN
-20 R=RPALETTE(0, 3, 0)                 : REM GET RED
-30 G=RPALETTE(0, 3, 1)                 : REM GET GREEN
-40 B=RPALETTE(0, 3, 2)                 : REM GET BLUE
+20 R = RPALETTE(0, 3, 0)               : REM GET RED
+30 G = RPALETTE(0, 3, 1)               : REM GET GREEN
+40 B = RPALETTE(0, 3, 2)               : REM GET BLUE
 50 SCREEN CLOSE                        : REM CLOSE SCREEN
-60 PRINT "PALETTE INDEX 3 RGB =";R;G;B
+60 PRINT "PALETTE INDEX 3 RGB ="; R; G; B
 
 RUN
 PALETTE INDEX 3 RGB = 0  15  15
@@ -7903,9 +7905,9 @@ PALETTE INDEX 3 RGB = 0  15  15
                   {\bf n} pen number (0 -- 2), where:
 
                   \begin{itemize}
-                     \item {0} draw pen
-                     \item {1} erase pen
-                     \item {2} outline pen
+                     \item 0: Draw pen.
+                     \item 1: Erase pen.
+                     \item 2: Outline pen.
                   \end{itemize}
 
 \item [Example:]  Using {\bf RPEN}
@@ -7919,11 +7921,11 @@ PALETTE INDEX 3 RGB = 0  15  15
  40 SCREEN SET 0, 0       : REM DRAW = VIEW = 0
  50 SCNCLR 0              : REM CLEAR
  60 PEN 0, 1              : REM SELECT COLOUR
- 70 X=RPEN(0)
- 80 Y=RPEN(1)
- 90 C=RPEN(2)
+ 70 X = RPEN(0)
+ 80 Y = RPEN(1)
+ 90 C = RPEN(2)
 100 SCREEN CLOSE 0
-110 PRINT "DRAW PEN COLOUR = ";X
+110 PRINT "DRAW PEN COLOUR = "; X
 
 RUN
 DRAW PEN COLOUR =  1
@@ -7992,9 +7994,9 @@ DRAW PEN COLOUR =  1
 \begin{verbatim}
 10 POKE $1800, $18, $8A, $65, $06, $60
 20 REM         CLC  TXA  ADC   06  RTS
-30 SYS $1800, 77, 11                   : REM A=77 X=11
+30 SYS $1800, 77, 11                   : REM A = 77 AND X = 11
 40 RREG AC, X, Y, Z, S
-50 PRINT "REGISTER:";AC;X;Y;Z;S
+50 PRINT "REGISTER:"; AC; X; Y; Z; S
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8016,8 +8018,8 @@ DRAW PEN COLOUR =  1
                   {\bf n} sprite multi-colour number:
 
                   \begin{itemize}
-                     \item {\bf 1}: Get multi-colour \#1.
-                     \item {\bf 2}: Get multi-colour \#2.
+                     \item 1: Get multi-colour \#1.
+                     \item 2: Get multi-colour \#2.
                   \end{itemize}
 
 \item [Remarks:]  Refer to {\bf SPRITE} and {\bf SPRCOLOR} for more information.
@@ -8027,9 +8029,9 @@ DRAW PEN COLOUR =  1
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 SPRITE 1, 1     : REM TURN SPRITE 1 ON
-20 C1%=RSPCOLOR(1) : REM READ COLOUR #1
-30 C2%=RSPCOLOR(2) : REM READ COLOUR #2
+10 SPRITE 1, 1       : REM TURN SPRITE 1 ON
+20 C1% = RSPCOLOR(1) : REM READ COLOUR #1
+30 C2% = RSPCOLOR(2) : REM READ COLOUR #2
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8059,10 +8061,10 @@ DRAW PEN COLOUR =  1
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 X=RSPEED(0)                            : REM GET CLOCK
-20 IF X=1  THEN PRINT "1 MHZ"   : GOTO 50
-30 IF X=3  THEN PRINT "3.5 MHZ" : GOTO 50
-40 IF X=40 THEN PRINT "40 MHZ"
+10 X = RSPEED(0)                            : REM GET CLOCK
+20 IF X = 1  THEN PRINT "1 MHZ"   : GOTO 50
+30 IF X = 3  THEN PRINT "3.5 MHZ" : GOTO 50
+40 IF X = 40 THEN PRINT "40 MHZ"
 50 END
 \end{verbatim}
 \end{tcolorbox}
@@ -8087,9 +8089,9 @@ DRAW PEN COLOUR =  1
                   {\bf n} sprite parameter to retrieve:
 
                   \begin{itemize}
-                     \item {\bf 0}: X position.
-                     \item {\bf 1}: Y position.
-                     \item {\bf 2}: Speed.
+                     \item 0: X position.
+                     \item 1: Y position.
+                     \item 2: Speed.
                   \end{itemize}
 
 \item [Remarks:]  Refer to the {\bf MOVSPR} and {\bf SPRITE} commands for more information.
@@ -8098,10 +8100,10 @@ DRAW PEN COLOUR =  1
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 SPRITE 1, 1     : REM TURN SPRITE 1 ON
-20 XP=RSPPOS(1, 0) : REM GET X OF SPRITE 1
-30 YP=RSPPOS(1, 1) : REM GET Y OF SPRITE 1
-30 SP=RSPPOS(1, 2) : REM GET SPEED OF SPRITE 1
+10 SPRITE 1, 1       : REM TURN SPRITE 1 ON
+20 XP = RSPPOS(1, 0) : REM GET X OF SPRITE 1
+30 YP = RSPPOS(1, 1) : REM GET Y OF SPRITE 1
+30 SP = RSPPOS(1, 2) : REM GET SPEED OF SPRITE 1
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8120,17 +8122,17 @@ DRAW PEN COLOUR =  1
 
 \item [Returns:]  A sprite parameter.
 
-                  {\bf sprite} sprite number (0 -- 7).
+                  {\bf sprite} sprite number (0 -- 7)
 
                   {\bf n} sprite parameter to return (0 -- 5):
 
                   \begin{itemize}
-                     \item {\bf 0}: Turned on (0 or 1). A 0 means the sprite is off.
-                     \item {\bf 1}: Foreground colour (0 -- 15).
-                     \item {\bf 2}: Background priority (0 or 1).
-                     \item {\bf 3}: X-expanded (0 or 1). 0 means it's not X-expanded.
-                     \item {\bf 4}: Y-expanded (0 or 1). 0 means it's not Y-expanded.
-                     \item {\bf 5}: Multi-colour (0 or 1). 0 means it's not multi-colour.
+                     \item 0: Turned on (0 or 1). A 0 means the sprite is off.
+                     \item 1: Foreground colour (0 -- 15).
+                     \item 2: Background priority (0 or 1).
+                     \item 3: X-expanded (0 or 1). 0 means it's not X-expanded.
+                     \item 4: Y-expanded (0 or 1). 0 means it's not Y-expanded.
+                     \item 5: Multi-colour (0 or 1). 0 means it's not multi-colour.
                   \end{itemize}
 
 \item [Remarks:]  Refer to the {\bf MOVSPR} and {\bf SPRITE} commands for more information.
@@ -8140,13 +8142,13 @@ DRAW PEN COLOUR =  1
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 SPRITE 1, 1      : REM TURN SPRITE 1 ON
-20 EN=RSPRITE(1, 0) : REM SPRITE 1 ENABLED ?
-30 FG=RSPRITE(1, 1) : REM SPRITE 1 FOREGROUND COLOUR INDEX
-40 BP=RSPRITE(1, 2) : REM SPRITE 1 BACKGROUND PRIORITY
-50 XE=RSPRITE(1, 3) : REM SPRITE 1 X EXPANDED ?
-60 YE=RSPRITE(1, 4) : REM SPRITE 1 Y EXPANDED ?
-70 MC=RSPRITE(1, 5) : REM SPRITE 1 MULTI-COLOUR ?
+10 SPRITE 1, 1        : REM TURN SPRITE 1 ON
+20 EN = RSPRITE(1, 0) : REM SPRITE 1 ENABLED ?
+30 FG = RSPRITE(1, 1) : REM SPRITE 1 FOREGROUND COLOUR INDEX
+40 BP = RSPRITE(1, 2) : REM SPRITE 1 BACKGROUND PRIORITY
+50 XE = RSPRITE(1, 3) : REM SPRITE 1 X EXPANDED ?
+60 YE = RSPRITE(1, 4) : REM SPRITE 1 Y EXPANDED ?
+70 MC = RSPRITE(1, 5) : REM SPRITE 1 MULTI-COLOUR ?
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8173,7 +8175,7 @@ DRAW PEN COLOUR =  1
 
                   {\bf line number} existing line number of the program in memory should be run from.
 
-                  {\bf filename} is either a quoted string, e.g. \screentext{"PROG"} or a string expression in brackets, e.g. \screentext{(PR\$)}. The filetype must be {\bf PRG}.
+                  {\bf filename} is either a quoted string, e.g. \screentext{"PROG"} or a string expression in brackets, e.g. \screentext{(PR\$)} The filetype must be {\bf PRG}.
 
                   \drivedefinition
 
@@ -8214,10 +8216,10 @@ RUN             : REM RUN PROGRAM IN MEMORY
                   {\bf n} the screen parameter to retrieve:
 
                   \begin{itemize}
-                     \item {\bf 0}: Width of current text window.
-                     \item {\bf 1}: Height of current text window.
-                     \item {\bf 2}: Number of columns on screen (40 or 80).
-                     \item {\bf 3}: Number of rows on screen (25 or 50).
+                     \item 0: Width of current text window.
+                     \item 1: Height of current text window.
+                     \item 2: Number of columns on screen (40 or 80).
+                     \item 3: Number of rows on screen (25 or 50).
                   \end{itemize}
 
 \item [Remarks:]  Older versions of {\bf RWINDOW} reported the width - 1 and the height - 1 for arguments 0 and 1.
@@ -8229,9 +8231,9 @@ RUN             : REM RUN PROGRAM IN MEMORY
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 W = RWINDOW(2)        : REM GET SCREEN WIDTH
-20 IF W=80 THEN BEGIN    : REM IS 80 COLUMNS MODE ACTIVE?
-30   PRINT CHR$(27)+"X"; : REM YES, SWITCH TO 40 COLUMNS
+10 W = RWINDOW(2)          : REM GET SCREEN WIDTH
+20 IF W = 80 THEN BEGIN    : REM IS 80 COLUMNS MODE ACTIVE?
+30   PRINT CHR$(27) + "X"; : REM YES, SWITCH TO 40 COLUMNS
 40 BEND
 \end{verbatim}
 \end{tcolorbox}
@@ -8419,15 +8421,15 @@ SCRATCH "R*=PRG"          : REM ERASE PROGRAM FILES STARTING WITH 'R'
 
                   \underline{{\bf Simplified approach}}:
 
-                  The first version of {\bf SCREEN} (which has pixel units for width and height) is the easiest               way to start a graphics screen, and is the preferred method if only a single screen is needed (i.e., a second screen isn't needed for double buffering). This does all of the preparatory work for you, and will call commands such as {\bf GRAPHIC CLR}, {\bf SCREEN CLR}, {\bf SCREEN DEF}, {\bf SCREEN OPEN} and, {\bf SCREEN SET} on your behalf. It takes the following parameters:
+                  The first version of {\bf SCREEN} (which has pixel units for width and height) is the easiest way to start a graphics screen, and is the preferred method if only a single screen is needed (i.e., a second screen isn't needed for double buffering). This does all of the preparatory work for you, and will call commands such as {\bf GRAPHIC CLR}, {\bf SCREEN CLR}, {\bf SCREEN DEF}, {\bf SCREEN OPEN} and, {\bf SCREEN SET} on your behalf. It takes the following parameters:
 
                   {\bf SCREEN} [screen,] width, height, depth
 
                   \begin{itemize}
-                     \item {\bf screen}: The screen number (0 -- 3) is optional. If no screen number is given, screen 0 is used. To keep this approach as simple as possible, it is suggested to use the default screen 0.
-                     \item {\bf width}: 320 or 640 (default 320).
-                     \item {\bf height}: 200 or 400 (default 200).
-                     \item {\bf depth}: 1..8 (default = 8), colours = 2 \textasciicircum depth.
+                     \item screen: The screen number (0 -- 3) is optional. If no screen number is given, screen 0 is used. To keep this approach as simple as possible, it is suggested to use the default screen 0.
+                     \item width: 320 or 640 (default 320).
+                     \item height: 200 or 400 (default 200).
+                     \item depth: 1..8 (default = 8), colours = 2 \textasciicircum depth.
                   \end{itemize}
 
                   The argument parser is error tolerant and uses default values for width (320) and height (200) if the parsed argument is not valid.
@@ -8451,10 +8453,10 @@ SCRATCH "R*=PRG"          : REM ERASE PROGRAM FILES STARTING WITH 'R'
                   Defines resolution parameters for the chosen screen. The width flag and height flag indicate whether high resolution (1) or low resolution (0) is chosen.
 
                   \begin{itemize}
-                     \item {\bf screen}: Screen number 0 -- 3.
-                     \item {\bf width flag}: 0 -- 1 (0:320, 1:640 pixel).
-                     \item {\bf height flag}: 0 -- 1 (0:200, 1:400 pixel).
-                     \item {\bf depth}: 1 -- 8 (2 -- 256 colours).
+                     \item screen: Screen number 0 -- 3.
+                     \item width flag: 0 -- 1 (0:320, 1:640 pixel).
+                     \item height flag: 0 -- 1 (0:200, 1:400 pixel).
+                     \item depth: 1 -- 8 (2 -- 256 colours).
                   \end{itemize}
 
                   Note that the width and height values here are {\bf flags}, and {\bf not pixel units}.
@@ -8593,9 +8595,9 @@ SET VERIFY ON   : REM ACTIVATE VERIFY-AFTER-WTITE MODE
 \item [Returns:]  The sign of a numeric expression, as a number.
 
                   \begin{itemize}
-                     \item {\bf -1}: Negative argument.
-                     \item {\bf 0}: Zero.
-                     \item {\bf 1}: Positive, non-zero argument.
+                     \item -1: Negative argument.
+                     \item 0: Zero.
+                     \item 1: Positive, non-zero argument.
                   \end{itemize}
 
 \item [Example:]  Using {\bf SGN}
@@ -8603,8 +8605,8 @@ SET VERIFY ON   : REM ACTIVATE VERIFY-AFTER-WTITE MODE
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 ON SGN(X)+2 GOTO 100, 200, 300 : REM TARGETS FOR MINUS, ZERO, PLUS
-20 Z=SGN(X)*ABS(Y)                : REM COMBINE SIGN OF X WITH VALUE OF Y
+10 ON SGN(X) + 2 GOTO 100, 200, 300 : REM TARGETS FOR MINUS, ZERO, PLUS
+20 Z = SGN(X) * ABS(Y)              : REM COMBINE SIGN OF X WITH VALUE OF Y
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8635,7 +8637,7 @@ SET VERIFY ON   : REM ACTIVATE VERIFY-AFTER-WTITE MODE
 PRINT SIN(0.7)
  0.64421769
 
-X=30 : PRINT SIN(X * ~ / 180)
+X = 30 : PRINT SIN(X * ~ / 180)
  0.5
 \end{verbatim}
 \end{tcolorbox}
@@ -8721,11 +8723,11 @@ SLEEP 600    : REM SLEEP 10 MINUTES
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 IF PEEK($D06F) AND $80 THEN J=60 : ELSE J=50 : REM J IS JIFFIES PER SECOND
-20 SOUND 1, 7382, J                             : REM PLAY SQUARE WAVE ON VOICE 1 FOR 1 SECOND
-30 SOUND 2,  800, J*60                          : REM PLAY SQUARE WAVE ON VOICE 2 FOR 1 MINUTE
-40 SOUND 3, 4000, 120, 2, 2000, 400, 1          : REM PLAY SWEEPING SAWTOOTH WAVE ON VOICE 3
-50 SOUND CLR                                    : REM SILENCE SOUND, RESET PARAMETERS
+10 IF PEEK($D06F) AND $80 THEN J = 60 : ELSE J = 50 : REM J IS JIFFIES PER SECOND
+20 SOUND 1, 7382, J                                 : REM PLAY SQUARE WAVE ON VOICE 1 FOR 1 SECOND
+30 SOUND 2,  800, J*60                              : REM PLAY SQUARE WAVE ON VOICE 2 FOR 1 MINUTE
+40 SOUND 3, 4000, 120, 2, 2000, 400, 1              : REM PLAY SWEEPING SAWTOOTH WAVE ON VOICE 3
+50 SOUND CLR                                        : REM SILENCE SOUND, RESET PARAMETERS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8755,8 +8757,8 @@ SLEEP 600    : REM SLEEP 10 MINUTES
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 FOR I=8 TO 12
-20 PRINT SPC(-(I<10));I : REM TRUE=-1, FALSE=0
+10 FOR I = 8 TO 12
+20 PRINT SPC(-(I < 10)); I : REM TRUE = -1, FALSE = 0
 30 NEXT I
 RUN
  8
@@ -8784,8 +8786,8 @@ RUN
 
                   {\bf speed} CPU clock speed where:
                   \begin{itemize}
-                     \item {\bf 1}: Sets CPU to 1 MHz.
-                     \item {\bf 3}: Sets CPU to 3 MHz.
+                     \item 1: Sets CPU to 1 MHz.
+                     \item 3: Sets CPU to 3 MHz.
                      \item Anything other than {\bf 1} or {\bf 3} sets the CPU to 40 MHz.
                   \end{itemize}
 
@@ -8890,12 +8892,12 @@ SPEED 3.5 : REM SET SPEED TO 3.5 MHZ
 \begin{verbatim}
 10 CLR : SCNCLR : SPRITE CLR
 20 SPRITE LOAD "DEMOSPRITES1"
-30 FOR I=0 TO 7 : C=I : IF C=6 THEN C=8
-40 MOVSPR I, 60+30*I,0 TO 60+30*I, 65+20*I, 3 : SPRITE I, 1, C,, 1, 1 : NEXT : SLEEP 3
-50 FOR I=0 TO 7 : SPRITE I,,,, 0, 0 : NEXT : SLEEP 3 : SPRITE CLR
-60 FOR I=0 TO 7 : MOVSPR I,45*I#5 : NEXT : FOR I=0 TO 7 : SPRITE I, 1 : NEXT
-70 FOR I=0 TO 7 : X=60+30*I : Y=65+20*I : DO
-80 LOOP UNTIL(X=RSPPOS(I, .)) AND (Y=RSPPOS(I, 1)) : MOVSPR I, .#. : NEXT
+30 FOR I = 0 TO 7 : C = I : IF C = 6 THEN C = 8
+40 MOVSPR I, 60 + 30 * I, 0 TO 60 + 30 * I, 65 + 20 * I, 3 : SPRITE I, 1, C,, 1, 1 : NEXT : SLEEP 3
+50 FOR I = 0 TO 7 : SPRITE I,,,, 0, 0 : NEXT : SLEEP 3 : SPRITE CLR
+60 FOR I = 0 TO 7 : MOVSPR I, 45 * I#5 : NEXT : FOR I = 0 TO 7 : SPRITE I, 1 : NEXT
+70 FOR I = 0 TO 7 : X = 60 + 30 * I : Y = 65 + 20 * I : DO
+80 LOOP UNTIL(X = RSPPOS(I, .)) AND (Y = RSPPOS(I, 1)) : MOVSPR I, .#. : NEXT
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8956,7 +8958,7 @@ SPEED 3.5 : REM SET SPEED TO 3.5 MHZ
 
 \item [Returns:]  The square root of a numeric expression.
 
-\item [Remarks:]  The argument must not be negative or you will get an Illegal Quantity error.
+\item [Remarks:]  The argument must not be negative. If {\bf SRQ()} is given a negative value, it throws an Illegal Quantity error.
 
 \item [Example:]  Using {\bf SQR}
 
@@ -8992,14 +8994,14 @@ PRINT SQR(2)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 MX=100 : DIM T$(MX)                           : REM DATA ARRAY
-110 DOPEN#1, "DATA"                               : REM OPEN FILE
+100 MX = 100 : DIM T$(MX)                           : REM DATA ARRAY
+110 DOPEN#1, "DATA"                                 : REM OPEN FILE
 120 IF DS THEN PRINT"COULD NOT OPEN" : STOP
-130 LINE INPUT#1, T$(N) :N=N+1                    : REM READ ONE RECORD
-140 IF N>MX THEN PRINT "TOO MANY DATA" : GOTO 160
-150 IF ST=0 THEN 130                              : REM ST = 64 FOR END-OF-FILE
+130 LINE INPUT#1, T$(N) : N = N + 1                 : REM READ ONE RECORD
+140 IF N > MX THEN PRINT "TOO MANY DATA" : GOTO 160
+150 IF ST = 0 THEN 130                              : REM ST = 64 FOR END-OF-FILE
 160 DCLOSE#1
-170 PRINT "READ";N;" RECORDS"
+170 PRINT "READ"; N; " RECORDS"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9035,9 +9037,9 @@ PRINT SQR(2)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 FOR D=0 TO 360 STEP 30
+10 FOR D = 0 TO 360 STEP 30
 20 R = D * ~ / 180
-30 PRINT D;R;SIN(R);COS(R);TAN(R)
+30 PRINT D; R; SIN(R); COS(R); TAN(R)
 40 NEXT D
 \end{verbatim}
 \end{tcolorbox}
@@ -9068,8 +9070,8 @@ PRINT SQR(2)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 IF V<0 THEN STOP : REM NEGATIVE NUMBERS STOP THE PROGRAM
-20 PRINT SQR(V)     : REM PRINT SQUARE ROOT
+10 IF V < 0 THEN STOP : REM NEGATIVE NUMBERS STOP THE PROGRAM
+20 PRINT SQR(V)       : REM PRINT SQUARE ROOT
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9093,7 +9095,7 @@ PRINT SQR(2)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 A$="THE VALUE OF PI IS "+STR$(~)
+10 A$ = "THE VALUE OF PI IS " + STR$(~)
 20 PRINT A$
 
 RUN
@@ -9172,7 +9174,7 @@ PRINT STRBIN$(245)
 
                   Despite the unusual restrictions on addresses, the {\bf SYS} command is a powerful way to combine BASIC and machine language code. For short routines, memory in bank 0 offsets \$1800 -- \$1EFF are available for program use. If care is taken to avoid overwriting the end of the BASIC program, machine language routines can be loaded elsewhere in bank 0 up to offset \$BFFF.
 
-                  Using {\bf SYS} properly (i.e. without corrupting the system) requires some technical skill though. For more information and examples, see \ifdefined\printmanual
+                  Using {\bf SYS} properly (i.e. without corrupting the system) requires some technical skill. For more information and examples, see \ifdefined\printmanual
                      the ``Memory'' chapter of the {\bf MEGA65 Book}.
                   \else
                      \bookvref{cha:programming-with-memory}.
@@ -9185,9 +9187,9 @@ PRINT STRBIN$(245)
 \begin{verbatim}
 10 REM CHANGING THE BORDER COLOUR USING SYS
 20 BANK 0
-30 POKE $4000, $EE, $20, $D0, $60           : REM MACHINE CODE FOR INC $D020 : RTS
-40 SYS $4000                                : REM CALL SUBROUTINE AT $4000 / BANK $00
-50 GETKEY A$ : IF A$<>"Q" THEN 40           : REM CONTINUE CHANING COLOUR UNTIL 'Q' IS PRESSED
+30 POKE $4000, $EE, $20, $D0, $60   : REM MACHINE CODE FOR INC $D020 : RTS
+40 SYS $4000                        : REM CALL SUBROUTINE AT $4000 / BANK $00
+50 GETKEY A$ : IF A$ <> "Q" THEN 40 : REM CONTINUE UNTIL 'Q' IS PRESSED
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9220,10 +9222,10 @@ PRINT STRBIN$(245)
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 PRINT CHR$(147)
-20 FOR R=0 TO 3
-30 FOR C=0 TO 63
-40 T@&(C, R)=R*64+C
-50 C@&(C, R)=MOD(C, 16)
+20 FOR R = 0 TO 3
+30 FOR C = 0 TO 63
+40 T@&(C, R) = R * 64 + C
+50 C@&(C, R)= MOD(C, 16)
 60 NEXT C
 70 NEXT R
 80 CURSOR 0, 4
@@ -9254,7 +9256,7 @@ PRINT STRBIN$(245)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 FOR I=1 TO 5
+10 FOR I = 1 TO 5
 20 READ A$
 30 PRINT "* " A$ TAB(10) " *"
 40 NEXT I
@@ -9297,7 +9299,7 @@ RUN
 PRINT TAN(0.7)
  0.84228838
 
-X=45:PRINT TAN(X * ~ / 180)
+X = 45 : PRINT TAN(X * ~ / 180)
  1
 \end{verbatim}
 \end{tcolorbox}
@@ -9327,7 +9329,7 @@ X=45:PRINT TAN(X * ~ / 180)
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 VOL 8, 8
-20 FOR T=24 TO 18 STEP -2
+20 FOR T = 24 TO 18 STEP -2
 30 TEMPO T
 40 PLAY "T0M3O4QGAGFED", "T2O4M5P0H.DP5GB", "T5O3IGAGAGAABABAB"
 50 IF RPLAY(1) THEN GOTO 50
@@ -9364,14 +9366,14 @@ X=45:PRINT TAN(X * ~ / 180)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 RED$=CHR$(28) : BLACK$=CHR$(144) : WHITE$=CHR$(5)
-20 INPUT "ENTER A NUMBER";V
-30 IF V<0 THEN PRINT RED$; : ELSE PRINT BLACK$;
+10 RED$ = CHR$(28) : BLACK$ = CHR$(144) : WHITE$ = CHR$(5)
+20 INPUT "ENTER A NUMBER"; V
+30 IF V < 0 THEN PRINT RED$; : ELSE PRINT BLACK$;
 40 PRINT V                                           : REM PRINT NEGATIVE NUMBERS IN RED
 50 PRINT WHITE$
-60 INPUT "END PROGRAM (Y/N)";A$
-70 IF A$="Y" THEN END
-80 IF A$="N" THEN 20 : ELSE 60
+60 INPUT "END PROGRAM (Y/N)"; A$
+70 IF A$ = "Y" THEN END
+80 IF A$ = "N" THEN 20 : ELSE 60
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9401,10 +9403,10 @@ X=45:PRINT TAN(X * ~ / 180)
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-100 CLR TI                                : REM START TIMER
-110 FOR I%=1 TO 10000 : NEXT              : REM DO SOMETHING
-120 ET=TI                                 : REM STORE ELAPSED TIME IN ET
-130 PRINT "EXECUTION TIME:";ET;" SECONDS"
+100 CLR TI                                  : REM START TIMER
+110 FOR I% = 1 TO 10000 : NEXT              : REM DO SOMETHING
+120 ET = TI                                 : REM STORE ELAPSED TIME IN ET
+130 PRINT "EXECUTION TIME:"; ET; " SECONDS"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9423,7 +9425,7 @@ X=45:PRINT TAN(X * ~ / 180)
 
 \item [Usage:]    The current time of day, as a string.
 
-                  The time value is updated from the RTC (Real-Time Clock). The string {\bf TI\$} is formatted as "HH:MM:SS".
+                  The time value is updated from the RTC (Real-Time Clock). The string {\bf TI\$} is formatted as \texttt{HH:MM:SS}.
 
                   {\bf TI\$} is a read-only variable, which reads the registers of the RTC and formats the values to a string. This differs from other Commodore computers that do not have an RTC.
 
@@ -9443,14 +9445,14 @@ X=45:PRINT TAN(X * ~ / 180)
 \verbatimfont{\codefont}
 \begin{verbatim}
 100 REM ****** READ RTC: ALL VALUES ARE BCD ENCODED ******
-110 RT = $FFD7110             : REM ADDRESS OF RTC
-120 FOR I=0 TO 5              : REM SS, MM, HH, DD, MO, YY
-130 T(I)=PEEK(RT+I)           : REM READ REGISTERS
-140 NEXT I                    : REM USE ONLY LAST TWO DIGITS
-150 T(2)=T(2) AND 127         : REM REMOVE 24H MODE FLAG
-160 T(5)=T(5) + $2000         : REM ADD YEAR 2000
-170 FOR I=2 TO 0 STEP -1      : REM TIME INFO
-180 PRINT USING ">## ";HEX$(T(I));
+110 RT = $FFD7110                   : REM ADDRESS OF RTC
+120 FOR I = 0 TO 5                  : REM SS, MM, HH, DD, MO, YY
+130 T(I) = PEEK(RT + I)             : REM READ REGISTERS
+140 NEXT I                          : REM USE ONLY LAST TWO DIGITS
+150 T(2) = T(2) AND 127             : REM REMOVE 24H MODE FLAG
+160 T(5) = T(5) + $2000             : REM ADD YEAR 2000
+170 FOR I = 2 TO 0 STEP -1          : REM TIME INFO
+180 PRINT USING ">## "; HEX$(T(I));
 190 NEXT I
 RUN
 12 52 36
@@ -9478,7 +9480,7 @@ PRINT DT$;TI$
 
 \item [Format:]   keyword {\bf TO}
 
-\item [Usage:]    {\bf TO} is a secondary keyword used in combination with primary key\-words, such as {\bf BACKUP}, {\bf BSAVE}, {\bf CHANGE}, {\bf CONCAT}, {\bf COPY}, {\bf FOR}, {\bf GO}, {\bf RENAME}, and {\bf SET DISK}
+\item [Usage:]    {\bf TO} is a secondary keyword used in combination with primary key\-words, such as {\bf BACKUP}, {\bf BSAVE}, {\bf CHANGE}, {\bf CONCAT}, {\bf COPY}, {\bf FOR}, {\bf GO}, {\bf RENAME}, and {\bf SET DISK}.
 
 \item [Remarks:]  {\bf TO} cannot be used on its own.
 
@@ -9487,14 +9489,14 @@ PRINT DT$;TI$
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 GO TO 1000               : REM AS GOTO 1000
+10 GO TO 1000            : REM AS GOTO 1000
 
-10 GOTO 1000                : REM SHORTER AND FASTER
+10 GOTO 1000             : REM SHORTER AND FASTER
 
-10 FOR I=1 TO 10            : REM TO IS PART OF THE LOOP
-20 PRINT I : NEXT           : REM LOOP END
+10 FOR I = 1 TO 10       : REM TO IS PART OF THE LOOP
+20 PRINT I : NEXT        : REM LOOP END
 
-COPY "CODES" TO "BACKUP"    : REM COPY SINGLE FILE
+COPY "CODES" TO "BACKUP" : REM COPY SINGLE FILE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9523,10 +9525,10 @@ COPY "CODES" TO "BACKUP"    : REM COPY SINGLE FILE
 \verbatimfont{\codefont}
 \begin{verbatim}
  10 TRAP 100
- 20 FOR I=1 TO 100
+ 20 FOR I = 1 TO 100
  30 PRINT EXP(I)
  40 NEXT
- 50 PRINT "STOPPED FOR I =";I
+ 50 PRINT "STOPPED FOR I ="; I
  60 END
 100 PRINT ERR$(ER) : RESUME 50
 \end{verbatim}
@@ -9554,11 +9556,11 @@ COPY "CODES" TO "BACKUP"    : REM COPY SINGLE FILE
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 TRON            : REM ACTIVATE TRACE MODE
-20 FOR I=85 TO 100
-30 PRINT I;EXP(I)
+10 TRON              : REM ACTIVATE TRACE MODE
+20 FOR I = 85 TO 100
+30 PRINT I; EXP(I)
 40 NEXT
-50 TROFF           : REM DEACTIVATE TRACE MODE
+50 TROFF             : REM DEACTIVATE TRACE MODE
 
 RUN
 [10][20][30] 85  8.2230125E36
@@ -9595,11 +9597,11 @@ READY.
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 TRON            : REM ACTIVATE TRACE MODE
-20 FOR I=85 TO 100
-30 PRINT I;EXP(I)
+10 TRON              : REM ACTIVATE TRACE MODE
+20 FOR I = 85 TO 100
+30 PRINT I; EXP(I)
 40 NEXT
-50 TROFF           : REM DEACTIVATE TRACE MODE
+50 TROFF             : REM DEACTIVATE TRACE MODE
 
 RUN
 [10][20][30] 85  8.2230125E36
@@ -9667,7 +9669,7 @@ TYPE P "MOBYDICK"
 
 \item [Usage:]    Unlocks a file on disk previously locked using {\bf LOCK}.
 
-                  The specified file or a set of files, that matches the pattern, is unlocked and no longer protected. It can be deleted afterwards with the commands {\bf DELETE}, {\bf ERASE} or {\bf SCRATCH}
+                  The specified file or a set of files, that matches the pattern, is unlocked and no longer protected. It can be deleted afterwards with the commands {\bf DELETE}, {\bf ERASE} or {\bf SCRATCH}.
 
                   \filenamedefinition
 
@@ -9716,13 +9718,13 @@ UNLOCK "BS*"            : REM UNLOCK ALL FILES BEGINNING WITH "BS"
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 PW$="" : DO
-20 GET A$ : PW$=PW$+A$
-30 LOOP UNTIL LEN(PW$)>7 OR A$=CHR$(13)
+10 PW$ = "" : DO
+20 GET A$ : PW$ = PW$ + A$
+30 LOOP UNTIL LEN(PW$) > 7 OR A$ = CHR$(13)
 
 10 DO
 20 GET A$
-30 LOOP UNTIL A$="Y" OR A$="N"
+30 LOOP UNTIL A$ = "Y" OR A$ = "N"
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9762,13 +9764,13 @@ UNLOCK "BS*"            : REM UNLOCK ALL FILES BEGINNING WITH "BS"
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-PRINT USING "##.##";~, USING " [%7.4F] ";SQR(2)
+PRINT USING "##.##"; ~, USING " [%7.4F] "; SQR(2)
  3.14 [  1.4142]
 
-PRINT USING "##.##";~, USING " [%07.4F] ";SQR(2)
+PRINT USING "##.##"; ~, USING " [%07.4F] "; SQR(2)
  3.14 [001.4142]
 
-PRINT USING " < # # # > ";12*31
+PRINT USING " < # # # > "; 12 * 31
  < 3 7 2 >
 
 PRINT USING "###"; "ABCDE"
@@ -9777,10 +9779,10 @@ ABC
 PRINT USING ">###"; "ABCDE"
 CDE
 
-PRINT USING "ADDRESS: $%4X";65000
+PRINT USING "ADDRESS: $%4X"; 65000
 ADDRESS: $FDE8
 
-A$="###,###,###.#":PRINT USING A$;1E7/3
+A$ = "###,###,###.#":PRINT USING A$; 1E7 / 3
   3,333,333.3
 \end{verbatim}
 \end{tcolorbox}
@@ -9960,7 +9962,7 @@ VERIFY "1:DUNGEON", 10
 \verbatimfont{\codefont}
 \begin{verbatim}
 10 TEMPO 22
-20 FOR V=2 TO 12 STEP 2
+20 FOR V = 2 TO 12 STEP 2
 30 VOL V, 16-V
 40 PLAY "T0M3O4QGAGFED", "T2O4M5P0H.DP5GB", "T5O3IGAGAGAABABAB", "G"
 50 IF RPLAY(1) THEN GOTO 50
@@ -10067,8 +10069,8 @@ VERIFY "1:DUNGEON", 10
 20 GOSUB 2000                : REM ITERATION SUBROUTINE
 30 LOOP
 
-10 I%=0                      : REM INTEGER LOOP 1-100
-20 DO I%=I%+1
+10 I% = 0                    : REM INTEGER LOOP 1-100
+20 DO I% = I% + 1
 30 LOOP WHILE I% < 101
 \end{verbatim}
 \end{tcolorbox}
@@ -10133,7 +10135,7 @@ WINDOW 20,  5, 59, 15    : REM SMALL CENTRED WINDOW
 
 \item [Format:]   {\bf WPEEK(}address{\bf)}
 
-\item [Returns:]  The 16-bit word value stored in memory at {\bf address} (low byte) and {\bf address} + 1 (high byte), as an unsigned 16-bit number.
+\item [Returns:]  The 16-bit word value stored in memory at {\bf address} (low byte) and {\bf address + 1} (high byte), as an unsigned 16-bit number.
 
                   If the address is in the range of \$0000 to \$FFFF (0 -- 65535), the memory bank set by {\bf BANK} is used.
 
@@ -10146,8 +10148,8 @@ WINDOW 20,  5, 59, 15    : REM SMALL CENTRED WINDOW
 \begin{tcolorbox}[colback=black,coltext=white]
 \verbatimfont{\codefont}
 \begin{verbatim}
-10 UA=WPEEK($02F8)                      : REM USR JUMP TARGET
-20 PRINT "USR FUNCTION CALL ADDRESS";UA
+10 UA = WPEEK($02F8)                     : REM USR JUMP TARGET
+20 PRINT "USR FUNCTION CALL ADDRESS"; UA
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

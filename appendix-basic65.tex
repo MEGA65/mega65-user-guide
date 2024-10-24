@@ -604,7 +604,7 @@ IF (C >= 0 AND C < 256) THEN PRINT "BYTE VALUE"
 \item [Remarks:]  {\bf APPEND\#} works similarly to {\bf DOPEN\#... ,W}, except that the file must already exist.
 
                   The content of the file is retained, and all printed text is appended to the end.
-      
+
                   Trying to {\bf APPEND\#} to a non-existing file reports a DOS error.
 
 \item [Examples:] Using {\bf APPEND\#} (opening existing files)
@@ -736,7 +736,7 @@ AUTO    : REM SWITCH AUTO OFF
                  {\bf colour} palette entry number, in the range 0 -- 255
 
                  All colours within this range are customisable via the {\bf PALETTE} command.
-                 
+
                  On startup, the MEGA65 only has the first 32 colours configured. See appendix \vref{appendix:colourtable} for the list of colours in the default system palette.
 
 \item [Example:] Using {\bf BACKGROUND}
@@ -772,7 +772,7 @@ BACKGROUND 3 : REM SELECT BACKGROUND COLOUR CYAN
 
                   {\bf target} unit or drive \# of target disk.
 
-\item [Remarks:]  The target disk will be formatted and an identical copy of the source disk will be written. 
+\item [Remarks:]  The target disk will be formatted and an identical copy of the source disk will be written.
 
                   {\bf BACKUP} cannot be used to backup from internal devices to IEC devices or vice versa.
 
@@ -1138,7 +1138,7 @@ BOX 20, 0,  140, 0, 160, 80,  0, 80
                   The {\bf PRG} file format that is used by {\bf BSAVE} requires the load address to be written to the first two bytes. If the saving is done with a bank number that is not zero, or a start address greater than \$FFFF, this information will not fit. For compatibility reasons, only the two low order bytes are written. Loading the file with the {\bf BLOAD} command will then require the full 16-bit range of the load address as a parameter.
 
                   While it is possible to coerce {\bf BSAVE} to create a file of type {\bf SEQ} using a filename suffix of \screentext{",S"}, the command does not have a way to omit the two-byte load address, which is typically not desired for a {\bf SEQ} file.
-                  
+
                   The raw mode of {\bf BLOAD} is not supported by {\bf BSAVE}.
 
 \item [Examples:] Using {\bf BSAVE}
@@ -1778,11 +1778,11 @@ CHDIR "/", U8            : REM GO BACK TO ROOT DIRECTORY
 \item [Usage:]   Clears BASIC variable memory.
 
                  After executing {\bf CLR}, all variables and arrays will be undeclared. The run-time stack pointers and the table of open channels are also reset.
-                 
+
                  If {\bf variable} is provided, it will be cleared (zeroed). {\bf variable} can be a numeric variable or a string variable, but not an array.
 
 \item [Remarks:] {\bf CLR} should not be used inside loops or subroutines, as it destroys the return address.
-               
+
                  After {\bf CLR}, all variables are unknown and will be initialised when they are next used.
 
                  {\bf RUN} performs {\bf CLR} automatically.
@@ -1950,7 +1950,7 @@ COLLECT D0, U9
                  A call without the line number argument disables the handler.
 
 \item [Remarks:] It is possible to enable the interrupt handler for all types, but only one can execute at any time. An interrupt handler cannot be interrupted by another interrupt handler.
-               
+
                  Functions such as {\bf BUMP}, {\bf LPEN} and {\bf RSPPOS} may be used for evaluation of the sprites which are involved, and their positions.
 
                  {\bf COLLISION} wasn't completed in BASIC 10, but it is available in BASIC 65.
@@ -2029,7 +2029,7 @@ COLOR 3 : PRINT "THIS IS CYAN"
 
                   \unitdefinition
 
-\item [Remarks:]  {\bf CONCAT} is executed in the DOS of the disk drive. 
+\item [Remarks:]  {\bf CONCAT} is executed in the DOS of the disk drive.
 
                   Both files must exist and no pattern matching is allowed.
 
@@ -2062,7 +2062,7 @@ CONCAT "ADDRESS", D0 TO "ADDRESS BOOK", D1
 \item [Usage:]   Resumes program execution after a break or stop caused by an {\bf END} or {\bf STOP} statement, or by pressing \specialkey{RUN\\STOP}.
 
                  This is a useful debugging tool. The BASIC program may be stopped and variables can be examined, and even changed.
-               
+
                  The {\bf CONT} statement resumes execution.
 
 \item [Remarks:] {\bf CONT} cannot be used if a program has stopped because of an error. Also, any editing of a program inhibits continuation. Stopping and continuation can spoil the screen output, and can also interfere with input/output operations.
@@ -2185,8 +2185,16 @@ X = 60 : PRINT COS(X * ~ / 180)
                  {\bf column} and {\bf row} specify the new position.
 
                  {\bf style} sets a solid (1) or flashing (0) cursor.
-%\item [Remarks:]
-% Ignore line 100's REM statement indentation. Needed to be there to be aligned in the PDF - Impakt
+
+\item [Remarks:] When the cursor in "on," moving the cursor with {\bf PRINT} may cause display artifacts where the cursor-on character remains when a PETSCII code relocates the cursor. In the common case where {\bf PRINT} is used to display characters typed by the user, the recommended technique is to turn off the cursor before printing:
+
+\begin{basiccode}
+ 10 CURSOR ON
+ 20 GETKEY A$
+ 30 CURSOR OFF
+ 40 PRINT A$
+ 50 GOTO 10
+\end{basiccode}
 
 \item [Example:] Using {\bf CURSOR}
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2534,7 +2542,7 @@ DELETE "R*=PRG"  : REM DELETE PROGRAM FILES STARTING WITH 'R'
                  As a declaration statement, it must be executed only once and before any usage of the declared arrays. An array can have one or more dimensions. One dimensional arrays are often called vectors while two or more dimensions define a matrix. The lower bound of a dimension is always zero, while the upper bound is as declared. The rules for variable names apply for array names as well. You can create byte arrays, integer arrays, real arrays and string arrays. It is legal to use the same identifier for scalar variables and array variables. The left parenthesis after the name identifies array names.
 
 \item [Remarks:] Byte arrays consume one byte per element, integer arrays two bytes, real arrays five bytes and string arrays three bytes for the string descriptor plus the length of the string itself.
-                 
+
                  If an array identifier is used without being previously declared, an implicit declaration of an one dimensional array with limit of 10 is performed.
 
 \item [Example:] Using {\bf DIM}
@@ -3486,7 +3494,7 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \item [Remarks:]  {\bf END} does \emph{not} clear channels \emph{nor} close files.
 
                   Variable definitions are still valid after {\bf END}.
-                  
+
                   The program may be continued with the {\bf CONT} statement. After executing the last line of a program, {\bf END} is executed automatically.
 
 \item [Example:]  Using {\bf END}
@@ -3513,7 +3521,7 @@ EDMA 0, 80*25, 2048, $8000800 : REM COPY SCREEN TO ATTIC RAM
 \item [Format:]   {\bf ENVELOPE} n [\{{\bf,} attack{\bf,} decay{\bf,} sustain{\bf,} release{\bf,} waveform{\bf,} pw\}]
 
 \item [Usage:]    Sets the parameters for the synthesis of a musical instrument for use with {\bf PLAY}.
-                  
+
                   {\bf n} envelope slot (0 -- 9).
 
                   {\bf attack} attack rate (0 -- 15).
@@ -4372,7 +4380,7 @@ FREEZER : REM CALL FREEZER MENU
 \item [Usage:]    Gets the next character, or byte value of the next character, from the keyboard queue.
 
                   If the {\bf variable} being set to the character is of type string and the queue is empty, an empty string is assigned to it, otherwise a one character string is created and assigned instead.
-               
+
                   If the {\bf variable} is of type numeric, the byte value of the key is assigned to it, otherwise zero will be assigned if the queue is empty. {\bf GET} does not wait for keyboard input, so it's useful to check for key presses at regular intervals or in loops.
 
 \item [Remarks:]  {\bf GETKEY} is similar, but waits until a key has been pressed.
@@ -4522,9 +4530,9 @@ SYS 58552
 \item [Format:]   {\bf GOSUB} line number
 
 \item [Usage:]    {\bf GOSUB} (GOto SUBroutine) continues program execution at the given BASIC line number, saving the current BASIC program counter and line number on the run-time stack.
-               
+
                   This enables the resumption of execution after the {\bf GOSUB} statement, once a {\bf RETURN} statement in the called subroutine is executed.
-                  
+
                   Calls to subroutines via {\bf GOSUB} may be nested, but the subroutines must always end with {\bf RETURN}, otherwise a stack overflow may occur.
 
 \item [Remarks:]  Unlike other programming languages, BASIC does not support arguments or local variables for subroutines. Programs can be optimised by grouping subroutines at the beginning of the program source. The {\bf GOSUB} calls will then have low line numbers with fewer digits to decode. The subroutines will also be found faster, since the search for subroutines often starts at the beginning of the program.
@@ -4915,11 +4923,11 @@ BANK5 --------   ARRAYS :    0 / 54980
                   The input will be processed after the user presses \specialkey{RETURN}.
 
 \item [Remarks:]  The user must take care to enter the correct type of input, so it matches the {\bf variable list} types. Also, the number of input items must match the number of variables. A surplus of input items will be ignored, whereas too few input items trigger another request for input with the prompt \screentext{??}.
-               
+
                   Typing non-numeric characters for integer or real variables will produce a Type Mismatch error.
-                  
+
                   Strings for string variables must be in double quotes ({\bf "}) if they contain spaces or commas.
-               
+
                   Many programs that need a safe input routine use {\bf LINE INPUT} and a custom parser, in order to avoid program errors by wrong user input.
 
 \item [Example:]  Using {\bf INPUT}
@@ -4963,7 +4971,7 @@ BANK5 --------   ARRAYS :    0 / 54980
                   The input record must be terminated by a RETURN character and must be not longer than the input buffer (160 characters).
 
 \item [Remarks:]  The type and number of data in a record must match the variable list. Reading non-numeric characters for integer or real variables will produce a File Data error. Strings for string variables have to be put in '"' (double quotes) if they contain spaces or commas.
-               
+
                   {\bf LINE INPUT\#} may be used to read a whole record into a single string variable.
 
                   Sequential files, that can be read by {\bf INPUT\#} can be generated by programs with {\bf PRINT\#} or with the editor.
@@ -4989,7 +4997,7 @@ EDIT OFF
 READY.
 \end{verbatim}
 \end{tcolorbox}
-   
+
                   Read file
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5102,7 +5110,7 @@ I = INSTR(A$ + B$, C$)
 
 \item [Returns:]  The state of the joystick for the selected controller {\bf port} (1 or 2).
 
-                  A {\bf port} value of 3 will return the merged state of both joystick ports, for the purpose of allowing a single joystick connected to either port. 
+                  A {\bf port} value of 3 will return the merged state of both joystick ports, for the purpose of allowing a single joystick connected to either port.
 
                   Bit 7 contains the state of the fire button. The stick can be moved in eight directions, which are numbered clockwise starting at the upper position.
 
@@ -5411,9 +5419,9 @@ THE PHRASE YOU ENTERED:
 
 \item [Usage:]    Reads one record per variable from an input device (such as a disk drive), and assigns the read data to the variable.
                   The records must be terminated by a {\bf RETURN} character, which will not be copied to the string variable. Therefore, an empty line consisting of only the {\bf RETURN} character will result in an empty string being assigned.
-               
+
                   {\bf channel} number, which was given to a previous call to commands such as {\bf DOPEN}, or {\bf OPEN}.
-               
+
                   {\bf variable list} one or more variables, that receive the input.
 
 \item [Remarks:]  Only string variables or string array elements can be used in the variable list. Unlike other INPUT commands, {\bf LINE INPUT\#} does not interpret or remove quote characters in the input. They are accepted as data, as all other characters.
@@ -5452,17 +5460,17 @@ THE PHRASE YOU ENTERED:
                   {\bf LIST} [{\bf P}] filename [{\bf,U} unit]
 
 \item [Usage:]    Lists a range of lines from the BASIC program in memory.
-               
+
                   Given a single line number, {\bf LIST} lists that line.
-               
+
                   Given a range of line numbers, {\bf LIST} lists all lines in that range. A range can be two numbers separated by a '-' (hyphen), or it can omit the beginning or end of the range to imply the beginning or end of the program. See the examples below.
-                  
+
                   If a filename is given, it will list the range of lines from a BASIC program file directly.
 
 \item [Remarks:]  The optional parameter {\bf P} enables page mode. After listing a screenful of lines, the listing will stop and display the prompt \screentext{[MORE]} at the bottom of the screen. Pressing {\bf Q} quits page mode, while any other key continues to the next page.
-                
+
                   {\bf LIST} output can be redirected to other devices via {\bf CMD}.
-                
+
                   Another way to display a program listing from memory on the screen is to use the keys \megakey{F9} and \megakey{F11}, or \specialkey{CTRL} \megakey{P} and \specialkey{CTRL} \megakey{V}, to scroll a BASIC listing on screen up or down.
 
 \item [Examples:] Using {\bf LIST}
@@ -6312,7 +6320,7 @@ NEW RESTORE : REM TRY TO RECOVER NEW'ED PROGRAM
 \item [Usage:]    Performs a bit-wise logical NOT operation on a 16-bit value.
 
                   Integer operands are used as they are, whereas real operands are converted to a signed 16-bit integer (losing precision) in ``two's complement'' format.
-                  
+
                   Logical operands are converted to a 16-bit integer, using \$FFFF (decimal -1) for TRUE, and \$0000 (decimal 0) for FALSE.
 
                   \begin{center}
@@ -6396,10 +6404,10 @@ MOUSE OFF : REM DISABLE MOUSE DRIVER
 
                   {\bf expression} positive numeric value. Real values are converted to integer (losing precision) in ``two's complement'' format. Logical operands are converted to a 16-bit integers, using \$FFFF (decimal -1) for TRUE, and \$0000 (decimal 0) for FALSE.
 
-\item [Remarks:]  Negative values for {\bf expression} will stop the program with an Illegal Quantity error. 
+\item [Remarks:]  Negative values for {\bf expression} will stop the program with an Illegal Quantity error.
 
                   The {\bf line number list} specifies the targets for values of 1, 2, 3, etc.
-                 
+
                   An expression result of zero, or a result that is greater than the number of target lines will not do anything, and the program will continue execution with the next statement.
 
 \item [Example:]  Using {\bf ON}
@@ -6592,7 +6600,7 @@ IF (C<0 OR C>255) THEN PRINT "NOT A BYTE VALUE"
                   {\bf PALETTE RESTORE}
 
 \item [Usage:]    {\bf PALETTE} can be used to change an entry of the system colour palette, or the palette of a screen.
-                 
+
                   {\bf PALETTE RESTORE} resets the system palette to the default values.
 
                   {\bf screen} screen number (0 -- 3).
@@ -7235,7 +7243,7 @@ HELLO
 \item [Remarks:]  The format string is applied for one argument only, but it is possible to append more with {\bf USING format;argument} sequences.
 
                   {\bf argument} may consist of printable characters and control codes. Printable characters are printed to the cursor position, while control codes are executed.
-                
+
                   The number of '\#' characters sets the width of the output. If the first character of the format string is an equals ({\bf =}), the argument string is centered. If the first character of the format string is a greater than ({\bf >}), the argument string is right justified.
 
                   With a C-style pattern, you can request left-padding with zeroes instead of spaces by preceding the {\bf width} with a '0', such as: \texttt{\%07.2F} Left zero padding is cancelled if the value is negative. Right-of-decimal fields and hexadecimal patterns are always left-padded with zeroes.
@@ -7520,7 +7528,7 @@ RENAME "CODES" TO "BACKUP" : REM RENAME SINGLE FILE ON DEFAULT UNIT
                   {\bf RENUMBER} may be called with 0 -- 3 parameters. Unspecified parameters use their default values.
 
 \item [Remarks:]  {\bf RENUMBER} may need several minutes to execute for large programs.
-                 
+
                   {\bf RENUMBER} can only be used in direct mode.
 
                   This command temporarily uses memory in banks 4 and 5, and may overwrite anything stored there.
@@ -8180,7 +8188,7 @@ DRAW PEN COLOUR =  1
                   \drivedefinition
 
                   \unitdefinition
-                  
+
 \item [Remarks:]  {\bf RUN} first resets all internal pointers to their default values. Therefore, there will be no variables, arrays or strings defined. The run-time stack is also reset, and the table of open files is cleared.
 
                   To start or continue program execution without resetting everything, use {\bf GOTO} instead.
@@ -8261,7 +8269,7 @@ RUN             : REM RUN PROGRAM IN MEMORY
                   \unitdefinition
 
 \item [Remarks:]  {\bf SAVE} is obsolete, implemented only for backwards compatibility. {\bf DSAVE} should be used instead.
-                 
+
                   The shortcut key \megakeywhite{$\leftarrow$} is next to \megakey{1}. Can only be used in direct mode.
 
                   \underline{NOTE}: Save-with-replace is not recommended on 1541 and 1571 drives, due to a bug in older versions of the disk operating system that may lose data.
@@ -8441,7 +8449,7 @@ SCRATCH "R*=PRG"          : REM ERASE PROGRAM FILES STARTING WITH 'R'
                   The {\bf colour} value must be in the range of 0 -- 15. See appendix \vref{appendix:colourtable} for the list of colours in the default system palette.
 
                   When you are finished with your graphics screen, simply call {\bf SCREEN CLOSE} [screen] to return to the text screen.
-                  
+
                   \underline{{\bf Detailed approach}}:
 
                   The other versions of {\bf SCREEN} perform special actions, used for advanced graphics programs that open multiple screens, or require "double buffering". If you have chosen the simplified approach, you will not require any of these versions below, apart from {\bf SCREEN CLOSE}.
@@ -9752,7 +9760,7 @@ UNLOCK "BS*"            : REM UNLOCK ALL FILES BEGINNING WITH "BS"
 \item [Remarks:]  The format string is only applied for one argument, but it is possible to append more than one {\bf USING format;argument} sequences.
 
                   {\bf argument} may consist of printable characters and control codes. Printable characters are printed to the cursor position, while control codes are executed.
-                
+
                   The number of \texttt{\#} characters sets the width of the output. If the first character of the format string is an '=' (equals), the argument string is centered. If the first character of the format string is a '>' (greater than), the argument string is right justified.
 
                   While the width-precision format pattern resembles the \texttt{printf()} function of the C language, it does not behave quite the same way. The width argument is the total number of digits in the pattern. The dot and optional precision argument specify to use a decimal point, with the given number of precision digits to the right of the point. \screentext{\%7.2F} is equivalent to: \screentext{\#\#\#\#\#.\#\#}
@@ -9951,7 +9959,7 @@ VERIFY "1:DUNGEON", 10
 \item [Usage:]    Sets the volume for sound output with {\bf SOUND} or {\bf PLAY}. The value ranges from 0 (off) to 15 (loudest).
 
                   {\bf right} volume for SIDs 1 and 2.
-                 
+
                   {\bf left} volume for SIDs 3 and 4.
 
 \item [Remarks:]  The terms "right" and "left" refer to the default pan settings for the SID chips in the audio mixer. The actual volume and pan position for each pair of SIDs depends on the current audio mixer settings. You can adjust the audio settings in the Freezer.

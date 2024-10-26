@@ -1,7 +1,12 @@
 Return From Subroutine
-PC $\leftarrow$ STACK $or$ PC $\leftarrow$ STACK + M, SP $\leftarrow$ SP $-$ 2
+PCH:PCL $\leftarrow$ STACK, SP $\leftarrow$ SP $+$ 2 ($+$ M)
 
-This instruction adds an optional argument to the Stack Pointer (SP) Register, and then
-pops the Program Counter (PC) register from the stack, allowing
-a routine to return to its caller.
+This instruction pops the Program Counter (PC) register from the stack, then
+adds an optional byte argument to the Stack Pointer (SP) Register, allowing a
+routine to return to its caller.
 
+The optional argument is intended to allow a caller to push arguments for the
+subroutine onto the stack. The subroutine reads the arguments from stack
+memory, then returns with the number of argument bytes. The CPU pops the
+arguments in addition to the return address so the caller does not need to pop
+the arguments explicitly.

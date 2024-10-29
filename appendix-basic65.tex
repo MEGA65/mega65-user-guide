@@ -5112,7 +5112,7 @@ I = INSTR(A$ + B$, C$)
 
                   A {\bf port} value of 3 will return the merged state of both joystick ports, for the purpose of allowing a single joystick connected to either port.
 
-                  Bit 7 contains the state of the fire button. The stick can be moved in eight directions, which are numbered clockwise starting at the upper position.
+                  The stick can be moved in eight directions, which are numbered clockwise starting at the upper position.
 
                   \begin{center}
                   {\setlength{\tabcolsep}{1mm}
@@ -5128,7 +5128,31 @@ I = INSTR(A$ + B$, C$)
                   }
                   \end{center}
 
+                  {\bf JOY()} returns the stick direction, plus a number for each button pressed:
+
+                  \begin{center}
+                  \begin{tabular}{|c|r|l|}
+                  \hline
+                  {\bf Button} & {\bf Value} & {\bf Assignment} \\
+                  \hline
+                  1 & 128 & A (trigger) \\
+                  2 & 256 & B \\
+                  3 & 512 & C or Start \\
+                  4 & 1024 & Start \\
+                  5 & 2048 & Select \\
+                  \hline
+                  \end{tabular}
+                  \end{center}
+
 \item [Remarks:]  The return value of {\bf port} 3, for two joysticks connected and moved simultaneously, is undefined.
+
+                  The vast majority of Commodore and Atari joysticks have one trigger button. The C64GS controller and Atari CX78 game pad each have two action buttons. Some modern Commodore-compatible game controllers and adapters support three buttons, and may assign the third button to either an action button or a button labeled ``Start.''
+
+                  The \texttt{5plusbuttonsJoystick} protocol by \texttt{crystalct} specifies a way for Commodore software to read up to five buttons. Buttons 4 and 5 reuse the signals of the directional stick, such that the directional stick may not register while these buttons are pressed. A typical five-button controller assigns these buttons to ``Start'' and ``Select.''
+
+                  The three-button protocol uses the paddle signals of the joystick port for buttons 2 and 3. {\bf JOY()} may return unexpected values when paddles are connected. To read paddle controllers, use {\bf POT()}.
+
+                  The values for each of the five buttons are individual bit values. A program can use the {\bf AND} operator to isolate each bit for testing separately from the directional stick and other buttons. For example, the expression \texttt{JOY(2) AND 128} is true if button 1 of the joystick in port 2 is pressed, regardless of the other buttons being pressed.
 
 \item [Example:]  Using {\bf JOY}
 

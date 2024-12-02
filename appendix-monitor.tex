@@ -634,7 +634,7 @@ E & FLAGWATCH & Set/clear CPU flags watch point \\
 F & FILL & Fill memory with a value \\
 G & SETPC & Set CPU program counter \\
 H & HELP & help \\
-I & INTERRUPTS & Enable/disable CPU interrupts \\
+I & INTERRUPTS & Enable/disable CPU IRQs (clear/set CPU I flag) \\
 J & DEBUGMON & Various debug functions for the monitor itself \\
 L & LOADMEMORY & Load data into memory \\
 M & MEMORY & Show memory contents \\
@@ -831,14 +831,17 @@ see the screen output of your running program at the same time.
 \index{MONITOR Commands!INTERRUPTS}
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Format:] {\bf i[0|1]}
-\item [Usage:] Enables or disables interrupts on the MEGA65's
-  processor. Disabling interrupts can be helpful when single-stepping
+\item [Usage:] Enables or disables Interrupt Requests (IRQs) on the MEGA65's
+  processor. Disabling IRQs can be helpful when single-stepping
   through a program, as otherwise you will tend to end up only
   stepping through the interrupt handler code, because the interrupts
   will happen more frequently than the steps through the code.
 
-\item [Remarks:] {\em This command is known to have problems, and may
-  not currently function.}
+  {\bf i1} sets the CPU ``IRQs disabled'' (I) flag. This causes the CPU to not respond to causes of IRQs, such as CIA timers or VIC raster beam watches. This does not disable Non-Maskable Interrupts (NMIs). There is no way to disable NMIs from the serial debugger (or from a program).
+
+  {\bf i0} clears the CPU I flag. This re-enables IRQs.
+
+\item [Remarks:] If the CPU is paused by {\bf t1}, the change to the I flag will not be reflected by the register display ({\bf r}) until after the next instruction is executed.
 
 \end{description}
 

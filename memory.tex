@@ -1009,13 +1009,13 @@ An enhanced DMA job list can reside anywhere in memory, and can be referred to u
 To invoke an enhanced DMA job list from a record stored at a 28-bit address, write the address to the following registers, in this order:
 
 \begin{enumerate}
-\item \$D704: highest address byte (the megabyte)
 \item \$D702: 2nd highest address byte (the bank)
+\item \$D704: highest address byte (the megabyte)
 \item \$D701: 3rd highest address byte (the page)
 \item \$D705: lowest address byte
 \end{enumerate}
 
-Notice that the register locations are \emph{not} arranged consecutively.
+Notice that the register locations are \emph{not} arranged consecutively! The MEGA65 introduces the ability to store an enhanced DMA job list at any 28-bit address. Prior to introducing this feature, there was no ``megabyte'' address byte, and programs set the ``bank'' address byte without the ``megabyte'' address byte. To maintain compatibility with these programs, writing the address bank resets the address megabyte to zero. To use all four address bytes for the enhanced DMA job list, they must be written in this unusual order.
 
 Writing the lowest address byte to \$D705 triggers execution of the job list, interpreting the address as a 32-bit physical address. To tell it to interpret the job list address using the CPU's view of the 16-bit address space (honoring the MAP register), write the final low byte to \$D706 instead.\footnote{The MEGA65 supports a C65-compatible DMA job list format, which a program can request by setting the low address byte in \$D700 instead of \$D705 / \$D706. You'd only use this if you intend for your program to run on compatible C65 prototype hardware. Note that some C65 prototypes have incomplete DMA implementations.}
 
@@ -1024,10 +1024,10 @@ Addresses in the job list itself are never MAP'd addresses: DMA jobs always oper
 For example, to invoke an enhanced DMA job list stored at label {\tt dmajob}:
 
 \begin{asmcode}
-LDA #0
-STA $D704
 LDA #^dmajob
 STA $D702
+LDA #0     ; Assumes dmajob is in the first megabyte
+STA $D704
 LDA #>dmajob
 STA $D701
 LDA #<dmajob

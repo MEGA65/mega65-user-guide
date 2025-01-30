@@ -510,23 +510,30 @@ Note also that enabling BOLD and REVERSE attributes at the same time on the MEGA
   \hline
 \small \qquad Bit 6 & {\small Horizontally flip the character }\\
   \hline
-\small \qquad Bit 5 & {\small Enable alpha blend mode, pixel values are treated as alpha values blending between foreground colour and background colour (needs bit 7 of \$d054 set) }\\
+\small \qquad Bit 5 & {\small Enable alpha blend mode, pixel values are treated as alpha values blending between foreground colour and background colour (need to set \$D054.7 - ALPHEN) }\\
   \hline
   \small \qquad \textbf{Bit 4} & {\small \textbf{GOTOX is \underline{cleared} (set to 0)} \linebreak GOTOX allows repositioning of characters along a raster via the Raster-Rewrite Buffer, discussed later). Must be set to 0 for displaying characters -- when set, it moves the position where the next character will be drawn, without actually drawing anything. See the following table for more explanation of this mode. }\\
   \hline
-\small \qquad Bit 3 & {\small If set, Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right-hand side trim bits), instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide  }\\
+\small \qquad Bit 3 & {\small If set:
+\begin{itemize}
+  \item \underline{NCM char}: Uses 4 bits per pixel and is 16 pixels wide (less any right-hand side trim bits)
+\end{itemize}
+If cleared:
+\begin{itemize}
+  \item \underline{FCM char}: Uses 8 bits per pixel and is 8 pixels wide (less any right-hand side trim bits)
+\end{itemize} }\\
   \hline
 \small \qquad Bit 2 & {\small Trim pixels from right-hand side of character (bit 3)}\\
   \hline
-\small \qquad Bits 1 -- 0 & {\small Number of pixels to trim from top or bottom of character }\\
+\small \qquad Bits 1 -- 0 & {\small RESERVED, set to 0 }\\
   \hline
   \multicolumn{2}{|l|}{\small \textbf{Colour RAM byte 1}} \\
   \hline
-  \multicolumn{2}{|l|}{\small \quad \underline{If VIC-II multi-colour mode is enabled}:} \\
+  \multicolumn{2}{|l|}{\small \quad \underline{If VIC-II multi-colour mode is enabled}: (\$D016.4 - MCM)} \\
   \hline
 \small \qquad Bits 7 -- 4 & {\small Upper 4 bits of colour of character}\\
   \hline
-  \multicolumn{2}{|l|}{\small \quad \underline{If VIC-III extended attributes are enabled}:} \\
+  \multicolumn{2}{|l|}{\small \quad \underline{If VIC-III extended attributes are enabled}: (\$D031.5 - ATTR)} \\
   \hline
 \small \qquad Bit 7 & {\small Hardware underlining of character }\\
   \hline

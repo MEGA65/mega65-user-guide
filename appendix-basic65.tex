@@ -4844,6 +4844,8 @@ FFFFFFFF
 
                   There is no {\bf EXPORT} counterpart, because this function is already available. The sequence \screentext{DOPEN\#1,"LISTING",W:CMD 1:LIST:DCLOSE\#1} converts the program in memory to text and writes it to the file, that is named in the {\bf DOPEN} statement.
 
+                  {\bf IMPORT} can only be used in direct mode.
+
 \item [Examples:] Using {\bf IMPORT}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -5189,7 +5191,8 @@ I = INSTR(A$ + B$, C$)
 \item [Format:]   {\bf KEY} \\
                   {\bf KEY} <{\bf ON} | {\bf OFF}> \\
                   {\bf KEY} <{\bf LOAD} | {\bf SAVE}> filename \\
-                  {\bf KEY} number{\bf,} string
+                  {\bf KEY} number{\bf,} string \\
+                  {\bf KEY RESTORE}
 
 \item [Usage:]    Manages the function key macros in the BASIC editor.
 
@@ -5214,6 +5217,8 @@ I = INSTR(A$ + B$, C$)
                      \item 15: Corresponds to \specialkey{HELP}
                      \item 16: Corresponds to \specialkey{SHIFT}\specialkey{RUN\\STOP}
                   \end{itemize}
+
+                  {\bf KEY RESTORE} : restores all function key macros to their default assignments.
 
                   Default assignments:
 
@@ -5253,6 +5258,7 @@ KEY                         : REM LIST ASSIGNMENTS
 KEY 2, "PRINT ~" + CHR$(14) : REM ASSIGN PRINT PI TO F2
 KEY SAVE "MY KEY SET"       : REM SAVE CURRENT DEFINITIONS TO FILE
 KEY LOAD "ELEVEN-SET"       : REM LOAD DEFINITIONS FROM FILE
+KEY RESTORE
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -5924,6 +5930,8 @@ PRINT LPEN(0), LPEN(1) : REM PRINT LIGHT PEN COORDINATES
 \item [Remarks:]  The load address stored in the first two bytes of the file is ignored. The loaded program does not replace a program in memory (which is what {\bf DLOAD} does), but is appended to a program in memory. After loading, the program is re-linked and ready to run or edit.
 
                   It is the user's responsibility to ensure there are no line number conflicts among the program in memory and the merged program. The first line number of the merged program must be greater than the last line number of the program in memory.
+
+                  {\bf MERGE} can only be used in direct mode.
 
 \item [Example:]  Using {\bf MERGE}
 

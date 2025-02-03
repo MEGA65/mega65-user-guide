@@ -1473,18 +1473,19 @@ CHANGE &IN& TO &OUT&
                     \item 8: left
                  \end{itemize}
 
-                 The optional {\bf address of character set} can be used to select a character set, different to the default character set at \$29800, which includes upper and lower case characters.
+                 The optional {\bf address of character set} can be used to select a character set. The default character set address is \$29800, the lowercase+uppercase portion of Font A (PETSCII with some ASCII replacements).
 
-                 Three character sets (see also {\bf FONT}) are available:
+                 You can use any address where a character set is stored, including a custom character set that you have loaded into memory.There are three built-in character sets (see also {\bf FONT}), as well as the VIC-IV character set buffer:
                  \begin{itemize}
                     \item \$29000: Font A (ASCII)
                     \item \$3D000: Font B (Bold)
                     \item \$2D000: Font C (CBM)
+                    \item \$FF7E000: VIC-IV character set buffer
                  \end{itemize}
 
-                 The first part of the font (upper case / graphics) is stored at \$xx000 -- \$xx7FF.
+                 To use {\bf CHAR} with custom characters defined with {\bf CHARDEF}, use the VIC-IV character set buffer address of \$FF7E000.
 
-                 The second part of the font (lower case / upper case) is stored at \$xx800 -- \$xxFFF.
+                 A character set with the PETSCII layout has two subsets: the uppercase letters and graphics set, and the lowercase and uppercase letters set. With {\bf CHAR}, you can select a subset by its address: \$xx000 for uppercase letters and graphics, and \$xx800 for lowercase and uppercase letters. For example, to select lowercase letters with Font C, use character set address \$2D800.
 
                  {\bf string} constant or expression which will be printed. This string may optionally contain one or more of the following control characters:
 
@@ -1546,13 +1547,13 @@ CHANGE &IN& TO &OUT&
 
 \item [Usage:]   Changes the appearance of a character.
 
-                 {\bf index} screen code of the character to change (@:0, A:1, B:2, ...). See appendix \vref{appendix:screencodes} for a list of screen codes.
+                 {\bf index} screen code of the character to change (@:0, A:1, B:2, ...). See appendix \vref{appendix:screencodes} for a list of screen codes. Screen codes 0 -- 255 are the uppercase letters and graphics character set. Screen codes 256 -- 511 are the lowercase and uppercase letters character set.
 
                  {\bf bit-matrix} set of 8 byte values, which define the raster representation for the character from top row to bottom row. If more than 8 values are used as arguments, the values 9 -- 16 are used for the character index+1, 17 -- 24 for index+2, etc.
 
-\item [Remarks:] The character bitmap changes are applied to the VIC character generator, which resides in RAM at the address FF7.E000.
+\item [Remarks:] The character bitmap changes are applied to the VIC character set buffer, which resides in RAM at the address FF7.E000.
 
-                 All changes are volatile and the VIC character set can be restored by a reset or by using the {\bf FONT} command.
+                 All changes are volatile. The VIC character set buffer is overwritten by the {\bf FONT} command, and is restored to PETSCII font C by a reset.
 
 \item [Examples:] Using {\bf CHARDEF}
 

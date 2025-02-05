@@ -2578,7 +2578,7 @@ RUN
 \item [Format:]   {\bf DIR} [filepattern] [{\bf,W}] [{\bf,P}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
 		            {\bf DIRECTORY} [filepattern] [{\bf,W}] [{\bf,P}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
 		            {\bf \$} [filepattern] [{\bf,W}] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit] \\
-                  {\bf DIR U12} [{\bf,P}]
+                  {\bf DIR} [filepattern] {\bf,U12} [{\bf,P}]
 
 \item [Usage:]    Prints a file directory/catalog of the specified disk.
 
@@ -2590,7 +2590,7 @@ RUN
 
                   {\bf filepattern} is either a quoted string (\screentext{"DA*"}) or a string expression in brackets: (\screentext{DI\$})
 
-                  The {\bf U12} argument lists the contents of the SD card. It can be used with the {\bf P} argument for a paginated display. It does not support other arguments.
+                  The {\bf U12} argument lists the contents of the SD card. It can be used with the {\bf P} argument for a paginated display. It supports a file pattern. It does not support other arguments.
 
                   \drivedefinition
 
@@ -2601,8 +2601,8 @@ RUN
                   The {\bf filepattern} can be used to filter the listing. Within the pattern:
                   \begin{itemize}
                      \item \texttt{*} matches any number of characters of any type.
-                     \item \texttt{*\#} matches any number of digits.
-                     \item \texttt{*\$} matches any number of letters.
+                     \item \texttt{\#} matches a single digit.
+                     \item \texttt{\$} matches a single letter.
                      \item \texttt{?} matches a single character of any type.
                   \end{itemize}
 
@@ -2616,6 +2616,12 @@ RUN
 \verbatimfont{\codefont}
 \begin{verbatim}
 DIR
+
+DIR "MEG*",U12
+DIR "ME????.D81",U12
+DIR "ME$$65.D81",U12
+DIR "MEGA##.D81",U12
+DIR "M*.D81",U12
 \end{verbatim}
 
 \selectfont{\codefont 0}

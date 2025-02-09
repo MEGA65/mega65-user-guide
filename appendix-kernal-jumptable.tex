@@ -62,6 +62,8 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \hline
 \endlastfoot
 
+\$FF3B & Files & SAVE & Save to file, with flags \\
+\$FF3E & Reserved & n/a & RESERVED, DO NOT USE \\
 \$FF41 & I/O & GETIO & Read the current input and output devices \\
 \hline
 \$FF44 & Files & GETLFS & Read file, device, secondary address \\
@@ -1765,6 +1767,8 @@ restor = $ff8a
 
         When used with a disk drive, SAVE saves a file of type PRG by default. To save a file of another type, use SETNAM with the type mentioned in the name string (such as \texttt{"MYFILE,S"} for a SEQ file), along with OPEN, CKOUT, BSOUT, and CLOSE. See OPEN for an example.
 
+        SAVE always writes the starting address as the first two bytes, regardless of the file type. If the data is in a bank other than zero, that information is not stored. To omit the address bytes from the file, use SAVEFL with the appropriate flag.
+
         By default, saving a file with the name of an existing file is an error, and does not change the file. To overwrite the file if it exists, prefix the filename string with: \texttt{@:} For example: \texttt{"@:MYFILE"}
 
         SAVE writes a region of memory to a file on a serial device. The start address of the memory region must be stored as a 16-bit address, little-endian, on the base page. The program provides the base page address of this pointer in the A register.
@@ -1824,6 +1828,31 @@ filename:
     !pet "myfile"
 filename_end:
         \end{asmcode}
+\end{description}
+
+% ****
+% SAVEFL
+% ****
+
+\newpage
+\subsection{SAVEFL}
+\index{KERNAL Jump Table!SAVEFL}
+\label{KERNAL Jump Table!SAVEFL}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF3B
+    \item [Description:] Save to file, with flags
+    \item [Inputs:]
+        \textbf{A} Base page pointer to start address \\
+        \textbf{X} End address + 1, low \\
+        \textbf{Y} End address + 1, high \\
+        \textbf{Z} Flags: bit 6 = raw mode
+    \item [Outputs:]
+        \textbf{C flag} Set on error \\
+        \textbf{A} Error code, if error
+    \item [Remarks:]
+        SAVEFL is identical to SAVE, with the additional flags argument in the Z register. See SAVE for more information.
+
+        This currently supports one flag: if bit 6 is set, SAVEFL omits the two-byte address header from the saved file. This is symmetric with the ``raw'' mode of the LOAD routine.
 \end{description}
 
 

@@ -923,7 +923,7 @@ BANK 1 : REM SELECT MEMORY CONFIGURATION 1
 
                   {\bf BLOAD} uses the load address from the file if no {\bf P} parameter is given.
 
-                  It is possible to coerce {\bf BLOAD} to load a file of type {\bf SEQ} by using a filename suffix of: \screentext{",S"}. Be sure to also enable raw mode to avoid treating the first two bytes as a {\bf PRG} load address: \screentext{BLOAD "DATA,S",R,P(\$C000)}
+                  It is possible to coerce {\bf BLOAD} to load a file of type {\bf SEQ} by using a filename suffix of: \screentext{",S"}. Be sure to also enable raw mode ({\bf ,R}) to avoid treating the first two bytes as a {\bf PRG} load address.
 
 \item [Examples:] Using {\bf BLOAD}
 
@@ -939,6 +939,8 @@ BLOAD "ML ROUTINES", B1, P32768
 BLOAD (FI$), B(BA%), P(PA), U(UN%)
 
 BLOAD "CHUNK", P($8000000)
+
+BLOAD "USER DATA,S", P $1600, R
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -1105,7 +1107,7 @@ BOX 20, 0,  140, 0, 160, 80,  0, 80
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]    \$FE \$10
 
-\item [Format:]   {\bf BSAVE} filename{\bf, P} start {\bf TO P} end [{\bf,B} bank] [{\bf,D} drive] [{\bf,U} unit]
+\item [Format:]   {\bf BSAVE} filename{\bf, P} start {\bf TO P} end [{\bf,B} bank] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit]
 
 \item [Usage:]    Saves a memory range to a file of type {\bf PRG}. (``Binary save.'')
 
@@ -1116,6 +1118,8 @@ BOX 20, 0,  140, 0, 160, 80,  0, 80
                   This mode is triggered by specifying addresses for the start and end parameter {\bf P}, that are larger than \$FFFF. The bank parameter is ignored in this mode. This flat memory mode allows saving ranges greater than 64KB.
 
                   For compatibility reasons with older BASIC versions, {\bf BSAVE} accepts the syntax with 16-bit addresses at e{\bf P} and a bank number at {\bf B} as well. The attic RAM is out of range for this compatibility mode. This mode cannot cross bank boundaries, so the start and end address must be in the same bank.
+
+                  The optional parameter {\bf R} (``raw mode'') avoids writing the 16-bit starting address as the first two bytes. The two-byte address header is needed for PRG files that are loaded to the stored address, but is typically unwanted for SEQ files. {\bf BSAVE} writes the starting address as the first two bytes of the file by default.
 
                   \filenamedefinition
 
@@ -1135,11 +1139,9 @@ BOX 20, 0,  140, 0, 160, 80,  0, 80
 
                   If the number after an argument letter is not a decimal number, it must be set in parenthesis, as shown in the third and fourth line of the examples.
 
-                  The {\bf PRG} file format that is used by {\bf BSAVE} requires the load address to be written to the first two bytes. If the saving is done with a bank number that is not zero, or a start address greater than \$FFFF, this information will not fit. For compatibility reasons, only the two low order bytes are written. Loading the file with the {\bf BLOAD} command will then require the full 16-bit range of the load address as a parameter.
+                  When saving a file of type {\bf PRG}, it is typical for the first two bytes of the file to be the 16-bit load address. This is the default. If the start address is in a bank other than zero (the start address is larger than \$FFFF), only the two lowest bytes of the address are written.
 
-                  While it is possible to coerce {\bf BSAVE} to create a file of type {\bf SEQ} using a filename suffix of \screentext{",S"}, the command does not have a way to omit the two-byte load address, which is typically not desired for a {\bf SEQ} file.
-
-                  The raw mode of {\bf BLOAD} is not supported by {\bf BSAVE}.
+                  To save a file of type {\bf SEQ}, use a filename suffix of \screentext{",S"}. It is typical to omit the 16-bit load address for files of the type. To do so, provide the {\bf ,R} argument to activate ``raw mode.''
 
 \item [Examples:] Using {\bf BSAVE}
 
@@ -1153,6 +1155,8 @@ BSAVE "SPRITES", P 1536 TO P 2058
 BSAVE "ML ROUTINES", B1, P($9000) TO P($A000)
 
 BSAVE (FI$), B(BA%), P(PA) TO P(PE), U(UN%)
+
+BSAVE "USER DATA,S", P $1600 TO P $16FF, R
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

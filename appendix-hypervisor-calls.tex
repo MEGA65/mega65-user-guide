@@ -8,6 +8,13 @@
       not use this service.
     }
   }
+  \newcommand{\deprecatedfrominstead}[2]{
+    \textcolor{Orange}{
+      \textbf{DEPRECATED} since Hyppo ##1.
+      This service may be removed in a future version. New programs should
+      use ##2 instead.
+    }
+  }
   \newcommand{\errordesc}[3]{
     \index{Hyppo Error Codes!\$##1}
     \textbf{\$##1 ##2} ##3\par
@@ -433,6 +440,10 @@ show how to define a transfer area.
     \index{Hyppo Error Codes!\$8E}
     \$8E & 142 & directory full &
     The directory cannot accommodate any more entries.
+    \\\hline
+    \index{Hyppo Error Codes!\$8F}
+    \$8F & 143 & double attach &
+    Image is already attached to the other drive.
     \\\hline
     \index{Hyppo Error Codes!\$FF}
     \$FF & 255 & eof &
@@ -1029,9 +1040,8 @@ bus.
   \availablefrom{1.2}
 \item [Remarks:]
   You cannot use this to open a file inside a disk image. To do that you use
-  \hypporef{d81attach0} or \hypporef{d81attach1} to attach the disk image and
-  then use either use the KERNAL to read the file or program the virtualised
-  F011 floppy controller.
+  \hypporef{attach} to attach the disk image and then use either use the KERNAL
+  to read the file or program the virtualised F011 floppy controller.
 \item [Example:]
   Finds and opens a file.
   \acmelisting{openfile.asm}
@@ -1196,7 +1206,16 @@ bus.
 \begin{hyppotrap}{rmfile}{D640}{26}
 \item [Service:]
   Removes a files.
-\notimplemented
+\item [Preconditions:]
+  The file has already been found. Files can be found using \hypporef{findfile},
+  \hypporef{findfirst} and \hypporef{findnext}. \hypporef{readdir} can also be
+  used to find a file.
+\item [Postconditions:]
+  The file was deleted and the sectors are freed.
+\item [History:]
+  \availablefrom{1.3}
+\item [Remarks:]
+  This documentation is a stub and incomplete!
 \end{hyppotrap}
 
 
@@ -1289,7 +1308,26 @@ bus.
 \begin{hyppotrap}{writefile}{D640}{1C}
 \item [Service:]
   Writes the sector buffer to the current file.
-\notimplemented
+\item [Preconditions:]
+  There is a current file open. Files can be opened with \hypporef{openfile}.
+\item [Postconditions:]
+  The next call to \hypporef{writefile} will write the next sector of the current
+  file.
+\item [Errors:]
+  \errordesc{89}{invalid file descriptor}{There is no current file.}
+\item [History:]
+  \availablefrom{1.3}
+\item [Remarks:]
+  This documentation is a stub and incomplete!
+
+  To provide the data, you need to either:
+  \begin{itemize}
+    \item map the sector buffer into the 16-bit address space;
+    \item use an enhanced DMA transfer to copy the sector buffer at
+          \$FFD6E00 -- \$FFD6FFF into a buffer already mapping into the 16-bit
+          address space; or
+    \item use 32-bit load instructions to access the sector buffer directly.
+  \end{itemize}
 \end{hyppotrap}
 
 
@@ -1313,6 +1351,41 @@ image just as you would a physical disk. The virtualisation does not behave the
 same as a floppy drive in all cases. If you intend for your program to work
 with both disk images and physical disks, be sure to test it with both.
 
+% ******************************************************************************
+% attach
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{attach}{D640}{4A}
+\item [Service:]
+  Attach or detach a disk image to the virtualised F011 drive.
+\item [Preconditions:]
+  (attach) The current Hyppo filename has been set using \hypporef{setname}.
+\item [Inputs:]
+  \register{X.0}{Select drive 0 or 1.}
+  \register{X.1}{Select both drives (detach only).}
+  \register{X.6}{Do not reattach real drives (detach only).}
+  \register{X.7}{Mode of operation: 0=attach, 1=detach.}
+\item [Errors:]
+  \errordesc{81}{name to long}{The name of the disk image is to long for the
+  process descriptor (max 31 chars).}
+  \errordesc{88}{file not found}{The disk image file was not found in the
+  current directory of the current drive.}
+  \errordesc{8A}{image wrong length}{The length of the image does not fit any
+  of the supported image types.}
+  \errordesc{8B}{image fragmented}{The data of the image is not in one continous
+  sequence of sectors, this is unsupported.}
+  \errordesc{8F}{double attach}{The requested image is already attached to the
+  other drive.}
+\item [History:]
+  \availablefrom{1.3}
+\item [Remarks:]
+  Unless it's been changed, drive 0 of the virtualised F011 floppy controller is
+  unit 8, and drive 1 is unit 9.
+\item [Example:]
+  Attaches and detaches the disk image DISK2.D81 to virtualised F011 drive 0.
+  \acmelisting{attach.asm}
+\end{hyppotrap}
+
 
 % ******************************************************************************
 % d81attach0
@@ -1322,46 +1395,41 @@ with both disk images and physical disks, be sure to test it with both.
   Attach a D81 disk image to virtualised F011 drive 0.
 \item [Preconditions:]
   The current Hyppo filename has been set using \hypporef{setname}.
-\item [Errors:]
-  \errordesc{88}{file not found}{The disk image file was not found in the
-  current directory of the current drive.}
 \item [History:]
-  \availablefrom{1.2}
+  \availablefrom{1.2}\\
+  \deprecatedfrominstead{1.3}{attach}
 \item [Remarks:]
-  Unless it's been changed, drive 0 of the virtualised F011 floppy controller is
-  unit 8.
-\item [Example:]
-  Attaches the disk image DISK2.D81 to virtualised F011 drive 0.
-  \acmelisting{d81attach0.asm}
+  This actually calls \hypporef{attach} with \register{X}{= \$00}
 \end{hyppotrap}
 
 
 % ******************************************************************************
 % d81attach1
 % ******************************************************************************
-\newpage
 \begin{hyppotrap}{d81attach1}{D640}{46}
 \item [Service:]
   Attach a D81 disk image to virtualised F011 drive 1.
 \item [Preconditions:]
   The current Hyppo filename has been set using \hypporef{setname}.
 \item [History:]
-  \availablefrom{1.2}
+  \availablefrom{1.2}\\
+  \deprecatedfrominstead{1.3}{attach}
 \item [Remarks:]
-  Unless it's been changed, drive 1 of the virtualised F011 floppy controller is
-  unit 9.
+  This actually calls \hypporef{attach} with \register{X}{= \$01}
 \end{hyppotrap}
 
 
 % ******************************************************************************
 % d81detach
 % ******************************************************************************
-\newpage
 \begin{hyppotrap}{d81detach}{D640}{42}
 \item [Service:]
   Detaches any disk images from virtualised F011 drives 0 and 1.
 \item [History:]
-  \availablefrom{1.2}
+  \availablefrom{1.2}\\
+  \deprecatedfrominstead{1.3}{attach}
+\item [Remarks:]
+  This atually calls \hypporef{attach} with \register{X}{= \$C2}
 \end{hyppotrap}
 
 
@@ -1371,13 +1439,14 @@ with both disk images and physical disks, be sure to test it with both.
 % Jimbo - hyppo_d81attach* already write-enables the images.
 %         See https://github.com/MEGA65/mega65-core/issues/494
 % ******************************************************************************
-\newpage
 \begin{hyppotrap}{d81write\_en}{D640}{44}
 \item [Service:]
   Enables writing to any disk images attached to virtualised F011 drives 0
   and 1.
 \item [History:]
   \availablefrom{1.2}
+\item [Remarks:]
+  Images are by default attached with write enabled, so this call is not needed.
 \end{hyppotrap}
 
 

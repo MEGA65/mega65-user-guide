@@ -62,8 +62,10 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \hline
 \endlastfoot
 
-\$FF3B & Files & SAVE & Save to file, with flags \\
+\$FF3B & Files & SAVEFL & Save to file, with flags \\
+\hline
 \$FF3E & Reserved & n/a & RESERVED, DO NOT USE \\
+\hline
 \$FF41 & I/O & GETIO & Read the current input and output devices \\
 \hline
 \$FF44 & Files & GETLFS & Read file, device, secondary address \\
@@ -297,6 +299,8 @@ addkey = $ff4a
         To attempt to read a character without waiting on an empty buffer, use GETIN.
 
         This routine can be overridden or extended using the IBASIN vector.
+
+        BASIN is comparable to ``CHRIN'' on the Commodore 64.
     \item [Example:]
        \begin{asmcode}
 basin = $ffcf
@@ -375,6 +379,8 @@ boot_sys = $ff59
         If the device is the screen, the character is written to screen memory at the current cursor position.
 
         This routine can be overridden or extended using the IBSOUT vector.
+
+        BSOUT is comparable to ``CHROUT'' on the Commodore 64.
     \item [Example:]
         \begin{asmcode}
 bsout = $ffd2
@@ -525,6 +531,8 @@ ciout = $ffa8
         CKOUT performs device-specific tasks, such as sending a LISTN command to a serial channel. Setting a non-output device results in an error.
 
         This routine can be overridden or extended using the ICKOUT vector.
+
+        CKOUT is comparable to ``CHKOUT'' on the Commodore 64.
     \item [Example:]
         \begin{asmcode}
 ckout = $ffc9
@@ -648,6 +656,8 @@ close_all = $ff50
         If the current input or output channels are to serial devices, CLRCH sends UNTLK or UNLSN, as appropriate.
 
         This routine can be overridden or extended using the ICLRCH vector.
+
+        CLRCH is comparable to ``CLRCHN'' on the Commodore 64.
     \item [Example:]
         \begin{asmcode}
 clrch = $ffcc
@@ -963,6 +973,8 @@ jsrfar = $ff6e
         KEY manages special keyboard behaviors, including Mega + Shift, No Scroll, and Ctrl-S. The MEGA65 KERNAL calls KEY in the KERNAL IRQ handler many times per second, similar to other Commodores. A program that disables the KERNAL IRQ handler but wants to maintain these behaviors can call KEY from a custom handler.
 
         \underline{NOTE}: For the MEGA65, KEY diverges from the C65 and does not offer vector hooks. Keyboard intercept vectors are a work in progress.
+
+        KEY has the same address as the Commodore 64 routine ``SCNKEY,'' but behaves differently.
     \item [Example:]
         \begin{asmcode}
 key = $ff9f
@@ -1082,6 +1094,9 @@ lda_far = $ff74
         Use UNLSN to tell all devices to stop talking.
 
         This behavior can be overridden or extended with the ILISTEN vector.
+
+        LISTN is comparable to ``LISTEN'' on the Commodore 64.
+
     \item [Example:]
         \begin{asmcode}
 listn = $ffb1
@@ -1286,6 +1301,8 @@ filename_end:
     \item [Description:] Monitor's exit to BASIC
     \item [Remarks:]
         This is only used by the monitor, and is not useful to programs.
+
+        MONEXIT has the same address as the Commodore 64 KERNAL routine ``SETTMO.'' SETTMO is not available on the MEGA65.
     \item [Example:]
         \begin{asmcode}
 monexit = $ffa2
@@ -1702,15 +1719,51 @@ print_bcd:
     \item [Outputs:]
         \textbf{A} The status byte
     \item [Remarks:]
-        This returns the status of the last I/O operation performed for a serial or RS-232 device. This only works with high-level I/O operations such as OPEN, LOAD, and SAVE.
+        This returns the status of the last I/O operation performed for a serial or RS-232 device. This only works with high-level I/O operations such as OPEN, LOAD, and SAVE, as well as reading and writing to channels opened with OPEN.
+
+        A common use of READSS is to determine the end of a file or stream.
 
         In the case of an RS-232 device, READSS clears the status byte and returns its previous value.
+
+        Status bits are set for serial devices as follows:
+
+        \begin{center}
+        \begin{tabular}{|c|l|}
+        \hline
+        \textbf{Bit} & \textbf{Meaning} \\
+        \hline
+        0 & Write time out \\
+        \hline
+        1 & Read time out \\
+        \hline
+        6 & End of input \\
+        \hline
+        7 & Device not present \\
+        \hline
+        \end{tabular}
+        \end{center}
+
+        READSS is comparable to ``READST'' on the Commodore 64.
     \item [Example:]
         \begin{asmcode}
 readss = $ffb7
 
+    ldx #0
+loop:
+    jsr basin
+    sta buffer,x
+    inx
+
     jsr readss
-        \end{asmcode}
+    beq loop    ; read successful, continue
+    and #$40
+    bne eof     ; status is end of file
+
+    ; handle other error...
+
+eof:
+    ; ...
+    \end{asmcode}
 \end{description}
 
 
@@ -1872,6 +1925,8 @@ filename_end:
         \textbf{N flag} Clear if the Stop key is pressed, set otherwise
     \item [Remarks:]
         Unlike STOP, ScanStopKey does not invoke the ISTOP vector, and does not close channels or flush the keyboard buffer.
+
+        ScanStopKey has the same address as the Commodore 64 KERNAL routine ``UDTIM.'' UDTIM is not available on the MEGA65.
     \item [Example:]
         \begin{asmcode}
 scan_stop_key = $ffea
@@ -1904,6 +1959,9 @@ scan_stop_key = $ffea
         The screen editor maintains a ``window,'' a rectangle on the text screen, where terminal output is written and input is accepted. The window size and position defaults to the full screen, and can be adjusted with the \textbf{WINDOW} BASIC command.
 
         SCRORG returns properties of this window that can be used to plot characters in screen memory.
+
+        SCRORG is comparable to ``SCREEN'' on the Commodore 64.
+
     \item [Example:]
         \begin{asmcode}
 scrorg = $ffed
@@ -1942,6 +2000,9 @@ scrorg = $ffed
         To send a secondary address to a TALKing device, use TKSA.
 
         This behavior can be overridden or extended with the ISECOND vector.
+
+        SECND is comparable to ``SECOND'' on the Commodore 64.
+
     \item [Example:]
         \begin{asmcode}
 listn = $ffb1

@@ -283,8 +283,13 @@ addkey = $ff4a
     \item [Address:] JSR \$FFCF
     \item [Description:] Read a character from input device
     \item [Outputs:]
-        \textbf{A} The character read \\
-        \textbf{C flag} Set on error
+        On success: \\
+        \textbf{C flag} = 0 \\
+        \textbf{A} The character read
+
+        On error: \\
+        \textbf{C flag} = 1 \\
+        \textbf{A} Error code, if any
     \item [Remarks:]
         The default input device is the keyboard. A program can change the input device with OPEN and CHKIN.
 
@@ -378,6 +383,8 @@ boot_sys = $ff59
 
         If the device is the screen, the character is written to screen memory at the current cursor position.
 
+        For the list of possible error codes, see OPEN.
+
         This routine can be overridden or extended using the IBSOUT vector.
 
         BSOUT is comparable to ``CHROUT'' on the Commodore 64.
@@ -438,6 +445,8 @@ c64mode = $ff53
         The default input device is the keyboard. A program can call CLRCH to restore default channel settings.
 
         CHKIN performs device-specific tasks, such as sending a TALK command to a serial channel. Setting a non-input device results in an error.
+
+        For the list of possible error codes, see OPEN.
 
         This routine can be overridden or extended using the ICHKIN vector.
     \item [Example:]
@@ -530,6 +539,8 @@ ciout = $ffa8
 
         CKOUT performs device-specific tasks, such as sending a LISTN command to a serial channel. Setting a non-output device results in an error.
 
+        For the list of possible error codes, see OPEN.
+
         This routine can be overridden or extended using the ICKOUT vector.
 
         CKOUT is comparable to ``CHKOUT'' on the Commodore 64.
@@ -596,6 +607,8 @@ clall = $ffe7
         As a special case, if the C flag is set, the device is a disk (FA is 8 or greater), and the secondary address is the command channel (15), no ``close'' command is sent, and the logical file is removed from the file list. This is necessary to prevent the disk from closing other opened files when closing the command channel. See OPEN for a complete example.
 
         \underline{NOTE}: When CLOSE is used on a file that was set as the input or output channel by CHKIN or CKOUT, it does \emph{not} reset the input/output channel, and a subsequent read/write may misbehave. Use CLRCH after CLOSE to reset the input/output channels.
+
+        For the list of possible error codes, see OPEN.
 
         This behavior can be overridden or extended with the ICLOSE vector.
     \item [Example:]
@@ -1218,7 +1231,9 @@ lkupsa = $ff62
 
         On success, the address of the byte last byte loaded (or verified) \emph{plus one} is returned in the X and Y registers.
 
-        SAVE sets the I/O status as appropriate. This can be read with READSS.
+        LOAD sets the I/O status as appropriate. This can be read with READSS.
+
+        For the list of possible error codes, see OPEN.
 
         This behavior can be overridden or extended with the ILOAD vector.
     \item [Example:]
@@ -1366,7 +1381,38 @@ monitor_call = $ff56
 
         A program must close an open file when it is done using it. To close a specific file, use CLOSE. To close all files for a device, use CLOSE\_ALL. To close all open files, use CLALL. When closing a disk command channel, set the Carry flag before calling CLOSE; see CLOSE for more information.
 
-        This behavior can be overridden or extended with the IOPEN vector.
+        The possible error codes returned by BASIN, BSOUT, CHKIN, CKOUT, CLOSE, LOAD, OPEN, SAVE, and SAVEFL are as follows:
+
+        \begin{center}
+        \begin{tabular}{|c|l|}
+        \hline
+        \textbf{Error code} & \textbf{Meaning} \\
+        \hline
+        1 & Too many files \\
+        \hline
+        2 & File open \\
+        \hline
+        3 & File not open \\
+        \hline
+        4 & File not found \\
+        \hline
+        5 & Device not present \\
+        \hline
+        6 & Not input file \\
+        \hline
+        7 & Not output file \\
+        \hline
+        8 & Missing file name \\
+        \hline
+        9 & Bad device number \\
+        \hline
+        \end{tabular}
+        \end{center}
+
+        \underline{NOTE}: Not all routines are capable of detecting all errors. In particular, OPEN does not detect a ``File not found'' error. This condition is not detected until the program tries to read from the file. Some error conditions are only reported by READSS after an operation. Disk drives may report other error conditions over the command channel.
+
+        The behavior of OPEN can be overridden or extended with the IOPEN vector.
+
     \item [Examples:]
         Disk drives accept arguments in the filename string set with SETNAM, following the filename and delimited with commas. The following example opens a file of type SEQ for writing (\texttt{"...,s,w"}), then writes the bytes 0 to 255. (Error checking is elided for brevity.)
 
@@ -1833,6 +1879,8 @@ restor = $ff8a
         SAVE performs all of the tasks needed to open the file, write it, then close it. It does not leave any logical files open (as OPEN does).
 
         SAVE sets the I/O status as appropriate. This can be read with READSS.
+
+        For the list of possible error codes, see OPEN.
 
         This behavior can be overridden or extended with the ISAVE vector.
     \item [Example:]

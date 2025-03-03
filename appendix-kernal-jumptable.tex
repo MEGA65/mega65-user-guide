@@ -108,13 +108,13 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \hline
 \$FF7D & Tools & PRIMM & Print an inline null-terminated short string \\
 \hline
-\$FF81 & Editor & CINT & Initialize screen editor \\
+\$FF81 & Editor & CINT & Initialise screen editor \\
 \hline
-\$FF84 & OS & IOINIT & Initialize I/O devices \\
+\$FF84 & OS & IOINIT & Initialise I/O devices \\
 \hline
-\$FF87 & OS & RAMTAS & Initialize RAM and buffers \\
+\$FF87 & OS & RAMTAS & Initialise RAM and buffers \\
 \hline
-\$FF8A & OS & RESTOR & Initialize KERNAL vector table \\
+\$FF8A & OS & RESTOR & Initialise KERNAL vector table \\
 \hline
 \$FF8D & OS & VECTOR & Read/set KERNAL vector table \\
 \hline
@@ -469,7 +469,7 @@ chkin = $ffc6
 \label{KERNAL Jump Table!CINT}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF81
-    \item [Description:] Initialize screen editor
+    \item [Description:] Initialise screen editor
     \item [Remarks:]
         CINT resets all properties of the screen editor, including indirect vectors, function key macros, VIC registers, and SID registers. It also clears the screen.
 
@@ -849,7 +849,7 @@ getlfs = $ff44
 \label{KERNAL Jump Table!IOINIT}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF84
-    \item [Description:] Initialize I/O devices
+    \item [Description:] Initialise I/O devices
     \item [Remarks:]
         IOINIT resets the CIA chips, the 45GS02 port, the VIC chip, the UART, and the DOS.
 
@@ -1098,7 +1098,7 @@ lda_far = $ff74
     \item [Remarks:]
         This is a low-level serial routine. Most programs will prefer the higher level I/O routines (OPEN et al.).
 
-        With the low-level serial protocol, the computer is expected to coordinate all device communication on the serial bus. Each device has a hard-coded device number; some devices, like disk drives, may have switches for changing its recognized device number. All devices see all traffic on the bus, and are expected to change their mode when they see a command with their device number.
+        With the low-level serial protocol, the computer is expected to coordinate all device communication on the serial bus. Each device has a hard-coded device number; some devices, like disk drives, may have switches for changing its recognised device number. All devices see all traffic on the bus, and are expected to change their mode when they see a command with their device number.
 
         When the computer wants to send data to a device, the computer sends the device the ``listen'' command. Typically, the computer is only sending data to one device at a time. To change listeners, the computer broadcasts an ``untalk'' command to all devices, then sends another ``listen'' command with a different device number.
 
@@ -1469,9 +1469,9 @@ setbnk = $ff6b
 setlfs = $ffba
 setnam = $ffbd
 
-    lda #cmd_initialize_end-cmd_initialize
-    ldx #<cmd_initialize
-    ldy #>cmd_initialize
+    lda #cmd_initialise_end-cmd_initialise
+    ldx #<cmd_initialise
+    ldy #>cmd_initialise
     jsr setnam
 
     ldx #0
@@ -1491,9 +1491,9 @@ setnam = $ffbd
 
     ; ...
 
-cmd_initialize:
+cmd_initialise:
     !pet "i0"
-cmd_initialize_end:
+cmd_initialise_end:
         \end{asmcode}
 \end{description}
 
@@ -1681,7 +1681,7 @@ primm = $ff7d
 \label{KERNAL Jump Table!RAMTAS}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF87
-    \item [Description:] Initialize RAM and buffers
+    \item [Description:] Initialise RAM and buffers
     \item [Remarks:]
         RAMTAS resets KERNAL base page variables, and resets pointers to the top and bottom of system RAM.
 
@@ -1823,7 +1823,7 @@ eof:
 \label{KERNAL Jump Table!RESTOR}
 \begin{description}[leftmargin=2cm,style=nextline]
     \item [Address:] JSR \$FF8A
-    \item [Description:] Initialize KERNAL vector table
+    \item [Description:] Initialise KERNAL vector table
     \item [Remarks:]
         This resets all KERNAL-related vectors to their default values, pointing to routines in ROM.
 
@@ -2289,7 +2289,7 @@ settim = $ffdb
 
     From the C65 specification:
 
-    The  fast serial protocol utilizes CIA\_1 (6526 at \$DC00) and a special
+    The  fast serial protocol utilises CIA\_1 (6526 at \$DC00) and a special
     driver  circuit  controlled  in  part by the FSDIR register. SPINP and
     SPOUT  are  routines  used  by  the  system to set up the CIA and fast
     serial  driver  circuit  for input or output. SPINP sets up CRA (CIA\_1
@@ -2417,7 +2417,7 @@ swapper = \$ff65
     \item [Remarks:]
         This is a low-level serial routine. Most programs will prefer the higher level I/O routines (OPEN et al.).
 
-        With the low-level serial protocol, the computer is expected to coordinate all device communication on the serial bus. Each device has a hard-coded device number; some devices, like disk drives, may have switches for changing its recognized device number. All devices see all traffic on the bus, and are expected to change their mode when they see a command with their device number.
+        With the low-level serial protocol, the computer is expected to coordinate all device communication on the serial bus. Each device has a hard-coded device number; some devices, like disk drives, may have switches for changing its recognised device number. All devices see all traffic on the bus, and are expected to change their mode when they see a command with their device number.
 
         When the computer wants to read data from a device, the computer sends the device the ``talk'' command. Only one device at a time has permission to ``talk'' on the serial bus. To change talkers, the computer broadcasts an ``untalk'' command to all devices, then sends another ``talk'' command with a different device number.
 
@@ -2707,7 +2707,7 @@ vectable:
     !fill $38
         \end{asmcode}
 
-        The following example uses the KEYSCAN vector to intercept the Help key. Instead of invoking the F15 function key macro, pressing the Help key changes the border color. The PHP and PLP instructions ensure that the C flag is preserved. Only the vector routine is shown; the installation code is similar to the previous example, using \texttt{vectable+54} as the address of the KEYSCAN vector table entry.
+        The following example uses the KEYSCAN vector to intercept the Help key. Instead of invoking the F15 function key macro, pressing the Help key changes the border colour. The PHP and PLP instructions ensure that the C flag is preserved. Only the vector routine is shown; the installation code is similar to the previous example, using \texttt{vectable+54} as the address of the KEYSCAN vector table entry.
 
         \begin{asmcode}
 custom_keyscan:

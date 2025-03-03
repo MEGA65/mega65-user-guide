@@ -2394,6 +2394,8 @@ DCLOSE U9 : REM CLOSE ALL FILES OPEN ON UNIT 9
 
                   {\bf DEC} ignores everything after, and including, the first non-allowed digit or the 8th character. A string containing only non-allowed digits will return 0.
 
+                  To convert a number to a hexadecimal string, see {\bf HEX\$}.
+
 \item [Examples:] Using {\bf DEC}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -2424,6 +2426,8 @@ POKE DEC("600"), 255
                   The argument range is ``0'' to ``11111111 ... 11111111'' (32 ones).
 
 \item [Remarks:]  {\bf DECBIN} ignores everything after the first non-binary digit or the 32nd character. A string containing only non-allowed digits will return 0.
+
+                  To convert a number to a binary string, see {\bf STRBIN\$}.
 
 \item [Example:]  Using {\bf DECBIN}
 
@@ -4848,6 +4852,8 @@ HELP
                   The argument must be in the range of 0 -- 4294967295, corresponding to the hex numbers \$00000000-\$FFFFFFFF. If the argument is between 0 -- 65535, a four character string is returned. For all values above 65535, an eight character string is returned instead.
 
 \item [Remarks:]  If real numbers are used as arguments, the fractional part will be ignored. In other words, real numbers will not be rounded.
+
+                  To convert a hexadecimal string to a number, see {\bf DEC}.
 
 \item [Examples:] Using {\bf HEX\$}
 
@@ -8210,7 +8216,17 @@ DRAW PEN COLOUR =  1
 
                   {\bf n} numeric dummy argument, which is ignored.
 
+                  The return value is an integer, corresponding to the actual CPU speed as follows:
+
+                  \begin{itemize}
+                     \item 1: 1 MHz
+                     \item 3: 3.5 MHz
+                     \item 40: 40.5 MHz
+                  \end{itemize}
+
 \item [Remarks:]  {\bf RSPEED(n)} will not return the correct value if \screentext{POKE 0, 65} has previously been used to enable the highest speed (40 MHz).
+
+                  The MEGA65 also supports running the CPU at 2 MHz, similar to the Commodore 128. This is not available as a return value for {\bf RSPEED}. In this case, {\bf RSPEED} will return 1.
 
                   Refer to the {\bf SPEED} command for more information.
 
@@ -8940,13 +8956,13 @@ RUN
 
 \item [Format:]   {\bf SPEED} [speed]
 
-\item [Usage:]    Sets the CPU clock speed to 1 MHz, 3.5 MHz, or 40 MHz.
+\item [Usage:]    Sets the CPU clock speed to 1 MHz, 3.5 MHz, or 40.5 MHz.
 
                   {\bf speed} CPU clock speed where:
                   \begin{itemize}
                      \item 1: Sets CPU to 1 MHz.
-                     \item 3: Sets CPU to 3 MHz.
-                     \item Anything other than {\bf 1} or {\bf 3} sets the CPU to 40 MHz.
+                     \item 3: Sets CPU to 3.5 MHz.
+                     \item Anything other than {\bf 1} or {\bf 3} sets the CPU to 40.5 MHz.
                   \end{itemize}
 
 \item [Remarks:]  Although it's possible to call {\bf SPEED} with any real number, the precision part (the decimal point and any digits after it), will be ignored.
@@ -8954,6 +8970,8 @@ RUN
                   {\bf SPEED} is a synonym of {\bf FAST}.
 
                   {\bf SPEED} has no effect if \screentext{POKE 0, 65} has previously been used to set the CPU to 40 MHz.
+
+                  The MEGA65 also supports running the CPU at 2 MHz, similar to the Commodore 128. This is not available as an option for {\bf SPEED}.
 
 \item [Examples:] Using {\bf SPEED}
 
@@ -9248,6 +9266,8 @@ PRINT SQR(2)
 
 \item [Returns:]  A string of the formatted value of the argument, as if it were {\bf PRINT}ed to the string.
 
+\item [Remakrs:]  To convert a number to a string value as decimal, see {\bf VAL}.
+
 \item [Example:]  Using {\bf STR\$}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -9277,6 +9297,8 @@ THE VALUE OF PI IS 3.1415927
 \item [Returns:]  The number value as a string of its binary representation.
 
 \item [Remarks:]  Fractional parts will be ignored.
+
+                  To convert a binary string to a number, see {\bf DECBIN}.
 
 \item [Example:]  Using {\bf STRBIN\$}
 
@@ -9999,6 +10021,8 @@ RUN
 \item [Returns:]  The decimal floating point value represented by a string.
 
 \item [Remarks:]  {\bf VAL} parses characters from the beginning of the string that resemble a BASIC decimal number, including a leading negative sign, digits, a decimal point, and an exponent. If it encounters an invalid character, it stops parsing and returns the result up to that point in the string. If the first character is invalid, a 0 is returned.
+
+                  To convert a number to a string, see {\bf STR\$}. If you just want to print a number, remember that {\bf PRINT} accepts number expressions without having to convert to a string.
 
 \item [Example:]  Using {\bf VAL}
 

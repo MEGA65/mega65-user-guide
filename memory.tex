@@ -705,9 +705,11 @@ MAP
 EOM
 \end{asmcode}
 
-Some assemblers, including the one built into the MEGA65 monitor, do not know the EOM instruction. You can substitute the NOP instruction for EOM, which uses the same encoding. Assemblers that support 65CE02 instructions use the AUG instruction for MAP.
+Some assemblers do not know the EOM instruction. You can substitute the NOP instruction for EOM, which uses the same encoding. Assemblers that support 65CE02 instructions use the AUG instruction for MAP.
 
 The MAP setting stays active until it is changed. Be aware that KERNAL routines depend on the default MAP setting, so be sure to restore the original memory map before calling the KERNAL.
+
+If adding the offset to the 16-bit address results in a value larger than the largest 20-bit address (\$FFFFF), the addition truncates the overflow bit, ``rolling over'' the 20-bit address. This allows you to apply a negative offset, specified as the two's complement. For example, to map 16-bit address \$8000 to 20-bit address \$02000, set the offset to \$FA000 (negative \$06000).
 
 \subsection{Examining the MAP Register}
 
@@ -1006,27 +1008,46 @@ There are several ways to describe and initiate DMA jobs, including ways to writ
 
 An enhanced DMA job list can reside anywhere in memory, and can be referred to using either a physical 28-bit address, or a 16-bit address reassigned via MAP.
 
-To invoke an enhanced DMA job list from a record stored at a 28-bit address, write the address to the following registers, in this order:
+To invoke an enhanced DMA job list from a record stored within the first megabyte of memory, write the address to the following registers, in this order:
 
 \begin{enumerate}
-\item \$D702: 2nd highest address byte (the bank)
-\item \$D704: highest address byte (the megabyte)
-\item \$D701: 3rd highest address byte (the page)
-\item \$D705: lowest address byte
+\item \$D702: the \emph{bank} address byte, bits 16-22; highest bit is ignored
+\item \$D701: the \emph{page} address byte, bits 8-15
+\item \$D705: lowest address byte, bits 0-7
 \end{enumerate}
 
-Notice that the register locations are \emph{not} arranged consecutively! The MEGA65 introduces the ability to store an enhanced DMA job list at any 28-bit address. Prior to introducing this feature, there was no ``megabyte'' address byte, and programs set the ``bank'' address byte without the ``megabyte'' address byte. To maintain compatibility with these programs, writing the address bank resets the address megabyte to zero. To use all four address bytes for the enhanced DMA job list, they must be written in this unusual order.
+Writing the lowest address byte to \$D705 triggers execution of the job list, interpreting the address as a physical (non-MAP'd) address.
 
-Writing the lowest address byte to \$D705 triggers execution of the job list, interpreting the address as a 32-bit physical address. To tell it to interpret the job list address using the CPU's view of the 16-bit address space (honoring the MAP register), write the final low byte to \$D706 instead.\footnote{The MEGA65 supports a C65-compatible DMA job list format, which a program can request by setting the low address byte in \$D700 instead of \$D705 / \$D706. You'd only use this if you intend for your program to run on compatible C65 prototype hardware. Note that some C65 prototypes have incomplete DMA implementations.}
+For example, to invoke an enhanced DMA job list that resides at address \$42A80:
 
-Addresses in the job list itself are never MAP'd addresses: DMA jobs always operate on physical addresses. Using \$D706 only changes the way the address of the job list is interpreted, and only if it's a 16-bit address.
+\begin{asmcode}
+LDA #$04
+STA $D702
+LDA #$2A
+STA $D701
+LDA #$80
+STA $D705    ; The DMA job list begins executing...
+\end{asmcode}
 
-For example, to invoke an enhanced DMA job list stored at label {\tt dmajob}:
+The MEGA65 has the ability to store an enhanced DMA job list at any 28-bit address. To invoke an enhanced DMA job list from a record stored at a 28-bit address (such as an address in Attic RAM), write the address to the following registers, in this order:
+
+\begin{enumerate}
+\item \$D702: the \emph{bank} address byte, bits 16-22; highest bit is ignored
+\item \$D704: the \emph{megabyte} address byte, bits 20-27; overlaps the bank
+\item \$D701: the \emph{page} address byte, bits 8-15
+\item \$D705: lowest address byte, bits 0-7
+\end{enumerate}
+
+In this case, the register locations are \emph{not} arranged consecutively. Prior to the MEGA65 introducing this feature, there was no ``megabyte'' address byte, and programs set the ``bank'' address byte without setting the ``megabyte'' address byte. To maintain compatibility with these programs, writing the address bank to \$D702 resets the address megabyte to zero automatically. To use all four address bytes, you must write the bank before writing the megabyte.
+
+To tell the DMA to interpret the job list address using the CPU's view of the 16-bit address space, honoring the MAP register, write the final low byte to \$D706 instead.\footnote{The MEGA65 supports a C65-compatible DMA job list format, which a program can request by setting the low address byte in \$D700 instead of \$D705 / \$D706. You'd only use this if you intend for your program to run on compatible C65 prototype hardware. Note that some C65 prototypes have incomplete DMA implementations.} Addresses in the job list itself are never MAP'd addresses: DMA jobs always operate on physical addresses. Using \$D706 only changes the way the address of the job list is interpreted, as a MAP'd 16-bit address.
+
+The following example invokes an enhanced DMA job list stored at label {\tt dmajob}. For completeness, the example uses all four registers, so the job list could be assembled to an upper megabyte of memory. In practice, most program code is assembled to the first 384KB of memory, so the megabyte register \$D704 can be omitted.
 
 \begin{asmcode}
 LDA #^dmajob
 STA $D702
-LDA #0     ; Assumes dmajob is in the first megabyte
+LDA #(dmajob >>> 20)
 STA $D704
 LDA #>dmajob
 STA $D701
@@ -1324,18 +1345,31 @@ Notice that this is {\em not} a banking mechanism, like it is on a Commodore 64.
 
 As discussed earlier, the MAP register can remap any 8KB block to another location in the first 1MB of the address space. This is useful for accessing the 384KB of Chip RAM, including potential future expansions. The MAP instruction originates with the Commodore 65's 4510 CPU, which was designed to have a 1MB address space.
 
-The MEGA65's 45GS02 CPU extends the MAP register with the ability to access any 256 byte block in the 28-bit address space. This takes the form of an additional high byte of offset for each of MAPLO and MAPHI.
+The MEGA65's 45GS02 CPU extends the MAP register with the ability to access any 256 byte block in the 28-bit address space. This takes the form of an additional high byte (two nybbles) for each of MAPLO and MAPHI. This high byte is used as bits 20-27 of the final address.
 
-You set a MAP offset with a high byte by calling the {\bf MAP} instruction twice before calling {\bf EOM}. The first call sets the high byte, and the second call sets the selection flags and remaining 12 bits of the offset, as before. Interrupts are disabled automatically between the first {\bf MAP} call and the {\bf EOM} call.
+\begin{center}
+\begin{tabular}{ccccc}
+\$335F & + & \$45200 & = & \$4855F \\
+\vtop{\hbox{16-bit}\hbox{address}} & & offset & &
+\vtop{\hbox{MAP'd}\hbox{address}} \\
+\\
+& & \$80 & $\to$ & \$804855F \\
+& & \vtop{\hbox{high}\hbox{byte}} & & \vtop{\hbox{final}\hbox{address}}
+\end{tabular}
+\end{center}
 
-To set the offset high byte, load the high byte into the A register for MAPLO, or Y register for MAPHI. Then load the special value \$0F into the X register for MAPLO, or Z register for MAPHI. Call {\bf MAP} to set it. Then load the selection flags and remaining offset values, call {\bf MAP}, then finally call {\bf EOM}.
+Notice that the MAP high byte sets bits 20-27 of the final address. If adding the offset to the 16-bit address results in a value larger than 20 bits, the addition ``rolls over'' the 20-bit portion of the address, and does not affect the high byte of the final address.
 
-For example, to map \$A000 -- \$BFFF to \$8000000 -- \$8001FFF in Attic RAM, you use an offset of \$7FF6000. The high byte is \$7F, and the three nibbles of the regular offset are \$F60. Setting MAPHI to this offset with the selection flag of \$2 will apply the offset to the desired block.
+You set a MAP high byte by calling the {\bf MAP} instruction twice before calling {\bf EOM}. The first call sets the high byte, and the second call sets the selection flags and remaining 12 bits of the offset, as before. Interrupts are disabled automatically between the first {\bf MAP} call and the {\bf EOM} call.
+
+To set the high byte, load the high byte into the A register for MAPLO, or Y register for MAPHI. Then load the special value \$0F into the X register for MAPLO, or Z register for MAPHI. Call {\bf MAP} to set it. Then load the selection flags and remaining offset values, call {\bf MAP}, then finally call {\bf EOM}.
+
+For example, to map \$A000 -- \$BFFF to \$8000000 -- \$8001FFF in Attic RAM, you use an offset of \$F6000, and a high byte of \$80. Setting MAPHI to this offset with the selection flag of \$2 will apply the offset to the desired block.
 
 \begin{asmcode}
 LDA #$00
 LDX #$00
-LDY #$7F  ; MAPHI offset high byte of $7F
+LDY #$80  ; MAPHI high byte of $80
 LDZ #$0F  ; (Special value for setting high byte)
 MAP
 

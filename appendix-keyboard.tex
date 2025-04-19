@@ -2,41 +2,18 @@
 \chapter{The MEGA65 Keyboard}
 \label{cha:keyboard}
 
-The MEGA65 has a full mechanical keyboard which is compatible with the C65 and
-C64 keyboards, and features four distinct cursor keys which work in both C64
-and C65-mode, as well as eleven new C65 keys that normally work only in
+The MEGA65 has a full mechanical keyboard which is compatible with the C65 and C64 keyboards, and features four distinct cursor keys which work in both C64 and C65-mode, as well as eleven new C65 keys that normally work only in
 C65-mode.
 
-There are several ways to read the keyboard from programs. BASIC programs can
-use the {\bf GET} or {\bf GETKEY} commands, which read a PETSCII keycode into
-a variable, without or with waiting for a typing event. Machine language
-programs that keep the KERNAL active can use the KERNAL {\tt getin} routine at
-\$FFE4, which loads a PETSCII code into the accumulator. These routines have
-the advantage of supporting other features of the KERNAL input stream, such as
-function key macros and input redirection.
+There are several ways to read the keyboard from programs. BASIC programs can use the {\bf GET} or {\bf GETKEY} commands, which read a PETSCII keycode into a variable, without or with waiting for a typing event. Machine language programs that keep the KERNAL active can use the KERNAL {\tt getin} routine at \$FFE4, which loads a PETSCII code into the accumulator. These routines have the advantage of supporting other features of the KERNAL input stream, such as function key macros and input redirection.
 
-The Commodore 64 uses the CIA chip as the hardware interface to the keyboard,
-and some C64 programs (including the C64 KERNAL) read the keyboard matrix
-directly off of the CIA lines. This is implemented in the MEGA65 chipset to
-support these programs. Reading the keyboard from the CIA has the potential to
-miss key presses, requires translating CIA signals to keyboard characters in
-software, and requires managing typing features such as key repeat in software
-as well.
+For a machine code program that doesn't use the KERNAL and wants to use the keyboard for standard typing applications (such as a word processor), the MEGA65 provides a {\em typing event queue} implemented directly in hardware. A {\em typing event} occurs when the user presses a non-modifier key, holding zero or more modifier keys down while doing so. The typing event queue remembers the key being pressed and the modifiers being held, for up to a certain number of events. The program is expected to dequeue each event as it is processed, making room in hardware memory for new events. A program can read typing events as either PETSCII or ASCII values directly from hardware registers. The modifier keys associated with the event are also readable from a register.
 
-For greater accuracy and ease of coding in common typing-style keyboard
-applications, the MEGA65 provides a {\em typing event queue} implemented
-directly in hardware. A {\em typing event} occurs when the user presses a
-non-modifier key, holding zero or more modifier keys down while doing so. The
-typing event queue remembers the key being pressed and the modifiers being
-held, for up to a certain number of events. The program is expected to dequeue
-each event as it is processed, making room in hardware memory for new events.
-A program can read typing events as either PETSCII or ASCII values directly
-from hardware registers. The modifier keys associated with the event are also
-readable from a register.
+The MEGA65 KERNAL uses the typing event queue to power {\tt getin} and the BASIC {\bf GET} and {\bf GETKEY} commands. Reading a key using any of these methods dequeues a typing event from the queue.
 
-The MEGA65 KERNAL uses the typing event queue to power {\tt getin} and the
-BASIC {\bf GET} and {\bf GETKEY} commands. Reading a key using any of these
-methods dequeues a typing event from the queue.
+The MEGA65 also provides direct hardware access to the matrix using dedicated registers, so MEGA65 programs can test for any combination of keys being pressed. This is useful for games that use the keyboard as a game controller.
+
+Legacy C64 and C65 programs, including the original C65 ROM, use the CIA chips as the hardware interface to the keyboard. The MEGA65 keyboard implements the C65 keyboard matrix for the CIA chip. This interface has inherent shortcomings common to Commodore computers, including slower key response and ``ghosted'' keys in certain key combinations. MEGA65 programs will get better results using the KERNAL, typing event queue, or keyboard matrix register methods.
 
 \section{Using the Typing Event Queue}
 
@@ -58,9 +35,9 @@ KEYQUEUE & \$D60A[7] & 1 if the queue is non-empty \\
 \end{tabular}
 \end{center}
 
-The bits of MODKEY correspond to these modifier keys, with 1 meaning the key
+The bits of MODKEY \$D60A correspond to these modifier keys. If a bit is set, then the key
 was held during the event:
-
+\nopagebreak
 \begin{center}
 {\renewcommand{\arraystretch}{1.7}
 \begin{tabular}{|*{7}{>{\centering\arraybackslash}p{3em}|}}
@@ -72,55 +49,20 @@ was held during the event:
 \end{tabular}}
 \end{center}
 
-If ASCIIKEY (\$D610) reads as \$00, then the typing queue is empty. A program
-must test ASCIIKEY for \$00, or test KEYQUEUE (bit 7 of \$D60A), to determine
-if the queue is empty. The PETSCIIKEY register does not have a value that
+If ASCIIKEY (\$D610) reads as \$00, then the typing queue is empty. A program must test ASCIIKEY for \$00, or test KEYQUEUE (bit 7 of \$D60A), to determine if the queue is empty. The PETSCIIKEY register does not have a value that
 represents the empty queue.
 
-A given typing event may or may not have an ASCII or PETSCII interpretation. A
-typing event that has neither is not added to the queue. If an event has an
-ASCII interpretation but not a PETSCII interpretation, then ASCIIKEY will
-contain the ASCII value, and PETSCIIKEY will contain \$FF. Similarly, ASCIIKEY
-will contain \$FF for typing events without an ASCII interpretation. The
-program is expected to use the other registers to determine whether the queue
-is empty, and skip typing events that do not have an interpretation useful to
-the program.
+A given typing event may or may not have an ASCII or PETSCII interpretation. A typing event that has neither is not added to the queue. If an event has an ASCII interpretation but not a PETSCII interpretation, then ASCIIKEY will contain the ASCII value, and PETSCIIKEY will contain \$FF. Similarly, ASCIIKEY will contain \$FF for typing events without an ASCII interpretation. The program is expected to use the other registers to determine whether the queue is empty, and skip typing events that do not have an interpretation useful to the program.
 
-\underline{NOTE}: ASCII also uses \$FF to represent the "umlaut-y" character
-(Alt+Y). In this case (and only in this case), PETSCIIKEY is \$59 (regular Y).
-If your program needs to distinguish between a non-ASCII typing event and
-Alt+Y, test whether PETSCIIKEY is \$59 when ASCIIKEY is \$FF.
+\underline{NOTE}: ASCII also uses \$FF to represent the "umlaut-y" character (Alt+Y). In this case (and only in this case), PETSCIIKEY is \$59 (regular Y). If your program needs to distinguish between a non-ASCII typing event and Alt+Y, test whether PETSCIIKEY is \$59 when ASCIIKEY is \$FF.
 
-To dequeue the top typing event, write any value to either ASCIIKEY (\$D610)
-or PETSCIIKEY (\$D619). If the queue has another event, it becomes visible on
-the registers. Otherwise, the registers go to their empty queue state.
-
-\subsection{Reading Immediate Modifier Keys}
-
-In addition to recording the modifier keys pressed during a typing event, a
-program can read the immediate state of the modifier keys with register
-\$D611. This uses the same bit pattern as MODKEY. See the table, above.
-
-Remember that the immediate modifier key register represents the current state
-of the modifier keys being held, which may be different from the modifier keys
-held during the typing event at the top of the queue.
+To dequeue the top typing event, write any value to either ASCIIKEY (\$D610) or PETSCIIKEY (\$D619). If the queue has another event, it becomes visible on the registers. Otherwise, the registers go to their empty queue state.
 
 \subsection{Interpreting ASCII Typing Events}
 
-The ASCIIKEY register makes it possible to read entry of the ASCII symbols not
-available in PETSCII, including \{, \_ and |, which are not possible to type
-on a normal C64 and C128 keyboards. The keyboard and the ASCII interpretation
-supports most Latin-1 code-page characters, allowing the entry of many
-accented characters. These keys are entered by holding down \megasymbolkey and
-pressing other keys or key-combinations. The use of ASCII or Unicode
-basic-Latin symbols not present in the PETSCII character set requires the use
-of a font that contains these symbols, and software which supports them.
+The ASCIIKEY register makes it possible to read entry of the ASCII symbols not available in PETSCII, including \{, \_ and |, which are not possible to type on a normal C64 and C128 keyboards. The keyboard and the ASCII interpretation supports most Latin-1 code-page characters, allowing the entry of many accented characters. These keys are entered by holding down \megasymbolkey and pressing other keys or key-combinations. The use of ASCII or Unicode basic-Latin symbols not present in the PETSCII character set requires the use of a font that contains these symbols, and software which supports them.
 
-The following tables show the hex value and Unicode character that will be
-produced by each key combination on the ASCIIKEY register. One table is
-provided for pressing a key on its own, and one table for each of the
-\specialkey{SHIFT}, \specialkey{CTRL}, \megasymbolkey, and \specialkey{ALT}
-keys.
+The following tables show the hex value and Unicode character that will be produced by each key combination on the ASCIIKEY register. One table is provided for pressing a key on its own, and one table for each of the \specialkey{SHIFT}, \specialkey{CTRL}, \megasymbolkey, and \specialkey{ALT} keys.
 
 \begin{minipage}{\textwidth}
 \bf{Keys pressed alone:}
@@ -149,50 +91,35 @@ keys.
 
 \subsection{Unicode Basic-Latin Keyboard Map}
 
-The following tables are a convenient reference to help you find a key combination
-that will produce the desired ASCII/Unicode basic-Latin character code.  Note that
-a very few codes are difficult to type in practice, because they are mapped to
-key combinations that perform other functions. In particular, the combination of
-\megasymbol + \specialkey{TAB} is normally overridden by the Matrix Mode hardware
-debug feature.
+The following tables are a convenient reference to help you find a key combination that will produce the desired ASCII/Unicode basic-Latin character code.  Note that a few codes are difficult to type in practice, because they are mapped to key combinations that perform other functions. In particular, the combination of \megasymbol + \specialkey{TAB} is normally overridden by the Matrix Mode hardware debug feature.
 
 \input{unicode_mapping}
 
 
+\newpage
 \section{Keyboard Theory of Operation}
 
-The MEGA65 keyboard is a full mechanical keyboard, constructed as a matrix. Every
-key switch is fitted with a diode, which allows the keyboard hardware to detect
-when any combination of keys are pressed at the same time.  This matrix is scanned
-by the firmware in the CPLD chip on the keyboard PCB many thousands of times per
-second.  The matrix arrangement of the MEGA65 keyboard does not use the C65
-matrix layout.
+The MEGA65 keyboard is a full mechanical keyboard, constructed as a matrix. Every key switch is fitted with a diode, which allows the keyboard hardware to detect when any combination of keys are pressed at the same time. This matrix is scanned by the firmware in the CPLD chip on the keyboard PCB many thousands of times per second.
 
-Instead, the CPLD also sorts the natural matrix of the keyboard
-into the C65 keyboard matrix order, and transmits this serially via the keyboard
-cable to the MEGA65 mainboard.  The MEGA65 core reads this serial data and uses it
-to reconstruct a C65-compatible virtual keyboard in the FPGA.  This virtual keyboard
-also takes input from the on-screen-keyboard, synthetic keyboard injection mechanism
-and/or other keyboard input sources depending on the MEGA65 model.
+The matrix arrangement of the MEGA65 keyboard does not use the C65 matrix layout. Instead, the CPLD sorts the natural matrix of the keyboard into the C65 keyboard matrix order, then transmits the C65 matrix coordinates serially via the keyboard cable to the MEGA65 mainboard. The MEGA65 core reads this serial data and uses it to reconstruct a C65-compatible virtual keyboard in the FPGA. This virtual keyboard can also accept input from the
+on-screen-keyboard, the synthetic keyboard injection mechanism, and other keyboard input sources, depending on the MEGA65 model.
 
-The end-to-end latency of the keyboard is less than one milli-second.
+The end-to-end latency of the keyboard is less than one millisecond.
 
 \section{C65 Keyboard Matrix}
 
-The MEGA65 keyboard presents to legacy software as a C65-compatible keyboard.
-In this mode all keys are available for standard PETSCII scanning as per normal.
-There is also a hardware accelerated mechanism for detecting arbitrary combinations
-of keys that are held down. This is via \$D614 (decimal 54804).  Writing a value
-between 0 and 8 to this register selects the corresponding row of the C65 keyboard
-matrix, which can then be read back from \$D613.
-If a bit is zero, then it means that the key is being pressed. If the bit is one, then
-the key is not being pressed.
+The MEGA65 keyboard is designed to mimic the Commodore 65 keyboard matrix consisting of nine columns and eight rows. Legacy C65 software (such as the C65 ROM) uses the CIA chip to scan the first eight columns of the matrix, in the same arrangement as keys appear on a Commodore 64. Keys exclusive to the C65 (No Scroll, Tab, Alt, etc.) use an eighth column not accessible via the CIA. A legacy program can access the ninth column using bit 1 of I/O port E, with the data register at \$D607 and the data direction register at \$D608.
 
-The left and up cursor keys are special, because they logically press cursor right or down, and the right shift key.
-To be able to differentiate between these two situations, you can read \$D60F: Bit 0 is the state of the left cursor
-key and bit 1 is the state of the up cursor key.
+Programs written for the MEGA65 can use a dedicated set of registers capable of detecting any combination of keys being pressed at the same time:
 
-The C65 keyboard matrix layout is as follows:
+\begin{itemize}
+\item \$D614: C65 keyboard matrix column select; write integer 0 -- 8
+\item \$D613: C65 keyboard matrix column data; bit for row is clear if key is pressed
+\item \$D611[0:6]: Modifier key data; bit is set if modifier key is pressed
+\item \$D604[0:1]: Disambiguation bits for cursor left and cursor up; bit is set if key is pressed
+\end{itemize}
+
+In the following C65 keyboard matrix, each non-modifier physical key appears in exactly once, in one of nine columns numbered 0 to 8, and in one of eight rows numbered 0 to 7.
 
 \index{Keyboard!matrix}
 {\ttfamily
@@ -223,51 +150,66 @@ The C65 keyboard matrix layout is as follows:
 \end{center}
 }}
 
-Note that the keyboard matrix is identical to the C64 keyboard matrix, except for the addition of one extra column
-on the right-hand side.  While columns 0 to 7 can be controlled via CIA1 just like on the C64, column 8 is controlled
-via I/O port E with its data register at \$D607 and data direction register at \$D608.  Bit 1 of this port controls 
-the extra column 8.  The cursor left and up keys on the MEGA65 and C65 are implemented as cursor right and down, but
-with the right shift key applied.  This enables them to work in C64-mode.  \specialkey{CAPS\\LOCK} is not
-part of the matrix, but has its own dedicated line.  Its status can be read from bit 6 of register \$D611 (decimal 54801):
+To test whether a key is being pressed, write the column number to register \$D614 (54804 decimal) as a binary-coded integer, then read the bit that corresponds to the row from register \$D613 (54803 decimal). If the bit is zero, then the key is pressed. (A bit value of one means the key is \emph{not} pressed.)
 
-The numbers across the top indicate the columns of the matrix, and the numbers down the left indicate the rows.
-The unique scan code of a key is calculated by multiplying the column by eight, and adding the row.  For example,
-\specialkey{CLR\\HOME} is in column 6 and row 3. Thus its scan code is $6 \times 8 + 3 = 51$.
+For example, to test whether the Help key is being pressed:
+
+\begin{asmcode}
+LDA #$08             ; column 8
+STA $D614
+LDA $D613
+AND #%00001000       ; row 3
+BEQ help_key_is_pressed  ; unset = pressed
+\end{asmcode}
+
+Register \$D611 describes the current state of the modifier keys. If a bit is set, the key is pressed.
+
+\begin{center}
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{|*{7}{>{\centering\arraybackslash}p{3em}|}}
+\hline
+\bf{Bit 6} & \bf{Bit 5} & \bf{Bit 4} & \bf{Bit 3} & \bf{Bit 2} & \bf{Bit 1} & \bf{Bit 0} \\
+\hline
+\specialkey{CAPS\\LOCK} & \specialkey{NO\\SCROLL} & \specialkey{ALT} & \megasymbolkey & \specialkey{CTRL} & \specialkey{SHIFT\\right} & \specialkey{SHIFT\\left} \\
+\hline
+\end{tabular}}
+\end{center}
+
+The original Commodore 64 keyboard had only two cursor keys, one for down/up and one for right/left, where the user would hold shift to select the opposite direction on the key. The Commodore 65 keyboard has separate cursor keys for all four directions. For compatibility, the C65 maintains the shifted representation in the keyboard matrix for cursor up and cursor left: cursor up is right-shift and cursor down, cursor left is right-shift and cursor right.
+
+To make it possible to distinguish between all combinations of cursor keys being pressed simultaneously (such as cursor up and cursor down pressed together), the MEGA65 provides one more register, \$D604 bits 0 and 1. Bit 0 is set if cursor left is pressed, and bit 1 is set if cursor up is pressed.
+
+All together, these registers make it possible for a program to scan for every combination of keys being pressed.
 
 \section{Synthetic Key Events}
 
 The MEGA65 keyboard interface logic allows the use of a variety of keyboard types and alternatives. This is partly
 to cater for the early development on general purpose FPGA boards, the MEGAphone with its touch interface, and the
-desktop versions of the MEGA65 architecture.  The depressing of up to 3 three keys can be simulated via
-the registers \$D615 -- \$D617 (decimal 54,805 -- 54,807).  By setting the
-lower 7 bits of these registers to any C65 keyboard scan code, the MEGA65 will behave as though that key is being
-held down. \widekey{RESTORE} exists outside of the keyboard matrix, as on the C64.  To simulate
-holding \widekey{RESTORE} down, write \$52 (ASCII code for a capital R), and to simulate a quick tap
-of the \widekey{RESTORE}, write \$72 (ASCII code for a lowercase R).  Another value must be written after the
-\$72 value has been written, if you wish to simulate multiple presses of \widekey{RESTORE}.
+desktop versions of the MEGA65 architecture.
 
-To release a key, write \$7F (decimal 127) to the register containing the active key press. For example,
-to simulate briefly pressing the * key, the following could be used:
+One possible keyboard input available on all models is the virtual keypress queue. A program or the serial debugger can simulate up to three physical keys being pressed by writing each key's scan code to the registers \$D615 -- \$D617.
 
-\begin{tcolorbox}[colback=black,coltext=white]
-\verbatimfont{\codefont}
-\begin{verbatim}
-POKE DEC("D615"),6*8+1:FORI=1TO100:NEXT:POKE DEC("D615"),127
-\end{verbatim}
-\end{tcolorbox}
+The scan code for a physical key can be calculated from the C65 keyboard matrix. For the first eight columns, the scan code is the column number multiplied by eight, plus the row number. For example, the Home key is in column 6 and row 3, so the scan code is $6 \times 8 + 3 = 51$. Scan codes for the ninth column are 64 -- 71, assigned from top to bottom. For example, the Tab key is scan code 65.
 
-The FOR loop provides a suitable delay to simulate holding the key for a short time.  All statements should be on a single line
-like this, if entered directly into the BASIC interpreter, because otherwise the MEGA65 will continue to act as though the * key
-is being held down, making it rather difficult to enter the other commands!
+A virtual key will be seen as held down until the next update to the register. To release a key, write \$7F to the register.
+
+\widekey{RESTORE} exists outside of the keyboard matrix, as on the C64. To simulate holding \widekey{RESTORE} down, write \$52 (ASCII code for a capital R). To simulate a quick tap of the \widekey{RESTORE}, write \$72 (ASCII code for a lowercase R). Another value must be written after the \$72 value has been written, if you wish to simulate multiple presses of \widekey{RESTORE}.
+
+The following is a demonstration of using the virtual key register from BASIC to simulate briefly pressing the \texttt{*} key:
+
+\begin{basiccode}
+POKE $D615, 6*8+1:FOR I = 1 TO 100:NEXT:POKE $D615, 127
+\end{basiccode}
+
+The FOR loop provides a suitable delay to simulate holding the key for a short time. All statements should be on a single line like this if entered directly into the BASIC interpreter, because otherwise the MEGA65 will continue to act as though the \texttt{*} key is being held down, making it rather difficult to enter the other commands!
 
 \section{Keyboard LED Control}
 
-The LEDs on the MEGA65's keyboard are normally controlled automatically by the
-system.  However, it is also possible to place them under user control.  This
-is activated by setting bit 7 (decimal 128) of \$D61D (decimal 54813).  The
-lower bits indicate which keyboard LED to set.  Values 0 through 11 correspond
-to the red, green and blue channels of the four LEDs. The table below shows the
-specific values:
+The lights on the MEGA65's keyboard are normally controlled automatically by the system, such as to represent power status (left light) or disk activity (right light). It is also possible to control them from a program. Each of the two lights consists of two RGB LEDs. The intensity of the red, green, and blue components of each light can be assigned separately.
+
+You can set the LED color values using two registers: the control register \$D61D (decimal 54813) and a value update register \$D61E.
+
+Bit 7 of the control register \$D61D determines whether the lights are controlled by the system (clear) or a program (set). The lower bits select one of the twelve RGB channels (four LEDs, a red, green, and blue for each) to update.
 
 \begin{adjustwidth}{}{-2cm}
 \begin{description}[align=left,labelwidth=0.2cm]
@@ -286,31 +228,20 @@ specific values:
 \end{description}
 \end{adjustwidth}
 
-Register \$D61E (decimal 54814) is used to specify the intensity that should be
-given to a specific LED (value between 0 and 255).
+To set the intensity of an LED color component, write the component number and bit 7 high (+ 128) to \$D61D, then write the intensity value to \$D61E. The intensity is a value between 0 and 255.
 
-Note that whatever value is in \$D61E gets written to whatever register is
-currently selected in \$D61D.  Therefore to safely change the intensity of one
-specific LED ensure \$D61D is set to 255 first. This prevents affecting another
-LED when we set the intended intensity value into \$D61E. Now select the target
-LED by setting \$D61D to 128 + x, where x is a value from the table above.
-Hold the \$D61D, \$D61E configuration for approximately one millisecond to give
-the keyboard logic enough time to pick up the new intensity value for the
-selected LED.
+The keyboard logic needs approximately one millisecond to update after writing. A best practice is to write \$FF (255 decimal) to \$D61D prior to setting the component number.
 
-To return the keyboard LEDs to hardware control, clear bit 7 of \$D61D.
+To return the keyboard LEDs to system control, clear bit 7 of \$D61D.
 
-For example to pulse the keyboard LEDs red and blue, the following program
-could be used:
+The following example pulses the keyboard LEDs between red and blue:
 
-\begin{tcolorbox}[colback=black,coltext=white]
 \input{examples/ledcycle}
-\end{tcolorbox}
 
+\newpage
 \section{Native Keyboard Matrix}
 
-The native keyboard matrix is accessible only from the CPLD on the MEGA65's keyboard.
-If you are programming the MEGA65 computer, you should not need to use this.
+The native keyboard matrix is accessible only from the CPLD on the MEGA65's keyboard. If you are programming the MEGA65 computer, you should not need to use this. This is listed here for the convenience of the platform developers.
 
 \begin{adjustwidth}{}{-2cm}
 \begin{multicols}{2}

@@ -270,6 +270,8 @@ clean:
 	rm -f $(BIBLIOGRAPHIES)
 
 realclean: clean
+	$(MAKE) -C tools clean
+	$(MAKE) -C examples clean
 	rm -f gitinfo.tex
 	rm -rf *.dSYM
 	rm -rf __pycache__

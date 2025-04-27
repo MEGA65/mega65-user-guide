@@ -3292,7 +3292,7 @@ ready.
                   \fi
                   for more details on EDMA.
 
-                  {\bf command} 0: copy, 1: mix, 2: swap, or 3: fill.
+                  {\bf command} 0: copy, or 3: fill.
 
                   Because the command bits share the same register with other bits you can for example use bit 5 to reverse loop operation. This is also working in overlapping memory regions for source and target. Please see the example below.
 
@@ -4934,6 +4934,10 @@ FFFFFFFF
 
 \item [Remarks:]  The standard {\bf IF} ... {\bf THEN} ... {\bf ELSE} structure is restricted to a single line. However, the {\bf true clause} and {\bf false clause} may be expanded to several lines using a compound statement surrounded with {\bf BEGIN} ... {\bf BEND}.
 
+                  An {\bf ELSE} clause can contain another {\bf IF} statement. If the inner {\bf IF} statement spans multiple lines using {\bf BEGIN} ... {\bf BEND}, the entire inner {\bf IF} statement must also be enclosed in {\bf BEGIN} ... {\bf BEND}.
+
+                  Due to an unusual restriction with {\bf BEGIN} ... {\bf BEND}, if a {\bf THEN} clause uses {\bf BEGIN} ... {\bf BEND} and there is an {\bf ELSE} clause, the {\bf ELSE} keyword must be on the same line as the previous {\bf BEND} statement. See the example below.
+
 \item [Example:]  Using {\bf IF}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -4947,6 +4951,19 @@ FFFFFFFF
 60 INPUT "END PROGRAM (Y/N)"; A$
 70 IF A$ = "Y" THEN END
 80 IF A$ = "N" THEN 20 : ELSE 60
+
+ 10 X=1
+ 20 IF X=0 THEN BEGIN
+ 30   PRINT "ZERO"
+ 40 BEND:ELSE BEGIN
+ 50   IF X=1 THEN BEGIN
+ 60     PRINT "ONE"
+ 70   BEND:ELSE BEGIN
+ 80     IF X=2 THEN BEGIN
+ 90       PRINT "TWO"
+100     BEND:ELSE PRINT "OTHER"
+110   BEND
+120 BEND
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -8408,9 +8425,7 @@ RUN             : REM RUN PROGRAM IN MEMORY
                      \item 3: Number of rows on screen (25 or 50).
                   \end{itemize}
 
-\item [Remarks:]  Older versions of {\bf RWINDOW} reported the width - 1 and the height - 1 for arguments 0 and 1.
-
-                  Refer to the {\bf WINDOW} command for more information.
+\item [Remarks:]  Refer to the {\bf WINDOW} command for more information.
 
 \item [Example:]  Using {\bf RWINDOW}
 

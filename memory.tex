@@ -618,6 +618,30 @@ In early versions of the MEGA65 ROM, it was necessary to set {\bf BANK} to 0 bef
 
 You can also use {\bf SYS} to augment a BASIC program with machine code subroutines. A convenient location for these subroutines is in the \$1600 -- \$1EFF range of bank 0. {\bf SYS} can access this location regardless of the current {\bf BANK} setting.
 
+\subsection{SYS TO}
+
+To supplement the {\bf SYS} command's memory access limitations, BASIC 65 has a variant, {\bf SYS TO}, with additional features. This differs from {\bf SYS} in the following ways:
+
+\begin{itemize}
+    \item Both {\bf SYS} and {\bf SYS TO} expect an address as the first argument. {\bf SYS} accepts subsequent positional arguments for setting registers. {\bf SYS TO} accepts named arguments for setting registers and accessing other features.
+    \item A program can use {\bf SYS TO} to apply a page offset to addresses \$2000 to \$7FFF, such that a subroutine address in that range can refer to a physical address outside of that range in a bank.
+    \item A program can use {\bf SYS TO} to call routines while keeping BASIC active, such as to keep {\bf PLAY} music or {\bf MOVSPR} sprite movement running smoothly while machine code is executing.
+\end{itemize}
+
+To set a page offset, provide the \texttt{O} argument to {\bf SYS TO}. The value is three nybbles that are multiplied by 256 (shifted left by two nybbles) to determine the offset. For example, an offset of \$520 causes an offset of \$52000 to be added to any address in the range \$2000 to \$7FFF.
+
+\begin{basiccode}
+REM : MAP $2000-$7FFF TO $54000-$59FFF, THEN CALL $6100 + $52000 = $58100
+
+SYS TO $6100,O($520)
+\end{basiccode}
+
+To call a routine while keeping BASIC active, specify the \texttt{I} argument with a value of 1. You can either use this mode or set a page offset, not both. Because BASIC ROM uses most of the first 64KB of memory when active, this mode restricts machine code to the range \$1600 to \$1EFF.
+
+\begin{basiccode}
+SYS TO $1600,I1
+\end{basiccode}
+
 
 \newpage
 \section{Using Memory from Machine Code}
@@ -1452,3 +1476,23 @@ The KERNAL uses the MAP register to access ROM in bank 3. To keep ROM in \$E000 
 Similarly, for addresses in the range \$0000 -- \$1FFF to continue to refer to KERNAL variable memory in bank 0, either the region must be un-mapped, or mapped with an offset of zero. Naturally, it is more useful for {\bf SYS} to leave that region un-mapped so that it can access other banks for addresses \$2000 -- \$7FFF, so that's what it does. {\bf SYS} uses the MAP register to access upper banks for an address whose lower word is \$2000 -- \$7FFF, either when using {\bf BANK} or when given a large address.
 
 The MAP register is much more flexible than this: it can allow almost any address to be reached via 16-bit addresses \$2000 -- \$7FFF using a wide range of possible offsets. However, the machine code called by {\bf SYS} would need to be written in a way that is aware of what offset is being used. The program counter would be relative to the offset, and a {\tt JMP} instruction in the code would have to use an address based on the same offset. It is possible to write machine code using only relative branch instructions (such as {\tt BRA}), but historically this has not been a requirement of the {\bf SYS} command. Instead, {\bf SYS} restricts itself to 64KB offsets to keep the programming model simple.
+
+\subsection{How SYS TO works}
+
+The {\bf SYS TO} command can apply a page offset to an address in the range \$2000 -- \$7FFF to access more memory locations. Now that we know that MAP is involved, this is easy to explain: the \texttt{O} argument is setting the MAP offset for the lower half of the 16-bit address space, with \$2000 -- \$7FFF selected for mapping. You can use the page offset to access code anywhere in the first 384KB of memory, as long as the routine is written to account for this MAP setting.
+
+\begin{basiccode}
+REM : MAP $2000-$7FFF TO $54000-$59FFF, THEN CALL $6100 + $52000 = $58100
+
+SYS TO $6100,O($520)
+\end{basiccode}
+
+By default, {\bf SYS} and {\bf SYS TO} disable BASIC while the machine code subroutine is running. This includes changing MAP so that the KERNAL ROM is no longer mapped to \$2000 -- \$7FFF and \$8000 -- \$BFFF, as well as setting an internal flag for the KERNAL IRQ handler to not operate any BASIC IRQ features, such as {\bf PLAY} and {\bf MOVSPR}. When the machine code returns, {\bf SYS} restores the KERNAL MAP setting and re-enables BASIC IRQ features.
+
+Temporarily disabling BASIC IRQ features can cause a momentary interruption of service for a BASIC program that relies on those features, such as stuttering music playback. To prevent this, the {\bf SYS TO} command has an operating mode that leaves BASIC active during the subroutine. The \texttt{I1} argument enables this mode. When enabled, {\bf SYS TO} keeps BASIC ROM mapped to \$2000 -- \$BFFF, and keeps enabled BASIC IRQ features that use ROM code in that range. This means that the machine code subroutine being called cannot live in this memory range. In practice, this is only useful for machine code routines in the range \$1600 -- \$1EFF.
+
+\begin{basiccode}
+SYS TO $1600,I1
+\end{basiccode}
+
+{\bf SYS TO} cannot use a page offset and enable BASIC at the same time, because these features use the MAP register in different ways.

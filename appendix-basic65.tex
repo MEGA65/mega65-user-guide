@@ -4767,6 +4767,49 @@ SYS 58552
 \end{tcolorbox}
 \end{description}
 
+
+% ******
+% HASBIT
+% ******
+
+\newpage
+\subsection{HASBIT}
+\index{BASIC 65 Functions!HASBIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:]    \$CE \$13
+
+\item [Format:]   {\bf HASBIT(}address{\bf,} bit number{\bf)}
+
+\item [Returns:]  True (-1) if the value stored in the address has the given bit set, otherwise false (0).
+
+                  If the address is in the range of \$0000 to \$FFFF (0 -- 65535), the memory bank set by {\bf BANK} is used.
+
+                  Addresses greater than or equal to \$10000 (decimal 65536) are assumed to be flat memory addresses and used as such, ignoring the {\bf BANK} setting.
+
+                  {\bf bit number} value in the range of 0 -- 7.
+
+                  A bank value > 127 is used to access I/O, and the underlying system hardware such as the VIC, SID, FDC, etc.
+
+\item [Examples:] Using {\bf HASBIT}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+BANK 128
+
+SETBIT $D031,6
+
+PRINT HASBIT($D031,6)
+-1
+
+CLRBIT $D031,6
+
+PRINT HASBIT($D031,6)
+0
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 % ******
 % HEADER
 % ******
@@ -5866,9 +5909,13 @@ LOCK "BS*"            : REM LOCK ALL FILES BEGINNING WITH "BS"
 
 \item [Returns:]  The natural logarithm of a number.
 
-                  The natural logarithm uses Euler's number (2.71828183) as base, not base 10 which is typically used in log functions on a pocket calculator.
+                  The natural logarithm uses Euler's number (2.71828183) as the base. A typical scientific calculator calls this the ``LN'' function.
 
-\item [Remarks:]  The log function with base 10 can be computed by dividing the result by {\bf LOG(10)}. {\bf LOG10} provides this feature as a function.
+\item [Remarks:]  For convenience, BASIC 65 includes separate functions for logarithms in base 10 and base 2: {\bf LOG10()} and {\bf LOG2()}, respectively.
+
+                  To calculate logarithms in other bases, use this logarithmic identity:
+
+                  $\log_b(n) =$ \texttt{LOG(n) / LOG(b)}
 
 \item [Examples:] Using {\bf LOG}
 
@@ -5904,7 +5951,7 @@ PRINT LOG(100) / LOG(10)
 
 \item [Returns:]  The decimal logarithm of the numeric expression.
 
-                  The decimal logarithm uses 10 as base.
+                  The decimal logarithm uses 10 as the base.
 
 \item [Examples:] Using {\bf LOG10}
 
@@ -5925,6 +5972,43 @@ PRINT LOG10(100); LOG10(10); LOG10(1); LOG10(0.1); LOG10(0.01)
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
+
+% *****
+% LOG2
+% *****
+
+\newpage
+\subsection{LOG2}
+\index{BASIC 65 Functions!LOG2}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:]    \$CE \$16
+
+\item [Format:]   {\bf LOG2(}numeric expression{\bf)}
+
+\item [Returns:]  The binary logarithm of the numeric expression.
+
+                  The binary logarithm uses 2 as the base.
+
+\item [Examples:] Using {\bf LOG2}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT LOG2(1)
+ 0
+
+PRINT LOG2(0)
+?ILLEGAL QUANTITY ERROR
+
+PRINT LOG2(5)
+ 2.3219281
+
+PRINT LOG2(4); LOG2(2); LOG2(1); LOG2(0.5); LOG2(0.25)
+ 2  1  0 -1 -2
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 
 % ****
 % LOOP
@@ -7526,6 +7610,42 @@ RUN
 \end{tcolorbox}
 \end{description}
 
+% *****
+% RDISK
+% *****
+
+\newpage
+\subsection{RDISK}
+\index{BASIC 65 Functions!RDISK}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:]    \$CE \$15
+
+\item [Format:]   {\bf RDISK(}property number{\bf)}
+
+\item [Returns:]  The value of a property of the most recent disk action.
+
+                  Disk action properties are:
+                  \begin{itemize}
+                     \item 0: The number of bytes read or written.
+                     \item 1: The unit number.
+                     \item 2: The drive number of a multi-drive IEC device, if applicable.
+                  \end{itemize}
+
+\item [Example:]  Using {\bf RDISK}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+DLOAD "MYPROGRAM",U9
+
+10 DU=RDISK(1)
+15 REM : LOAD RESOURCE FILE FROM THE SAME DRIVE AS THE PROGRAM
+20 BLOAD "MYRESOURCE",U(DU)
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+
 % ****
 % READ
 % ****
@@ -8154,6 +8274,39 @@ DRAW PEN COLOUR =  1
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
+
+% ****
+% RPT$
+% ****
+
+\newpage
+\subsection{RPT\$}
+\index{BASIC 65 Functions!RPT\$}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:]    \$CE \$14
+
+\item [Format:]   {\bf RPT\$(}string{\bf,} count{\bf)}
+
+\item [Returns:]  A new string equivalent to {\bf string} repeated {\bf count} times.
+
+\item [Remarks:]  If the new string would be longer than 255 characters, this reports a String Too Long error.
+
+                  If {\bf string} is the empty string or {\bf count} is zero, {\bf RPT\$()} returns the empty string.
+
+\item [Example:]  Using {\bf RPT\$}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT RPT$("=", 30)
+==============================
+
+PRINT RPT$("HELLO ", 3);"THERE"
+HELLO HELLO HELLO THERE
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
 
 % ****
 % RREG
@@ -9352,9 +9505,10 @@ PRINT STRBIN$(245)
 \subsection{SYS}
 \index{BASIC 65 Commands!SYS}
 \begin{description}[leftmargin=2cm,style=nextline]
-\item [Token:]    \$9E
+\item [Token:]    {\bf SYS} : \$9E \\ {\bf SYS TO} : \$9E \$A4
 
-\item [Format:]   {\bf SYS} address [\{{\bf,} areg{\bf,} xreg{\bf,} yreg{\bf,}	zreg{\bf,} sreg\}]
+\item [Format:]   {\bf SYS} address [\{{\bf,} areg{\bf,} xreg{\bf,} yreg{\bf,} zreg{\bf,} sreg\}] \\
+                  {\bf SYS TO} address [\{{\bf,A} areg{\bf,X} xreg{\bf,Y} yreg{\bf,Z} zreg{\bf,S} sreg {\bf,I} BASIC interrupt mode {\bf,O} MAPL offset \}]
 
 \item [Usage:]    Calls a machine language subroutine.
 
@@ -9374,6 +9528,8 @@ PRINT STRBIN$(245)
 
                   If the address value is 16 bit (\$0000 - \$FFFF), the {\bf BANK} value is used to determine the actual address. If the address is higher than \$FFFF, it is interpreted as a linear 24 bit address and the value of {\bf BANK} is ignored.
 
+\item [SYS form:] The {\bf SYS} command accepts the address and optional register contents as positional arguments, separated by commas. Any unspecified register is set to zero.
+
                   Unlike other BASIC commands that access memory, there are restrictions on which addresses {\bf SYS} can access:
 
                   \begin{itemize}
@@ -9382,6 +9538,18 @@ PRINT STRBIN$(245)
                      \item {\bf SYS} can only access offsets \$0000 -- \$1FFF in bank 0.
                      \item Accessing offsets \$8000 -- \$FFFF always accesses memory as if {\bf BANK} is set to 128 (including ROM and I/O register mappings), even when {\bf BANK} is set to a different bank or when using long addresses.
                   \end{itemize}
+
+\item [SYS TO form:] The {\bf SYS TO} command accepts the address as the first argument, and the remaining arguments as named arguments. This form also supports additional features beyond {\bf SYS}, including the ability to execute code anywhere in the first 384KB of memory.
+
+                  To set a register prior to calling the subroutine, provide the named argument that corresponds to the register. For example, to set the X register then call a subroutine at address \$1600: \texttt{SYS TO \$1600,X(\$FF)} The register parameters are named A, X, Y, Z, and S.
+
+                  {\bf MAPL offset} Overrides the MAP offset register for 16-bit addresses \$2000 to \$7FFF. The named O parameter accepts a three-nybble value that is multiplied by 256 to determine the offset. For example, this command maps \$2000 -- \$7FFF TO \$54000 -- \$59FFF, then calls \$3100 (+ \$52000 = \$55100): \texttt{SYS TO \$3100,O(\$520)}
+
+                  {\bf BASIC interrupt mode} A calling mode that leaves BASIC enabled during the call. To enable this mode, provide the I argument with a value of 1. This mode leaves BASIC ROM in memory and interrupt-driven features enabled, useful for calling short machine code routines from BASIC while {\bf PLAY} music is playing or {\bf MOVSPR} sprites are moving. Because BASIC ROM is mapped into memory, this restricts the memory for machine code to the range \$1600 to \$1EFF.
+
+                  You cannot use both BASIC interrupts mode and a MAP offset in the same call to {\bf SYS TO}.
+
+                  A named register can be followed by a decimal value, or by a numeric expression in parentheses. To use a hexadecimal value, put it in parentheses.
 
 \item [Remarks:]  The register values after a {\bf SYS} call are stored in system memory. {\bf RREG} can be used to retrieve these values.
 
@@ -9403,6 +9571,18 @@ PRINT STRBIN$(245)
 30 POKE $4000, $EE, $20, $D0, $60   : REM MACHINE CODE FOR INC $D020 : RTS
 40 SYS $4000                        : REM CALL SUBROUTINE AT $4000 / BANK $00
 50 GETKEY A$ : IF A$ <> "Q" THEN 40 : REM CONTINUE UNTIL 'Q' IS PRESSED
+
+REM : CALL $1600 WITH THE Y REGISTER SET TO $CC
+SYS $1600,,,$CC
+
+REM : CALL $1600 WITH THE Y REGISTER SET TO $CC
+SYS TO $1600,Y($CC)
+
+REM : CALL $1600 WITH BASIC ENABLED
+SYS TO $1600,I1
+
+REM : MAP $2000-$7FFF TO $54000-$59FFF, THEN CALL $3100
+SYS TO $3100,O($520)
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

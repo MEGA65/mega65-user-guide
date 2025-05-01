@@ -6345,17 +6345,27 @@ MONITOR
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]    \$FE \$49
 
-\item [Format:]   {\bf MOUNT} filename [{\bf,U} unit]
+\item [Format:]   {\bf MOUNT} filename [{\bf,U} unit] \\
+                  {\bf MOUNT} \\
+                  {\bf MOUNT OFF}
 
-\item [Usage:]    Mounts a floppy image file of type D81 from SD-Card to unit 8 (default) or unit 9.
+\item [Usage:]    Mounts a disk image file of type D81 or D64 from SD card to unit 8 (default) or unit 9 ({\bf U9}).
 
-                  If no argument is given, {\bf MOUNT} assigns the real floppy drive to unit 8.
+                  {\bf MOUNT} without arguments assigns the internal physical floppy drive to unit 8. It also unassigns unit 9.
+
+                  {\bf MOUNT OFF} unassigns both unit 8 and unit 9. This is equivalent to the ``no disk'' setting in the Freezer.
 
                   \filenamedefinition
 
-                  \unitdefinition
+                  {\bf unit} either 8 for the first virtual drive, or 9 for the second virtual drive.
 
-\item [Remarks:]  {\bf MOUNT} can be used either in direct mode or in a program. It searches the file on the SD-card and mounts it, as requested, on unit 8 or 9. After mounting, the floppy image can be used as usual with all DOS commands.
+\item [Remarks:]  {\bf MOUNT} can be used either in direct mode or in a program.
+
+                  Unit 8 and unit 9 refer to the virtual drives 0 and 1, respectively. You can change the unit numbers for these drives using the {\bf SET DISK} command. The {\bf MOUNT} command always expects {\bf U8} or {\bf U9} as the argument to refer to these drives, even if the actual unit numbers have been changed by {\bf SET DISK} or in the Freezer menu.
+
+                  {\bf MOUNT} without arguments actually assigns unit 9 to a hypothetical Commodore 1565 external floppy drive. A stock MEGA65 does not have the 1565 port, and no such drives are available yet, so this effectively un-mounts unit 9.
+
+                  \underline{NOTE}: As of release v0.97, the {\bf MOUNT} command remembers the most recent disk image filename for each drive, and attempts to re-mount the disk images after you press the reset button. Running {\bf MOUNT} without arguments or running {\bf MOUNT OFF} will cause the most recent disk image filenames to be forgotten. Disk images mounted through the Freezer are not remembered in this way. This feature is being revised, and may behave differently in a later release.
 
 \item [Examples:] Using {\bf MOUNT}
 
@@ -6369,6 +6379,8 @@ MOUNT "BASIC.D81", U9  : REM MOUNT IMAGE TO UNIT 9
 MOUNT (FI$), U(UN%)    : REM MOUNT WITH VARIABLE ARGUMENTS
 
 MOUNT                  : REM INTERNAL DRIVE TO UNIT 8
+
+MOUNT OFF              :
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

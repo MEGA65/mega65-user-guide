@@ -6400,7 +6400,7 @@ MOUNT OFF              :
 
 \item [Usage:]    Enables the mouse driver and connects the mouse at the specified port with the mouse pointer sprite.
 
-                  {\bf port} mouse port 1 or 2 (default 2).
+                  {\bf port} mouse port 1 or 2 (default 2), or ``3'' to cause a mouse in either port to move the sprite.
 
                   {\bf sprite} number for mouse pointer (default 0).
 
@@ -6418,6 +6418,8 @@ MOUNT OFF              :
 
                   {\bf pos} can be an absolute coordinate, or a relative coordinate to the current mouse position, similar to {\bf MOVSPR}.
 
+                  You can use either of the MEGA65 high resolution sprite modes for the mouse pointer. The modes must be set before the mouse is activated with {\bf MOUSE}.
+
 \item [Examples:] Using {\bf MOUSE}
 
 \begin{tcolorbox}[colback=black,coltext=white]
@@ -6433,6 +6435,12 @@ X = X + 2 : Y = Y + 4 : REM CALCULATE THE COORDINATES OF THE HOT SPOT
 
 REM SET THE INITIAL POSITION TO (300,75)
 MOUSE ON, 1, 0, 0, 0, 300,75
+
+MOUSE ON, 3    : REM MOUSE CONNECTED TO EITHER PORT WILL MOVE POINTER
+
+SETBIT $D076,0 : REM ENABLE VERTICAL HIRES FOR SPRITE 0
+SETBIT $D054,4 : REM ENABLE HORIZONTAL HIRES FOR ALL SPRITES
+MOUSE ON, 1    : REM MOUSE POINTER IS HIRES IN BOTH AXES
 \end{verbatim}
 \end{tcolorbox}
 \end{description}

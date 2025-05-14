@@ -4316,11 +4316,13 @@ FORMAT "DUNGEON", D1, U10 : REM QUICK FORMAT DISK IN DRIVE 1 UNIT 10 WITH NAME "
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]    \$B8
 \item [Format:]   {\bf FRE(}bank{\bf)}
-\item [Returns:]  The number of free bytes for banks 0 or 1, or the ROM version if the argument is negative.
+\item [Returns:]  Statistics about how memory is used, or other system properties.
 
                   {\bf FRE(0)} returns the number of free bytes in bank 0, which is used for BASIC program source.
 
                   {\bf FRE(1)} returns the number of free bytes in bank 1, which is the bank for BASIC variables, arrays and strings. {\bf FRE(1)} also triggers ``garbage collection'', which is a process that collects strings in use at the top of the bank, thereby defragmenting string memory.
+
+                  {\bf FRE(4)} and {\bf FRE(5)} return memory usage of banks 4 and 5, respectively, as an 8-bit bitfield. Each bit represents 8KB of memory in the bank. For example, bit 0 of {\bf FRE(4)} represents the memory region 4.0000 -- 4.1FFF. If a bit is set, then it has been reserved, either by {\bf MEM} or by the system. See {\bf MEM}.
 
                   {\bf FRE(-1)} returns the ROM version, a six-digit number on the form \texttt{92XXXX}.
 
@@ -6102,7 +6104,7 @@ PRINT LPEN(0), LPEN(1) : REM PRINT LIGHT PEN COORDINATES
 
 \item [Usage:]    Reserves memory in banks 4 or 5 such that the bitmap graphics system will not use it.
 
-                  {\bf mask4} and {\bf mask5} are byte values, which are interpreted as mask of 8 bits. Each bit set to 1 reserves an 8KB segment of memory in bank 4 for the first argument and in bank 5 for the second argument.
+                  {\bf mask4} and {\bf mask5} are byte values, interpreted as a bitfield. Each bit set to 1 reserves an 8KB segment of memory in bank 4 for the first argument and in bank 5 for the second argument.
                   \texttt{
                   \setlength{\tabcolsep}{1mm}
                   \begin{center}
@@ -6123,13 +6125,15 @@ PRINT LPEN(0), LPEN(1) : REM PRINT LIGHT PEN COORDINATES
                   \end{center}
                   }
 
-\item [Remarks:]  After reserving memory with {\bf MEM} the graphics library will not use the reserved areas, so it can be used for other purposes. Access to bank 4 and 5 is possible with the commands {\bf PEEK, WPEEK, POKE, WPOKE} and {\bf EDMA}.
+\item [Remarks:]  After reserving memory with {\bf MEM}, the graphics library will not use the reserved areas, so it can be used for other purposes. Access to bank 4 and 5 is possible with the commands {\bf PEEK, WPEEK, POKE, WPOKE} and {\bf EDMA}.
 
-                  If a graphics screen cannot be opened, because the remaining memory is not sufficient, the program stops with an Out of Memory error.
+                  If a graphics screen cannot be opened because the remaining memory is not sufficient, the {\bf SCREEN} command throws an Out of Memory error.
 
                   Some direct mode commands such as {\bf RENUMBER} use memory in banks 4 and 5 and do not honour {\bf MEM} reservations. Such reservations are only guaranteed during program execution.
 
-                  When 80 $\times$ 50 text mode is enabled, segment 0 is reserved automatically and used for screen data. It always uses segment 0, even if it was previously reserved with {\bf MEM} or a graphic screen. If your program uses 80 $\times$ 50 text mode and also reserves a region with {\bf MEM}, be sure to set region 0 as reserved, and do not use it for other purposes.
+                  When 80 $\times$ 50 text mode is enabled, segment 0 of bank 4 is reserved automatically and used for screen data. It always uses segment 0, even if it was previously reserved with {\bf MEM} or a graphic screen. If your program uses 80 $\times$ 50 text mode and also reserves a region with {\bf MEM}, be sure to set region 0 of bank 4 as reserved, and do not use it for other purposes.
+
+                  {\bf FRE(4)} and {\bf FRE(5)} return bitfields that represent the memory reserved in banks 4 and 5, respectively, by {\bf MEM}, {\bf SCREEN}, and 80 $\times$ 50 text mode combined. See {\bf FRE()}.
 
 \item [Example:]  Using {\bf MEM}
 
@@ -8845,6 +8849,8 @@ SCRATCH "R*=PRG"          : REM ERASE PROGRAM FILES STARTING WITH 'R'
 
                   {\bf SCREEN CLOSE} [screen] \\
                   Closes {\bf screen} (0 -- 3) and frees resources. If no value is given, it will default to 0. Also note that upon closing a screen, {\bf PALETTE RESTORE} is automatically performed for you.
+
+\item [Remarks:]  Graphics screens are allocated in banks 4 and 5 of memory. If a BASIC program also uses memory in bank 4 or 5, it can reserve regions of this memory to prevent {\bf SCREEN} from allocating it. This is done with the {\bf MEM} command. See {\bf MEM}.
 
 \item [Examples:] Using {\bf SCREEN}
 

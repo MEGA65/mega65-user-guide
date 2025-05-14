@@ -8535,6 +8535,42 @@ HELLO HELLO HELLO THERE
 \end{tcolorbox}
 \end{description}
 
+% *******
+% RSPRSYS
+% *******
+
+\newpage
+\subsection{RSPRSYS}
+\index{BASIC 65 Functions!RSPRSYS}
+\begin{description}[leftmargin=2cm,style=nextline]
+\item [Token:]    \$CE \$17
+
+\item [Format:]   {\bf RSPRSYS(}n{\bf)}
+
+\item [Returns:]  A sprite system parameter.
+
+                  {\bf n} parameter to return (0):
+
+                  \begin{itemize}
+                     \item 0: High resolution sprite mode. 1=enabled, 0=disabled.
+                  \end{itemize}
+
+\item [Remarks:]  Refer to the {\bf SPRITE SYS} command for more information.
+
+\item [Example:]  Using {\bf RSPRSYS}
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+SPRITE SYS R1
+
+PRINT RSPRSYS(0)
+1
+\end{verbatim}
+\end{tcolorbox}
+\end{description}
+
+
 % ***
 % RUN
 % ***
@@ -9247,7 +9283,8 @@ SPEED 3.5 : REM SET SPEED TO 3.5 MHZ
 \item [Format:]   {\bf SPRITE CLR} \\
                   {\bf SPRITE LOAD} filename [{\bf,D} drive] [{\bf,U} unit] \\
                   {\bf SPRITE SAVE} filename [{\bf,D} drive] [{\bf,U} unit] \\
-                  {\bf SPRITE} num [\{{\bf,} switch{\bf,} colour{\bf,} prio{\bf,} expx{\bf,} expy{\bf,} mode\}]
+                  {\bf SPRITE} num [\{{\bf,} switch{\bf,} colour{\bf,} prio{\bf,} expx{\bf,} expy{\bf,} mode\}] \\
+                  {\bf SPRITE SYS} {\bf R} hires-mode \\
 
 \item [Usage:]    {\bf SPRITE CLR} clears all sprite data and sets all pointers and attributes to their default values.
 
@@ -9257,7 +9294,7 @@ SPEED 3.5 : REM SET SPEED TO 3.5 MHZ
 
                   \filenamedefinition
 
-                  The last form switches a sprite on or off and sets its attributes:
+                  The {\bf SPRITE} form switches a sprite on or off and sets its attributes:
 
                   {\bf num} sprite number.
 
@@ -9273,7 +9310,13 @@ SPEED 3.5 : REM SET SPEED TO 3.5 MHZ
 
                   {\bf mode} multi-colour sprite on or off (1: on, 0: off).
 
+                  {\bf SPRITE SYS} sets properties of the sprite system as a whole. It accepts one named argument: {\bf R hires-mode} enables (1) or disables (0) high resolution sprite mode. When enabled, all sprites use high resolution pixels in both vertical and horizontal dimensions, appearing half the size of low resolution mode. High resolution mode also uses a different coordintae plane for sprites.
+
 \item [Remarks:]  {\bf SPRCOLOR} must be used to set additional colours for multi-colour sprites (mode = 1).
+
+                  {\bf RSPRITE()} returns properties of individual sprites set with the {\bf SPRITE} command.
+
+                  {\bf RSPRSYS()} returns properties of the sprite system set with the {\bf SPRITE SYS} command.
 
 \item [Example:]  Using {\bf SPRITE}
 

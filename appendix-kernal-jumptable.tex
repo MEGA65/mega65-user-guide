@@ -62,6 +62,8 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \hline
 \endlastfoot
 
+\$FF35 & Editor & CURSOR & Enable or disable the cursor \\
+\hline
 \$FF38 & Reserved & n/a & RESERVED, DO NOT USE \\
 \hline
 \$FF3B & Files & SAVEFL & Save to file, with flags \\
@@ -723,6 +725,53 @@ cmp_far = $ff7a
     jsr cmp_far
     beq they_are_equal  ; ...
         \end{asmcode}
+
+\end{description}
+
+FF35
+
+% ****
+% CURSOR
+% ****
+
+\newpage
+\subsection{CURSOR}
+\index{KERNAL Jump Table!CURSOR}
+\label{KERNAL Jump Table!CURSOR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF35
+    \item [Description:] Enable or disable the blinking cursor
+    \item [Inputs:]
+        \textbf{C flag} 0 to enable, 1 to disable
+    \item [Remarks:]
+        In normal operation, the editor enables the blinking cursor at the \texttt{READY.} prompt or when executing the {\bf INPUT} command at the terminal, and otherwise keeps it disabled when running other commands, including machine code invoked by {\bf SYS}. A program can re-enable the cursor blink when providing similar user experiences, such as waiting for user keyboard input with {\bf GETIN}.
+
+        Enabling the cursor only causes the screen editor's cursor position to be indicated by animating the character at that position. It is the program's responsibility to listen for keyboard input and emit characters to the screen.
+
+        In BASIC, the {\bf CURSOR OFF} and {\bf CURSOR ON} commands have the same effect as this routine.
+    \item [Example:]
+        \begin{asmcode}
+bsout = $ffd2
+cursor = $ff35
+getin = $ffe4
+
+    ; Enable the cursor.
+    clc
+    jsr cursor
+
+    ; Wait for a keypress.
+-   jsr getin
+    beq -
+    pha  ; Stash the typed character.
+
+    ; Disable the cursor.
+    clc
+    jsr cursor
+
+    ; Emit the typed character.
+    pla
+    jsr bsout
+    \end{asmcode}
 
 \end{description}
 

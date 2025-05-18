@@ -1886,16 +1886,15 @@ eof:
             \item {\bf A=0} KERNAL warm boot.
             \item {\bf A=1} Hypervisor reset.
             \item {\bf A=2} KERNAL warm boot, then {\bf RUN} the BASIC program in memory.
-            \item {\bf A=3} Hypervisor reset, then {\bf RUN} the BASIC program in memory.
         \end{itemize}
 
         A KERNAL warm boot restarts from the MEGA65 KERNAL boot process, including resetting KERNAL state, and displaying the BASIC banner. Reset mode 0 also attempts to auto-boot the mounted disk.
 
         A Hypervisor reset triggers the Hypervisor boot process, similar to pressing the reset button on the side of the computer. This performs a few additional boot steps, including displaying the MEGA65 start-up screen and re-loading the ROM from the SD card. It does not reset all memory, but it may reset more registers than a KERNAL warm boot.
 
-        Reset modes 2 and 3 modify the KERNAL boot process to {\bf RUN} the BASIC program stored in memory (starting at address \$2001). This is useful for programs that launch other arbitrary programs, such as kiosk menus or file selectors. In these modes, the KERNAL does not perform the {\bf NEW} command, and does not auto-boot the mounted disk.
+        Reset mode 2 modifies the KERNAL boot process to {\bf RUN} the BASIC program stored in memory (starting at address \$2001). This is useful for programs that launch other arbitrary programs, such as kiosk menus or file selectors. In these modes, the KERNAL does not perform the {\bf NEW} command, and does not auto-boot the mounted disk.
 
-        Reset modes 0 through 3 ignore the values in CPU registers {\bf X}, {\bf Y}, and {\bf Z}. Additional modes that accept parameters in these registers may be added in the future. All values of {\bf A} greater than 3 are reserved for future expansion.
+        Reset modes 0 through 2 ignore the values in CPU registers {\bf X}, {\bf Y}, and {\bf Z}. Additional modes that accept parameters in these registers may be added in the future. All values of {\bf A} greater than 2 are reserved for future expansion.
 
         This routine does not return.
     \item [Example:]

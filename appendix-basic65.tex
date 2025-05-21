@@ -6102,9 +6102,9 @@ PRINT LPEN(0), LPEN(1) : REM PRINT LIGHT PEN COORDINATES
 
 \item [Format:]   {\bf MEM} mask4{\bf,} mask5
 
-\item [Usage:]    Reserves memory in banks 4 or 5 such that the bitmap graphics system will not use it.
+\item [Usage:]    Reserves memory in banks 4 or 5, such that the bitmap graphics system will not use it.
 
-                  {\bf mask4} and {\bf mask5} are byte values, interpreted as a bitfield. Each bit set to 1 reserves an 8KB segment of memory in bank 4 for the first argument and in bank 5 for the second argument.
+                  {\bf mask4} and {\bf mask5} are byte values, interpreted as a bitfield. Each bit set to 1 represents an 8KB segment of memory reserved for program use. The first argument describes bank 4, and the second argument describes bank 5.
                   \texttt{
                   \setlength{\tabcolsep}{1mm}
                   \begin{center}
@@ -6129,9 +6129,11 @@ PRINT LPEN(0), LPEN(1) : REM PRINT LIGHT PEN COORDINATES
 
                   If a graphics screen cannot be opened because the remaining memory is not sufficient, the {\bf SCREEN} command throws an Out of Memory error.
 
-                  Some direct mode commands such as {\bf RENUMBER} use memory in banks 4 and 5 and do not honour {\bf MEM} reservations. Such reservations are only guaranteed during program execution.
+                  Some direct mode commands such as {\bf RENUMBER} use memory in banks 4 and 5 and do not honour {\bf MEM} reservations. {\bf MEM} reservations are only guaranteed during program execution.
 
-                  When 80 $\times$ 50 text mode is enabled, segment 0 of bank 4 is reserved automatically and used for screen data. It always uses segment 0, even if it was previously reserved with {\bf MEM} or a graphic screen. If your program uses 80 $\times$ 50 text mode and also reserves a region with {\bf MEM}, be sure to set region 0 of bank 4 as reserved, and do not use it for other purposes.
+                  When 80 $\times$ 50 text mode is enabled, segment 0 of bank 4 is reserved automatically and used for screen data. It always uses segment 0, even if it was previously reserved with {\bf MEM} or a graphic screen. If your program uses 80 $\times$ 50 text mode, be sure not to use segment 0 of bank 4 for other purposes.
+
+                  To deallocate memory reserved by {\bf MEM}, call {\bf MEM} again with the bits set to 0. To deallocate memory reserved by {\bf SCREEN}, close the screen. See {\bf SCREEN CLOSE}. To deallocate memory reserved by 80 $\times$ 50 text mode, switch to one of the other text modes.
 
                   {\bf FRE(4)} and {\bf FRE(5)} return bitfields that represent the memory reserved in banks 4 and 5, respectively, by {\bf MEM}, {\bf SCREEN}, and 80 $\times$ 50 text mode combined. See {\bf FRE()}.
 

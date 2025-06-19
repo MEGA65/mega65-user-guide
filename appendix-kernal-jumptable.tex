@@ -62,6 +62,8 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \hline
 \endlastfoot
 
+\$FF2F & OS & VERSIONQ & Load the ROM version number into Q \\
+\hline
 \$FF32 & OS & RESET\_RUN & Reset the computer in various ways \\
 \hline
 \$FF35 & Editor & CURSOR & Enable or disable the cursor \\
@@ -2816,6 +2818,29 @@ custom_keyscan_return:
 custom_keyscan_end:
         \end{asmcode}
 
+\end{description}
+
+
+% ****
+% VERSIONQ
+% ****
+
+\newpage
+\subsection{VERSIONQ}
+\index{KERNAL Jump Table!VERSIONQ}
+\label{KERNAL Jump Table!VERSIONQ}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF2F
+    \item [Description:] Load the ROM version number into Q.
+    \item [Remarks:]
+        This loads the ROM version number into the Q register (A, X, Y, Z), as a 32-bit integer, little endian.
+    \item [Example:]
+        \begin{asmcode}
+versionq = $ff2f
+
+    jsr versionq
+    stq $1700
+        \end{asmcode}
 \end{description}
 
 

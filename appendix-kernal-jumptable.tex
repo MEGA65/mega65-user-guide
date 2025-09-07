@@ -78,7 +78,7 @@ The following is a quick reference for the MEGA65 KERNAL jump table, in address 
 \hline
 \$FF44 & Files & GETLFS & Read file, device, secondary address \\
 \hline
-\$FF47 & Editor & KEYLOCKS & Read/set keyboard locks \\
+\$FF47 & Editor & SYSFLAGS & Read/set keyboard locks \\
 \hline
 \$FF4A & Editor & ADDKEY & Add a character to the soft keyboard input buffer \\
 \hline
@@ -1049,49 +1049,6 @@ key = $ff9f
 
     jsr key
         \end{asmcode}
-\end{description}
-
-
-% ****
-% KEYLOCKS
-% ****
-
-\newpage
-\subsection{KEYLOCKS}
-\index{KERNAL Jump Table!KEYLOCKS}
-\label{KERNAL Jump Table!KEYLOCKS}
-\begin{description}[leftmargin=2cm,style=nextline]
-    \item [Address:] JSR \$FF47
-    \item [Description:] Read/set keyboard locks
-    \item [Inputs:]
-        To set: \\
-        \textbf{C flag} = 0 \\
-        \textbf{A} The new locks value
-
-        To read: \\
-        \textbf{C flag} = 1
-    \item [Outputs:]
-        When reading:
-        \textbf{A} The locks value
-    \item [Remarks:]
-        Locks bits:
-        \textbf{Bit 5:} Function keys (0=macros, 1=raw keys) \\
-        \textbf{Bit 6:} No Scroll locked (0=unlocked, 1=locked) \\
-        \textbf{Bit 7:} Mega+Shift locked (0=unlocked, 1=locked)
-
-        Bits 0--4 are reserved for future use. To maintain future compatibility, always read the locks value and preserve the values of these bits.
-
-    \item [Example:]
-        \begin{asmcode}
-keylocks = $ff47
-
-    sec
-    jsr keylocks
-    ora #%00100000  ; Disable function key macros
-    clc
-    jsr keylocks
-        \end{asmcode}
-
 \end{description}
 
 
@@ -2494,6 +2451,52 @@ swapper = \$ff65
 
     jsr swapper
         \end{asmcode}
+\end{description}
+
+
+% ****
+% SYSFLAGS
+% ****
+
+\newpage
+\subsection{SYSFLAGS}
+\index{KERNAL Jump Table!SYSFLAGS}
+\label{KERNAL Jump Table!SYSFLAGS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Address:] JSR \$FF47
+    \item [Description:] Read/set system flags
+    \item [Inputs:]
+        To set: \\
+        \textbf{C flag} = 0 \\
+        \textbf{A} The new flags value
+
+        To read: \\
+        \textbf{C flag} = 1
+    \item [Outputs:]
+        When reading:
+        \textbf{A} The flags value
+    \item [Remarks:]
+        Locks bits: \\
+        \textbf{Bit 4:} GO64 mode (0=unlocked, 1=locked) \\
+        \textbf{Bit 5:} Function keys (0=macros, 1=raw keys) \\
+        \textbf{Bit 6:} No Scroll locked (0=unlocked, 1=locked) \\
+        \textbf{Bit 7:} Mega+Shift locked (0=unlocked, 1=locked)
+
+        Bits 0--3 are reserved for future use. To maintain future compatibility, always read the flags value and preserve the values of these bits.
+
+        Formerly known as ``KEYLOCKS.''
+
+    \item [Example:]
+        \begin{asmcode}
+sysflags = $ff47
+
+    sec
+    jsr sysflags
+    ora #%00100000  ; Disable function key macros
+    clc
+    jsr sysflags
+        \end{asmcode}
+
 \end{description}
 
 

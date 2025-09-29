@@ -282,3 +282,24 @@ realclean: clean
 
 format:
 	find . -iname '*.h' -o -iname '*.c' -o -iname '*.cpp' | xargs clang-format --style=file -i
+
+# -------------------------
+# Docker convenience targets
+# -------------------------
+DOCKER_IMAGE?= mega65-docs
+DOCKER_UID?= $(shell id -u)
+DOCKER_GID?= $(shell id -g)
+
+.PHONY: docker docker-image docker-%
+
+# Build the Docker image with all toolchain dependencies
+docker-image:
+	docker build -t $(DOCKER_IMAGE) .
+
+# Build all PDFs inside Docker
+docker: docker-image
+	docker run --rm -u $(DOCKER_UID):$(DOCKER_GID) -v $(CURDIR):/work -w /work $(DOCKER_IMAGE) bash -lc 'git config --global --add safe.directory /work; make'
+
+# Build a specific PDF inside Docker, e.g. `make docker-mega65-book.pdf`
+docker-%: docker-image
+	docker run --rm -u $(DOCKER_UID):$(DOCKER_GID) -v $(CURDIR):/work -w /work $(DOCKER_IMAGE) bash -lc 'git config --global --add safe.directory /work; make $*'

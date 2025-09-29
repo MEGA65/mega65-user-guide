@@ -102,6 +102,35 @@ To delete all LaTeX-built files: `make clean`
 
 To delete every generated file: `make realclean`
 
+# Troubleshooting
+
+If you have trouble building locally (missing LaTeX packages or toolchain):
+
+1. Install Docker.
+2. From the project root, build the Docker image:
+
+```
+make docker-image
+```
+
+3. Build a specific PDF inside Docker (example: the compendium):
+
+```
+make docker-mega65-book.pdf
+```
+
+4. Or build everything inside Docker:
+
+```
+make docker
+```
+
+Notes:
+
+- The Docker image uses a recent Ubuntu base with XeLaTeX and all dependencies.
+- If Git warns about “dubious ownership”, the Docker targets already configure `safe.directory` for `/work` inside the container.
+- Generated PDFs will appear in the project root on your host.
+
 # Editors
 
 ## Visual Studio Code

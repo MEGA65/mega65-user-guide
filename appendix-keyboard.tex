@@ -116,7 +116,7 @@ Programs written for the MEGA65 can use a dedicated set of registers capable of 
 \item \$D614: C65 keyboard matrix column select; write integer 0 -- 8
 \item \$D613: C65 keyboard matrix column data; bit for row is clear if key is pressed
 \item \$D611[0:6]: Modifier key data; bit is set if modifier key is pressed
-\item \$D604[0:1]: Disambiguation bits for cursor left and cursor up; bit is set if key is pressed
+\item \$D60F[0:1]: Disambiguation bits for cursor left and cursor up; bit is set if key is pressed
 \end{itemize}
 
 In the following C65 keyboard matrix, each non-modifier physical key appears in exactly once, in one of nine columns numbered 0 to 8, and in one of eight rows numbered 0 to 7.
@@ -177,9 +177,9 @@ Register \$D611 describes the current state of the modifier keys. If a bit is se
 
 The original Commodore 64 keyboard had only two cursor keys, one for down/up and one for right/left, where the user would hold shift to select the opposite direction on the key. The Commodore 65 keyboard has separate cursor keys for all four directions. For compatibility, the C65 maintains the shifted representation in the keyboard matrix for cursor up and cursor left: cursor up is right-shift and cursor down, cursor left is right-shift and cursor right.
 
-To make it possible to distinguish between all combinations of cursor keys being pressed simultaneously (such as cursor up and cursor down pressed together), the MEGA65 provides one more register, \$D604 bits 0 and 1. Bit 0 is set if cursor left is pressed, and bit 1 is set if cursor up is pressed.
+To make it possible to distinguish between holding two cursor keys to form diagonals (such as up and left vs. up and right), the MEGA65 provides one more register, \$D60F bits 0 and 1. Bit 0 is set if cursor left is pressed, and bit 1 is set if cursor up is pressed.
 
-All together, these registers make it possible for a program to scan for every combination of keys being pressed.
+All together, these registers make it possible for a program to scan for nearly every combination of keys being pressed.
 
 \section{Synthetic Key Events}
 

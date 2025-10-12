@@ -941,13 +941,13 @@ STA $3201
 
 The VIC-IV determines a complete screen image from one set of character or pixel data in screen memory, and a separate set of colour data in colour memory. For example, in the 80x25 text display mode, the first 2,000 bytes of screen memory contain the screen codes for the characters, and the first 2,000 bytes of colour memory are the colours for those characters.
 
-The VIC-IV has 64KB of dedicated memory for colour data, capable of supporting all of the possible screen modes. This memory can be accessed directly using the upper memory addresses FF8.0000 -- FF8.FFFF.
+The VIC-IV has 32KB of dedicated memory for colour data, capable of supporting all of the possible screen modes. This memory can be accessed directly using the upper memory addresses FF8.0000 -- FF8.7FFF.
 
 For convenience, the first 2KB of colour memory is also exposed at addresses 1.F800 -- 1.FFFF. This window of addresses in bank 1 cannot be disabled by memory configuration: it always accesses the first 2KB of colour memory.
 
 For backwards compatibility, the first 1KB of this window is also banked into \$D800 -- \$DBFF along with the I/O registers. Bit 0 of the \$D030 VIC-III banking register (signal name ``CRAM2K'') extends this to the full 2KB, as \$D800 -- \$DFFF.
 
-The VIC-IV start address of colour memory is configurable by a register, as an offset into the FF8.0000 -- FF8.FFFF colour memory region. If you do not need all 64KB of colour memory for your display, you can offset the start address and use the beginning of colour memory for other purposes.
+The VIC-IV start address of colour memory is configurable by a register, as an offset into the FF8.0000 -- FF8.7FFF colour memory region. If you do not need all 32KB of colour memory for your display, you can offset the start address and use the beginning of colour memory for other purposes.
 
 For example, to offset the start of colour memory by 2KB, set the register to \$0800 (in little-endian order):
 

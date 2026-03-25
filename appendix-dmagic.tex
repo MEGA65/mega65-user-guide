@@ -312,53 +312,53 @@ The program is written using ACME-compatible syntax.
 \begin{asmcode}
 basicheader:
   ;; 2020 SYS 2061
-  !word $80a,2020
-  !byte $9e,$32,$30,$36,$31,0,0,0
+  !word $80A,2020
+  !byte $9E,$32,$30,$36,$31,0,0,0
 
   ;; Actual code beginning at $080d = 2061
 main:
-  sei
-  lda #$47          ; enable MEGA65 I/O
-  sta $D02f
-  lda #$53
-  sta $d02f
-  lda #65     ; Set CPU speed to fast
-  sta 0
-  lda #0              ; disable screen to show only the border
-  sta $d011
+  SEI
+  LDA #$47          ; enable MEGA65 I/O
+  STA $D02F
+  LDA #$53
+  STA $D02F
+  LDA #65     ; Set CPU speed to fast
+  STA 0
+  LDA #0              ; disable screen to show only the border
+  STA $D011
 
-  lda $d012                ; Wait until start of the next raster
+  LDA $D012                ; Wait until start of the next raster
 raster_sync:        ; before beginning loop for horizontal alignment
-  cmp $d012
-  beq raster_sync
+  CMP $D012
+  BEQ raster_sync
 
   ;; The following loop takes exactly one raster line at 40.5MHz in PAL
 loop:
-  jsr triggerdma
-  jmp loop
+  JSR triggerdma
+  JMP loop
 
 triggerdma:
-  lda #0      ; make sure F018 list format
-  sta $d703
+  LDA #0      ; make sure F018 list format
+  STA $D703
 
-  lda #0         ; dma list bank
-  sta $d702
-  lda #>rasterdmalist
-  sta $d701
-  lda #<rasterdmalist
-  sta $d705
-  rts
+  LDA #0         ; dma list bank
+  STA $D702
+  LDA #>rasterdmalist
+  STA $D701
+  LDA #<rasterdmalist
+  STA $D705
+  RTS
 \end{asmcode}
 
 \begin{asmcode}
 rasterdmalist:
-  !byte $81,$ff,$00
+  !byte $81,$FF,$00
   !byte $00     ; COPY
   !word 619     ; DMA transfer is 619 bytes long
   !word rastercolours  ; source address
   !byte $00               ; source bank
   !word $0020    ; destination address
-  !byte $1d               ; destination bank + HOLD
+  !byte $1D               ; destination bank + HOLD
   ;; unused modulo field
   !word $0000
 \end{asmcode}
@@ -527,7 +527,7 @@ For example, the following code would clear the C65-mode screen, before flashing
   .byte $00   ; cmd hi
   .word $0000 ; modulo / ignored
 foo:
-  INC $d020
+  INC $D020
   JMP foo
 \end{asmcode}
 

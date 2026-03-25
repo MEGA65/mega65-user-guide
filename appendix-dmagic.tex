@@ -197,11 +197,14 @@ set \$D702 -- \$D700 to the address of the list. For example, to clear the scree
 it with spaces, the following routine could be used:
 
 \begin{asmcode}
-  LDA #$00       ; DMA list exists in BANK 0
+  ; DMA list exists in BANK 0
+  LDA #$00
   STA $D702
-  LDA #>dmalist  ; Set MSB of DMA list address
+  ; Set MSB of DMA list address
+  LDA #>dmalist
   STA $D701
-  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
+  ; Set LSB of DMA list address, and execute DMA
+  LDA #<dmalist
   STA $D700
   RTS
 
@@ -221,11 +224,14 @@ bit in the low byte of the command word. For example to clear the screen as abov
 also clear the colour RAM for the screen, you could use something like:
 
 \begin{asmcode}
-  LDA #$00       ; DMA list exists in BANK 0
+  ; DMA list exists in BANK 0
+  LDA #$00
   STA $D702
-  LDA #>dmalist  ; Set MSB of DMA list address
+  ; Set MSB of DMA list address
+  LDA #>dmalist
   STA $D701
-  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
+  ; Set LSB of DMA list address, and execute DMA
+  LDA #<dmalist
   STA $D700
   RTS
 
@@ -256,11 +262,14 @@ For example, to copy the character set from where it lives in the ROM at \$2D000
 to \$5000, you could use something like:
 
 \begin{asmcode}
-  LDA #$00       ; DMA list exists in BANK 0
+  ; DMA list exists in BANK 0
+  LDA #$00
   STA $D702
-  LDA #>dmalist  ; Set MSB of DMA list address
+  ; Set MSB of DMA list address
+  LDA #>dmalist
   STA $D701
-  LDA #<dmalist  ; Set LSB of DMA list address, and execute DMA
+  ; Set LSB of DMA list address, and execute DMA
+  LDA #<dmalist
   STA $D700
   RTS
 
@@ -318,21 +327,22 @@ basicheader:
   ;; Actual code beginning at $080d = 2061
 main:
   SEI
-  LDA #$47          ; enable MEGA65 I/O
+  LDA #$47         ; Enable MEGA65 I/O
   STA $D02F
   LDA #$53
   STA $D02F
-  LDA #65     ; Set CPU speed to fast
+  LDA #65          ; Set CPU speed to fast
   STA 0
-  LDA #0              ; disable screen to show only the border
+  LDA #0           ; Disable screen to show only the border
   STA $D011
 
-  LDA $D012                ; Wait until start of the next raster
-raster_sync:        ; before beginning loop for horizontal alignment
-  CMP $D012
+  LDA $D012        ; Wait until start of the next raster
+raster_sync:       ; before beginning loop for horizontal
+  CMP $D012        ; alignment
   BEQ raster_sync
 
-  ;; The following loop takes exactly one raster line at 40.5MHz in PAL
+  ;; The following loop takes exactly one raster line
+  ;; at 40.5MHz in PAL
 loop:
   JSR triggerdma
   JMP loop
@@ -366,24 +376,42 @@ rasterdmalist:
 \begin{asmcode}
 rastercolours:
   !byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
-  !byte 0,0,0,11,11,11,12,12,12,15,15,15,1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
-  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3,1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
+  !byte 0,0,0,11,11,11,12,12,12,15,15,15
+  !byte 1,1,1,15,15,15,12,12,12,11,11,11,0,0,0
+  !byte 0,0,0,6,6,6,4,4,4,14,14,14,3,3,3
+  !byte 1,1,1,3,3,3,14,14,14,4,4,4,6,6,6,0,0,0
 \end{asmcode}
 
 \section{MEGA65 Enhanced DMA Jobs}
@@ -555,17 +583,19 @@ right channels that are then fed into the MEGA65's audio cross-bar
 mixer.
 
 As the DMA controller is part of the processor of the MEGA65, and the MEGA65 does not have reserved bus slots
-  for multi-media operations, the MEGA65 uses idle CPU cycles to perform background DMA. This requires that the
-  MEGA65 CPU be set to the ``full speed'' mode, i.e., approximately 40MHz.  In this mode, there is a wait-state
-  whenever reading an operand from memory.  Thus each instruction that loads a byte from memory will create one
-  implicit audio DMA slot.  This is rarely a problem in practice, except if the processor idles in a very tight
-  loop.  To ensure that audio continues to play in the background, such loops should include a read instruction,
-  such as:
+for multi-media operations, the MEGA65 uses idle CPU cycles to perform background DMA. This requires that the
+MEGA65 CPU be set to the ``full speed'' mode, i.e., approximately 40MHz.  In this mode, there is a wait-state
+whenever reading an operand from memory.  Thus each instruction that loads a byte from memory will create one
+implicit audio DMA slot.  This is rarely a problem in practice, except if the processor idles in a very tight
+loop.  To ensure that audio continues to play in the background, such loops should include a read instruction,
+such as:
 
 \begin{asmcode}
-loop:   LDA $1234   // Ensure loop has at least one idle cycle for
-                    // audio DMA
-        JMP loop
+  ; Ensure loop has at least one idle cycle for
+  ; audio DMA
+loop:
+  LDA $1234
+  JMP loop
 \end{asmcode}
 
 Each of the four DMA channels is configured using a block of 16

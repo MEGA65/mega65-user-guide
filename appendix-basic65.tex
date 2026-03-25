@@ -899,7 +899,7 @@ BANK 1 : REM SELECT MEMORY CONFIGURATION 1
 
 \item [Format:]   {\bf BLOAD} filename [{\bf,B} bank] [{\bf,P} address] [{\bf,R}] [{\bf,D} drive] [{\bf,U} unit]
 
-\item [Usage:]    Loads a file of type {\bf PRG} into RAM at address {\bf,P}. (``Binary load.'')
+\item [Usage:]    Loads a file of type {\bf PRG} into RAM at address {\bf P}. (``Binary load.'')
 
                   {\bf BLOAD} has two modes: The flat memory address mode can be used to load a program to any address in the 28-bit (256MB) address range where RAM is installed. This includes the standard RAM banks 0 to 5, as well as the 8MB of "attic RAM" at address \$8000000 (800.0000).
 
@@ -940,7 +940,7 @@ BLOAD (FI$), B(BA%), P(PA), U(UN%)
 
 BLOAD "CHUNK", P($8000000)
 
-BLOAD "USER DATA,S", P $1600, R
+BLOAD "USER DATA,S", P($1600), R
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -1117,7 +1117,7 @@ BOX 20, 0,  140, 0, 160, 80,  0, 80
 
                   This mode is triggered by specifying addresses for the start and end parameter {\bf P}, that are larger than \$FFFF. The bank parameter is ignored in this mode. This flat memory mode allows saving ranges greater than 64KB.
 
-                  For compatibility reasons with older BASIC versions, {\bf BSAVE} accepts the syntax with 16-bit addresses at e{\bf P} and a bank number at {\bf B} as well. The attic RAM is out of range for this compatibility mode. This mode cannot cross bank boundaries, so the start and end address must be in the same bank.
+                  For compatibility reasons with older BASIC versions, {\bf BSAVE} accepts the syntax with 16-bit addresses at {\bf P} and a bank number at {\bf B} as well. The attic RAM is out of range for this compatibility mode. This mode cannot cross bank boundaries, so the start and end address must be in the same bank.
 
                   The optional parameter {\bf R} (``raw mode'') avoids writing the 16-bit starting address as the first two bytes. The two-byte address header is needed for PRG files that are loaded to the stored address, but is typically unwanted for SEQ files. {\bf BSAVE} writes the starting address as the first two bytes of the file by default.
 
@@ -1137,7 +1137,7 @@ BOX 20, 0,  140, 0, 160, 80,  0, 80
 
 \item [Remarks:]  The length of the file is {\bf end - start + 2}.
 
-                  If the number after an argument letter is not a decimal number, it must be set in parenthesis, as shown in the third and fourth line of the examples.
+                  If the number after an argument letter is not a decimal number (such as a hexadecimal constant or variable name), it must be set in parenthesis.
 
                   When saving a file of type {\bf PRG}, it is typical for the first two bytes of the file to be the 16-bit load address. This is the default. If the start address is in a bank other than zero (the start address is larger than \$FFFF), only the two lowest bytes of the address are written.
 

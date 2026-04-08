@@ -637,7 +637,7 @@ REM : THEN CALL $6100 + $52000 = $58100
 SYS TO $6100,O($520)
 \end{basiccode}
 
-To call a routine while keeping BASIC active, specify the \texttt{I} argument with a value of 1. You can either use this mode or set a page offset, not both. Because BASIC ROM uses most of the first 64KB of memory when active, this mode restricts machine code to the range \$1600 to \$1EFF.
+To call a routine while keeping BASIC active, specify the \texttt{I} argument with a value of 1. You can either use this mode or set a page offset, not both. Enabling this causes the KERNAL IRQ handler to swap between your program's MAP and the KERNAL's MAP to perform the BASIC IRQ-based functions.
 
 \begin{basiccode}
 SYS TO $1600,I1
@@ -1491,7 +1491,7 @@ SYS TO $6100,O($520)
 
 By default, {\bf SYS} and {\bf SYS TO} disable BASIC while the machine code subroutine is running. This includes changing MAP so that the KERNAL ROM is no longer mapped to \$2000 -- \$7FFF and \$8000 -- \$BFFF, as well as setting an internal flag for the KERNAL IRQ handler to not operate any BASIC IRQ features, such as {\bf PLAY} and {\bf MOVSPR}. When the machine code returns, {\bf SYS} restores the KERNAL MAP setting and re-enables BASIC IRQ features.
 
-Temporarily disabling BASIC IRQ features can cause a momentary interruption of service for a BASIC program that relies on those features, such as stuttering music playback. To prevent this, the {\bf SYS TO} command has an operating mode that leaves BASIC active during the subroutine. The \texttt{I1} argument enables this mode. When enabled, {\bf SYS TO} keeps BASIC ROM mapped to \$2000 -- \$BFFF, and keeps enabled BASIC IRQ features that use ROM code in that range. This means that the machine code subroutine being called cannot live in this memory range. In practice, this is only useful for machine code routines in the range \$1600 -- \$1EFF.
+Temporarily disabling BASIC IRQ features can cause a momentary interruption of service for a BASIC program that relies on those features, such as stuttering music playback. To prevent this, the {\bf SYS TO} command has an operating mode that leaves BASIC active during the subroutine. The \texttt{I1} argument enables this mode. When enabled, {\bf SYS TO} tells the KERNAL IRQ handler to switch to the KERNAL MAP to perform BASIC functions, then switch back to the program's MAP on completion.
 
 \begin{basiccode}
 SYS TO $1600,I1

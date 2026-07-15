@@ -4,10 +4,9 @@ Special
 This instruction sets the C65 or MEGA65 style memory map, depending
 on the values in the Accumulator, X, Y and Z registers.
 
-Care should be taken to ensure that after the execution of an
-MAP instruction that appropriate memory is mapped at the location
-of the following instruction.  Failure to do so will result in
-unpredictable results.
+It is a best practice to not perform a MAP instruction in a memory region whose map is changing. The CPU changes memory settings immediately when performing the MAP instruction. The program counter will use the new memory map to locate the next instruction.
+
+\underline{NOTE}: The MAP instruction disables interrupts, overriding the I flag, until the next EOM instruction. EOM (byte EA) is also used as a compound instruction prefix for 32-bit indirect addressing. Such an instruction will behave as an EOM instruction after a MAP instruction.
 
 Further information on this instruction is available in Appendix \ref{cha:cpu}.
 

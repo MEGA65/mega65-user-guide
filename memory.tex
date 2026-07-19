@@ -1161,6 +1161,8 @@ Addressing modes: \newline
 
 Source and destination addresses are stored in the job record as 20-bit addresses, in little-endian order. To access the full 28-bit address space, use the job option tokens for setting the highest byte of the start (\$80 \$xx) and destination (\$81 \$xx) addresses. The token applies to all jobs in the job list.
 
+When performing a chain of multiple enhanced jobs, each job record has its own job token list. Job tokens from earlier in the chain apply to all later jobs in the same chain. To make no changes to the tokens for a subsequent job, use a single \$00 for its job token list.
+
 Example: copy all of BASIC program text memory into Attic RAM.
 
 \begin{asmcode}
@@ -1186,14 +1188,14 @@ dmajob:
 !byte $00, $30, $04  ; starting at 4.3000
 !byte $00, $00, $00  ;
 
-!byte $0B, $00       ; token list
+!byte $00            ; token list (no changes)
 !byte $07, $00, $01  ; fill ($03) $0100 bytes
                      ; continue job chain (+$04)
 !byte $CC, $00, $00  ; with value $CC
 !byte $00, $31, $04  ; starting at 4.3100
 !byte $00, $00, $00  ;
 
-!byte $0B, $00       ; token list
+!byte $00            ; token list (no changes)
 !byte $03, $00, $01  ; fill ($03) $0100 bytes
                      ; end job chain
 !byte $DD, $00, $00  ; with value $DD

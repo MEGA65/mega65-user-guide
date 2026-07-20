@@ -1256,7 +1256,9 @@ The 16-bit addresses \$0000 and \$0001 refer to registers. These registers funct
 
 In a MEGA65, these registers serve two purposes: they bank in the I/O registers at \$D000 -- \$DFFF to overlay Chip RAM, and they provide access to the C64 BASIC and KERNAL for C64 mode (\textbf{GO64}).
 
-To bank out the I/O registers such that the 16-bit addresses \$D000 -- \$DFFF access the underlying Chip RAM at 0.D000 -- 0.DFFF, clear bits 0 and 1 of location \$0001. To restore the I/O registers, set bits 0 and 1 of location \$0001.
+To bank out the I/O registers in MEGA65 mode, such that the 16-bit addresses \$D000 -- \$DFFF access the underlying Chip RAM at 0.D000 -- 0.DFFF, write \$84 to location \$0001. To restore the I/O registers, write \$85 to location \$0001.
+
+\underline{NOTE}: The \$0000 and \$0001 registers are write-only. They do not work with the TRB and TSB machine code instructions.
 
 This BASIC example demonstrates accessing location \$D020 as an I/O register
 (the border colour) then as a RAM address. Try to guess what it will print
@@ -1264,10 +1266,10 @@ before running it.
 
 \begin{basiccode}
 10 POKE $D020,3
-20 POKE 1,240
+20 POKE 1,$84
 30 POKE $D020,4
 40 X=PEEK($D020)
-50 POKE 1,255
+50 POKE 1,$85
 60 PRINT X
 70 PRINT PEEK($D020)
 \end{basiccode}

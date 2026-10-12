@@ -7251,7 +7251,7 @@ PLAY , "O5T2IGAGFEDCEGO6.QCL",,, "O3T2.QG.B O4ICO3GE.QCL"
 
                   For string variables, it is the address of the string descriptor, not the string itself. The string descriptor consists of three bytes: length, string address low, string address high. The string address is an offset in bank 1.
 
-                  For number-type scalar variables, it is the address of the value. The format depends on the type. A byte variable ({\tt A\&}) is one byte, in a ``two's complement'' signed integer format. An integer variable ({\tt A\%}) is two bytes, with the least significant byte first. A real variable ({\tt A}) is five bytes, in a compact floating point number format.
+                  For number-type scalar variables, it is the address of the value. The format depends on the type. A byte variable ({\tt A\&}) is one byte, in a ``two's complement'' signed integer format. An integer variable ({\tt A\%}) is two bytes, with the most significant byte first. A real variable ({\tt A}) is five bytes, in a compact floating point number format.
 
                   To get the address of an array, use {\bf POINTER} with the first element of the array (index {\tt 0} in each dimension). Array elements are stored consecutively, in the format of the scalar record, with the left-most index using the shortest stride. For example, an array dimensioned as \screentext{DIM A\%(3, 2)} starts at address \screentext{POINTER(A\%(0, 0))}, has two-byte records, and is ordered as:
 
@@ -9609,7 +9609,7 @@ PRINT STRBIN$(245)
 
                   If the address value is 16 bit (\$0000 - \$FFFF), the {\bf BANK} value is used to determine the actual address. If the address is higher than \$FFFF, it is interpreted as a linear 24 bit address and the value of {\bf BANK} is ignored.
 
-\item [SYS form:] The {\bf SYS} command accepts the address and optional register contents as positional arguments, separated by commas. Any unspecified register is set to zero.
+\item [SYS form:] The {\bf SYS} command accepts the address and optional register contents as positional arguments, separated by commas. An unspecified register is not set to zero: it is loaded from the register save area (\$05 -- \$09), which holds whatever was left there, usually the register contents saved after the previous {\bf SYS}. Specify every register the subroutine depends on.
 
                   Unlike other BASIC commands that access memory, there are restrictions on which addresses {\bf SYS} can access:
 

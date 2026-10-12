@@ -506,7 +506,7 @@ BASIC 65 commands and functions treat addresses in the range \$0000 -- \$FFFF ac
 \hline
 \$C000 -- \$CFFF & 2.C000 -- 2.CFFF & ROM \\
 \hline
-\$D000 -- \$DFFF & FFD.2000 -- FFD.2FFF & MEGA65 I/O\\
+\$D000 -- \$DFFF & FFD.3000 -- FFD.3FFF & MEGA65 I/O\\
 \hline
 \$E000 -- \$FFFF & 3.E000 -- 3.FFFF & ROM \\
 \hline
@@ -1340,7 +1340,7 @@ The MEGA65 starts in a configuration that makes most of its features available v
 \item {\bf MEGA65 Ethernet}. A special-purpose personality for accessing the MEGA65 Ethernet port.
 \end{itemize}
 
-The registers for all four personalities are available in the 28-bit address space in each 4KB block of the range FFD.0000 -- FFD.3FFF. When a given personality is configured, \$D000 -- \$DFFF is mapped to the corresponding block of upper addresses. For example, the default MEGA65 personality maps these addresses to FFD.2000 -- FFD.2FFF. You can access all four personalities simultaneously using 28-bit addresses, though beware of interactions between them (such as VIC ``hot registers'').
+The registers for all four personalities are available in the 28-bit address space in each 4KB block of the range FFD.0000 -- FFD.3FFF. When a given personality is configured, \$D000 -- \$DFFF is mapped to the corresponding block of upper addresses. For example, the default MEGA65 personality maps these addresses to FFD.3000 -- FFD.3FFF. You can access all four personalities simultaneously using 28-bit addresses, though beware of interactions between them (such as VIC ``hot registers'').
 
 Note that the \$D030 banking register is not available in the C64 I/O personality. If your program launches in C64 mode or otherwise switches to its I/O personality, it must change to the C65 or MEGA65 personality before accessing this register.
 
@@ -1354,17 +1354,19 @@ A program can disable write protection on banks 2 and 3 to use those regions as 
 
 A carefully written program that doesn't need the built-in routines at all can repurpose the entire 128KB region. Take care to disable interrupts and replace the interrupt handler vectors when overwriting the KERNAL.
 
-To toggle the read-only status of banks 2 and 3, invoke the Hypervisor Toggle ROM Write-protect system trap ({\tt hyppo\_toggle\_rom\_writeprotect}), like so:
+To disable write protection on banks 2 and 3, invoke the Hypervisor ROM Write-enable system trap ({\tt hyppo\_rom\_writeenable}), like so:
 
 \begin{asmcode}
-LDA #$70
-STA $D640
+LDA #$02
+STA $D641
 CLV
 \end{asmcode}
 
+To enable it again, use the ROM Write-protect system trap ({\tt hyppo\_rom\_writeprotect}) in the same way with {\tt LDA \#\$00}. The instruction after the {\tt STA} must be a single-cycle instruction, typically {\tt CLV}: the CPU may or may not execute it when the Hypervisor returns. {\tt NOP} is not recommended, because on the 45GS02 it can act as a prefix to the instruction that follows.
+
 You must use the MAP register, 32-bit instructions, or DMA to write to RAM in banks 2 and 3. When C64-style banking or \$D030 banking is active (and the affected 16-bit addresses are unmapped), reading those addresses will access bank 2, but writing to those addresses will write to RAM in bank 0. This is similar to what happens when writing to a ROM-banked address on a Commodore 64.
 
-The state of this write-protection is not readable in a register. To test whether the region is write-protected, simply attempt to write a value to the region. The MEGA65 boots with write protection enabled.
+To test whether the region is write-protected, simply attempt to write a value to the region. The MEGA65 boots with write protection enabled.
 
 The \$D640 register is only available in the MEGA65 I/O personality.
 
@@ -1458,7 +1460,7 @@ A summary of the procedure:
 \item Set the MAP register to all zeroes.
 \item Clear bits 0, 1, and 2 of \$0001 to remove I/O registers from \$D000 -- \$DFFF.
 \item Move the start of colour RAM forward by at least \$0800 (2KB), so the Colour RAM Window can be used as general purpose RAM.
-\item Disable ROM write-protect on banks 2 and 3.
+\item Disable ROM write-protect on banks 2 and 3, using the ROM Write-enable system trap ({\tt LDA \#\$02 : STA \$D641 : CLV}).
 \item Load custom interrupt handler code into bank 0, configure interrupt vectors, then re-enable interrupts.
 \end{enumerate}
 

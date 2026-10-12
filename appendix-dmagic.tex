@@ -431,6 +431,12 @@ Unsupported job option tokens are simply ignored.
 This allows for future revisions of the DMAgic to add support for
 additional options, without breaking backward compatibility.
 
+Options set by a job remain in effect for the following jobs in a
+chained list. They are reset to their defaults only when the last job
+in the chain completes. A chained job that needs an option returned to
+its default must therefore set that option again in its own option
+list; omitting the option does not reset it.
+
 These options are also used to achieve advanced features, such as hardware
 texture scaling at up to 20Mpixels per second, and hardware line drawing
 at up to 40Mpixels per second. These advanced functions are implemented
@@ -571,8 +577,11 @@ function in the processor, as well as instructing the audio cross-bar mixer to u
 of the \$D6F8-\$D6FB digital audio registers. If you wish to have no
 other audio than the audio DMA channels, the audio cross-bar mixer can
 be bypassed, and the DMA audio played at full volume by setting the
-NOMIX signal (\$D711 bit 4).  In that mode no audio from the SIDs, FM,
-microphones or other sources will be available.
+NOMIX signal (\$D711 bit 4).  The bypass applies only to the PWM audio
+outputs (the 3.5mm audio jack on R3 and earlier boards): on those
+outputs no audio from the SIDs, FM, microphones or other sources will
+be available.  HDMI audio, and the audio DAC on R4 and later boards,
+always carry the output of the audio cross-bar mixer.
 All other bits in
 \$D711 should ordinarily be left clear, i.e., write \$80 to \$D711 to
 enable audio DMA.

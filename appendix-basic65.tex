@@ -7177,7 +7177,7 @@ PLAY "C", "E", "G"
 
                   The modulation directive adds a pitch-based vibrato your note by the magnitude you specify (1 -- 9). A value of 0 disables it.
 
-                  Similarly, the portamento directive slides between consecutive notes at the speed you specify (1 -- 9). A value of 0 disables it. Note that the gate-off behaviour of notes is disabled while portamento is enabled. To re-enable the gate-off behaviour, you must disable portamento (P0).
+                  Similarly, the portamento directive slides between consecutive notes at the speed you specify (1 -- 9). A value of 0 disables it. Notes are still gated off at the end of each note while portamento is enabled.
 
                   If a string ends with the {\bf L} directive, the pattern loops back to the beginning of the string upon completion.
 
@@ -7251,7 +7251,7 @@ PLAY , "O5T2IGAGFEDCEGO6.QCL",,, "O3T2.QG.B O4ICO3GE.QCL"
 
                   For string variables, it is the address of the string descriptor, not the string itself. The string descriptor consists of three bytes: length, string address low, string address high. The string address is an offset in bank 1.
 
-                  For number-type scalar variables, it is the address of the value. The format depends on the type. A byte variable ({\tt A\&}) is one byte, in a ``two's complement'' signed integer format. An integer variable ({\tt A\%}) is two bytes, with the least significant byte first. A real variable ({\tt A}) is five bytes, in a compact floating point number format.
+                  For number-type scalar variables, it is the address of the value. The format depends on the type. A byte variable ({\tt A\&}) is one byte, in a ``two's complement'' signed integer format. An integer variable ({\tt A\%}) is two bytes, with the most significant byte first. A real variable ({\tt A}) is five bytes, in a compact floating point number format.
 
                   To get the address of an array, use {\bf POINTER} with the first element of the array (index {\tt 0} in each dimension). Array elements are stored consecutively, in the format of the scalar record, with the left-most index using the shortest stride. For example, an array dimensioned as \screentext{DIM A\%(3, 2)} starts at address \screentext{POINTER(A\%(0, 0))}, has two-byte records, and is ordered as:
 
@@ -9138,7 +9138,7 @@ SLEEP 600    : REM SLEEP 10 MINUTES
 
                   {\bf min} minimum frequency (0 -- 65535).
 
-                  {\bf sweep} sweep range (0 -- 65535).
+                  {\bf sweep} sweep step (0 -- 65535): the amount added to the frequency (direction 0) or subtracted from it (direction 1) each jiffy. The frequency sweeps between {\bf min} and {\bf freq}, wrapping to the other end when it passes either one, or reversing direction when {\bf dir} is 2 (oscillate).
 
                   {\bf wave} waveform (0:triangle, 1:sawtooth, 2:square, 3:noise).
 
@@ -9161,7 +9161,8 @@ SLEEP 600    : REM SLEEP 10 MINUTES
 20 SOUND 1, 7382, J                                 : REM PLAY SQUARE WAVE ON VOICE 1 FOR 1 SECOND
 30 SOUND 2,  800, J*60                              : REM PLAY SQUARE WAVE ON VOICE 2 FOR 1 MINUTE
 40 SOUND 3, 4000, 120, 2, 2000, 400, 1              : REM PLAY SWEEPING SAWTOOTH WAVE ON VOICE 3
-50 SOUND CLR                                        : REM SILENCE SOUND, RESET PARAMETERS
+50 SLEEP 3                                          : REM LET THE SOUNDS PLAY FOR 3 SECONDS
+60 SOUND CLR                                        : REM SILENCE SOUND, RESET PARAMETERS
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -9609,7 +9610,7 @@ PRINT STRBIN$(245)
 
                   If the address value is 16 bit (\$0000 - \$FFFF), the {\bf BANK} value is used to determine the actual address. If the address is higher than \$FFFF, it is interpreted as a linear 24 bit address and the value of {\bf BANK} is ignored.
 
-\item [SYS form:] The {\bf SYS} command accepts the address and optional register contents as positional arguments, separated by commas. Any unspecified register is set to zero.
+\item [SYS form:] The {\bf SYS} command accepts the address and optional register contents as positional arguments, separated by commas. If a register value is unspecified, its value is undefined. Be sure to set every register parameter that the subroutine uses.
 
                   Unlike other BASIC commands that access memory, there are restrictions on which addresses {\bf SYS} can access:
 

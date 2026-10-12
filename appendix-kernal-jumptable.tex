@@ -1608,8 +1608,8 @@ phoenix = $ff5c
     \item [Inputs:]
         To set: \\
         \textbf{C flag} = 0 \\
-        \textbf{X} Cursor column \\
-        \textbf{Y} Cursor line
+        \textbf{X} Cursor line \\
+        \textbf{Y} Cursor column
 
         To read: \\
         \textbf{C flag} = 1
@@ -1618,9 +1618,11 @@ phoenix = $ff5c
         \textbf{C flag} Set on error
 
         When reading: \\
-        \textbf{X} Cursor column \\
-        \textbf{Y} Cursor line
+        \textbf{X} Cursor line \\
+        \textbf{Y} Cursor column
     \item [Remarks:]
+        The \textbf{X} and \textbf{Y} CPU registers do \textit{not} correspond to the coordinate axes that traditionally use those as names. The \textbf{X} register refers to the line number (up and down the vertical axis), and the \textbf{Y} register refers to the column number (left and right on the horizontal axis). This is consistent with Commodore's original design.
+
         The cursor position is relative to the active window. Use SCRORG to read the current window size.
 
         When setting, if the requested position is outside the active window, the routine returns with the Carry flag set.
@@ -1634,8 +1636,8 @@ primm = $ff7d
     ; Move the cursor to the 78th column
     ; of the 3rd row
     clc
-    ldx #77
-    ldy #2
+    ldx #2
+    ldy #77
     jsr plot
 
     jsr primm

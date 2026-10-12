@@ -1364,11 +1364,9 @@ CLV
 
 To enable it again, use the ROM Write-protect system trap ({\tt hyppo\_rom\_writeprotect}) in the same way with {\tt LDA \#\$00}. The instruction after the {\tt STA} must be a single-cycle instruction, typically {\tt CLV}: the CPU may or may not execute it when the Hypervisor returns. {\tt NOP} is not recommended, because on the 45GS02 it can act as a prefix to the instruction that follows.
 
-The Toggle ROM Write-protect system trap ({\tt hyppo\_toggle\_rom\_writeprotect}, {\tt LDA \#\$70 : STA \$D640}) also exists, but it reverses the current state: if write protection has already been disabled, for example by a loader or a previous run of the program, it enables it again. Prefer {\tt hyppo\_rom\_writeenable} when a program needs the ROM area to be writable.
-
 You must use the MAP register, 32-bit instructions, or DMA to write to RAM in banks 2 and 3. When C64-style banking or \$D030 banking is active (and the affected 16-bit addresses are unmapped), reading those addresses will access bank 2, but writing to those addresses will write to RAM in bank 0. This is similar to what happens when writing to a ROM-banked address on a Commodore 64.
 
-The Toggle ROM Write-protect trap returns the new state in the A register: if bit 2 is set, the region is write-protected. The ROM Write-enable and Write-protect traps do not return the state; to test it without changing it, attempt to write a value to the region. The MEGA65 boots with write protection enabled.
+To test whether the region is write-protected, simply attempt to write a value to the region. The MEGA65 boots with write protection enabled.
 
 The \$D640 register is only available in the MEGA65 I/O personality.
 
@@ -1462,7 +1460,7 @@ A summary of the procedure:
 \item Set the MAP register to all zeroes.
 \item Clear bits 0, 1, and 2 of \$0001 to remove I/O registers from \$D000 -- \$DFFF.
 \item Move the start of colour RAM forward by at least \$0800 (2KB), so the Colour RAM Window can be used as general purpose RAM.
-\item Disable ROM write-protect on banks 2 and 3, using the ROM Write-enable system trap ({\tt LDA \#\$02 : STA \$D641 : CLV}). Avoid the toggle trap here, as it re-enables protection if it was already disabled.
+\item Disable ROM write-protect on banks 2 and 3, using the ROM Write-enable system trap ({\tt LDA \#\$02 : STA \$D641 : CLV}).
 \item Load custom interrupt handler code into bank 0, configure interrupt vectors, then re-enable interrupts.
 \end{enumerate}
 

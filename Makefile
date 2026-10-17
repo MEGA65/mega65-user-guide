@@ -113,6 +113,16 @@ all:	$(BOOKS)
 
 books:	$(BOOKS)
 
+# Nederlandse vertaling: eigen Makefile in dutch/ (zie AGENTS.md)
+.PHONY: dutch dutch-books
+dutch dutch-books:
+	$(MAKE) -C dutch
+
+# Duitse vertaling: eigen Makefile in german/ (zie AGENTS.md)
+.PHONY: german german-books
+german german-books:
+	$(MAKE) -C german
+
 screen-maps:	screen-maps.c Makefile
 	$(CC) -Wall -o screen-maps screen-maps.c -lhpdf
 
@@ -257,7 +267,7 @@ generate_condensed: generate_condensed.c Makefile
 	 $(CC) -Wall -g -o generate_condensed generate_condensed.c
 
 appendix-basic65-condensed.tex: appendix-basic65-indexed.tex generate_condensed
-	./generate_condensed
+	./generate_condensed appendix-basic65-indexed.tex appendix-basic65-condensed.tex
 
 # Use this to build EPS files from SVG diagrams. This requires Inkscape 1.3 or later.
 # Please commit both generated EPS and SVG files to the repo. This is currently

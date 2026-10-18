@@ -29,6 +29,14 @@ BUILD_DIR := build
 REPOPATH ?= .
 THISLANG := dutch
 
+# BibTeX looks for the bibliography style file in dutch/IEEEtran-nl.bst, The recipe runs
+# latexmk with the repo-root as the working directory, so the path must be explicitly
+#specified via kpathsea. The closing ':' keeps the default search path above it
+# (IEEEtran.bst from TeX Live, references.bib in the root). Note: $(ROOT) is relative
+# here and the recipe changes directory to the root, so use an absolute path via
+# $(abspath ..).
+export BSTINPUTS := $(abspath ..)/$(THISLANG):
+
 BOOKS := mega65-book \
 	mega65-userguide \
 	mega65-developer-guide \

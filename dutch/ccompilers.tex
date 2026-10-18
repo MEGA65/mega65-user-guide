@@ -1,0 +1,47 @@
+\chapter{C- en C-achtige compilers}
+
+Kort antwoord: CC65 en KickC werken beide op de MEGA65.
+
+Zowel CC65 als KickC werken op de MEGA65, maar beide hebben standaard
+alleen een C64-geheugenmodel en gebruiken uitsluitend 6502-opcodes.
+Het zou geweldig zijn als iemand een C65-geheugenconfiguratie voor
+CC65 zou ontwikkelen; dat zou niet al te moeilijk moeten zijn.
+
+CC65 ondersteunt overlays, wat krachtig kan worden ingezet met het
+extra geheugen van de MEGA65 om programma's groter dan 64 KB mogelijk
+te maken. Daarvoor is echter een geschikte loader nodig, die nog niet
+bestaat.
+
+Op dezelfde manier zou het aanpassen van de codegenerator van CC65 om
+45GS02-mogelijkheden te gebruiken niet bijzonder moeilijk zijn en zou
+het helpen om de anders vreselijk trage en omvangrijke code die CC65
+produceert te overwinnen. Het toevoegen van volledige ondersteuning
+voor de 45GS02-CPU-mogelijkheden in CA65 (of nog beter: het laten
+produceren van ACME-compatibele assembleeruitvoer door CC65) zou van
+overweldigend voordeel zijn en niet bijzonder moeilijk te realiseren.
+Dit zouden allemaal geweldige taken zijn om mee bezig te zijn terwijl
+u wacht op uw MEGA65 DevKit!
+
+Een voorbeeldsjabloon voor een C-programma dat met CC65 kan worden
+gecompileerd en op de MEGA65 kan worden uitgevoerd, staat in het
+repository \url{https://github.com/MEGA65/hello-world}. Dit repository
+kan zelfs CC65 downloaden en compileren als u dat nog niet op uw
+systeem hebt geïnstalleerd. Het repository werkt op Linux en Mac en op Windows via het Windows Subsystem for Linux (WSL).
+
+Het LLVM-MOS-project (\url{https://llvm-mos.org}) heeft een
+MEGA65-doelplatform dat is getest met C99, C++11 en Rust. De LLVM
+MOS-compiler heeft ondersteuning voor 45GS02-instructies
+(\texttt{-mcpu=mos45gs02}) en wordt geleverd met een assembler en
+disassembler. Voorgecompileerde binaire bestanden van de SDK zijn
+beschikbaar voor Linux, Windows en macOS.
+
+\section{MEGA65 libc}
+
+Er wordt een C-bibliotheek ontwikkeld voor de MEGA65, die al een
+aantal nuttige functies bevat. Deze bibliotheek is beschikbaar via
+\url{http://github.com/mega65/mega65-libc}. De procedures, functies
+en definities die het biedt, zijn gedocumenteerd in een apart
+hoofdstuk.
+
+De MEGA65 libc is momenteel alleen beschikbaar voor LLVM en CC65,
+hoewel we een KickC-port hiervan zeer op prijs zouden stellen.

@@ -1,0 +1,533 @@
+\begingroup
+\setlength{\def\arraystretch{1.1}\tabcolsep}{1pt}
+% \OPC{Instruction}{Addr-Mode}{Bytes}{Cycles}
+\newcommand{\OPC}[4]{\makecell{\begin{tabular}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedleft\arraybackslash}p{0.8cm}}
+\fontsize{8pt}{0pt}\selectfont #3 & \fontsize{8pt}{0pt}\selectfont {\em #4} \\[-3pt]\multicolumn{2}{c}{\fontsize{10pt}{0pt}\selectfont #1} \\[-3pt]\multicolumn{2}{c}{\fontsize{8pt}{0pt}\selectfont #2}
+\end{tabular}}}
+\newcommand{\OPCQ}[4]{\makecell{\begin{tabular}{>{\raggedright\arraybackslash}p{0.4cm}>{\raggedleft\arraybackslash}p{0.8cm}}
+\fontsize{8pt}{0pt}\selectfont #3 & \fontsize{8pt}{0pt}\selectfont {\em #4} \\[-3pt]\multicolumn{2}{c}{\fontsize{10pt}{0pt}\selectfont #1} \\[-3pt]\multicolumn{2}{c}{\fontsize{8pt}{0pt}\selectfont #2} \\[-12pt]\fontsize{8pt}{0pt}\selectfont Q
+\end{tabular}}}
+% cell colours
+\newcommand{\OPill}{\cellcolor[rgb]{1,.8,.8}}
+\newcommand{\OPfar}{\cellcolor[rgb]{.8,1,.8}}
+\newcommand{\OPquad}{\cellcolor[rgb]{.8,.8,1}}
+\newcommand{\OPfarq}{\cellcolor[rgb]{.8,1,1}}
+% binary logic
+\newcommand{\binand}{$\mathit{AND}$}
+\newcommand{\binor}{$\mathit{OR}$}
+\newcommand{\binxor}{$\mathit{XOR}$}
+\newcommand{\binnot}{$\mathit{NOT}$}
+\newcommand{\binneg}{$\mathit{NEG}$}
+
+\chapter{45GS02 \& 6502-instructiesets}
+
+\section{Inleiding}
+
+De 45GS02-CPU kan in de native-modus werken, waarbij hij compatibel is met de CSG 4510, en in de 6502-compatibiliteitsmodus, waarbij niet-gedocumenteerde 6502-instructies, ook wel illegale instructies genoemd, worden ondersteund voor compatibiliteit.
+
+\begin{quote}
+{\bf WAARSCHUWING:} Deze functie is onvolledig en niet getest. De meeste niet-gedocumenteerde 6502-opcodes werken niet correct wanneer de 6502-persoonlijkheid is ingeschakeld.
+\end{quote}
+
+Bij 4510-compatibiliteit ondersteunt de 45GS02 ook een aantal uitbreidingen via {\em samengestelde instructies}. Dit werkt door de opcode van de gewenste instructie te laten voorafgaan door een of meer {\em prefix-bytes}, welke instructievolgordes representeren die normaal gesproken niet voorkomen. Twee \stw{NEG}-instructies achter elkaar functioneren bijvoorbeeld als een prefix om de 45GS02 te vertellen dat de volgende instructie op 32 bits aan gegevens werkt, in plaats van de gebruikelijke 8 bits. Dit betekent dat een 45GS02-instructiestroom eenvoudig gedecodeerd of gedassembleerd kan worden, zonder dat speciale instructielengtevlaggen ingesteld hoeven te worden, zoals het geval is bij de 65816-familie van microprocessors. Het nadeel is een langere uitvoeringstijd, omdat de 45GS02 de prefix-bytes moet overslaan.
+
+De rest van dit hoofdstuk introduceert de adresseermethoden, instructies, opcodes en instructietijding van de 45GS02, te beginnen met de 6502-compatibiliteitsmodus, waarna de 4510-compatibiliteitsmodus en de 45GS02-uitbreidingen worden behandeld.
+
+\section{Stapelbewerkingen}
+
+De stapel is een gebied in het geheugen waar u gegevens op kunt plaatsen of de laatste gegevens van kunt ophalen (pop). Elke stapelbewerking die gegevens op de stapel plaatst (push) verlaagt de stackpointer (SP) (de stapel begint aan de bovenkant van het gebied en groeit naar onderen), en elke stapelbewerking die gegevens van de stapel afneemt (pop) verhoogt de SP.
+
+Wanneer u zoiets tegenkomt als
+\begin{quote}
+  STACK $\leftarrow$ VALUE
+\end{quote}
+betekent dat VALUE op de STACK wordt geplaatst en de SP wordt verlaagd met het aantal bytes dat VALUE groot is. Bij het plaatsen van meer dan één byte wordt eerst de meest significante byte (MSB) geplaatst, gevolgd door de minst significante byte (LSB). (\screentext{PHW} is een uitzondering: die plaatst de LSB eerst.)
+
+In de tegenovergestelde richting geldt voor een bewerking als
+\begin{quote}
+  MEMORY $or$ REGISTER $\leftarrow$ STACK
+\end{quote}
+dat gegevens van de STACK worden opgehaald en de SP met elke verwijderde byte wordt verhoogd.
+
+\section{Adresseermethoden}
+\label{sec:addressing-modes}
+
+De 45GS02 ondersteunt 34 verschillende adresseermethoden, welke hieronder worden uitgelegd. Velen hiervan lijken sterk op elkaar en zijn variaties op de standaard 6502- of 65CE02-adresseermethoden, met als uitzondering dat ze ofwel 32-bits pointers accepteren, op 32 bits aan gegevens werken, of beide.
+
+\subsection{Impliciet}
+
+Bij deze methode zijn er geen operanden, omdat de exacte functie van de instructie impliciet door de instructie zelf wordt bepaald. De \screentext{INX}-instructie verhoogt bijvoorbeeld het X-register.
+
+\subsection{Accumulator}
+
+Bij deze methode is de Accumulator het operand. Dit wordt doorgaans gebruikt om de waarde van het accumulatorregister te verschuiven, te roteren of op een andere manier aan te passen. \screentext{INC A} verhoogt bijvoorbeeld de waarde in het accumulatorregister.
+
+\subsection{Q Pseudo Register}
+
+Bij deze methode is het Q Pseudo Register het operand. Dit wordt doorgaans gebruikt om de waarde van het Q Pseudo Register te verschuiven, te roteren of op een andere manier aan te passen. \screentext{ASLQ} verschuift bijvoorbeeld de waarde in het Q Pseudo Register één bit naar links.
+
+Onthoud dat het Q Pseudo Register eenvoudigweg de A-, X-, Y- en Z-registers zijn die samenwerken als een virtueel 32-bits register, waarbij A de minst significante bits bevat en Z de meest significante bits. Wanneer u Q aanpast, past u de daadwerkelijke registers aan, en op dezelfde manier verandert het aanpassen van een daadwerkelijk register het desbetreffende deel van het Q-register.
+
+Er zijn enkele gevallen waarin het gebruik van een Q-modusinstructie nuttig kan zijn voor het bewerken van de vier daadwerkelijke registers, bijvoorbeeld om alle vier de registers snel te laden of op te slaan.
+
+\subsection{Immediate-modus}
+
+In deze modus is het argument van de instructie een waarde die direct wordt gebruikt. Dit wordt aangegeven door de waarde te laten voorafgaan door een \#-teken. De meeste assemblers staan toe dat waarden worden ingevoerd in decimaal, of in hexadecimaal door de waarde te laten voorafgaan door een \$-teken, of in binair door de waarde te laten voorafgaan door een \%-teken. Om bijvoorbeeld het accumulatorregister op de waarde 5 te zetten, kunt u het volgende gebruiken:
+
+\begin{screencode}
+LDA #5
+\end{screencode}
+
+Het immediate-argument wordt gecodeerd als een enkel byte dat op de instructie volgt. In het bovenstaande geval zou de instructiestroom \$A9 bevatten, de opcode voor LDA in immediate-modus, gevolgd door \$05, de immediate-operand.
+
+\subsection{Immediate Word-modus}
+
+In deze modus is het argument een 16-bits waarde die direct wordt gebruikt. Er is slechts één instructie die deze adresseermethode gebruikt: \screentext{PHW}. Om bijvoorbeeld het woord \$1234 op de stapel te plaatsen, kunt u het volgende gebruiken:
+
+\begin{screencode}
+PHW #$1234
+\end{screencode}
+
+De lage byte van de immediate-waarde volgt op de opcode van de instructie. De hoge byte van de immediate-waarde volgt daarop. In het bovenstaande voorbeeld zou de instructiestroom dus \$F4 \$34 \$12 zijn.
+
+\subsection{Base-Page-modus}
+\label{Base-Page (Zero-Page) Mode}
+
+In deze modus is het argument een 8-bits adres. De bovenste 8 bits van het adres worden overgenomen uit het Base-Page-register. Op 6502-processors bestaat er geen Base-Page-register; in plaats daarvan worden de bovenste 8 bits altijd op nul gezet -- vandaar de naam van deze modus op de 6502: Zero-Page. Op de 45GS02 is het mogelijk dit ``Zero-Page'' naar elke pagina in het 64KB-geheugenbeeld van de processor te verplaatsen door het Base-Page-register met behulp van de \screentext{TAB}-instructie in te stellen. De Base-Page-modus biedt snellere toegang tot een geheugengebied van 256 bytes en gebruikt daarvoor minder instructiebytes.
+
+Het argument wordt gecodeerd als een enkel byte dat direct na de opcode van de instructie komt. Bijvoorbeeld:
+
+\begin{screencode}
+LDA $12
+\end{screencode}
+
+zou de waarde lezen die is opgeslagen in locatie \$12 in de Base-Page en deze in het accumulatorregister plaatsen. De instructiestroom hiervoor zou \$85 \$12 zijn.
+
+\subsection{Base-Page Quad-modus}
+\label{Base-Page (Zero-Page) Quad Mode}
+
+Deze modus is identiek aan de Base-Page-modus, behalve dat deze een 32-bits woord leest dat begint op het opgegeven adres.
+
+Het argument wordt gecodeerd als een enkel byte dat direct na de opcode van de instructie komt. Bijvoorbeeld:
+
+\begin{screencode}
+LDQ $12
+\end{screencode}
+
+zou de waarden lezen die zijn opgeslagen in de locaties \$12 -- \$15 in de Base-Page en deze in het Q Pseudo Register plaatsen. De instructiestroom hiervoor zou \$42 \$42 \$85 \$12 zijn. Merk op dat dit hetzelfde is als bij de Base-Page-modus (Zero-Page), met als toevoeging de twee \$42-prefixbytes. Opcode \$42 is normaal gesproken NEG (het negatief maken van de waarde in het A-register). Indien deze twee keer achter elkaar wordt uitgevoerd, keert de A-waarde terug naar zijn oorspronkelijke waarde. De 45GS02-processor beschikt over speciale logica om deze reeks te herkennen, zodat hij weet dat de volgende instructie met behulp van het Q Pseudo Register moet worden uitgevoerd.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+
+\subsection{Base-Page X-Indexed-modus}
+
+Deze modus is identiek aan de Base-Page-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het X-register bij op te tellen. In 6502-modus ligt het resultaat altijd in de Base-Page; dat wil zeggen dat eventuele carry als gevolg van de optelling van de lage byte naar de hoge byte van het adres wordt genegeerd. De codering van deze adresseermethode is identiek aan die van de Base-Page-modus.
+
+Het argument wordt gecodeerd als een enkel byte dat direct na de opcode van de instructie komt. Bijvoorbeeld:
+
+\begin{screencode}
+LDA $12,X
+\end{screencode}
+
+zou de waarde lezen die is opgeslagen in locatie (\$12 + X) in de Base-Page en deze in het A-register plaatsen. De instructiestroom hiervoor zou \$B5 \$12 zijn.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+
+\subsection{Base-Page Quad X-Indexed-modus}
+
+Deze modus is identiek aan de Base-Page Quad-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het X-register bij op te tellen. In 6502-modus ligt het resultaat altijd in de Base-Page; dat wil zeggen dat eventuele carry als gevolg van de optelling van de lage byte naar de hoge byte van het adres wordt genegeerd. De codering van deze adresseermethode is identiek aan die van de Base-Page Quad-modus.
+
+Het argument wordt gecodeerd als een enkel byte dat direct na de opcode van de instructie komt. Bijvoorbeeld:
+
+\begin{screencode}
+DEQ $12,X
+\end{screencode}
+
+zou het 32-bits woord dat is opgeslagen in (\$12 + X) tot en met (\$15 + X) in de Base-Page met één verhogen en het in het X-register plaatsen. De instructiestroom hiervoor zou \$42 \$42 \$D6 \$12 zijn.
+
+Merk op dat LDQ niet beschikbaar is in deze adresseermethode.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page. Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over Quad-modusinstructies.
+
+\subsection{Base-Page Y-Indexed-modus}
+
+Deze modus is identiek aan de Base-Page-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het Y-register bij op te tellen. In 6502-modus ligt het resultaat altijd in de Base-Page; dat wil zeggen dat eventuele carry als gevolg van de optelling van de lage byte naar de hoge byte van het adres wordt genegeerd. De codering van deze adresseermethode is identiek aan die van de Base-Page-modus.
+
+Het argument wordt gecodeerd als een enkel byte dat direct na de opcode van de instructie komt. Bijvoorbeeld:
+
+\begin{screencode}
+LDX $12,Y
+\end{screencode}
+
+zou de waarde lezen die is opgeslagen in locatie (\$12 + Y) in de Base-Page en deze in het X-register plaatsen. De instructiestroom hiervoor zou \$B6 \$12 zijn.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+
+
+% Disabled: "no instructions currently offer this addressing mode"
+\iffalse
+\subsection{Base-Page Quad Y-Indexed-modus}
+
+Deze modus is identiek aan de Base-Page Quad-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het Y-register bij op te tellen. In 6502-modus ligt het resultaat altijd in de Base-Page; dat wil zeggen dat eventuele carry als gevolg van de optelling van de lage byte naar de hoge byte van het adres wordt genegeerd. De codering van deze adresseermethode is identiek aan die van de Base-Page Quad-modus.
+
+Merk op dat momenteel geen enkele instructie deze adresseermethode aanbiedt.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+\fi
+
+% Disabled: "no instructions currently offer this addressing mode"
+\iffalse
+\subsection{Base-Page Z-Indexed-modus}
+
+Deze modus is identiek aan de Base-Page-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het Z-register bij op te tellen. In 6502-modus ligt het resultaat altijd in de Base-Page; dat wil zeggen dat eventuele carry als gevolg van de optelling van de lage byte naar de hoge byte van het adres wordt genegeerd. De codering van deze adresseermethode is identiek aan die van de Base-Page-modus.
+
+Merk op dat momenteel geen enkele instructie deze adresseermethode aanbiedt.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+\fi
+
+% Disabled: "no instructions currently offer this addressing mode"
+\iffalse
+\subsection{Base-Page Quad Z-Indexed-modus}
+
+Deze modus is identiek aan de Base-Page Quad-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het Z-register bij op te tellen. In 6502-modus ligt het resultaat altijd in de Base-Page; dat wil zeggen dat eventuele carry als gevolg van de optelling van de lage byte naar de hoge byte van het adres wordt genegeerd. De codering van deze adresseermethode is identiek aan die van de Base-Page Quad-modus.
+
+Merk op dat momenteel geen enkele instructie deze adresseermethode aanbiedt.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+\fi
+
+\subsection{Absolute modus}
+
+In deze modus is het argument een 16-bits adres. De lage 8 bits van het adres worden genomen uit het byte dat direct na de opcode van de instructie komt. De hoge 8 bits worden genomen uit het byte dat daarop volgt. Bijvoorbeeld de instructie
+
+\begin{screencode}
+LDA $1234
+\end{screencode}
+
+zou de geheugenlocatie \$1234 lezen en de gelezen waarde in het accumulatorregister plaatsen. Dit zou worden gecodeerd als \$AD \$34 \$12.
+
+\subsection{Absolute Quad-modus}
+
+In deze modus is het argument een 16-bits adres. De lage 8 bits van het adres worden genomen uit het byte dat direct na de opcode van de instructie komt. De hoge 8 bits worden genomen uit het byte dat daarop volgt. Bijvoorbeeld de instructie
+
+\begin{screencode}
+LDQ $1234
+\end{screencode}
+
+zou de geheugenlocaties \$1234 -- \$1237 lezen en de gelezen waarden in het Q Pseudo Register plaatsen. Dit zou worden gecodeerd als \$42 \$42 \$AD \$34 \$12.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over Quad-modusinstructies.
+
+\subsection{Absolute X-Indexed-modus}
+
+Deze modus is identiek aan de Absolute-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het X-register bij op te tellen. Indien de indexering het adres een paginagrens doet overschrijden, dat wil zeggen indien de hoge byte van het adres verandert, kan dit een extra cyclus met zich meebrengen, afhankelijk van de processormodus en de snelheidsinstelling. De codering van deze adresseermethode is identiek aan die van de Absolute-modus. Bijvoorbeeld de instructie
+
+\begin{screencode}
+LDA $1234,X
+\end{screencode}
+
+zou de geheugenlocatie (\$1234 + X) lezen en de daar gelezen waarde in het A-register plaatsen. Dit zou worden gecodeerd als \$BD \$34 \$12.
+
+\subsection{Absolute Quad X-Indexed-modus}
+
+Deze modus is identiek aan de Absolute Quad-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het X-register bij op te tellen. Indien de indexering het adres een paginagrens doet overschrijden, dat wil zeggen indien de hoge byte van het adres verandert, kan dit een extra cyclus met zich meebrengen, afhankelijk van de processormodus en de snelheidsinstelling. De codering van deze adresseermethode is identiek aan die van de Absolute Quad-modus.
+
+Bijvoorbeeld de instructie
+
+\begin{screencode}
+ROLQ $1234,X
+\end{screencode}
+
+zou de 32-bits waarde op de geheugenlocaties (\$1234+X) -- (\$1237+X) naar links roteren en het resultaat terugschrijven naar dezezelfde geheugenlocaties. Dit zou worden gecodeerd als \$42 \$42 \$3E \$34 \$12.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over Quad-modusinstructies.
+
+\subsection{Absolute Y-Indexed-modus}
+
+Deze modus is identiek aan de Absolute-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het Y-register bij op te tellen. Indien de indexering het adres een paginagrens doet overschrijden, dat wil zeggen indien de hoge byte van het adres verandert, kan dit een extra cyclus met zich meebrengen, afhankelijk van de processormodus en de snelheidsinstelling. De codering van deze adresseermethode is identiek aan die van de Absolute-modus. Bijvoorbeeld de instructie
+
+\begin{screencode}
+LDA $1234,Y
+\end{screencode}
+
+zou de geheugenlocatie (\$1234 + Y) lezen en de daar gelezen waarde in het A-register plaatsen. Dit zou worden gecodeerd als \$B9 \$34 \$12.
+
+% Disabled: "no instructions currently offer this addressing mode"
+\iffalse
+\subsection{Absolute Quad Y-Indexed-modus}
+
+Deze modus is identiek aan de Absolute Quad-modus, behalve dat het adres wordt gevormd door het argument te nemen en daar de waarde van het Y-register bij op te tellen. Indien de indexering het adres een paginagrens doet overschrijden, dat wil zeggen indien de hoge byte van het adres verandert, kan dit een extra cyclus met zich meebrengen, afhankelijk van de processormodus en de snelheidsinstelling. De codering van deze adresseermethode is identiek aan die van de Absolute Quad-modus.
+
+Merk op dat momenteel geen enkele instructie deze adresseermethode aanbiedt.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over Quad-modusinstructies.
+\fi
+
+\subsection{Absolute Indirect-modus}
+
+In deze modus is het 16-bits argument het adres dat naar het daadwerkelijk te lezen byte verwijst, dat wil zeggen de waarde van dat byte bevat. Indien geheugenlocatie \$1234 bijvoorbeeld de waarde \$78 bevat en geheugenlocatie \$1235 de waarde \$56, dan
+
+\begin{screencode}
+JMP ($1234)
+\end{screencode}
+
+zou naar adres \$5678 springen. De codering van deze adresseermethode is identiek aan die van de Absolute-modus en deze instructie zou dus worden gecodeerd als \$6C \$34 \$12.
+
+\subsection{Absolute Indirect X-Indexed-modus}
+
+In deze modus is het 16-bits argument het adres dat naar het daadwerkelijk te lezen byte verwijst, dat wil zeggen de waarde van dat byte bevat. Deze modus is identiek aan de Absolute Indirect-modus, behalve dat de waarde van het X-register aan het pointeradres wordt toegevoegd. Indien het X-register bijvoorbeeld de waarde \$04 bevat, geheugenlocatie \$1238 de waarde \$78 en geheugenlocatie \$1239 de waarde \$56, dan
+
+\begin{screencode}
+JMP ($1234,X)
+\end{screencode}
+
+zou naar adres \$5678 springen. De codering van deze adresseermethode is identiek aan die van de Absolute-modus en deze instructie zou dus worden gecodeerd als \$7C \$34 \$12.
+
+\subsection{Base-Page Indirect X-Indexed-modus}
+
+Deze adresseermethode is identiek aan de Absolute Indirect X-Indexed-modus, behalve dat het adres van de pointer wordt gevormd uit het Base-Page-register (hoge byte) en de 8-bits operand (lage byte). De codering van deze adresseermethode is identiek aan die van de Base-Page-modus.
+
+Indien het X-register bijvoorbeeld de waarde \$04 bevat en de geheugenlocaties \$16 en \$17 in de huidige Base-Page respectievelijk \$34 en \$12 bevatten, dan
+
+\begin{screencode}
+LDA ($12,X)
+\end{screencode}
+
+zou de inhoud van geheugenlocatie \$1234 lezen en het resultaat opslaan in het A-register. Deze instructie wordt gecodeerd als \$A1 \$12.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+
+% Disabled: "no instructions currently offer this addressing mode"
+\iffalse
+\subsection{Base-Page Quad indirect X-geïndexeerde modus}
+
+Deze adresseermethode is identiek aan de Base-Page indirect X-geïndexeerde modus, met als uitzondering dat het adres van de pointer wordt gevormd door het Base-Page Register (hoge byte) en de 8-bits operand (lage byte). De codering voor deze adresseermethode is identiek aan de Base-Page Quad-modus.
+
+Opmerking: er zijn momenteel geen instructies die deze adresseermethode ondersteunen.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page. Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over instructies in de Quad-modus.
+\fi
+
+\subsection{Base-Page indirect Y-geïndexeerde modus}
+
+Deze adresseermethode verschilt van de X-geïndexeerde indirecte modi doordat de waarde van het Y-register wordt opgeteld bij het adres dat van de pointer wordt gelezen, in plaats van bij de pointer zelf. Dit is een zeer nuttige modus die vaak wordt gebruikt omdat deze feitelijk toegang biedt tot ``de byte met index Y in het geheugen op het adres waarnaar de operand verwijst.'' Met andere woorden, het derefereert een pointer. De codering voor deze adresseermethode is identiek aan de Base-Page-modus.
+
+Bijvoorbeeld, als de Y-register de waarde \$04 bevat en de geheugenlocaties \$12 en \$13 in de huidige Base-Page respectievelijk \$78 en \$56 bevatten, dan
+
+\begin{screencode}
+LDA ($12),Y
+\end{screencode}
+
+zou de inhoud van geheugenlocatie \$567C (d.w.z. \$5678 + Y) lezen en het resultaat opslaan in het A-register. Deze instructie wordt gecodeerd als \$B1 \$12.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+
+% Disabled: "no instructions currently offer this addressing mode"
+\iffalse
+\subsection{Base-Page Quad indirect Y-geïndexeerde modus}
+
+Deze adresseermethode is identiek aan de Base-Page indirect Y-geïndexeerde modus, met als uitzondering dat er met 32 bits aan data wordt gewerkt. De codering voor deze adresseermethode is identiek aan de Base-Page-modus, met als uitzondering dat deze wordt voorafgegaan door \$42, \$42.
+
+Opmerking: er zijn momenteel geen instructies die deze adresseermethode ondersteunen.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page. Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over instructies in de Quad-modus.
+\fi
+
+\subsection{Base-Page indirect Z-geïndexeerde modus}
+
+Deze adresseermethode verschilt van de X-geïndexeerde indirecte modi doordat de waarde van het Z-register wordt opgeteld bij het adres dat van de pointer wordt gelezen, in plaats van bij de pointer zelf. Dit is een zeer nuttige modus die vaak wordt gebruikt omdat deze feitelijk toegang biedt tot ``de byte met index Z in het geheugen op het adres waarnaar de operand verwijst.'' Met andere woorden, het derefereert een pointer. De codering voor deze adresseermethode is identiek aan de Base-Page-modus.
+
+Bijvoorbeeld, als de Z-register de waarde \$04 bevat en de geheugenlocaties \$12 en \$13 in de huidige Base-Page respectievelijk \$78 en \$56 bevatten, dan
+
+\begin{screencode}
+LDA ($12),Z
+\end{screencode}
+
+zou de inhoud van geheugenlocatie \$567C (d.w.z. \$5678 + Z) lezen en het resultaat opslaan in het A-register. Deze instructie wordt gecodeerd als \$B2 \$12.
+
+Met andere woorden, het is equivalent aan de Base-Page indirect Y-geïndexeerde modus, maar met de Z-register in plaats van de Y-register om de offset te berekenen.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+
+\subsection{Base-Page Quad indirect Z-geïndexeerde modus}
+
+Deze adresseermethode is identiek aan de Base-Page indirect Z-geïndexeerde modus, met als uitzondering dat er met 32 bits aan data wordt gewerkt. De codering voor deze adresseermethode is identiek aan de Base-Page-modus, met als uitzondering dat deze wordt voorafgegaan door \$42, \$42. Bijvoorbeeld, als de Z-register de waarde \$04 bevat en de geheugenlocaties \$12 en \$13 in de huidige Base-Page respectievelijk \$CD en \$AB bevatten, dan
+
+\begin{screencode}
+LDQ ($12),Z
+\end{screencode}
+
+zou de inhoud van geheugenlocatie \$ABD1 (d.w.z. \$ABCD + Z) tot en met \$ABD4 lezen en het resultaat opslaan in het Q Pseudo Register. Deze instructie wordt gecodeerd als \$42 \$42 \$B2 \$12.
+
+Momenteel is LDQ de enige instructie die deze modus ondersteunt.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page. Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over instructies in de Quad-modus.
+
+\subsection{32-bits Base-Page-indirecte Z-geïndexeerde modus}
+\label{32-bit Base-Page (Zero-Page) Indirect Z-Indexed Mode}
+
+Deze modus ontstaat door een Base-Page-indirecte Z-geïndexeerde instructie te laten voorafgaan door de {NOP}-instructie (opcode \$EA). Hierdoor leest de 45GS02 in plaats van een 16-bits adres een 32-bits adres uit het Base-Page-adres dat door het operand wordt aangegeven. De Z-index wordt bij die pointer opgeteld. Belangrijk is dat het 32-bits adres niet verwijst naar het huidige 64KB-geheugenbeeld van de processor, maar naar de werkelijke 28-bits adresruimte van de 45GS02. Hierdoor is elk geheugengebied eenvoudig toegankelijk, zonder dat complexe bank-switching- of DMA-operaties nodig zijn.
+
+Indien adressen \$12 tot \$15 de bytes \$20, \$30, \$FD, \$0F bevatten, wat het 32-bits adres \$FFD3020 weergeeft, d.w.z. het natuurlijke adres van het randkleurregister van de VIC-IV, en de Z-index de waarde \$01 bevat, zou de volgende instructiesequentie de schermkleur op blauw zetten, omdat zich het schermkleurregister op \$FFD3021 bevindt, dus \$FFD3020 + Z:
+
+\begin{screencode}
+LDA #$06
+LDZ #$01
+STA [$12],Z
+\end{screencode}
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
+
+
+\subsection{32-bits Base-Page-(Zero-Page)-indirecte quad Z-geïndexeerde modus}
+
+Deze adresseermethode is identiek aan de 32-bits Base-Page-indirecte Z-geïndexeerde modus, met als uitzondering dat deze op 32 bits gegevens werkt op het 32-bits adres dat door het argument wordt gevormd, in tegenstelling tot de 32-bits Base-Page-indirecte Z-geïndexeerde modus die slechts op 8 bits gegevens werkt. De codering van deze adresseermethode is \$42, \$42, \$EA, gevolgd door de natuurlijke 6502-opcode van de instructie die wordt uitgevoerd.
+
+Het is ook belangrijk op te merken dat Z in werkelijkheid meestal {\em niet} bij de pointer wordt opgeteld, omdat het deel uitmaakt van het Q Pseudo Register. Alleen \screentext{LDQ (\$nn),Z} telt Z op. Bijvoorbeeld,
+
+\begin{screencode}
+LDQ [$12],Z
+\end{screencode}
+
+zou de geheugenlocaties \$12 tot \$15 uit de Base-Page lezen en die waarden gebruiken om het 32-bits adres te vormen waaruit het Q Pseudo Register wordt geladen. De Z-index wordt bij het 32-bits adres opgeteld. Deze instructie wordt gecodeerd als \$42 \$42 \$EA \$B2 \$12.
+
+Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page. Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over instructies in de Quad-modus. Zie de opmerking op pagina \pageref{32-bit Base-Page (Zero-Page) Indirect Z-Indexed Mode} voor meer informatie over 32-bits Base-Page-indirecte adressering.
+
+\subsection{Stackrelatieve indirecte Y-geïndexeerde modus}
+
+Deze adresseermethode lijkt op de Base-Page-indirecte Y-geïndexeerde modus, met als uitzondering dat het operand in plaats van het adres van de pointer in de Base-Page de offset in de stack aangeeft om de pointer te vinden. Deze adresseermethode derefereert effectief een pointer die op de stack is geplaatst, bijv. als onderdeel van een functieaanroep vanuit een hogere programmeertaal. De codering is identiek aan die van de Base-Page-modus.
+
+Bijvoorbeeld,
+
+\begin{screencode}
+LDA ($12,SP),Y
+\end{screencode}
+
+Dit zou de inhoud van het geheugen op de huidige stackpointer plus \$12 gebruiken om het adres van de pointer te berekenen. Aan deze pointer wordt vervolgens de waarde van het Y-register opgeteld om het uiteindelijke adres te verkrijgen waaruit wordt gelezen en om de waarde in het accumulatorregister op te slaan. De byte-stroom van deze instructie is \$E2 \$12.
+
+Indien de stackpointer momenteel naar \$01E0 wijst, wordt het pointeradres gelezen van adressen \$1F2 en \$1F3, dus de twee bytes op \$1E0 + \$12 en \$1E0 + \$13. Indien de locaties \$1F2 en \$1F3 respectievelijk \$78 en \$56 bevatten en het Y-register de waarde \$34 bevat, zou de uiteindelijke geheugenlocatie die wordt gelezen \$5678 + \$34 = \$56AC zijn en wordt de inhoud van die geheugenlocatie in het accumulatorregister geladen.
+
+\subsection{Relatieve adresseermethode}
+
+Bij deze adresseermethode is het operand een 8-bits teken-offset ten opzichte van de huidige waarde van de programmateller (PC). Hiermee kunnen vertakkingen het nabije adres coderen waar de uitvoering wordt voortgezet indien de vertakking wordt gevolgd.
+
+Bijvoorbeeld,
+
+\begin{screencode}
+BNE $2003
+\end{screencode}
+
+zou naar \$2003 springen indien de Z-vlag van de processor niet gezet is. Indien deze instructie zich op adres \$2000 bevindt, wordt deze gecodeerd als \$D0 \$01, dus een vertakking naar +1 bytes na de PC. Vertakkingsoffsets groter dan \$7F vertakken achterwaarts, waarbij \$FD naar de byte direct voor de vertakkinstructie vertakt en lagere waarden geleidelijk verder achterwaarts vertakken. Op deze manier kan effectief een vertaking worden gemaakt tussen -125 en +127 bytes vanaf de opcode-byte van de vertakinstructie. Voor langere vertaktingen ondersteunt de 45GS02 de relatieve word-adresseermethode, waarbij de offset met 2 bytes in plaats van 1 wordt gecodeerd.
+
+\subsection{Relatieve word-adresseermethode}
+
+Deze adresseermethode is identiek aan de relatieve adresseermethode, met als uitzondering dat de adresoffset een 16-bits waarde is. Hiermee kan een relatieve vertakking of sprong naar elke locatie in het huidige 64KB-geheugenbeeld worden gemaakt. Dit maakt het mogelijk volledig verplaatsbare software te schrijven, omdat absolute adressen bij het aanroepen van routines niet nodig zijn.
+
+Bijvoorbeeld,
+
+\begin{screencode}
+BNE $3000
+\end{screencode}
+
+zou naar \$3000 springen indien de Z-vlag van de processor niet gezet is. Indien deze instructie zich op adres \$2002 bevindt, wordt deze gecodeerd als \$D3 \$FC \$0F, dus een vertakking naar +\$FFC = 4092 bytes na de tweede byte van de instructie. Het feit dat de instructie 3 bytes lang is, wordt bij deze berekening buiten beschouwing gelaten.
+
+\clearpage
+\section{6502-instructieset}
+
+Opmerking: de mechanismen voor het overschakelen van de 4510-CPU naar de 6502-CPU-persoonlijkheid zijn nog niet vastgelegd.
+
+\subsection{Officiële en onbedoelde instructies}
+
+De opcode-matrix van de 6502 heeft een grootte van 16 x 16 = 256 mogelijke opcodes. De opcodes die officieel gedocumenteerd zijn, vormen de verzameling van de \textcolor{blue}{legal} instructies. Alle instructies van deze geldige verzameling worden voorafgegaan door een blauw gekleurde mnemoniek.
+
+De overige opcodes vormen de verzameling van de \textcolor{red}{onbedoelde} instructies (soms worden deze ``illegal''-instructies genoemd). Volledigheidshalve worden ook deze gedocumenteerd. Alle instructies van de onbedoelde verzameling worden voorafgegaan door een rood gekleurde mnemoniek.
+
+OPMERKING: De onbedoelde instructies zijn momenteel niet geïmplementeerd en er wordt niet gegarandeerd dat zij exact dezelfde resultaten produceren als op andere CPU's van de 65xx-familie. Het is bekend dat veel van deze instructies instabiel zijn, zelfs wanneer zij op oude hardware draaien.
+
+\subsection{Opcodetabel}
+
+De opcodetabel vermeldt alle mogelijke opcodes, hun grootte, cycli en adresseermethode in een beknopt formaat.
+
+Een cel met een lichtrode achtergrond duidt een \textcolor{red}{onbedoelde} instructie aan.
+
+\begin{center}
+\begin{tabular}{c|c|c|}
+  \cline{2-3}
+  & \$x0 & \$x1 \\\hline
+  \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{mode}{size}{cyc} & \OPill\OPC{OPC}{mode}{size}{cyc} \\\hline
+\end{tabular}
+\end{center}
+
+De letters die aan het aantal cycli zijn toegevoegd, hebben de volgende betekenis:
+
+\begin{center}
+  \begin{tabular}{|p{2em}|l|}
+  \cline{1-2}
+  & {\bf Betekenis} \\\hline\multicolumn{1}{|c|}{$b$} & Voeg één cyclus toe als een branch wordt genomen. \\                          & Voeg één cyclus extra toe als een genomen branch een paginagrens overschrijdt. \\\hline\multicolumn{1}{|c|}{$p$} & Voeg één cyclus toe als indexering een paginagrens overschrijdt. \\\hline
+  \end{tabular}
+\end{center}
+
+\input{dutch/opcodetable-6502}
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+\input{dutch/instructionset-6502}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
+
+\clearpage
+\section{De instructieset van de 4510}
+
+\subsection{Instructietiming}
+
+Merk op dat het aantal cycli afhangt van de snelheidsinstelling van de processor: sommige instructies nemen meer of minder cycli wanneer de processor op volle snelheid draait, op een C65-compatibele 3.5 MHz-snelheid of op een C64-compatibele 1 MHz/2 MHz-snelheid. Meer gedetailleerde informatie hierover staat vermeld bij de informatie van elke instructie, maar het overzicht op hoofdlijnen is:
+
+\begin{itemize}
+\item Wanneer de processor op 1 MHz draait, nemen alle instructies ten minste twee cycli en worden er dummy-cycli opnieuw ingevoegd in de Read-Modify-Write-instructies, zodat alle instructies exact hetzelfde aantal cycli nemen als op een 6502.\item De Read-Modify-Write-instructies en alle instructies die een waarde uit het geheugen lezen, vereisen allemaal een extra cyclus wanneer zij op volle snelheid draaien, om de signalen de gelegenheid te geven zich binnen de processor te verplaatsen.\item De Read-Modify-Write-instructies vereisen een extra cyclus wanneer de operand \$D019 is, omdat de dummy-schrijfbewerking in dat geval wordt uitgevoerd. Dit dient om de compatibiliteit te verbeteren met C64-software die deze ``bug'' van de 6502 vaak gebruikt om VIC-II-interrupts sneller te bevestigen.\item De straffen voor paginagrensoverschrijding en branch-neming zijn niet van toepassing wanneer de processor op volle snelheid draait.\item Veel instructies vereisen minder cycli wanneer de processor op volle snelheid draait, omdat over het algemeen de meeste niet-bus-cycli worden verwijderd. Het duwen en halen van waarden van en naar de stack vereist slechts 2 cycli in plaats van de 4 die de 6502 voor dergelijke instructies nodig heeft.
+\end{itemize}
+
+\subsection{Opcodetabel}
+
+De gekleurde cellen duiden een uitgebreide 45GS02-opcode aan. Een opcode met het Q Pseudo Register is blauw gemarkeerd en een Base-Page-indirecte, Z-geïndexeerde opcode die gebruik kan maken van 32-bits pointers is cyaan.
+
+\begin{center}
+  \begin{tabular}{c|c|c|c|}
+    \cline{2-4}
+    & \$x0 & \$x1 & \$x2 \\\hline
+    \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{mode}{size}{cyc} & \OPquad\OPCQ{QOP}{mode}{size}{cyc} & \OPfarq\OPCQ{FARQ}{IbpZ}{size}{cyc} \\\hline
+  \end{tabular}
+\end{center}
+
+De letters die aan het aantal cycli zijn toegevoegd, hebben de volgende betekenis:
+
+\begin{center}
+  \begin{tabular}{|p{2em}|l|}
+  \cline{1-2}
+& {\bf Betekenis} \\\hline\multicolumn{1}{|c|}{b} & Voeg één cyclus toe als een branch wordt genomen. \\    & Voeg één cyclus extra toe als een genomen branch een paginagrens overschrijdt. \\\hline\multicolumn{1}{|c|}{d} & Trek één cyclus af wanneer de CPU op 3.5 MHz draait.  \\\hline\multicolumn{1}{|c|}{i} & Voeg één cyclus toe wanneer de kloksnelheid 40 MHz bedraagt. \\\hline\multicolumn{1}{|c|}{m} & Trek de niet-bus-cycli af wanneer de CPU op 40 MHz draait.  \\\hline\multicolumn{1}{|c|}{p} & Voeg één cyclus toe als indexering een paginagrens overschrijdt. \\\hline\multicolumn{1}{|c|}{r} & Voeg één cyclus toe wanneer de kloksnelheid 40 MHz bedraagt. \\\hline\multicolumn{1}{|c|}{s} & De instructie vereist 2 cycli wanneer de CPU op 1 MHz of 2 MHz draait. \\\hline
+  \end{tabular}
+\end{center}
+
+\input{dutch/opcodetable-4510}
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+\input{dutch/instructionset-4510}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
+
+\section{Samengestelde instructies van de 45GS02}
+
+Omdat de 4510 geen ongebruikte opcodes heeft, gebruikt de 45GS02 samengestelde instructies om de uitbreiding te implementeren. Deze samengestelde instructies bestaan uit één of meer instructies van één byte, welke onmiddellijk vóór een conventionele instructie worden geplaatst. Deze prefixes geven de 45GS02 de opdracht de volgende instructie anders te behandelen, zoals beschreven in \bookvref{cha:cpu}.
+
+\underline{OPMERKING}: Prefix-instructies worden door de CPU uitgevoerd alsof het zelfstandige instructies zijn, nog voordat de samengestelde instructie wordt herkend. Dit kan van invloed zijn op de vlagstatus. De instructiebytes 42 42 8D voeren bijvoorbeeld twee NEG-instructies uit, gevolgd door de samengestelde STQ-instructie. De NEG-instructies kunnen van invloed zijn op de N- en Z-vlaggen, afhankelijk van de inhoud van het accumulatorregister.
+
+U vindt de samengestelde instructies gemarkeerd in de 4510-opcodetabel. Zie \bookvref{sec:opctable4510}.
+
+% Opcodes can have multiple meanings, so no table
+
+% No instruction timing table for compounds, as it can't
+% be correctly drawn.
+
+% Same goes for mode list.
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+\input{dutch/instructionset-45GS02}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{5}}
+
+\endgroup

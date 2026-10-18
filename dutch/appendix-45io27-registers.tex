@@ -1,0 +1,464 @@
+\chapter{45IO27 multifunctionele I/O-controller}
+
+\section{Overzicht}
+
+De 45IO27 is een multifunctionele I/O-controller die de functies van de F011-schijfstationcontroller van de C65 verenigt met de interface van de SD-kaartcontroller van de MEGA65 en een aantal andere uiteenlopende I/O-functies.
+
+Elk van deze hoofdfuncties wordt in een afzonderlijke sectie van dit hoofdstuk behandeld.
+
+\section{F011-compatibele schijfstationcontroller}
+
+De MEGA65-computer is een van de zeer weinige moderne computers die nog steeds volwaardige ondersteuning bieden voor magnetische schijfstations. Hij bevat een schijfstationcontroller die achterwaarts compatibel is met de F011D-schijfstationcontroller van de C65.
+
+Anders dan de F011D ondersteunt de schijfstationcontroller van de MEGA65 HD- en ED-media. Net als het 1541-schijfstation ondersteunt deze ook variabele datatempo's, zodat een vastberaden gebruiker schijfformaten kan ontwikkelen die meer gegevens opslaan, robuuste kopieerbeveiligingsschema's bevatten of beide.
+
+Ook andere schijfformaten kunnen worden gebruikt, zij het met wisselende inspanning, zoals het GCR-schema van de 1541 en de 1571 of het track-at-once-MFM-schema dat de Amiga\texttrademark{}-familie van computers gebruikt. Dit is mogelijk dankzij de track-DMA-functionaliteit die de 45IO27 en de 45GS02-processor gezamenlijk bieden. Deze twee apparaten werken samen om ruwe fluxsignalen van en naar diskettes te lezen of te schrijven, waardoor vrijwel elk schijfformaat kan worden gelezen of gereproduceerd.
+
+Voor Amiga\texttrademark{}-diskettes bevat de 45IO27 bovendien experimentele speciale schakelingen die het lezen van dergelijke diskettes vergemakkelijken. Zo kan de 45IO27 de unieke sectorsynchronisatiesignalen herkennen die op Amiga\texttrademark{}-diskettes worden gebruikt en de gegevenssectoren lezen. Hij haalt echter niet de 16 bytes besturingssysteemspecifieke gegevens per sector op en voert ook geen de-interleaving uit van de gescheiden vectoren van oneven en even bits ten opzichte van de volgorde waarin de Amiga\texttrademark{}-computer ze op de schijf schrijft. Het gebruik van deze speciale schakelingen is optioneel. De track-DMA-functionaliteit kan dus ook worden gebruikt om Amiga\texttrademark{}-diskettes te lezen.
+
+
+\subsection{Ondersteuning voor meerdere schijfstations}
+
+Net als de F011-schijfstationcontroller van de C65 ondersteunt de 45IO27 maximaal acht stations. Van die stations wordt aangenomen dat de eerste twee, station 0 en station 1, zijn aangesloten op een standaard 34-pins diskettekabel, dezelfde als in standaard-pc's, dus met een draai in de kabel zodat er twee stations zonder jumpers kunnen worden gebruikt.
+
+Zoals in latere secties wordt beschreven, kunnen de posities van station 0 en station 1 worden omgewisseld zonder dat de bekabeling hoeft te worden gewijzigd. Evenzo kan elk van de eerste twee stations verwijzen naar een echt schijfstation of naar een op een aangesloten SD-kaart opgeslagen D81-schijfimage, en kan het ook worden omgeleid naar de virtualisatiedienst voor schijfstations, zodat de sectortoegangen door een aangesloten computer kunnen worden afgehandeld, bijvoorbeeld als onderdeel van een comfortabele en efficiënte cross-development-omgeving.
+
+De overige zes stations worden alleen ondersteund in combinatie met een toekomstige C1565-compatibele externe stationpoort.
+
+\subsection{Bewerkingen met gebufferde sectoren}
+\label{subsec:reading-from-disks-and-buffer-management}
+
+De 45IO27 ondersteunt twee manieren om sectoren van een schijf te lezen: byte voor byte en via een in het geheugen ingemapte sectorbuffer.
+
+Het mechanisme byte voor byte bestaat uit een lus die wacht totdat het DRQ-signaal actief wordt en daarna het databyte uit het DATA-register (\$D087) leest.
+
+Bij de methode met de in het geheugen ingemapte sectorbuffer wacht u totdat de BUSY-vlag wordt gewist. Wanneer deze gewist is, is de volledige sector gelezen en kunt u direct de sectorbuffer op \$FFD6C00 -- \$FFD6DFF benaderen. Let erop dat het BUFSEL-signaal (bit 7 van \$D689) is gewist, zodat voor andere programma's dan de Hypervisor de diskettesectorbuffer zichtbaar is in plaats van de SD-kaart-sectorbuffer. Dit komt doordat alleen de Hypervisor toegang heeft tot de volledige 4KB-bufferruimte van de SD-controller: gewone programma's zien ofwel de diskettesectorbuffer ofwel de SD-kaart-sectorbuffer, acht keer herhaald tussen \$FFD6000 en \$FFD6FFF.
+
+Alternatief kan de sectorbuffer worden ingemapt op \$DE00 -- \$DFFF, d.w.z. in het 4KB-I/O-gebied, door \$81 naar het SD-commandoregister op \$D680 te schrijven. Eventuele I/O-periferieën die dit gebied anders gebruiken, zoals cartridges of REU-emulatie, worden dan verborgen. Deze functie kan weer worden uitgeschakeld door \$82 naar het SD-commandoregister te schrijven. Net als bij de normale geheugentoewijzing van de sectorbuffer op \$FFD6xxx, bepaalt het BUFSEL-signaal (bit 7 van \$D689) voor software die niet in hypervisormodus draait of de FDC-sectorbuffer of de SD-kaart-sectorbuffer zichtbaar is. Let op: wanneer u de Matrix Mode / serial-monitor-interface gebruikt om de inhoud van de sectorbuffer te bekijken, gebeurt dat in de hypervisorcontext. Het BUFSEL-signaal wordt dan genegeerd en de volledige 4KB-buffer is zichtbaar.
+
+De in het geheugen ingemapte sectorbuffer heeft als voordeel dat hij via DMA kan worden benaderd, waardoor zeer efficiënte kopieën mogelijk zijn. Bovendien kan een sector op de achtergrond worden geladen terwijl uw programma zich in de tussentijd met interessantere zaken bezighoudt.
+
+\subsection{Sectoren van een schijf lezen}
+
+Om een sector van een schijf te kunnen lezen, moet u een aantal stappen doorlopen. Volgt u deze aanwijzingen op, dan werkt uw code zowel met fysieke schijven als met D81-schijfimages die zich op de SD-kaart bevinden:
+
+\begin{itemize}
+\item Schakel eerst de motor in en selecteer het juiste station. De F011 ondersteunt maximaal acht fysieke stations, hoewel het zelden voorkomt dat er meer dan twee fysiek zijn aangesloten. Om de motor in te schakelen schrijft u \$60 naar \$D080. Schrijf daarna een SPINUP-commando (\$20) naar \$D081 en wacht totdat de BUSY-vlag (bit 7 van \$D082) wordt gewist. Het station draait dan op snelheid en is klaar om aanvragen af te handelen.\item Selecteer vervolgens de juiste zijde van de schijf door de SIDE1-vlag (bit 3 van \$D080) te zetten of te wissen. Dit heeft onmiddellijk effect.\item Gebruik daarna, afhankelijk van de behoefte, de step-in- en step-out-commando's (door \$10 en \$18 naar \$D081 te schrijven) om de leeskop naar het juiste spoor te verplaatsen. Ook na elk commando hoort u te wachten totdat de BUSY-vlag (bit 7 van \$D082) wordt gewist voordat u het volgende commando geeft.
+
+U kunt controleren of de leeskop zich op spoor 0 bevindt door de TRACK0-vlag te controleren, maar er is geen onfeilbare manier om te weten of u zich op enig ander specifiek spoor bevindt. U kunt de registers op \$D6A3 -- \$D6A5 gebruiken om de spoor-, sector- en zijdewaarde van de laatste sectorheader te zien die onder de leeskop is gepasseerd en zo een geïnformeerde schatting te maken van het momenteel geselecteerde spoor. Dit werkt echter alleen voor echte schijven, omdat schijfimages niet onder de leeskop ronddraaien. Houd er ook rekening mee dat sporen sectoren kunnen bevatten waarvan de spoorwaarden in de sectorheaders opzettelijk of per ongeluk onjuist zijn.
+
+\item Laad als vierde stap het gewenste spoor-, sector- en zijdenummer in de TRACK-, SECTOR- en SIDE-registers (\$D084, \$D085 en \$D086). De FDC is nu gereed om een sector te lezen.
+
+\item Ten vijfde moet u een passende leesopdrachtwaarde in \$D081 schrijven. Normaal is dit \$40 (64). Daarna wacht u tot het RDREQ-signaal (\$D083, bit 7) hoog wordt, wat aangeeft dat de sector gevonden is. Vervolgens wacht u ofwel op elke keer dat DRQ hoog wordt en leest u in zo'n lus byte voor byte, ofwel wacht u tot de BUSY-vlag gewist is en de DRQ- en EQ-vlaggen hoog worden, wat aangeeft dat de volledige sector in de buffer is gelezen.
+
+\end{itemize}
+
+\subsection{Automatische spoorcorrectie}
+
+De 45IO27 bevat tevens een ``auto-tune''-functie voor sporen, die wordt ingeschakeld door bit 7 van \$D696 te wissen. Die functie leest de sectorheaders om te bepalen waar de kop zich momenteel bevindt, en stapt de kop in of uit om zo het juiste spoor te bereiken. Auto-tune is standaard ingeschakeld.
+
+\subsection{Sector-scheefstand en de Target Any-modus}
+
+Het is ook het vermelden waard dat het TARGANY-signaal geactiveerd kan worden om de schijfstationcontroller te laten weten dat hij eenvoudig de volgende sector moet lezen die onder de kop passeert. Dit geldt alleen bij het gebruik van echte diskettes, waar het aanzienlijke voordeel biedt dat u de sectoren kunt lezen in de volgorde waarin ze zich op de schijf bevinden. Zo kunt u in één keer een volledig spoor lezen, zonder te hoeven wachten tot het indexgat voorbij is, of te hoeven weten welke sector als volgende onder de kop zal passeren.
+
+De C65-DOS formatteert bijvoorbeeld diskettes met een scheefstandsfactor van 7, terwijl PC's een andere scheefstandsfactor kunnen gebruiken. Als u de scheefstandsfactor van de diskette niet kent, kunt u het lezen van de sectoren op het spoor in een suboptimale volgorde plannen. Dit kan leiden tot overdrachtsnelheden van slechts 5 sectoren per seconde, vergeleken met het optimale geval van 50 sectoren per seconde. Met de juiste sectorvolgorde, of door de target any-modus te gebruiken, is het dus mogelijk om ongeveer twee volledige sporen per seconde te lezen, d.w.z. twee zijden $\times$ twee sporen, oftewel ongeveer 20 KB/seconde op DD-diskettes, of het dubbele daarvan op HD-diskettes, rond 40 KB/seconde. Dit steekt zeer gunstig af tegen de laadsnelheid van de C65-DOS, die in de C64-modus doorgaans dichter bij 1 KB/sec ligt.
+
+\subsection{Schijfindeling en logische 1581-sectoren}
+
+Het 1581-schijfformaat is ongebruikelijk in die zin dat de fysieke sectoren op de schijf een andere grootte hebben dan de datablokken die het aan de gebruiker presenteert. Concreet gebruiken de diskettes sectoren van 512 bytes, terwijl de 1581- (en C65-) DOS datablokken van 256 bytes presenteren. In elke fysieke sector worden twee blokken opgeslagen. De fysieke spoornummers lopen ook van 0 tot 79, terwijl de logische spoornummers van de DOS van 1 tot 80 lopen. Fysieke sectoren zijn ook genummerd van 1 tot 10, terwijl logische bloknummers lopen van 0 tot 39.
+
+Dit betekent dat u, als u een logische 1581-sector wilt vinden, moet weten in welke fysieke sector deze te vinden is. Om de fysieke sector te bepalen die een blok bevat, trekt u eerst één af van het spoornummer en deelt u vervolgens het sectornummer door twee. Logische sectoren 0 tot 19 van elk spoor bevinden zich in fysieke sectoren 1 tot 10 op de eerste zijde van de schijf. Logische sectoren 20 tot 39 bevinden zich in fysieke sectoren 1 tot 10 op de achterzijde van de schijf.
+
+We kunnen dus een logisch spoor en sector $t$,$s$ als volgt afbeelden op het fysieke spoor, de zijde en de sector:
+
+$track = t - 1$
+
+$sector = (s/2)+1, IFF s < 20, ELSE = ((s-20)/2) + 1$
+
+$side = 0 IFF sector < 20$
+
+Het is ook het vermelden waard dat de 45IO27 van sporen voorbij spoor 80 kan lezen, mits het schijfstation daartoe in staat is. Bijna alle 3.5-inchschijfstations kunnen ten minste één extra spoor lezen, omdat fabrikanten van diskettes historisch gezien informatie over de schijf opsloegen op het 81ste spoor. Naar onze ervaring kunnen bijna alle stations ook een 82ste spoor benaderen.
+
+\subsection{FD2000-diskettes}
+
+De CMD\texttrademark{} FD2000\texttrademark{}-schijfstations met hoge dichtheid van 3.5'' voor Commodore\texttrademark{}-computers gebruiken een ongebruikelijke schijfindeling die heel anders is dan die van PC's: Ze gebruiken 10 sectoren, net zoals op 720KB-diskettes met dubbele dichtheid, maar verdubbelen de {\em sectorgrootte} van 512 bytes naar 1024 bytes. De 45IO27 ondersteunt deze grotere sectoren momenteel niet voor gebufferde sectorbewerkingen. Ten minste ondersteuning voor alleen-lezen is gepland; deze zal in de toekomst via een core-update worden toegevoegd. FD2000\texttrademark{}- en FD4000\texttrademark{}-diskettes kunnen echter wel gelezen en geschreven worden met behulp van de track-DMA-functie.
+
+Voor het aanmaken van nieuwe diskettes ondersteunt de 45IO27 {\em bovendien} al schijven en stations met hoge dichtheid, met veel hogere capaciteiten dan de FD2000 kon bieden.
+
+\subsection{HD-diskettes en diskettes met variabele dichtheid}
+
+De 45IO27 ondersteunt variabele datatempo's, waardoor het mogelijk is HD-stations en -media te gebruiken, met een flexibele benadering van schijfformaten voor gebruikersexperimenten en een gemakkelijke omgang met formaten met hoge capaciteit voor softwaredistributie.
+
+U wordt eigenlijk alleen beperkt door uw verbeeldingskracht, de beschikbare tijd en het beperkte aantal mensen dat nog geïnteresseerd is in het in hun computer plaatsen van een diskette!
+
+Het standaardformaat voor hoge dichtheid (HD) is ``1.44MB'', met 18 sectoren per spoor over 80 sporen. Dit levert 80 sporen $\times$ 18 sectoren $\times$ 2 zijden = 2880 sectoren op. Aangezien elke sector 512 bytes groot is, komt dit overeen met 1440KB. Dit voert ons naar het interessante wonderland van ``floppy-disk marketing megabytes'', een verschijnsel dat lang voorafging aan fabrikanten van SD-kaarten en harde schijven die megabytes van 1000000 bytes gebruiken.
+
+Vreemd genoeg werd voor diskettes de ``megabyte'' van 1024000 bytes gebruikt, d.w.z. ``1MB'' = 1KB $\times$ 1KB, een vreemde hybride van binaire en decimale conventies. Misschien kwam het doordat de vorige standaard 720KB was en men dacht dat mensen het vreemd zouden vinden als het dubbele van 720KB 1.41MB was en zouden klagen over de ontbrekende kilo-bytes. We blijven voor de consistentie met deze historische ongerijmdheid de floppy-disk-marketing-mega-byte van 1024KB = 1000KB gebruiken.
+
+HD-diskettes zijn echter fundamenteel in staat om veel meer dan 1.44MB te bevatten. De FD2000 sloeg bijvoorbeeld 1.6MB op door dubbelgrote sectoren te gebruiken om het equivalent van 20 sectoren per spoor eruit te halen, en de Amiga ging verder door track-at-once-schrijven te gebruiken om er 22 sectoren per spoor in te passen. Beide formaten gebruikten over alle sporen een constant datatempo en dus een constant aantal sectoren per spoor.
+
+De omtrek van de sporen op een 3.5''-diskette varieert echter behoorlijk: Het binnenste spoor op een straal van ongeveer 25 mm heeft een lengte van 157 mm, terwijl het buitenste spoor op een straal van 40 mm een lengte van 251 mm heeft, 1.6 maal zo lang. Het 1.44MB-formaat is zo ontworpen dat de gegevens betrouwbaar worden opgeslagen op die kortere binnenste sporen. Dat betekent dat we 60\% meer gegevens op het buitenste spoor zouden moeten kunnen plaatsen dan op het binnenste spoor, binnen een aantal voorwaarden van de wetten van de fysica, het ontwerp van de schijfstation-elektronica, de kwaliteit van het gebruikte medium en diverse andere hinderlijke zaken. Vanwege deze variabiliteit en onzekerheid ondersteunt de schijfstationcontroller van de MEGA65 een volledig variabel datatempo per spoor afzonderlijk.
+
+\subsection{Track Information Blocks}
+
+Om variabele datatempo's te ondersteunen gebruikt de 45IO27 de zogeheten {\em Track Information Blocks}\index{Track Information Block} (TIB's)\index{TIB} die informatie bevatten over het datatempo en de codering die op het spoor gebruikt worden. Zo kunnen gebruikers experimenteren met verschillende dichtheden op verschillende sporen en tóch functioneren de diskettes automatisch voor gebufferde sectorbewerkingen.
+
+Het Track Information Block wordt automatisch aangemaakt bij gebruik van de functie voor het automatisch formatteren van sporen, maar moet handmatig worden aangemaakt bij gebruik van ongebufferde opmaak. De TIB zelf bestaat uit de volgende gegevens:
+
+\begin{enumerate}
+\item 3$\times$ \$A1-syncbytes (geschreven met het klokbyte \$FB)\item het \$65-marker van het MEGA65 Track Information Block (geschreven met het klokbyte \$FF, evenals alle volgende bytes in het blok)\item het spoornummer\item de datatempo-deler, in hetzelfde formaat als \$D6A2, d.w.z. datatempo = 40.5 MHz / waarde.\item de track-coderingsinformatie: bit 7 = Track-at-once-vlag, 1 = geen gaps tussen sectoren (Amiga-stijl), 0 = met gaps tussen sectoren (normaal), bit 6 = de gegevenscodering, 0 = MFM, 1 = RLL2,7. De overige bits zijn gereserveerd en moeten bij het schrijven 0 zijn.\item het aantal sectoren, d.w.z. het aantal sectoren op de track.\item CRC-byte 1, volgens het normale CRC-algoritme voor diskettes.\item CRC-byte 2, volgens het normale CRC-algoritme voor diskettes.
+\end{enumerate}
+
+Het Track Information Block wordt altijd geschreven met het datatempo voor een 720KB-diskette met dubbele dichtheid, zodat het op elke diskette aanwezig kan zijn. Het schrijven van het Track Information Block en van de start-of-track-gaps met het DD-datatempo zorgt er ook voor dat de kop bij zeer hoge datatempo's nog voldoende tijd heeft om naar de schrijfmodus over te schakelen, waardoor een van de vele problemen wordt vermeden die ontstaan bij het schrijven van gegevens met zeer hoge datatempo's.
+
+Indien u diskettes ongebufferd formatteert, is het de verantwoordelijkheid van de programmeur om het datatempo om te schakelen nadat het Track Information Block is geschreven en enkele bytes meer zijn geschreven, zodat de floppy-coderingspijplijn de laatste byte van het Track Information Block kan doorspoelen. Dit wordt allemaal automatisch afgehandeld wanneer u de automatische trackformatteringsfunctie gebruikt.
+
+De opname van het TIB stelt gebruikers in staat om op verschillende stations en media te spelen en de mogelijkheden van verschillende datatempo's te verkennen, terwijl alles in alle MEGA65's toch automatisch leesbaar blijft, omdat het TIB de controller in staat stelt om naar het juiste datatempo en de juiste codering over te schakelen. Het is waarschijnlijk dat na verloop van tijd enigszins gestandaardiseerde formaten zullen ontstaan, zeer waarschijnlijk in het bereik van 2 MB tot 3.5 MB -- en daarmee de capaciteit van ED-media in ED-stations benaderen, zonder die stations of media nodig te hebben.
+
+\subsection{Schijven formatteren}
+
+Het formatteren van schijven is nu mogelijk met de 45IO27, ongebufferd of volledig automatisch. Om een track te formatteren geeft u een van de volgende commando's aan \$D081:
+
+\begin{itemize}
+\item \$A0 -- automatisch formatteren, met gaps tussen sectoren en schrijfvoorcompensatie uitgeschakeld.\item \$A1 -- handmatig formatteren, schrijfvoorcompensatie uitgeschakeld.\item \$A4 -- automatisch formatteren, met gaps tussen sectoren en schrijfvoorcompensatie ingeschakeld.\item \$A5 -- handmatig formatteren, schrijfvoorcompensatie ingeschakeld.\item \$A8 -- automatisch formatteren, Amiga-stijl track-at-once en schrijfvoorcompensatie uitgeschakeld.\item \$AC -- automatisch formatteren, Amiga-stijl track-at-once en schrijfvoorcompensatie ingeschakeld.
+\end{itemize}
+
+Handmatig formatteren wordt niet aanbevolen, tenzij u track-at-once-geformatteerde diskettes voor softwaredistributie aanmaakt, vanwege de relatieve complexiteit daarvan. Ook moeten bij de hogere datatempo's bytes zo vaak als elke 20 cycli aan de floppy-controller worden geleverd, wat aanzienlijke zorg vereist bij het schrijven van de formatteringsroutine. Zie voor meer informatie over het handmatig formatteren van tracks, evenals voor voorbeelden van handmatig formatteren, de C64 Specifications Manual of de C65 ROM-DOS-broncode.
+
+De automatische modi daarentegen formatteren een track met één enkel commando en zijn daardoor veel eenvoudiger te gebruiken, en worden voor algemeen gebruik aanbevolen. Schrijfvoorcompensatie moet normaliter worden ingeschakeld, omdat die bij hogere datatempo's vereist is en bij lagere datatempo's geen problemen veroorzaakt.
+
+\subsection{Schrijfvoorcompensatie}
+
+Schrijfvoorcompensatie is een familie van algoritmen die wordt gebruikt bij het schrijven van signalen met een hoog datatempo naar diskettes. Zij dient om de voorspelbare component van de tijdsvariatie van magnetische opnamen te anticiperen en teniet te doen. Er zijn diverse bronnen van deze tijdsvariatie, die het onderwerp zijn geweest van promotieonderzoeken en van veel bedrijfseigen onderzoek door fabrikanten van harde schijven. Wat voor ons belangrijk is om te begrijpen, is dat aangrenzende pulsen (in feite magnetische ompolingen) naar elkaar toe worden gedrukt wanneer ze door langere pulsen worden omgeven, en de neiging hebben uit elkaar te spreiden wanneer ze door kortere pulsen worden omgeven.
+
+Er zijn ook andere fascinerend complexe en moeilijk te voorspellen factoren, die zaken veroorzaken zoals de ``negatieve verschuiving van midlange pulsen'', de ``inverse F-verdeling van pulsaankomsttijden'' en wie weet wat nog meer. Die laten we echter over aan de fabrikanten van harde schijven. Wij beperken ons tot het door het gegevenspatroon veroorzaakte effect dat in de vorige alinea is beschreven.
+
+De 45IO27 ondersteunt twee instelbare coëfficiënten voor kleine en grote correcties hierop, die met behulp van een interne opzoek (look-up) tabel worden toegepast. Dit wordt echter allemaal automatisch afgehandeld wanneer u schrijfvoorcompensatie inschakelt. Dit maakt datatempo's mogelijk die veel dichter bij de verwachte limiet van HD-media liggen, hoewel de werkelijke limiet vanwege de andere verschrikkingen van magnetische media-opnamen die hierboven zijn aangestipt, niet wordt bereikt.
+
+\subsection{Gebufferd sectorschrijven}
+
+De 45IO27 kan naar schijfimages schrijven die zich op de SD-kaart bevinden, of wanneer u gevirtualiseerde schijftoegang gebruikt.
+
+Om een sector te schrijven doorloopt u een soortgelijk proces als bij het lezen, behalve dat u \$84 in het commandobyt schrijft in plaats van \$40. De \$80 geeft een schrijfbewerking aan en de \$04 activeert de schrijfvoorcompensatie. Dit is belangrijk bij het schrijven naar echte diskettes, vooral HD- en ED-diskettes. Schrijfvoorcompensatie zorgt ervoor dat bits iets te vroeg of iets te laat worden geschreven, met behulp van een algoritme dat modelleert hoe de magnetische domeinen op een schijf de neiging hebben te bewegen nadat ze zijn geschreven.
+
+Indien u de sectorbuffer niet wilt gebruiken, maar tijdens de schrijfbewerking elk byte afzonderlijk tegelijk wilt leveren, moet u \$01 aan de commandocode toevoegen. Dit wordt op de MEGA65 echter niet aanbevolen, omdat bij het schrijven naar de SD-kaart of bij het gebruik van gevirtualiseerde schijfimages de volledige sectorbewerking vanuit het perspectief van uw programma ogenblikkelijk kan plaatsvinden. Dat betekent dat het in deze modus niet mogelijk is om gegevens betrouwbaar te leveren. Behalve dat het minder handig is, is het dus ook minder betrouwbaar.
+
+Zodra een schrijfbewerking is geactiveerd, geeft het DRQ-signaal aan wanneer u het volgende byte moet leveren indien u byte voor byte schrijft. In overige gevallen wordt aangenomen dat u de sectorbuffer vooraf hebt gevuld met de volledige benodigde 512 bytes aan gegevens.
+
+Om naar schijven te schrijven die Track Information Blocks\index{Track Information Block}\index{TIB} bevatten, moet u eerst wachten tot het TIB is gelezen bij het wisselen van tracks. Dit doet u door te wachten tot \$D6A9 (aantal sectoren per track uit het TIB) een waarde ongelijk aan nul bevat.
+
+\subsection{Floppy-track-DMA}
+\index{Track-DMA}\index{Floppy-DMA}\index{Track at once}
+
+Zoals eerder beschreven, verbindt de 45IO27 zich met de 45GS02-CPU, en in het bijzonder met de interne DMA-controller daarvan, om een eenvoudig mechanisme te bieden voor het lezen en schrijven van de ruwe magnetische fluxovergangen van diskettes. Naast het mogelijk maken van software die elk mogelijk schijfformaat kan lezen, maakt het ook het schrijven en dupliceren van vrijwel elk schijfformaat mogelijk. Wij zeggen 'vrijwel', omdat het mogelijk is dat diskettes worden geschreven met speciale machines die mogelijkheden hebben die die van het floppy-stationmechanisme van de MEGA65 te boven gaan. Fat tracks is hiervan een voorbeeld. Een ander voorbeeld is dat de magnetische fluxovergangen zodanig worden geplaatst en/of gespreid dat een normaal floppy-station ze niet precies kan reproduceren.
+
+\subsubsection{Floppy-track-DMA gebruiken}
+
+De volgende DMA-opties vertellen de DMAgic-controller om in plaats van een geheugenlocatie ruwe fluxwaarden te lezen of schrijven. In deze modus wacht de DMAgic-controller op het ontvangen van elk opeenvolgend pulsinterval van de 45IO27. De gegevens die hij aldus leest (of schrijft) zijn de duur tussen elke opeenvolgende fluxompoling, in eenheden van 50ns.
+
+\begin{itemize}
+\item \$0D - Schrijf ruwe fluxintervallen. Stel de DMA in op COPY-modus om dit te gebruiken.\item \$0E - Lees ruwe fluxintervallen en negeer onwaarschijnlijk lange intervallen. Stel de DMA in op FILL-modus om dit te gebruiken.\item \$0F - Lees ruwe fluxintervallen en retourneer onwaarschijnlijk lange intervallen als \$FF. Stel de DMA in op FILL-modus om dit te gebruiken.
+\end{itemize}
+
+Zie floppytest.c in de mega65-tools-repository van de MEGA65-githubsite op \url{https://github.com/mega65-tools}voor voorbeeldcode die sporen leest met behulp van deze functionaliteit.
+
+\subsubsection{De beperkingen van schijfstations begrijpen}
+
+Bij het schrijven van ruwe fluxovergangen moet u rekening houden met de beperkingen van standaard schijfstations. Er zijn drie belangrijke factoren waarmee rekening moet worden gehouden:
+
+\begin{itemize}
+\item Twee overgangen kunnen niet te dicht bij elkaar worden geplaatst. Het station weigert ze namelijk eenvoudigweg te schrijven als ze minder dan een zekere afstand uit elkaar liggen. Zelfs wanneer u ze toch weet te schrijven, voegt het leesfiltercircuit van het schijfstation pulsen die te dicht bij elkaar staan samen.\item Twee overgangen kunnen niet te ver uit elkaar worden geplaatst. In dat geval schrijft het station ze zonder bezwaar, maar het leesfiltercircuit raakt ongerust als het een tijdje geen puls ziet, begint te denken dat de achtergrondruis echte signalen zijn en introduceert valse pulsen in de leesstroom die in werkelijkheid niet op de schijf staan.\item Magnetische pulsen verplaatsen zich op de schijf wanneer u ze schrijft! De natuurkunde hierachter is erg complex en hangt af van de reeks afstanden tussen opeenvolgende pulsen, van de gegevens die eerder op het spoor zijn geschreven en, zo voelt het, ook van de maanstand en de kleur van uw ondergoed. Er zijn enkele vuistregels die bij ``typische''-pulsafstandsintervallen kunnen worden gebruikt om dit gedeeltelijk te beperken. Deze regels heten schrijfvoorcompensatie: de pulsen worden vóór het schrijven verplaatst, zodat ze na het schrijven op de juiste plaats terechtkomen. De 45IO27 past al schrijfvoorcompensatie toe voor HD-geformatteerde schijven. Het effect van het verplaatsen van pulsen is vooral uitgesproken bij pulsen die dichter bij elkaar liggen.\item Hoe hoger genummerd een spoor is, des te korter het is. Dat betekent dat de pulsen in de tijd verder uit elkaar moeten liggen om op een spoor op dezelfde afstand van elkaar te staan. Daarom past de 1541 minder gegevens op hoger genummerde sporen. Dit is vooral uitgesproken bij hogere datatempo's, waar de ``magnetische resolutie'' van de schijven een probleem wordt. Om het nog erger te maken is de sterkte van de magnetische signalen evenredig aan de snelheid waarmee het spoor passeert. Dat betekent dat bij hoger genummerde sporen, die dichter bij het midden van de schijf liggen, niet alleen de ``magnetische resolutie'' lager is door de kortere sporen, maar ook de lineaire snelheid van de schijf onder de kop lager is, wat resulteert in zwakkere signalen.
+\end{itemize}
+
+Het is de combinatie van deze factoren die doorgaans beperkt hoe dicht u gegevens op een diskette kunt pakken -- samen uiteraard met de kwaliteit en toestand van de diskette en het schijfstation. De HD+-schijfformaten van de MEGA65, die rond de 3MiB op een standaard diskette van 1.44MiB kunnen passen, besteden bijzondere aandacht aan het beheersen van deze factoren. Daarom gebruiken die formaten veel verschillende dichtheidszones en gebruiken ze bovendien RLL27-codering in plaats van MFM-codering, omdat die de minimale afstand tussen pulsen vergroot.
+
+
+\subsection{F011-registers van de schijfstationcontroller}
+
+De volgende registers zijn de set F011-compatibiliteitsregisters van de 45IO27. Registers die verband houden met het gebruik van opslag op basis van SD-kaarten vindt u in de overeenkomstige sectie hieronder.
+
+\input{dutch/regtable_FDC.C65}
+
+De volgende registers zijn uitsluitend van toepassing op de 45IO27, d.w.z. ze zijn specifiek voor de MEGA65:
+
+\input{dutch/regtable_FDC.MEGA65}
+
+\section{SD-kaartcontroller en F011-virtualisatiefuncties}
+
+Voor situaties waarin u geen echte diskettes wilt gebruiken, ondersteunt de 45IO27 twee complementaire alternatieve modi:
+
+\begin{itemize}
+\item Toegang tot schijfimages op basis van de SD-kaart.\item Gevirtualiseerde toegang tot schijfimages.
+\end{itemize}
+
+Dit komt bovenop de directe toegang tot een dual-bus-SD-kaartinterface.
+
+\subsection{Toegang tot schijfimages op basis van de SD-kaart}
+
+De 45IO27 is tegelijk een schijfstation en een SD-kaartcontroller. Hierdoor kan het apparaat transparant toegang bieden tot D81-schijfimages die op de SD-kaart zijn opgeslagen. Verder is het, omdat de controller is gecombineerd, mogelijk om het schijfstation nog steeds te laten stappen en draaien alsof het wordt gebruikt, wat voor aanzienlijke sfeer en een gevoel van realisme zorgt, zelfs wanneer u schijfimages gebruikt.
+
+De 45IO27 ondersteunt zowel standaard D81-schijfimages van 800KB als ``MEGA Images'' van 64MB. Hoewel een besturingssysteem beperkingen kan opleggen op basis van de naam van een bestand, is de 45IO27 blind voor deze eisen. In plaats daarvan vereist het apparaat enkel dat een {\tt aaneengesloten} blok van 800KB of 64MB van de SD-kaart wordt gebruikt om een schijfimage te bevatten.
+
+Wanneer een schijfimage wordt ingeschakeld, worden de overeenkomstige sectoren op de SD-kaart feitelijk onder de controle van de gebruiker geplaatst en kan het besturingssysteem het lezen of schrijven van die sectoren niet langer verhinderen. U moet daarom nooit toegang inschakelen tot een image dat korter is dan de vereiste grootte, omdat het de gebruiker anders in staat stelt onbedoeld of kwaadwillig gegevens te openen en/of te wijzigen die geen deel uitmaken van het imagebestand.
+
+Om dezelfde reden kan alleen de hypervisor het sectornummer wijzigen waar een schijfimage begint (de D?STARTSEC?-signalen), of het gebruik van schijfimages in plaats van het echte schijfstation toestaan (de USEREAL0- en USEREAL1-signalen). Zodra de hypervisor de beginsector van een schijfimage heeft ingesteld en het USEREAL0- of USEREAL1-signaal heeft gewist, kan de gebruiker nog steeds bepalen of een toegang naar het echte schijfstation of naar het schijfimage gaat, door het betreffende signaal respectievelijk te wissen of te zetten. Voor station 0 is dit D0IMG, en voor station 1 is het D1IMG.
+
+Er zijn ook signalen die bepalen of een schijfimage een D81-image van 800KB of een MEGA Disk-image van 64MB is, of een schijfimage aanwezig is en of het schrijfbeveiligd is. Deze bevinden zich allemaal in het \$D68B-register. Omdat manipulatie van deze registers gegevens kan beschadigen of er op ongeoorloofde wijze toegang toe kan geven, zijn deze signalen allemaal alleen-lezen, behalve vanuit de hypervisor.
+
+De volgende tabel geeft de registers weer die worden gebruikt om de toegang tot de schijfimages op de SD-kaart te regelen:
+
+\input{dutch/regtable_SDFDC.MEGA65}
+
+\subsection{F011-virtualisatie}
+
+Naast het toestaan van automatische lees- en schrijftoegang tot D81-images op basis van de SD-kaart, is het mogelijk een programma op de seriële monitorinterface aan te sluiten dat gegevens verschaft en aanvaardt alsof het de diskette was.
+
+Dit wordt gewoonlijk gebruikt in een cross-ontwikkelomgeving, waarin u een schijfimage vaak wilt wijzigen dat door een programma wordt gebruikt dat u ontwikkelt -- zonder dat u telkens nieuwe versies van het schijfimage eerst op de SD-kaart van de MEGA65 hoeft te zetten. Het heeft bovendien het bijkomende voordeel dat u gemakkelijk kunt visualiseren welke sectoren worden gelezen en geschreven, wat de ontwikkeling en het opsporen van fouten in uw programma kan versnellen.
+
+Deze functie werkt samen met de hypervisor van de MEGA65 door hyperrupts te activeren (dat zijn interrupts die de hypervisor activeren). In de hypervisor zit dan speciale code die via de seriële monitorinterface met het {\tt m65}-programma communiceert.
+
+Als dat allemaal tamelijk ingewikkeld klinkt: alles wat u hoeft te weten is dat u deze functie gebruikt door het {\tt m65}-hulpprogramma uit te voeren met argumenten als {\tt -d image.d81}. Hiermee zou de verbinding met de MEGA65 automatisch tot stand moeten komen. Als de BASIC-interpreter niet meer reageert, drukt u op de resetknop (niet op de netschakelaar) aan de linkerkant van uw MEGA65, en zou deze moeten terugkeren naar de {\tt READY.}-prompt van BASIC -- en als uw meegeleverde schijfimage een C65-auto-bootfunctie heeft, zou deze automatisch moeten beginnen met opstarten.
+
+Deze functie werkt uitstekend indien de hostcomputer Linux draait en maakt laden mogelijk met een snelheid van ongeveer 60KB per seconde. Op Windows- of Apple OSX-systemen kan de snelheid echter aanzienlijk lager liggen.
+
+Om dit te gebruiken heeft u bovendien een interface-module en/of kabel nodig om uw cross-ontwikkelingssysteem op de seriële monitorinterface van de MEGA65 aan te sluiten. Dit doet u het eenvoudigst met een Trenz TE0790-03 JTAG-adapter en een mini-USB-kabel.
+
+Meer informatie over het gebruik van deze interface en het {\tt m65}-hulpprogramma vindt u in \bookvref{cha:transfer-and-debug-tools}.
+
+\subsection{Dual-bus SD-kaartcontroller}
+
+De 45IO27 bevat een snelle dual-bus SD-kaartcontroller. Deze controller werkt in de SPI x1-modus met een kloksnelheid van 20MHz en biedt een maximale doorvoer van ongeveer 2MB per seconde. De kwaliteit van de SD-kaart is bepalend voor de prestaties: sommige kaarten leveren doorgaans 1.7MB per seconde, terwijl andere 1MB per seconde of minder halen. Over het algemeen presteren nieuwere kaarten die geschikt zijn voor video-opnamen beter. De controller ondersteunt SDHC-kaarten en heeft experimentele ondersteuning voor SDXC-kaarten. Oudere SD-kaarten met een capaciteit van 2GB of minder worden niet ondersteund, omdat deze een andere adresseringsmethode gebruiken.
+
+De SD-controller zelf is eenvoudig aan te sturen: geef het sectornummer op in \$D681--\$D684 en geef vervolgens een lees- of schrijfcommando aan het commandoregister (\$D680). De SD-controller ondersteunt alleen sectorgebaseerde gebufferde bewerkingen via de sectorbuffer. In hypervisormodus bevindt de sectorbuffer zich op \$FFD6E00--\$FFD6FFF, terwijl de SD-kaart en de schijfstationcontroller in de normale werkingsmodus van de computer één adres delen voor zowel de diskettesectorbuffer als de SD-kaartsectorbuffer. Welke buffer op dat adres zichtbaar is, wordt bepaald door het BUFSEL-signaal. Bij een waarde van 1 is de SD-kaartbuffer zichtbaar, bij 0 de diskettesectorbuffer. Zie ook subsectie \vref{subsec:reading-from-disks-and-buffer-management} voor een nadere beschrijving van het precieze gedrag van deze buffer in de normale modus ten opzichte van de hypervisormodus, en hoe deze ook op \$DE00 kan worden gemapt.
+
+\subsubsection{Write-gate}
+
+Bij het schrijven van een sector moet u eerst de write-gate openen. Dit is een mechanisme dat onbedoelde gegevenscorruptie op de SD-kaart voorkomt: u moet twee verschillende waarden achtereenvolgens naar het commandoregister (\$D680) schrijven. Na het openen van de write-gate heeft u ongeveer één milliseconde om het schrijfcommando te geven, waarna de write-gate weer sluit en de SD-kaart wordt beschermd tegen schrijven totdat de write-gate opnieuw wordt geopend. Er zijn twee aparte write-gates: één voor het master boot record (sector 0) en één voor alle overige sectoren, beide vermeld in de commandotabel hieronder. Dit biedt extra bescherming van het zeer belangrijke master boot record tegen programma's die per ongeluk sector 0 als doel van een gewone schrijfoperatie berekenen.
+
+\subsubsection{Vulmodus}
+
+Wanneer u sectoren met een constante waarde wilt vullen, ondersteunt de 45IO27 hiervoor een speciale modus, zodat u de inhoud van de sectorbuffer niet hoeft te overschrijven. U activeert dit door de gewenste vulwaarde in het FILLVAL-register (\$D686) te plaatsen, vervolgens het commando om de vulmodus in te schakelen (\$83) te geven, de schrijfbewerkingen uit te voeren en tenslotte het commando om de vulmodus uit te schakelen (\$84) te geven.
+
+\subsubsection{Selectie tussen meerdere SD-kaarten}
+
+De controller ondersteunt twee SD-kaartinterfaces, en het is mogelijk om in beide interfaces tegelijkertijd een kaart te hebben. Elke kaart moet echter apart worden gereset en aangestuurd. Er kan tegelijkertijd slechts één kaart worden aangestuurd. U kunt wel elke kaart eenmaal resetten en vervolgens tussen de kaarten wisselen om individuele bewerkingen uit te voeren.
+
+Om de eerste SD-kaartslot te selecteren, schrijft u \$C0 naar het SD-controllercommandoregister (\$D680). Om de tweede SD-kaartslot te selecteren, schrijft u in plaats daarvan \$C1.
+
+\subsubsection{Commandotabel van de SD-controller}
+
+De SD-controller ondersteunt de volgende commando's die naar het commandoregister op \$D680 geschreven kunnen worden:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2cm}|L{9cm}|}
+\hline
+{\bf{Commando}} & {\bf{Functie}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots vervolgd}\\
+\hline
+{\bf{Commando}} & {\bf{Functie}} \\
+\endhead
+\multicolumn{2}{l@{}}{vervolgd \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$00 (0) & Zet de SD-kaart in reset (verouderd. Gebruik in plaats daarvan commando \$10) \\
+ \hline
+\small \$01 (1) & Haal de SD-kaart uit reset \\
+ \hline
+\small \$02 (2) & Lees een sector van de SD-kaart \\
+ \hline
+\small \$03 (3) & Schrijf één sector naar de SD-kaart \\
+ \hline
+\small \$04 (4) & Schrijf de eerste sector van een meervoudige schrijfbewerking naar de SD-kaart \\
+ \hline
+\small \$05 (5) & Schrijf een volgende sector van een meervoudige schrijfbewerking naar de SD-kaart \\
+ \hline
+\small \$06 (6) & Schrijf de laatste sector van een meervoudige schrijfbewerking naar de SD-kaart \\
+ \hline
+\small \$0C (12) & Vraag om het doorspoelen van de schrijfbuffers van de SD-kaart (experimenteel) \\
+ \hline
+\small \$0E (14) & Trek de SD-handshakelijn laag (alleen voor foutopsporing) \\
+ \hline
+\small \$0F (15) & Trek de SD-handshakelijn hoog (alleen voor foutopsporing) \\
+ \hline
+\small \$10 (16) & Zet de SD-kaart in reset met ingestelde vlaggen (voorkeursmethode) \\
+ \hline
+\small \$11 (17) & Haal de SD-kaart uit reset (alternatieve methode) \\
+ \hline
+\small \$40 (64) & Wis de SDHC/SDXC-vlag en selecteer daarmee de verouderde SD-kaartmodus (verouderd)  \\
+ \hline
+\small \$41 (65) & Zet de SDHC/SDXC-modusvlag   \\
+ \hline
+\small \$44 (68) & Beëindig het geforceerd wissen van de foutvlag van de SD-kaart-toestandsmachine \\
+ \hline
+\small \$45 (69) & Begin het geforceerd wissen van de foutvlag van de SD-kaart-toestandsmachine \\
+ \hline
+\small \$4D (77) & Open de write-gate voor sector 0 (master boot record) gedurende ongeveer 1 milliseconde \\
+ \hline
+\small \$57 (87) & Open de write-gate voor alle sectoren > 0 gedurende ongeveer 1 milliseconde \\
+ \hline
+\small \$81 (129) & Schakel het mappen van de SD/FDC-sectorbuffer op \$DE00 -- \$DFFF in \\
+ \hline
+\small \$82 (130) & Schakel het mappen van de SD/FDC-sectorbuffer op \$DE00 -- \$DFFF uit \\
+ \hline
+\small \$83 (131) & Schakel de vulmodus van de SD-kaart in \\
+ \hline
+\small \$84 (132) & Schakel de vulmodus van de SD-kaart uit \\
+ \hline
+\small \$C0 (192) & Selecteer SD-kaartslot 0 \\
+ \hline
+\small \$C1 (193) & Selecteer SD-kaartslot 1 \\
+ \hline
+   \end{longtable}
+
+
+Merk op dat de hypervisor de rechtstreekse toegang tot de SD-controller kan in- of uitschakelen. Het besturingssysteem van de hypervisor kan een mechanisme bieden om toestemming te vragen voor toegang tot de SD-kaartcontroller, bijvoorbeeld voor hulpprogramma's voor schijfbeheer.
+
+De registers van de SD-kaartcontroller zijn als volgt:
+
+\input{dutch/regtable_SD.MEGA65}
+
+\section{Touchpadinterface}
+
+Bepaalde MEGA65-varianten zijn uitgerust met een LCD-touchpad, met name de handheld MEGAphone-versie van de MEGA65. De aanraakinterface ondersteunt het detecteren van twee gelijktijdige aanraakgebeurtenissen. Sommige varianten ondersteunen mogelijk ook gebarenherkenning, hoewel deze nog zeer experimenteel is.
+
+De aanraakdetectie-interface in de 45IO27 wordt aangevuld door de schermtoetsenbordinterface van de 4551-UART- en GPIO-controller. Raadpleeg \bookref{sec:uartmisc} voor verdere informatie. Bijzonder relevant is bit 7 van de registers \$D615 --\$D617, die het mogelijk maakt de schermtoetsenbordinterface te activeren, te kiezen of het schermtoetsenbord in het bovenste of onderste gedeelte van het scherm wordt geplaatst, en of het primaire of secundaire schermtoetsenbord wordt weergegeven.
+
+De rechtstreekse verbindingen tussen de 4551 en de 45IO27 combineren informatie over het op dat moment weergegeven schermtoetsenbord en de aanraakinterfacecontroller, waardoor synthetische toetsenbordgebeurtenissen automatisch worden geactiveerd wanneer u op het schermtoetsenbordgedeelte van de aanraakinterface drukt. Hierdoor kan de aanraakinterface worden gebruikt om het schermtoetsenbord aan te sturen, zonder dat daarvoor ondersteuning van gebruikersprogramma's nodig is. Dit werkt zelfs wanneer het schermtoetsenbord beweegt tijdens de activering of wanneer het tussen de boven- en onderkant van het scherm wordt verplaatst.
+
+Omdat aanraakinterfaces kalibratie kunnen vereisen, biedt de 45IO27 een lineaire transformatie van zowel de X- als de Y-coördinaten van een aanraakgebeurtenis. Er zijn specifiek schaalregisters (TCHXSCALE en TCHYSCALE) en offsetregisters (TCHXDELTA en TCHYDELTA) die deze transformatie verzorgen. Het is ook mogelijk de coördinaten van het touchpad te spiegelen op de X-as, de Y-as, of op beide assen. Deze kalibratieregisters beïnvloeden ook de werking van het schermtoetsenbord.
+
+Er dient ook te worden opgemerkt dat sommige aanraakinterfaces geen constante horizontale of verticale resolutie hebben. Sommige panelen hebben bijvoorbeeld een gedeelte met een lage horizontale resolutie in het midden van het paneel, waarvoor enige zorg nodig kan zijn.
+
+Om de primaire aanraakgebeurtenis te detecteren, kunnen de registers TOUCH1XLSB, TOUCH1XMSB, TOUCH1YLSB en TOUCH1YMSB worden gelezen. Voor de tweede aanraakgebeurtenis bestaan vergelijkbare registers: TOUCH2XLSB, TOUCH2XMSB, TOUCH2YLSB en TOUCH2YMSB. Elke aanraakgebeurtenis heeft een vlag van één bit die aangeeft of de aanraakgebeurtenis op dat moment geldig is: de EV1- en EV2-bits van het register \$D6B0. Er zijn ook overeenkomstige bitvelden die aangeven of een bepaalde aanraakgebeurtenis is ingedrukt of losgelaten, waardoor kan worden gedetecteerd wanneer een vinger zowel contact met het scherm maakt als het contact verbreekt. De UPDN1- en UPDN2-signalen verschaffen deze informatie. Binaire waarden van respectievelijk 01 en 10 geven aan of de vinger van het touchpad is verwijderd of ertegen is gedrukt. De waarden 00 en 11 betekenen dat een vinger al dan niet tegen het touchpad wordt gehouden.
+
+De primaire aanraakgebeurtenis wordt tevens ingevoerd in de lichtpen\index{lichtpen}-ingang van de VIC-IV en kan worden gedetecteerd met de gewone lichtpenregisters van de VIC-IV.
+
+De registers voor de touchpadinterface zijn als volgt:
+
+\input{dutch/regtable_TOUCH.MEGA65}
+
+\section{Ondersteunende functies voor audio}
+\index{cross-bar-schakelaar, audio}
+\index{mixer, audio}
+\index{audiomixer}
+\index{audio-cross-bar-schakelaar}
+De 45IO27 verschaft de primaire interface naar de volledige cross-bar-audiomixer van de MEGA65. Dit omvat de interface voor het lezen of wijzigen van de mixercoëfficiënten, de toegang tot de feedbackregisters van de mixer en het instellen van de 16-bits digitale samplewaarden, welke tevens twee van de ingangskanalen van de audiomixer vormen.
+
+De audiomixer bestaat uit 128 coëfficiënten, die elk 16 bits groot zijn. Elk audio-uitgangskanaal, zoals de luidspreker links, de luidspreker rechts, de hoofdtelefoon links, de hoofdtelefoon rechts, de cellulaire modem 1 (alleen op MEGAphone-modellen) enzovoort, wordt gegenereerd door elk audio-ingangskanaal te nemen, het met de passende coëfficiënt te vermenigvuldigen en het aan de totale uitvoer van het audio-uitgangskanaal toe te voegen.
+
+Omdat elk audio-uitgangskanaal zijn eigen reeks coëfficiënten heeft die op alle audio-ingangskanalen worden toegepast, betekent dit dat het mogelijk is om volstrekt verschillende audio uit te voeren over elk audiokanaal: Zo is het bijvoorbeeld mogelijk om uw favoriete quadrafonische SID-muziek af te spelen via de hoofdtelefoon terwijl u voorbijgangers trakteert op Amiga-stijl MOD-audio. Dit is de reden dat de audiomixer een {\tt full  cross-bar}-mixer wordt genoemd, omdat er geen beperkingen zijn aan de wijze waarop u elk audio-uitgangskanaal mixt. In dit opzicht lijkt hij sterk op een volwaardige audiomengtafel, en maakt hij verschillende mengniveaus voor verschillende luidsprekers mogelijk.
+
+Omdat de audiocoëfficiënten elk 16 bits groot zijn, wordt elke coëfficiënt gevormd door twee opeenvolgende bytes van de audiocoëfficiëntenruimte. Wijzigingen aan de audiocoëfficiënten worden onmiddellijk van kracht, dus dient er voorzichtigheid te worden betracht bij het wijzigen van coëfficiënten om hoorbare klikken en plofjes te voorkomen. U moet bovendien 32 cycli laten verlopen voordat u de geselecteerde audiocoëfficiënt wijzigt; indien u dit niet doet, kan de wijziging worden verworpen indien de accumulator van de audiomixer die coëfficiënt nog niet opnieuw heeft verwerkt.
+
+De audiobronnen op de MEGA65- en MEGAphone-apparaten zijn als volgt:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Kanaal-ID v/d ingang}} & {\bf{Aansluiting}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots vervolgd}\\
+\hline
+{\bf{Kanaal-ID v/d ingang}} & {\bf{Aansluiting}} \\
+\endhead
+\multicolumn{2}{l@{}}{vervolgd \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$0 (0) & Linker SID's \\
+ \hline
+\small \$1 (1) & Rechter SID's \\
+ \hline
+\small \$2 (2) & Modem-bay 1 (alleen MEGAphone) \\
+ \hline
+\small \$3 (3) & Modem-bay 2 (alleen MEGAphone) \\
+ \hline
+\small \$4 (4) & Bluetooth\texttrademark{} Links \\
+ \hline
+\small \$5 (5) & Bluetooth\texttrademark{} Rechts \\
+ \hline
+\small \$6 (6) & Hoofdtelefoon-interface 1 \\
+ \hline
+\small \$7 (7) & Hoofdtelefoon-interface 2 \\
+ \hline
+\small \$8 (8) & Digitale audio Links \\
+ \hline
+\small \$9 (9) & Digitale audio Rechts \\
+ \hline
+\small \$A (10) & MEMs-microfoon 0 (alleen Nexys4 en MEGAphone) \\
+ \hline
+\small \$B (11) & MEMs-microfoon 1 (alleen MEGAphone) \\
+ \hline
+\small \$C (12) & MEMs-microfoon 2 (alleen MEGAphone) \\
+ \hline
+\small \$D (13) & MEMs-microfoon 3 (alleen MEGAphone) \\
+ \hline
+\small \$E (14) & Hoofdtelefoon-audiojack-microfoon (alleen Nexys4 en MEGAphone) \\
+ \hline
+\small \$F (15) & OPL-compatibele FM-audio ({\em deelt de coëfficiënt  met ingang 14}) \\
+ \hline
+\end{longtable}
+
+De OPL-compatibele FM-audio op bron 15 wordt aangestuurd door de coëfficiënt voor bron 14. De reden hiervoor is dat de coëfficiënt voor bron 15 het master-volumeniveau voor elke uitvoer bepaalt. Het OPL-compatibele FM-audioapparaat is momenteel niet functioneel in de MEGA65-core.
+
+De cross-bar-audiomixer van het audiosysteem ondersteunt de volgende acht uitgangskanalen:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{2.4cm}|L{8cm}|}
+\hline
+{\bf{Kanaal-ID v/d uitgang}} & {\bf{Aansluiting}} \\
+\hline
+\endfirsthead
+\multicolumn{2}{l@{}}{\ldots vervolgd}\\
+\hline
+{\bf{Kanaal-ID v/d uitgang}} & {\bf{Aansluiting}} \\
+\endhead
+\multicolumn{2}{l@{}}{vervolgd \ldots}\\
+ \endfoot
+ \hline
+\endlastfoot
+\small \$0 (0) & Linker primaire luidspreker (digitale audio op de MEGA65 R2/R3, fysieke luidspreker op de MEGAphone, audiojack op de Nexys4) \\
+ \hline
+\small \$1 (1) & Rechter primaire luidspreker (digitale audio op de MEGA65 R2/R3, fysieke luidspreker op de MEGAphone, audiojack op de Nexys4) \\
+ \hline
+\small \$2 (2) & Modem-bay 1 audio-uitvoer (alleen MEGAphone) \\
+ \hline
+\small \$3 (3) & Modem-bay 2 audio-uitvoer (alleen MEGAphone) \\
+ \hline
+\small \$4 (4) & Bluetooth-audio links (alleen MEGAphone) \\
+ \hline
+\small \$5 (5) & Bluetooth-audio rechts (alleen MEGAphone) \\
+ \hline
+\small \$6 (6) & Hoofdtelefoon-uitvoer links (MEGA65 R2/R3 en MEGAphone.  Op Nexys4-borden stuurt de primaire luidspreker de 3.5 mm-audiojack aan) \\
+ \hline
+\small \$7 (7) & Hoofdtelefoon-uitvoer rechts (MEGA65 R2/R3 en MEGAphone.  Op Nexys4-borden stuurt de primaire luidspreker de 3.5 mm-audiojack aan) \\
+ \hline
+\end{longtable}
+
+Om het coëfficiëntregisternummer voor een bepaalde bron en uitvoer te bepalen, vermenigvuldigt u het uitvoernummer met 32 en het bronnummer met 2. Dit geeft het registernummer van de LSB van de 16-bits coëfficiënt. De MSB bevindt zich in het volgende register. Om bijvoorbeeld de coëfficiënt van de rechter SID's in te stellen op de tweede modem bay-audio-uitvoer, wordt de coëfficiënt $32\times 3 + 1 \times 2 = 96 + 2 =98$.
+
+\subsection{Overige audiofuncties}
+
+Het audiosysteem ondersteunt verscheidene andere functies, waarvan de documentatie nog gereed moet komen.
+
+\subsubsection{Mixer-feedbackregisters}
+
+Deze registers maken het mogelijk dat de processor de gemengde audio van een bepaald uitgangskanaal uitleest. Dit kan worden gebruikt om weergaven van audiogolfformen te maken of om bepaalde audio-effecten, zoals reverb, te realiseren.
+
+\subsubsection{8/16-bits stereo digitale audio}
+
+Er zijn registers beschikbaar om 8- of 16-bits samplewaarden rechtstreeks in specifieke invoerkanalen van de audiomixer in te voeren. Dit biedt een eenvoudige manier om digitaal audiogegevens af te spelen. Deze voorziening is met name nuttig voor procedureel gegenereerde audiogegevens. Voor opgenomen samples is het doorgaans eenvoudiger en beter om de Audio DMA-functionaliteit te gebruiken die het afspelen van digitaal audio volledig automatiseert. Audio DMA is vooral nuttig op hogere samplefrequenties, omdat het de belasting van de CPU vermindert en sample-jitter aanzienlijk verkleint.
+
+\subsubsection{Pulsbreedte versus pulsdichtheidsmodulatie}
+
+Voor MEGA65-modellen die een 1-bits audio-uitvoer met oversampling gebruiken (tot en met het R3/R3A-model) is het mogelijk te kiezen tussen deze twee verschillende oversamplingmethoden. Beide hebben vergelijkbare prestaties, maar gebruikers hebben wellicht een voorkeur voor de ene boven de andere. Deze keuze heeft geen effect op het R4 of nieuwere modellen die een dedicated audio-DAC gebruiken om audio naar de 3.5 mm-audiojack te voeren en die van nature een betere audiokwaliteit hebben. Voor eigenaren van oudere modellen kan de geplande interne uitbreidingskaart van de MEGA65 een verbeterd audio-uitvoercircuit bevatten, afhankelijk van de definitieve configuratie van die kaart. Er is momenteel nog geen termijn bekend waarop deze kaart beschikbaar komt. In de tussentijd is het gebruik van HDMI-audio-uitvoer de aanbevolen oplossing, omdat de audio digitaal over de HDMI-kabel wordt gecodeerd.
+
+\input{dutch/regtable_AUDIO.MEGA65}
+
+
+\section{Diverse I/O-functies}
+

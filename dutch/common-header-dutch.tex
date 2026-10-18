@@ -1,0 +1,381 @@
+\documentclass{book}
+\usepackage[dutch,shorthands=off]{babel}
+
+% Dutch babel definieert enkele kapittelnamen via \babelshorthand{"y}
+% (de ĳ-ligatuur), wat mislukt wanneer shorthands=off is. Overschrijf die
+% namen met gewone Nederlandse tekst om dat te omzeilen.
+\addto\captionsdutch{%
+  \def\appendixname{Bijlage}%
+  \def\listfigurename{Lijst van figuren}%
+  \def\listtablename{Lijst van tabellen}%
+  \def\enclname{Bijlage(n)}%
+  \def\proofname{Bewijs}%
+  \def\glossaryname{Verklarende woordenlijst}%
+}
+
+\usepackage[quiet]{fontspec}
+\usepackage[table,xcdraw,dvipsnames]{xcolor} % Used by spritegrid and others.
+\usepackage[obeyspaces,spaces]{url}
+\usepackage{longtable}
+\usepackage{arydshln}
+\usepackage{booktabs}
+\usepackage{afterpage}
+\usepackage{flushend}
+\usepackage{titletoc}
+\usepackage[toc]{appendix}
+\usepackage{parskip}
+\usepackage{graphicx,wrapfig}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{pdfpages}
+\usepackage{tikzpagenodes}
+\usepackage{imakeidx}
+\usepackage[pagestyles,raggedright]{titlesec}
+\usepackage[all]{nowidow}
+\usepackage{etoolbox}
+\usepackage{alphalph}
+\usepackage{datetime}
+\newdateformat{dateyear}{\THEYEAR}
+
+% Change the hyperanchors to allow more than 26 appendices
+\appto\appendix{
+  \renewcommand\thechapter{\AlphAlph{\value{chapter}}}%
+}
+
+\usepackage[bookmarks=true,linktoc=all]{hyperref}
+
+\usepackage{tabularx}
+
+% NB: de kolomtypes L/R hieronder gebruiken \raggedright. Dat zet
+% \rightskip op 0pt plus 1fil, waardoor regelafbreking nooit "druk" heeft om
+% een woord te splitsen: in smalle omschrijvingskolommen (de IEC-tabellen
+% gebruiken L{6cm}) levert dat grote gaten aan witruimte en ongebroken lange
+% Nederlandse woorden ("verzending"). Daarom zetten we de rekbaarheid van
+% \rightskip daarna terug op een eindige 2em, zodat afbreken weer mogelijk
+% wordt. Dit is wat ragged2e's \RaggedRight ook doet, maar zonder package:
+% \RaggedRight blijkt niet te combineren met de cellen die \newline gebruiken
+% (dat levert "Missing } inserted" op). De Engelse common-header.tex gebruikt
+% nog de kale \raggedright, dus de pagina-indeling loopt iets uiteen.
+\hypersetup{
+  colorlinks   = true, %Colours links instead of ugly boxes
+  urlcolor     = blue, %Colour for external hyperlinks
+  % Each main .tex file configures via \titleformat the \chapter command
+  % to do {\chapmtoc\insertminitoc} and \chapmtoc, as defined below, will
+  % use \hypersetup{linkcolor=white} to avoid blue-on-blue TOC links
+  % Besides, each main .tex file will issue the \tableofcontents command
+  % between \hypersetup{linkcolor=black} and \hypersetup{linkcolor=blue}
+  % This means however that if "blue" is modified here it must be modified
+  % in these files too.
+  linkcolor    = blue, %Colour of internal links
+  citecolor   = red %Colour of citations
+}
+\usepackage{aeb-minitoc}
+\usepackage{fix-cm}
+\usepackage{textpos}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,listings,skins,xparse}
+%\usepackage{wrapfig}
+\usepackage{needspace}
+\usepackage{verbatim}
+\usepackage{ean13isbn}
+\usepackage{setspace}
+
+% Use CHAPTER-PAGE page numbering to make it easier to modify chapters
+% later, without messing up page number of the rest of the book.
+\usepackage[auto]{chappg}
+
+% Allow cross-references between the various books to the big The MEGA65 Book
+\usepackage{xr}
+\usepackage{varioref}
+% Nederlandse vertaling van varioref-referentieteksten
+\renewcommand{\reftextfaraway}[1]{op bladzijde~\pageref{#1}}
+\renewcommand{\reftextpagerange}[2]{op bladzijden~\pageref{#1}--\pageref{#2}}
+\renewcommand{\reftextlabelrange}[2]{\ref{#1} tot~\ref{#2}}
+\usepackage{xparse}
+
+\usepackage{colortbl}
+\usepackage{adjustbox}
+
+% Deelboeken verwijzen naar de Nederlandse titels van het grote boek; die
+% staan in de aux van de build met jobname mega65-book-build (dutch/tools/
+% build-book.sh mega65-book). Bestaat die nog niet, dan valt het terug op de
+% Engelse aux van de Makefile-build. Herbouw na wijzigingen aan het grote
+% boek eerst het grote boek, anders staan de titels/paginanummers verouderd
+% in de deelboeken.
+\IfFileExists{mega65-book-build.aux}%
+  {\externaldocument[M65Book-]{mega65-book-build}}%
+  {\externaldocument[M65Book-]{mega65-book}}
+% And a \ref alternative that checks if it needs to be a cross-reference to the
+% MEGA65 Book instead.
+\makeatletter
+\newcommand{\bookref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em het grote Mega65-boek}, \nameref{M65Book-#1} (\autoref{M65Book-#1})}{\autoref{#1}}%
+}
+\newcommand{\bookvref}[1]{%
+    \@ifundefined{r@#1}{%
+      {\em het grote Mega65-boek}, \nameref{M65Book-#1} (\autoref{M65Book-#1})}{Hoofdstuk/Bijlage \vref{#1}}%
+}
+\makeatother
+
+% For fixed-width columns in register maps
+\usepackage{array}
+
+% Makes tables with double-ruled lines look better
+\usepackage{hhline}
+
+% Makes better use of space for reference tables in appendix
+\usepackage{multicol}
+
+% Shaded tables with alternate rows colored for better legibility
+% Best used with larger tables rather than small tables
+\usepackage{colortbl}
+\usepackage{adjustbox}
+\usepackage[strict]{changepage}
+
+% \makecell command for forcing line breaks in table cells
+\usepackage{makecell}
+
+\newcolumntype{L}[1]{>{\raggedright\rightskip=0pt plus 2em\relax\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+% clear to left page for making two page tables starting on the odd page
+\newcommand{\cleartoleftpage}{%
+  \clearpage
+  \ifodd\value{page}\hbox{}\newpage\fi
+}
+
+% Layout structures for acknowledgements pages
+\input{elements/acknowledgements}
+
+% For displaying Letter keys and the MEGA key
+\input{elements/keys}
+
+% For displaying print versions petscii character symbols
+\input{elements/graphicsymbol}
+
+% For Mega65 display of code, listings and screen activity
+\input{elements/screenoutput}
+
+% Kleinere variant van basiccode voor BASIC-voorbeelden met lange regel-
+% commentaren (bijv. de SYS-voorbeelden in het geheugenhoofdstuk); de
+% gewone basiccode zet basicstyle op \normalsize en overschrijft daarmee
+% elke omringende lettergrootte.
+\lstnewenvironment{basiccodesmall}{
+  \lstset{
+    language=[MEGA65]Basic,
+    basicstyle=\ttfamily\small,
+    xleftmargin=4mm}
+}{}
+
+% Zelfde kleinere variant voor assembleervoorbeelden: de gewone asmcode
+% zet basicstyle op \normalsize en overschrijft daarmee elke omringende
+% lettergrootte.
+\lstnewenvironment{asmcodesmall}{
+  \lstset{
+    language=[45gs02]Assembler,
+    basicstyle=\ttfamily\small,
+    xleftmargin=4mm}
+}{}
+
+% For MEGA65 screen shots with text flow
+\input{elements/screenshots}
+% Schermfoto's altijd op volle tekstbreedte schalen: de oorspronkelijke
+% definitie gebruikt \linewidth, en binnen lijsten (bijv. de
+% description-omgeving met leftmargin=2cm in de BASIC 65-bijlage) is die
+% smaller, waardoor screenshots onbedoeld krapper uitvallen. Alle huidige
+% aanroepen buiten lijsten om zijn op hoofdniveau, waar \linewidth =
+% \textwidth, dus daar verandert niets. Zie TROUBLESHOOTING.md, valkuil 11.
+\renewcommand{\screenshotwrap}[1]{{\begin{center}\includegraphics[width=0.80\textwidth]{#1}\end{center}}}
+
+% For displaying sprite data in a grid
+\input{elements/spritegrid}
+
+% Don't number sections
+\setcounter{secnumdepth}{0}
+
+\renewcommand{\indexname}{INDEX}
+\renewcommand{\appendixtocname}{BIJLAGEN}
+\renewcommand{\appendixpagename}{BIJLAGEN}
+\renewcommand{\appendixpage}{%
+  \clearpage\thispagestyle{empty}
+    \pagecolor{blue}
+     \begin{center}
+       {
+         \large
+         % Put a nice amount of vertical space before the title
+         \vspace*{2cm}
+               {\large\Huge\textcolor{white}{\bf{BIJLAGEN}}}\\
+             \vspace{\fill}
+       }
+     \end{center}
+     \newpage\pagecolor{white}\clearpage
+}
+
+% Commands for Style Guide entries
+%   \sgentry{itemid}{Item Name Text}{Description of the item...}
+\makeatletter
+\newenvironment{sgentry}[2]{
+  \needspace{4\baselineskip}
+  \phantomsection\def\@currentlabelname{#2}\label{sgentry:#1}{\bf #2}
+  \begin{adjustwidth}{1cm}{}
+}{
+  \end{adjustwidth}
+  \vspace{3mm}
+}
+\makeatother
+\newcommand{\sg}[1]{\nameref{sgentry:#1}}
+
+
+\makeatletter\chardef\pdf@shellescape=\@ne\makeatother
+
+\setcounter{tocdepth}{5}
+
+% 1.0 cm is the distance from left of page to bullet point.
+% 2.8 cm is a fudge-factor to make multi-line section names be correctly lined up.
+% \@B{〈length〉} is the amount to indent prior to〈sec-num >
+% \@F{〈fmt〉} is the formatting for the title heading
+% \@P{〈fmt〉} is the formatting for the page number (〈pg-num〉).
+
+\TOCLevels{chapter}{section}
+\begin{minitocfmt}{\chapmtoc}
+\declaretocfmt{section}{\@F{\color{white}\hypersetup{linkcolor=white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{0cm}\@P{\mtocgobble}}
+\declaretocfmt{section*}{\@F{\color{white}\hypersetup{linkcolor=white}\hspace{1.0cm}\textbullet\hspace{0.25cm}\Large\bfseries}\@B{0cm}\@P{\mtocgobble}}
+\end{minitocfmt}
+
+\input{fonts}
+
+% Set margins for inner and outer pages in A5 book format
+\ifdefined\printmanualbleed
+\usepackage[noinfo, cam, width=6.08in, height=8.52in, center]{crop}
+\fi
+\ifdefined\printmanual
+\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1.8cm,outer=0.8cm, footskip = 1cm]{geometry}
+\else
+\usepackage[a5paper,nomarginpar,includemp,bottom=2cm,top=1cm,inner=1.0cm,outer=1.0cm, footskip = 1cm]{geometry}
+\fi
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\makeindex[intoc]
+
+\pagestyle{empty}
+
+% macro for changing the verbatim font
+\makeatletter
+\newcommand{\verbatimfont}[1]{\def\verbatim@font{#1}}%
+\makeatother
+
+% \megabookstart : Book title page, copyright page, table of contents
+%
+% Usage:
+%     \megabookstart{BOOK TITLE}{Version string}
+%
+% Examples:
+%     \megabookstart{MEGA65 USER'S GUIDE}{2nd edition}
+%     \megabookstart{MEGA65 REFERENCE GUIDE}{WORK IN PROGRESS}
+%
+% Linebreaks \\ can be used within a title to get better formatting as desired.
+% Do not put math or special symbols in the title.
+\newcommand{\megabookstart}[2]{
+    \cleardoublepage
+
+    \pagenumbering{roman}
+
+    \begin{titlepage}
+    \pagecolor{blue}
+    \begin{center}
+      {
+        \large
+        \vspace*{2cm}
+        {\Huge\textcolor{white}{\bf{#1}}}\\
+        \vspace{\fill}
+        {\textcolor{white}
+        {Uitgegeven door \\ het MEGA Museum of Electronic Games \& Art e.V., Duitsland.}}
+      }
+    \end{center}
+    \end{titlepage}
+
+    % Then the copyright notice page
+    \pagecolor{white}\textcolor{black}
+    \vfill
+    {#2}
+
+    %\index{copyright}
+    Copyright \copyright 2019 -- \dateyear{\today} Paul Gardner-Stephen,
+    het MEGA Museum of Electronic Games \& Art e.V.
+    en medewerkers.
+
+    Dit boek is beschikbaar onder de GNU Free Documentation
+    License v1.3 of latere versie. Dit betekent dat u dit boek vrij mag
+    wijzigen, vermenigvuldigen en herdistribueren, onder bepaalde
+    voorwaarden. De volledige tekst van de GNU Free Documentation
+    License v1.3 is te vinden op
+    \url{https://www.gnu.org/licenses/fdl-1.3.en.html}. Een Nederlandse
+    vertaling van de licentie is te vinden op
+    \url{https://meta.wikimedia.org/wiki/GNU_Free_Documentation_License/nl}.
+
+    Deze copyrightlicentie omvat ook de toestemming om dit document
+    geheel of gedeeltelijk te kopiëren en/of te verspreiden voor gebruik
+    in onderwijsomgevingen. Wij willen het onderwijs van toekomstige
+    generaties ondersteunen, dus als u vragen of bezwaren heeft, neem dan
+    contact met ons op.
+
+    \par\usdate\today
+
+    \newpagestyle{onlynumber}{\setfoot[][{\bf\small\thepage}][]
+                                      {} {\bf\small\thepage} {}}
+    \pagestyle{onlynumber}
+    \pagecolor{white}
+
+    \hypersetup{linkcolor=black}
+    \tableofcontents
+    \hypersetup{linkcolor=blue}
+
+    \cleardoublepage
+    \pagenumbering{arabic}
+}
+
+% Define color "RED" so that titles can use "red" without worrying about \uppercase.
+\colorlet{RED}{red}
+
+\newcommand*{\justifyheading}{\raggedleft}
+\definecolor{headingblue}{rgb}{0.5,0.5,1}
+
+\titleclass{\part}{top}
+\titleformat{\part}[display]
+   {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
+   {\textcolor{white}{\fontsize{50}{65}\selectfont\bf{DEEL}\quad{\fontsize{100}{130}\selectfont \bf{\serifed\thepart}}}}
+   {20pt}
+   {\Huge\textcolor{white}}
+   [\newpage\pagecolor{white}\textcolor{black}]
+
+\titleformat{\chapter}[display]
+   {\thispagestyle{empty}\pagecolor{blue}\normalfont\huge\bfseries\justifyheading}
+   {\textcolor{white}{\MakeUppercase{\chaptertitlename}\quad{\fontsize{100}{130}\selectfont \bf\thechapter}}}
+   {20pt}
+   {\Huge\textcolor{white}}
+   [{\chapmtoc\insertminitoc}\newpage\pagecolor{white}\textcolor{black}\cleardoublepage]
+
+\titleformat{\section}[display]
+   {\raggedright}
+   {\thesection}
+   {20pt}
+   {\huge\bf\color{headingblue}\uppercase}
+   [\color{black}]
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\raggedbottom
+
+% relax word wrapping with sloppy
+\sloppy
+% reduce overfull \hbox warnings
+\hfuzz=5pt
+
+\setstretch{0.9}

@@ -1,0 +1,416 @@
+\chapter{Gegevensoverdracht en foutopsporing}
+\label{cha:transfer-and-debug-tools}
+
+De sleutel tot effectieve cross-platform-ontwikkeling is het hebben van snelle en
+eenvoudige middelen om programmatuur op de MEGA65 te testen. Dit
+geldt zeker nu de MEGA65-emulator nog in ontwikkeling is.
+Zelfs wanneer de MEGA65-emulator voltooid is, zal het onwaarschijnlijk
+zijn dat deze volledige compatibiliteit op volledige snelheid kan bieden,
+omdat de MEGA65 veel veeleisender is om te emuleren dan de C64.
+
+Er zijn verschillende hulpprogramma's die kunnen worden gebruikt voor gegevensoverdracht en
+foute opsporing. Deze maken doorgaans gebruik van ofwel de seriële
+monitorinterface van de MEGA65, of via de fast-ethernetadapter van de MEGA65. De
+seriële monitorinterface is beschikbaar via de UART-lijnen op de JB1-
+connector.
+
+Als u geen toegang hebt tot de seriële monitorinterface, worden er
+hulpprogramma's ontwikkeld voor de fast-ethernetpoort die een deel,
+maar niet alles, van de mogelijkheden van de seriële monitor
+bieden. Deze worden gedocumenteerd zodra ze beschikbaar zijn. Het
+restant van dit hoofdstuk richt zich op methoden die de seriële
+monitorinterface gebruiken.
+
+U kunt een 3.3V UART-adapter op de juiste
+lijnen aansluiten, of gemakkelijker, een TE-0790-03 JTAG-debugmodule
+op deze connector plaatsen. Dit geeft u een USB-verbinding die kan worden gebruikt
+voor het overzetten van software, op afstand fouten opsporen en geheugen inspecteren, alsmede
+het activeren of flashen van bitstreams. Met deze verbinding
+zijn de volgende hulpprogramma's beschikbaar:
+
+\section{m65-hulpprogramma}
+
+Het repository \url{https://github.com/mega65/mega65-tools} bevat een
+aantal hulpprogramma's, utilities en voorbeeldprogramma's. Deze hulpprogramma's zijn voornamelijk voor Linux maar kunnen worden gebruikt op Windows met Cygwin. Een van die hulpprogramma's is
+het \stw{m65}-hulpprogramma. Dit is eigenlijk een zakmes
+verzameling van utilities in één. Veelgebruikte functies
+zijn onder meer:
+
+\subsection{Schermfoto's met het m65-hulpprogramma}
+
+Om een schermfoto van de MEGA65 te maken:
+
+\begin{screencode}
+m65 -S
+\end{screencode}
+
+Dit maakt een bestand aan met de naam \stw{mega65-screen-000000.png},
+of als dit bestand al bestaat, wordt het eerste niet-gebruikte nummer gebruikt
+in plaats van \stw{000000}.
+
+Merk op dat deze schermfotofunctie werkt door \stw{m65} de
+functionaliteit van de VIC-IV te laten emuleren. Hoewel het uitstekende digitale schermfoto's oplevert, komt het mogelijk niet exact overeen met het werkelijke scherm van de
+MEGA65. Op het moment van schrijven rendert het geen sprites of bitplanelen, alleen tekst- en bitmap-gebaseerde videomodi.
+
+\subsection{Een programma laden en uitvoeren op de MEGA65}
+
+Om een programma op de MEGA65 te laden en uit te voeren, kunt u een commando als het volgende gebruiken:
+
+\begin{screencode}
+m65 -F -4 -r foo.prg
+\end{screencode}
+
+De optie \stw{-F} draagt \stw{m65} op de MEGA65 te herstarten
+voordat het programma wordt geladen.
+
+De optie \stw{-4} draagt \stw{m65} op de MEGA65
+naar C64-modus te schakelen voordat het programma wordt geladen. Als dit wordt weggelaten,
+zal het proberen het programma in C65-modus te laden.
+
+De optie \stw{-r} draagt \stw{m65} op het programma onmiddellijk
+na het laden uit te voeren.
+
+Merk op dat dit commando werkt met het normale BASIC LOAD-commando en
+daarom beperkt is tot het laden van programma's in het onderste 64 KB van het geheugen.
+
+\subsection{De FPGA herconfigureren om een andere bitstream uit te voeren}
+
+Om een andere MEGA65-bitstream uit te proberen, kan een commando als het volgende worden
+gebruikt:
+
+\begin{screencode}
+m65 -b bitstream.bit
+\end{screencode}
+
+Dit zal de genoemde bitstream naar de FPGA zenden. Omdat de
+FPGA door deze actie wordt herconfigureerd, zal het momenteel
+uitgevoerde programma niet alleen worden gestopt, maar ook het hoofdgeheugen zal worden
+gewist. Voor modellen van de MEGA65 die zijn uitgerust met 8 MB of 16 MB
+uitbreidingsgeheugen, worden deze uitbreidingsgeheugens geïmplementeerd in externe
+chips en dus zullen de inhoud daarvan niet worden gewist.
+
+Voor niet-MEGA65-bitstreams (zoals zxunomega65 en gbc4mega65), gebruik in plaats daarvan het argument '-q':
+
+\begin{screencode}
+m65 -q bitstream.bit
+\end{screencode}
+
+\subsection{Toetsenbordinvoer op afstand}
+
+De toetsenbordinterface van de MEGA65 ondersteunt het overzetten van
+synthetische toetsgebeurtenissen via de registers \$D615 -- \$D617.
+Het \stw{m65}-hulpprogramma gebruikt dit om typen op afstand op de MEGA65
+mogelijk te maken op een manier die transparant is voor software. Er zijn drie manieren om dit
+te gebruiken:
+
+\begin{screencode}
+m65 -t ditiswattekst
+\end{screencode}
+
+Deze vorm typt de opgegeven tekst, in dit geval {\em ditiswattekst}, maar
+simuleert niet het indrukken van \specialkey{RETURN}. Als u
+het indrukken van \specialkey{RETURN} wilt simuleren, gebruikt u \stw{-T}
+in plaats van \stw{-t}, bijvoorbeeld:
+
+\begin{screencode}
+m65 -T list
+\end{screencode}
+
+Dit zou het LIST-commando typen en uitvoeren.
+
+Tot slot is het mogelijk om algemene toetsenbordbesturing op afstand te starten via:
+
+\begin{screencode}
+m65 -t -
+\end{screencode}
+
+In deze modus wordt elke toets, die op het toetsenbord van de computer
+waarop \stw{m65} draait, doorgegeven aan de MEGA65. Merk op dat
+niet alle speciale toetsen worden ondersteund en dat er enige vertraging is, dus
+het gebruik van de toetsherhalingsfunctie kan onverwachte resultaten opleveren. Voor besturing op afstand in het algemeen is het echter een zeer nuttige voorziening.
+
+\subsection{Unit-testing en logboekondersteuning}
+
+Het \stw{m65}-hulpprogramma ondersteunt unit-testing
+direct op MEGA65-hardware. Wanneer de \textit{unit testing-modus} actief is,
+wacht \stw{m65} tot de MEGA65 bepaalde byte-reeksen via de
+seriële interface stuurt die de huidige status (gestart, geslaagd, mislukt) signaleren
+van een gegeven test. Daarnaast is het mogelijk om logboekberichten te verzenden vanaf
+de MEGA65 naar de hostcomputer.
+
+De unittestingmodus wordt betreden door \stw{m65} aan te roepen met de vlag \stw{-u}.
+Om een BASIC-programma op afstand in C65-modus uit te voeren en tegelijk \stw{m65}
+in de \textit{unittestingmodus} te zetten, kan het volgende commando worden gebruikt:
+
+\begin{screencode}
+    m65 -Fur attic-ram.prg -w tests.log
+\end{screencode}
+
+De opties \stw{-F} en \stw{-r} vertellen \stw{m65} om de MEGA65 te herstarten
+voordat het programma "attic-ram.prg" wordt geladen en automatisch uitgevoerd.
+De optie \stw{-u} vertelt \stw{m65} vervolgens om in de \textit{unittestingmodus} te gaan
+in plaats van te stoppen na het starten van het programma.
+De optionele optie \stw{-w} zorgt ervoor dat \stw{m65} de testresultaten aan het
+bestand "test.log" toevoegt (het bestand aanmaakt als het nog niet bestaat).
+
+Merk op dat \stw{m65} automatisch de \textit{unittestingmodus} verlaat
+als er gedurende meer dan 10 seconden geen teststatussignalen zijn ontvangen.
+
+Er is ondersteuning voor het verzenden van unittestingsignalen naar de hostcomputer vanuit
+C- en BASIC 65-programma's:
+
+\subsubsection{Unit-tests gebruiken met C}
+
+De MEGA65 libc bevat ondersteuning voor unit-testing via functies gedefinieerd in
+\stw{tests.h} en \stw{tests.c}.
+
+Om het begin van een test te signaleren, includeert u \stw{tests.h} en gebruikt u:
+
+\begin{verbatim}
+    unit_test_setup("testName",issueNumber);
+\end{verbatim}
+
+waarbij \textit{"testName"} een leesbare naam van de test is (bijvoorbeeld
+"VIC-II") en \textit{issueNumber} een verwijzing naar het bijbehorende
+bug-issue (bijvoorbeeld het issue-nummer van GitHub).
+
+Na het starten van een test kunnen geslaagde tests worden gesignaleerd met
+de functie unit\_test\_ok():
+
+\begin{verbatim}
+    unit_test_ok();
+\end{verbatim}
+
+Een mislukte test wordt gesignaleerd met unit\_test\_fail():
+
+\begin{verbatim}
+    unit_test_fail("fail message");
+\end{verbatim}
+
+Elke keer dat de functies unit\_test\_ok() of unit\_test\_fail()
+worden aangeroepen, wordt het \textit{sub-issue} van de test (gerapporteerd op de
+hostcomputer) verhoogd. Dit maakt het eenvoudiger om meerdere tests in één bestand te combineren en
+te identificeren.
+
+U kunt willekeurige logboekberichten verzenden via unit\_test\_log():
+
+\begin{verbatim}
+    unit_test_log("hello world from mega65!");
+\end{verbatim}
+
+...en ten slotte, wanneer alles klaar is, wordt het einde van unit-testing gesignaleerd
+door het gebruik van:
+
+\begin{verbatim}
+    unit_test_done();
+\end{verbatim}
+
+
+\subsubsection{Unit-tests gebruiken met BASIC 65}
+
+\stw{b65support.bin} is een machinetaalmodule die ondersteuning biedt voor
+unit-testing vanuit BASIC 65. Deze staat in het mega65-tools-
+repository op \url{https://github.com/MEGA65/mega65-tools} en kan worden gebouwd met:
+
+\begin{verbatim}
+    make bin65/b65support.bin
+\end{verbatim}
+
+Het bestand \stw{b65support.bin} is dan beschikbaar in de map \stw{bin65}.
+
+Deze module werkt door de USR-vector om te leiden om de functies
+uit te voeren die nodig zijn om te communiceren met de test-host.
+
+In een geautomatiseerd testsenario wilt u mogelijk het binaire bestand \stw{b65support.bin}
+overzetten naar het MEGA65-geheugen door middel van \stw{m65}:
+
+    \begin{screencode}
+        m65 -@ mega65-tools/bin65/b65support.bin@15fe
+    \end{screencode}
+
+
+Het is natuurlijk ook mogelijk om \stw{b65support.bin} rechtstreeks vanaf de
+MEGA65 te laden door de \stw{M65UTILS.D81}-image van de Freezer te koppelen en het volgende commando te geven:
+
+\begin{screencode}
+    BLOAD "B65SUPPORT.BIN"
+\end{screencode}
+
+Na het laden wordt \stw{b65support.bin} geïnitialiseerd met:
+
+\begin{screencode}
+    SYS $1600
+\end{screencode}
+
+Na initialisatie biedt \stw{b65support.bin} de volgende functies:
+
+\begin{screencode}
+    A=USR(<issueNum>)
+\end{screencode}
+bereidt een nieuwe test voor met nummer <issueNum> en herstelt het subissue-nummer naar 0.
+
+\begin{screencode}
+    A=USR("=<testName>")
+\end{screencode}
+stelt de testnaam in en stuurt het testsignaal; bijvoorbeeld: \stw{A=USR("=VIC-III")}
+stelt de testnaam in op 'VIC-III' en signaleert de hostcomputer dat de test
+is gestart.
+
+\begin{screencode}
+    A=USR("/<logMessage>)
+\end{screencode}
+stuurt een logboekbericht naar de hostcomputer.
+
+\begin{screencode}
+    A=USR("P")
+\end{screencode}
+stuurt het signaal 'geslaagd' naar de hostcomputer en verhoogt het subissue-nummer.
+
+\begin{screencode}
+    A=USR("F")
+\end{screencode}
+stuurt het signaal 'test mislukt' naar de hostcomputer en verhoogt
+het subissue-nummer.
+
+\begin{screencode}
+    A=USR("D")
+\end{screencode}
+stuurt het signaal 'test voltooid' naar de hostcomputer.
+
+Alle aanroepen retourneren het huidige subissue-nummer of \stw{?ILLEGAL QUANTITY ERROR} in
+geval van een ongeldig commando.
+
+\subsubsection{BASIC 65-voorbeeld}
+
+Het volgende is een volledig BASIC 65-voorbeeld dat laat zien hoe de
+unittestingfuncties van \stw{m65} worden gebruikt:
+
+\begin{screencode}
+    100 rem attic ram cache test
+    110 poke $bfffff2,$e0         : rem schakel cache van zolder-ram in
+    120 sys $1600                 : rem initialiseer testmodule
+    130 a=usr(379)                : rem zet issue-nummer
+    140 a=usr("=attic-ram-cache") : rem zet testnaam
+    150 bank128:poke0,65          : rem uit voorzorg
+    160 b0=$8000000 : b1=$8000100 : rem zolden-ram-gebieden om te testen
+    170 for r=0 to $ff
+    180   poke b0+r,0             : rem vul gebied 1 met 0
+    190   poke b1+r,$ff           : rem vul gebied 2 met $ff
+    200 next r
+    210 for t=1 to 10             : rem 10 pogingen
+    220   poke b0,32              : rem schrijf naar b0
+    230   for x=0 to $ff:t1=b1+x
+    240     a=peek(b0)            : rem lees uit b0
+    250     b=peek(t1):b=peek(t1) : rem lees tweemaal uit t1
+    260     ifb<>255 thenf=t:t=11:x=256   : rem dit mag niet gebeuren
+    270   next x
+    280 next t
+    290 if f=0 then begin
+    300   print "geen fouten gevonden na";t;"pogingen."
+    310   a=usr("p")              : rem signal 'test passed' to host
+    320 bend : else begin
+    330   a=usr("f")              : rem signal 'test failed' to host
+    340   print "hyper-ram-fout gedetecteerd na";f;"pogingen."
+    350   print "peek($";hex$(t1);") [t1] is";b;"maar moet 255 zijn"
+    360 bend
+    370 a=usr("d")                : rem test gereed    
+\end{screencode}
+
+\section{M65Connect}
+
+Dit is een cross-platform grafisch hulpprogramma dat beschikbaar is voor Windows, Linux
+en MacOSX, waarmee toegang wordt geboden tot de meeste functies van
+het \stw{m65}-hulpprogramma, zonder dat een
+commandoregel nodig is, of zonder dat u het hulpprogramma voor uw favoriete
+besturingssysteem hoeft te compileren.
+
+Het repository voor M65Connect is: \url{https://github.com/MEGA65/m65connect}
+
+De nieuwste binaire versie is beschikbaar op \url{https://files.mega65.org}.
+
+Met de MEGA65 of Nexys FPGA uitgeschakeld, sluit een USB-kabel aan van uw computer op de MEGA65 of Nexys FPGA-board. Voer het \textit{M65Connect}-programma uit en volg de aanwijzingen om verbinding te maken. Het programma helpt u bij het identificeren van welke USB Serial Port moet worden gebruikt.
+
+Met dit hulpprogramma kunt u eenvoudig PRG-programma's en diverse andere bestanden overdragen. M65Connect kan de overdracht, het schakelen naar C64-modus en de uitvoering van programma's afhandelen.
+
+\section{mega65\_ftp}
+
+Het \stw{mega65}\_\stw{ftp}-hulpprogramma van
+het repository \url{https://github.com/mega65/mega65-tools} is
+enigszins misleidend genoemd: hoewel het
+een File Transfer Program is, gebruikt het niet het File Transfer
+Protocol (FTP). Het gebruikt in plaats daarvan de seriële monitorinterface om
+de MEGA65 op afstand te besturen en heeft directe toegang tot de SD-kaart om het
+kopiëren van bestanden tussen de MEGA65 en de hostcomputer mogelijk te maken.
+
+Merk op dat het de staat van de MEGA65 niet perfect herstelt bij het afsluiten,
+en dus alleen moet worden gebruikt wanneer de MEGA65 bij de READY.-prompt staat,
+zodat eventuele draaiende software niet in de war raakt. Met name moet u
+het gebruik vermijden wanneer een gevoelig programma draait, zoals
+het Freeze-menu, het MEGA65-configuratiehulpprogramma of het MEGA65
+Format/FDISK-hulpprogramma. (Dit probleem kan met weinig
+inspanning worden opgelost, als iemand de tijd en interesse heeft om het te fixen).
+
+Bij uitvoering biedt het een FTP-achtige interface die de
+commando's \stw{get}, \stw{put}, \stw{rename} en \stw{dir} ondersteunt.
+Merk op dat u bij het plaatsen van een bestand moet zorgen dat het een
+naam heeft die volledig in hoofdletters staat en een DOS-compatibele 8.3-teken
+bestandsnaam heeft. Dit komt door beperkingen in zowel \stw{mega65}\_\stw{ftp} als de
+VFAT32-bestandssysteemcode van de Hypervisor van de MEGA65. Opnieuw kunnen deze problemen
+worden opgelost met een bescheiden hoeveelheid inspanning van de kant van een
+gemotiveerd lid van de gemeenschap.
+
+Tot slot is het programma \stw{mega65}\_\stw{ftp} {\em zeer} langzaam bij het pushen
+van nieuwe bestanden naar de MEGA65, met doorgaans snelheden van rond de 5 KB/sec.
+Dit komt deels doordat de seriële interface in staat is om
+gegevens over te dragen met slechts 40 KB/sec (bij 4.000.000 bits per
+seconde), en deels doordat het besturingsproces op afstand resulteert in
+veel heen-en-weerverkeer waarbij hulpoutines op de MEGA65 worden uitgevoerd om
+sectoren op de SD-kaart te lezen, schrijven en verifiëren. Het zou heel
+haalbaar zijn om dit te verbeteren tot bijna 40 KB/sec, en mogelijk
+sneller met een combinatie van gegevenscompressie,
+deduplicatie van identieke sectoren (met name bij het uploaden van schijf-
+images) en andere technieken. Opnieuw zou dit een zeer welkome bijdrage zijn die iemand uit de gemeenschap zou kunnen leveren
+ten algemene nutte.
+
+\section{TFTP-server}
+
+Er is een echte TFTP-server voor de MEGA65 in ontwikkeling die snelle
+TFTP-overdrachten via de 100 Mbit-ethernet ondersteunt en die kan worden gebruikt om
+zeer snel bestanden van de MEGA65 te lezen. Snelheden van bijna 1 MB/sec
+zijn mogelijk, afhankelijk van de prestaties van de SD-kaart. In plaats van
+DHCP te gebruiken, zal dit hulpprogramma reageren op {\em elk} IP-adres dat eindigt op
+.65. Het gebruikt altijd het MAC-adres 40:40:40:40:40:40. Echte DHCP-
+ondersteuning en het gebruik van het geconfigureerde ethernet-MAC-adres van de MEGA65
+worden mogelijk in de toekomst toegevoegd.
+
+Belangrijker nog, de ondersteuning voor het schrijven van
+bestanden naar de SD-kaart is nog niet volledig en wordt geblokkeerd door de behoefte
+aan de implementatie van de nodige functies in de Hypervisor van de MEGA65 voor het aanmaken en
+vergrootten van bestanden. Een bijzondere uitdaging is het mogelijk maken van het aanmaken van
+bestanden met aaneengesloten clusters zoals vereist voor D81-schijfimages: als
+een D81-bestand gefragmenteerd is, kan het niet worden gekoppeld, omdat het
+koppelingsmechanisme een pointer naar het aaneengesloten blok van de
+SD-kaart vereist dat de schijfimage bevat.
+In de tussentijd kan \stw{mega65}\_\stw{ftp} als alternatief worden gebruikt.
+
+\section{Een BASIC-tekstbestandlisting omzetten naar een PRG-bestand}
+
+Als u een ongetokeniseerd BASIC-programma in platte-tekstformaat hebt dat afkomstig is van bijvoorbeeld een internetbericht, en u wilt het op de MEGA65 proberen zonder het in te typen, dan is het mogelijk het om te zetten naar een PRG.
+
+\textit{C64List} is een Windows-gebaseerd commandoregelhulpprogramma waarmee u de conversie kunt uitvoeren. Zodra u een \textit{.PRG}-bestand hebt, kunt u een hulpprogramma zoals M65Connect gebruiken om het naar de MEGA65 of Nexys FPGA te uploaden.
+
+C64List is beschikbaar voor download op \url{http://www.commodoreserver.com/Downloads.asp}
+
+Zorg ervoor dat u een programmalijst in een bestand op uw lokale computer hebt opgeslagen (bijvoorbeeld \textit{program.txt}) gecodeerd als ANSI of UTF8.
+
+Gebruik C64List om het bestand om te zetten naar een PRG-bestand:
+    
+\begin{tcolorbox}[colback=black,coltext=white]
+    \begin{verbatim}
+        C64List program.txt -prg
+    \end{verbatim}
+\end{tcolorbox}
+
+Nu kunt u uw nieuw geconverteerde programma uploaden naar de MEGA65 met M65Connect of een van de eerder beschreven hulpprogramma's.
+
+Het is vermeldenswaard dat deze methode niet 100\% effectief zal zijn bij listings met speciale PETSCII-tekens. Programma's met PETSCII vereisen enige bewerking op de MEGA65 zelf voordat ze op schijf worden opgeslagen.

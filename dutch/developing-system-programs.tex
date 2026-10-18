@@ -1,0 +1,90 @@
+\chapter{Ontwikkeling van systeemprogramma's}
+
+\section{Inleiding}
+
+De MEGA65 heeft een aantal systeemprogramma's en hulpprogramma's die bij diverse gelegenheden verschillende functies vervullen. Daartoe behoren de hulpprogramma's via het hulpprogrammamenu\index{Hulpprogrammamenu}, het Freezer-menu\index{Freezer-menu} en de eigen hulpprogramma's, alsmede het flashmenu\index{Flashmenu}\index{MEGA Flash}.
+
+Een aantal van deze systeemprogramma's is vooraf in de bitstream van de MEGA65 geladen, terwijl andere op de SD-kaart staan. Bij de versies die vooraf in de bitstream zijn geladen, gebeurt dit door middel van voorgeïnitialiseerde geheugengebieden die het juiste programma bevatten. De hulpprogramma's die via het hulpprogrammamenu toegankelijk zijn, bevinden zich bijvoorbeeld allemaal in het colour RAM, terwijl het flashmenu op het adres \$50000 -- \$57FFF staat.
+
+De eenvoudigste manier om nieuwe versies van deze hulpprogramma's te testen, is het genereren van een nieuwe bitstream met de bijgewerkte versies. Het synthesiseren van een nieuwe bitstream is echter tijdrovend: het duurt doorgaans een uur op een redelijk snelle computer. Dit hoofdstuk legt daarom de procedure uit voor het laden van een alternatieve versie van elk van deze systeemprogramma's, en verstrekt enkele nuttige gegevens over deze programma's, hun werking en de omgeving waarin zij werken in vergelijking met gewone programma's in C64- of C65-modus.
+
+\section{Flashmenu}
+
+Het flashmenu bevindt zich in voorgeïnitialiseerd RAM op \$50000 -- \$57FFF. Het wordt iedere keer uitgevoerd tijdens de eerste opstart na inschakelen van de MEGA65. Het programma is buitenissig in de zin dat het in de Hypervisor-context draait. Dit is nodig om toegang te krijgen tot het QSPI-flashgeheugen, dat buiten de Hypervisor-modus niet beschikbaar is, zodat gebruikersprogramma's de cores die in de flash zijn opgeslagen niet kunnen beschadigen.
+
+Het is ook belangrijk op te merken dat het flashmenu-programma {\em volledig} onder \$8000 moet passen wanneer het wordt geladen {\em en} wordt uitgevoerd, omdat de Hypervisor op \$8000 -- \$BFFF in het geheugen geladen is en gemakkelijk kan worden beschadigd door een flashmenu-programma dat zich misdraagt. In dit opzicht kan het flashmenu worden beschouwd als een uitbreiding van de Hypervisor die na de eerste opstart wordt verwijderd. Dit verschilt van alle andere systeemprogramma's, die in een afzonderlijk geheugencontext werken waarin de Hypervisor beschermd is tegen beschadiging. Het betekent ook dat u het flashmenu niet kunt comprimeren om het te laten passen, omdat het tijdens het uitpakken de Hypervisor zou overschrijven.
+
+Ook wordt het flashmenu zeer vroeg in het opstartproces uitgevoerd, zodat alleen het vooraf opgenomen OpenROM ROM-image beschikbaar is. U moet er daarom voor zorgen dat uw flashmenu-programma compatibel is met die ROM.
+
+De Hypervisor houdt een vlag bij die aangeeft of het flashmenu al dan niet is uitgevoerd. Deze vlag wordt bijgewerkt op het moment dat de Hypervisor voor de eerste keer naar de gebruikersmodus overschakelt, omdat de inhoud van \$50000 -- \$57FFF vanaf dat moment niet meer betrouwbaar is als opslagplaats van het flashmenu. Dit betekent dat u, indien u de Hypervisor een nieuwe versie van het flashmenu wilt laten uitvoeren die u hebt geladen, eerst moet voorkomen dat de Hypervisor naar de gebruikersmodus overschakelt.
+
+De eenvoudigste manier om dit te bereiken, is de ALT-toets ingedrukt te houden terwijl u de MEGA65 inschakelt. Hierdoor toont de Hypervisor het hulpprogrammamenu in plaats van naar de gebruikersmodus over te schakelen. Op dit moment kunt u het {\tt m65}-hulpprogramma gebruiken om het vervangende flashmenu-programma te laden met een commando als het volgende:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+m65 -@ newflashmenu.prg@50000
+\end{verbatim}
+\end{tcolorbox}
+
+Dat commando laadt het bestand {\tt newflashmenu.prg} op geheugenadres \$50000 geladen.
+
+Daarna kunt u eenvoudig de resetknop aan de zijkant van de MEGA65 indrukken terwijl u \specialkey{NO\\SCROLL} ingedrukt houdt. De computer start opnieuw op en omdat tijdens de vorige opstartcyclus niet uit de Hypervisor-modus is overschakeld, wordt uw bijgewerkte flashmenu-programma uitgevoerd.
+
+Het zou ook mogelijk moeten zijn om dit proces volledig te automatiseren, door eerst {\tt m65 -b} te gebruiken om een nieuwe bitstream te laden (een koude start nabootsen), vervolgens snel {\tt m65} opnieuw aan te roepen om het indrukken van de ALT-toets na te bootsen (of eenvoudig de processor te stoppen), daarna {\tt m65 -@ ...} en ten slotte {\tt m65 -F} om de computer te resetten. Het schrijven van een script of hulpprogramma dat deze automatisering correct implementeert, laten wij over als een oefening voor de lezer.
+
+\section{Format/FDISK-hulpprogramma}
+
+Het Format/FDISK-hulpprogramma is toegankelijk via het hulpprogrammamenu. Deze hulpprogramma's worden gecompileerd, gecomprimeerd en gelinkt met het {\tt utilpacker}-programma. Indien u de broncode van de mega65-core hebt uitgecheckt, kunt u het colour RAM-image opnieuw bouwen met:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+make bin/COLOURRAM.BIN
+\end{verbatim}
+\end{tcolorbox}
+
+U moet uiteraard eerst het Format/FDISK-hulpprogramma hebben aangepast, dat zich normaal gesproken in de subdirectory {\tt src/mega65-freeze-menu} bevindt.
+
+Vervolgens moet u dit aangepaste colour RAM-image in de draaiende computer laden. Net als bij het bijwerken van het flashmenu, toont de Hypervisor het hulpprogrammamenu alleen bij de eerste opstart, voordat er voor de eerste keer naar de gebruikersmodus wordt overgeschakeld, omdat de Hypervisor anders niet zeker kan zijn dat het colour RAM de geldige hulpprogramma's bevat.
+
+Net als bij het flashmenu schakelt u de MEGA65 uit en schakelt u deze vervolgens weer in terwijl u de ALT-toets ingedrukt houdt, zodat het hulpprogrammamenu wordt weergegeven. Op dat moment kunt u het volgende commando gebruiken om uw aangepaste bestand {\tt COLOURRAM.BIN} te laden:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+m65 -c COLOURRAM.BIN
+\end{verbatim}
+\end{tcolorbox}
+
+U kunt nu \specialkey{ALT} ingedrukt houden en de resetknop aan de linkerkant van de MEGA65 indrukken. Het hulpprogrammamenu verschijnt dan opnieuw, ditmaal met uw aangepaste Format/FDISK-hulpprogramma.
+
+\section{Toetsenbordtest-hulpprogramma}
+
+De procedure voor het bijwerken van het toetsenbordtest-hulpprogramma is in beginsel dezelfde als voor het Format/FDISK-hulpprogramma, omdat het zich in het colour RAM bevindt.
+
+\section{MEGA65-configuratiehulpprogramma}
+
+De procedure voor het bijwerken van het MEGA65-configuratiehulpprogramma is in beginsel dezelfde als voor het Format/FDISK-hulpprogramma, omdat het zich in het colour RAM bevindt.
+
+\section{Freezer-menu}
+
+Het Freezer-menu is een gewoon programma dat als {\tt FREEZER.M65} op het FAT32-bestandssysteem van de SD-kaart staat.
+
+Om het Freezer-menu bij te werken, gebruikt u het {\tt m65ftp}-hulpprogramma of een andere methode om uw bijgewerkte bestand FREEZER.M65 naar het FAT32-bestandssysteem van de SD-kaart te uploaden. Het formaat van het programma is eenvoudigweg een PRG-bestand in C64-modus, hernoemd naar FREEZER.M65.
+
+\section{Hulpprogramma's van het Freezer-menu}
+
+De hulpprogramma's van het Freezer-menu worden op dezelfde manier bijgewerkt als het Freezer-menu zelf.
+
+\section{Hypervisor}
+
+De Hypervisor wordt doorgaans gebouwd als HICKUP.M65, een bestand van 16 KB dat het volledige Hypervisor-programma bevat. MEGA65-bitstreams bevatten een vooraf gebouwde versie op het adres \$FFF8000 -- \$FFFBFFF. Bijgewerkte versies van de Hypervisor kunnen op twee manieren worden getest:
+
+\begin{itemize}
+	\item 1. Plaats het bijgewerkte bestand HICKUP.M65 op het FAT32-bestandssysteem van de SD-kaart en schakel de MEGA65 vervolgens uit en weer in. Dit werkt omdat de Hypervisor code bevat die een bijgewerkte versie van zichzelf zoekt en deze, indien gevonden, laadt. Deze aanpak is echter problematisch doordat bij het installeren van een nieuwere bitstream de Hypervisor alsnog wordt teruggedraaid naar de versie die in het bestand HICKUP.M65 op de SD-kaart staat. Deze methode wordt alleen aanbevolen voor ontwikkelaars die hun aangepaste Hypervisor-code vanuit een koude start moeten testen. Ook dan wordt aanbevolen het bestand HICKUP.M65 onmiddellijk na het testen te verwijderen om onverwachte terugval in de toekomst te voorkomen.	\item 2. Gebruik de {\tt -k}-optie van het m65-commando om de Hypervisor ter plekke te vervangen en reset de MEGA65 vervolgens met de resetknop aan de linkerkant van de behuizing. Dit dient te gebeuren wanneer de Hypervisor {\em niet} actief is, zodat beschadiging van de huidige uitvoering niet kan optreden. Het moet echter ook gebeuren voordat er een ROM is geladen die het standaard OpenROM-image vervangt. De Hypervisor zal bij de eerste opstart namelijk een aanroep doen naar de ROM ter voorbereiding op het flashmenu, en ervan uitgaan dat de OpenROM aanwezig is, omdat hij een speciale, voor OpenROM bestemde aanroep gebruikt om delen van de systeemtoestand voor het flashmenu te initialiseren. Het beste doet u dit met een commando als {\tt m65 -k bin/HICKUP.M65 -R bin/MEGA65.ROM} om zowel een nieuw Hypervisor-programma te laden als het OpenROM-image opnieuw te laden.
+\end{itemize}
+
+\section{OpenROM}
+
+Om een nieuwe versie van een ROM te laden, bestaan er verschillende mogelijkheden, waaronder het tegelijkertijd vervangen van de Hypervisor en de ROM zoals hierboven beschreven. Doorgaans is de eenvoudigste methode het kopiëren van de nieuwe ROM naar het FAT32-bestandssysteem van de SD-kaart als MEGA65.ROM of MEGA65$x$.ROM, waarbij $x$ wordt vervangen door een cijfer tussen 0 en 9. Bij het resetten van de MEGA65 wordt dan normaal gesproken MEGA65.ROM geladen, of indien een cijfer tussen 0 en 9 wordt ingedrukt op het toetsenbord tijdens het resetten, laadt de Hypervisor in plaats daarvan MEGA65$x$.ROM, waarbij $x$ het cijfer is dat wordt ingedrukt.

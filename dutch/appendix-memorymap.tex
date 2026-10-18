@@ -1,0 +1,381 @@
+\chapter{Systeemgeheugenindeling}
+\label{cha:memory-map}
+\section{Inleiding}
+
+De MEGA65-computer heeft een grote 28-bits adresruimte, waarmee tot 256 MB aan geheugen en in het geheugen gemapte apparaten kunnen worden aangesproken. Deze geheugenindeling kent verschillende verschijningsvormen, afhankelijk van de modus waarin de computer draait. In grove lijnen zijn er vijf hoofdmodi: (1) hypervisormodus; (2) C64-compatibiliteitsmodus; (3) C65-compatibiliteitsmodus; (4) UltiMAX-compatibiliteitsmodus; en (5) MEGA65-modus, of een van de andere modi waarbij de programmeur gebruikmaakt van de uitgebreide functies van de MEGA65.
+
+Het is belangrijk te begrijpen dat de C65 en MEGA65, in tegenstelling tot de C128, toegang bieden tot alle uitgebreide functies vanuit C64-modus, indien de programmeur dat wenst. Dit betekent dat wij, hoewel wij vaak over ``C64-modus,'' ``C65-modus'' en ``MEGA65-modus'' spreken, eenvoudigweg gemaksnamen gebruiken voor de MEGA65 waarvan de geheugenindeling (en soms andere functies) zodanig is ingesteld dat zij een omgeving biedt die overeenkomt met de desbetreffende modus. De kern hiervan is de flexibele geheugenindeling van de MEGA65.
+
+In deze bijlage beschrijven wij eerst de eigen geheugenindeling van de MEGA65, dat wil zeggen waar al het geheugen, de I/O-apparaten en andere functies hun plaats hebben in de 28-bits adresruimte. Vervolgens leggen wij uit hoe C64- en C65-compatibele geheugenindelingen vanuit deze 28-bits adresruimte worden benaderd.
+
+\newpage
+
+\section{Eigen geheugenindeling van de MEGA65}
+
+\subsection{De eerste zestien 64KB-banken}
+
+De MEGA65 gebruikt voor het eerste MB geheugen een soortgelijke geheugenindeling als de C65, te weten 16 geheugenbanken van 64 KB elk. Dit komt doordat de 4510-CPU van de C65 slechts 1 MB adresruimte kan benaderen. Deze banken kunnen vanuit BASIC 65 worden benaderd met de commando's \stw{BANK}\index{BASIC 65-opdrachten!BANK}, \stw{DMA}\index{BASIC 65-opdrachten!DMA}, \stw{PEEK} en \stw{POKE}. De volgende tabel vat de inhoud van de eerste 16 banken samen:
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{0.7cm}|L{0.7cm}|L{1.2cm}|p{7.9cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Adres}} & {\bf{Inhoud}} \\
+\hline
+\endfirsthead
+\multicolumn{4}{l@{}}{\ldots Vervolgd}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Adres}} & {\bf{Inhoud}} \\
+\endhead
+\multicolumn{4}{l@{}}{Vervolgd \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+\small 0 & \small 0 & \$0xxxx & \multicolumn{1}{p{7.9cm}|}{Eerste 64KB RAM. Dit is het RAM-geheugen dat in de C64-modus zichtbaar is.}\\
+\hline
+\small 1 & \small 1 & \$1xxxx & \multicolumn{1}{p{7.9cm}|}{Tweede 64KB RAM. Dit is het tweede 64KB RAM-geheugen dat op een C65 aanwezig is.}\\
+\hline
+\small 2 & \small 2 & \$2xxxx & \multicolumn{1}{p{7.9cm}|}{Eerste helft van de C65-ROM (C64-modus en gedeelde onderdelen) {\em of} RAM}\\
+\hline
+\small 3 & \small 3 & \$3xxxx & \multicolumn{1}{p{7.9cm}|}{Tweede helft van de C65-ROM (C65-modus-onderdelen) {\em of} RAM}\\
+\hline
+\small 4 & \small 4 & \$4xxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (384KB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small 5 & \small 5 & \$5xxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (384KB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small 6 & \small 6 & \$6xxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*512KB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small 7 & \small 7 & \$7xxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*512KB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small 8 & \small 8 & \$8xxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small 9 & \small 9 & \$9xxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small A & \small 10 & \$Axxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small B & \small 11 & \$Bxxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small C & \small 12 & \$Cxxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small D & \small 13 & \$Dxxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small E & \small 14 & \$Exxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\small F & \small 15 & \$Fxxxx & \multicolumn{1}{p{7.9cm}|}{Extra RAM (*1MB of grotere chip-RAM-mo\-del\-len)}\\
+\hline
+\end{longtable}
+
+* Let op: de MEGA65 biedt momenteel alleen een model met 384KB chip-RAM. Toekomstige modellen kunnen grotere hoeveelheden chip-RAM bevatten (zoals 512KB en 1MB).
+
+De belangrijkste kenmerken van deze adresruimte zijn de 128KB RAM in de eerste twee banken, die ook op de C65 aanwezig is. Indien u programma's wilt schrijven die ook op een C65 kunnen draaien, dient u alleen deze twee banken RAM te gebruiken.
+
+Op alle modellen is het mogelijk om alle of een deel van de 128KB ``ROM''-ruimte als RAM te gebruiken. Daartoe moet u eerst de Hypervisor verzoeken de schrijfbeveiliging van dit gebied op te heffen, voordat u de inhoud kunt wijzigen. Indien u een programma schrijft dat vanuit C64-modus start, of anderszins overschakelt naar het C64-deel van de ROM in plaats van het C65-deel, dan kan de tweede helft van die ruimte, te weten BANK 3, veilig voor uw programma's worden gebruikt. Dit geeft een totaal van 192KB RAM, dat op alle modellen van de MEGA65 beschikbaar is.
+
+Op modellen met 384KB of meer chip-RAM zijn BANK 4 en 5 eveneens beschikbaar. Modellen die 1MB of meer chip-RAM bieden, hebben daarnaast BANK 6 tot en met 15 beschikbaar, wat een totaal van 896KB (of 960KB, indien alleen het C64-deel van de ROM nodig is) RAM oplevert voor uw programma's. Let op: de ingebouwde freeze-cartridge van de MEGA65 bevriest momenteel alleen de eerste 384KB RAM.
+
+\subsection{Kleurengeheugen}
+
+De VIC-IV-videokaart van de MEGA65 ondersteunt veel grotere schermen dan de VIC-II of VIC-III. Zij heeft daarom toegang tot een apart kleurengeheugen (colour-RAM), vergelijkbaar met dat van de C64. Voor compatibiliteit met de C65 zijn de eerste twee kilobytes hiervan toegankelijk op \$1F800 -- \$1FFFF. Het volledige 32KB kleurengeheugen bevindt zich op \$FF80000 -- \$FF87FFF. Dit is het eenvoudigst toegankelijk via geavanceerde DMA-bewerkingen of de 32-bits indirecte adresseermethode op de basispagina (zero page) van de processor.
+
+Op het moment van schrijven kunnen de \stw{BANK}- en \stw{DMA}-commando's niet worden gebruikt om het resterende kleurengeheugen te bereiken, omdat het kleurengeheugen zich niet in het eerste megabyte van de adresruimte bevindt. Dit kan in een toekomstige revisie van de MEGA65 worden gecorrigeerd, waardoor toegang tot het volledige kleurengeheugen via BANK 15 of een equivalente DMA-taak mogelijk wordt.
+
+\subsection{Extra RAM}
+
+Naast de 384KB chip-RAM die standaard op alle MEGA65-modellen aanwezig is, hebben de meeste modellen (devkit, release-borden en xemu, maar momenteel NIET op Nexys-borden) ook 8MB extra RAM vanaf \$8000000, aangeduid als 'ATTIC RAM'. Dit is niet zichtbaar voor de andere chips (vic/sid/enz.) en kan niet worden gebruikt voor audio-DMA, maar er kan code op worden uitgevoerd (weliswaar langzamer) of het kan worden gebruikt om inhoud op te slaan en via DMA in en uit het chip-RAM te verplaatsen.
+
+Er zijn ook plannen om een PMOD hyperRAM-module te ondersteunen (geïnstalleerd via het klepje onder de MEGA65) om nog eens 8MB RAM vanaf \$8800000 te bieden, aangeduid als 'CELLAR RAM'.
+
+\subsection{28-bits adresruimte}
+
+Naast de C65-stijl 1MB adresruimte breidt de MEGA65 deze uit tot 256MB met 28-bits adressen. De volgende tabel toont de indeling op hoofdlijnen van deze adresruimte.
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{1.5cm}|L{2cm}|L{1.5cm}|p{6cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Grootte}} & {\bf{Inhoud}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots Vervolgd}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Grootte}} & {\bf{Inhoud}} \\
+\endhead
+\multicolumn{3}{l@{}}{Vervolgd \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+\small 0000000 & \small 0 & 1 & \multicolumn{1}{p{6cm}|}{Richtingsregister van de CPU-I/O-poortgegevens}\\
+\hline
+\small 0000001 & \small 1 & 1 & \multicolumn{1}{p{6cm}|}{CPU-I/O-poortgegevens}\\
+\hline
+\small 0000002 -- 005FFFF & \small 2 -- 384KB & 384KB &\multicolumn{1}{p{6cm}|}{Snel chip-RAM (40MHz)}\\
+\hline
+\small 0060000 -- 0FFFFFF & \small 384KB -- 16MB  & 15.6MB &\multicolumn{1}{p{6cm}|}{Gereserveerd voor toekomstige chip-RAM-uitbreiding}\\
+\hline
+\small 1000000 -- 3FFFFFF & \small 16MB -- 64MB & 48MB &\multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\small 4000000 -- 7FFFFFF & \small 64MB -- 128MB & 64MB &\multicolumn{1}{p{6cm}|}{Cartridgepoort en andere apparaten op de langzame bus  (1 -- 10 MHz)}\\
+\hline
+\small 8000000 -- 87FFFFF & \small 128MB -- 135MB & 8MB &\multicolumn{1}{p{6cm}|}{8MB ATTIC-RAM (momenteel op alle modellen behalve Nexys)}\\
+\hline
+\small 8800000 -- 8FFFFFF & \small 135MB -- 144MB & 8MB &\multicolumn{1}{p{6cm}|}{8MB CELLAR-RAM (geplande PMOD-module, geïnstalleerd via het klepje)}\\
+\hline
+\small 9000000 -- EFFFFFF & \small 144MB -- 240MB & 96MB &\multicolumn{1}{p{6cm}|}{Gereserveerd voor toekomstig uitbreidings-RAM}\\
+\hline
+\small F000000 -- FF7DFFF & \small 240MB -- 255.49MB & 15.49MB &\multicolumn{1}{p{6cm}|}{Gereserveerd voor toekomstige I/O-uitbreiding}\\
+\hline
+\small FF7E000 -- FF7EFFF & \small 255.49MB -- 255.49MB & 4KB &\multicolumn{1}{p{6cm}|}{VIC-IV-teken-ROM (alleen schrijven)}\\
+\hline
+\small FF80000 -- FF87FFF & \small 255.5MB -- 255.53MB & 32KB &\multicolumn{1}{p{6cm}|}{VIC-IV-kleurengeheugen (32KB kleurengeheugen - beschikbaar op alle modellen)}\\
+\hline
+\small FF88000 -- FF8FFFF & \small 255.53MB -- 255.57MB & 32KB &\multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\small FF90000 -- FFCAFFF & \small 255.53MB -- 255.80MB & 216KB &\multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\small FFCB000 -- FFCBFFF & \small 255.80MB -- 255.80MB & 4KB &\multicolumn{1}{p{6cm}|}{Geëmuleerd C1541-RAM}\\
+\hline
+\small FFCC000 -- FFCFFFF & \small 255.80MB -- 255.81MB & 16KB &\multicolumn{1}{p{6cm}|}{Geëmuleerde C1541-ROM}\\
+\hline
+\small FFD0000 -- FFD0FFF & \small 255.81MB -- 255.81MB & 4KB &\multicolumn{1}{p{6cm}|}{C64-\$Dxxx-I/O-persoonlijkheid}\\
+\hline
+\small FFD1000 -- FFD1FFF & \small 255.81MB -- 255.82MB & 4KB &\multicolumn{1}{p{6cm}|}{C65-\$Dxxx-I/O-persoonlijkheid}\\
+\hline
+\small FFD2000 -- FFD2FFF & \small 255.82MB -- 255.82MB & 4KB &\multicolumn{1}{p{6cm}|}{MEGA65-\$Dxxx-Ethernet-I/O-persoonlijkheid}\\
+\hline
+\small FFD3000 -- FFD3FFF & \small 255.82MB -- 255.82MB & 4KB &\multicolumn{1}{p{6cm}|}{MEGA65-\$Dxxx-normale-I/O-persoonlijkheid}\\
+\hline
+\small FFD4000 -- FFD5FFF & \small 255.82MB -- 255.83MB & 8KB &\multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\small FFD6000 -- FFD67FF & \small 255.83MB -- 255.83MB & 2KB &\multicolumn{1}{p{6cm}|}{Tijdelijk geheugen voor de hypervisor}\\
+\hline
+\small FFD6000 -- FFD6BFF & \small 255.83MB -- 255.83MB & 3KB &\multicolumn{1}{p{6cm}|}{Tijdelijk geheugen voor de hypervisor}\\
+\hline
+\small FFD6C00 -- FFD6DFF & \small 255.83MB -- 255.83MB & 512 &\multicolumn{1}{p{6cm}|}{Sectorbuffer van de F011-diskettecontroller}\\
+\hline
+\small FFD6E00 -- FFD6FFF & \small 255.83MB -- 255.83MB & 512 &\multicolumn{1}{p{6cm}|}{Sectorbuffer van de SD-kaartcontroller}\\
+\hline
+\small FFD7000 -- FFD70FF & \small 255.83MB -- 255.83MB & 256 &\multicolumn{1}{p{6cm}|}{I2C-apparaten van de MEGAphone r1}\\
+\hline
+\small FFD7100 -- FFD71FF & \small 255.83MB -- 255.83MB & 256 &\multicolumn{1}{p{6cm}|}{I2C-apparaten van de MEGA65 r2}\\
+\hline
+\small FFD7200 -- FFD72FF & \small 255.83MB -- 255.83MB & 256 &\multicolumn{1}{p{6cm}|}{MEGA65-HDMI-I2C-registers (alleen voor R2 en oudere modellen met de ADV7511-HDMI-driverchip)}\\
+\hline
+\small FFD7300 -- FFD7FFF & \small 255.83MB -- 255.84MB & 3.25KB &\multicolumn{1}{p{6cm}|}{Gereserveerd voor toekomstige I2C-apparaten}\\
+\hline
+\small FFD8000 -- FFDBFFF & \small 255.83MB -- 255.86MB & 16KB &\multicolumn{1}{p{6cm}|}{Hypervisor-ROM (alleen zichtbaar in de hypervisormodus)}\\
+\hline
+\small FFDC000 -- FFDDFFF & \small 255.86MB -- 255.87MB & 8KB &\multicolumn{1}{p{6cm}|}{Gereserveerd voor ROM-uitbreiding van de hypervisormodus}\\
+\hline
+\small FFDE000 -- FFDE7FF & \small 255.87MB -- 255.87MB & 2KB &\multicolumn{1}{p{6cm}|}{Gereserveerd voor uitbreiding van de Ethernet-buffer}\\
+\hline
+\small FFDE800 -- FFDEFFF & \small 255.87MB -- 255.87MB & 2KB &\multicolumn{1}{p{6cm}|}{Ethernet-frameleesbuffer (alleen lezen) en  Ethernet-frameschrijfbuffer (alleen schrijven)}\\
+\hline
+\small FFDF000 -- FFDFFFF & \small 255.87MB -- 255.87MB & 4KB &\multicolumn{1}{p{6cm}|}{Virtuele FPGA-registers (alleen op geselecteerde modellen)}\\
+\hline
+\small FFE0000 -- FFFFFFF & \small 255.87MB -- 256MB & 128KB &\multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\end{longtable}
+
+\section{\$D000 -- \$DFFF I/O-persoonlijkheden}
+\label{sec:iopersonalities}
+
+De MEGA65 ondersteunt vier verschillende I/O-persoonlijkheden. Deze worden geselecteerd door de juiste waarden naar het \$D02F KEY-register te schrijven, dat in alle vier de I/O-persoonlijkheden zichtbaar is. In \bookvref{cha:modes} vindt u meer informatie over het gebruik van het KEY-register.
+
+De volgende tabel toont welke I/O-apparaten in elk van deze I/O-modi zichtbaar zijn, evenals de KEY-registerwaarden die worden gebruikt om de I/O-persoonlijkheid te selecteren.
+
+\newpage
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|p{2.2cm}|C{2cm}|C{2cm}|C{2cm}|C{2cm}|}
+\hline
+{\bf{HEX}} & {\bf{C64}} & {\bf{C65}} & {\bf{MEGA65 ETHERNET}} & {\bf{MEGA65}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots Vervolgd}\\
+\hline
+{\bf{HEX}} & {\bf{C64}} & {\bf{C65}} & {\bf{MEGA65 ETHERNET}} & {\bf{MEGA65}} \\
+\endhead
+\multicolumn{3}{l@{}}{Vervolgd \ldots}\\
+\endfoot
+\multicolumn{5}{p{10.2cm}}{{$^1$} In de C64-I/O-persoonlijkheid gedraagt \$D030 zich zoals op de C128, waarmee kan worden geschakeld tussen 1MHz en 2MHz CPU-snelheid.}\\\multicolumn{5}{p{10.2cm}}{{$^2$} De extra MEGA65-SID's zijn zichtbaar in  alle I/O-persoonlijkheden.}\\\multicolumn{5}{p{10.2cm}}{{$^3$} Sommige modellen kunnen de herhaalde kopieën  van de eerste vier SID's vervangen door vier extra SID's, voor een totaal van 8 SID's.}\\
+\endlastfoot
+\hline
+\small KEY & \small \$00 & \$A5, \$96 & \$45, \$54  & \$47, \$53 \\
+\hline
+\small \$D000 -- \$D02F & \small VIC-II & VIC-II & VIC-II & VIC-II \\
+\hline
+\small \$D030 -- \$D07F & \small VIC-II{$^1$} & VIC-III & VIC-III & VIC-III \\
+\hline
+\small \$D080 -- \$D08F & \small VIC-II & F011 & F011 & F011 \\
+\hline
+\small \$D090 -- \$D09F & \small VIC-II & -- & SD-kaart & SD-kaart \\
+\hline
+\small \$D0A0 -- \$D0FF & \small VIC-II & RAM EXPAND CONTROL & -- & -- \\
+\hline
+\small \$D100 -- \$D1FF & \small VIC-II & ROOD PALET & ROOD PALET &ROOD PALET \\
+\hline
+\small \$D200 -- \$D2FF & \small VIC-II & GROEN PALET & GROEN PALET &GROEN PALET \\
+\hline
+\small \$D300 -- \$D3FF & \small VIC-II & BLAUW PALET & BLAUW PALET &BLAUW PALET \\
+\hline
+\small \$D400 -- \$D41F & \small SID rechts \#1 & SID rechts \#1 & SID rechts \#1 &SID rechts \#1 \\
+\hline
+\small \$D420 -- \$D43F & \small SID rechts \#2 & SID rechts \#2 & SID rechts \#2 &SID rechts \#2 \\
+\hline
+\small \$D440 -- \$D45F & \small SID links \#1 & SID links \#1 & SID links \#1 &SID links \#1 \\
+\hline
+\small \$D460 -- \$D47F & \small SID links \#2 & SID links \#2 & SID links \#2 &SID links \#2 \\
+\hline
+\small \$D480 -- \$D49F & \small SID rechts \#1 & SID rechts \#1 & SID rechts \#1 &SID rechts \#1 \\
+\hline
+\small \$D4A0 -- \$D4BF & \small SID rechts \#2 & SID rechts \#2 & SID rechts \#2 &SID rechts \#2 \\
+\hline
+\small \$D4C0 -- \$D4DF & \small SID links \#1 & SID links \#1 & SID links \#1 &SID links \#1 \\
+\hline
+\small \$D4E0 -- \$D4FF & \small SID links \#2 & SID links \#2 & SID links \#2 &SID links \#2 \\
+\hline
+\small \$D500 -- \$D5FF & \small SID-kopieën & -- & Gereserveerd & Gereserveerd \\
+\hline
+\small \$D600 -- \$D63F & \small -- & UART & UART & UART \\
+\hline
+\small \$D640 -- \$D67F & \small -- & UART-kopieën & HyperTrap-registers & HyperTrap-registers \\
+\hline
+\small \$D680 -- \$D6FF & \small -- & -- & MEGA65-apparaten & MEGA65-apparaten \\
+\hline
+\small \$D700 -- \$D7FF & \small -- & -- & MEGA65-apparaten & MEGA65-apparaten \\
+\hline
+\small \$D800 -- \$DBFF & \small KLEURENGEHEUGEN & KLEURENGEHEUGEN & ETHERNET-buffer & KLEURENGEHEUGEN \\
+\hline
+\small \$DC00 -- \$DDFF & \small CIAs & CIAs / KLEURENGEHEUGEN & ETHERNET-buffer & CIAs / KLEURENGEHEUGEN \\
+\hline
+\small \$DE00 -- \$DFFF & \small CART I/O & CART I/O & ETHERNET-buffer & CART I/O / SD-sectorbuffer \\
+\hline
+\end{longtable}
+
+\section{Banking van het CPU-geheugen}
+\label{sec:membanking}
+
+De 45GS02-processor kan, net als de 6502, slechts 64 KB geheugen tegelijk ``zien''. Toegang tot aanvullend geheugen verloopt via een reeks bank-switchingmechanismen. Voor backward-compatibiliteit met de C64 en C65 worden de geheugenbankmechanismen van beide computers ondersteund op de MEGA65:
+\begin{enumerate}
+\item Banking via de MAP-instructie in C65-stijl
+\item \$D030-banking in C65-stijl
+\item Cartridge-banking in C64-stijl
+\item \$00 / \$01-banking in C64-stijl
+\end{enumerate}
+
+Het MAP-register overschrijdt alle andere bankmechanismen. Dit mechanisme selecteert welke van de acht 8 KB-gebieden van de 16-bits adresruimte \$0000 -- \$FFFF via een offset op andere adressen worden gemapt. Wanneer een gebied gemapt is, zijn de overige bankmechanismen niet van toepassing. Dit geldt zelfs wanneer de offset 0 is, waardoor de 16-bits adressen toegang krijgen tot het RAM in bank 0 (zoals adres 0.D000).
+
+C65-stijl \$D030-banking en C64-stijl \$00 / \$01-banking selecteren beide gebieden die naar bank 2 worden gemapt, die standaard de C64-ROM-code bevat. Deze twee mechanismen overlappen in de gebieden die zij naar ROM kunnen mappen. Wanneer een van de twee mechanismen een gebied naar ROM mappt (en het niet elders door het MAP-register is gemapt), wordt het naar ROM gemapt.
+
+De volgende figuur toont de verschillende vormen van banking die van toepassing kunnen zijn op de verschillende gebieden van de 64 KB die de CPU kan zien.
+
+\begin{center}
+\begin{tabular}{rccccccc}
+\cline{4-5} \cline{7-8}
+\rowcolor[HTML]{34FF34}
+\multicolumn{1}{r|}{\cellcolor[HTML]{C0C0C0}MAP}    & \multicolumn{2}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP LO\\ (4 x 8KB-gebieden)\end{tabular}} & \multicolumn{5}{c|}{\cellcolor[HTML]{34FF34}\begin{tabular}[c]{@{}c@{}}MAP HI\\ (4 x 8KB-gebieden)\end{tabular}}                                                                                                                                                                                                                                                                                                                                                                                                     \\ \cline{2-8}\rowcolor[HTML]{C0C0C0} I/O/CART &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMLO\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART\\ ROMHI\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{C0C0C0}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{F8A102}I/O}                                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{FE0000}\begin{tabular}[c]{@{}c@{}}CART \\ ROMHI\end{tabular}} \\ \cline{4-8}
+\rowcolor[HTML]{EFEFEF}
+D030                                                 &                                 & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                               & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}CHARROM}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}\begin{tabular}[c]{@{}c@{}}INTER-\\ FACE\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                   & \multicolumn{1}{c|}{\cellcolor[HTML]{F8FF00}KERNAL}                                                \\ \cline{2-8}
+\rowcolor[HTML]{EFEFEF}
+C64                                                 &                                 &                                                                             & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                     & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}BASIC}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{EFEFEF}}                                                      & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}\begin{tabular}[c]{@{}c@{}}CHAR\\ ROM\end{tabular}} & \multicolumn{1}{c|}{\cellcolor[HTML]{00D2CB}KERNAL}                                                \\ \cline{2-8}
+\rowcolor[HTML]{9698ED}
+\multicolumn{1}{r|}{\cellcolor[HTML]{C0C0C0}RAM}   & \multicolumn{2}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                             & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                  & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                  & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                   & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                & \multicolumn{1}{c|}{\cellcolor[HTML]{9698ED}RAM}                                                   \\ \cline{2-8}
+\rowcolor[HTML]{EFEFEF}
+                                                    & \multicolumn{2}{c}{\cellcolor[HTML]{EFEFEF}\begin{tabular}[c]{@{}c@{}}\$0000 --\\ \$7FFF\end{tabular}}        & \begin{tabular}[c]{@{}c@{}}\$8000 --\\ \$9FFF\end{tabular}                                        & \begin{tabular}[c]{@{}c@{}}\$A000 --\\ \$BFFF\end{tabular}                                        & \begin{tabular}[c]{@{}c@{}}\$C000 --\\ \$CFFF\end{tabular}                                         & \begin{tabular}[c]{@{}c@{}}\$D000 --\\ \$DFFF\end{tabular}                                      & \begin{tabular}[c]{@{}c@{}}\$E000 --\\ \$FFFF\end{tabular}
+\end{tabular}
+\end{center}
+
+Er zijn enkele bijkomende complicaties. Wanneer de cartridge bijvoorbeeld de UltiMAX\texttrademark{}-gamemodus selecteert, is slechts de eerste 4 KB RAM zichtbaar en wordt de rest van de adresruimte niet gemapt, zodat deze door de cartridge kan worden aangeboden.
+
+\section{C64/C65-ROM-emulatie}
+
+De C64 en C65 gebruiken ROM-geheugen om het KERNAL- en BASIC-systeem op te slaan. De MEGA65 werkt anders: zij gebruikt 128 KB van de 384 KB snelle chip-RAM op \$20000 - \$3FFFF (banken 2 en 3) om deze systeemprogramma's op te slaan. Hierdoor is het mogelijk de ``ROM'' die de MEGA65 gebruikt te wijzigen of bij te werken zonder de computer te openen. Het is zelfs mogelijk het Freeze-menu van de MEGA65 te gebruiken om de gebruikte ``ROM'' te wijzigen terwijl een programma draait.
+
+De geheugenbankmethoden van de C64 en C65 gebruiken dit 128 KB-gebied wanneer zij ROM-banken zichtbaar maken. Wanneer de RAM-banken gemapt zijn, zijn zij altijd alleen-lezen. Wanneer echter de MAP-instructie of DMA wordt gebruikt om dat adresgebied te bereiken, is het mogelijk ernaar te schrijven. Voor verbeterde backward-compatibiliteit is het volledige 128 KB-geheugengebied standaard op alleen-lezen ingesteld.
+
+Een programma kan evenwel lees-schrijftoegang tot dit 128 KB-geheugengebied aanvragen, zodat het programma het volledige 384 KB chip-RAM van de MEGA65 kan benutten. Dit wordt gerealiseerd door de {\em ROM Write-enable} systeemtrap van de hypervisor te activeren. Het volgende codefragment demonstreert hoe dit werkt.
+
+\begin{screencode}
+  LDA #$02
+  STA $D641
+  CLV
+\end{screencode}
+
+Dit fragment werkt door subfunctie \$02 (ROM write-enable) van hypervisortrap \$01 aan te roepen. Subfunctie \$00 van dezelfde trap schakelt de schrijfbeveiliging weer in. De instructie na de {\tt STA} moet een instructie met één cyclus zijn, doorgaans {\tt CLV}: de CPU voert die bij het terugkeren uit de Hypervisor al dan niet uit. {\tt NOP} wordt niet aanbevolen, omdat deze op de 45GS02 als prefix voor de volgende instructie kan werken. De MEGA65 I/O-persoonlijkheid moet eerst worden geselecteerd, zodat de hypervisor-trap-registers (\$D640 -- \$D67F) zichtbaar worden.
+
+De huidige schrijfbeveiligingstoestand kan worden getest door te proberen naar dit geheugengebied te schrijven. Daarnaast kunt u de huidige toestand inspecteren en wijzigen in het Freeze-menu van de MEGA65.
+
+Opmerking: wanneer u het programma vanuit C65-modus start, moet u er eerst voor zorgen dat het I/O-gebied zichtbaar is op \$D000-\$DFFF. De eenvoudigste manier om dit te doen is de {\tt MAP}-instructie te gebruiken met alle waarden nul in de registers. Het volgende fragment demonstreert dit en zorgt er bovendien voor dat de MEGA65 I/O-context actief is, zodat de hypervisortrap kan worden geactiveerd:
+
+\begin{screencode}
+
+  ; Wis de C65-geheugenindeling
+  LDA #$00
+  TAX
+  TAY
+  TAZ
+  MAP
+  ; Bank I/O in via het C64-mechanisme
+  LDA #$35
+  STA $01
+  ; Activeer de MEGA65 / VIC-IV-I/O-persoonlijkheid
+  LDA #$47
+  STA $D02F
+  LDA #$53
+  STA $D02F
+  ; Einde van de MAP-reeks, zodat interrupts weer kunnen optreden
+  EOM
+  ; Hypervisor-aanroep om de schrijfbeveiliging van het ROM-gebied op te heffen
+  LDA #$02
+  STA $D641
+  CLV
+\end{screencode}
+
+
+\subsection{Indeling van de C65-compatibiliteits-ROM}
+
+De indeling van het 128KB C65-compatibiliteits-ROM-gebied komt overeen met die van de C65:
+
+\begin{center}
+  {\ttfamily
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{|l|l|}
+  \hline
+  {\bf{HEX}} & {\bf{Inhoud}} \\
+  \hline
+  \$3E000 -- \$3FFFF & C65 KERNAL \\
+  \hline
+  \$3D000 -- \$3DFFF & CHARSET B \\
+  \hline
+  \$3C000 -- \$3CFFF & GERESERVEERD \\
+  \hline
+  \$38000 -- \$3BFFF & C65-BASIC-grafische routines \\
+  \hline
+  \$32000 -- \$37FFF & C65-BASIC \\
+  \hline
+  \$30000 -- \$31FFF & MONITOR (wordt op \$6000 -- \$7FFF gemapt) \\
+  \hline
+  \$2E000 -- \$2FFFF & C64 KERNAL \\
+  \hline
+  \$2D000 -- \$2DFFF & CHARSET C \\
+  \hline
+  \$2C800 -- \$2CFFF & INTERFACE \\
+  \hline
+  \$2C000 -- \$2C7FF & GERESERVEERD \\
+  \hline
+  \$2A000 -- \$2BFFF & C64-BASIC \\
+  \hline
+  \$29000 -- \$29FFF & CHARSET A \\
+  \hline
+  \$24000 -- \$28FFF & GERESERVEERD \\
+  \hline
+  \$20000 -- \$23FFF & DOS (wordt op \$8000 -- \$BFFF gemapt) \\
+  \hline
+  \end{tabular}
+  }
+\end{center}
+
+Het INTERFACE-programma is een reeks routines die door de C65 worden gebruikt om te wisselen tussen C64-modus, C65-modus en het ingebouwde DOS van de C65. Het DOS bevindt zich in het onderste achtste van het ROM.
+
+
+
+

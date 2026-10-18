@@ -1,0 +1,229 @@
+\chapter {C64-, C65- en MEGA65-modi}
+\label{cha:modes}
+
+De MEGA65 heeft, net als de C65 en de C128, meerdere bedrijfsmodi. Tussen de MEGA65 en beide eerdere computers bestaan evenwel belangrijke verschillen.
+
+Standaard start het bestand {\tt MEGA65.ROM} op in de MEGA65-modus (waaronder BASIC 65) en biedt het een methode om via het \screentext{GO 64}-commando naar de C64-modus te schakelen. Het is evenwel ook mogelijk om een originele C65-ROM (versie {\tt 91XXXX.BIN}) die naar {\tt MEGA65.ROM} is hernoemd te gebruiken, waardoor de MEGA65 in de C65-modus met BASIC 10 opstart. Ook deze ROM biedt dezelfde functionaliteit om naar de C64-modus te schakelen.
+
+Afhankelijk van uw keuze voor de opstart-ROM hebt u derhalve:
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+ \hline
+  {\textbf{Opstartmodus}} & {\textbf{ROM-versie}} & {\textbf{BASIC}} & {\textbf{C64-modus}} \\
+ \hline
+   MEGA65    & \screentext{92XXXX}      & BASIC 65 & \screentext{GO 64} \\   C65       & \screentext{91XXXX}      & BASIC 10 & \screentext{GO 64} \\
+ \hline
+\end{tabular}
+\end{center}
+Voor lezers die bekend zijn met de C128 is het belangrijkste verschil dat alle nieuwe voorzieningen van de MEGA65 vanuit elke modus toegankelijk zijn en dat u zelfs tussen de verschillende modi heen en weer kunt schakelen. Het is ook mogelijk om hybride modi te maken die voorzieningen uit de verschillende modi combineren -- alles wat u nodig hebt, is de {\bf MAP}-instructie en het adres van het KEY-register, namelijk {\bf 53295} (\$D02F).
+
+Dit hoofdstuk behandelt de verschillende modi, de {\bf MAP}-instructie en het KEY-register. Met het KEY-register kunt u de bedrijfsmodus van de MEGA65 wijzigen. Daarnaast legt dit hoofdstuk uit hoe u met BASIC-commando's van de ene modus naar de andere schakelt.
+
+\phantomsection
+\section{Modi wisselen vanuit BASIC}
+
+De MEGA65 werkt in de C64-modus (met BASIC 2), in de C65-modus (met BASIC 10) bij ROM-versies {\tt 91XXXX}, of in de MEGA65-modus (met BASIC 65) bij ROM-versies {\tt 92XXXX}.
+
+Verschillende MEGA65-voorzieningen kunt u echter vanuit alle modi benaderen en alle MEGA65-voorzieningen staan ter beschikking van programma's die in assembleertaal / machinetaal zijn geschreven.
+\ifdefined\printmanual
+Voor meer informatie over het schrijven van zulke programma's raadpleegt u het {\bf grote Mega65-boek}.
+\else
+Meer informatie over het schrijven van zulke programma's vindt u in de verschillende bijlagen.
+\fi
+
+\subsection{Van MEGA65/C65 naar de C64-modus}
+
+Om van MEGA65/C65 naar de C64-modus te schakelen, gebruikt u het vertrouwde \screentext{GO 64}-commando dat identiek is aan het overschakelen naar de C64-modus op een C128:
+\index{BASIC 65-voorbeelden!GO64}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+GO 64
+ARE YOU SURE? Y
+\end{verbatim}
+\end{tcolorbox}
+
+Let op dat alle programma's in het geheugen verloren gaan bij het wisselen van modus. Dit is hetzelfde als bij de C128.
+\index{Toetsenbord!MEGA-toets}
+U kunt ook \megasymbolkey ingedrukt houden terwijl u op de resetknop drukt of de MEGA65 inschakelt. Ook dit is hetzelfde als bij de C128.
+
+\subsection{Van C64 naar de MEGA65/C65-modus}
+
+Om van C64 naar de MEGA65/C65-modus te schakelen, gebruikt u het volgende commando. {\bf Let op: dit commando vraagt niet om bevestiging}!
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+SYS 58552
+\end{verbatim}
+\end{tcolorbox}
+
+U kunt ook terugkeren naar de MEGA65/C65-modus door op de resetknop aan de linkerkant van de MEGA65 te drukken of door de MEGA65 uit en weer in te schakelen.
+
+Een andere mogelijkheid is om \widekey{RESTORE} een halve tot één seconde ingedrukt te houden en vervolgens in het Freezer-menu op \megakey {F5} te drukken. Dit simuleert het indrukken van de resetknop.
+
+Let op dat alle programma's in het geheugen verloren gaan bij het wisselen van modus. Dit is hetzelfde als bij de C128.
+
+\subsection{De machinetaalmonitormodus openen}
+
+De machinetaalmonitor opent u door vanuit BASIC 65/10 het commando {\bf MONITOR} in te typen, of door \specialkey{RUN\\STOP} ingedrukt te houden en vervolgens op de resetknop aan de linkerkant van de MEGA65 te drukken.
+
+\phantomsection
+\section{Het KEY-register}
+
+De MEGA65 heeft een VIC-IV als videocontroller in plaats van de VIC-II van de C64 of de VIC-III van de C65. Net zoals de VIC-III extra registers heeft ten opzichte van de VIC-II, heeft de VIC-IV er nog meer. Als deze registers voortdurend zichtbaar zouden zijn, bestaat de kans dat software die voor de C64 en de VIC-II is gemaakt, onbedoeld gebruikmaakt van deze nieuwe registers, wat tot onverwacht gedrag leidt. De makers van de C65 hebben derhalve een manier bedacht om de extra registers van de VIC-III voor oude C64-programma's te verbergen. Het in- en uitschakelen (of verbergen en weer zichtbaar maken) van de extra registers gebeurt via het KEY-register. Voor meer informatie over welke registers in elk van de I/O-modi van de VIC-II, VIC-III en VIC-IV zijn uit- en ingeschakeld, raadpleegt u
+\ifdefined\printmanual
+ het {\bf grote Mega65-boek}.
+\else
+ \bookvref{sec:iopersonalities}.
+\fi
+
+% iopersonalities results in ?? (??) when building on my machine
+
+Het KEY-register, dat zich op adres {\bf 53295} bevindt, is een ongebruikt register van de VIC-II, waarin u met {\bf POKE} kunt schrijven en waaruit u met {\bf PEEK} kunt lezen, net als bij andere registers. Het KEY-register heeft echter een bijzondere functie: schrijft u er twee bepaalde waarden vlak na elkaar naar toe, dan kunt u de VIC-IV opdracht geven om de registers van de VIC-III of VIC-IV niet langer voor de rest van de MEGA65 verborgen te houden.
+
+\subsection{Extra C65-registers zichtbaar maken}
+
+Om bijvoorbeeld de nieuwe registers van de VIC-III in de C64-modus in te schakelen, moet u de waarden 165 en 150 met {\bf POKE} in het KEY-register schrijven. De eenvoudigste manier hiervoor is om de MEGA65 uit en weer in te schakelen, GO 64 te typen en met Y te antwoorden om in de C64-modus te komen.
+
+\underline{OPMERKING}: Voert u deze POKE's uit terwijl de MEGA65 zich in de C65-modus bevindt, dan kan het voorkomen dat de MEGA65 niet correct functioneert.
+
+Bent u eenmaal in de C64-modus, probeer dan de volgende commando's in te typen:
+\index{BASIC 65-voorbeelden!POKE}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+POKE 53295,165: POKE 53295,150
+\end{verbatim}
+\end{tcolorbox}
+
+Zodra u deze commando's intypt, geeft de MEGA65 de \screentextwide{READY.}-prompt terug en lijkt er verder niets te gebeuren. Dat is te verwachten, want de MEGA65 heeft slechts de nieuwe registers van de VIC-III ingeschakeld (en enkele andere functies uit de C65-modus). De C64-BASIC en de KERNAL blijven normaal functioneren en het lijkt wel of er niets is veranderd... Er \textit{is} echter wel degelijk iets veranderd.
+
+Zo kunt u bijvoorbeeld iets doen wat de C64 met zijn VIC-II niet kan: de ene kleur geleidelijk in de andere laten overgaan. De VIC-III heeft registers waarmee u de rood-, groen- en blauwcomponenten van de kleuren kunt wijzigen. Nu de registers van de VIC-III zijn ingeschakeld, kunt u de kleur van de achtergrond geleidelijk van blauw naar paars laten overgaan, door de roodcomponent van de kleur die op de C64 normaal blauw is te vergroten. De registers voor de waarde van de roodcomponent liggen op 53504 -- 53759 (\$D100 -- \$D1FF). Blauw is kleur 6, dus u moet register 53510 (53504 + 6, of \$D106) wijzigen. Een voorbeeldlisting in BASIC met een {\bf FOR}-lus om de kleur te wijzigen is:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+FOR I = 0 TO 15 STEP 0.2 : POKE 53510,I : NEXT
+\end{verbatim}
+\end{tcolorbox}
+
+Eenmaal het programma is ingetypd, typt u {\bf RUN} op een nieuwe regel. De achtergrond van het scherm vervaagt daarna van blauw naar paars. Wilt u het effect sneller laten verlopen, vergroot dan de 0.2 naar een groter getal, zoals 0.5. Langzamer gaat het met een kleiner getal, zoals 0.02. U kunt de roodcomponent ook wijzigen door met {\bf POKE} een ander getal naar 53504 – 53759 (\$D100 – \$D1FF) te schrijven, de groencomponent op 53760 -- 54015 (\$D200 -- \$D2FF), of de blauwcomponent op 54016 -- 54271 (\$D300 -- \$D3FF). Om bijvoorbeeld de rand en de tekst (beide zijn normaal ``lichtblauw'') van blauw naar groen te laten overgaan, kunt u het volgende proberen:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+POKE 53518,0 : FOR I = 0 TO 15 STEP 0.1 : POKE 53774,I : POKE 54030,15-I : NEXT
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{Extra C65/MEGA65-registers uitschakelen}
+
+U kunt de registers van de VIC-III ook weer uitschakelen door met {\bf POKE} een willekeurig getal in het KEY-register te schrijven, bijv.:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+POKE 53295,0
+\end{verbatim}
+\end{tcolorbox}
+
+Voert u de bovenstaande voorbeelden opnieuw uit met {\bf RUN}, dan veranderen de kleuren niet, omdat de registers zijn uitgeschakeld. In plaats daarvan verandert het schrijven naar die adressen enkele registers van de VIC-II, omdat deze op een C64 meerdere keren voorkomen. Voor het bovenstaande voorbeeld valt dat gelukkig mee: de gebruikte registers hebben geen voor de hand liggende neveneffecten. Dat komt doordat de registers die in de voorbeelden hierboven worden gewijzigd, op een standaard VIC-II worden gebruikt om de spriteposities te wijzigen. Omdat er geen sprites op het scherm staan, ziet u niets veranderen.
+
+\subsection{Extra MEGA65-registers inschakelen}
+
+De MEGA65 heeft \textit{nog meer} registers dan de C65. Om deze in de C64-modus in te schakelen, moet u nog twee waarden met {\bf POKE} in het KEY-register schrijven:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+POKE 53295,71: POKE 53295,83
+\end{verbatim}
+\end{tcolorbox}
+
+Ook nu merkt u niet onmiddellijk een verschil, net als bij het inschakelen van de registers van de VIC-III. De MEGA65 kan er nu echter niet alleen de registers van de VIC-II en VIC-III mee aanspreken, maar ook die van de VIC-IV. Wilt u dat zelf controleren, dan kunt u de voorbeelden van eerder in dit hoofdstuk proberen en ziet u dat de registers van de VIC-III weer toegankelijk zijn. Bovendien kunt u er nu ook dingen mee doen die specifiek zijn voor de MEGA65. Wilt u bijvoorbeeld het begin van de bovenrand hoger op het scherm laten beginnen, dan kunt u zoiets als het volgende proberen:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+POKE 53320,60
+\end{verbatim}
+\end{tcolorbox}
+
+U kunt ook voor de aardigheid de schermranden animeren, door ze dichter bij elkaar en verder uit elkaar te laten bewegen:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+FOR I = 255 TO 0 STEP -1 : POKE 53320,I : POKE 53322, 255 - I : NEXT
+\end{verbatim}
+\end{tcolorbox}
+
+Het bovenstaande voorbeeld laat de lus achteruit tellen (van 255 naar 0), zodat u niet met slechts een piepklein strookje zichtbare tekst komt te zitten. U kunt de lus desgewenst ook vooruit laten tellen. Blijft u steken met slechts een strookje van het scherm, dan kunt u \specialkey{RUN\\STOP} en \widekey{RESTORE} indrukken. U vraagt zich wellicht af: waarom werken \specialkey{RUN\\STOP} en \widekey{RESTORE}, terwijl het hier registers van de VIC-IV betreft die de BASIC en de KERNAL in de C64-modus niet kennen? De verklaring is dat de VIC-IV een functie heeft die ``hete registers'' heet, waarbij bepaalde registers van de C64 en C65 ertoe leiden dat sommige registers van de MEGA65 naar de standaardwaarden van de C64- of C65-modus worden teruggezet. In dit specifieke geval is het de KERNAL die het VIC-II-scherm opnieuw instelt via 53265 (\$D011); dit register stelt in de C64/C65-modus de grootte van de verticale rand bij en is dus een ``heet register'' voor de registers met de verticale randpositie van de MEGA65.
+
+Kijk of u het scherm in plaats daarvan kunt laten schudden door de registers TEXTXPOS en TEXTYPOS van de VIC-IV te wijzigen. De {\bf POKE}-codes voor die registers, en voor nog veel meer andere interessante nieuwe registers, vindt u door te bladeren in
+\ifdefined\printmanual
+ het {\bf grote Mega65-boek}.
+\else
+ \bookvref{cha:viciv}.
+\fi
+
+
+\subsection{Valkuilen}
+
+In alle modi zet de DOS van het interne 3.5''-diskettestation (ook wanneer u D81-schijfimages van een SD-kaart gebruikt) het KEY-register bij elke toegang terug naar de VIC-II-modus. Voert u derhalve acties uit zoals het opvragen van de stationstatus, of het laden of opslaan van een bestand met {\bf LOAD} of {\bf SAVE}, dan wordt het KEY-register gereset en worden uitsluitend de registers van de VIC-II ingeschakeld. U kunt de registers van de C65 of de MEGA65 uiteraard weer inschakelen door de juiste waarden opnieuw met {\bf POKE} naar het KEY-register te schrijven.
+
+\phantomsection
+\section{Geheugen benaderen vanuit BASIC 65}
+
+BASIC 65 bevat krachtige commando's voor geheugenbanking en Direct Memory Access (DMA), waarmee u geheugengebieden buiten de 128KB RAM van de C65 kunt lezen, vullen, kopiëren en beschrijven. De MEGA65 heeft 384KB hoofdgeheugen, verdeeld over 6 banken van elk 64KB. Dat zijn:
+\begin{itemize}
+ \item BANK 0 en BANK 1 - vormen samen de normale 128KB RAM van de C65. \item BANK 2 en BANK 3 - zijn doorgaans schrijfbeveiligd en bevatten het ROM-image van de C65. \item BANK 4 en BANK 5 - worden gebruikt voor alle grafische routines van BASIC 65 voor bitplanegrafiek met hoge resolutie.       BASIC 10 gebruikt de banken 4 en 5 niet.
+\end{itemize}
+\index{BASIC 65-voorbeelden!BANK}
+\index{BASIC 65-voorbeelden!PEEK}
+\index{BASIC 65-voorbeelden!POKE}
+Met de commando's {\bf BANK}, {\bf PEEK} en {\bf POKE} kunt u dit geheugengebied eenvoudig benaderen, bijvoorbeeld:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+BANK 4: POKE0,123: REM PLAATS 123 IN LOCATIE $40000
+BANK 4: PRINT PEEK(0): REM TOON INHOUD VAN LOCATIE $40000
+\end{verbatim}
+\end{tcolorbox}
+
+U kunt de huidige inhoud van het scherm en het kleurengeheugen (colour-RAM) echter ook met het {\bf DMA}-commando naar BANK 4 kopiëren:
+\index{BASIC 65-voorbeelden!DMA}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+DMA 0, 2000, 2048, 0, 0, 4 : REM SCHERMTEKST NAAR BANK 4
+DMA 0, 2000, DEC("F800"), 1, 2000, 4 : REM KOPIEER KLEURENRAM NAAR BANK 4
+\end{verbatim}
+\end{tcolorbox}
+
+Vervolgens kunt u iets anders op het scherm zetten en dit met het volgende commando terugkopiëren:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+DMA 0, 2000, 0, 4, 2048, 0 : REM SCHERMTEKST VANUIT BANK 4
+DMA 0, 2000, 2000, 4, DEC("F800"), 1 : REM KOPIEER KLEURENRAM VANUIT BANK 4
+\end{verbatim}
+\end{tcolorbox}
+
+\index{BASIC 65-voorbeelden!MAP}
+\phantomsection
+\section{De MAP-instructie}
+
+De bovenstaande methoden kunt u vanuit BASIC gebruiken. De {\bf MAP}-instructie is daarentegen een assembleertaalinstructie, waarmee u het geheugen van de MEGA65 opnieuw kunt indelen. De C65-ROM en BASIC 65 gebruiken deze instructie om te beheren welk geheugen op elk gegeven moment bruikbaar is. Voor een nadere toelichting op de {\bf MAP}-instructie verwijzen wij u naar de betreffende sectie van
+\ifdefined\printmanual
+ het {\bf grote Mega65-boek}.
+\else
+ \bookvref{sec:map-instruction}.
+\fi
+
+
+

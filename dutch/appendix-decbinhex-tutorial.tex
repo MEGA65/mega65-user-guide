@@ -1,0 +1,740 @@
+\chapter{Decimaal, binair en hexadecimaal}
+\label{cha:decimal-binary-and-hexadecimal}
+
+\section{Getallen}Eenvoudige computerprogramma's, zoals de meeste inleidende BASIC-programma's in dit boek, vragen geen kennis van wiskunde en evenmin veel kennis van de inwendige werking van de computer. Dat komt doordat BASIC als hogere programmeertaal geldt. Deze taal laat ons de computer enigszins indirect programmeren, maar geeft ons nog steeds controle over de mogelijkheden van de computer. Meestal hoeven we ons niet bezig te houden met de interne architectuur van de computer, waardoor BASIC gebruiksvriendelijk en toegankelijk is.
+
+Naarmate u meer kennis opdoet en meer ervaring krijgt, wilt u de computer vaak taken laten uitvoeren die complexer of gespecialiseerder zijn dan de voorbeelden in dit boek. Wellicht wilt u, bijvoorbeeld om redenen van efficiëntie, ook directe en precieze controle uitoefenen op de inhoud van het geheugen van de computer. Dat geldt vooral voor toepassingen die met geavanceerde grafiek en geluid werken. Zulke bewerkingen zitten dichter bij de hardware en worden daarom als laagniveau beschouwd. Om deze mogelijkheden op laag niveau effectief te kunnen benutten, is enige eenvoudige wiskundige kennis nodig.
+
+De gezamenlijke stand van de piepkleine schakelaars in de computer---of elke schakelaar nu aan of uit staat---vormt de toestand van de computer. Het ligt voor de hand om aan deze toestand numerieke begrippen te koppelen. Getallen laten ons de binnenkant van de machine begrijpen en met logische en rekenkundige bewerkingen manipuleren. Getallen laten ons ook de twee wezenlijke en belangrijke soorten informatie coderen die in elk computerprogramma schuilgaan: {\it instructies} en {\it gegevens}.
+
+De instructies van een programma vertellen een computer wat hij moet doen en hoe hij dat moet doen. Het weergeven van een tekenreeks op het scherm via het statement {\bf PRINT} is bijvoorbeeld een instructie. Ook het tonen van een sprite en het wijzigen van de randkleur van het scherm zijn instructies. Achter de schermen gaat elke instructie die u aan de computer geeft gepaard met één of meer getallen (welke op hun beurt corresponderen met de piepkleine schakelaars in de computer, die aan of uit staan). Meestal zullen die instructies er voor u niet uitzien als getallen; in plaats daarvan nemen zij bijvoorbeeld de vorm aan van statements in BASIC.
+
+De gegevens van een programma bestaan uit informatie. De begroeting ``HELLO MEGA65!'' is bijvoorbeeld PETSCII-tekengegevens in de vorm van een tekenreeks. Het grafische ontwerp van een sprite kan pixelgegevens zijn in de vorm van een held voor een spel. En de kleurgegevens van de rand van het scherm kunnen oranje voorstellen. Ook hier gaat achter de schermen elk gegeven dat u aan de computer geeft gepaard met één of meer getallen. Gegevens staan soms direct naast het statement waarop zij betrekking hebben; zulke gegevens worden een parameter of argument genoemd (zoals bij het wijzigen van de schermkleur met een {\bf BACKGROUND 1}-statement). Gegevens kunnen ook binnen het programma worden opgegeven, via het BASIC-statement {\bf DATA}, dat een lijst van door komma's gescheiden waarden aanvaardt.
+
+Al die getallen---ongeacht of zij nu instructies of gegevens voorstellen---bevinden zich in het geheugen van de computer. Hoewel het geheugen van de computer sterk gestructureerd is, maakt de computer geen onderscheid tussen instructies en gegevens, noch heeft hij aparte geheugengebieden voor elke soort informatie. In plaats daarvan gebruikt de computer gewoon de geheugenlocatie die het handigst is om beide op te slaan. Of de inhoud van een bepaalde geheugenlocatie nu deel uitmaakt van de instructies van het programma of van de gegevens ervan, hangt grotendeels af van uw standpunt, van het programma dat geschreven wordt en van de behoeften van de programmeur.
+
+Hoewel BASIC een hogere programmeertaal is, biedt het toch statements waarmee programmeurs het geheugen van de computer efficiënt kunnen manipuleren. Het statement {\bf PEEK} laat ons de informatie op een opgegeven geheugenlocatie lezen: we kunnen de inhoud van een geheugenadres bekijken. Het statement {\bf POKE} laat ons informatie op een opgegeven geheugenlocatie opslaan: we kunnen de inhoud van een geheugenadres zodanig wijzigen dat deze op een gegeven waarde komt te staan.
+
+\section{Notaties en grondtallen}Laten we nu eens naar getallen kijken.
+
+Getallen zijn ideeën over hoeveelheid en grootte. Om getallen te kunnen bewerken en onderlinge verbanden te bepalen, is het belangrijk dat elk getal een unieke vorm heeft. Dit brengt ons bij de symbolische voorstelling van getallen met behulp van een positionele notatie. In deze bijlage beperken wij onze bespreking tot gehele getallen, welke ook wel {\it integers} worden genoemd.
+
+De {\it decimale} voorstelling van getallen is degene waarmee u het beste vertrouwd bent, want dat is de voorstelling die u op school heeft geleerd. Decimale notatie gebruikt de tien Arabisch-Indische cijfers 0, 1, 2, 3, 4, 5, 6, 7, 8 en 9 en wordt daarom aangeduid als een talstelsel met grondtal 10. Zoals we later zullen zien, gebruiken we voor het schrijven van grote getallen in decimale vorm een positioneel stelsel, waarin we cijfers naast elkaar in kolommen zetten om een groter getal te vormen.
+
+53280 is bijvoorbeeld een decimaal getal. Elk van die cijfers (0 tot en met 9) in een decimaal getal stelt een veelvoud voor van een bepaalde macht van 10. Wanneer een BASIC-statement (zoals {\bf PEEK} of {\bf POKE}) een geheel getal als parameter nodig heeft, geeft u die parameter op in decimale vorm.
+
+Hoewel decimale notatie voor mensen natuurlijk en gemakkelijk aanvoelt, gebruiken moderne computers op hun meest fundamentele niveau een andere notatie. Deze notatie heet {\it binair}. Men spreekt ook van een talstelsel met grondtal 2, omdat het slechts twee Arabisch-Indische cijfers gebruikt: 0 en 1. Binair weerspiegelt het feit dat elke piepkleine schakelaar in de computer zich in precies één van twee elkaar uitsluitende toestanden moet bevinden: aan of uit. Het getal 0 hoort bij uit en het getal 1 hoort bij aan. Binair is de eenvoudigste notatie die dit idee weergeeft. Om grote getallen binair te schrijven, gebruiken we een positioneel stelsel, waarin we cijfers naast elkaar in kolommen zetten om een groter getal te vormen, met een \%-teken als voorvoegsel.
+
+\%1001 0110 is bijvoorbeeld een binair getal. Elk van die cijfers (0 of 1) in een binair getal stelt een veelvoud voor van een bepaalde macht van 2.
+
+Later zien we hoe we met speciale BASIC-statements de patronen van enen en nullen in een binair getal kunnen bewerken om de toestand van de bijbehorende schakelaars te wijzigen. In feite kunnen we zo afzonderlijke schakelaars naar behoefte aan- of uitzetten.
+
+Vaak wordt ook een derde notatie gebruikt, {\it hexadecimaal} genaamd. Dit is een talstelsel met grondtal 16. Omdat het meer dan tien cijfers gebruikt, hebben we letters nodig om de extra cijfers weer te geven. Hexadecimaal gebruikt de tien Arabisch-Indische cijfers 0 tot en met 9, aangevuld met de zes Latijnse letters als ``cijfers'' (A, B, C, D, E en F) om de getallen 10 tot en met 15 voor te stellen. Er zijn zo in totaal zestien symbolen voor de getallen 0 tot en met 15. Om een groot getal hexadecimaal te schrijven, gebruiken we een positioneel stelsel, waarin we cijfers naast elkaar in kolommen zetten om een groter getal te vormen, met een \$-teken als voorvoegsel.
+
+\$E7 is bijvoorbeeld een hexadecimaal getal. Elk van die cijfers (0 tot en met 9 en A tot en met F) in een hexadecimaal getal stelt een veelvoud voor van een bepaalde macht van 16.
+
+Bij het programmeren in BASIC wordt hexadecimaal niet vaak gebruikt. Het komt vaker voor bij het programmeren in lagere talen, zoals machinetaal of assembleertaal. Ook verschijnt het in geheugenindelingen van computers. Omdat het zo bondig is, is het een nuttige notatie; wij beschrijven het hier dan ook.
+
+Denk er altijd aan dat decimaal, binair en hexadecimaal slechts verschillende notaties voor getallen zijn. Een notatie verandert alleen de manier waarop het getal geschreven wordt (d.w.z. hoe het er op papier of op het scherm uitziet); de eigenlijke waarde blijft onveranderd. Een notatie is in wezen niets anders dan een andere manier om hetzelfde weer te geven. Dat we verschillende notaties gebruiken, komt doordat elke notatie zich van nature leent voor een andere taak.
+
+Wanneer u langere tijd met decimale, binaire en hexadecimale getallen werkt, zult u het handig vinden om een wetenschappelijke zakrekenmachine met een programmeermodus bij de hand te hebben. Zulke rekenmachines kunnen met één druk op de knop tussen grondtallen omrekenen. Zij kunnen tevens optellen, aftrekken, vermenigvuldigen, delen en diverse bitgewijze logische bewerkingen uitvoeren. Zie \bookvref{ch:referencetables}: daar staat een tabel voor de \nameref{s:baseconversion}, met decimale, binaire en hexadecimale weergaven van gehele getallen van 0 tot en met 255.
+
+De BASIC-listing bij deze bijlage is een hulpprogramma dat afzonderlijke getallen naar verschillende grondtallen omrekent. Het kan ook meerdere getallen binnen een opgegeven bereik omrekenen.
+
+Hoewel deze begrippen nu misschien nog nieuw zijn, worden zij met enige oefening al snel een tweede natuur. We gaan nader in op de manieren om getallen uit te drukken. Later onderzoeken we ook de verschillende bewerkingen die we op zulke getallen kunnen uitvoeren.
+
+\subsection{Decimaal}Wanneer we gehele getallen in decimale notatie weergeven, staat elke kolom in het getal voor een andere macht van 10. De rechterpositie stelt het aantal eenheden voor (want $10^{0} = 1$) en elke kolom links daarvan is 10 keer zo groot als de kolom ervoor. De meest rechtse kolom heet de eenhedenkolom. De kolommen links daarvan heten tientallen (want $10^{1} = 10$), honderdtallen (want $10^{2} = 100$), duizendtallen (want $10^{3} = 1000$), enzovoort.
+
+Om een voorbeeld te geven: het gehele getal 53280 staat voor de som van 5 maal 10000, 3 maal 1000, 2 maal 100, 8 maal 10 en 0 eenheden. Dit wordt duidelijker wanneer we het getal per kolom in afzonderlijke delen opsplitsen.
+
+Aangezien
+\begin{center}
+  $53280 = 50000 + 3000 + 200 + 80 + 0$
+\end{center}
+kunnen we dit in een tabel weergeven, met onderaan de som van elke kolom.
+
+\begin{center}
+  \begin{tabular}{|c|c|c|c|c|}
+  \hline
+    \small{\bf TIENDUIZENDEN} & \small{\bf DUIZENDEN} & \small{\bf HONDERDEN} & \small{\bf TIENTALLEN} & \small{\bf EENHEDEN} \\ \hline
+	  \small{$10^{4} = 10000$} & \small{$10^{3} = 1000$} & \small{$10^{2} = 100$} & \small{$10^{1} = 10$} & \small{$10^{0} = 1$} \\ \hhline{|=|=|=|=|=|}
+	  \large{\texttt{5}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            & \large{\texttt{3}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           & \large{\texttt{2}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           & \large{\texttt{8}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           & \large{\texttt{0}} \\ \hhline{|=|=|=|=|=|}
+	   \Large{\texttt{5}} & \Large{\texttt{3}}  & \Large{\texttt{2}}  & \Large{\texttt{8}}  & \Large{\texttt{0}} \\ \hline
+  \end{tabular}
+\end{center}
+
+Een andere manier om dit te formuleren is de uitdrukking decimaal te schrijven, met veelvouden van machten van 10.
+
+\begin{center}
+  $53280 = (5 \times 10^{4}) + (3 \times 10^{3}) + (2 \times 10^{2}) + (8 \times 10^{1}) + (0 \times 10^{0})$
+\end{center}
+
+Als alternatief
+
+\begin{center}
+	$53280 = (5 \times 10000) + (3 \times 1000) + (2 \times 100) + (8 \times 10) + (0 \times 1)$
+\end{center}
+
+We introduceren nu enige nuttige terminologie die bij decimale getallen hoort.
+
+Het meest rechtse cijfer van een decimaal getal heet het minst significante cijfer, omdat dit cijfer, als kleinste vermenigvuldiger van een macht van 10, het minst bijdraagt aan de grootte van het getal. Elk cijfer links van dit cijfer heeft telkens een grotere betekenis. Het meest linkse (niet-nul) cijfer van het decimale getal heet het meest significante cijfer, omdat dit cijfer, als grootste vermenigvuldiger van een macht van 10, het meest bijdraagt aan de grootte van het getal.
+
+In het decimale getal 53280 is het cijfer 0 bijvoorbeeld het minst significante cijfer en is het cijfer 5 het meest significante cijfer.
+
+Een decimaal getal $a$ is $m$ {\it ordes van grootte} groter dan het decimale getal $b$ indien $a = b \times (10^{m})$. Het getal 50000 is bijvoorbeeld drie ordes van grootte groter dan 50, omdat het drie nullen meer heeft. Deze terminologie kan nuttig zijn bij het vergelijken van getallen, of bij het vergelijken van de tijds- of ruimte-efficiëntie van twee programma's in verhouding tot de grootte van de gegeven invoer.
+
+Merk op dat decimale getallen, anders dan binaire getallen (met het gebruikelijke \% voorvoegsel) en hexadecimale getallen (met het gebruikelijke \$ voorvoegsel), geen speciaal voorvoegsel krijgen. In sommige leerboeken komen dergelijke getallen in plaats daarvan met een subscript voor. Decimale getallen krijgen dus een 10 als subscript, binaire getallen een 2 en hexadecimale getallen een 16.
+
+Een ander nuttig begrip is het onderscheid tussen gehele en natuurlijke getallen.
+
+Een decimaal geheel getal kan positief, negatief of nul zijn. Om een decimaal geheel getal weer te geven, zetten we er een $+$-teken of een $–$-teken voor. (Volgens conventie krijgt nul, dat noch positief noch negatief is, het $+$-teken.)
+
+Is een decimaal geheel getal daarentegen een natuurlijk getal, dan kan het alleen nul of positief zijn en heeft het geen negatieve voorstelling. Dit valt te illustreren met de BASIC-statements {\bf PEEK} en {\bf POKE}. Gebruiken we {\bf PEEK} om de waarde op te vragen die in een geheugenlocatie staat, dan krijgen we een natuurlijk getal terug. Het statement {\bf PRINT (PEEK (49152))} geeft de inhoud van geheugenlocatie 49152 bijvoorbeeld als natuurlijk getal op het scherm weer. Merk op dat het geheugenadres dat we aan {\bf PEEK} gaven, zelf een natuurlijk getal is. Gebruiken we {\bf POKE} om een waarde in een geheugenlocatie op te slaan, dan worden zowel het geheugenadres als de op te slaan waarde opgegeven als natuurlijk getal. Het statement {\bf POKE 49152, 128} slaat bijvoorbeeld het natuurlijke getal 128 weg in het geheugenadres dat door het natuurlijke getal 49152 wordt aangegeven.
+
+Elke geheugenlocatie in de MEGA65 kan een geheel getal tussen 0 en 255 bevatten. Dit komt overeen met de kleinste en de grootste gehele getallen die we met acht binaire cijfers (acht bits) kunnen weergeven. Ook zijn de geheugenadressen gehele getallen tussen 0 en 65535. Dit komt overeen met de kleinste en de grootste gehele getallen die we met zestien binaire cijfers (zestien bits) kunnen weergeven.
+
+Merk op dat het grootste getal dat u met $d$ decimale cijfers kunt uitdrukken, $10^{d} - 1$ is. (In zijn voorstelling bestaat dit getal uit $d$ negens.)
+
+\subsection{Binair}De binaire notatie gebruikt machten van 2 (en niet van 10, zoals bij het decimale stelsel). De meest rechtse positie geeft het aantal eenheden weer (omdat $2^{0} = 1$) en elke kolom links daarvan is twee keer zo groot als de kolom ervoor. De kolommen links van de meest rechtse kolom zijn achtereenvolgens de kolom van de tweeën (omdat $2^{1} = 2$), de kolom van de vieren (omdat $2^{2} = 4$), de kolom van de achten (omdat $2^{3} = 8$) enzovoort.
+
+Zo bestaat het getal \%1101 0011 bijvoorbeeld uit precies acht binaire cijfers en stelt het de som voor van 1 keer 128, 1 keer 64, 0 keer 32, 1 keer 16, 0 keer 8, 0 keer 4, 1 keer 2 en 1 eenheid.
+
+We kunnen dit getal per kolom opsplitsen in afzonderlijke delen.
+
+Aangezien
+\begin{center}
+	\small{\%1101 0011} = \small{\%1000 0000} + \small{\%100 0000} + \small{\%00 0000} + \small{\%1 0000} + \small{\%0000} + \small{\%000} + \small{\%10} + \small{\%1}
+\end{center}
+kunnen we dit in een tabel weergeven, met onderaan de som van elke kolom.
+
+\begin{center}
+  \begin{tabular}{|c|c|c|c|c|c|c|c|}
+  \hline
+  	& & & & & & &  \\
+    \small{\bf HONDERD-} & \small{\bf VIEREN-} & \small{\bf TWEEËN-} &  &  & &  & \\
+    \small{\bf ACHTENTWINTIGEN} & \small{\bf ZESTIGEN} & \small{\bf DERTIGEN} & \small{\bf ZESTIENEN} & \small{\bf ACHTEN} & \small{\bf VIEREN} & \small{\bf TWEEËN} & \small{\bf EENHEDEN} \\ \hline
+	  \small{$2^{7} = 128$} & \small{$2^{6} = 64$} & \small{$2^{5} = 32$} & \small{$2^{4} = 16$} & \small{$2^{3} = 8$} & \small{$2^{2} = 4$} & \small{$2^{1} = 2$} & \small{$2^{0} = 1$} \\ \hhline{|=|=|=|=|=|=|=|=|}
+	  \large{\texttt{1}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            & \large{\texttt{1}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           & \large{\texttt{1}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           &           & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           &           &           &           &           & \large{\texttt{1}} & \large{\texttt{0}} \\ \hline
+	  					&           &           &           &           &           &           & \large{\texttt{1}} \\ \hhline{|=|=|=|=|=|=|=|=|}
+	 \Large{\texttt{1}}  & \Large{\texttt{1}}   & \Large{\texttt{0}}  & \Large{\texttt{1}}  & \Large{\texttt{0}}  & \Large{\texttt{0}}  & \Large{\texttt{1}} & \Large{\texttt{1}} \\ \hline
+  \end{tabular}
+\end{center}
+
+Een andere manier om dit te formuleren is de uitdrukking decimaal te schrijven, met veelvouden van machten van 2.
+
+\begin{center}
+  $\%1101 0011 = (1 \times 2^{7}) + (1 \times 2^{6}) + (0 \times 2^{5}) + (1 \times 2^{4}) + (0 \times 2^{3}) + (0 \times 2^{2}) + (1 \times 2^{1}) + (1 \times 2^{0})$
+\end{center}
+
+Als alternatief
+
+\begin{center}
+	$\%1101 0011 = (1 \times 128) + (1 \times 64) + (0 \times 32) + (1 \times 16) + (0 \times 8)  + (0 \times 4) + (1 \times 2) + (1 \times 1)$
+\end{center}
+
+hetgeen gelijkstaat aan het schrijven van
+
+\begin{center}
+  $\%1101 0011 = 128 + 64 + 16 + 2 + 1$
+\end{center}
+
+De binaire notatie kent ook een eigen terminologie. Elk binair cijfer in een binair getal heet een {\it bit}. In een 8-bits getal worden de bits opeenvolgend genummerd, met het minst significante (d.w.z. meest rechtse) bit als bit 0 en het meest significante (d.w.z. meest linkse) bit als bit 7. In een 16-bits getal is het meest significante bit bit 15. Men zegt dat een bit {\it gezet} is indien het gelijk is aan 1. Men zegt dat een bit {\it gewist} is indien het gelijk is aan 0. Heeft een bepaald bit een bijzondere betekenis, dan noemen we het soms een {\it vlag}.
+
+\begin{center}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		1 & 1 & 0 & 1 & 0 & 0 & 1 & 1 \\ \hhline{|=|=|=|=|=|=|=|=|}
+		\small{Bit 7} & \small{Bit 6} & \small{Bit 5} & \small{Bit 4} & \small{Bit 3} & \small{Bit 2} & \small{Bit 1} & \small{Bit 0} \\ \hline
+	\end{tabular}
+\end{center}
+
+Zoals eerder vermeld, kan elke geheugenlocatie een geheel getal tussen 0 en 255 bevatten. Het minimum komt overeen met \%0000 0000 en het maximum met \%1111 1111; dit zijn de kleinste en de grootste getallen die we met precies acht bits kunnen weergeven. De geheugenadressen bestaan uit 16 bits. Het kleinste geheugenadres, genoteerd in precies zestien bits, is \%0000 0000 0000 0000 en komt overeen met het kleinste 16-bits getal. Evenzo is het grootste geheugenadres, genoteerd in precies zestien bits, \%1111 1111 1111 1111 en komt dit overeen met het grootste 16-bits getal.
+
+Het is vaak handig om met verschillende namen naar groepen bits te verwijzen. Zo vormen acht bits samen een {\it byte} en 1024 bytes samen een {\it kilobyte}. De helft van een byte heet een nibble.Zie \bookvref{ch:referencetables} voor de \nameref{s:unitsofstorage}-tabel met nadere informatie.
+
+Merk op dat het grootste getal dat u met $d$ binaire cijfers kunt uitdrukken, (decimaal) $2^{d} - 1$ bedraagt. (Dit getal heeft in zijn voorstelling $d$ enen.)
+
+\subsection{Hexadecimaal}Hexadecimale notatie gebruikt machten van 16. Elk van de zestien hexadecimale cijfers heeft een bijbehorende decimale waarde.
+
+\begin{center}
+	\begin{tabular}{|c|c|}
+		\hline
+		{\bf Hexadecimaal} & {\bf Decimaal} \\		{\bf Cijfer} & {\bf Equivalent} \\ \hhline{|=|=|}		\texttt{\$0} & \texttt{0} \\ \hline		\texttt{\$1} & \texttt{1} \\ \hline		\texttt{\$2} & \texttt{2} \\ \hline		\texttt{\$3} & \texttt{3} \\ \hline		\texttt{\$4} & \texttt{4} \\ \hline		\texttt{\$5} & \texttt{5} \\ \hline		\texttt{\$6} & \texttt{6} \\ \hline		\texttt{\$7} & \texttt{7} \\ \hline		\texttt{\$8} & \texttt{8} \\ \hline		\texttt{\$9} & \texttt{9} \\ \hline		\texttt{\$A} & \texttt{10} \\ \hline		\texttt{\$B} & \texttt{11} \\ \hline		\texttt{\$C} & \texttt{12} \\ \hline		\texttt{\$D} & \texttt{13} \\ \hline		\texttt{\$E} & \texttt{14} \\ \hline		\texttt{\$F} & \texttt{15} \\ \hline
+	\end{tabular}
+\end{center}
+
+De meest rechtse positie in een hexadecimaal getal geeft het aantal enen weer (aangezien $16^{0} = 1$). Elke kolom links van dit cijfer is 16 keer zo groot als de kolom ervoor. De kolommen links van de meest rechtse kolom zijn de 16-kolom (aangezien $16^{1} = 16$), de 256-kolom (aangezien $16^{2} = 256$), de 4096-kolom (aangezien $16^{3} = 4096$) enzovoort.
+
+Het gehele getal \$A3F2 bestaat bijvoorbeeld uit precies vier hexadecimale cijfers en stelt de som voor van 10 maal 4096 (omdat \$A = 10), 3 maal 256 (omdat \$3 = 3), 15 maal 16 (omdat \$F = 15) en 2 eenheden (omdat \$2 = 2). We kunnen dit gehele getal per kolom opsplitsen in afzonderlijke delen.
+
+Aangezien
+\begin{center}
+  \$A3F2 = \$A000 + \$300 + \$F0 + \$2
+\end{center}
+kunnen we dit weergeven in een tabel met de som van elke kolom onderaan.
+
+\begin{center}
+  \begin{tabular}{|c|c|c|c|}
+  \hline
+    \small{\bf VIERDUIZEND} & \small{\bf TWEEHONDERD} &  &  \\
+    \small{\bf ZESENNEGEN-TIGEN} & \small{\bf ZESENVIJF-TIGEN} & \small{\bf ZESTIENEN} & \small{\bf EENHEDEN} \\ \hline
+	  \small{$16^{3} = 4096$} & \small{$16^{2} = 256$} & \small{$16^{1} = 16$} & \small{$16^{0} = 1$} \\ \hhline{|=|=|=|=|}
+	  \large{\texttt{A}} & \large{\texttt{0}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            & \large{\texttt{3}} & \large{\texttt{0}} & \large{\texttt{0}} \\ \hline
+	            &           & \large{\texttt{F}} & \large{\texttt{0}} \\ \hline
+	            &           &           & \large{\texttt{2}} \\ \hhline{|=|=|=|=|}
+	   \Large{\texttt{A}} & \Large{\texttt{3}}  & \Large{\texttt{F}}  & \Large{\texttt{2}} \\ \hline
+  \end{tabular}
+\end{center}
+
+Een andere manier om dit te formuleren is de uitdrukking decimaal te schrijven, met veelvouden van machten van 16.
+
+\begin{center}
+  \$A3F2 = $(10 \times 16^{3}) + (3 \times 16^{2}) + (15 \times 16^{1}) + (2 \times 16^{0})$
+\end{center}
+
+Als alternatief
+
+\begin{center}
+  \$A3F2 = $(10 \times 4096) + (3 \times 256) + (15 \times 16) + (2 \times 1)$
+\end{center}
+
+hetgeen gelijkstaat aan
+
+\begin{center}
+	\$A3F2 = 40960 + 768 + 240 + 2
+\end{center}
+
+Ook hier geldt, net als bij binair en decimaal, dat het meest rechtse cijfer het minst significante is en het meest linkse cijfer het meest significante.
+
+Elke geheugenlocatie kan een geheel getal tussen 0 en 255 bevatten, hetgeen overeenkomt met de hexadecimale getallen \$00 en \$FF. Het hexadecimale getal \$FFFF komt overeen met 65535---het grootste 16-bits getal.
+
+Hexadecimale notatie is vaak handiger in gebruik en bewerking dan binaire notatie. Binaire getallen bestaan uit een langere reeks enen en nullen, terwijl hexadecimaal veel korter en compacter is. Dat komt doordat één hexadecimaal cijfer exact gelijk is aan vier bits. Een hexadecimaal getal van twee cijfers omvat dus acht bits, waarbij de lage nibble overeenkomt met het rechtercijfer en de hoge nibble met het linkercijfer.
+
+Merk op dat het grootste getal dat u met $d$ hexadecimale cijfers kunt uitdrukken, (decimaal) $16^{d} - 1$ bedraagt. (Dit getal heeft in zijn voorstelling $d$ \$F-symbolen.)
+
+\section{Bewerkingen}In deze sectie nemen we enkele bekende bewerkingen door, zoals tellen en rekenen. We zien tevens hoe deze bewerkingen van toepassing zijn op getallen die binair en hexadecimaal genoteerd zijn.
+
+Daarna bekijken we allerlei logische bewerkingen die met logische poorten worden uitgevoerd. Deze bewerkingen zijn eenvoudig te begrijpen. Ze zijn tevens zeer belangrijk bij het schrijven van programma's met uitgebreide numerieke, grafische of geluidsmogelijkheden.
+
+\subsection{Tellen}Indien we het proces van {\it tellen} in het decimale stelsel zorgvuldig bekijken, begrijpen we beter hoe tellen werkt bij het gebruik van binair en hexadecimaal.
+
+Laten we aannemen dat we in het decimale stelsel tellen en dat we daarbij bij 0 beginnen. Denk eraan dat de lijst met cijfers voor het decimale stelsel (in volgorde) 0, 1, 2, 3, 4, 5, 6, 7, 8 en 9 is. Merk op dat we 1 krijgen wanneer we 1 bij 0 optellen en dat we 2 krijgen wanneer we 1 bij 1 optellen. We kunnen op deze manier doorgaan, telkens 1 erbij optellend:
+\begin{center}
+	0 + 1 = 1  \\	1 + 1 = 2  \\	2 + 1 = 3  \\	3 + 1 = 4  \\	4 + 1 = 5  \\	5 + 1 = 6  \\	6 + 1 = 7  \\	7 + 1 = 8  \\	8 + 1 = 9  \\
+\end{center}
+
+Aangezien 9 het hoogste cijfer in onze lijst met cijfers voor het decimale stelsel is, hebben we een manier nodig om de volgende speciale optelling te verwerken: $9 + 1$. Het antwoord is dat we onze oude cijfers helemaal opnieuw kunnen gebruiken. In deze belangrijke stap zetten we de eenhedenkolom terug op 0 en tellen we (tegelijkertijd) 1 bij de tientallenkolom op. Aangezien de tientallenkolom een 0 bevatte, geeft dit $9 + 1 = 10$. We zeggen dat we de 1 naar de tientallenkolom hebben ``overgedragen'', terwijl de eenhedenkolom terugliep naar 0.
+
+Met deze techniek kunnen we zo hoog tellen als we willen. Het telprincipe voor binair en hexadecimaal verloopt vrijwel op dezelfde manier; het enige verschil is dat we in plaats van tien symbolen respectievelijk twee en zestien symbolen tot onze beschikking hebben.
+
+Laten we eens kijken naar tellen in het binaire stelsel. Zoals u zich herinnert, bestaat de lijst met cijfers voor binair (in deze volgorde) slechts uit 0 en 1. Als we dus beginnen te tellen bij \%0 en vervolgens \%1 optellen, krijgen we \%1 als resultaat:
+
+\begin{center}
+	\%0 + \%1 = \%1 \\
+\end{center}
+
+Nu dwingt de som $\%1 + \%1$ ons tot de vergelijkbare stap: we zetten de eenhedenkolom weer op nul en tellen tegelijk \%1 op bij de kolom van de tweeën. Omdat de kolom van de tweeën een \%0 bevatte, levert dit $\%1 + \%1 = \%10$ op. We zeggen dat we de \%1 naar de kolom van de tweeën hebben ``overgedragen'', terwijl de eenhedenkolom terugliep naar \%0. Als we op deze manier doorgaan, kunnen we nog hoger tellen.
+
+\begin{center}
+  \%1 + \%1 = \%10 \\  \%10 + \%1 = \%11 \\  \%11 + \%1 = \%100 \\  \%100 + \%1 = \%101 \\  \%101 + \%1 = \%110 \\  \%110 + \%1 = \%111 \\  \%111 + \%1 = \%1000 \\
+\end{center}
+
+Nu bekijken we tellen in het hexadecimale stelsel. De lijst met cijfers voor hexadecimaal is (in deze volgorde) 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E en F. Als we beginnen te tellen bij \$0 en steeds \$1 optellen, krijgen we:
+
+\begin{center}
+	\$0 + \$1 = \$1 \\	\$1 + \$1 = \$2 \\	\$2 + \$1 = \$3 \\	\$3 + \$1 = \$4 \\	\$4 + \$1 = \$5 \\	\$5 + \$1 = \$6 \\	\$6 + \$1 = \$7 \\	\$7 + \$1 = \$8 \\	\$8 + \$1 = \$9 \\	\$9 + \$1 = \$A \\	\$A + \$1 = \$B \\	\$B + \$1 = \$C \\	\$C + \$1 = \$D \\	\$D + \$1 = \$E \\	\$E + \$1 = \$F \\
+\end{center}
+
+Wanneer we \$F + \$1 berekenen, moeten we de eenhedenkolom weer op \$0 zetten en \$1 optellen bij de 16-kolom, omdat dat getal wordt ``overgedragen''.
+
+\begin{center}
+	\$F + \$1 = \$10
+\end{center}
+
+Ook dit proces stelt ons in staat om zo hoog te tellen als we willen.
+
+\subsection{Rekenkunde}De standaardrekenkundige bewerkingen (optellen, aftrekken, vermenigvuldigen en delen) zijn allemaal mogelijk met binaire en hexadecimale getallen.
+
+Optellen gebeurt op dezelfde manier als in het decimale stelsel; het enige verschil is dat we al naargelang het geval grondtal 2 of grondtal 16 gebruiken. Beschouw het volgende voorbeeld van de optelling van twee binaire getallen.
+\begin{center}
+	\begin{tabular}{ccccc}
+               & \texttt{\%} & \texttt{1} & \texttt{1} & \texttt{0} \\    \texttt{+} & \texttt{\%} & \texttt{1} & \texttt{1} & \texttt{1} \\ \hline    \texttt{\%} & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{1} \\ \hhline{=====}
+	\end{tabular}
+\end{center}
+
+Het resultaat verkrijgen we door eerst de eenhedenkolommen van beide getallen op te tellen. Dat geeft \%0 + \%1 = \%1, zonder overdracht naar de volgende kolom. Daarna tellen we de kolommen van de tweeën van beide getallen op: \%1 + \%1 = \%0, met een \%1 die naar de volgende kolom wordt overgedragen. Vervolgens tellen we de kolommen van de vieren op (inclusief de overdracht), wat (\%1 + \%1) + \%1 = \%1 oplevert, met een \%1 die naar de volgende kolom wordt overgedragen. Als laatste komen de kolommen van de achten. Omdat deze in feite beide nul zijn, houden we ons alleen met de overdracht bezig en die is \%1. Zo is (\%0 + \%0) + \%1 = \%1. De som is dus \%1101.
+
+Hierna volgt een voorbeeld van de optelling van twee hexadecimale getallen.
+\begin{center}
+	\begin{tabular}{cccc}
+						 & \texttt{\$} & \texttt{7} & \texttt{D} \\	\texttt{+} & \texttt{\$} & \texttt{6} & \texttt{9} \\ \hline             & \texttt{\$} & \texttt{E} & \texttt{6} \\ \hhline{====}
+	\end{tabular}
+\end{center}
+
+We beginnen met het optellen van de eenhedenkolommen van beide getallen. Dat geeft \$D + \$9 = \$6, met een \$1 die naar de volgende kolom wordt overgedragen. Vervolgens tellen we de 16-kolommen op (inclusief de overdracht), wat (\$7 + \$6) + \$1 = \$E oplevert zonder overdracht, zodat \$E6 de som is.
+
+Nu bekijken we het aftrekken. Zoals u wellicht vermoedt, verloopt aftrekken met binaire en hexadecimale getallen volgens een vergelijkbaar proces als aftrekken met decimale gehele getallen.
+
+Beschouw de volgende aftrekking van twee binaire getallen.
+
+\begin{center}
+	\begin{tabular}{cccccc}
+							& \texttt{\%} & \texttt{1} & \texttt{0} & \texttt{1} & \texttt{1} \\	\texttt{-}	& \texttt{\%} &            & \texttt{1} & \texttt{1} & \texttt{0} \\ \hline						  & \texttt{\%} &            & \texttt{1} & \texttt{0} & \texttt{1} \\ \hhline{======}
+	\end{tabular}
+\end{center}
+In de eenhedenkolommen voeren we de aftrekking \%1 - \%0 = \%1 uit. Daarna voeren we in de kolommen van de tweeën nog een aftrekking uit: \%1 - \%1 = \%0. Als laatste trekken we de kolommen van de vieren van elkaar af. Deze keer is \%0 kleiner dan \%1, waardoor we een \%1 moeten lenen uit de kolom van de achten van het bovenste getal om de aftrekking uit te voeren. Daartoe berekenen we \%10 - \%1 = \%1 en halen we \%1 af van de kolom van de achten. De kolommen van de achten zijn nu beide nul. Omdat \%0 - \%0 = \%0 en dit cijfer het voorloopcijfer van het resultaat is, mogen we het weglaten in het eindantwoord. Dit levert \%101 als resultaat op.
+
+Laten we nu de aftrekking van twee hexadecimale getallen bekijken.
+
+\begin{center}
+	\begin{tabular}{cccc}
+								& \texttt{\$} & \texttt{3} & \texttt{D} \\		\texttt{-}  & \texttt{\$} & \texttt{1} & \texttt{F} \\ \hline								& \texttt{\$} & \texttt{1} & \texttt{E} \\ \hhline{====}
+	\end{tabular}
+\end{center}
+
+Om deze aftrekking uit te voeren, berekenen we het verschil van de eenhedenkolommen. Daarbij merken we op dat we, omdat \$D kleiner is dan \$F, \$1 moeten lenen uit de 16-kolom van het bovenste getal om de aftrekking te kunnen maken. We berekenen daartoe \$1D - \$F = \$E en tevens \$3 - \$1 = \$2 in de 16-kolom, ter verrekening van de \$1 die we zojuist hebben geleend. Vervolgens berekenen we het verschil van de 16-kolom als \$2 - \$1 = \$1. Dit levert als eindantwoord \$1E op.
+
+We geven geen uitvoerige voorbeelden van vermenigvuldiging en deling in binaire en hexadecimale notatie. Het volstaat te zeggen dat de beginselen overeenkomen met die van het decimale stelsel: vermenigvuldigen is herhaald optellen en delen is herhaald aftrekken.
+
+We wijzen u echter wel op een bijzondere vorm van vermenigvuldiging en deling, zowel voor binair als voor hexadecimaal. Deze is met name nuttig voor het bewerken van binaire en hexadecimale getallen.
+
+Voor binair is vermenigvuldigen met twee eenvoudig---schuif alle bits één positie naar links en vul het minst significante bit in met een \%0. Delen door twee is eveneens eenvoudig---schuif alle bits één positie naar rechts en vul het meest significante bit in met een \%0. Door deze bewerkingen herhaaldelijk uit te voeren, kunnen we moeiteloos vermenigvuldigen met en delen door machten van twee.
+
+Zo krijgt het binaire getal \%111, met acht vermenigvuldigd, drie extra nullen aan het eind en is het gelijk aan \%111000. (Denk eraan dat $2^{3} = 8$.) En het binaire getal \%10100 krijgt, door vier gedeeld, twee cijfers minder en is gelijk aan \%101. (Denk eraan dat $2^{2} = 4$.)
+
+Deze bewerkingen heten {\it bitschuivingen} naar links en naar rechts. Als we dus zeggen dat we een getal vier bitposities naar links schuiven, dan bedoelen we daarmee in werkelijkheid dat we het met $2^{4} = 16$ hebben vermenigvuldigd.
+
+Voor hexadecimaal is de situatie vergelijkbaar. Vermenigvuldigen met zestien is eenvoudig---schuif alle cijfers één positie naar links en vul het meest rechtse cijfer in met een \$0. Delen door zestien is eveneens eenvoudig---schuif alle cijfers één positie naar rechts. Door dit herhaaldelijk uit te voeren, kunnen we moeiteloos vermenigvuldigen met en delen door machten van zestien.
+
+Zo krijgt het hexadecimale getal \$F, met 256 vermenigvuldigd, twee extra nullen aan het eind en is het gelijk aan \$F00. (Denk eraan dat $16^{2} = 256$.) En het hexadecimale getal \$EA0 krijgt, door zestien gedeeld, één cijfer minder en is gelijk aan \$EA. (Denk eraan dat $16^{1} = 16$.)
+
+\subsection{Logische poorten}
+
+Er bestaan verschillende zogenaamde {\it logische poorten}. De fundamentele poorten zijn NOT, AND, OR en XOR.
+
+Met behulp van deze poorten kunnen we specifieke binaire cijfers zetten, wissen en inverteren. Werken we bijvoorbeeld met sprites, dan willen we wellicht voor een bepaald register van een grafische chip tegelijkertijd bit 6 wissen (d.w.z. het gelijk maken aan 0) en bit 1 zetten (d.w.z. het gelijk maken aan 1). Bepaalde logische poorten maken dit, in combinatie gebruikt, mogelijk.
+
+Het is van groot belang om te leren hoe deze logische poorten werken, want zij vormen de sleutel tot het begrijpen van hoe en waarom de computer programma's uitvoert zoals hij dat doet.
+
+Alle logische poorten aanvaarden één of meer invoeren en leveren precies één uitvoer op. Deze invoeren en uitvoeren zijn altijd losse binaire cijfers (d.w.z. het zijn 1-bits getallen).
+
+De NOT-poort is de enige poort die precies één bit als invoer aanvaardt. Alle andere poorten---AND, OR en XOR---aanvaarden precies twee bits als invoer. Alle poorten leveren precies één uitvoer op en die uitvoer is één enkele bit.
+
+Laten we eerst kijken naar de eenvoudigste poort, de NOT-poort.
+
+De NOT-poort werkt door het invoerbit te inverteren en dit resulterende bit als uitvoer terug te geven. Dit is samengevat in de volgende tabel.
+\begin{center}
+	\begin{tabular}{c|c}
+	  \hline
+		INVOER X & UITVOER \\ \hline		\texttt{0} & \texttt{1} \\ \hline		\texttt{1} & \texttt{0} \\ \hline
+	\end{tabular}
+\end{center}
+
+We schrijven NOT $x$, waarbij $x$ het invoerbit is.
+
+Vervolgens bekijken we de AND-poort.
+
+Zoals eerder vermeld, aanvaardt de AND-poort twee bits als invoer en levert één bit als uitvoer op. De AND-poort gedraagt zich als volgt. Zijn beide invoerbits gelijk aan 1, dan is het resultaat van het uitvoerbit 1. In alle andere gevallen is het resultaat van het uitvoerbit 0. Dit is samengevat in de volgende tabel.
+\begin{center}
+	\begin{tabular}{cc|c}
+	  \hline
+		INVOER X & INVOER Y & UITVOER \\ \hline		\texttt{0} & \texttt{0} & \texttt{0} \\ \hline		\texttt{0} & \texttt{1} & \texttt{0} \\ \hline		\texttt{1} & \texttt{0} & \texttt{0} \\ \hline		\texttt{1} & \texttt{1} & \texttt{1} \\ \hline
+	\end{tabular}
+\end{center}
+
+We schrijven $x$ AND $y$, waarbij $x$ en $y$ de invoerbits zijn.
+
+Vervolgens bekijken we de OR-poort.
+
+De OR-poort aanvaardt twee bits als invoer en levert één bit als uitvoer op. De OR-poort gedraagt zich als volgt. Zijn beide invoerbits gelijk aan 0, dan is het resultaat 0. In alle andere gevallen is het resultaat van het uitvoerbit 1. Dit is samengevat in de volgende tabel.
+\begin{center}
+	\begin{tabular}{cc|c}
+	  \hline
+		INVOER X & INVOER Y & UITVOER \\ \hline		\texttt{0} & \texttt{0} & \texttt{0} \\ \hline		\texttt{0} & \texttt{1} & \texttt{1} \\ \hline		\texttt{1} & \texttt{0} & \texttt{1} \\ \hline		\texttt{1} & \texttt{1} & \texttt{1} \\ \hline
+	\end{tabular}
+\end{center}
+
+We schrijven $x$ OR $y$, waarbij $x$ en $y$ de invoerbits zijn.
+
+Als laatste bekijken we de XOR-poort.
+
+De XOR-poort aanvaardt twee bits als invoer en levert één bit als uitvoer op. De XOR-poort gedraagt zich als volgt. Hebben beide invoerbits dezelfde waarde, dan is het uitvoerbit 0. Is dat niet het geval, dan zijn beide invoerbits ongelijk van waarde en is het uitvoerbit 1. Dit is samengevat in de volgende tabel.
+\begin{center}
+	\begin{tabular}{cc|c}
+	  \hline
+		INVOER X & INVOER Y & UITVOER \\ \hline		\texttt{0} & \texttt{0} & \texttt{0} \\ \hline		\texttt{0} & \texttt{1} & \texttt{1} \\ \hline		\texttt{1} & \texttt{0} & \texttt{1} \\ \hline		\texttt{1} & \texttt{1} & \texttt{0} \\ \hline
+	\end{tabular}
+\end{center}
+
+We schrijven $x$ XOR $y$, waarbij $x$ en $y$ de invoerbits zijn.
+
+Merk op dat er nog enkele andere poorten bestaan. Die zijn eenvoudig op te bouwen.
+\begin{itemize}
+  \item NAND-poort: dit is een AND-poort gevolgd door een NOT-poort  \item NOR-poort: dit is een OR-poort gevolgd door een NOT-poort  \item XNOR-poort: dit is een XOR-poort gevolgd door een NOT-poort
+\end{itemize}
+
+\section{Gehele en natuurlijke getallen}Tot nu toe hebben we ons grotendeels op natuurlijke getallen gericht. Natuurlijke getallen hebben geen positief of negatief teken. We gaan er altijd van uit dat zij positief zijn. (Nul geldt hierbij als positief.)
+
+Gehele getallen kunnen, zoals eerder vermeld, zowel een positief als een negatief teken hebben.
+
+Gehele getallen worden weergegeven door het meest significante bit als tekenbit te behandelen. Dit bit kan voor niets anders worden gebruikt. Is het meest significante bit 0, dan interpreteren we het resultaat als een getal met een positief teken. Anders is het meest significante bit 1 en interpreteren we het resultaat als een getal met een negatief teken.
+
+Een 8-bits geheel getal kan getallen met een positief teken tussen 0 en 127 weergeven en getallen met een negatief teken tussen -1 en -128.
+
+Een 16-bits geheel getal kan getallen met een positief teken tussen 0 en 32767 weergeven en getallen met een negatief teken tussen -1 en -32768.
+
+Het reserveren van het meest significante bit als teken van het gehele getal halveert in feite het bereik van de beschikbare positieve getallen (d.w.z. in vergelijking met natuurlijke getallen); daarvoor krijgen we echter een even grote hoeveelheid negatieve getallen terug.
+
+Om de negatie van een geheel getal te bepalen, moeten we elk bit in dat getal inverteren en daarna \%1 bij het resultaat optellen. Zo geeft de negatie van \%0000 0101 (het gehele getal +5) \%1111 1011 als resultaat (het gehele getal -5). Zoals verwacht verkrijgen we door de negatie van dit negatieve getal weer +5.
+
+\section{Bitgewijze logische operatoren}
+
+De BASIC-statements {\bf NOT}, {\bf AND}, {\bf OR} en {\bf XOR} hebben een werking die lijkt op die van de logische poorten waarnaar zij zijn genoemd.
+
+Het {\bf NOT}-statement moet een 16-bits decimaal geheel getal als parameter krijgen. Het geeft als resultaat een 16-bits decimaal geheel getal terug.
+
+In het volgende voorbeeld zijn alle zestien bits van het decimale gehele getal +0 gelijk aan 0. Het {\bf NOT}-statement inverteert alle zestien bits overeenkomstig de NOT-poort. Daardoor worden alle zestien bits gezet. Interpreteren we het resultaat als decimaal geheel getal, dan verkrijgen we als antwoord -1.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (NOT 0)
+-1
+\end{verbatim}
+\end{tcolorbox}
+
+Zoals verwacht zijn we, wanneer we het {\bf NOT}-statement opnieuw op de parameter -1 toepassen, terug bij het beginpunt, omdat alle zestien gezette bits worden gewist.
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (NOT -1)
+ 0
+\end{verbatim}
+\end{tcolorbox}
+
+Het {\bf AND}-statement moet twee 16-bits decimale gehele getallen als parameters krijgen. De tweede parameter heet het {\it bitmasker}. Het statement geeft als resultaat een 16-bits decimaal geheel getal terug, nadat het elk bit overeenkomstig de AND-poort heeft gewijzigd.
+
+In het volgende voorbeeld dient het getal +253 als eerste parameter. Als 16-bits decimaal geheel getal is dit gelijkwaardig aan het volgende binaire getal: \%0000 0000 1111 1101. Het {\bf AND}-statement gebruikt als tweede parameter een bitmasker met de 16-bits decimale gehele waarde +239. In binaire notatie is dit het getal \%0000 0000 1110 1110. Passen we de tabel van de AND-poort toe op de overeenkomstige paren van bits, dan verkrijgen we het 16-bits decimale gehele getal +237 (wat in binaire notatie \%0000 0000 1110 1100 is).
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (253 AND 239)
+ 237
+\end{verbatim}
+\end{tcolorbox}
+
+In de volgende tabel is dit proces duidelijker te zien.
+
+\begin{center}
+	\begin{tabular}{ccccccccccccccccccccc}
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{1} \\	  {\bf AND} & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{0} \\ \hline	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} &  & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{0} \\ \hhline{=====================}
+	  \end{tabular}
+\end{center}
+
+Merk op dat elk bit in de bovenste rij ongewijzigd blijft op iedere positie waar het maskerbit eronder een 1 bevat. Zo niet, dan wordt het bit op die positie gewist.
+
+Het {\bf OR}-statement moet twee 16-bits decimale gehele getallen als parameters krijgen. De tweede parameter heet het {\it bitmasker}. Het statement geeft als resultaat een 16-bits decimaal geheel getal terug, nadat het elk bit overeenkomstig de OR-poort heeft gewijzigd.
+
+In het volgende voorbeeld dient het getal +240 als eerste parameter. Als 16-bits decimaal geheel getal is dit gelijkwaardig aan het volgende binaire getal: \%0000 0000 1111 0000. Het {\bf OR}-statement gebruikt als tweede parameter een bitmasker met de 16-bits decimale gehele waarde +19. In binaire notatie is dit het getal \%0000 0000 0001 0011. Passen we de tabel van de OR-poort toe op de overeenkomstige paren van bits, dan verkrijgen we het 16-bits decimale gehele getal +243 (wat in binaire notatie \%0000 0000 1111 0011 is).
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+PRINT (240 OR 19)
+  243
+\end{verbatim}
+\end{tcolorbox}
+
+In de volgende tabel is dit proces duidelijker te zien.
+
+\begin{center}
+	\begin{tabular}{ccccccccccccccccccccc}
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} \\	  {\bf OR} & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{1} \\ \hline	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{1} \\ \hhline{=====================}
+	  \end{tabular}
+\end{center}
+
+Merk op dat elk bit in de bovenste rij ongewijzigd doorgaat, overal waar in het maskerbit eronder een 0 staat. Anders wordt het bit op die positie gezet.
+
+Nu bekijken we het {\bf XOR}-statement. Dit statement vereist twee 16-bits decimale natuurlijke getallen als parameters. De tweede parameter heet het {\it bitmasker}. Het statement geeft een 16-bits decimaal natuurlijk getal als resultaat terug, waarbij elk bit volgens de XOR-poort is gewijzigd.
+
+In het volgende voorbeeld gebruiken we het getal 14091 als eerste parameter. Als 16-bits decimaal natuurlijk getal komt dit overeen met het volgende binaire getal: \%0011 0111 0000 1011. Het {\bf XOR}-statement gebruikt als tweede parameter een bitmasker met een 16-bits decimale natuurlijke waarde van 8653. In binaire notatie is dit het getal \%0010 0001 1100 1101. Passen we de tabel van de XOR-poort toe op de overeenkomstige paren van bits, dan verkrijgen we het 16-bits decimale natuurlijke getal 5830 (in binaire notatie: \%0001 0110 1100 0110).
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+	PRINT (XOR(14091,8653))
+	5830
+\end{verbatim}
+\end{tcolorbox}
+
+In de volgende tabel is dit proces duidelijker te zien.
+
+\begin{center}
+	\begin{tabular}{ccccccccccccccccccccc}
+	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{1} & \texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{0} & \texttt{1} & \texttt{1} \\	  {\bf XOR} & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{1} & \texttt{0} & &  \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} &  & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{0} & & \texttt{1} & \texttt{1} & \texttt{0} & \texttt{1} \\ \hline	  & \texttt{\%} & \texttt{0} & \texttt{0} & \texttt{0} & \texttt{1} & & \texttt{0} & \texttt{1} & \texttt{1} & \texttt{0} & &  \texttt{1} & \texttt{1} & \texttt{0} & \texttt{0} & & \texttt{0} & \texttt{1} & \texttt{1} & \texttt{0} \\ \hhline{=====================}
+	  \end{tabular}
+\end{center}
+
+Merk op dat het resulterende bit 0 is wanneer de bits gelijk zijn. Anders is het resulterende bit 1.
+
+Veel van het nut van deze bitgewijze logische operatoren komt voort uit het combineren ervan tot één samengesteld statement. Het VIC-II-register om sprites in te schakelen bevindt zich bijvoorbeeld op geheugenadres 53269. Er zijn acht sprites (genummerd van 0 tot 7), waarbij elk bit overeenkomt met de status van een sprite. Stel nu dat we sprite 5 willen uitschakelen en sprite 1 willen inschakelen, waarbij de statussen van de andere sprites ongewijzigd blijven. Dat kunnen we doen met het volgende BASIC-statement, dat een {\bf AND}-statement combineert met een {\bf OR}-statement.
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+POKE 53269, (((PEEK(53269)) AND 223) OR 2)
+\end{verbatim}
+\end{tcolorbox}
+
+De techniek om {\bf PEEK} op een geheugenadres toe te passen, het resultaat met bitgewijze logische operatoren te combineren en daarna een {\bf POKE} naar datzelfde geheugenadres uit te voeren, is zeer gebruikelijk.
+
+\section{Getallen omrekenen}
+
+Het onderstaande programma is geschreven in BASIC. Het zet getallen voor u om. Typ het in en sla het op onder de naam ``CONVERT.BAS''.
+
+Om het programma uit te voeren, typt u {\bf RUN} in en drukt u op \specialkey{RETURN}.
+
+Het programma biedt u een reeks tekstmenu's aan. U kunt ervoor kiezen om één decimaal, binair of hexadecimaal getal om te rekenen. U kunt er ook voor kiezen om een bereik van zulke getallen om te rekenen.
+
+Het programma kan getallen in het bereik van 0 tot en met 65535 omrekenen.
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 REM ***************************
+20 REM *                         *
+30 REM *  GETALOMREKENPROGRAMMA  *
+40 REM *                         *
+50 REM ***************************
+60 POKE 0,65: BORDER 6: BACKGROUND 6: FOREGROUND 1
+70 DIM P(15)
+80 E$ = "START-INTEGER MOET KLEINER ZIJN DAN EIND-INTEGER"
+90 FOR N = 0 TO 15
+100 :  P(N) = 2 ^ N
+110 NEXT N
+120 REM *** TOON HET HOOFDMENU ***
+130 PRINT CHR$(147)
+140 PRINT: PRINT "GETALOMREKENPROGRAMMA"
+150 L = 22: GOSUB 1930: PRINT L$
+160 PRINT: PRINT "MAAK EEN KEUS (E, M OF B):": PRINT
+170 PRINT "[S]{SPACE*2}CONVERSIE VAN EEN ENKELE INTEGER"
+180 PRINT "[M]{SPACE*2}CONVERSIE VAN MEERDERE INTEGERS"
+190 PRINT "[Q]{SPACE*2}BEEINDIG PROGRAMMA"
+200 GET M$
+210 IF (M$="E") THEN GOSUB 260: GOTO 140
+220 IF (M$="M") THEN GOSUB 380: GOTO 140
+230 IF (M$="M") THEN END
+240 GOTO 200
+250 REM *** TOON MENU VOOR ENKELE CONVERSIE ***
+260 PRINT: PRINT "{SPACE*2}MAAK EEN KEUS (D, B, H OF T):": PRINT
+270 PRINT "{SPACE*2}[D]{SPACE*2}CONVERTEER EEN DECIMALE INTEGER"
+280 PRINT "{SPACE*2}[B]{SPACE*2}CONVERTEER EEN BINAIRE INTEGER"
+290 PRINT "{SPACE*2}[H]{SPACE*2}CONVERTEER EEN HEXADECIMALE INTEGER"
+300 PRINT "{SPACE*2}[T]{SPACE*2}TERUG NAAR HOOFDMENU"
+310 GET M1$
+320 IF (M1$="D") THEN GOSUB 500: GOTO 260
+330 IF (M1$="B") THEN GOSUB 760: GOTO 260
+340 IF (M1$="H") THEN GOSUB 810: GOTO 260
+350 IF (M1$="T") THEN RETURN
+360 GOTO 310
+370 REM *** TOON MENU VOOR MEERVOUDIGE CONVERSIE ***
+380 PRINT: PRINT "{SPACE*2}SELECT AN OPTION (D, B, H OF T):": PRINT
+390 PRINT "{SPACE*2}[D]{SPACE*2}CONVERTEER EEN REEKS DECIMALE INTEGERS"
+400 PRINT "{SPACE*2}[B]{SPACE*2}CONVERTEER EEN REEKS BINAIRE INTEGERS"
+410 PRINT "{SPACE*2}[H]{SPACE*2}CONVERTEER EEN REEKS HEXADECIMALE INTEGERS"
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+420 PRINT "{SPACE*2}[R]{SPACE*2}TERUG NAAR HOOFDMENU"
+430 GET M2$
+440 IF (M2$="D") THEN GOSUB 1280: GOTO 380
+450 IF (M2$="B") THEN GOSUB 1670: GOTO 380
+460 IF (M2$="H") THEN GOSUB 1800: GOTO 380
+470 IF (M2$="R") THEN RETURN
+480 GOTO 430
+490 REM *** CONVERTEER ENKELE DECIMALE INTEGER ***
+500 D$ = ""
+510 PRINT: INPUT "VOER DECIMALE INTEGER IN (T/M 65535): ",D$
+520 GOSUB 1030: REM VALIDEER DECIMALE INVOER
+530 IF (V = 0) THEN GOTO 510
+540 PRINT: PRINT " DEC";SPC(4);"BIN";SPC(19);"HEX"
+550 L = 5: GOSUB 1930: L1$ = L$
+560 L = 20: GOSUB 1930: L2$ = L$
+570 PRINT SPC(1);L1$;SPC(2);L2$;SPC(2);L1$
+580 FOREGROUND 7
+590 B$ = ""
+600 D1 = 0
+610 IF (D < 256) THEN GOTO 660
+620 D1 = INT(D / 256)
+630 FOR N = 1 TO 8
+640 :  IF ((D1 AND P(8 - N)) > 0) THEN B$ = B$ + "1": ELSE B$ = B$ + "0"
+650 NEXT N
+660 IF (D < 256) THEN B$ = "%" + B$: ELSE B$ = "%" + B$ + " "
+670 D2 = D - 256*D1
+680 FOR N = 1 TO 8
+690 :  IF ((D2 AND P(8 - N)) > 0) THEN B$ = B$ + "1": ELSE B$ = B$ + "0"
+700 NEXT N
+710 H$ = HEX$(D)
+720 IF (D < 256) THEN H$ = "{SPACE*2}$" + RIGHT$(H$,2): ELSE H$ = "$" + H$
+730 IF (D < 256) THEN PRINT SPC(6 - LEN(D$)); D$;SPC(12) + MID$(B$,1,5) +
+" " + MID$(B$,6,10); "{SPACE*2}" + H$: FOREGROUND 1: RETURN
+740 PRINT SPC(6 - LEN(D$));D$;"{SPACE*2}" + MID$(B$,1,5) + " " + MID$(B$,6,4) +
+MID$(B$,10,5) + " " + MID$(B$,15,4); "{SPACE*2}" + H$: FOREGROUND 1: RETURN
+750 REM *** CONVERTEER ENKELE BINAIRE INTEGER ***
+760 I$=""
+770 PRINT: INPUT "VOER BINAIRE INTEGER IN (T/M 16 BITS): ",I$
+780 GOSUB 1110: REM VALIDEER BINAIRE INVOER
+790 IF (V = 0) THEN GOTO 760: ELSE GOTO 540
+800 REM *** CONVERTER ENKELE HEXADECIMALE INTEGER ***
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+810 H$=""
+820 PRINT: INPUT "ENTER HEXADECIMAL INTEGER (UP TO 4 DIGITS): ",H$
+830 GOSUB 1220: REM VALIDATE HEXADECIMAL INPUT
+840 IF (V = 0) THEN GOTO 810: ELSE GOTO 540
+850 REM *** VALIDATE DECIMAL INPUT STRING ***
+860 FOR N = 1 TO LEN(D$)
+870 :  M = ASC(MID$(D$,N,1)) - ASC("0")
+880 :  IF ((M < 0) OR (M > 9)) THEN V = 0
+890 NEXT N: RETURN
+900 REM *** VALIDATE BINARY INPUT STRING ***
+910 FOR N = 1 TO LEN(I$)
+920 :  M = ASC(MID$(I$,N,1)) - ASC("0")
+930 :  IF ((M < 0) OR (M > 1)) THEN V = 0
+940 NEXT N: RETURN
+950 REM *** VALIDEER HEXADECIMALE INVOERSTRING ***
+960 FOR N = 1 TO LEN(H$)
+970 :  M = ASC(MID$(H$,N,1)) - ASC("0")
+980 :  IF (NOT (((M >= 0) AND (M <= 9)) OR
+((M >= 17) AND (M <= 22)))) THEN V = 0
+990 NEXT N: RETURN
+1000 REM *** TOON FOUTMELDING ***
+1010 FOREGROUND 2: PRINT: PRINT A$: FOREGROUND 1: RETURN
+1020 REM *** VALIDEER DECIMALE INVOER ***
+1030 V = 1: GOSUB 860: REM VALIDEER DECIMALE INVOERSTRING
+1040 IF (V = 0) THEN A$ = "ONGELDIG DECIMAAL GETAL": GOSUB 1010
+1050 IF (V = 1) THEN BEGIN
+1060 :  D = VAL(D$)
+1070 :  IF ((D < 0) OR (D > 65535)) THEN A$ = "DECIMAAL GETAL BUITEN BEREIK":
+GOSUB 1010: V = 0
+1080 BEND
+1090 RETURN
+1100 REM *** VALIDEER BINAIRE INVOER ***
+1110 V = 1: GOSUB 910: REM VALIDEER BINAIRE INVOERSTRING
+1120 IF (V = 0) THEN A$ = "ONGELDIG BINAIR GETAL": GOSUB 1010: RETURN
+1130 IF (LEN(I$) > 16) THEN A$ = "BINAIRE GETAL BUITEN BEREIK":
+GOSUB 1010: V = 0 : RETURN
+1140 IF (V = 1) THEN BEGIN
+1150 :  I = 0
+1160 :  FOR N = 1 TO LEN(I$)
+1170 :    I = I + VAL(MID$(I$,N,1)) * P(LEN(I$) - N)
+1180 :  NEXT N
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+1190 BEND
+1200 D$ = STR$(I): D = I: RETURN
+1210 REM *** VALIDATE HEXADECIMALE INVOER ***
+1220 V = 1: GOSUB 960: REM VALIDEER HEXADECIMALE INVOERSTRING
+1230 IF (V = 0) THEN A$ = "ONGELDIG HEXADECIMAAL GETAL": GOSUB 1010: RETURN
+1240 IF (LEN(H$) > 4) THEN A$ = "HEXADECIMAAL GETAL BUITEN BEREIK":
+GOSUB 1010: V = 0: RETURN
+1250 D = DEC(H$): D$ = STR$(D): H = D: RETURN
+1260 RETURN
+1270 REM *** CONVERTEER MEERDERE DECIMALE INTEGERS ***
+1280 DB$=""
+1290 PRINT: INPUT "VOER BEGIN IN ALS DECIMALE INTEGER (T/M 65535): ", DB$
+1300 D$=DB$: GOSUB 1030: D$="": REM VALIDATE DECIMAL INPUT
+1310 IF (V = 0) THEN GOTO 1290
+1320 DE$=""
+1330 PRINT: INPUT "VOER EIND IN ALS DECIMALE INTEGER (T/M 65535): ", DE$
+1340 D$=DE$: GOSUB 1030: D$="": REM VALIDATE DECIMAL INPUT
+1350 IF (V = 0) THEN GOTO 1330
+1360 DB=VAL(DB$): DE=VAL(DE$)
+1370 IF (DE < DB) THEN A$ = E$: GOSUB 1010: GOTO 1280
+1380 SC = 1: SM = INT(((DE - DB) / 36) + 1)
+1390 D = DB
+1400 FOR J = SC TO SM
+1410 :  PRINT CHR$(147) + "RANGE: " + DB$ + " TO " + DE$ + "{SPACE*10}SCHERM: "
++ STR$(J) + " OF " + STR$(SM)
+1420 :  PRINT: PRINT "DEC";SPC(4);"BIN";SPC(19);"HEX";SPC(8);"DEC";SPC(4);
+"BIN";SPC(19);"HEX"
+1430 L = 5: GOSUB 1930: L1$ = L$
+1440 L = 20: GOSUB 1930: L2$ = L$
+1450 :    PRINT SPC(1);L1$;SPC(2);L2$;SPC(2);L1$;SPC(6);L1$;SPC(2);
+L2$;SPC(2);L1$
+1460 :  FOR K = 0 TO 17
+1470 :      FOREGROUND (7 + MOD(K,2))
+1480 :      D$ = STR$(D): GOSUB 590: D = D + 1
+1490 :      IF (D > DE) THEN GOTO 1630
+1500 :  NEXT K
+1510 :  PRINT CHR$(19): PRINT: PRINT: PRINT
+1520 :  FOR K = 0 TO 17
+1530 :      FOREGROUND (7 + MOD(K,2))
+1540 :      D$ = STR$(D): PRINT TAB(40): GOSUB 590: D = D + 1
+
+\end{verbatim}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+1550 :      IF (D > DE) THEN GOTO 1630
+1560 :  NEXT K
+1570 :  FOREGROUND 1: PRINT: PRINT SPC(19);"DRUK OP E VOOR EINDE OF SPATIE OM DOOR TE GAAN..."
+1580 :  GET B$
+1590 :  IF B$="E" THEN RETURN
+1600 :  IF B$=" " THEN GOTO 1620
+1610 :  GOTO 1580
+1620 NEXT J
+1630 PRINT CHR$(19): FOR I = 1 TO 22: PRINT: NEXT I
+1640 PRINT SPC(20); "KLAAR. DRUK OP SPATIE OM DOOR TE GAAN..."
+1650 GET B$: IF B$<>" " THEN GOTO 1650: ELSE RETURN
+1660 REM *** CONVERTEER MEERDERE BINAIRE INTEGERS ***
+1670 IB$=""
+1680 PRINT: INPUT "VOER START IN ALS BINAIRE INTEGER (T/M 16 BITS): ", IB$
+1690 I$=IB$: GOSUB 1110: I$="": REM VALIDEEER BINARIRE INVOER
+1700 IF (V = 0) THEN GOTO 1680
+1710 IB = I
+1720 IE$=""
+1730 PRINT: INPUT "VOER EIND IN ALS BINAIRE INTEGER (UP TO 16 BITS): ", IE$
+1740 I$=IE$: GOSUB 1110: I$="": REM VALIDEER BINAIRE INVOER
+1750 IF (V = 0) THEN GOTO 1730
+1760 IE = I
+1770 IF (IE < IB) THEN A$ = E$: GOSUB 1010: GOTO 1670
+1780 DB = IB: DE = IE: DB$ = STR$(IB): DE$ = STR$(IE): GOTO 1380
+1790 REM *** CONVERTEER MEERDERE HEXADECIMALE INTEGERS ***
+1800 HB$=""
+1810 PRINT: INPUT "ENTER STARTING HEXADECIMAL INTEGER (UP TO 4 DIGITS): ", HB$
+1820 H$=HB$: GOSUB 1220: H$="": REM VALIDEER HEXADECIMALE INVOER
+1830 IF (V = 0) THEN GOTO 1810
+1840 HB = H
+1850 HE$=""
+1860 PRINT: INPUT "ENTER ENDING HEXADECIMAL INTEGER (UP TO 4 DIGITS): ", HE$
+1870 H$=HE$: GOSUB 1220: H$="": REM VALIDEER HEXADECIMALE INVOER
+1880 IF (V = 0) THEN GOTO 1860
+1890 HE = H
+1900 IF (HE < HB) THEN A$ = E$: GOSUB 1010: GOTO 1800
+1910 DB = HB: DE = HE: DB$ = STR$(HB): DE$ = STR$(HE): GOTO 1380
+1920 REM *** MAKE LINES ***
+1930 L$=""
+1940 FOR K = 1 TO L: L$ = L$ + "-": NEXT K
+1950 RETURN
+\end{verbatim}
+\end{tcolorbox}

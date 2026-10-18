@@ -70,6 +70,19 @@ char bction[256];
 char flags[256];
 char DEBUG = 0;
 
+// language and directory settings
+static const char *sets_dir = "instruction_sets";
+static const char *out_dir = "";
+static int lang_nl = 0;
+static int lang_de = 0;
+
+// pick the Dutch, the German or the English output string
+static const char *L(const char *nl, const char *de, const char *en) {
+  if (lang_de)
+    return de;
+  return lang_nl ? nl : en;
+}
+
 // strdup, bug panic and exit if no memory was available
 char *StrDup(const char *s) {
   char *r;
@@ -169,9 +182,9 @@ int lookup_mode_description(char *mode, int isQuad) {
   modeinfo[modeId].isQuad = isQuad;
   char filename[1024];
   if (strlen(nmode) == 0) // avoiding 'mode.' filename, as it's not windows-friendly
-    snprintf(filename, 1024, "instruction_sets/mode.implied");
+    snprintf(filename, 1024, "%s/mode.implied", sets_dir);
   else
-    snprintf(filename, 1024, "instruction_sets/mode.%s", nmode);
+    snprintf(filename, 1024, "%s/mode.%s", sets_dir, nmode);
   if (DEBUG) fprintf(stderr, "MODE-FILE %s\n", filename);
   FILE* f = fopen(filename, "rb");
   if (f) {
@@ -211,7 +224,10 @@ int lookup_mode_description(char *mode, int isQuad) {
 }
 
 void usage(char *prg) {
-  fprintf(stderr, "Usage: %s [--debug|-d] OPCODEFILE [EXTOPCODEFILE]\n", prg);
+  fprintf(stderr, "Usage: %s [--debug|-d] [--sets-dir DIR] [--out-dir DIR] [--lang en|nl|de] OPCODEFILE [EXTOPCODEFILE]\n", prg);
+  fprintf(stderr, "  --sets-dir|-D DIR  directory with the inst.* and mode.* description files (default: instruction_sets)\n"
+          "  --out-dir|-O DIR   directory for the generated instructionset-*.tex and opcodetable-*.tex (default: .)\n"
+          "  --lang|-l LANG     language of the generated strings: en (default), nl or de\n");
   exit(-1);
 }
 
@@ -231,13 +247,53 @@ int main(int argc, char** argv) {
 
   if (argc < 2) usage(argv[0]);
 
-  // parse cmdline for debug flag
-  if (!strcmp(argv[argi], "--debug") || !strcmp(argv[argi], "-d")) {
+  // parse cmdline for options
+  while (argi < argc && argv[argi][0] == '-') {
+    if (!strcmp(argv[argi], "--debug") || !strcmp(argv[argi], "-d")) {
+      DEBUG = 1;
+    } else if (!strcmp(argv[argi], "--sets-dir") || !strcmp(argv[argi], "-D")) {
+      argi++;
+      if (argi >= argc) usage(argv[0]);
+      sets_dir = argv[argi];
+    } else if (!strcmp(argv[argi], "--out-dir") || !strcmp(argv[argi], "-O")) {
+      argi++;
+      if (argi >= argc) usage(argv[0]);
+      out_dir = argv[argi];
+    } else if (!strcmp(argv[argi], "--lang") || !strcmp(argv[argi], "-l")) {
+      argi++;
+      if (argi >= argc) usage(argv[0]);
+      if (!strcmp(argv[argi], "nl")) {
+        lang_nl = 1;
+        lang_de = 0;
+      } else if (!strcmp(argv[argi], "de")) {
+        lang_nl = 0;
+        lang_de = 1;
+      } else if (!strcmp(argv[argi], "en")) {
+        lang_nl = 0;
+        lang_de = 0;
+      } else {
+        fprintf(stderr, "ERROR: unknown language \"%s\" (use en, nl or de)\n", argv[argi]);
+        exit(-1);
+      }
+    } else
+      usage(argv[0]);
     argi++;
-    DEBUG = 1;
   }
 
   if (argi >= argc) usage(argv[0]);
+
+  // output files go into out_dir (default: current directory)
+  char out_prefix[1024] = "";
+  if (out_dir[0]) {
+    size_t dl = strlen(out_dir);
+    if (dl > sizeof(out_prefix) - 2) {
+      fprintf(stderr, "ERROR: out-dir \"%s\" too long!\n", out_dir);
+      exit(-1);
+    }
+    memcpy(out_prefix, out_dir, dl);
+    if (out_prefix[dl - 1] != '/')
+      strcat(out_prefix, "/");
+  }
 
   find = strrchr(argv[argi], '/');
   if (find == NULL)
@@ -430,9 +486,9 @@ int main(int argc, char** argv) {
   int indirect_note_seen = 0;
   int single_cycle_seen = 0;
   char opcode[16], assembly[256], bytes[16], cycles[16], cycle_count[256], cycle_notes[1024];
-  char *addressing_mode;
+  const char *addressing_mode;
 
-  snprintf(filename, 1024, "instructionset-%s.tex", processor);
+  snprintf(filename, 1024, "%sinstructionset-%s.tex", out_prefix, processor);
   FILE* tf1 = fopen(filename, "wb");
   if (!tf1) {
     fprintf(stderr, "ERROR: output file \"%s\" could not be created!\n", filename);
@@ -446,7 +502,7 @@ int main(int argc, char** argv) {
     for (int ipf = 0; ipf < 7; ++ipf)
       strcpy(pflags[ipf], "$\\cdot$");
 
-    snprintf(filename, sizeof(filename), "instruction_sets/inst.%s", instruction[i].name);
+    snprintf(filename, sizeof(filename), "%s/inst.%s", sets_dir, instruction[i].name);
     FILE* f = fopen(filename, "rb");
     if (!f) {
       fprintf(stderr, "WARNING: Could not read %s\n", filename);
@@ -516,7 +572,7 @@ int main(int argc, char** argv) {
 
     if (is_unintended) {
       *is_unintended = 0;
-      fprintf(tf1, "\n\n\\subsection{\\textcolor{red}{%s [unintended]}}\n", instruction[i].name);
+      fprintf(tf1, "\n\n\\subsection{\\textcolor{red}{%s %s}}\n", instruction[i].name, L("[onbedoeld]", "[unbeabsichtigt]", "[unintended]"));
     }
     else
       fprintf(tf1, "\n\n\\subsection{%s}\n", instruction[i].name);
@@ -543,8 +599,10 @@ int main(int argc, char** argv) {
 
     fprintf(tf1, " & \\\\\n"
            " & & & & & & & & & & & \\\\[-6pt]\n"
-           " & {\\bf Addressing Mode} & {\\bf Assembly} & {\\bf Code} & \\multicolumn{3}{c}{\\bf Bytes} & "
-           "\\multicolumn{3}{c}{\\bf Cycles} & & \\\\ \n\\hline\n");
+           " & {\\bf %s} & {\\bf %s} & {\\bf %s} & \\multicolumn{3}{c}{\\bf %s} & "
+           "\\multicolumn{3}{c}{\\bf %s} & & \\\\ \n\\hline\n",
+        L("Adresseermethode", "Adressierungsart", "Addressing Mode"), L("Instructie", "Befehl", "Assembly"), L("Opcode", "Opcode", "Code"),
+        L("Bytes", "Bytes", "Bytes"), L("Cycli", "Takte", "Cycles"));
 
     int j;
     for (j = 0; j < MAX_OPCODES; j++) {
@@ -554,7 +612,7 @@ int main(int argc, char** argv) {
           m = 0;
         if (DEBUG) fprintf(stderr,"  %d %08X %d%d%d\n", j, opcodes[j].bytes, opcodes[j].isFar, opcodes[j].isQuad, opcodes[j].isFarQuad);
         opcodes[j].isUnintended = (is_unintended!=NULL) || (!strncmp(opcodes[j].abbrev, "NOP", 3) && j != 0xEA); // only EA is the real NOP
-        addressing_mode = modeinfo[m].description ? modeinfo[m].description : "No description";
+        addressing_mode = modeinfo[m].description ? modeinfo[m].description : L("Geen omschrijving", "Keine Beschreibung", "No description");
         snprintf(assembly, 256, "%s %s", instruction[i].name, modeinfo[m].texmode);
 
         if (opcodes[j].bytes & 0xff000000) {
@@ -632,23 +690,34 @@ int main(int argc, char** argv) {
     // d = 65CE02 delete idle cycles when CPU >2MHz
     // m = 4510 delete non-bus cycles
     if (branch_note_seen) {
-      fprintf(tf1, " \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{Add one cycle if branch is taken.} \\\\\n");
-      fprintf(tf1, " \\multicolumn{1}{r}{   } & \\multicolumn{11}{l}{Add one more cycle if branch taken crosses a page boundary.} "
-             "\\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$b$} & \\multicolumn{11}{l}{%s} \\\\\n",
+        L("Voeg één cyclus toe als er een vertakking plaatsvindt.", "Einen Takt zusätzlich, wenn ein Sprung ausgeführt wird.", "Add one cycle if branch is taken."));
+      fprintf(tf1, " \\multicolumn{1}{r}{   } & \\multicolumn{11}{l}{%s} "
+             "\\\\\n",
+        L("Voeg nog één cyclus toe als de genomen vertakking een paginagrens overschrijdt.",
+          "Einen weiteren Takt, wenn der Sprung eine Seitengrenze überschreitet.",
+          "Add one more cycle if branch taken crosses a page boundary."));
     }
     if (delmodify65ce02_note_seen)
-      fprintf(tf1, " \\multicolumn{1}{r}{$d$} & \\multicolumn{11}{l}{Subtract one cycle when CPU is at 3.5MHz. } \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$d$} & \\multicolumn{11}{l}{%s} \\\\\n",
+        L("Trek één cyclus af wanneer de CPU op 3.5 MHz draait. ", "Einen Takt abziehen, wenn die CPU mit 3.5 MHz läuft. ", "Subtract one cycle when CPU is at 3.5MHz. "));
     if (indirect_note_seen)
-      fprintf(tf1, " \\multicolumn{1}{r}{$i$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$i$} & \\multicolumn{11}{l}{%s} \\\\\n",
+        L("Voeg één cyclus toe als de kloksnelheid 40 MHz is.", "Einen Takt zusätzlich, wenn die Taktfrequenz 40 MHz beträgt.", "Add one cycle if clock speed is at 40 MHz."));
     if (delidle4510_note_seen)
-      fprintf(tf1, " \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{Subtract non-bus cycles when at 40MHz. } \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$m$} & \\multicolumn{11}{l}{%s} \\\\\n",
+        L("Trek de niet-buscycli af bij 40 MHz. ", "Die Nicht-Buszyklen bei 40 MHz abziehen. ", "Subtract non-bus cycles when at 40MHz. "));
     if (page_note_seen)
-      fprintf(tf1, " \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{Add one cycle if indexing crosses a page boundary.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$p$} & \\multicolumn{11}{l}{%s} \\\\\n",
+        L("Voeg één cyclus toe als indexering een paginagrens overschrijdt.", "Einen Takt zusätzlich, wenn die Indexadressierung eine Seitengrenze überschreitet.", "Add one cycle if indexing crosses a page boundary."));
     if (read_note_seen)
-      fprintf(tf1, " \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{Add one cycle if clock speed is at 40 MHz.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$r$} & \\multicolumn{11}{l}{%s} \\\\\n",
+        L("Voeg één cyclus toe als de kloksnelheid 40 MHz is.", "Einen Takt zusätzlich, wenn die Taktfrequenz 40 MHz beträgt.", "Add one cycle if clock speed is at 40 MHz."));
     if (single_cycle_seen)
-      fprintf(tf1, " \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{Instruction requires 2 cycles when CPU is run at 1MHz or "
-             "2MHz.} \\\\\n");
+      fprintf(tf1, " \\multicolumn{1}{r}{$s$} & \\multicolumn{11}{l}{%s} \\\\\n",
+        L("De instructie vereist 2 cycli wanneer de CPU op 1 MHz of 2 MHz draait.",
+          "Der Befehl benötigt 2 Takte, wenn die CPU mit 1 MHz oder 2 MHz läuft.",
+          "Instruction requires 2 cycles when CPU is run at 1MHz or 2MHz."));
 
     fprintf(tf1, "\\end{tabular}\n\\end{center}\n");
   }
@@ -656,7 +725,7 @@ int main(int argc, char** argv) {
 
   // generate new combined two-page opcode table, but not for 45GS02
   if (CPU != 45) {
-    snprintf(filename, 1024, "opcodetable-%s.tex", processor);
+    snprintf(filename, 1024, "%sopcodetable-%s.tex", out_prefix, processor);
     FILE* tf1 = fopen(filename, "wb");
     if (!tf1) {
       fprintf(stderr, "ERROR: cycle file \"%s\" not found!\n\n", filename);
@@ -666,16 +735,18 @@ int main(int argc, char** argv) {
     for (int side = 0; side < 2; side++) {
       if (side == 0)
         fprintf(tf1, "\\begin{center}\n"
-                    "{\\bf Opcode Table %s}\n"
+                    "{\\bf %s %s}\n"
                     "\\begin{tabular}{c|c|c|c|c|c|c|c|c|}\n"
                     "\\cline{2-9}\n"
-                    "& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 \\\\ \\hline\n", CPU==4510 ? "4510/45GS02" : processor);
+                    "& \\$x0 & \\$x1 & \\$x2 & \\$x3 & \\$x4 & \\$x5 & \\$x6 & \\$x7 \\\\ \\hline\n", L("Opcode-tabel", "Opcode-Tabelle", "Opcode Table"),
+            CPU==4510 ? "4510/45GS02" : processor);
       else
         fprintf(tf1, "\\begin{center}\n"
-                    "{\\bf Opcode Table %s}\n"
+                    "{\\bf %s %s}\n"
                     "\\begin{tabular}{|c|c|c|c|c|c|c|c|c}\n"
                     "\\cline{1-8}\n"
-                    "\\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF & \\\\ \\hline\n", CPU==4510 ? "4510/45GS02" : processor);
+                    "\\$x8 & \\$x9 & \\$xA & \\$xB & \\$xC & \\$xD & \\$xE & \\$xF & \\\\ \\hline\n", L("Opcode-tabel", "Opcode-Tabelle", "Opcode Table"),
+            CPU==4510 ? "4510/45GS02" : processor);
       for (int i = 0; i < 16; i++) {
         if (side == 0)
           fprintf(tf1, "\\multicolumn{1}{|c|}{\\$%Xx} & ", i);

@@ -17,7 +17,7 @@ Werkwijze (vergelijkbaar met localize-basic65.py):
    byte-gelijk zijn aan het bronbestand; aantal onvertaalde items wordt geteld
    (bewust onvertaald = mnemoniek-omschrijvingsrijen mogen Engels blijven).
 
-Python 3.6-compatibel (openSUSE Leap).
+Python 3.6-compatibel.
 """
 from __future__ import print_function
 import argparse

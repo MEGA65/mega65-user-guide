@@ -16,9 +16,13 @@
 #  - Error checking (FOUTPATROON) is also present in tools/build-book-sh;
 #    change both places at the same time.
 #  - Do not build with -h: the books share gitinfo.tex in the repo-root.
-#  - Generates files (keymap tables, exmaples, basic65-derivates) have their
-#    rules in the root-Makefile; those are called with $(MAKE) -C .. so
-#    that this knowledge remains in one spot.
+#  - Generates files from English sources (keymap tables, examples,
+#    basic65-derivates) have their rules in the root-Makefile; those are called
+#    with $(MAKE) -C .. so that this knowledge remains in one spot.
+#  - The translated instruction-set/opcode tables are the exception: their
+#    rules live here, because the inst.*/mode.* sources and the output language
+#    are specific to this directory. Only the generator binary and the English
+#    .opc/.cycles files are delegated to the root-Makefile.
 
 ROOT := ..
 BUILD_DIR := build
@@ -52,6 +56,19 @@ ROOT_GEN := $(addprefix $(ROOT)/, \
 	keymap_table_4.tex keymap_table_5.tex unicode_mapping.tex \
 	examples/iec-data-logger.tex examples/iec-data-logger-2.tex)
 
+# Translated instruction-set/opcode tables. The generator and the English
+# .opc/.cycles files are shared with the English books, so those stay in the
+# root-Makefile (the root also owns compiling instruction_set); only the
+# inst.*/mode.* descriptions and the generated strings are Dutch (--lang nl).
+INSTSETS_DIR := instruction_sets
+INSTR_TABLES := instructionset-4510.tex instructionset-6502.tex \
+	instructionset-45GS02.tex opcodetable-4510.tex opcodetable-6502.tex
+INSTR_GEN := $(INSTR_TABLES)
+INSTR_SRC := $(wildcard $(INSTSETS_DIR)/inst.*) $(wildcard $(INSTSETS_DIR)/mode.*)
+# The English opcode tables themselves (they are inputs, and must be newer).
+INSTR_OPC := $(wildcard $(ROOT)/instruction_sets/*.opc) \
+	$(wildcard $(ROOT)/instruction_sets/*.cycles)
+
 # Per-book source lists. build/<book>.deps is generated from the .fls of the
 # last build (tools/make-book-deps.py) and pulled in with -include. It only
 # *contributes* prerequisites: it has no recipe, so the pattern rule below
@@ -67,7 +84,7 @@ DEPS_FILES := $(addprefix $(BUILD_DIR)/,$(addsuffix .deps,$(BOOKS)))
 # show up in the .fls) and the English files whose generation rules are in the
 # root-Makefile.
 SHARED_DEPS := $(wildcard common-header-*.tex) $(FRONTCOVERS) \
-	$(ROOT_STATIC) $(ROOT_GEN)
+	$(ROOT_STATIC) $(ROOT_GEN) $(INSTR_GEN) $(INSTR_SRC)
 
 .DELETE_ON_ERROR:
 
@@ -220,6 +237,23 @@ $(ROOT)/index_basic_programmes: $(ROOT)/index_basic_programmes.c $(ROOT)/Makefil
 
 $(ROOT)/generate_condensed: $(ROOT)/generate_condensed.c $(ROOT)/Makefile
 	$(MAKE) -C $(ROOT) generate_condensed
+
+# Translated instruction-set/opcode tables (owner: this Makefile; the English
+# .opc/.cycles files and the generator binary stay in the root-Makefile).
+$(ROOT)/instruction_set: $(ROOT)/instruction_set.c $(ROOT)/Makefile
+	$(MAKE) -C $(ROOT) instruction_set
+
+instructionset-45GS02.tex: $(ROOT)/instruction_set $(INSTR_OPC) $(INSTR_SRC)
+	$(ROOT)/instruction_set --lang nl --sets-dir $(INSTSETS_DIR) \
+		$(ROOT)/instruction_sets/45GS02.opc
+
+instructionset-4510.tex opcodetable-4510.tex: $(ROOT)/instruction_set $(INSTR_OPC) $(INSTR_SRC)
+	$(ROOT)/instruction_set --lang nl --sets-dir $(INSTSETS_DIR) \
+		$(ROOT)/instruction_sets/4510.opc $(ROOT)/instruction_sets/45GS02.opc
+
+instructionset-6502.tex opcodetable-6502.tex: $(ROOT)/instruction_set $(INSTR_OPC) $(INSTR_SRC)
+	$(ROOT)/instruction_set --lang nl --sets-dir $(INSTSETS_DIR) \
+		$(ROOT)/instruction_sets/6502.opc
 
 # Basic65 derived files: rules are in the root-Makefile (with correct NL chain;
 appendix-basic65-indexed.tex: appendix-basic65.tex $(ROOT)/index_basic_programmes

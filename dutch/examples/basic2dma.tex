@@ -1,0 +1,22 @@
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 rem schakel de MEGA65-I/O in
+20 poke53295,asc("g"):poke53295,asc("s")
+30 rem DMA-lijst in data-regels
+40 data 3: rem commando-lsb = vullen
+50 data 232,3 : rem scherm is 1000 bytes = 3*256+232
+60 data 32,0: rem vullen met spatie = 32
+70 data 0: rem bronbank (niet gebruikt bij vullen)
+80 data 0,4: rem schermadres = 1024 = 4*256
+90 data 0: rem scherm bevindt zich in bank 0
+100 data 0: rem hoge byte van commando
+110 data 0,0: rem modulo (niet gebruikt in deze opgave)
+120 rem zet de DMA-lijst op $c000 = 49152
+130 fori=0to11:reada:poke49152+i,a:next
+140 rem voer de taak uit
+150 poke55042,0: rem DMA-lijst staat in bank 0
+160 poke55041,192: rem DMA-lijst staat in $c0xx
+170 poke55040,0: rem DMA-lijst staat in $xx00, en voer uit
+\end{verbatim}
+\end{tcolorbox}

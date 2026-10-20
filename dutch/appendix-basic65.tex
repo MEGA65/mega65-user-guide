@@ -1244,7 +1244,7 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
 
                   De parameter {\bf W} (Breed) geeft de map in drie kolommen op het scherm weer en stopt nadat het scherm is gevuld met een pagina (63 mapitems). Door op een willekeurige toets te drukken, wordt de volgende pagina weergegeven.
 
-De parameter {\bf R} (Herstelbaar) neemt bestanden in de map op die als verwijderd zijn gemarkeerd maar nog steeds herstelbaar zijn.
+                  De parameter {\bf R} (Herstelbaar) toont alleen de bestanden die als verwijderd zijn gemarkeerd maar nog steeds herstelbaar zijn, elk gemarkeerd met een '-'. Andere bestanden worden niet getoond.
 
                   {\bf bestandspatroon} is een aangehaalde tekenreeks, bijvoorbeeld: \screentext{"DA*"} of een tekenreeksexpressie tussen haakjes, bijv. \screentext{(DI\$)}
 
@@ -2514,7 +2514,7 @@ RUN
 
 De parameter {\bf P} (Paginering) geeft de map in één kolom weer en onderbreekt na elke volle schermpagina. Druk op de Q-toets om de lijstopgave op de huidige pagina te onderbreken. Druk op een andere toets om de volgende pagina weer te geven.
 
-De parameter {\bf R} (Herstelbaar) voegt bestanden toe aan de map welke als verwijderd gemarkeerd zijn maar nog steeds hersteld kunnen worden.
+                  De parameter {\bf R} (Herstelbaar) toont alleen de bestanden die als verwijderd zijn gemarkeerd maar nog steeds herstelbaar zijn, elk gemarkeerd met een '-'. Andere bestanden worden niet getoond.
 
                   {\bf bestandspatroon} is een tekenreeks tussen aanhalingstekens (\screentext{"DA*"}) of een tekenreeksexpressie tussen haakjes: (\screentext{DI\$})
 
@@ -4154,7 +4154,7 @@ FONT C : REM COMMODORE-FONT (STANDAARD)
 
                   Voor nieuwe diskettes die nog niet in MEGA65 (1581)-formaat zijn geformatteerd, moet het schijf-ID worden opgegeven met de parameter {\bf I}. Hiermee wordt het formaatcommando overgeschakeld naar een laagformattering, waarbij sector-ID's worden geschreven en alle inhoud wordt gewist. Dit kost enige tijd, omdat elk blok op de diskette wordt geschreven.
 
-                  Indien de parameter {\bf I} wordt weggelaten, wordt een snelle formattering uitgevoerd. Dit is alleen mogelijk als de schijf al is geformatteerd als MEGA65- of 1581-diskette. Een snelle formattering schrijft de nieuwe schijfnaam en wist de bloktoewijzingstabel, waarbij alle blokken als vrij worden gemarkeerd. Het schijf-ID wordt niet gewijzigd en blokken worden niet overschreven, zodat de inhoud kan worden hersteld met {\bf ERASE R}. U kunt meer lezen over {\bf ERASE} op bladzijde \pageref{BASIC 65 Commands!ERASE}.
+                  Indien de parameter {\bf I} wordt weggelaten, wordt een snelle formattering uitgevoerd. Dit is alleen mogelijk als de schijf al is geformatteerd als MEGA65- of 1581-diskette. Een snelle formattering schrijft de nieuwe schijfnaam, wist de eerste directorysector en de bloktoewijzingstabel, en markeert alle blokken als vrij. Het schijf-ID wordt niet gewijzigd. Omdat de directory wordt gewist, kunnen bestanden na een snelle formattering niet meer worden hersteld met {\bf ERASE R}. U kunt meer lezen over {\bf ERASE} op bladzijde \pageref{BASIC 65 Commands!ERASE}.
 
 \item [Voorbeelden:] Gebruik van {\bf FORMAT}
 
@@ -4697,7 +4697,7 @@ PRINT HASBIT($D031,6)
 
                   Voor nieuwe diskettes die nog niet in MEGA65 (1581)-formaat zijn geformatteerd, moet het schijf-ID worden opgegeven met de parameter {\bf I}. Hiermee wordt het formaatcommando overgeschakeld naar een laagformattering, waarbij sector-ID's worden geschreven en alle inhoud wordt gewist. Dit kost enige tijd, omdat elk blok op de diskette wordt geschreven.
 
-                  Indien de parameter {\bf I} wordt weggelaten, wordt een snelle formattering uitgevoerd. Dit is alleen mogelijk als de schijf al is geformatteerd als MEGA65- of 1581-diskette. Een snelle formattering schrijft de nieuwe schijfnaam en wist de bloktoewijzingstabel, waarbij alle blokken als vrij worden gemarkeerd. Het schijf-ID wordt niet gewijzigd en blokken worden niet overschreven, zodat de inhoud kan worden hersteld met {\bf ERASE R}. U kunt meer lezen over {\bf ERASE} op bladzijde \pageref{BASIC 65 Commands!ERASE}.
+                  Indien de parameter {\bf I} wordt weggelaten, wordt een snelle formattering uitgevoerd. Dit is alleen mogelijk als de schijf al is geformatteerd als MEGA65- of 1581-diskette. Een snelle formattering schrijft de nieuwe schijfnaam, wist de eerste directorysector en de bloktoewijzingstabel, en markeert alle blokken als vrij. Het schijf-ID wordt niet gewijzigd. Omdat de directory wordt gewist, kunnen bestanden na een snelle formattering niet meer worden hersteld met {\bf ERASE R}. U kunt meer lezen over {\bf ERASE} op bladzijde \pageref{BASIC 65 Commands!ERASE}.
 
 \item [Voorbeelden:] Gebruik van {\bf HEADER}
 
@@ -7315,6 +7315,8 @@ Indien het adres in het bereik van \$0000 tot \$FFFF (0 -- 65535) valt, wordt de
 
                   Het aantal \#-tekens bepaalt de breedte van de uitvoer. Indien het eerste teken van de formatstring een gelijkteken ({\bf =}) is, wordt het argument gecentreerd. Indien het eerste teken een groter-dan-teken ({\bf >}) is, wordt het argument rechts uitgelijnd.
 
+                  Bij een {\bf F}-patroon in C-stijl telt de {\bf breedte} de cijfers mee, maar niet het decimaalteken, zodat \texttt{\%6.4F} zeven tekens afdrukt en \texttt{\%7.2F} acht tekens. Dit verschilt van C, waar de breedte het decimaalteken wel meetelt.
+
                   Bij een patroon in C-stijl kan met een voorloop-nul worden gewerkt in plaats van spaties, door de {\bf breedte} van een '0' te laten voorafgaan, zoals: \texttt{\%07.2F} Voorloopnullen worden verwijderd indien de waarde negatief is. Velden na het decimaalteken en hexadecimale patronen worden standaard links met nullen aangevuld.
 
 \newpage
@@ -7324,7 +7326,7 @@ Indien het adres in het bereik van \$0000 tot \$FFFF (0 -- 65535) valt, wordt de
 \verbatimfont{\codefont}
 \begin{verbatim}
 PRINT USING "##.##"; ~, USING " [%6.4F] "; SQR(2)
- 3.14 [1.4142]
+ 3.14 [ 1.4142]
 
 PRINT USING " < # # # > ";12*31
  < 3 7 2 >
@@ -9812,7 +9814,7 @@ READY.
 
                   \unitdefinition
 
-\item [Opmerkingen:]  {\bf TYPE} kan niet worden gebruikt om BASIC-programma's af te drukken. Gebruik {\bf LIST} voor programma's. {\bf TYPE} kan alleen {\bf SEQ}- of {\bf USR}-bestanden verwerken die PETSCII-tekst bevatten, gescheiden door het CR-teken (carriage return). Het CR-teken kan naar een bestand worden geschreven met {\bf CHR\$(13)}.
+\item [Opmerkingen:]  {\bf TYPE} kan niet worden gebruikt om BASIC-programma's af te drukken. Gebruik {\bf LIST} voor programma's. {\bf TYPE} kan alleen {\bf SEQ}-bestanden verwerken die PETSCII-tekst bevatten, gescheiden door het CR-teken (carriage return). Het CR-teken kan naar een bestand worden geschreven met {\bf CHR\$(13)}. {\bf TYPE} opent het bestand als een {\bf SEQ}-bestand, dus een {\bf USR}-bestand geeft \screentext{64,FILE TYPE MISMATCH}; lees het met {\bf DOPEN\#} en het bestandsnaamsuffix \screentext{",U"}.
 
                   Zie het {\bf EDIT}-commando voor een manier om tekstbestanden interactief te maken en aan te passen.
 

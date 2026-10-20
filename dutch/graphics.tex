@@ -253,12 +253,17 @@ Laten we beginnen met het schrijven van een eenvoudig BASIC-programmaatje om hir
 
 Zoals u op de afbeelding op de vorige bladzijde heeft gezien, verdeelt de VIC-chip het geheugen in 4 videobanken van elk 16KB. Het is belangrijk te begrijpen dat u geen register van de VIC gebruikt om de videobank binnen (geheugen-)bank 0 te definiëren; in plaats daarvan gebruikt u de databits 0 en 1 van \$DD00 of decimaal 56576. Dit was ooit een register van de CIA-2-chip in de Commodore 64, maar in uw MEGA65 is het geïmplementeerd als virtueel register. De ``voorbereiding'' die nodig is om de videobank in te stellen, gebeurt in regel 30, terwijl in de daaropvolgende regel de videobank zelf wordt ingesteld. Overigens geldt: als u de decimale waarde 3 (regel 30) omzet naar binair formaat, is dat 00000011 en dat bewijst dat de databits 0 en 1 op 1 staan, zodat lezen en schrijven is geactiveerd.
 
+{\small
 \begin{tabular}{|c|c|l|l|}
 	\hline
 	Bits & VIC-bank & Geheugengebied & BASIC \\
 	\hline
-	 \textbf{00} & 3 & \$C000-\$FFFF & ... AND 252 OR 0 :REM AND 11111100 OR 000000\textbf{00} \\	 \textbf{01} & 2 & \$8000-\$BFFF & ... AND 252 OR 1 :REM AND 11111100 OR 000000\textbf{01} \\	 \textbf{10} & 1 & \$4000-\$7FFF & ... AND 252 OR 2 :REM AND 11111100 OR 000000\textbf{10} \\	 \textbf{11} & 0 & \$0000-\$3FFF & ... AND 252 OR 3 :REM AND 11111100 OR 000000\textbf{11} \\
+	 \textbf{00} & 3 & \$C000-\$FFFF & ... AND 252 OR 0 :REM AND 11111100 OR 000000\textbf{00} \\
+	 \textbf{01} & 2 & \$8000-\$BFFF & ... AND 252 OR 1 :REM AND 11111100 OR 000000\textbf{01} \\
+	 \textbf{10} & 1 & \$4000-\$7FFF & ... AND 252 OR 2 :REM AND 11111100 OR 000000\textbf{10} \\
+	 \textbf{11} & 0 & \$0000-\$3FFF & ... AND 252 OR 3 :REM AND 11111100 OR 000000\textbf{11} \\
 	\hline
 \end{tabular}
+}
 
 De tabel toont welke bits moeten worden ingesteld om een videobank te selecteren.

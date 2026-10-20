@@ -42,7 +42,11 @@ OUT_EXT = (
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-LANGDIR = os.path.dirname(HERE)   # the language subdir (dutch/, ...)
+# De taalmap waarin de .fls-bestanden van de boekbuilds staan. Standaard is
+# dat de map waarin dit script staat (dutch/); de Duitse Makefile roept het
+# script aan vanuit german/ en geeft daarom M65_LANGDIR=german mee.
+LANGDIR = os.environ.get('M65_LANGDIR') or os.path.dirname(HERE)
+LANGDIR = os.path.abspath(LANGDIR)
 ROOT = os.path.dirname(LANGDIR)
 BUILD_DIR = os.path.join(LANGDIR, 'build')
 

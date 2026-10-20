@@ -45,7 +45,7 @@ betekent dat WAARDE op de STAPEL wordt geplaatst en de SP wordt verlaagd met het
 
 In de tegenovergestelde richting geldt voor een bewerking als
 \begin{quote}
-  MEMORY $or$ REGISTER $\leftarrow$ STAPEL
+  MEMORY $of$ REGISTER $\leftarrow$ STAPEL
 \end{quote}
 dat gegevens van de STAPEL worden opgehaald en de SP met elke verwijderde byte wordt verhoogd.
 
@@ -60,19 +60,19 @@ Bij deze methode zijn er geen operanden, omdat de exacte functie van de instruct
 
 \subsection{Accumulator}
 
-Bij deze methode is de Accumulator het operand. Dit wordt doorgaans gebruikt om de waarde van het accumulatorregister te verschuiven, te roteren of op een andere manier aan te passen. \screentext{INC A} verhoogt bijvoorbeeld de waarde in het accumulatorregister.
+Bij deze methode is de Accumulator de operand. Dit wordt doorgaans gebruikt om de waarde van het accumulatorregister te verschuiven, te roteren of op een andere manier aan te passen. \screentext{INC A} verhoogt bijvoorbeeld de waarde in het accumulatorregister.
 
-\subsection{Q Pseudo Register}
+\subsection{Het pseudoregister Q}
 
-Bij deze methode is het Q Pseudo Register het operand. Dit wordt doorgaans gebruikt om de waarde van het Q Pseudo Register te verschuiven, te roteren of op een andere manier aan te passen. \screentext{ASLQ} verschuift bijvoorbeeld de waarde in het Q Pseudo Register één bit naar links.
+Bij deze methode is het pseudoregister Q de operand. Dit wordt doorgaans gebruikt om de waarde van het pseudoregister Q te verschuiven, te roteren of op een andere manier aan te passen. \screentext{ASLQ} verschuift bijvoorbeeld de waarde in het pseudoregister Q één bit naar links.
 
-Onthoud dat het Q Pseudo Register eenvoudigweg de A-, X-, Y- en Z-registers zijn die samenwerken als een virtueel 32-bits register, waarbij A de minst significante bits bevat en Z de meest significante bits. Wanneer u Q aanpast, past u de daadwerkelijke registers aan, en op dezelfde manier verandert het aanpassen van een daadwerkelijk register het desbetreffende deel van het Q-register.
+Onthoud dat het pseudoregister Q eenvoudigweg de A-, X-, Y- en Z-registers zijn die samenwerken als een virtueel 32-bits register, waarbij A de minst significante bits bevat en Z de meest significante bits. Wanneer u Q aanpast, past u de daadwerkelijke registers aan, en op dezelfde manier verandert het aanpassen van een daadwerkelijk register het desbetreffende deel van het Q-register.
 
 Er zijn enkele gevallen waarin het gebruik van een Q-modusinstructie nuttig kan zijn voor het bewerken van de vier daadwerkelijke registers, bijvoorbeeld om alle vier de registers snel te laden of op te slaan.
 
 \subsection{Immediate-modus}
 
-In deze modus is het argument van de instructie een waarde die direct wordt gebruikt. Dit wordt aangegeven door de waarde te laten voorafgaan door een \#-teken. De meeste assemblers staan toe dat waarden worden ingevoerd in decimaal, of in hexadecimaal door de waarde te laten voorafgaan door een \$-teken, of in binair door de waarde te laten voorafgaan door een \%-teken. Om bijvoorbeeld het accumulatorregister op de waarde 5 te zetten, kunt u het volgende gebruiken:
+In deze modus is het argument van de instructie een waarde die rechtstreeks wordt gebruikt. Dit wordt aangegeven door de waarde te laten voorafgaan door een \#-teken. De meeste assemblers staan toe dat waarden worden ingevoerd in decimaal, of in hexadecimaal door de waarde te laten voorafgaan door een \$-teken, of in binair door de waarde te laten voorafgaan door een \%-teken. Om bijvoorbeeld het accumulatorregister op de waarde 5 te zetten, kunt u het volgende gebruiken:
 
 \begin{screencode}
 LDA #5
@@ -114,7 +114,7 @@ Het argument wordt gecodeerd als een enkel byte dat direct na de opcode van de i
 LDQ $12
 \end{screencode}
 
-zou de waarden lezen die zijn opgeslagen in de locaties \$12 -- \$15 in de Base-Page en deze in het Q Pseudo Register plaatsen. De instructiestroom hiervoor zou \$42 \$42 \$85 \$12 zijn. Merk op dat dit hetzelfde is als bij de Base-Page-modus (Zero-Page), met als toevoeging de twee \$42-prefixbytes. Opcode \$42 is normaal gesproken NEG (het negatief maken van de waarde in het A-register). Indien deze twee keer achter elkaar wordt uitgevoerd, keert de A-waarde terug naar zijn oorspronkelijke waarde. De 45GS02-processor beschikt over speciale logica om deze reeks te herkennen, zodat hij weet dat de volgende instructie met behulp van het Q Pseudo Register moet worden uitgevoerd.
+zou de waarden lezen die zijn opgeslagen in de locaties \$12 -- \$15 in de Base-Page en deze in het pseudoregister Q plaatsen. De instructiestroom hiervoor zou \$42 \$42 \$85 \$12 zijn. Merk op dat dit hetzelfde is als bij de Base-Page-modus (Zero-Page), met als toevoeging de twee \$42-prefixbytes. Opcode \$42 is normaal gesproken NEG (het negatief maken van de waarde in het A-register). Indien deze twee keer achter elkaar wordt uitgevoerd, keert de A-waarde terug naar zijn oorspronkelijke waarde. De 45GS02-processor beschikt over speciale logica om deze reeks te herkennen, zodat hij weet dat de volgende instructie met behulp van het Q Pseudo Register moet worden uitgevoerd.
 
 Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page.
 
@@ -366,7 +366,7 @@ Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer inform
 \subsection{32-bits Base-Page-indirecte Z-geïndexeerde modus}
 \label{32-bit Base-Page (Zero-Page) Indirect Z-Indexed Mode}
 
-Deze modus ontstaat door een Base-Page-indirecte Z-geïndexeerde instructie te laten voorafgaan door de {NOP}-instructie (opcode \$EA). Hierdoor leest de 45GS02 in plaats van een 16-bits adres een 32-bits adres uit het Base-Page-adres dat door het operand wordt aangegeven. De Z-index wordt bij die pointer opgeteld. Belangrijk is dat het 32-bits adres niet verwijst naar het huidige 64KB-geheugenbeeld van de processor, maar naar de werkelijke 28-bits adresruimte van de 45GS02. Hierdoor is elk geheugengebied eenvoudig toegankelijk, zonder dat complexe bank-switching- of DMA-operaties nodig zijn.
+Deze modus ontstaat door een Base-Page-indirecte Z-geïndexeerde instructie te laten voorafgaan door de {NOP}-instructie (opcode \$EA). Hierdoor leest de 45GS02 in plaats van een 16-bits adres een 32-bits adres uit het Base-Page-adres dat door de operand wordt aangegeven. De Z-index wordt bij die pointer opgeteld. Belangrijk is dat het 32-bits adres niet verwijst naar het huidige 64KB-geheugenbeeld van de processor, maar naar de werkelijke 28-bits adresruimte van de 45GS02. Hierdoor is elk geheugengebied eenvoudig toegankelijk, zonder dat complexe bank-switching- of DMA-operaties nodig zijn.
 
 Indien adressen \$12 tot \$15 de bytes \$20, \$30, \$FD, \$0F bevatten, wat het 32-bits adres \$FFD3020 weergeeft, d.w.z. het natuurlijke adres van het randkleurregister van de VIC-IV, en de Z-index de waarde \$01 bevat, zou de volgende instructiesequentie de schermkleur op blauw zetten, omdat zich het schermkleurregister op \$FFD3021 bevindt, dus \$FFD3020 + Z:
 
@@ -395,7 +395,7 @@ Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer inform
 
 \subsection{Stapelrelatieve indirecte Y-geïndexeerde modus}
 
-Deze adresseermethode lijkt op de Base-Page-indirecte Y-geïndexeerde modus, met als uitzondering dat het operand in plaats van het adres van de pointer in de Base-Page de offset in de stapel aangeeft om de pointer te vinden. Deze adresseermethode derefereert effectief een pointer die op de stapel is geplaatst, bijv. als onderdeel van een functieaanroep vanuit een hogere programmeertaal. De codering is identiek aan die van de Base-Page-modus.
+Deze adresseermethode lijkt op de Base-Page-indirecte Y-geïndexeerde modus, met als uitzondering dat de operand in plaats van het adres van de pointer in de Base-Page de offset in de stapel aangeeft om de pointer te vinden. Deze adresseermethode derefereert effectief een pointer die op de stapel is geplaatst, bijv. als onderdeel van een functieaanroep vanuit een hogere programmeertaal. De codering is identiek aan die van de Base-Page-modus.
 
 Bijvoorbeeld,
 
@@ -409,7 +409,7 @@ Indien de stapelaanwijzer momenteel naar \$01E0 wijst, wordt het pointeradres ge
 
 \subsection{Relatieve adresseermethode}
 
-Bij deze adresseermethode is het operand een 8-bits teken-offset ten opzichte van de huidige waarde van de programmateller (PC). Hiermee kunnen vertakkingen het nabije adres coderen waar de uitvoering wordt voortgezet indien de vertakking wordt gevolgd.
+Bij deze adresseermethode is de operand een 8-bits teken-offset ten opzichte van de huidige waarde van de programmateller (PC). Hiermee kunnen vertakkingen het nabije adres coderen waar de uitvoering wordt voortgezet indien de vertakking wordt gevolgd.
 
 Bijvoorbeeld,
 

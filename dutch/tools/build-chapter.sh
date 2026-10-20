@@ -39,12 +39,15 @@ ${EXTRA}
 EOF
 
 echo "==> bouwen van ${CHAPTER} (${MODE})"
-latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" \
+# -outdir zet de buildgegevens in dutch/; anders zouden de Nederlandse en
+# Duitse hoofdstukbuilds elkaars .fdb_latexmk in de repo-root overschrijven
+# en de tweede build stiekem overslaan.
+latexmk -pdf -outdir=dutch -pdflatex="xelatex -interaction=nonstopmode" \
     "$WRAPPER" 2>&1 | tail -n 25
 
 LOG="dutch/build/${CHAPTER}-build.log"
-if [ -f "${CHAPTER}-build.log" ]; then
-    mv -f "${CHAPTER}-build.log" "$LOG" 2>/dev/null || true
+if [ -f "dutch/${CHAPTER}-build.log" ]; then
+    mv -f "dutch/${CHAPTER}-build.log" "$LOG" 2>/dev/null || true
 fi
 echo "==> log: $LOG"
 

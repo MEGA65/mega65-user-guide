@@ -18,20 +18,29 @@ cd "$ROOT"
 export BSTINPUTS="$ROOT/dutch:"
 
 if [ "$MODE" = "src" ]; then
+    # Engelse bron: eigen jobname, de uitvoer blijft in de repo-root.
     WRAPPER="dutch/build/${BOOK}-build.tex"
     printf '\\def\\printmanual{true}\n\\input{%s}\n\\end{document}\n' "$BOOK" > "$WRAPPER"
+    OUTDIR=""
+    LOGSRC="${BOOK}-build.log"
 else
-    WRAPPER="dutch/build/${BOOK}-build.tex"
+    # Vertaling: dezelfde jobname en uitvoermap als de Makefile-route, zodat
+    # er per taal één aux is (dutch/mega65-book.aux) en de twee routes
+    # elkaars buildgegevens niet overschrijven. Die aux bepaalt de titels
+    # en paginanummers in de kruisverwijzingen van de deelboeken.
+    WRAPPER="dutch/build/${BOOK}.tex"
     printf '\\input{dutch/%s}\n\\end{document}\n' "$BOOK" > "$WRAPPER"
+    OUTDIR="-outdir=dutch"
+    LOGSRC="dutch/${BOOK}.log"
 fi
 
 echo "==> bouwen van ${BOOK} (${MODE})"
-latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" \
+latexmk -pdf $OUTDIR -pdflatex="xelatex -interaction=nonstopmode" \
     "$WRAPPER" 2>&1 | tail -n 25
 
 LOG="dutch/build/${BOOK}-build.log"
-if [ -f "${BOOK}-build.log" ]; then
-    mv -f "${BOOK}-build.log" "$LOG" 2>/dev/null || true
+if [ -f "$LOGSRC" ]; then
+    mv -f "$LOGSRC" "$LOG" 2>/dev/null || true
 fi
 echo "==> log: $LOG"
 

@@ -98,13 +98,15 @@
 \usepackage{adjustbox}
 
 % Deelboeken verwijzen naar de Nederlandse titels van het grote boek; die
-% staan in de aux van de build met jobname mega65-book-build (dutch/tools/
-% build-book.sh mega65-book). Bestaat die nog niet, dan valt het terug op de
-% Engelse aux van de Makefile-build. Herbouw na wijzigingen aan het grote
-% boek eerst het grote boek, anders staan de titels/paginanummers verouderd
-% in de deelboeken.
-\IfFileExists{mega65-book-build.aux}%
-  {\externaldocument[M65Book-]{mega65-book-build}}%
+% staan in dutch/mega65-book.aux, de aux van de build van het grote boek.
+% Zowel de Makefile-route (make -C dutch mega65-book) als de scriptroute
+% (dutch/tools/build-book.sh mega65-book) schrijven die aux daar neer, dus
+% er is per taal één bron. Bestaat die nog niet, dan valt de header terug
+% op de Engelse aux. Herbouw na wijzigingen aan het grote boek eerst het
+% grote boek, anders staan de titels/paginanummers verouderd in de
+% deelboeken.
+\IfFileExists{dutch/mega65-book.aux}%
+  {\externaldocument[M65Book-]{dutch/mega65-book}}%
   {\externaldocument[M65Book-]{mega65-book}}
 % And a \ref alternative that checks if it needs to be a cross-reference to the
 % MEGA65 Book instead.

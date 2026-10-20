@@ -1,11 +1,10 @@
-Break to Interrupt
-SP $\leftarrow$ SP $-$ 2, STACK $\leftarrow$ PC $+$ 2, PC $\leftarrow$ (\$FFFE)
+SP $\leftarrow$ SP $-$ 2, STAPEL $\leftarrow$ PC $+$ 2, PC $\leftarrow$ (\$FFFE)
 M+
-De break-instructie zorgt ervoor dat de microprocessor, onder programmabesturing, een interruptsequentie doorloopt. Het adres van de BRK-instructie + 2 wordt samen met het statusregister, met de break-vlag gezet, op de stack geplaatst. Hierdoor kan de interruptserviceroutine onderscheid maken tussen IRQ-gebeurtenissen en BRK-gebeurtenissen. Bijvoorbeeld:
+De break-instructie zorgt ervoor dat de microprocessor, onder programmabesturing, een interruptsequentie doorloopt. Het adres van de BRK-instructie + 2 wordt samen met het statusregister, met de break-vlag gezet, op de stapel geplaatst. Hierdoor kan de interruptserviceroutine onderscheid maken tussen IRQ-gebeurtenissen en BRK-gebeurtenissen. Bijvoorbeeld:
 
 \begin{verbatim}
    PLA           ; laad het statusregister
-   PHA           ; herstel de stack
+   PHA           ; herstel de stapel
    AND #$10      ; maskeer de break-vlag
    BNE DO_BREAK  ; -> het was een BRK
    ...           ; anders door met de IRQ-server
@@ -15,4 +14,4 @@ Geciteerd uit: MCS6500 Microcomputer Family Programming Manual, januari 1976, tw
 
 "De BRK is een instructie van één byte en de adresseermethode ervan is Implied."
 
-Er wordt gediscussieerd over de vraag of BRK kan worden beschouwd als een instructie van twee bytes met de immediate-adresseermethode, waarbij het operand-byte wordt weggegooid. Het byte na de BRK zou dan als oproepargument voor de break-handler kunnen dienen. Commodore gebruikte echter de BRK, zoals in de handleiding vermeld, als een instructie van één byte, die in de ML-monitor breekt als deze aanwezig is. Deze ingebouwde monitors verlaagden de op de stack geplaatste PC, zodat deze kon worden gebruikt om direct terug te keren naar of te springen naar het code-byte na de BRK.
+Er wordt gediscussieerd over de vraag of BRK kan worden beschouwd als een instructie van twee bytes met de immediate-adresseermethode, waarbij het operand-byte wordt weggegooid. Het byte na de BRK zou dan als oproepargument voor de break-handler kunnen dienen. Commodore gebruikte echter de BRK, zoals in de handleiding vermeld, als een instructie van één byte, die in de ML-monitor breekt als deze aanwezig is. Deze ingebouwde monitors verlaagden de op de stapel geplaatste PC, zodat deze kon worden gebruikt om direct terug te keren naar of te springen naar het code-byte na de BRK.

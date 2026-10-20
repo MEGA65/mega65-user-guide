@@ -1,5 +1,5 @@
 Increment Memory or Accumulator
-A $\leftarrow$ A + 1 $or$ M $\leftarrow$ M + 1
+A $\leftarrow$ A + 1 $of$ M $\leftarrow$ M + 1
 N+Z+M+
 Deze instructie verhoogt het accumulatorregister of de aangegeven geheugenlocatie met één.\subsubsection*{Neveneffecten}
 \begin{itemize}

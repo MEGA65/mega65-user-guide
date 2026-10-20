@@ -35,19 +35,19 @@ De rest van dit hoofdstuk introduceert de adresseermethoden, instructies, opcode
 
 \section{Stapelbewerkingen}
 
-De stapel is een gebied in het geheugen waar u gegevens op kunt plaatsen of de laatste gegevens van kunt ophalen (pop). Elke stapelbewerking die gegevens op de stapel plaatst (push) verlaagt de stackpointer (SP) (de stapel begint aan de bovenkant van het gebied en groeit naar onderen), en elke stapelbewerking die gegevens van de stapel afneemt (pop) verhoogt de SP.
+De stapel (Engels: {\em stack}) is een gebied in het geheugen waar u gegevens op kunt plaatsen of de laatste gegevens van kunt ophalen (pop). Elke stapelbewerking die gegevens op de stapel plaatst (push) verlaagt de stapelaanwijzer (SP, {\em stack pointer}) en elke stapelbewerking die gegevens van de stapel afneemt (pop) verhoogt de SP. De stapel begint namelijk aan de bovenkant van het gebied en groeit naar onderen.
 
-Wanneer u zoiets tegenkomt als
+Wanneer u iets tegenkomt als
 \begin{quote}
-  STACK $\leftarrow$ VALUE
+  STAPEL $\leftarrow$ WAARDE
 \end{quote}
-betekent dat VALUE op de STACK wordt geplaatst en de SP wordt verlaagd met het aantal bytes dat VALUE groot is. Bij het plaatsen van meer dan één byte wordt eerst de meest significante byte (MSB) geplaatst, gevolgd door de minst significante byte (LSB). (\screentext{PHW} is een uitzondering: die plaatst de LSB eerst.)
+betekent dat WAARDE op de STAPEL wordt geplaatst en de SP wordt verlaagd met het aantal bytes dat WAARDE groot is. Bij het plaatsen van meer dan één byte wordt eerst de meest significante byte (MSB) geplaatst, gevolgd door de minst significante byte (LSB). (\screentext{PHW} is een uitzondering: die plaatst de LSB eerst.)
 
 In de tegenovergestelde richting geldt voor een bewerking als
 \begin{quote}
-  MEMORY $or$ REGISTER $\leftarrow$ STACK
+  MEMORY $or$ REGISTER $\leftarrow$ STAPEL
 \end{quote}
-dat gegevens van de STACK worden opgehaald en de SP met elke verwijderde byte wordt verhoogd.
+dat gegevens van de STAPEL worden opgehaald en de SP met elke verwijderde byte wordt verhoogd.
 
 \section{Adresseermethoden}
 \label{sec:addressing-modes}
@@ -393,9 +393,9 @@ zou de geheugenlocaties \$12 tot \$15 uit de Base-Page lezen en die waarden gebr
 
 Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Mode} voor meer informatie over Base-Page en Zero-Page. Zie de opmerking op pagina \pageref{Base-Page (Zero-Page) Quad Mode} voor meer informatie over instructies in de Quad-modus. Zie de opmerking op pagina \pageref{32-bit Base-Page (Zero-Page) Indirect Z-Indexed Mode} voor meer informatie over 32-bits Base-Page-indirecte adressering.
 
-\subsection{Stackrelatieve indirecte Y-geïndexeerde modus}
+\subsection{Stapelrelatieve indirecte Y-geïndexeerde modus}
 
-Deze adresseermethode lijkt op de Base-Page-indirecte Y-geïndexeerde modus, met als uitzondering dat het operand in plaats van het adres van de pointer in de Base-Page de offset in de stack aangeeft om de pointer te vinden. Deze adresseermethode derefereert effectief een pointer die op de stack is geplaatst, bijv. als onderdeel van een functieaanroep vanuit een hogere programmeertaal. De codering is identiek aan die van de Base-Page-modus.
+Deze adresseermethode lijkt op de Base-Page-indirecte Y-geïndexeerde modus, met als uitzondering dat het operand in plaats van het adres van de pointer in de Base-Page de offset in de stapel aangeeft om de pointer te vinden. Deze adresseermethode derefereert effectief een pointer die op de stapel is geplaatst, bijv. als onderdeel van een functieaanroep vanuit een hogere programmeertaal. De codering is identiek aan die van de Base-Page-modus.
 
 Bijvoorbeeld,
 
@@ -403,9 +403,9 @@ Bijvoorbeeld,
 LDA ($12,SP),Y
 \end{screencode}
 
-Dit zou de inhoud van het geheugen op de huidige stackpointer plus \$12 gebruiken om het adres van de pointer te berekenen. Aan deze pointer wordt vervolgens de waarde van het Y-register opgeteld om het uiteindelijke adres te verkrijgen waaruit wordt gelezen en om de waarde in het accumulatorregister op te slaan. De byte-stroom van deze instructie is \$E2 \$12.
+Dit zou de inhoud van het geheugen op de huidige stapelaanwijzer plus \$12 gebruiken om het adres van de pointer te berekenen. Aan deze pointer wordt vervolgens de waarde van het Y-register opgeteld om het uiteindelijke adres te verkrijgen waaruit wordt gelezen en om de waarde in het accumulatorregister op te slaan. De byte-stroom van deze instructie is \$E2 \$12.
 
-Indien de stackpointer momenteel naar \$01E0 wijst, wordt het pointeradres gelezen van adressen \$1F2 en \$1F3, dus de twee bytes op \$1E0 + \$12 en \$1E0 + \$13. Indien de locaties \$1F2 en \$1F3 respectievelijk \$78 en \$56 bevatten en het Y-register de waarde \$34 bevat, zou de uiteindelijke geheugenlocatie die wordt gelezen \$5678 + \$34 = \$56AC zijn en wordt de inhoud van die geheugenlocatie in het accumulatorregister geladen.
+Indien de stapelaanwijzer momenteel naar \$01E0 wijst, wordt het pointeradres gelezen van adressen \$1F2 en \$1F3, dus de twee bytes op \$1E0 + \$12 en \$1E0 + \$13. Indien de locaties \$1F2 en \$1F3 respectievelijk \$78 en \$56 bevatten en het Y-register de waarde \$34 bevat, zou de uiteindelijke geheugenlocatie die wordt gelezen \$5678 + \$34 = \$56AC zijn en wordt de inhoud van die geheugenlocatie in het accumulatorregister geladen.
 
 \subsection{Relatieve adresseermethode}
 
@@ -478,21 +478,24 @@ De letters die aan het aantal cycli zijn toegevoegd, hebben de volgende betekeni
 
 \subsection{Instructietiming}
 
-Merk op dat het aantal cycli afhangt van de snelheidsinstelling van de processor: sommige instructies nemen meer of minder cycli wanneer de processor op volle snelheid draait, op een C65-compatibele 3.5 MHz-snelheid of op een C64-compatibele 1 MHz/2 MHz-snelheid. Meer gedetailleerde informatie hierover staat vermeld bij de informatie van elke instructie, maar het overzicht op hoofdlijnen is:
+Merk op dat het aantal cycli afhangt van de snelheidsinstelling van de processor: sommige instructies nemen meer of minder cycli wanneer de processor op volle snelheid draait, op een C65-compatibele 3.5 MHz-snelheid of op een C64-compatibele 1 MHz/2 MHz-snelheid. Meer gedetailleerde informatie hierover staat vermeld bij de beschrijving van elke instructie, maar het overzicht op hoofdlijnen is:
 
 \begin{itemize}
-\item Wanneer de processor op 1 MHz draait, nemen alle instructies ten minste twee cycli en worden er dummy-cycli opnieuw ingevoegd in de Read-Modify-Write-instructies, zodat alle instructies exact hetzelfde aantal cycli nemen als op een 6502.\item De Read-Modify-Write-instructies en alle instructies die een waarde uit het geheugen lezen, vereisen allemaal een extra cyclus wanneer zij op volle snelheid draaien, om de signalen de gelegenheid te geven zich binnen de processor te verplaatsen.\item De Read-Modify-Write-instructies vereisen een extra cyclus wanneer de operand \$D019 is, omdat de dummy-schrijfbewerking in dat geval wordt uitgevoerd. Dit dient om de compatibiliteit te verbeteren met C64-software die deze ``bug'' van de 6502 vaak gebruikt om VIC-II-interrupts sneller te bevestigen.\item De straffen voor paginagrensoverschrijding en branch-neming zijn niet van toepassing wanneer de processor op volle snelheid draait.\item Veel instructies vereisen minder cycli wanneer de processor op volle snelheid draait, omdat over het algemeen de meeste niet-bus-cycli worden verwijderd. Het duwen en halen van waarden van en naar de stack vereist slechts 2 cycli in plaats van de 4 die de 6502 voor dergelijke instructies nodig heeft.
+\item Wanneer de processor op 1 MHz draait, duren alle instructies ten minste twee cycli en worden er dummy-cycli opnieuw ingevoegd in de Read-Modify-Write-instructies, zodat alle instructies exact hetzelfde aantal cycli duren als op een 6502.
+\item De Read-Modify-Write-instructies en alle instructies die een waarde uit het geheugen lezen, vereisen allemaal een extra cyclus wanneer zij op volle snelheid draaien, om de signalen de gelegenheid te geven zich binnen de processor te verplaatsen.
+\item De Read-Modify-Write-instructies vereisen een extra cyclus wanneer de operand \$D019 is, omdat de dummy-schrijfoperatie in dat geval wordt uitgevoerd. Dit dient om de compatibiliteit te verbeteren met C64-software die deze ``bug'' van de 6502 vaak gebruikt om VIC-II-interrupts sneller te bevestigen.
+\item De strafcycli voor paginagrensoverschrijding en het nemen van branches zijn niet van toepassing wanneer de processor op volle snelheid draait.\item Veel instructies vereisen minder cycli wanneer de processor op volle snelheid draait, omdat de niet-bus-cycli over het algemeen worden verwijderd. Het plaatsen op en halen van waarden van en naar de stapel vereist slechts 2 cycli in plaats van de 4 die de 6502 voor dergelijke instructies nodig heeft.
 \end{itemize}
 
 \subsection{Opcodetabel}
 
-De gekleurde cellen duiden een uitgebreide 45GS02-opcode aan. Een opcode met het Q Pseudo Register is blauw gemarkeerd en een Base-Page-indirecte, Z-geïndexeerde opcode die gebruik kan maken van 32-bits pointers is cyaan.
+De gekleurde cellen duiden een uitgebreide 45GS02-opcode aan. Een opcode met het pseudoregister Q is blauw gemarkeerd en een Base-Page-indirecte, Z-geïndexeerde opcode die gebruik kan maken van 32-bits pointers is cyaan.
 
 \begin{center}
   \begin{tabular}{c|c|c|c|}
     \cline{2-4}
     & \$x0 & \$x1 & \$x2 \\\hline
-    \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{mode}{size}{cyc} & \OPquad\OPCQ{QOP}{mode}{size}{cyc} & \OPfarq\OPCQ{FARQ}{IbpZ}{size}{cyc} \\\hline
+    \multicolumn{1}{|c|}{\$0x} & \OPC{OPC}{modus}{bytes}{cyc} & \OPquad\OPCQ{QOP}{modus}{bytes}{cyc} & \OPfarq\OPCQ{FARQ}{IbpZ}{bytes}{cyc} \\\hline
   \end{tabular}
 \end{center}
 

@@ -7,7 +7,7 @@ designed specially for the MEGA65 and for 8-bit computers generally.
 In addition to supporting 100Mbit Fast Ethernet, it is radically
 different from other Ethernet controllers, such as the RR-NET.
 
-The 45E100 includes four receive buffers, allowing upto three frames to be
+The 45E100 includes 32 receive buffers on MEGA65 R3 and later boards (other boards may have fewer, e.g., four on the Nexys4 DDR), allowing up to 31 frames to be
 received while another is being processed, or to allow less frequent processing of interrupts.
 These receive buffers can be memory mapped, and also directly accessed using the MEGA65's DMA controller.
 Together with automatic CRC32 checking on reception, and automatic CRC32 generation for transmit, these features considerably
@@ -46,7 +46,7 @@ kilobytes per second.
 In contrast, the 45E100 supports both RX (Ethernet frame received) interrupts and TX
 (ready to transmit) interrupts, freeing the processor from having to poll
 the device. Because the 45E100 supports RX interrupts, there is no need for large
-numbers of receive buffers, which is why the 45E100 requires only two RX buffers
+numbers of receive buffers, which is why the 45E100 requires only a small number of RX buffers
 to achieve very high levels of performance.
 
 Further, the 45E100 supports direct memory mapping of the
@@ -68,7 +68,7 @@ has been received, write \$01 to \$D6E1, and then \$03 to \$D6E1.  This will rot
 buffers, to make the next received frame accessible by the processor. The receive buffer that was previously
 accessible by the processor is marked free, and the 45E100 will use it to receive another ethernet frame when required.
 
-Because the 45E100 has four receive buffers, it is possible that to process multiple frames in succession by
+Because the 45E100 has several receive buffers, it is possible that to process multiple frames in succession by
 following this procedure. If all receive buffers contain received frames, and the processor has not accepted them, then
 the RXBLKD signal will be asserted, so that the processor knows that it if any more frames are received, they will be lost.
 Programmers should take care to avoid this situation.  As the 45E100 supports receive interrupts, this is generally easy
@@ -109,7 +109,7 @@ The layout of the receive buffers is thus as follows:
 \endlastfoot
 \small  0000 & \small 0 & 1 & The low byte of the length of the received ethernet frame. \\
 \hline
-\small  0001 & \small 1 & 1 & The lower four bits contain the upper bits of the length of the received ethernet frame.  Bit 4 is set if the received ethernet frame is a multi-cast frame. Bit 5 if it is a broadcast frame. Bit 6 is set if the frame's destination address matches the 45E100's programmed MAC address. Bit 7 is set if the CRC32 check for the received frame failed, i.e., that the frame is either truncated or was corrupted in transit. \\
+\small  0001 & \small 1 & 1 & Bits 0--2 contain the upper three bits of the length of the received ethernet frame. Bit 3 is always 0.  Bit 4 is set if the received ethernet frame is a multi-cast frame. Bit 5 if it is a broadcast frame. Bit 6 is set if the frame's destination address matches the 45E100's programmed MAC address. Bit 7 is set if the CRC32 check for the received frame failed, i.e., that the frame is either truncated or was corrupted in transit. \\
 \hline
 \small  0002 -- 07FB & \small 2 -- 2,043 & 2,042 & The received frame. Frames shorter than 2,042 bytes will begin at offset 2. \\
 \hline
@@ -129,8 +129,8 @@ Unlike on the RR-NET, the 45E100's ethernet frame buffers are able to be memory 
 or through assembly language programs.  It is also possible to access the buffers from BASIC with some care.
 
 The frame buffers can either be accessed from their natural location in the MEGA65's extended address space at address
-\$FFDE800 -- \$FFDEFFF, or they can be mapped into the normal C64/C65 \$D000 I/O address space.  Care must be
-taken as mapping the ethernet frame buffers into the \$D000 I/O address space causes all other I/O devices to unavailable
+\$FFDE800 -- \$FFDEFFF, or they can be mapped into the normal C64/C65 I/O address space at \$D800 -- \$DFFF.  Care must be
+taken as mapping the ethernet frame buffers into the I/O address space causes all other I/O devices to unavailable
 during this time.  Therefore CIA-based interrupts MUST be disabled before doing so, whether using BASIC or machine code.  Therefore
 when programming in assembly language or machine code, it is recommended to use the natural location, and to access this
 memory area using one of the three mechanisms for accessing extended address space, which are described in \bookvref{sec:extended-memory}.
@@ -154,7 +154,7 @@ Once this has been done, the I/O context for the ethernet controller can be acti
 POKE53295,ASC("E"):POKE53295,ASC("T")
 \end{screencode}
 
-At this point, the ethernet RX buffer can be read beginning at location \$D000 (53248 in decimal), and the TX buffer can be written to at the same address.  Refer to `Theory of Operation: Receiving Frames' above for further explanation on this.
+At this point, the ethernet RX buffer can be read beginning at location \$D800 (55296 in decimal), and the TX buffer can be written to at the same address.  Refer to `Theory of Operation: Receiving Frames' above for further explanation on this.
 
 Once you have finished accessing the ethernet frame buffer, you can restore the normal C64, C65 or MEGA65 I/O context by writing to the VIC-III/IV's KEY register.  In most cases, it will make the most sense to revert to the MEGA65's I/O context by writing \$47 (71 decimal) in and \$53 (83 in decimal) to the KEY register, for example:
 

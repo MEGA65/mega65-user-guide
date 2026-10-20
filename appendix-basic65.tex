@@ -1298,7 +1298,7 @@ BVERIFY (FI$), B(BA%), P(PA), U(UN%)
 
                   The {\bf W} (Wide) parameter lists the directory three columns wide on the screen and pauses after the screen has been filled with a page (63 directory entries). Pressing any key displays the next page.
 
-                  The {\bf R} (Recoverable) parameter includes files in the directory which are flagged as deleted but still recoverable.
+                  The {\bf R} (Recoverable) parameter lists only the files which are flagged as deleted but are still recoverable, each marked with a '-'. Other files are not listed.
 
                   {\bf filepattern} is either a quoted string, for example: \screentext{"DA*"} or a string expression in brackets, e.g. \screentext{(DI\$)}
 
@@ -2602,7 +2602,7 @@ RUN
 
                   The {\bf P} (Pagination) parameter lists the directory one column wide, and pauses for each screenful of output. Press the Q key to interrupt the listing at the current page. Press any other key to display the next page.
 
-                  The {\bf R} (Recoverable) parameter includes files in the directory, which are flagged as deleted but are still recoverable.
+                  The {\bf R} (Recoverable) parameter lists only the files which are flagged as deleted but are still recoverable, each marked with a '-'. Other files are not listed.
 
                   {\bf filepattern} is either a quoted string (\screentext{"DA*"}) or a string expression in brackets: (\screentext{DI\$})
 
@@ -4290,7 +4290,7 @@ FONT C : REM COMMODORE FONT (DEFAULT)
 
                   For new floppy disks which have not already been formatted in MEGA65 (1581) format, it is necessary to specify the disk ID with the {\bf I} parameter. This switches the format command to low level format, which writes sector IDs and erases all contents. This takes some time, as every block on the floppy disk will be written.
 
-                  If the {\bf I} parameter is omitted, a quick format will be performed. This is only possible if the disk has already been formatted as a MEGA65 or 1581 floppy disk. A quick format writes the new disk name and clears the block allocation map, marking all blocks as free. The disk ID is not changed, and blocks are not overwritten, so contents may be recovered with {\bf ERASE R}. You can read more about {\bf ERASE} on page \pageref{BASIC 65 Commands!ERASE}.
+                  If the {\bf I} parameter is omitted, a quick format will be performed. This is only possible if the disk has already been formatted as a MEGA65 or 1581 floppy disk. A quick format writes the new disk name, clears the first directory sector and the block allocation map, and marks all blocks as free. The disk ID is not changed. Because the directory is cleared, files cannot be recovered with {\bf ERASE R} after a quick format.
 
 \item [Examples:] Using {\bf FORMAT}
 
@@ -4838,7 +4838,7 @@ PRINT HASBIT($D031,6)
 
                   For new floppy disks which have not already been formatted in MEGA65 (1581) format, it is necessary to specify the disk ID with the {\bf I} parameter. This switches the format command to low level format, which writes sector IDs and erases all contents. This takes some time, as every block on the floppy disk will be written.
 
-                  If the {\bf I} parameter is omitted, a quick format will be performed. This is only possible if the disk has already been formatted as a MEGA65 or 1581 floppy disk. A quick format writes the new disk name and clears the block allocation map, marking all blocks as free. The disk ID is not changed, and blocks are not overwritten, so contents may be recovered with {\bf ERASE R}. You can read more about {\bf ERASE} on page \pageref{BASIC 65 Commands!ERASE}.
+                  If the {\bf I} parameter is omitted, a quick format will be performed. This is only possible if the disk has already been formatted as a MEGA65 or 1581 floppy disk. A quick format writes the new disk name, clears the first directory sector and the block allocation map, and marks all blocks as free. The disk ID is not changed. Because the directory is cleared, files cannot be recovered with {\bf ERASE R} after a quick format.
 
 \item [Examples:] Using {\bf HEADER}
 
@@ -7546,6 +7546,8 @@ HELLO
 
                   The number of '\#' characters sets the width of the output. If the first character of the format string is an equals ({\bf =}), the argument string is centered. If the first character of the format string is a greater than ({\bf >}), the argument string is right justified.
 
+                  In a C-style {\bf F} pattern, the {\bf width} counts the digits but not the decimal point, so \texttt{\%6.4F} prints seven characters and \texttt{\%7.2F} prints eight. This differs from C, where the width includes the decimal point.
+
                   With a C-style pattern, you can request left-padding with zeroes instead of spaces by preceding the {\bf width} with a '0', such as: \texttt{\%07.2F} Left zero padding is cancelled if the value is negative. Right-of-decimal fields and hexadecimal patterns are always left-padded with zeroes.
 
 \newpage
@@ -7555,7 +7557,7 @@ HELLO
 \verbatimfont{\codefont}
 \begin{verbatim}
 PRINT USING "##.##"; ~, USING " [%6.4F] "; SQR(2)
- 3.14 [1.4142]
+ 3.14 [ 1.4142]
 
 PRINT USING " < # # # > ";12*31
  < 3 7 2 >
@@ -10116,7 +10118,7 @@ READY.
 
                   \unitdefinition
 
-\item [Remarks:]  {\bf TYPE} cannot be used to print BASIC programs. Use {\bf LIST} for programs instead. {\bf TYPE} can only process {\bf SEQ} or {\bf USR} files containing records of PETSCII text, delimited by the CR character (carriage return). The CR character can be written to a file using {\bf CHR\$(13)}.
+\item [Remarks:]  {\bf TYPE} cannot be used to print BASIC programs. Use {\bf LIST} for programs instead. {\bf TYPE} can only process {\bf SEQ} files containing records of PETSCII text, delimited by the CR character (carriage return). The CR character can be written to a file using {\bf CHR\$(13)}. {\bf TYPE} opens the file as a {\bf SEQ} file, so a {\bf USR} file gives \screentext{64,FILE TYPE MISMATCH}; read it with {\bf DOPEN\#} and the {\bf ,U} suffix instead.
 
                   See the {\bf EDIT} command for a way to create and modify text files interactively.
 

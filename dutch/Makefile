@@ -92,7 +92,8 @@ DEPS_FILES := $(addprefix $(BUILD_DIR)/,$(addsuffix .deps,$(BOOKS)))
 # show up in the .fls) and the English files whose generation rules are in the
 # root-Makefile.
 SHARED_DEPS := $(wildcard common-header-*.tex) $(FRONTCOVERS) \
-	$(ROOT_STATIC) $(ROOT_GEN) $(INSTR_GEN) $(INSTR_SRC)
+	$(ROOT_STATIC) $(ROOT_GEN) $(INSTR_GEN) $(INSTR_SRC) \
+	appendix-basic65-condensed.tex >appendix-basic65-indexed.tex
 
 .DELETE_ON_ERROR:
 

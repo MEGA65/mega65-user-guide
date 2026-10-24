@@ -1,0 +1,602 @@
+
+\subsection{conionit}
+\index{conionit}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Initialiseert de interne status van de bibliotheek}\item [Syntaxis:] \stw{void conioinit(void)}\item [Opmerkingen:] {U moet deze functie aanroepen voordat u een conio-bibliotheekfunctie gebruikt.}
+\end{description}
+
+\subsection{setscreenaddr}
+\index{setscreenaddr}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt het startadres van de screen RAM in}\item [Syntaxis:] \stw{void setscreenaddr(long addr);}\item [Parameters:]
+\begin{description}
+\item [{\em addr}:] {Het adres dat als begin van de screen RAM ingesteld moet worden}
+\end{description}
+\item [Opmerkingen:] {Er wordt geen grenscontrole uitgevoerd op het geselecteerde adres}
+\end{description}
+
+\subsection{getscreenaddr}
+\index{getscreenaddr}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Retourneert het startadres van de screen RAM}\item [Syntaxis:] \stw{long getscreenaddr(void);}\item [Resultaat:] {Het huidige startadres van de screen RAM.}
+\end{description}
+
+\subsection{setcolramoffset}
+\index{setcolramoffset}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de offsetwaarde van het begin van de color RAM in}\item [Syntaxis:] \stw{void setcolramoffset(long offset);}\item [Parameters:]
+\begin{description}
+\item [{\em addr}:] {De offset vanaf het begin van de color RAM (\$FF80000)}
+\end{description}
+\item [Opmerkingen:] {Er wordt geen grenscontrole uitgevoerd op het resulterende adres. Overschrijd de beschikbare grootte van de color RAM niet}
+\end{description}
+
+\subsection{getcolramoffset}
+\index{getcolramoffset}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Retourneert de offsetwaarde van het begin van de color RAM}\item [Syntaxis:] \stw{long getscreenaddr(void);}\item [Resultaat:] {De huidige offsetwaarde van het begin van de color RAM.}
+\end{description}
+
+\subsection{setcharsetaddr}
+\index{setcharsetaddr}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt het startadres van de tekenset in}\item [Syntaxis:] \stw{void setcharsetaddr(long addr);}\item [Parameters:]
+\begin{description}
+\item [{\em addr}:] {Het adres dat als begin van de tekenset ingesteld moet worden}
+\end{description}
+\item [Opmerkingen:] {Er wordt geen grenscontrole uitgevoerd op het geselecteerde adres}
+\end{description}
+
+\subsection{getcharsetaddr}
+\index{getcharsetaddr}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Retourneert het huidige startadres van de tekenset}\item [Syntaxis:] \stw{long getscreenaddr(void);}\item [Resultaat:] {Het huidige startadres van de tekenset.}
+\end{description}
+
+\subsection{clrscr}
+\index{clrscr}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Maakt het tekstscherm leeg.}\item [Syntaxis:] \stw{void clrscr(void)}\item [Opmerkingen:] {De color RAM wordt met de huidige tekstkleur leeggemaakt}
+\end{description}
+
+\subsection{getscreensize}
+\index{getscreensize}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Retourneert de afmetingen van het tekstscherm}\item [Syntaxis:] \stw{void getscreensize(unsigned char* width, unsigned char*   height)}\item [Parameters:]
+\begin{description}
+\item [{\em width}:] {Aanwijzer naar de locatie waar de breedte wordt teruggegeven}\item [{\em height}:] {Aanwijzer naar de locatie waar de hoogte wordt teruggegeven}
+\end{description}
+\end{description}
+
+\subsection{setscreensize}
+\index{setscreensize}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de afmetingen van het tekstscherm in}\item [Syntaxis:] \stw{void setscreensize(unsigned char width, unsigned char   height)}\item [Parameters:]
+\begin{description}
+\item [{\em width}:] {De breedte in kolommen (40 of 80)}\item [{\em height}:] {De hoogte in rijen (25 of 50)}
+\end{description}
+\item [Opmerkingen:] {Momenteel worden alleen 40/80 en 25/50 aanvaard. Andere waarden worden genegeerd.}
+\end{description}
+
+\subsection{set16bitcharmode}
+\index{set16bitcharmode}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt de 16-bits tekenmodus in of uit}\item [Syntaxis:] \stw{void set16bitcharmode(unsigned char f)}\item [Parameters:]
+\begin{description}
+\item [{\em f}:] {Stel true in om de 16-bits tekenmodus in te schakelen}
+\end{description}
+\item [Opmerkingen:] {Dit leidt tot een reset van de videoparameters indien HOTREG is   ingeschakeld. Zie de functie sethotregs.}
+\end{description}
+
+\subsection{sethotregs}
+\index{sethotregs}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt het hot-registergedrag van de   VIC-IV-chip in of uit.}\item [Syntaxis:] \stw{void set16bitcharmode(unsigned char f)}\item [Parameters:]
+\begin{description}
+\item [{\em f}:] {Stel true in om het hotreg-gedrag in te schakelen}
+\end{description}
+\item [Opmerkingen:] {Indien deze modus is ingeschakeld, wordt een reset van de videomodus geactiveerd bij   toegang tot \$D011, \$D016, \$D018, \$D031 of de VIC-II-bankbits van   \$DD00. }
+\end{description}
+
+\subsection{setextendedattrib}
+\index{setextendedattrib}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt de uitgebreide   attributenmodus van de VIC-III in of uit ter ondersteuning van knipperen, onderstrepen, vet en markeren.}\item [Syntaxis:] \stw{void setextendedattrib(unsigned char f)}\item [Parameters:]
+\begin{description}
+\item [{\em f}:] {Stel true in om de uitgebreide attributenmodus in te schakelen}
+\end{description}
+\end{description}
+
+\subsection{togglecase}
+\index{togglecase}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de tekenset met kleine letters in}\item [Syntaxis:] \stw{void setlowercase(void)}
+\end{description}
+
+\subsection{togglecase}
+\index{togglecase}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de tekenset met hoofdletters in}\item [Syntaxis:] \stw{void setuppercase(void)}
+\end{description}
+
+\subsection{togglecase}
+\index{togglecase}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Wisselt de huidige tekenset tussen kleine en hoofdletters}\item [Syntaxis:] \stw{void togglecase(void)}
+\end{description}
+
+\subsection{bordercolor}
+\index{bordercolor}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de huidige randkleur in}\item [Syntaxis:] \stw{void bordercolor(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em c}:] {De in te stellen kleur}
+\end{description}
+\end{description}
+
+\subsection{bgcolor}
+\index{bgcolor}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de huidige schermkleur (achtergrondkleur) in}\item [Syntaxis:] \stw{void bgcolor(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em c}:] {De in te stellen kleur}
+\end{description}
+\end{description}
+
+\subsection{textcolor}
+\index{textcolor}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de huidige tekstkleur in}\item [Syntaxis:] \stw{void textcolor(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em c}:] {De in te stellen kleur}
+\end{description}
+\item [Opmerkingen:] {Deze functie behoudt de attributen in de bovenste 4 bits   indien uitgebreide attributen zijn ingeschakeld. Zie setextendedattrib. }
+\end{description}
+
+\subsection{revers}
+\index{revers}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt het reverse-attribuut in}\item [Syntaxis:] \stw{void revers(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em enable}:] {0 om uit te schakelen, 1 om in te schakelen}
+\end{description}
+\item [Opmerkingen:] {De uitgebreide attributenmodus moet actief zijn. Zie   setextendedattrib.}
+\end{description}
+
+\subsection{highlight}
+\index{highlight}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt het highlight-attribuut in}\item [Syntaxis:] \stw{void highlight(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em enable}:] {0 om uit te schakelen, 1 om in te schakelen}
+\end{description}
+\item [Opmerkingen:] {De uitgebreide attributenmodus moet actief zijn. Zie   setextendedattrib.}
+\end{description}
+
+\subsection{blink}
+\index{blink}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt het knipperattribuut in}\item [Syntaxis:] \stw{void blink(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em enable}:] {0 om uit te schakelen, 1 om in te schakelen}
+\end{description}
+\item [Opmerkingen:] {De uitgebreide attributenmodus moet actief zijn. Zie   setextendedattrib.}
+\end{description}
+
+\subsection{underline}
+\index{underline}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt het onderstrepingsattribuut in}\item [Syntaxis:] \stw{void underline(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em enable}:] {0 om uit te schakelen, 1 om in te schakelen}
+\end{description}
+\item [Opmerkingen:] {De uitgebreide attributenmodus moet actief zijn. Zie   setextendedattrib.}
+\end{description}
+
+\subsection{altpal}
+\index{altpal}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Schakelt het attribuut van het alternatieve palet in}\item [Syntaxis:] \stw{void altpal(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em enable}:] {0 om uit te schakelen, 1 om in te schakelen}
+\end{description}
+\item [Opmerkingen:] {De uitgebreide attributenmodus moet actief zijn. Zie   setextendedattrib.}
+\end{description}
+
+\subsection{clearattr}
+\index{clearattr}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Wist alle tekstattributen}\item [Syntaxis:] \stw{void clearattr())}\item [Opmerkingen:] {De uitgebreide attributenmodus moet actief zijn. Zie   setextendedattrib.}
+\end{description}
+
+\subsection{cellcolor}
+\index{cellcolor}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de kleur van een tekencel in}\item [Syntaxis:] \stw{void cellcolor(unsigned char x, unsigned char y, unsigned   char c)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat van de cel}\item [{\em y}:] {De   Y-coördinaat van de cel}\item [{\em c}:] {De in te stellen kleur}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd }
+\end{description}
+
+\subsection{setpalbank}
+\index{setpalbank}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de huidige tekst-/bitmappaletbank in (BTPALSEL).}\item [Syntaxis:] \stw{void setpalbank(unsigned char bank)}\item [Parameters:]
+\begin{description}
+\item [{\em bank}:] {De in te stellen paletbank. Geldige waarden zijn 0, 1, 2   of 3.}
+\end{description}
+\item [Opmerkingen:] {Gebruik setpalbanka om een alternatief tekst-/bitmappalet in   te stellen}
+\end{description}
+
+\subsection{setpalbanka}
+\index{setpalbanka}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de alternatieve tekst-/bitmappaletbank in.}\item [Syntaxis:] \stw{void setpalbanka(unsigned char bank)}\item [Parameters:]
+\begin{description}
+\item [{\em bank}:] {De in te stellen paletbank. Geldige waarden zijn 0, 1, 2   of 3.}
+\end{description}
+\item [Opmerkingen:] {Gebruik setpalbank om het hoofdtekst-/bitmappalet in te stellen}
+\end{description}
+
+\subsection{getpalbank}
+\index{getpalbank}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Haalt de geselecteerde tekst-/bitmappaletbank op.}\item [Syntaxis:] \stw{unsigned char getpalbank(void)}\item [Opmerkingen:] {Gebruik getpalbanka om het geselecteerde alternatieve tekst-/bitmappalet   op te halen}\item [Resultaat:] {De huidige geselecteerde hoofdtekst-/bitmappaletbank.}
+\end{description}
+
+\subsection{getpalbanka}
+\index{getpalbanka}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Haalt de geselecteerde alternatieve tekst-/bitmappaletbank   op.}\item [Syntaxis:] \stw{unsigned char getpalbanka(void)}\item [Opmerkingen:] {Gebruik   getpalbank om het geselecteerde hoofdtekst-/bitmappalet op te halen}\item [Resultaat:] {De   huidige geselecteerde alternatieve tekst-/bitmappaletbank.}
+\end{description}
+
+\subsection{setmapedpal}
+\index{setmapedpal}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de ingemapte paletbank in op \$D100-\$D3FF.}\item [Syntaxis:] \stw{void setmapedpal(unsigned char bank)}\item [Parameters:]
+\begin{description}
+\item [{\em bank}:] {De in te mappen paletbank. Geldige waarden zijn 0, 1, 2   of 3.}
+\end{description}
+\end{description}
+
+\subsection{getmapedpal}
+\index{getmapedpal}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Haalt de ingemapte  paletbank op \$D100-\$D3FF.}\item [Syntaxis:] \stw{unsigned char getmapedpal(void)}
+\end{description}
+
+\subsection{setpalentry}
+\index{setpalentry}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt een paletkleur in voor het ingemapte palet}\item [Syntaxis:] \stw{void setpalentry(unsigned char c, unsigned char r,   unsigned char g, unsigned char b)}\item [Parameters:]
+\begin{description}
+\item [{\em c}:] {De index van de paletkleur (0-255)}\item [{\em r}:] {De rode kleurcomponent}\item [{\em g}:] {De groene kleurcomponent}\item [{\em b}:] {De blauwe kleurcomponent}
+\end{description}
+\item [Opmerkingen:] {Gebruik setmapedmal om het te wijzigen palet in te mappen}
+\end{description}
+
+\subsection{fillrect}
+\index{fillrect}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Vult een rechthoekig gebied met een teken en een kleurwaarde}\item [Syntaxis:] \stw{void fillrect(const RECT *rc, unsigned char ch,   unsigned char col)}\item [Parameters:]
+\begin{description}
+\item [{\em rc}:] {Een RECT-structuur die de coördinaten van de rechthoek opgeeft}\item [{\em ch}:] {Een tekencode om de rechthoek mee te vullen}\item [{\em col}:] {De kleur om mee te vullen}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd}
+\end{description}
+
+\subsection{box}
+\index{box}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Tekent een kader met grafische tekens}\item [Syntaxis:] \stw{void box(const RECT *rc, unsigned char color, unsigned   char style, unsigned char clear, unsigned char shadow)}\item [Parameters:]
+\begin{description}
+\item [{\em rc}:] {Een RECT-structuur die de coördinaten van het kader opgeeft}\item [{\em color}:] {De kleur die voor de grafische tekens gebruikt wordt}\item [{\em style}:] {De stijl voor de randen van het kader. Kan worden ingesteld op BOX\_STYLE\_NONE, BOX\_STYLE\_ROUNDED, BOX\_STYLE\_INNER, BOX\_STYLE\_OUTER, BOX\_STYLE\_MID}\item [{\em clear}:] {Zet op 1 om het binnenvlak van het kader te wissen met de geselecteerde kleur}\item [{\em shadow}:] {Zet op 1 om een slagschaduw te tekenen}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd}
+\end{description}
+
+\subsection{hline}
+\index{hline}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Tekent een horizontale lijn.}\item [Syntaxis:] \stw{void hline(unsigned char x, unsigned char y, unsigned char   len, unsigned char style)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat van het begin van de lijn}\item [{\em y}:] {De Y-coördinaat van het begin van de lijn}\item [{\em len}:] {De lengte van de lijn}\item [{\em style}:] {De stijl voor de lijn. Zie de HLINE\_-constanten voor de beschikbare stijlen.}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd}
+\end{description}
+
+\subsection{vline}
+\index{vline}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Tekent een verticale lijn.}\item [Syntaxis:] \stw{void vline(unsigned char x, unsigned char y, unsigned char   len, unsigned char style)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat van het begin van de lijn}\item [{\em y}:] {De Y-coördinaat van het begin van de lijn}\item [{\em len}:] {De lengte van de lijn}\item [{\em style}:] {De stijl voor de lijn. Zie de VLINE\_-constanten voor de beschikbare stijlen.}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd}
+\end{description}
+
+\subsection{gohome}
+\index{gohome}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de huidige positie in op de thuispositie (coördinaat 0,0)}\item [Syntaxis:] \stw{void gohome(void)}
+\end{description}
+
+\subsection{gotoxy}
+\index{gotoxy}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de huidige positie in op de coördinaten X,Y}\item [Syntaxis:] \stw{void gotoxy(unsigned char x, unsigned char y)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De nieuwe X-coördinaat}\item [{\em y}:] {De nieuwe Y-coördinaat}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd}
+\end{description}
+
+\subsection{gotox}
+\index{gotox}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de X-coördinaat van de huidige positie in}\item [Syntaxis:] \stw{void gotox(unsigned char x)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De nieuwe X-coördinaat}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd }
+\end{description}
+
+\subsection{gotoy}
+\index{gotoy}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Stelt de Y-coördinaat van de huidige positie in}\item [Syntaxis:] \stw{void gotoy(unsigned char y)}\item [Parameters:]
+\begin{description}
+\item [{\em y}:] {De nieuwe Y-coördinaat}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd }
+\end{description}
+
+\subsection{moveup}
+\index{moveup}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Verplaatst de huidige positie naar boven}\item [Syntaxis:] \stw{void moveup(unsigned char count)}\item [Parameters:]
+\begin{description}
+\item [{\em count}:] {Het aantal te verplaatsen posities}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd }
+\end{description}
+
+\subsection{movedown}
+\index{movedown}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Verplaatst de huidige positie naar beneden}\item [Syntaxis:] \stw{void movedown(unsigned char count)}\item [Parameters:]
+\begin{description}
+\item [{\em count}:] {Het aantal te verplaatsen posities}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd }
+\end{description}
+
+\subsection{moveleft}
+\index{moveleft}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Verplaatst de huidige positie naar links}\item [Syntaxis:] \stw{void moveleft(unsigned char count)}\item [Parameters:]
+\begin{description}
+\item [{\em count}:] {Het aantal te verplaatsen posities}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd }
+\end{description}
+
+\subsection{moveright}
+\index{moveright}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Verplaatst de huidige positie naar rechts}\item [Syntaxis:] \stw{void moveright(unsigned char count)}\item [Parameters:]
+\begin{description}
+\item [{\em count}:] {Het aantal te verplaatsen posities}
+\end{description}
+\item [Opmerkingen:] {Er worden geen grenscontroles op de schermgrenzen uitgevoerd; het gedrag buiten het scherm is ongedefinieerd }
+\end{description}
+
+\subsection{wherex}
+\index{wherex}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Retourneert de X-coördinaat van de huidige positie}\item [Syntaxis:] \stw{unsigned char wherex(void)}\item [Resultaat:] {De X-coördinaat van de huidige positie}
+\end{description}
+
+\subsection{wherey}
+\index{wherey}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Retourneert de Y-coördinaat van de huidige positie}\item [Syntaxis:] \stw{unsigned char wherey(void)}\item [Resultaat:] {De Y-coördinaat van de huidige positie}
+\end{description}
+
+\subsection{pcputc}
+\index{pcputc}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft één PETSCII-teken weer op het scherm op   de huidige positie}\item [Syntaxis:] \stw{void cputc(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em c}:] {Het weer te geven PETSCII-teken}
+\end{description}
+\end{description}
+
+\subsection{pcputsxy}
+\index{pcputsxy}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft een PETSCII-string weer op de coördinaten X,Y}\item [Syntaxis:] \stw{void pcputsxy (unsigned char x, unsigned char y, const   unsigned char* s)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat waar de string   wordt weergegeven}\item [{\em y}:] {De Y-coördinaat waar de string wordt weergegeven}\item [{\em s}:] {De weer te geven PETSCII-string}
+\end{description}
+\item [Opmerkingen:] {Er wordt geen pointercontrole uitgevoerd.  Indien s null of ongeldig is,   is het gedrag ongedefinieerd }
+\end{description}
+
+\subsection{cputcxy}
+\index{cputcxy}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft één PETSCII-teken weer op de coördinaten X,Y}\item [Syntaxis:] \stw{void pcputcxy (unsigned char x, unsigned char   y, unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat waar het teken   wordt weergegeven}\item [{\em y}:] {De Y-coördinaat waar het teken wordt weergegeven}\item [{\em c}:] {Het weer te geven PETSCII-teken}
+\end{description}
+\end{description}
+
+\subsection{pcputs}
+\index{pcputs}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft een PETSCII-string weer op de huidige positie}\item [Syntaxis:] \stw{void pcputs(const unsigned char* s)}\item [Parameters:]
+\begin{description}
+\item [{\em s}:] {De weer te geven string}
+\end{description}
+\item [Opmerkingen:] {Er wordt geen pointercontrole uitgevoerd.  Indien s null of ongeldig is,   is het gedrag ongedefinieerd }
+\end{description}
+
+\subsection{cputc}
+\index{cputc}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft één schermcodeteken weer op het scherm op   de huidige positie}\item [Syntaxis:] \stw{void cputc(unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em c}:] {De schermcode van het weer te geven teken}
+\end{description}
+\end{description}
+
+\subsection{cputnc}
+\index{cputnc}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft N exemplaren van een teken weer op de huidige positie}\item [Syntaxis:] \stw{void cputnc(unsigned char count, unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em c}:] {De schermcode van de weer te geven tekens}\item [{\em count}:] {Het aantal weer te geven tekens}
+\end{description}
+\end{description}
+
+\subsection{cputhex}
+\index{cputhex}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft een hexadecimaal opgemaakt getal weer op de huidige positie}\item [Syntaxis:] \stw{void cputhex(long n, unsigned char prec)}\item [Parameters:]
+\begin{description}
+\item [{\em n}:] {Het te schrijven getal}\item [{\em prec}:] {De precisie van het hexadecimale getal, in cijfers. Voorloopnullen   worden dienovereenkomstig weergegeven}
+\end{description}
+\item [Opmerkingen:] {Het \$-teken wordt automatisch   aan het begin van de string toegevoegd}
+\end{description}
+
+\subsection{cputdec}
+\index{cputdec}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft een decimaal getal weer op de huidige positie}\item [Syntaxis:] \stw{void cputdec(long n, unsigned char padding, unsigned char   leadingZ)}\item [Parameters:]
+\begin{description}
+\item [{\em n}:] {Het te schrijven getal}\item [{\em padding}:] {De opvullingsruimte die vóór het getal moet worden toegevoegd}\item [{\em leadingZ}:] {De   voorloopnullen die moeten worden weergegeven}
+\end{description}
+\end{description}
+
+\subsection{cputs}
+\index{cputs}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft schermcodes weer op de huidige positie}\item [Syntaxis:] \stw{void cputs(const unsigned char* s)}\item [Parameters:]
+\begin{description}
+\item [{\em s}:] {Een array van schermcodes die moeten worden weergegeven}
+\end{description}
+\item [Opmerkingen:] {Deze functie werkt uitsluitend met schermcodes. Voor het weergeven van   gewone ASCII-/PETSCII-strings gebruikt u de macro "pcputs". Er wordt geen pointercontrole   uitgevoerd.  Indien s null of ongeldig is, is het gedrag ongedefinieerd. }
+\end{description}
+
+\subsection{cputsxy}
+\index{cputsxy}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft meerdere schermcodes weer op de X,Y-coördinaten}\item [Syntaxis:] \stw{void cputsxy (unsigned char x, unsigned char y, const   unsigned char* s)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat waar de string wordt   weergegeven}\item [{\em y}:] {De Y-coördinaat waar de string wordt weergegeven}\item [{\em s}:] {Een array van schermcodes die moeten worden weergegeven}
+\end{description}
+\item [Opmerkingen:] {Deze functie werkt uitsluitend met schermcodes. Voor het weergeven van   gewone ASCII-/PETSCII-strings gebruikt u de macro "pcputsxy". Er wordt geen pointercontrole   uitgevoerd.  Indien s null of ongeldig is, is het gedrag ongedefinieerd. }
+\end{description}
+
+\subsection{cputcxy}
+\index{cputcxy}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft één teken weer op de X,Y-coördinaten}\item [Syntaxis:] \stw{void cputcxy (unsigned char x, unsigned char y, unsigned   char c)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat waar het teken wordt   weergegeven}\item [{\em y}:] {De Y-coördinaat waar het teken wordt   weergegeven}\item [{\em c}:] {De schermcode van het weer te geven teken}
+\end{description}
+\end{description}
+
+\subsection{cputncxy}
+\index{cputncxy}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Geeft N exemplaren van een teken weer op de X,Y-coördinaten}\item [Syntaxis:] \stw{void cputncxy (unsigned char x, unsigned char   y, unsigned char count, unsigned char c)}\item [Parameters:]
+\begin{description}
+\item [{\em x}:] {De X-coördinaat waar het teken wordt weergegeven}\item [{\em y}:] {De Y-coördinaat waar het teken wordt weergegeven}\item [{\em count}:] {Het   aantal weer te geven tekens}\item [{\em c}:] {De schermcode van de   weer te geven tekens}
+\end{description}
+\end{description}
+
+\subsection{cprintf}
+\index{cprintf}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Drukt opgemaakte uitvoer af. \\    Escape-strings kunnen worden gebruikt om attributen te wijzigen, de cursor te verplaatsen, enz., vergelijkbaar met   PRINT in CBM BASIC.
+    }
+\item [Syntaxis:] \stw{unsigned char cprintf (const unsigned char* format, ...)}\item [Parameters:]
+\begin{description}
+\item [{\em format}:] {De weer te geven string. De beschikbare escape-codes   zijn: \\
+    \textbf{Cursorpositionering} \\
+    \begin{tabular}{ll}
+    \textbackslash t             & Ga naar de volgende tabpositie (veelvoud van 8) \\
+    \textbackslash r             & Carriage Return            \\
+    \textbackslash n             & Nieuwe regel          \\
+    \end{tabular}
+
+    \begin{tabular}{llll}
+\texttt{\{clr\}}   &     Scherm wissen      &  \texttt{\{home\}}  & Cursor   naar homepositie (linksboven) \\    \texttt{\{d\}}     &    Cursor omlaag   & \texttt{\{u\}}      & Cursor   omhoog \\    \texttt{\{r\}}     &    Cursor naar rechts  & \texttt{\{l\}}     & Cursor   naar links \\
+
+    \end{tabular}
+
+\textbf{Attributen} \\
+    \begin{tabular}{llll}
+\texttt{\{rvson\}}  &  Omgekeerd-attribuut AAN   & \texttt{\{rvsoff\}} &   Omgekeerd-attribuut UIT \\    \texttt{\{blon\}}   &  Knipperattribuut AAN     & \texttt{\{bloff\}}  &  Knipperattribuut UIT    \\    \texttt{\{ulon\}}   &  Onderstrepingsattribuut AAN & \texttt{\{uloff\}}  &   Onderstrepingsattribuut UIT \\ \end{tabular}
+
+\textbf{Kleuren (standaardpalet)} \\
+    \begin{tabular}{llll}
+\texttt{\{blk\}}  & \texttt{\{wht\}}  &  \texttt{\{red\}} &   \texttt{\{cyan\}}  \\    \texttt{\{pur\}}  & \texttt{\{grn\}}  &  \texttt{\{blu\}} & \texttt{\{yel\}}
+   \\
+\texttt{\{ora\}}  & \texttt{\{brn\}}  &  \texttt{\{pink\}} &   \texttt{\{gray1\}} \\ \texttt{\{gray2\}} &  \texttt{\{lblu\}} &   \texttt{\{lgrn\}} & \texttt{\{gray3\}}
+
+    \end{tabular}
+
+    }
+\end{description}
+\item [Opmerkingen:] {Deze functie werkt uitsluitend met schermcodes! Gebruik de "pcprintf"-macro om gewone ASCII/PETSCII-tekenreeksen weer te geven. Momenteel wordt geen vervanging van argumenten uitgevoerd bij de variabele argumenten.}
+\end{description}
+
+\subsection{pcprintf}
+\index{pcprintf}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Drukt opgemaakte PETSCII-tekenreeksuitvoer af.}\item [Syntaxis:] \stw{see cprintf}
+\end{description}
+
+\subsection{cgetc}
+\index{cgetc}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] { Wacht totdat een teken in de toetsenbordbuffer staat en retourneert dit }\item [Syntaxis:] \stw{unsigned char cgetc (void);}\item [Resultaat:] {Het laatste teken in de toetsenbordbuffer }\item [Opmerkingen:] {Geretourneerde waarden zijn ASCII-tekencodes}
+\end{description}
+
+\subsection{kbhit}
+\index{kbhit}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] { Retourneert het teken in de toetsenbordbuffer }\item [Syntaxis:] \stw{unsigned char kbhit (void);}\item [Resultaat:] {De tekencode in de toetsenbordbuffer, 0 indien de buffer leeg is. }\item [Opmerkingen:] {Geretourneerde waarden zijn ASCII-tekencodes}
+\end{description}
+
+\subsection{getkeymodstate}
+\index{getkeymodstate}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {   Retourneert de toetsmodificatiestatus.}\item [Syntaxis:] \stw{unsigned char getkeymodstate(void)}\item [Resultaat:] {Een byte met de toetsmodificatiestatusbits,    waarbij de bits:
+
+    \begin{tabular}{lll}
+\textbf{Bit} & \textbf{Betekenis} & \textbf{Constante}        \\    0   & Rechts SHIFT-status & \texttt{KEYMOD\_RSHIFT} \\    1   & Links SHIFT-status & \texttt{KEYMOD\_LSHIFT} \\    2   & CTRL-status        & \texttt{KEYMOD\_CTRL}  \\    3   & MEGA-status        & \texttt{KEYMOD\_MEGA} \\    4   & ALT-status         & \texttt{KEYMOD\_ALT} \\    5   & NOSCRL-status      & \texttt{KEYMOD\_NOSCRL} \\    6   & CAPSLOCK-status    & \texttt{KEYMOD\_CAPSLOCK} \\    7   & Gereserveerd       & - \\
+    \end{tabular}
+    }
+\end{description}
+
+\subsection{flushkeybuf}
+\index{flushkeybuf}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Leegt de toetsenbordbuffer}\item [Syntaxis:] \stw{void flushkeybuf(void)}
+\end{description}
+
+\subsection{cinput}
+\index{cinput}
+\begin{description}[leftmargin=2.4cm,style=nextline]
+\item [Beschrijving:] {Ontvangt invoer van het toetsenbord en drukt binnenkomende tekens af op de huidige positie.}\item [Syntaxis:] \stw{unsigned char cinput(char* buffer,   unsigned char buflen, unsigned char flags)}\item [Parameters:]
+\begin{description}
+\item [{\em buffer}:] {Doeltekenbuffer die vooraf door de aanroeper is toegewezen}\item [{\em buflen}:] {Lengte van de doelbuffer in tekens, inclusief het afsluitende nulteken}\item [{\em flags}:] {Vlaggen voor invoer:  (standaard worden alle afdrukbare tekens aanvaard)
+\texttt{CINPUT\_ACCEPT\_NUMERIC} \\            Aanvaardt numerieke tekens. \\ \\            \texttt{CINPUT\_ACCEPT\_LETTER}  \\            Aanvaardt letters.  \\ \\            \texttt{CINPUT\_ACCEPT\_SYM}  \\            Aanvaardt symbolen.  \\ \\            \texttt{CINPUT\_ACCEPT\_ALL}\\            Aanvaardt alles. Is gelijk aan \texttt{CINPUT\_ACCEPT\_NUMERIC \textbar   CINPUT\_ACCEPT\_LETTER \textbar CINPUT\_ACCEPT\_SYM} \\ \\            \texttt{CINPUT\_ACCEPT\_ALPHA} \\            Aanvaardt alfanumerieke tekens. Is gelijk aan   \texttt{CINPUT\_ACCEPT\_NUMERIC \textbar CINPUT\_ACCEPT\_LETTER} \\ \\            \texttt{CINPUT\_NO\_AUTOTRANSLATE}\\            Schakelt de functie uit waarmee cinput automatisch hoofdletters weergeeft wanneer de standaard kleinelettertekenset is geselecteerd en u letters intoetst zonder de SHIFT-toets; zonder deze functie geeft de computer grafische tekens weer in plaats van alfabetische tekens. \\
+            }
+\end{description}
+\item [Resultaat:] {Aantal succesvol gelezen tekens in de buffer}
+\end{description}

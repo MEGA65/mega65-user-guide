@@ -1393,7 +1393,7 @@ CHANGE &IN& TO &OUT&
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]   \$E0
 
-\item [Formaat:]  {\bf CHAR} kolom{\bf,} rij{\bf,} hoogte{\bf,} breedte{\bf,} richting{\bf,} tekenreeks [{\bf,} [adres van tekenset]
+\item [Formaat:]  {\bf CHAR} kolom{\bf,} rij{\bf,} hoogte{\bf,} breedte{\bf,} richting{\bf,} tekenreeks [{\bf,} adres van tekenset]
 
 \item [Gebruik:]   Bitmapgraphics: geeft tekst weer op een grafisch scherm.
 
@@ -6277,24 +6277,30 @@ MOUSE ON, 1    : REM MUISPIJLTJE IS HIRES OP BEIDE ASSEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]    \$FE \$06
 
-\item [Formaat:]   {\bf MOVSPR} getal{\bf,} positie \\                 {\bf MOVSPR} number{\bf,} begin-positie {\bf TO} eind-positie{\bf,} snelheid
+\item [Formaat:]  {\bf MOVSPR} nummer{\bf,} positie \\
+                  {\bf MOVSPR} nummer{\bf,} begin-positie {\bf TO} eind-positie{\bf,} snelheid
 
 \item [Gebruik:]    Verplaatst een sprite naar een positie op het scherm.
 
                   Elke {\bf positie}-parameter bestaat uit twee 16-bits waarden, welke een absolute coördinaat, een relatieve coördinaat, een hoek of een snelheid specificeren. Het waardetype wordt bepaald door een prefix:
 
                   \begin{itemize}
-                     \item {\bf +value} relatieve coördinaat: positieve offset.                     \item {\bf -value} relatieve coördinaat: negatieve offset.                     \item {\bf \#value} snelheid.
+                     \item {\bf +waarde} relatieve coördinaat: positieve offset.
+                     \item {\bf -waarde} relatieve coördinaat: negatieve offset.
+                     \item {\bf \#waarde} snelheid.
                   \end{itemize}
 
                   Indien geen prefix wordt opgegeven, wordt de absolute coördinaat of hoek gebruikt.
 
                   De positie-parameter kan derhalve worden gebruikt om:
                   \begin{itemize}
-                     \item het sprite op een absolute positie op het scherm te plaatsen.                     \item een verplaatsing ten opzichte van de huidige positie op te geven.                     \item een relatieve beweging vanaf een opgegeven positie te activeren.                     \item beweging met een hoek en snelheid vanaf de huidige positie te beschrijven.
+                     \item het sprite op een absolute positie op het scherm te plaatsen.
+                     \item een verplaatsing ten opzichte van de huidige positie op te geven.
+                     \item een relatieve beweging vanaf een opgegeven positie te activeren.
+                     \item beweging met een hoek en snelheid vanaf de huidige positie te beschrijven.
                   \end{itemize}
 
-                  {\bf MOVSPR number, position} wordt gebruikt om de sprite onmiddellijk op de positie te plaatsen of, in het geval van een hoek\#snelheid-argument, de verdere beweging te beschrijven.
+                  {\bf MOVSPR nummer, positie} wordt gebruikt om de sprite onmiddellijk op de positie te plaatsen of, in het geval van een hoek\#snelheid-argument, de verdere beweging te beschrijven.
 
                   In de tweede vorm plaatst het sprite op de beginpositie, definieert de bestemmingspositie en de snelheid van de beweging.
 
@@ -7870,9 +7876,9 @@ PRINT RIGHT$("MEGA65", 2)
 
 \item [Gebruik:]    Leest de muispositie en de knopstatus.
 
-                  {\bf x variabele} numerieke variabele waarin de x-positie wordt opgeslagen.
+                  {\bf x-variabele} numerieke variabele waarin de x-positie wordt opgeslagen.
 
-                  {\bf y variabele} numerieke variabele waarin de y-positie wordt opgeslagen.
+                  {\bf y-variabele} numerieke variabele waarin de y-positie wordt opgeslagen.
 
                   {\bf knopvariabele} numerieke variabele die de knopstatus ontvangt. De linker knop zet bit 7, de rechter knop zet bit 0.
 
@@ -8834,7 +8840,7 @@ SLEEP 600    : REM SLAAP 10 MINUTEN
 \begin{description}[leftmargin=2cm,style=nextline]
 \item [Token:]    \$DA
 
-\item [Formaat:]   {\bf SOUND} stem{\bf,} frequentie{\bf,} dur [\{{\bf,} dir{\bf,} minimum{\bf,} zwaai{\bf,} golf{\bf,} puls\}] \\                 {\bf SOUND CLR}
+\item [Formaat:]   {\bf SOUND} stem{\bf,} frequentie{\bf,} duur [\{{\bf,} dir{\bf,} minimum{\bf,} zwaai{\bf,} golf{\bf,} puls\}] \\                 {\bf SOUND CLR}
 
 \item [Gebruik:]    {\bf SOUND} speelt een geluidseffect af.
 
@@ -8842,13 +8848,13 @@ SLEEP 600    : REM SLAAP 10 MINUTEN
 
                   {\bf frequentie} frequentie (0 -- 65535).
 
-                  {\bf dur} duur in jiffies (0 -- 32767). Een jiffy is afhankelijk van de beeldstandaard. Bij PAL zijn er 50 jiffies per seconde en bij NTSC 60.
+                  {\bf duur} duur in jiffy's (0 -- 32767). Een jiffy is afhankelijk van de beeldstandaard. Bij PAL zijn er 50 jiffy's per seconde en bij NTSC 60.
 
                   {\bf dir} richting (0: omhoog, 1: omlaag, 2: oscillerend).
 
                   {\bf min} minimumfrequentie (0 -- 65535).
 
-                  {\bf sweep} zwaaistap (0 -- 65535): de hoeveelheid die elke jiffy bij de frequentie wordt opgeteld (richting 0) of daarvan wordt afgetrokken (richting 1). De frequentie zwaait tussen \bf min en \bf freq, slaat om naar het andere uiteinde zodra hij er voorbij komt, of keert om wanneer {\bf dir} gelijk is aan 2 (oscilleren).
+                  {\bf sweep} zwaaistap (0 -- 65535): de hoeveelheid die elke jiffy bij de frequentie wordt opgeteld (richting 0) of daarvan wordt afgetrokken (richting 1). De frequentie zwaait tussen {\bf min} en {\bf freq}, slaat om naar het andere uiteinde zodra hij er voorbij komt, of keert om wanneer {\bf dir} gelijk is aan 2 (oscilleren).
 
                   {\bf wave} golfvorm (0: driehoek, 1: zaagtand, 2: vierkant, 3: ruis).
 
@@ -9434,14 +9440,14 @@ SYS TO $3100,O($520)
 30 PRINT "* " A$ TAB(10) " *"
 40 NEXT I
 50 END
-60 DATA ONE, TWO, THREE, FOUR, FIVE
+60 DATA EEN, TWEE, DRIE, VIER, VIJF
 
 RUN
-* ONE      *
-* TWO      *
-* THREE    *
-* FOUR     *
-* FIVE     *
+* EEN      *
+* TWEE     *
+* DRIE     *
+* VIER     *
+* VIJF     *
 \end{verbatim}
 \end{tcolorbox}
 \end{description}
@@ -10200,7 +10206,8 @@ VERIFY "1:DUNGEON", 10
 
                   {\bf xormasker} masker dat via {\bf XOR} wordt toegepast.
 
-                  {\bf WAIT} leest de byte-waarde van {\bf adres} en past de maskers toe: \\                 {\bf result = PEEK(address) AND andmask XOR xormask}.
+                  {\bf WAIT} leest de byte-waarde van {\bf adres} en past de maskers toe: \\
+                  {\bf result = PEEK(adres) AND enmasker XOR xormasker}.
 
                   De onderbreking eindigt als het resultaat ongelijk is aan nul; anders wordt de leesactie herhaald. Indien de voorwaarde niet wordt bereikt, kan de computer voor onbepaalde tijd vastlopen.
 

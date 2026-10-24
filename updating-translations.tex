@@ -1,0 +1,74 @@
+\input{common-header}
+
+\megabookstart{MAINTAINING TRANSLATIONS}{WORK IN PROGRESS}
+
+%%%
+
+\chapter{Keeping the translations up to date}
+
+Thank you for your interest in contributing to the MEGA65 documentation!
+
+One of the key challenges with translating documentation is that, while it is generally considered worthwhile to do, a translation is essentially a fork
+and can diverge from the original. Make classic Commodore 64 books were translated in other languages and did miss future updates or were updated
+independently from the original making them an effective fork.
+
+Luckily, modern technology can help. Translation has shifted from human work to machine translation over the past decade with the current LLMs, most of the
+work can be done by computers. A human still has to review a translation, but the dull work of translating sentences can be left of the machine, which
+makes maintenance of a document in multiple languages a lot easier.
+
+In fact, the combination of a version management system such as Git, in combination with a modern AI Agent, is a very powerful combination. The following text
+explains how to update the translations with OpenCode. There will be more ways to do it, this is just one methode.
+
+First step is to install OpenCode from its official website. \url{http://opencode.ai/}
+
+An advantage of Opencode is that it gives you access to free models and these are ready to use after installation. You do not need a subscription or purchase a
+toke credit, you can simply start work with its free models. These free models are capable enough to work on the MEGA65 documenation.
+
+When you start Opencode, the first step is to select a model. The default "Big Pickle" model is pretty capable in updating translations. It is not the best
+choice, more on that later, but it will do the job just fine.
+
+After selecting the model, ask the agent to read the styleguide and termilogy list in each of the target languages. You only need to do this once, at your next request
+the model will remember it. You can also add a note in your AGENTS.md file to make agents read these files.
+
+\includegraphics[width=\linewidth]{images/translating/opencode1.png}
+
+Next, tell the agent to look at a specific git commit and update the translations.
+
+\includegraphics[width=\linewidth]{images/translating/opencode2.png}
+
+It is that simple! The agent will read the diff, find the relevant place in the translated file and update it to match the change.
+
+Most Git commits do rather small updates and combined with the guidelines in the styleguide and terminilogy list, agents do
+a fine job getting the translation up to date. If if you add pieces of text, there is little reason to worry about the correctness.
+Should you add large chunks of text, it is still advised to have a native speaker review the updates in his own language.
+
+\chapter{About models}
+
+Most LLM models are pretty multi-lingual and able to translate text. With the current state of LLMs, basically all of them are capable of translating
+between major languages. LLMs are trained on libraries of texts, and languages with a large written library are understood by modern LLMs. There still
+differences between various models, they still differ in the amount of linguistic skills that they have.
+
+Models generate intermediate text as part of their "thinking" process. Reasoning in English about linguistic concepts that do not exist in English
+is challenging, this is true for both humans as well as LLMs. Models that can reason in the target language therefore do a better job for difficult
+translations where reasoning is needed to decide upon the best choice.
+
+I discuss my experience with various models:
+
+\begin{itemize}
+    \item {\bf Big Pickle} - This is the OpenCode default model and does a fine job making translations in Dutch and updating them. It can reason in the target language
+    but often prefers to reason in English.
+    \item {\bf Deepseek 4.1 Flash} - This model has awesome linguistic skills. It can reason in the larget language and easily switches to that if the situation requires it do so.
+    It has high theoretical knowledge how various languages work and it is not just aware of languages as they are now, but also knows very well about conventions used
+    in the 80s computer literature , and will happily adjust its word choices to the situation.
+    \item {\bf GLM 5.3 alias Ox Alpha} - This model is a skilled translator and updater. It has no problem to reason in the target language and does its work very
+    directed: It doesn't read tons of files, doesn't produce loads of reasoning text, it read file necessary for an edit and doesn't drift from a task.
+    \item {\bf MiMo 2.6 Flash} - This model appears less suitable. It is multi-lingual and is able to do the job, but if it stumbles upon a word that is difficult to translate,
+    it invents new words rather than rephrase into something that natural in the target language. It doesn't reason in the target language.
+    \item {\bf MiniMax 3.1 alias Space Bunny} - This model translates well. It is very carefull, does a lot of checks before it updates something, but produces good results.
+    It seems to prefer to reason in English.
+\end{itemize}
+
+The Dutch translation was made using Ox Alpha in a translating role and Deepseek in a review role, to review all translated text, AI corrects AI, which combined with
+the style guide and terminoly list did produce a translation that reads very natural.
+
+\input{common-footer}

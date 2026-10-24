@@ -1,0 +1,2374 @@
+\chapter{KERNAL-sprongtabel}
+\label{cha:kernal-jump-table}
+
+\section{Gebruik van de KERNAL-sprongtabel}
+
+De \emph{KERNAL} vormt het hart van het besturingssysteem van de MEGA65. De KERNAL stelt het besturingssysteem in wanneer de computer wordt ingeschakeld of gereset, onderhoudt de communicatie met randapparaten, voert schijfbewerkingen uit, beheert de in- en uitvoerstromen en stuurt de kernfuncties van de schermeditor en BASIC aan. Zolang de KERNAL actief is, beheert hij de geheugenindeling van de CPU en de interrupt-handlers en reserveert hij geheugengebieden om zijn functies te ondersteunen.
+
+De KERNAL biedt een \emph{Application Programming Interface} (API), zodat machinetaalprogramma's door subroutines aan te roepen van zijn functies gebruik kunnen maken, bijvoorbeeld om een bestand van schijf te lezen. Een programma roept deze subroutines aan via adressen in een \emph{sprongtabel}: een gebied van ROM-code waarin de API garandeert dat de adressen altijd op dezelfde wijze naar dezelfde subroutines verwijzen, zelfs bij verschillende versies van de ROM-code. Het programma gebruikt \texttt{jsr} of \texttt{jmp} (afhankelijk van wat de routine vereist), met het sprongtabeladres als absoluut doel. Het geheugen op het sprongtabeladres bevat een \texttt{jmp}-instructie naar het juiste interne adres.
+
+Om bijvoorbeeld een teken naar de uitvoerstroom te schrijven (standaard de schermterminal), stelt een programma het accumulatorregister (A) in op de PETSCII-code van het te schrijven teken en roept vervolgens de subroutine CHROUT aan met het sprongtabeladres \$FFD2:
+
+\begin{asmcode}
+    lda #$41
+    jsr $ffd2
+\end{asmcode}
+
+\subsection{Randvoorwaarden voor sprongtabelroutines}
+
+Alle KERNAL-sprongtabelroutines verwachten dat bij de aanroep aan de volgende voorwaarden is voldaan:
+
+\begin{enumerate}
+\item Het 16-bits adresbereik \$E000 -- \$FFFF moet gemapt zijn op de KERNAL-ROM op 3.E000 -- 3.FFFF.\item Het 16-bits adresbereik \$0000 -- \$1FFF moet gemapt zijn op het interne variabelengeheugen van de KERNAL op 0.0000 -- 0.1FFF.\item Het basispaginaregister (B) van de CPU moet \$00 zijn.
+\end{enumerate}
+
+Sommige sprongtabelroutines hebben aanvullende randvoorwaarden. Zie de naslag hieronder.
+
+De geheugenindelingen KERNAL BASIC en SYS handhaven deze voorwaarden standaard. Indien een machinetaalprogramma de registers MAP of B niet wijzigt, kan het zonder aanvullende voorbereiding KERNAL-sprongtabelroutines aanroepen.
+
+De KERNAL maakt gebruik van andere geheugengebieden. Zie \bookref{cha:programming-with-memory}.
+
+Tenzij anders vermeld, moet een programma ervan uitgaan dat een aanroep van een KERNAL-routine de gegevens in alle CPU-registers en in statusvlaggen die met waarden te maken hebben overschrijft. Gevolgen voor de stack en voor modusgerelateerde statusvlaggen (interrupts) worden expliciet vermeld.
+
+\subsection{Geschiedenis en compatibiliteit}
+
+De KERNAL-sprongtabel van de MEGA65 is gebaseerd op de sprongtabel van de Commodore 65 en daarmee compatibel. Deze API is afgeleid van de KERNAL-API's van de Commodore 64 en de Commodore 128, maar is \emph{niet} volledig compatibel.
+
+Deze documentatie neemt, voor zover mogelijk, de routinenamen uit de documentatie van de Commodore 65 over en verzint unieke namen voor routines die nieuw zijn op de MEGA65. Een routine met een naam die lijkt op een naam uit de C64- of C128-documentatie is \emph{niet} noodzakelijk API-compatibel. Voor zover bekend, worden verschillen in deze naslag vermeld.
+
+De ``GO64''-modus van de MEGA65 gebruikt de C64-KERNAL. Raadpleeg een naslagwerk over C64-programmering voor informatie over het gebruik van de C64-KERNAL.
+
+Voor een volledige geschiedenis van de KERNAL-sprongtabel op alle Commodore-computers, zie: \url{https://www.pagetable.com/?p=926}
+
+\newpage
+\section{Snelnaslag van de MEGA65-KERNAL-sprongtabel}
+
+Hieronder volgt een snelnaslag van de MEGA65-KERNAL-sprongtabel, in adresvolgorde. Raadpleeg de volledige naslag voor details en voorbeelden.
+
+\begingroup\footnotesize\setlength{\tabcolsep}{3pt}\begin{longtable}{|L{1.2cm}|p{2.5cm}|p{2cm}|L{6cm}|}
+\hline
+\textbf{Adres} & \textbf{Categorie} & \textbf{Naam} & \textbf{Beschrijving} \\
+\hline
+\endfirsthead
+\multicolumn{4}{l@{}}{\ldots vervolg}\\
+\hline
+\textbf{Adres} & \textbf{Categorie} & \textbf{Naam} & \textbf{Beschrijving} \\
+\hline
+\endhead
+\multicolumn{4}{l@{}}{vervolg \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+
+\$FF2F & Besturingssysteem & VERSIONQ & Laadt het ROM-versienummer in Q \\
+\hline
+\$FF32 & Besturingssysteem & RESET\_RUN & Herstart de computer op verschillende manieren \\
+\hline
+\$FF35 & Editor & CURSOR & Schakelt de cursor in of uit \\
+\hline
+\$FF38 & Gereserveerd & n/a & GERESERVEERD, NIET GEBRUIKEN \\
+\hline
+\$FF3B & Bestanden & SAVEFL & Slaat op in een bestand, met vlaggen \\
+\hline
+\$FF3E & Gereserveerd & n/a & GERESERVEERD, NIET GEBRUIKEN \\
+\hline
+\$FF41 & I/O & GETIO & Leest de huidige invoer- en uitvoerapparaten \\
+\hline
+\$FF44 & Bestanden & GETLFS & Leest bestand, apparaat en secundair adres \\
+\hline
+\$FF47 & Editor & SYSFLAGS & Leest/zet toetsenbordvergrendelingen \\
+\hline
+\$FF4A & Editor & ADDKEY & Voegt een teken toe aan de invoerbuffer van het softwaretoetsenbord \\
+\hline
+\$FF4D & Gereserveerd & SPIN\_SPOUT & Stelt de snelle seriële poorten in \\
+\hline
+\$FF50 & Bestanden & CLOSE\_ALL & Sluit alle bestanden op een apparaat \\
+\hline
+\$FF53 & Besturingssysteem & C64MODE & Zet de computer terug naar de GO64-modus \\
+\hline
+\$FF56 & Besturingssysteem & MonitorCall & Roept de monitor aan \\
+\hline
+\$FF59 & Besturingssysteem & BOOT\_SYS & Start een alternatief systeem vanaf schijf op \\
+\hline
+\$FF5C & Besturingssysteem & PHOENIX & Roept de koude start van een cartridge of de schijf-bootloader aan \\
+\hline
+\$FF5F & Bestanden & LKUPLA & Zoekt een logisch bestandsnummer dat in gebruik is \\
+\hline
+\$FF62 & Bestanden & LKUPSA & Zoekt een secundair adres dat in gebruik is \\
+\hline
+\$FF65 & Editor & SWAPPER & Wisselt tussen de tekstmodi 40x25 en 80x25 \\
+\hline
+\$FF68 & Editor & PFKEY & Programmeert een functietoets van de editor \\
+\hline
+\$FF6B & Bestanden & SETBNK & Stelt de bank in voor I/O en bestandsnaamgeheugen \\
+\hline
+\$FF6E & Geheugen & JSRFAR & Roept een subroutine in een willekeurige bank aan \\
+\hline
+\$FF71 & Geheugen & JMPFAR & Springt naar een adres in een willekeurige bank \\
+\hline
+\$FF74 & Geheugen & LDA\_FAR & Leest een byte van een adres in een willekeurige bank \\
+\hline
+\$FF77 & Geheugen & STA\_FAR & Schrijft een byte naar een adres in een willekeurige bank \\
+\hline
+\$FF7A & Geheugen & CMP\_FAR & Vergelijkt een byte met een adres in een willekeurige bank \\
+\hline
+\$FF7D & Hulpmiddelen & PRIMM & Drukt een inline, met nul afgesloten korte string af \\
+\hline
+\$FF81 & Editor & CINT & Initialiseert de schermeditor \\
+\hline
+\$FF84 & Besturingssysteem & IOINIT & Initialiseert I/O-apparaten \\
+\hline
+\$FF87 & Besturingssysteem & RAMTAS & Initialiseert het RAM-geheugen en de buffers \\
+\hline
+\$FF8A & Besturingssysteem & RESTOR & Initialiseert de KERNAL-vectortabel \\
+\hline
+\$FF8D & Besturingssysteem & VECTOR & Leest/stelt de KERNAL-vectortabel in \\
+\hline
+\$FF90 & Besturingssysteem & SETMSG & Schakelt KERNAL-meldingen in of uit \\
+\hline
+\$FF93 & Serieel & SECND & Stuurt een secundair adres naar de listener \\
+\hline
+\$FF96 & Serieel & TKSA & Stuurt een secundair adres naar de talker \\
+\hline
+\$FF99 & Gereserveerd & MEMTOP & GERESERVEERD, NIET GEBRUIKEN \\
+\hline
+\$FF9C & Gereserveerd & MEMBOT & GERESERVEERD, NIET GEBRUIKEN \\
+\hline
+\$FF9F & Hulpmiddelen & KEY & Scant het toetsenbord \\
+\hline
+\$FFA2 & Besturingssysteem & MONEXIT & Verlaat de monitor en keert terug naar BASIC \\
+\hline
+\$FFA5 & Serieel & ACPTR & Aanvaardt een byte van de talker \\
+\hline
+\$FFA8 & Serieel & CIOUT & Stuurt een byte naar de listener \\
+\hline
+\$FFAB & Serieel & UNTLK & Stuurt het ``untalk''-commando \\
+\hline
+\$FFAE & Serieel & UNLSN & Stuurt het ``unlisten''-commando \\
+\hline
+\$FFB1 & Serieel & LISTN & Stuurt het ``listen''-commando \\
+\hline
+\$FFB4 & Serieel & TALK & Stuurt het ``talk''-commando \\
+\hline
+\$FFB7 & I/O & READSS & Geeft de status van de laatste I/O-bewerking terug \\
+\hline
+\$FFBA & Bestanden & SETLFS & Stelt bestand, apparaat en secundair adres in \\
+\hline
+\$FFBD & Bestanden & SETNAM & Stelt de verwijzingen naar de bestandsnaam in \\
+\hline
+\$FFC0 & Bestanden & OPEN & Opent een logisch bestand \\
+\hline
+\$FFC3 & Bestanden & CLOSE & Sluit een logisch bestand \\
+\hline
+\$FFC6 & I/O & CHKIN & Stelt het invoerkanaal in \\
+\hline
+\$FFC9 & I/O & CKOUT & Stelt het uitvoerkanaal in \\
+\hline
+\$FFCC & I/O & CLRCH & Herstelt de standaardkanalen \\
+\hline
+\$FFCF & I/O & BASIN & Leest een teken van het invoerapparaat \\
+\hline
+\$FFD2 & I/O & BSOUT & Schrijft een teken naar het uitvoerapparaat \\
+\hline
+\$FFD5 & Bestanden & LOAD & Laadt/verifieert uit bestand \\
+\hline
+\$FFD8 & Bestanden & SAVE & Slaat op in een bestand \\
+\hline
+\$FFDB & Hulpmiddelen & SETTIM & Stelt de 24-uursklok van CIA1 in \\
+\hline
+\$FFDE & Hulpmiddelen & RDTIM & Leest de 24-uursklok van CIA1 \\
+\hline
+\$FFE1 & Hulpmiddelen & STOP & Rapporteert de status van de Stop-toets (zie ScanStopKey) \\
+\hline
+\$FFE4 & I/O & GETIN & Leest een teken van het invoerapparaat, zonder te wachten \\
+\hline
+\$FFE7 & Bestanden & CLALL & Sluit alle bestanden en kanalen \\
+\hline
+\$FFEA & Hulpmiddelen & ScanStopKey & Scant de Stop-toets \\
+\hline
+\$FFED & Editor & SCRORG & Vraagt de huidige afmetingen van het schermvenster op \\
+\hline
+\$FFF0 & Editor & PLOT & Leest/stelt de cursorpositie in \\
+\hline
+\$FFF3 & Gereserveerd & IOBASE & GERESERVEERD, NIET GEBRUIKEN \\
+\hline
+\end{longtable}
+\endgroup
+
+
+\newpage
+\section{Naslagwerk van de MEGA65-KERNAL-sprongtabel}
+\titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ****
+% ACPTR
+% ****
+
+\newpage
+\subsection{ACPTR}
+\index{KERNAL-sprongtabel!ACPTR}
+\label{KERNAL Jump Table!ACPTR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFA5    \item [Omschrijving:] Aanvaardt een byte van de talker    \item [Uitvoer:]        \textbf{A} De in ontvangst genomen byte    \item [Opmerkingen:]        Dit is een routine op laag niveau voor de seriële bus. De meeste programma's geven de voorkeur aan de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        Nadat een programma het TALK-commando naar een randapparaat op de seriële bus heeft gezonden, om het apparaat uitvoer te laten leveren, en desgewenst een secundair adres met TKSA heeft meegezonden, roept het programma ACPTR aan om de gegevens één byte tegelijk uit het apparaat te lezen. Zie TALK.
+
+        Een programma kan dit gedrag met de IACPTR-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+acptr = $ffa5
+
+    jsr $ffa5
+    sta data
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% ADDKEY
+% ****
+
+\newpage
+\subsection{ADDKEY}
+\index{KERNAL-sprongtabel!ADDKEY}
+\label{KERNAL Jump Table!ADDKEY}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF4A    \item [Omschrijving:] Voegt een teken aan de toetsenbordinvoerbuffer toe    \item [Invoer:]        \textbf{A} De PETSCII-code    \item [Uitvoer:]        \textbf{C-vlag} 0 bij succes, 1 bij mislukking    \item [Opmerkingen:]        De MEGA65-KERNAL leest toetsenbordgebeurtenissen uit drie bronnen: de actieve functietoetsmacro, een toetsenbordbuffer die de KERNAL beheert en de wachtrij met typegebeurtenissen van de hardware. Wanneer GETIN van het toetsenbord leest, gaat het deze bronnen achtereenvolgens na.
+
+        ADDKEY voegt een PETSCII-code aan de toetsenbordbuffer toe. GETIN verwerkt deze buffer wanneer er geen functietoetsmacro actief is. Deze buffer heeft voorrang op de wachtrij met typegebeurtenissen van de hardware.
+
+        De toetsenbordbuffer heeft een vaste grootte. Indien de buffer vol is, wordt de toets niet toegevoegd en wordt de C-vlag gezet.
+
+        \underline{OPMERKING}: Bij de MEGA65 wordt de buffer uitgelezen door aanroepen van GETIN, en niet door de KERNAL-IRQ zoals bij een C64. Een programma moet naar de schermeditor terugkeren opdat GETIN wordt aangeroepen. Indien een programma meer dan enkele tekens in de wachtrij moet plaatsen, is één optie om een IIRQ-vector te gebruiken en de tekens geleidelijk aan de buffer toe te voegen.
+
+    \item [Voorbeeld:]
+        \begin{asmcode}
+addkey = $ff4a
+
+    ; Laat RUN en een regelterugloop intypen
+    ; zodra de schermeditor actief is.
+    lda #'R'
+    jsr addkey
+    bcs err
+    lda #'U'
+    jsr addkey
+    bcs err
+    lda #'N'
+    jsr addkey
+    bcs err
+    lda #13
+    jsr addkey
+    bcs err
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% BASIN
+% ****
+
+\newpage
+\subsection{BASIN}
+\index{KERNAL-sprongtabel!BASIN}
+\label{KERNAL Jump Table!BASIN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFCF    \item [Omschrijving:] Leest een teken van het invoerapparaat    \item [Uitvoer:]        Bij succes: \\        \textbf{C-vlag} = 0 \\        \textbf{A} Het gelezen teken
+
+        Bij een fout: \\        \textbf{C-vlag} = 1 \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        Het invoerapparaat is standaard het toetsenbord. Een programma kan het invoerapparaat wijzigen met OPEN en CHKIN.
+
+        BASIN behandelt het invoerapparaat als gebufferd en regelgeoriënteerd, waarbij elke regel eindigt met een regelterugloop (PETSCII 13).
+
+        Indien het apparaat RS-232 of serieel is en de buffer leeg is, wacht BASIN op het volgende teken. Verkeert het apparaat in een fouttoestand, dan slaat BASIN de invoer over en retourneert het een regelterugloop.
+
+        Indien het apparaat het toetsenbord is, activeert BASIN de cursor en wacht de routine tot de gebruiker een logische regel heeft getypt en op Return heeft gedrukt. Elke aanroep van BASIN levert een teken uit de regel op, tot en met de regelterugloop. Dit plaatst de cursorpositie tevens op het laatste teken van de logische regel---maar niet erachter. (Schrijft u op dit punt een teken weg, bijvoorbeeld met BSOUT, dan overschrijft dat het laatste teken op de regel. Het is doorgaans gepast om een enkele regelterugloop naar de schermterminal te schrijven.)
+
+        Indien het apparaat het scherm is, gedraagt BASIN zich alsof de gebruiker bij toetsenbordinvoer op Return heeft gedrukt en leest het vanaf de huidige cursorpositie tot het einde van de logische regel. Het laatste teken van een logische regel is een regelterugloop.
+
+        Om te proberen een teken te lezen zonder op een lege buffer te wachten, gebruikt u GETIN.
+
+        Via de IBASIN-vector kunt u deze routine overschrijven of uitbreiden.
+
+        BASIN is vergelijkbaar met ``CHRIN'' op de Commodore 64.    \item [Voorbeeld:]
+       \begin{asmcode}
+basin = $ffcf
+
+    ; Lees een regel in het geheugen, tot aan
+    ; 255 tekens
+    ldy #0
+read_more:
+    jsr basin
+    sta data,y
+    iny
+    beq out_of_memory
+    cmp #$0d   ; regelterugloop?
+    bne read_more
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% BOOT\_SYS
+% ****
+
+\newpage
+\subsection{BOOT{\_}SYS}
+\index{KERNAL-sprongtabel!BOOT\_SYS}
+\label{KERNAL Jump Table!BOOT_SYS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JMP \$FF59    \item [Omschrijving:] Start een alternatief systeem vanaf een schijf op    \item [Opmerkingen:]        De Commodore 65 voorzag een functie waarbij een diskette in het interne 3.5 inch-diskettestation software kon opstarten met behulp van maximaal 512 bytes aan machinetaal in een ``home''-sector, op spoor 0, sector 1.
+
+        De KERNAL leest de home-sector van de schijf wanneer de KERNAL-routine BOOT\_SYS wordt aangeroepen, de gebruiker het \textbf{BOOT SYS}-commando uitvoert of de gebruiker de Alt-toets ingedrukt houdt tijdens het opstarten. Is de eerste byte \$4C, dan laadt de KERNAL de sector in het geheugen op 0.0400 en roept hij deze aan met JMP. Is er geen schijf aanwezig of is de eerste byte niet \$4C, dan onderneemt de KERNAL geen actie.
+
+        De bootsector-functie is iets anders dan het \textbf{BOOT}-commando van BASIC 10, dat een bestand met de naam \texttt{AUTOBOOT.C65} laadt en uitvoert. Deze functie is niet compatibel met bootsectoren in C128-stijl.
+
+        Deze routine keert niet terug. Gebruik bij deze routine uitsluitend JMP.
+
+        \underline{OPMERKING}: Voor de MEGA65 is deze functie niet getest.    \item [Voorbeeld:]
+        \begin{asmcode}
+boot_sys = $ff59
+
+    jmp boot_sys
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% BSOUT
+% ****
+
+\newpage
+\subsection{BSOUT}
+\index{KERNAL-sprongtabel!BSOUT}
+\label{KERNAL Jump Table!BSOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFD2    \item [Omschrijving:] Schrijft een teken naar het uitvoerapparaat    \item [Invoer:]        \textbf{A} Het uit te voeren teken    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        Het uitvoerapparaat is standaard het scherm. Een programma kan het uitvoerapparaat wijzigen met OPEN en CKOUT.
+
+        BSOUT behandelt het uitvoerapparaat als gebufferd.
+
+        Indien het apparaat RS-232 is en de uitvoerbuffer vol is, wacht BSOUT tot er weer ruimte in de buffer is.
+
+        Indien het apparaat serieel is, gebruikt CIOUT een buffer van één teken en wordt het eerder gebufferde teken verzonden.
+
+        Indien het apparaat het scherm is, wordt het teken op de huidige cursorpositie naar het schermgeheugen geschreven.
+
+        Zie OPEN voor de lijst met mogelijke foutcodes.
+
+        Via de IBSOUT-vector kunt u deze routine overschrijven of uitbreiden.
+
+        BSOUT is vergelijkbaar met ``CHROUT'' op de Commodore 64.    \item [Voorbeeld:]
+        \begin{asmcode}
+bsout = $ffd2
+
+    lda #$0d
+    jsr bsout
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% C64MODE
+% ****
+
+\newpage
+\subsection{C64MODE}
+\index{KERNAL-sprongtabel!C64MODE}
+\label{KERNAL Jump Table!C64MODE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JMP \$FF53    \item [Omschrijving:] Zet de computer terug naar de GO64-modus    \item [Opmerkingen:]        Deze routine schakelt over naar de geheugenindeling van de GO64-modus, reset de VIC-modi en springt naar de GO64-startroutine.
+
+        Deze routine keert niet terug. Gebruik uitsluitend JMP om deze routine aan te roepen.    \item [Voorbeeld:]
+        \begin{asmcode}
+c64mode = $ff53
+
+    jmp c64mode
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CHKIN
+% ****
+
+\newpage
+\subsection{CHKIN}
+\index{KERNAL-sprongtabel!CHKIN}
+\label{KERNAL Jump Table!CHKIN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFC6    \item [Omschrijving:] Stelt het invoerkanaal in    \item [Invoer:]        \textbf{X} Het logische adres van het invoerapparaat    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        Deze routine stelt het invoerkanaal in op een opgegeven apparaat, dat via zijn logische adres wordt aangeduid. Roep CHKIN aan na een aanroep van OPEN. BASIN en GETIN lezen van het huidige invoerkanaal.
+
+        Het invoerapparaat is standaard het toetsenbord. Een programma kan CLRCH aanroepen om de standaard kanaalinstellingen te herstellen.
+
+        CHKIN voert apparaatspecifieke taken uit, zoals het verzenden van een TALK-commando naar een serieel kanaal. Het instellen van een apparaat dat geen invoerapparaat is, resulteert in een fout.
+
+        Zie OPEN voor de lijst met mogelijke foutcodes.
+
+        Een programma kan deze routine met de ICHKIN-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+chkin = $ffc6
+
+    ldx #8
+    jsr chkin
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CINT
+% ****
+
+\newpage
+\subsection{CINT}
+\index{KERNAL-sprongtabel!CINT}
+\label{KERNAL Jump Table!CINT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF81    \item [Omschrijving:] Initialiseert de schermeditor    \item [Opmerkingen:]        CINT reset alle eigenschappen van de schermeditor, waaronder de indirecte vectoren, de functietoetsmacro's, de VIC-registers en de SID-registers. De routine wist tevens het scherm.
+
+        CINT wordt doorgaans samen met IOINIT aangeroepen, welke aanvullende eigenschappen van de schermeditor reset.
+
+        Omdat de routine de indirecte vectoren bijwerkt, moet deze worden aangeroepen terwijl interrupts zijn uitgeschakeld.    \item [Voorbeeld:]
+        \begin{asmcode}
+cint = $ff81
+
+    sei
+    jsr cint
+    cli
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CIOUT
+% ****
+
+\newpage
+\subsection{CIOUT}
+\index{KERNAL-sprongtabel!CIOUT}
+\label{KERNAL Jump Table!CIOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFA8    \item [Omschrijving:] Stuurt een byte naar de listener    \item [Invoer:]        \textbf{A} De te verzenden byte    \item [Opmerkingen:]        Dit is een routine op laag niveau voor de seriële bus. De meeste programma's geven de voorkeur aan de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        Nadat een programma het LISTN-commando naar een randapparaat op de seriële bus heeft gezonden, om het apparaat te laten luisteren naar invoer, en desgewenst een secundair adres met SECND heeft meegezonden, gebruikt het programma CIOUT om de gegevens één byte tegelijk naar het apparaat te verzenden.
+
+        Een programma kan dit gedrag met de ICIOUT-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+ciout = $ffa8
+
+    lda data
+    jsr ciout
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CKOUT
+% ****
+
+\newpage
+\subsection{CKOUT}
+\index{KERNAL-sprongtabel!CKOUT}
+\label{KERNAL Jump Table!CKOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFC9    \item [Omschrijving:] Stelt het uitvoerkanaal in    \item [Invoer:]        \textbf{X} Het logische adres van het uitvoerapparaat    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        Deze routine stelt het uitvoerkanaal in op een opgegeven apparaat, dat via zijn logische adres wordt aangeduid. Roep CKOUT aan na een aanroep van OPEN. BSOUT schrijft naar het huidige uitvoerkanaal.
+
+        Het uitvoerapparaat is standaard de schermterminal. Een programma kan CLRCH aanroepen om de standaard kanaalinstellingen te herstellen.
+
+        CKOUT voert apparaatspecifieke taken uit, zoals het verzenden van een LISTN-commando naar een serieel kanaal. Het instellen van een apparaat dat geen uitvoerapparaat is, resulteert in een fout.
+
+        Zie OPEN voor de lijst met mogelijke foutcodes.
+
+        Een programma kan deze routine met de ICKOUT-vector overschrijven of uitbreiden.
+
+        CKOUT is vergelijkbaar met ``CHKOUT'' op de Commodore 64.    \item [Voorbeeld:]
+        \begin{asmcode}
+ckout = $ffc9
+
+    ldx #8
+    jsr chkout
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CLALL
+% ****
+
+\newpage
+\subsection{CLALL}
+\index{KERNAL-sprongtabel!CLALL}
+\label{KERNAL Jump Table!CLALL}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFE7    \item [Omschrijving:] Sluit alle bestanden en kanalen    \item [Opmerkingen:]        Deze routine sluit alle openstaande logische bestanden, alsof ze met CLOSE werden gesloten. Dit omvat het uitvoeren van apparaatspecifieke afsluitacties, evenals het herstellen van de standaard invoer- en uitvoerkanalen (alsof dit via CLRCH gebeurt).
+
+        Een programma kan dit gedrag met de ICLALL-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+clall = $ffe7
+
+    jsr clall
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CLOSE
+% ****
+
+\newpage
+\subsection{CLOSE}
+\index{KERNAL-sprongtabel!CLOSE}
+\label{KERNAL Jump Table!CLOSE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFC3    \item [Omschrijving:] Sluit een logisch bestand    \item [Invoer:]        \textbf{A} Het te sluiten logische bestand \\        \textbf{C-vlag} Gezet om het logische bestand te verwijderen zonder het afsluitcommando te zenden    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        Deze routine voert apparaatspecifieke afsluitacties uit voor het opgegeven openstaande logische bestandsnummer.
+
+        Indien het bestand al gesloten is, of het logische bestandsnummer naar het toetsenbord of het scherm verwijst, keert CLOSE zonder fout terug.
+
+        Indien het apparaat RS-232 is, wacht deze routine tot de schrijfbuffer leeg is voordat wordt afgesloten.
+
+        Indien het apparaat serieel is, zendt de routine een eventueel gebufferd uitvoerteken, zendt indien van toepassing een ``close''-commando en geeft het apparaat opdracht UNLSTN uit te voeren.
+
+        In een bijzonder geval, indien de C-vlag is gezet, het apparaat een schijf is (FA is 8 of hoger) en het secundaire adres het commandokanaal (15) is, wordt geen ``close''-commando gezonden en wordt het logische bestand uit de bestandenlijst verwijderd. Dit is noodzakelijk om te voorkomen dat de schijf andere geopende bestanden sluit wanneer het commandokanaal wordt gesloten. Zie OPEN voor een volledig voorbeeld.
+
+        \underline{OPMERKING}: Wanneer CLOSE wordt gebruikt op een bestand dat door CHKIN of CKOUT als invoer- of uitvoerkanaal was ingesteld, zet deze routine het invoer-/uitvoerkanaal \emph{niet} terug, en een daaropvolgende lees- of schrijfactie kan zich onjuist gedragen. Gebruik CLRCH na CLOSE om de invoer- en uitvoerkanalen terug te zetten.
+
+        Zie OPEN voor de lijst met mogelijke foutcodes.
+
+        Een programma kan dit gedrag met de ICLOSE-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+close = $ffc3
+clrch = $ffcc
+
+    clc          ; normale sluiting
+    lda #$01
+    jsr close
+    jsr clrch    ; I/O-kanalen wissen na
+                 ; het sluiten van het bestand
+    \end{asmcode}
+\end{description}
+
+
+% ****
+% CLOSE\_ALL
+% ****
+
+\newpage
+\subsection{CLOSE{\_}ALL}
+\index{KERNAL-sprongtabel!CLOSE\_ALL}
+\label{KERNAL Jump Table!CLOSE_ALL}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF50    \item [Omschrijving:] Sluit alle bestanden op een apparaat    \item [Invoer:]        \textbf{A} Het apparaatnummer (0-31)    \item [Opmerkingen:]        Deze routine roept CLOSE aan voor elk openstaand bestand van het opgegeven apparaat (FA).
+
+        Indien één van de gesloten bestanden het huidige invoer- of uitvoerkanaal is, worden de standaardkanalen hersteld.    \item [Voorbeeld:]
+        \begin{asmcode}
+close_all = $ff50
+
+    lda #$08
+    jsr close_all
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CLRCH
+% ****
+
+\newpage
+\subsection{CLRCH}
+\index{KERNAL-sprongtabel!CLRCH}
+\label{KERNAL Jump Table!CLRCH}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFCC    \item [Omschrijving:] Herstelt de standaardkanalen    \item [Opmerkingen:]        Deze routine verbreekt alle openstaande kanalen en herstelt de standaard-I/O-kanalen van het systeem, waaronder het toetsenbord als invoerkanaal en de schermterminal als uitvoerkanaal.
+
+        Indien de huidige invoer- of uitvoerkanalen naar seriële apparaten wijzen, zendt CLRCH, naargelang het geval, UNTLK of UNLSN.
+
+        Via de ICLRCH-vector kunt u deze routine overschrijven of uitbreiden.
+
+        CLRCH is vergelijkbaar met ``CLRCHN'' op de Commodore 64.    \item [Voorbeeld:]
+        \begin{asmcode}
+clrch = $ffcc
+
+    jsr clrch
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% CMP\_FAR
+% ****
+
+\newpage
+\subsection{CMP{\_}FAR}
+\index{KERNAL-sprongtabel!CMP\_FAR}
+\label{KERNAL Jump Table!CMP_FAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF7A    \item [Omschrijving:] Vergelijkt een byte met een adres in een willekeurige bank    \item [Invoer:]        \textbf{A} De te vergelijken gegevens \\        \textbf{X} Basispagina-aanwijzer \\        \textbf{Y} Index vanaf het adres waarnaar verwezen wordt \\        \textbf{Z} Bank    \item [Uitvoer:]        CPU-statusvlaggen op basis van de vergelijking    \item [Opmerkingen:]        In wezen is dit het equivalent van \texttt{cmp (X),y} in bank Z.
+
+        Deze routine heeft toegang tot elk adres in de eerste 1 MB van het geheugen. Anders dan JMPFAR wijzigt zij de geheugenindeling niet. Om het lange adres te benaderen, gebruikt zij een DMA-taak.
+
+        Op de MEGA65 ondersteunt de 45GS02 een instructie die dit kan met een 32-bits adres op de basispagina, zonder dat een KERNAL-routine nodig is: \texttt{cmp [zp4],z}    \item [Voorbeeld:]
+        \begin{asmcode}
+cmp_far = $ff7a
+
+    ; Vergelijk het geheugen op adres 4.4502
+    ; naar de accumulator
+    lda #$00
+    sta $fe
+    lda #$45
+    sta $ff
+    ldx #$fe  ; basispagina-aanwijzer -> $4500
+    ldy #$02  ; Y-index
+    ldz #$04  ; bank
+    lda #$99  ; de te vergelijken gegevens
+    jsr cmp_far
+    beq they_are_equal  ; ...
+        \end{asmcode}
+
+\end{description}
+
+% ****
+% CURSOR
+% ****
+
+\newpage
+\subsection{CURSOR}
+\index{KERNAL-sprongtabel!CURSOR}
+\label{KERNAL Jump Table!CURSOR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF35    \item [Omschrijving:] Schakelt de knipperende cursor in of uit    \item [Invoer:]        \textbf{C-vlag} 0 om in te schakelen, 1 om uit te schakelen    \item [Opmerkingen:]        In het normale gebruik schakelt de editor de knipperende cursor in bij de \texttt{READY.}-prompt of bij de uitvoering van het commando {\bf INPUT} op de terminal en houdt hij de cursor anders uitgeschakeld bij de uitvoering van andere commando's, inclusief machinetaal die met {\bf SYS} wordt aangeroepen. Een programma kan het knipperen van de cursor weer inschakelen wanneer het vergelijkbare gebruikersinteracties biedt, zoals het afwachten van toetsenbordinvoer van de gebruiker met {\bf GETIN}.
+
+        Het inschakelen van de cursor heeft slechts tot gevolg dat de schermeditor de cursorpositie aangeeft, door het teken op die positie te animeren. Het is de verantwoordelijkheid van het programma om naar toetsenbordinvoer te luisteren en tekens naar het scherm te sturen.
+
+        In BASIC hebben de commando's {\bf CURSOR OFF} en {\bf CURSOR ON} hetzelfde effect als deze routine.    \item [Voorbeeld:]
+        \begin{asmcode}
+bsout = $ffd2
+cursor = $ff35
+getin = $ffe4
+
+    ; Schakel de cursor in.
+    clc
+    jsr cursor
+
+    ; Wacht op een toetsaanslag.
+-   jsr getin
+    beq -
+    pha  ; Bewaar het getypte teken.
+
+    ; Schakel de cursor uit.
+    sec
+    jsr cursor
+
+    ; Geef het getypte teken door.
+    pla
+    jsr bsout
+    \end{asmcode}
+
+\end{description}
+
+
+% ****
+% GETIN
+% ****
+
+\newpage
+\subsection{GETIN}
+\index{KERNAL-sprongtabel!GETIN}
+\label{KERNAL Jump Table!GETIN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFE4    \item [Omschrijving:] Leest een teken van het invoerapparaat, zonder te wachten    \item [Uitvoer:]        \textbf{A} Het gelezen teken \\        \textbf{C-vlag} Gezet bij een fout    \item [Opmerkingen:]        Het invoerapparaat is standaard het toetsenbord. Een programma kan het invoerapparaat wijzigen met OPEN en CHKIN.
+
+        GETIN behandelt het invoerapparaat als gebufferd, maar wacht niet op invoer. Indien de invoerbuffer van het apparaat leeg is, retourneert GETIN \$00.
+
+        Is het invoerapparaat bij de MEGA65 het toetsenbord, dan gebruikt GETIN meerdere toetsenbordinvoerbuffers: de KERNAL-toetsenbordbuffer, de functietoetsmacrobuffer en de hardwaretoetsenbordbuffer van de MEGA65. In tegenstelling tot de C65 vult de MEGA65-KERNAL de KERNAL-toetsenbordbuffer niet in de IRQ-handler. In plaats daarvan haalt GETIN rechtstreeks één typegebeurtenis uit de hardwaretoetsenbordbuffer van de MEGA65. De KERNAL-toetsenbordbuffer blijft evenwel ondersteund, zodat softwarefuncties die toetsaanslagen injecteren blijven werken.
+
+        Is het invoerapparaat serieel of het scherm, dan gedraagt GETIN zich zoals BASIN.
+
+        Een programma kan deze routine met de IGETIN-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+getin = $ffe4
+
+get_a_key:
+    jsr getin
+    beq get_a_key
+    sta data
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% GETIO
+% ****
+
+\newpage
+\subsection{GETIO}
+\index{KERNAL-sprongtabel!GETIO}
+\label{KERNAL Jump Table!GETIO}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF41    \item [Omschrijving:] Leest de huidige invoer- en uitvoerapparaten    \item [Uitvoer:]        \textbf{X} huidig invoerapparaat (FA) \\        \textbf{Y} huidig uitvoerapparaat (FA)    \item [Opmerkingen:]        Een invoerapparaat van 0 vertegenwoordigt het toetsenbord.
+
+        Een uitvoerapparaat van 3 vertegenwoordigt het scherm.
+
+        CHKIN en CKOUT wijzigen deze instellingen.    \item [Voorbeeld:]
+        \begin{asmcode}
+getio = $ff41
+
+    jsr getio
+    cpy #3
+    beq is_screen_output
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% GETLFS
+% ****
+
+\newpage
+\subsection{GETLFS}
+\index{KERNAL-sprongtabel!GETLFS}
+\label{KERNAL Jump Table!GETLFS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF44    \item [Omschrijving:] Leest bestand, apparaat en secundair adres    \item [Uitvoer:]        \textbf{A} Het logische bestandsnummer (LA) \\        \textbf{X} Het apparaatnummer (FA) \\        \textbf{Y} Het secundaire adres, of \$FF (SA)    \item [Opmerkingen:]        Deze instellingen worden zowel door SETLFS gewijzigd als door andere KERNAL-aanroepen en BASIC-commando's die via het logische bestandsnummer informatie over geopende bestanden opzoeken.
+
+        Een programma kan dit gebruiken om te bepalen van welk schijfstation het programma is geladen, door deze routine direct na het starten aan te roepen, voordat het andere schijf-I/O uitvoert.    \item [Voorbeeld:]
+        \begin{asmcode}
+getlfs = $ff44
+
+    jsr getlfs
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% IOBASE
+% ****
+
+\newpage
+\subsection{IOBASE}
+\index{KERNAL-sprongtabel!IOBASE}
+\label{KERNAL Jump Table!IOBASE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFF3    \item [Omschrijving:] GERESERVEERD, NIET GEBRUIKEN    \item [Opmerkingen:]        Vroeger gaf deze routine het startadres van de I/O-registers terug. Bij de C65 is dit altijd \$D000.
+\end{description}
+
+
+% ****
+% IOINIT
+% ****
+
+\newpage
+\subsection{IOINIT}
+\index{KERNAL-sprongtabel!IOINIT}
+\label{KERNAL Jump Table!IOINIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF84    \item [Omschrijving:] Initialiseert I/O-apparaten    \item [Opmerkingen:]        IOINIT reset de CIA-chips, de 45GS02-poort, de VIC-chip, de UART en het DOS.
+
+        Deze routine moet worden aangeroepen met uitgeschakelde interrupts.    \item [Voorbeeld:]
+    \begin{asmcode}
+ioinit = $ff84
+
+    sei
+    jsr ioinit
+    cli
+    \end{asmcode}
+\end{description}
+
+
+% ****
+% JMPFAR
+% ****
+
+\newpage
+\subsection{JMPFAR}
+\index{KERNAL-sprongtabel!JMPFAR}
+\label{KERNAL Jump Table!JMPFAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JMP \$FF71    \item [Omschrijving:] Springt naar een adres in een willekeurige bank    \item [Invoer:]        \textbf{\$02} Bank van het adres (0-5) \\        \textbf{\$03} Hoge byte van het adres \\        \textbf{\$04} Lage byte van het adres \\        \textbf{\$05} Statusregister van de CPU \\        \textbf{\$06} A-register van de CPU \\        \textbf{\$07} X-register van de CPU \\        \textbf{\$08} Y-register van de CPU \\        \textbf{\$09} Z-register van de CPU    \item [Opmerkingen:]        Deze routine stelt de geheugenindeling van de CPU zodanig bij dat het gevraagde adres als een 16-bits adres zichtbaar wordt, en springt er vervolgens naartoe. Hij keert niet terug.
+
+        Deze routine kent vergelijkbare beperkingen als het \textbf{SYS}-commando van BASIC en kan niet elk adres bereiken. Hij kan uitsluitend springen naar adressen in banken ongelijk aan nul, van X.2000 -- X.7FFF.
+
+        De gewijzigde geheugenindeling laat \$0000--\$1FFF en \$8000--\$DFFF ongemapt (zodat zij naar bank 0 respectievelijk de I/O-registers verwijzen) en mapt \$E000--\$FFFF op KERNAL-ROM.
+
+        Een programma stelt de parameters voor JMPFAR in door naar de basispagina van de KERNAL te schrijven. Tot de parameters behoren de drie adresbytes en de toestand van de CPU-registers zoals die bij binnenkomst op de nieuwe locatie verwacht wordt.
+
+        Deze routine keert niet terug. Roep deze routine uitsluitend aan met JMP.    \item [Voorbeeld:]
+        \begin{asmcode}
+jmpfar = $ff71
+
+    ; MAP $2000-$7FFF naar bank 4, dan JMP
+    ; naar 4.4500
+    lda #$04
+    sta $02
+    lda #$45
+    sta $03
+    lda #$00
+    sta $04
+    lda #$04  ; Start de routine met
+              ; interrupts uitgeschakeld
+    sta $05
+    jmp jmpfar
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% JSRFAR
+% ****
+
+\newpage
+\subsection{JSRFAR}
+\index{KERNAL-sprongtabel!JSRFAR}
+\label{KERNAL Jump Table!JSRFAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF6E    \item [Omschrijving:] Roept een subroutine in een willekeurige bank aan    \item [Invoer:]        \textbf{\$02} Bank van het adres (0-5) \\        \textbf{\$03} Hoge byte van het adres \\        \textbf{\$04} Lage byte van het adres \\        \textbf{\$05} Statusregister van de CPU \\        \textbf{\$06} A-register van de CPU \\        \textbf{\$07} X-register van de CPU \\        \textbf{\$08} Y-register van de CPU \\        \textbf{\$09} Z-register van de CPU    \item [Uitvoer:]        De status- en de A-, X-, Y- en Z-registers van de CPU bevatten bij terugkeer dezelfde waarden als aan het einde van de subroutine.    \item [Opmerkingen:]        Deze routine stelt de geheugenindeling van de CPU zodanig bij dat het gevraagde adres als een 16-bits adres zichtbaar wordt, en voert er vervolgens een JSR naartoe uit. Bij terugkeer herstelt hij de vorige, door de KERNAL beheerde geheugenindeling (bijv. de SYS-indeling).
+
+        Deze routine kent vergelijkbare beperkingen als het \textbf{SYS}-commando van BASIC en kan niet elk adres bereiken. Hij kan uitsluitend springen naar adressen in banken ongelijk aan nul, binnen X.2000 -- X.7FFF.
+
+        De gewijzigde geheugenindeling laat \$0000--\$1FFF en \$8000--\$DFFF ongemapt (waardoor zij naar bank 0 en de I/O-registers verwijzen), terwijl \$E000--\$FFFF op de KERNAL-ROM is gemapt.
+
+        Een programma stelt de parameters voor JSRFAR in door naar de basispagina van de KERNAL te schrijven. Tot de parameters behoren de drie adresbytes en de toestand van de CPU-registers zoals die bij binnenkomst op de nieuwe locatie verwacht wordt.
+
+        Roep deze routine uitsluitend aan met JSR.    \item [Voorbeeld:]
+        \begin{asmcode}
+jsrfar = $ff6e
+
+    ; MAP $2000-$7FFF naar bank 4, dan
+    ; JSR naar 4.4500
+    lda #$04
+    sta $02
+    lda #$45
+    sta $03
+    lda #$00
+    sta $04
+    lda #$04  ; Start de routine met
+              ; interrupts uitgeschakeld
+    sta $05
+    jsr jsrfar
+
+    ; Het programma gaat verder...
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% KEY
+% ****
+
+\newpage
+\subsection{KEY}
+\index{KERNAL-sprongtabel!KEY}
+\label{KERNAL Jump Table!KEY}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF9F    \item [Omschrijving:] Voert een toetsenbordscan uit.    \item [Opmerkingen:]        Bij de MEGA65 worden typegebeurtenissen beheerd door een buffermechanisme in de hardware en niet door de KERNAL. Een programma dat een typegebeurtenis wil verwerken, kan GETIN aanroepen of rechtstreeks de registers van de typegebeurtenisbuffer raadplegen, zonder KEY aan te roepen.
+
+        KEY beheert speciale toetsenbordgedragingen, waaronder Mega + Shift, No Scroll en Ctrl-S. De KERNAL van de MEGA65 roept KEY binnen de IRQ-handler meerdere keren per seconde aan, vergelijkbaar met andere Commodore-computers. Een programma dat de IRQ-handler van de KERNAL uitschakelt maar deze gedragingen wel in stand wil houden, kan KEY vanuit een eigen handler aanroepen.
+
+        \underline{OPMERKING}: Bij de MEGA65 wijkt KEY af van de C65 en biedt de routine geen aansluiting via vectoren. Vectoren om toetsaanslagen te onderscheppen zijn nog in ontwikkeling.
+
+        KEY heeft hetzelfde adres als de routine ``SCNKEY'' op de Commodore 64, maar gedraagt zich anders.    \item [Voorbeeld:]
+        \begin{asmcode}
+key = $ff9f
+
+    jsr key
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% LDA\_FAR
+% ****
+
+\newpage
+\subsection{LDA{\_}FAR}
+\index{KERNAL-sprongtabel!LDA\_FAR}
+\label{KERNAL Jump Table!LDA_FAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF74    \item [Omschrijving:] Leest een byte van een adres in een willekeurige bank    \item [Invoer:]        \textbf{X} Basispagina-aanwijzer \\        \textbf{Y} Index vanaf het aangewezen adres \\        \textbf{Z} Bank    \item [Uitvoer:]        \textbf{A} De waarde op het adres    \item [Opmerkingen:]        In wezen is dit het equivalent van \texttt{lda (X),y} in bank Z.
+
+        Deze routine kan elk adres in de eerste 1 MB van het geheugen bereiken. In tegenstelling tot JMPFAR wijzigt hij de geheugenindeling niet. Hij gebruikt een DMA-taak om het lange adres te benaderen.
+
+        Bij de MEGA65 ondersteunt de 45GS02 een instructie die dit kan met een 32-bits adres dat op de basispagina staat, zonder dat daarvoor een KERNAL-routine nodig is: \texttt{lda [zp4],z}    \item [Voorbeeld:]
+        \begin{asmcode}
+lda_far = $ff74
+
+    ; Laad het geheugen op adres 4.4502
+    ; in de accumulator
+    lda #$00
+    sta $fe
+    lda #$45
+    sta $ff
+    ldx #$fe  ; basispagina-aanwijzer -> $4500
+    ldy #$02  ; Y-index
+    ldz #$04  ; bank
+    jsr lda_far
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% LISTN
+% ****
+
+\newpage
+\subsection{LISTN}
+\index{KERNAL-sprongtabel!LISTN}
+\label{KERNAL Jump Table!LISTN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFB1    \item [Omschrijving:] Stuurt het ``listen''-commando    \item [Invoer:]        \textbf{A} Het apparaatnummer (FA, 0-31)    \item [Opmerkingen:]        Dit is een seriële routine op laag niveau. De meeste programma's gebruiken liever de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        Volgens het seriële protocol op laag niveau wordt van de computer verwacht dat hij alle apparaatcommunicatie op de seriële bus coördineert. Elk apparaat heeft een vastgeprogrammeerd apparaatnummer; sommige apparaten, zoals schijfstations, hebben schakelaars waarmee het herkende apparaatnummer te wijzigen is. Alle apparaten zien al het verkeer op de bus en van elk apparaat wordt verwacht dat het van modus wisselt wanneer het een commando met zijn apparaatnummer ziet.
+
+        Wanneer de computer gegevens naar een apparaat wil sturen, zendt hij het ``listen''-commando naar dat apparaat. Doorgaans verzendt de computer gegevens naar slechts één apparaat tegelijk. Om een andere listener aan te wijzen, zendt de computer een ``untalk''-commando uit naar alle apparaten en stuurt hij vervolgens een nieuw ``listen''-commando met een ander apparaatnummer.
+
+        De computer geeft telkens aan één apparaat toestemming om als ``talker'' op de seriële bus op te treden. Om een andere talker aan te wijzen, zendt de computer een ``untalk''-commando uit naar alle apparaten en stuurt hij vervolgens een nieuw ``talk''-commando.
+
+        Gebruik UNLSN om alle apparaten te laten weten dat zij de talk-modus moeten beëindigen.
+
+        Een programma kan dit gedrag met de ILISTEN-vector overschrijven of uitbreiden.
+
+        LISTN is vergelijkbaar met ``LISTEN'' op de Commodore 64.
+
+    \item [Voorbeeld:]
+        \begin{asmcode}
+listn = $ffb1
+
+    lda #8
+    jsr listn
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% LKUPLA
+% ****
+
+\newpage
+\subsection{LKUPLA}
+\index{KERNAL-sprongtabel!LKUPLA}
+\label{KERNAL Jump Table!LKUPLA}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF5F    \item [Omschrijving:] Zoekt een logisch bestandsnummer dat in gebruik is    \item [Invoer:]        \textbf{A} Het logische bestandsnummer (LA)    \item [Uitvoer:]        Indien gevonden: \\        \textbf{C-vlag} = 0 \\        \textbf{A} Het logische bestandsnummer (LA) \\        \textbf{X} Het apparaatnummer (FA) \\        \textbf{Y} Het secundaire adres (SA), of \$FF indien niet van toepassing
+
+        Indien niet gevonden: \\        \textbf{C-vlag} = 1    \item [Opmerkingen:]        Deze routine wordt vooral door BASIC gebruikt om een ongebruikt logisch bestandsnummer te vinden. In de praktijk bepalen de meeste programma's volledig zelf welke logische bestandsnummers ze gebruiken, zodat opzoeken niet nodig is.
+
+        Deze routine is tevens bruikbaar om aan de hand van het logische bestandsnummer te achterhalen bij welk apparaat een bestand geopend is.    \item [Voorbeeld:]
+        \begin{asmcode}
+lkupla = $ff5f
+
+    lda #$01
+    jsr lkupla
+    bcs not_in_use
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% LKUPSA
+% ****
+
+\newpage
+\subsection{LKUPSA}
+\index{KERNAL-sprongtabel!LKUPSA}
+\label{KERNAL Jump Table!LKUPSA}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF62    \item [Omschrijving:] Zoekt een secundair adres dat in gebruik is    \item [Invoer:]        \textbf{Y} Het secundaire adres (SA)    \item [Uitvoer:]        Indien gevonden: \\        \textbf{C-vlag} = 0 \\        \textbf{A} Het logische bestandsnummer (LA) \\        \textbf{X} Het apparaatnummer (FA) \\        \textbf{Y} Het secundaire adres (SA), of \$FF indien niet van toepassing
+
+        Indien niet gevonden: \\        \textbf{C-vlag} = 1    \item [Opmerkingen:]        Deze routine wordt vooral door BASIC gebruikt om een ongebruikt secundair adres te vinden. In de praktijk bepalen de meeste programma's volledig zelf welke secundaire adressen ze gebruiken, zodat opzoeken niet nodig is.    \item [Voorbeeld:]
+        \begin{asmcode}
+lkupsa = $ff62
+
+    ldy #$60
+    jsr lkupsa
+    bcs not_in_use
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% LOAD
+% ****
+
+\newpage
+\subsection{LOAD}
+\index{KERNAL-sprongtabel!LOAD}
+\label{KERNAL Jump Table!LOAD}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFD5    \item [Omschrijving:] Laadt/verifieert uit bestand    \item [Invoer:]        \textbf{A} = 0 om te laden, 1 om te verifiëren; zet bit 6 voor de ``raw''-modus \\        \textbf{X} Laadadres, lage byte \\        \textbf{Y} Laadadres, hoge byte    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig \\        \textbf{X} Eindadres, lage byte \\        \textbf{Y} Eindadres, hoge byte    \item [Opmerkingen:]        Voordat het programma LOAD aanroept, moet het SETBNK, SETLFS en SETNAM aanroepen om de parameters voor het te laden bestand in te stellen. LOAD kan niet worden gebruikt met RS-232-apparaten, het scherm of het toetsenbord. Het logische bestandsnummer wordt niet gebruikt.
+
+        Bij gebruik met een schijfstation laadt LOAD uitsluitend een bestand van het type PRG. Om een bestand van een ander type te laden, gebruikt u SETNAM, waarin u het type in de naamstring opneemt (bijvoorbeeld \texttt{"MIJNBESTAND,S"} voor een SEQ-bestand), samen met OPEN, CHKIN, BASIN en CLOSE. Zie OPEN voor een voorbeeld.
+
+        Indien bit 0 van A gewist is, laadt LOAD het bestand van het invoerapparaat en schrijft het naar het geheugen.
+
+        Indien bit 0 van A ingesteld is, verifieert LOAD het bestand: het laadt het bestand en vergelijkt het met de inhoud van het geheugen. Komt het bestand niet overeen met het geheugen, dan retourneert LOAD een foutstatus. Het geheugen wordt niet gewijzigd.
+
+        Indien bit 6 van A ingesteld is (de ``raw''-modus), behandelt LOAD de eerste twee bytes van het bestand als gegevens. Is deze bit gewist, dan wordt verwacht dat de eerste twee bytes van het bestand het opgeslagen laadadres bevatten, zoals gebruikelijk is bij een PRG-bestand. Een PRG-bestand dat in de raw-modus wordt geladen, moet desondanks minstens twee bytes bevatten, anders wordt een ``File Not Found''-fout gemeld.
+
+        Is het secundaire adres (SA) \$00, dan wordt de opgegeven waarde van X/Y als laadadres gebruikt en worden de eerste twee bytes van het bestand overgeslagen indien de ``raw''-modus niet actief is. Is SA niet \$00, dan worden X/Y genegeerd en wordt het feitelijke laadadres ontleend aan het opgeslagen laadadres in de eerste twee bytes van het bestand. Dit komt overeen met het gedrag van het volgende BASIC-commando: \texttt{LOAD "FILE",8,1}
+
+        De volledige LOAD-bewerking moet binnen één bank passen. Deze mag geen bankgrenzen overschrijden.
+
+        LOAD verricht alle taken die nodig zijn om het bestand te openen, het te lezen en het vervolgens te sluiten. Anders dan OPEN laat het geen logische bestanden open staan.
+
+        Bij succes wordt het adres van de laatst geladen (of geverifieerde) byte \emph{plus één} teruggegeven in de registers X en Y.
+
+        LOAD stelt de I/O-status op de juiste wijze in. Deze is met READSS uit te lezen.
+
+        Zie OPEN voor de lijst met mogelijke foutcodes.
+
+        Een programma kan dit gedrag met de ILOAD-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+load = $ffd5
+setbnk = $ff6b
+setlfs = $ffba
+setnam = $ffbd
+
+    lda #$00    ; geheugen in bank 0
+    ldx #$00    ; bestandsnaam in bank 0
+    jsr setbnk
+
+    lda #$00    ; (niet gebruikt bij laden)
+    ldx #$08    ; apparaatnummer
+    ldy #$00    ; laden
+    jsr setlfs
+
+    lda #bestandsnam_eind-bestandsnaam
+    ldx #<bestandsnaam
+    ldy #>bestandsnaam
+    jsr setnam
+
+    lda #0      ; laden
+    ldx #$00    ; naar 0.4500
+    ldy #$45
+    jsr load
+
+    rts
+
+bestandsnaam:
+    !pet "mijnbestand"
+bestandsnaam_eind:
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% MEMBOT
+% ****
+
+\newpage
+\subsection{MEMBOT}
+\index{KERNAL-sprongtabel!MEMBOT}
+\label{KERNAL Jump Table!MEMBOT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF9C    \item [Omschrijving:] GERESERVEERD, NIET GEBRUIKEN    \item [Opmerkingen:]        Historisch gezien verwijzen MEMBOT en MEMTOP naar parameters voor de geheugentoewijzing die de KERNAL gebruikt. De C65-KERNAL gebruikt deze voorziening niet. Deze routines worden wel genoemd in de C65-documentatie, maar doen niets.
+\end{description}
+
+
+% ****
+% MEMTOP
+% ****
+
+\newpage
+\subsection{MEMTOP}
+\index{KERNAL-sprongtabel!MEMTOP}
+\label{KERNAL Jump Table!MEMTOP}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF99    \item [Omschrijving:] GERESERVEERD, NIET GEBRUIKEN    \item [Opmerkingen:]        Historisch gezien verwijzen MEMBOT en MEMTOP naar parameters voor de geheugentoewijzing die de KERNAL gebruikt. De C65-KERNAL gebruikt deze voorziening niet. Deze routines worden wel genoemd in de C65-documentatie, maar doen niets.
+\end{description}
+
+
+% ****
+% MONEXIT
+% ****
+
+\newpage
+\subsection{MONEXIT}
+\index{KERNAL-sprongtabel!MONEXIT}
+\label{KERNAL Jump Table!MONEXIT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JMP \$FFA2    \item [Omschrijving:] Verlaat de monitor en keert terug naar BASIC    \item [Opmerkingen:]        Deze routine wordt uitsluitend door de monitor gebruikt en is voor programma's niet nuttig.
+
+        MONEXIT heeft hetzelfde adres als de KERNAL-routine ``SETTMO'' op de Commodore 64. SETTMO is niet beschikbaar op de MEGA65.    \item [Voorbeeld:]
+        \begin{asmcode}
+monexit = $ffa2
+
+    jmp monexit
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% MonitorCall
+% ****
+
+\newpage
+\subsection{MonitorCall}
+\index{KERNAL-sprongtabel!MonitorCall}
+\label{KERNAL Jump Table!MonitorCall}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JMP \$FF56    \item [Omschrijving:] Roept de monitor aan    \item [Opmerkingen:]        Deze routine stopt het programma en roept vervolgens de monitor aan.
+
+        Deze routine keert niet terug. Roep deze routine uitsluitend aan met JMP.
+
+        Wanneer de monitor wordt afgesloten, keert deze terug naar de \texttt{READY.}-prompt.    \item [Voorbeeld:]
+        \begin{asmcode}
+monitor_call = $ff56
+
+    jmp monitor_call
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% OPEN
+% ****
+
+\newpage
+\subsection{OPEN}
+\index{KERNAL-sprongtabel!OPEN}
+\label{KERNAL Jump Table!OPEN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFC0    \item [Omschrijving:] Opent een logisch bestand    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        Voordat het programma OPEN aanroept, moet het SETBNK, SETLFS en SETNAM aanroepen om de parameters voor het te openen bestand in te stellen.
+
+        Het gevraagde logische bestandsnummer (LA) mag momenteel nog niet openstaan. Gebruik, indien nodig, LKUPLA om na te gaan welke logische bestandsnummers ongebruikt zijn. Er kunnen maximaal tien logische bestanden tegelijk openstaan.
+
+        OPEN voert apparaatspecifieke taken uit voor het openen van seriële, RS-232-, toetsenbord- en schermapparaten, waaronder het wissen van de vorige status en het verzenden van een eventuele bestandsnaam of commandostring die aan SETNAM en SETBNK is meegegeven.
+
+        OPEN stelt de I/O-status op de juiste wijze in. Deze is met READSS uit te lezen.
+
+        Met CHKIN kan een programma een open bestand tot het huidige invoerapparaat maken en met CKOUT tot het huidige uitvoerapparaat. BASIN en GETIN lezen van het invoerapparaat en BSOUT schrijft naar het uitvoerapparaat.
+
+        Een programma moet een open bestand sluiten zodra het er klaar mee is. Gebruik CLOSE om een specifiek bestand te sluiten. Gebruik CLOSE\_ALL om alle bestanden van een apparaat te sluiten. Gebruik CLALL om alle openstaande bestanden te sluiten. Zet bij het sluiten van het commandokanaal van een schijf de C-vlag voordat het programma CLOSE aanroept; zie CLOSE voor meer informatie.
+
+        De mogelijke foutcodes die BASIN, BSOUT, CHKIN, CKOUT, CLOSE, LOAD, OPEN, SAVE en SAVEFL kunnen teruggeven, zijn als volgt:
+
+        \begin{center}
+        \begin{tabular}{|c|l|}
+        \hline
+        \textbf{Foutcode} & \textbf{Betekenis} \\
+        \hline
+        1 & Te veel bestanden \\
+        \hline
+        2 & Bestand open \\
+        \hline
+        3 & Bestand niet open \\
+        \hline
+        4 & Bestand niet gevonden \\
+        \hline
+        5 & Apparaat niet aanwezig \\
+        \hline
+        6 & Geen invoerbestand \\
+        \hline
+        7 & Geen uitvoerbestand \\
+        \hline
+        8 & Bestandsnaam ontbreekt \\
+        \hline
+        9 & Ongeldig apparaatnummer \\
+        \hline
+        \end{tabular}
+        \end{center}
+
+        \underline{OPMERKING}: Niet alle routines kunnen alle fouten detecteren. In het bijzonder detecteert OPEN geen ``File not found''-fout. Deze fouttoestand blijft onopgemerkt totdat het programma probeert het bestand te lezen. READSS meldt sommige fouttoestanden pas na een bewerking. Schijfstations kunnen via het commandokanaal andere fouttoestanden melden.
+
+        Een programma kan het gedrag van OPEN met de IOPEN-vector overschrijven of uitbreiden.
+
+    \item [Voorbeelden:]        Schijfstations accepteren argumenten in de bestandsnaamstring die met SETNAM is ingesteld; de argumenten volgen op de bestandsnaam en worden door komma's gescheiden. Het volgende voorbeeld opent een bestand van het type SEQ om te schrijven (\texttt{"...,s,w"}) en schrijft vervolgens de bytes 0 tot en met 255. (Ter wille van de beknoptheid is foutcontrole weggelaten.)
+
+        \begin{asmcode}
+open = $ffc0
+close = $ffc3
+ckout = $ffc9
+bsout = $ffd2
+setbnk = $ff6b
+setlfs = $ffba
+setnam = $ffbd
+
+    lda #$00    ; geheugen in bank 0
+    ldx #$00    ; bestandsnaam in bank 0
+    jsr setbnk
+
+    lda #$01    ; logisch bestandsnummer
+    ldx #$08    ; apparaatnummer
+    ldy #$02    ; secundair adres
+                ; (niet 0, 1 of 15)
+    jsr setlfs
+
+    lda #bestandsnaam_eind-bestandsnaam
+    ldx #<bestandsnaam
+    ldy #>bestandsnaam
+    jsr setnam
+
+    jsr open
+    ldx #$01
+    jsr ckout
+
+    lda #0
+-   jsr bsout
+    inc
+    bne -
+
+    clc
+    lda #$01
+    jsr close
+
+    rts
+
+bestandsnaam:
+    !pet "mijnseqbestand,s,w"
+bestandsnaam_eind:
+        \end{asmcode}
+
+        Schijfstations hebben een \emph{commandokanaal} dat toegankelijk is via het secundaire adres 15. Wanneer een logisch bestand naar SA 15 van het station wordt geopend, is de bestandsnaam de tekst van de opdracht die moet worden uitgevoerd. De opdracht wordt onmiddellijk uitgevoerd. Het volgende voorbeeld is vergelijkbaar met het BASIC-commando \texttt{OPEN 1,8,15,"I0"}, dat de initialisatieopdracht naar het schijfstation met apparaatnummer 8 stuurt.
+
+        \begin{asmcode}
+open = $ffc0
+close = $ffc3
+setbnk = $ff6b
+setlfs = $ffba
+setnam = $ffbd
+
+    lda #cmd_initialiseer_eind-cmd_initialiseer
+    ldx #<cmd_initialiseer
+    ldy #>cmd_initialiseer
+    jsr setnam
+
+    ldx #0
+    jsr setbnk
+
+    lda #1
+    ldx #8
+    ldy #15
+    jsr setlfs
+
+    jsr open    ; voer het I0-commando uit
+    bcs error
+
+    lda #1
+    sec         ; "speciale sluiting" (zie CLOSE)
+    jsr close
+
+    ; ...
+
+cmd_initialiseer:
+    !pet "i0"
+cmd_initialiseer_eind:
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% PFKEY
+% ****
+
+\newpage
+\subsection{PFKEY}
+\index{KERNAL-sprongtabel!PFKEY}
+\label{KERNAL Jump Table!PFKEY}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF68    \item [Omschrijving:] Programmeert een functietoets van de editor    \item [Invoer:]        \textbf{A} Basispagina-aanwijzer naar het stringadres (lo/hi/bank) \\        \textbf{X} Nummer van de functietoets (1-16) \\        \textbf{Y} Lengte van de string    \item [Uitvoer:]        \textbf{C-vlag} Gezet als het bijwerken is mislukt    \item [Opmerkingen:]        De schermeditor ondersteunt door de gebruiker gedefinieerde macro's die aan functietoetsen zijn gekoppeld. De PFKEY-aanroep werkt de definitie van een macro bij, vergelijkbaar met het \textbf{KEY}-commando van BASIC.
+
+        Als invoer stelt het programma de accumulator in op een basispagina-adres, waarop het 24-bits adres van de macrostring in little-endian-volgorde staat. Het Y-register bevat de lengte van de string, tot ten hoogste 240 tekens.
+
+        Het X-register geeft de te definiëren toets aan: 1 -- 14 voor de bijbehorende genummerde functietoets, 15 voor de Help-toets en 16 voor de Stop-toets (Shift + Run/Stop).
+
+        De string bevat de PETSCII-codes die de macro bij uitvoering intypt. Dit is anders dan bij de BASIC-stringexpressie die u bij het \textbf{KEY}-commando zou gebruiken: speciale tekens, zoals dubbele aanhalingstekens, moeten in de string die bij PFKEY wordt gebruikt als PETSCII-codes verschijnen. (Zie het voorbeeld hieronder.)
+
+        Bij succes kopieert PFKEY de string naar het macrogeheugen; de string op het opgegeven adres hoeft daarna niet te blijven bestaan.    \item [Voorbeeld:]
+        \begin{asmcode}
+pfkey = $ff68
+
+    ; stringadres op basispagina $fd-$ff
+    lda #<macro
+    sta $fd
+    lda #>macro
+    sta $fe
+    lda #0
+    sta $ff
+
+    ; Installeer de macrostring voor de F6-toets
+    lda #$fd
+    ldy #macro_eind-macro
+    ldx #6
+    jsr pfkey
+
+    rts
+
+macro:
+    !pet "print ",34,"het werkt!",34,13
+macro_eind:
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% PHOENIX
+% ****
+
+\newpage
+\subsection{PHOENIX}
+\index{KERNAL-sprongtabel!PHOENIX}
+\label{KERNAL Jump Table!PHOENIX}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JMP \$FF5C    \item [Omschrijving:] Roept de schijf-bootloader aan    \item [Opmerkingen:]        Zie BOOT\_SYS voor een beschrijving van bootdisks.
+
+        Enkele vroege prototype-ROM's van de Commodore 65 vervingen deze routine door een routine die diagnostiek uitvoerde en de resultaten afdrukte. Latere versies vervingen dit door een aanroep van de bootreeks.
+
+        Deze routine keert niet terug. Gebruik uitsluitend JMP om deze routine aan te roepen.
+
+        \underline{OPMERKING}: Voor de MEGA65 is deze functie niet getest.
+
+    \item [Voorbeeld:]
+        \begin{asmcode}
+phoenix = $ff5c
+
+    jmp phoenix
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% PLOT
+% ****
+
+\newpage
+\subsection{PLOT}
+\index{KERNAL-sprongtabel!PLOT}
+\label{KERNAL Jump Table!PLOT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFF0    \item [Omschrijving:] Leest/stelt de cursorpositie in    \item [Invoer:]        Om in te stellen: \\        \textbf{C-vlag} = 0 \\        \textbf{X} Cursorregel \\        \textbf{Y} Cursorkolom
+
+        Om te lezen: \\        \textbf{C-vlag} = 1    \item [Uitvoer:]        Bij het instellen: \\        \textbf{C-vlag} Gezet bij een fout
+
+        Bij het lezen: \\        \textbf{X} Cursorregel \\        \textbf{Y} Cursorkolom    \item [Opmerkingen:]        De CPU-registers \textbf{X} en \textbf{Y} komen \textit{niet} overeen met de coördinaatassen die daar traditioneel naar vernoemd worden. Het register \textbf{X} staat voor het regelnummer (op en neer langs de verticale as) en het register \textbf{Y} voor het kolomnummer (links en rechts langs de horizontale as). Dit komt overeen met het oorspronkelijke ontwerp van Commodore.
+
+        De cursorpositie wordt uitgedrukt ten opzichte van het actieve venster. Gebruik SCRORG om de huidige venstergrootte op te vragen.
+
+        Indien bij het instellen de gevraagde positie buiten het actieve venster valt, keert de routine terug met de C-vlag gezet.
+
+        Over de toestand van X en Y na het instellen van de cursorpositie worden geen garanties gegeven.    \item [Voorbeeld:]
+        \begin{asmcode}
+plot = $fff0
+primm = $ff7d
+
+    ; Zet de cursor in kolom 78
+    ; van de derde regel
+    clc
+    ldx #2
+    ldy #77
+    jsr plot
+
+    jsr primm
+    !pet "bericht",0
+
+    ; Lees de nieuwe cursorpositie
+    sec
+    jsr plot
+    stx $1600
+    sty $1601
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% PRIMM
+% ****
+
+\newpage
+\subsection{PRIMM}
+\index{KERNAL-sprongtabel!PRIMM}
+\label{KERNAL Jump Table!PRIMM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF7D    \item [Omschrijving:] Drukt een inline, met nul afgesloten korte string af.    \item [Opmerkingen:]        De af te drukken string volgt in het geheugen onmiddellijk op de JSR-instructie.
+
+        De string moet eindigen op een null-byte (\$00) en mag inclusief de null-byte ten hoogste 255 bytes lang zijn.
+
+        Tekens worden naar de uitvoerstroom geschreven, zoals bij BSOUT.
+
+        Gebruik uitsluitend JSR om PRIMM aan te roepen.
+
+        PRIMM behoudt de registers. Dit maakt deze routine geschikt om tijdelijk midden in een programma in te voegen voor foutopsporing.    \item [Voorbeeld:]
+        \begin{asmcode}
+primm = $ff7d
+
+    jsr primm
+    !pet "een petscii-string om af te drukken.",0
+
+    ; Het programma gaat verder...
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% RAMTAS
+% ****
+
+\newpage
+\subsection{RAMTAS}
+\index{KERNAL-sprongtabel!RAMTAS}
+\label{KERNAL Jump Table!RAMTAS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF87    \item [Omschrijving:] Initialiseert het RAM-geheugen en de buffers    \item [Opmerkingen:]        RAMTAS initialiseert de variabelen van de KERNAL op de basispagina opnieuw en stelt de aanwijzers naar de boven- en onderkant van het systeem-RAM opnieuw in.
+
+        Deze routine is in de eerste plaats bedoeld voor gebruik door de opstart- en resetsequenties van het systeem. Een machinetaalprogramma dat vanuit een opstartprogramma in BASIC wordt uitgevoerd, kan na een aanroep van RAMTAS niet netjes naar BASIC terugkeren en RAMTAS kan evenmin vanuit de monitor worden aangeroepen.    \item [Voorbeeld:]
+        \begin{asmcode}
+ramtas = $ff87
+
+    jsr ramtas
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% RDTIM
+% ****
+
+\newpage
+\subsection{RDTIM}
+\index{KERNAL-sprongtabel!RDTIM}
+\label{KERNAL Jump Table!RDTIM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFDE    \item [Omschrijving:] Leest de 24-uursklok van CIA1    \item [Uitvoer:]        \textbf{Y} Uren, 0-23, in BCD \\        \textbf{X} Minuten, 0-59, in BCD \\        \textbf{A} Seconden, 0-59, in BCD \\        \textbf{Z} Tienden van een seconde, 0-9    \item [Opmerkingen:]        Deze routine leest de time-of-day-klok (TOD) van het CIA1-apparaat uit. Deze klok telt tienden van seconden en houdt uren, minuten, seconden en tienden van seconden bij.
+
+        Gebruik SETTIM om de waarde van de TOD-klok in te stellen.
+
+        Bij de MEGA65 heeft de TOD-klok van CIA1 geen enkele relatie met de batterijgevoede realtimeklok (RTC). De waarde die RDTIM teruggeeft, is de TOD-waarde van CIA1 en niet de RTC-waarde. De speciale variabelen TI\$ en DT\$ van BASIC 65 gebruiken de RTC en niet de TOD.
+
+        De waarden hebben het Binary Coded Decimal-formaat, waarbij elke nibble één decimaal cijfer vertegenwoordigt. Als RDTIM bijvoorbeeld de hexadecimale waarde \$59 in het accumulatorregister teruggeeft, vertegenwoordigt dit een decimale waarde van 59 seconden.    \item [Voorbeeld:]
+        \begin{asmcode}
+rdtim = $ffde
+bsout = $ffd2
+
+    ; Druk uren en minuten af, als HH:MM
+    jsr rdtim
+    tya
+    jsr print_bcd
+    lda #':'
+    jsr bsout
+    txa
+    jsr print_bcd
+    rts
+
+print_bcd:
+    pha
+    lsr
+    lsr
+    lsr
+    lsr
+    adc #'0'
+    jsr bsout
+    pla
+    and #$0f
+    adc #'0'
+    jsr bsout
+    rts
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% READSS
+% ****
+
+\newpage
+\subsection{READSS}
+\index{KERNAL-sprongtabel!READSS}
+\label{KERNAL Jump Table!READSS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFB7    \item [Omschrijving:] Geeft de status van de laatste I/O-bewerking terug    \item [Uitvoer:]        \textbf{A} De statusbyte    \item [Opmerkingen:]        Deze routine geeft de status terug van de laatste I/O-bewerking die voor een serieel of RS-232-apparaat is uitgevoerd. Dit werkt alleen bij I/O-bewerkingen op hoog niveau, zoals OPEN, LOAD en SAVE, evenals bij het lezen van en schrijven naar kanalen die met OPEN zijn geopend.
+
+        Een gebruikelijke toepassing van READSS is het bepalen van het einde van een bestand of stroom.
+
+        Bij een RS-232-apparaat wist READSS de statusbyte en geeft de vorige waarde terug.
+
+        Bij seriële apparaten worden de statusbits als volgt gezet:
+
+        \begin{center}
+        \begin{tabular}{|c|l|}
+        \hline
+        \textbf{Bit} & \textbf{Betekenis} \\
+        \hline
+        0 & Time-out bij schrijven \\
+        \hline
+        1 & Time-out bij lezen \\
+        \hline
+        6 & Einde van de invoer \\
+        \hline
+        7 & Apparaat niet aanwezig \\
+        \hline
+        \end{tabular}
+        \end{center}
+
+        READSS is vergelijkbaar met ``READST'' op de Commodore 64.    \item [Voorbeeld:]
+        \begin{asmcode}
+readss = $ffb7
+
+    ldx #0
+loop:
+    jsr basin
+    sta buffer,x
+    inx
+
+    jsr readss
+    beq loop    ; lezen geslaagd, ga door
+    and #$40
+    bne eof     ; status is einde van bestand
+
+    ; verwerk andere fout...
+
+eof:
+    ; ...
+    \end{asmcode}
+\end{description}
+
+
+% ****
+% RESET_RUN
+% ****
+
+\newpage
+\subsection{RESET{\_}RUN}
+\index{KERNAL-sprongtabel!RESET\_RUN}
+\label{KERNAL Jump Table!RESET_RUN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF32    \item [Omschrijving:] Herstart de computer, met de optie om een programma uit te voeren    \item [Invoer:]        \textbf{A} De resetmodus
+
+    \item [Opmerkingen:]        Kies een resetmodus door het accumulatorregister {\bf A} in te stellen op de juiste waarde:
+        \begin{itemize}
+            \item {\bf A=0} KERNAL-warmstart.            \item {\bf A=1} Hypervisor-reset.            \item {\bf A=2} KERNAL-warmstart, waarna {\bf RUN} het BASIC-programma in het geheugen uitvoert.
+        \end{itemize}
+
+        Bij een KERNAL-warmstart start de computer opnieuw bij het opstartproces van de MEGA65-KERNAL, inclusief het resetten van de KERNAL-status en het weergeven van de BASIC-banner. Resetmodus 0 probeert bovendien de gekoppelde schijf automatisch op te starten.
+
+        Een Hypervisor-reset zet het opstartproces van de Hypervisor in gang, vergelijkbaar met het indrukken van de resetknop aan de zijkant van de computer. Hierbij voert de computer enkele extra opstartstappen uit, zoals het weergeven van het MEGA65-opstartscherm en het opnieuw laden van de ROM vanaf de SD-kaart. Niet al het geheugen wordt gereset, maar wel mogelijk meer registers dan bij een KERNAL-warmstart.
+
+        Resetmodus 2 wijzigt het opstartproces van de KERNAL zodat {\bf RUN} het BASIC-programma uitvoert dat in het geheugen staat (te beginnen op adres \$2001). Dit is nuttig voor programma's die op hun beurt andere, willekeurige programma's starten, zoals kioskmenu's of bestandskiezers. In deze modi voert de KERNAL het commando {\bf NEW} niet uit en start hij de gekoppelde schijf ook niet automatisch op.
+
+        Resetmodi 0 tot en met 2 negeren de waarden in de CPU-registers {\bf X}, {\bf Y} en {\bf Z}. Aanvullende modi die parameters in deze registers aanvaarden, kunnen in de toekomst worden toegevoegd. Alle waarden van {\bf A} groter dan 2 zijn gereserveerd voor toekomstige uitbreiding.
+
+        Deze routine keert niet terug.    \item [Voorbeeld:]
+    \begin{asmcode}
+reset_run = $ff32
+
+    lda #1         ; Hypervisor-reset
+    jmp reset_run
+    \end{asmcode}
+\end{description}
+
+
+% ****
+% RESTOR
+% ****
+
+\newpage
+\subsection{RESTOR}
+\index{KERNAL-sprongtabel!RESTOR}
+\label{KERNAL Jump Table!RESTOR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF8A    \item [Omschrijving:] Initialiseert de KERNAL-vectortabel    \item [Opmerkingen:]        Deze routine reset alle KERNAL-gerelateerde vectoren naar hun standaardwaarden, welke naar routines in de ROM wijzen.
+
+        Hij reset de vectoren die de schermeditor en BASIC gebruiken niet.
+
+        Deze routine moet worden aangeroepen met uitgeschakelde interrupts.
+
+        Zie VECTOR.    \item [Voorbeeld:]
+    \begin{asmcode}
+restor = $ff8a
+
+    sei
+    jsr restor
+    cli
+    \end{asmcode}
+\end{description}
+
+
+% ****
+% SAVE
+% ****
+
+\newpage
+\subsection{SAVE}
+\index{KERNAL-sprongtabel!SAVE}
+\label{KERNAL Jump Table!SAVE}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFD8    \item [Omschrijving:] Slaat gegevens op in een bestand    \item [Invoer:]        \textbf{A} Basispagina-aanwijzer naar het startadres \\        \textbf{X} Eindadres + 1, lage byte \\        \textbf{Y} Eindadres + 1, hoge byte    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        Voordat het programma SAVE aanroept, moet het SETBNK, SETLFS en SETNAM aanroepen om de parameters voor het op te slaan bestand in te stellen. SAVE kan niet worden gebruikt met RS-232-apparaten, het scherm of het toetsenbord. Het logische bestandsnummer wordt niet gebruikt.
+
+        Bij gebruik met een schijfstation slaat SAVE standaard een bestand van het type PRG op. Om een bestand van een ander type op te slaan, gebruikt u SETNAM met het in de naamstring vermelde type (bijv. \texttt{"MIJNBESTAND,S"} voor een SEQ-bestand), samen met OPEN, CKOUT, BSOUT en CLOSE. Zie OPEN voor een voorbeeld.
+
+        SAVE schrijft altijd het startadres als eerste twee bytes weg, ongeacht het bestandstype. Indien de gegevens in een andere bank dan bank 0 staan, wordt die informatie niet vastgelegd. Om de adresbytes in het bestand weg te laten, gebruikt u SAVEFL met de juiste vlag.
+
+        Standaard is het opslaan van een bestand met de naam van een bestaand bestand een fout en het bestaande bestand wordt niet gewijzigd. Om het bestand te overschrijven indien dit bestaat, zet u het volgende vóór de bestandsnaamstring: \texttt{@:} Bijvoorbeeld: \texttt{"@:MIJNBESTAND"}
+
+        SAVE schrijft een geheugengebied weg naar een bestand op een serieel apparaat. Het startadres van het geheugengebied moet op de basispagina worden vastgelegd als een 16-bits adres in little-endian-volgorde. Het programma geeft het basispaginaadres van deze aanwijzer door in het A-register.
+
+        Het programma geeft het eindadres van het geheugengebied als een 16-bits waarde \emph{plus één} door in de X- en Y-registers.
+
+        Het volledige geheugengebied moet binnen één bank passen. Het mag geen bankgrenzen overschrijden.
+
+        SAVE voert alle taken uit die nodig zijn om het bestand te openen, weg te schrijven en vervolgens te sluiten. Hij laat geen logische bestanden openstaan (zoals OPEN dat doet).
+
+        SAVE stelt de I/O-status op de juiste wijze in. Deze is met READSS uit te lezen.
+
+        Zie OPEN voor de lijst met mogelijke foutcodes.
+
+        Een programma kan dit gedrag met de ISAVE-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+save = $ffd8
+setbnk = $ff6b
+setlfs = $ffba
+setnam = $ffbd
+
+    ; vul het geheugen met testgegevens
+    ldx #0
+-   txa
+    sta $4500,x
+    inx
+    bne -
+
+    lda #$00    ; geheugen in bank 0
+    ldx #$00    ; bestandsnaam in bank 0
+    jsr setbnk
+
+    lda #$00    ; (niet gebruikt bij opslaan)
+    ldx #$08    ; apparaatnummer
+    ldy #$01    ; opslaan
+    jsr setlfs
+
+    lda #bestandsnaam_eind-bestandsnaam
+    ldx #<bestandsnaam
+    ldy #>bestandsnaam
+    jsr setnam
+
+    ; Sla 0.4500 tot 0.45FF op
+    lda #$00
+    sta $fe
+    lda #$45
+    sta $ff
+    lda #$fe
+    ldx #$00
+    ldy #$46
+
+    jsr save
+    bcs fout
+
+    ; ...
+
+bestandsnaam:
+    !pet "mijnbestand"
+bestandsnaam_eind:
+        \end{asmcode}
+\end{description}
+
+% ****
+% SAVEFL
+% ****
+
+\newpage
+\subsection{SAVEFL}
+\index{KERNAL-sprongtabel!SAVEFL}
+\label{KERNAL Jump Table!SAVEFL}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF3B    \item [Omschrijving:] Slaat gegevens op in een bestand, met vlaggen    \item [Invoer:]        \textbf{A} Basispagina-aanwijzer naar het startadres \\        \textbf{X} Eindadres + 1, lage byte \\        \textbf{Y} Eindadres + 1, hoge byte \\        \textbf{Z} Vlaggen: bit 6 = ``raw''-modus    \item [Uitvoer:]        \textbf{C-vlag} Gezet bij een fout \\        \textbf{A} Foutcode, indien aanwezig    \item [Opmerkingen:]        SAVEFL is identiek aan SAVE, met het extra argument voor de vlaggen in het Z-register. Zie SAVE voor meer informatie.
+
+        Momenteel ondersteunt SAVEFL één vlag: indien bit 6 is gezet, slaat SAVEFL het bestand op zonder de adreskop van twee bytes. Dit is symmetrisch met de ``raw''-modus van de routine LOAD.
+\end{description}
+
+
+% ****
+% ScanStopKey
+% ****
+
+\newpage
+\subsection{ScanStopKey}
+\index{KERNAL-sprongtabel!ScanStopKey}
+\label{KERNAL Jump Table!ScanStopKey}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFEA    \item [Omschrijving:] Scant de Stop-toets    \item [Uitvoer:]        \textbf{A} \$7F indien de Stop-toets is ingedrukt, \$FF anders \\        \textbf{N-vlag} Gewist indien de Stop-toets is ingedrukt, anders gezet    \item [Opmerkingen:]        In tegenstelling tot STOP roept ScanStopKey de ISTOP-vector niet aan, sluit het geen kanalen en legt de toetsenbordbuffer niet leeg.
+
+        ScanStopKey heeft hetzelfde adres als de KERNAL-routine ``UDTIM'' op de Commodore 64. UDTIM is niet beschikbaar op de MEGA65.    \item [Voorbeeld:]
+        \begin{asmcode}
+scan_stop_key = $ffea
+
+    ; Wacht op de Stop-toets
+-   jsr scan_stop_key
+    bmi -
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SCRORG
+% ****
+
+\newpage
+\subsection{SCRORG}
+\index{KERNAL-sprongtabel!SCRORG}
+\label{KERNAL Jump Table!SCRORG}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFED    \item [Omschrijving:] Geeft de huidige afmetingen van het schermvenster terug    \item [Uitvoer:]        \textbf{C-vlag} Tekstschermbreedte: 0=80, 1=40 \\        \textbf{X} Vensterbreedte \\        \textbf{Y} Vensterhoogte \\        \textbf{A} Schermgeheugenadres van de linkerbovenhoek van het venster, lage byte \\        \textbf{Z} Schermgeheugenadres van de linkerbovenhoek van het venster, hoge byte    \item [Opmerkingen:]        De schermeditor beheert een ``venster'', een rechthoek op het tekstscherm, waarin terminaluitvoer wordt geschreven en invoer wordt geaccepteerd. De grootte en de positie van het venster zijn standaard die van het volledige scherm en kunnen worden aangepast met het BASIC-commando \textbf{WINDOW}.
+
+        SCRORG geeft de eigenschappen van dit venster terug, welke kunnen worden gebruikt om tekens in het schermgeheugen te plaatsen.
+
+        SCRORG is vergelijkbaar met ``SCREEN'' op de Commodore 64.
+
+    \item [Voorbeeld:]
+        \begin{asmcode}
+scrorg = $ffed
+
+    ; Zet een schoppen-teken in de linkerboven-
+    ; hoek van het actieve venster.
+    jsr scrorg
+    sta $fe
+    stz $ff
+    lda #65
+    ldy #0
+    sta ($fe),y
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% SECND
+% ****
+
+\newpage
+\subsection{SECND}
+\index{KERNAL-sprongtabel!SECND}
+\label{KERNAL Jump Table!SECND}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF93    \item [Omschrijving:] Stuurt een secundair adres naar de listener    \item [Invoer:]        \textbf{A} Secundair adres (SA)    \item [Opmerkingen:]        Dit is een routine op laag niveau voor de seriële bus. De meeste programma's geven de voorkeur aan de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        Nadat een programma het LISTN-commando naar een randapparaat op de seriële bus heeft gezonden, om het apparaat invoer te laten accepteren, stuurt SECND een secundair adres naar het apparaat. Dit wordt doorgaans gebruikt om het apparaat te configureren voordat het programma er gegevens naartoe verzendt. Het gedrag hangt af van het apparaat.
+
+        Om een secundair adres te sturen naar een apparaat waaraan TALK is gezonden, gebruikt u TKSA.
+
+        Een programma kan dit gedrag met de ISECOND-vector overschrijven of uitbreiden.
+
+        SECND is vergelijkbaar met ``SECOND'' op de Commodore 64.
+
+    \item [Voorbeeld:]
+        \begin{asmcode}
+listn = $ffb1
+secnd = $ff93
+
+    lda #8
+    jsr listn
+    lda #15
+    jsr secnd
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SETBNK
+% ****
+
+\newpage
+\subsection{SETBNK}
+\index{KERNAL-sprongtabel!SETBNK}
+\label{KERNAL Jump Table!SETBNK}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF6B    \item [Omschrijving:] Stelt megabyte en bank in voor het I/O-geheugenadres en het bestandsnaamadres    \item [Invoer:]        Voor banken 0 -- 5: \\        \textbf{A} De geheugenbank \\        \textbf{X} De bestandsnaambank
+
+        Voor 28-bits adressen: \\        \textbf{A} Bit 7 gezet, bits 0 -- 3 = bits 24 -- 27 van het geheugenadres \\        \textbf{Y} Bits 16 -- 23 van het geheugenadres \\        \textbf{X} Bit 7 gezet, bits 0 -- 3 = bits 24 -- 27 van het bestandsnaamadres \\        \textbf{Z} Bits 16 -- 23 van het bestandsnaamadres    \item [Opmerkingen:]        SETBNK moet voor elke geheugen-I/O-bewerking worden gebruikt, samen met SETLFS en SETNAM voor het openen van bestanden. De lage twee bytes van elk adres dienen als argument voor andere aanroepen.
+
+        Voor achterwaartse compatibiliteit met de C65-KERNAL kent SETBNK twee aparte modi: één voor banken 0 -- 5 in de eerste megabyte van het geheugen en één voor 28-bits adressen.
+
+        Is bit 7 van het eerste register gewist, dan stelt het een adres in de eerste megabyte voor en is de waarde het banknummer. Indien bijvoorbeeld A = \$04, dan bevindt het geheugenadres zich in bank 4 van de eerste megabyte (\$004.xxxx).
+
+        Is bit 7 van het eerste register gezet, dan stelt het een 28-bits adres voor en is de lage nibble van het eerste register de hoogste nibble van het adres. Het tweede register stelt de daaropvolgende twee nibbles van het adres voor. Indien bijvoorbeeld A = \$88 en Y = \$03, dan is het geheugenadres een 28-bits adres van de vorm \$803.xxxx.
+
+        Het geheugenadres wordt met de invoerregisters A en Y ingesteld en het bestandsnaamadres met de invoerregisters X en Z. De geheugenbank en de bestandsnaambank kunnen verschillen en onafhankelijk van elkaar de bankmodus of de 28-bitsmodus gebruiken.
+
+        Zie OPEN voor een volledig voorbeeld.    \item [Voorbeeld:]
+        \begin{asmcode}
+setbnk = $ff6b
+
+    ; Geheugenadres:     $4.xxxx
+    ; Bestandsnaamadres:   $0.xxxx
+    lda #$04
+    ldx #$00
+    jsr setbnk
+
+    ; Geheugenadres:   $803.xxxx
+    ; Bestandsnaamadres:   $0.xxxx
+    lda #$88
+    ldy #$03
+    ldx #$00
+    jsr setbnk
+
+    ; Geheugenadres:   $803.xxxx
+    ; Bestandsnaamadres: $805.xxxx
+    lda #$88
+    ldy #$03
+    ldx #$88
+    ldz #$05
+    jsr setbnk
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SETLFS
+% ****
+
+\newpage
+\subsection{SETLFS}
+\index{KERNAL-sprongtabel!SETLFS}
+\label{KERNAL Jump Table!SETLFS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFBA    \item [Omschrijving:] Stelt bestand, apparaat en secundair adres in    \item [Invoer:]        \textbf{A} Het logische bestandsnummer (LA) \\        \textbf{X} Het apparaatnummer (FA) \\        \textbf{Y} Het secundaire adres, of \$FF (SA)    \item [Opmerkingen:]        SETLFS moet worden gebruikt voor bestandsbewerkingen op hoog niveau (OPEN, LOAD, SAVE), samen met SETBNK en SETNAM.
+
+        Het logische bestandsnummer moet uniek zijn onder de geopende bestanden. Indien het met OPEN wordt gebruikt, mag het nog niet geopend zijn.
+
+        Indien het secundaire adres niet van toepassing is, stelt u Y in op \$FF. Voor schijfstations zijn de secundaire adressen 0 en 1 gereserveerd voor LOAD en SAVE en 15 is het commandokanaal.
+
+        Zie OPEN voor een volledig voorbeeld.    \item [Voorbeeld:]
+        \begin{asmcode}
+setlfs = $ffba
+
+    lda #$01
+    ldx #$08
+    ldy #$02
+    jsr setlfs
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SETMSG
+% ****
+
+\newpage
+\subsection{SETMSG}
+\index{KERNAL-sprongtabel!SETMSG}
+\label{KERNAL Jump Table!SETMSG}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF90    \item [Omschrijving:] Schakelt KERNAL-meldingen in of uit    \item [Invoer:]        \textbf{A} bit 7 = controlemeldingen, bit 6 = foutmeldingen    \item [Opmerkingen:]        De KERNAL kan meldingen op het scherm weergeven wanneer het schijfbewerkingen uitvoert, zoals ``LOADING'', ``SAVING'', ``VERIFYING'' en ``I/O ERROR''. Deze meldingen staan standaard uit.
+
+        Stel bit 7 in om de controlemeldingen van de KERNAL in te schakelen. Stel bit 6 in om de I/O-foutmeldingen van de KERNAL in te schakelen.
+
+        De meldingen van de KERNAL zijn niet hetzelfde als de meldingen die BASIC weergeeft.    \item [Voorbeeld:]
+        \begin{asmcode}
+setmsg = $ff90
+
+    ; Schakel alle KERNAL-meldingen in
+    lda #$c0
+    jsr setmsg
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% SETNAM
+% ****
+
+\newpage
+\subsection{SETNAM}
+\index{KERNAL-sprongtabel!SETNAM}
+\label{KERNAL Jump Table!SETNAM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFBD    \item [Omschrijving:] Stelt de verwijzingen naar de bestandsnaam in    \item [Invoer:]        \textbf{A} De lengte van de string, of \$00 \\        \textbf{X} Het lage byte van het stringadres \\        \textbf{Y} Het hoge byte van het stringadres    \item [Opmerkingen:]        SETNAM moet worden gebruikt voor bestandsbewerkingen op hoog niveau (OPEN, LOAD, SAVE), samen met SETBNK en SETLFS.
+
+        Indien een bestandsnaam niet geschikt is voor het I/O-apparaat, moet SETNAM worden aangeroepen met A = \$00 (en willekeurige waarden voor X en Y).
+
+        SETBNK stelt de bank voor het adres in.
+
+        Zie OPEN voor een volledig voorbeeld.    \item [Voorbeeld:]
+        \begin{asmcode}
+setnam = $ffbd
+
+    lda #bestandsnaam_eind-bestandsnaam
+    ldx #<bestandsnaam
+    ldy #>bestandsnaam
+    jsr setnam
+
+    ; ...
+
+bestandsnaam:
+    !pet "mijnbestand"
+bestandsnaam_eind:
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SETTIM
+% ****
+
+\newpage
+\subsection{SETTIM}
+\index{KERNAL-sprongtabel!SETTIM}
+\label{KERNAL Jump Table!SETTIM}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFDB    \item [Omschrijving:] Stelt de 24-uursklok van CIA1 in    \item [Invoer:]        \textbf{Y} Uren, 0-23, in BCD \\        \textbf{X} Minuten, 0-59, in BCD \\        \textbf{A} Seconden, 0-59, in BCD \\        \textbf{Z} Tienden van een seconde, 0-9    \item [Opmerkingen:]        Deze routine stelt de time-of-day-klok (TOD) van het CIA1-apparaat in. Deze klok telt tienden van seconden en houdt uren, minuten, seconden en tienden van seconden bij.
+
+        Gebruik RDTIM om de huidige waarde van de TOD-klok te lezen.
+
+        Bij de MEGA65 heeft de TOD-klok van CIA1 geen betrekking op de batterijgevoede realtimeklok (RTC). Het instellen van de TOD-klok heeft geen invloed op de RTC. De speciale variabelen TI\$ en DT\$ van BASIC 65 gebruiken de RTC en niet de TOD.
+
+        De waarden hebben het Binary Coded Decimal-formaat, waarbij elke nibble één decimaal cijfer vertegenwoordigt. Om bijvoorbeeld het aantal seconden op 59 in te stellen, gebruikt u de hexadecimale waarde \$59.    \item [Voorbeeld:]
+        \begin{asmcode}
+settim = $ffdb
+
+    ; Stel de TOD-klok in op 14:30:57.5
+    ; (alias 14:30:57.5)
+    ldy #$14
+    ldx #$30
+    lda #$57
+    ldz #$05
+    jsr settim
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SPIN\_SPOUT
+% ****
+
+\newpage
+\subsection{SPIN{\_}SPOUT}
+\index{KERNAL-sprongtabel!SPIN\_SPOUT}
+\label{KERNAL Jump Table!SPIN_SPOUT}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF4D    \item [Omschrijving:] Stelt de snelle seriële poorten in    \item [Invoer:]        \textbf{C-vlag} Gewist voor SPINP, gezet voor SPOUT    \item [Opmerkingen:]    Deze routine heeft betrekking op de aansturing van het ``snelle seriële''-protocol van de C1571/1581 op het laagste niveau.
+
+    Uit de C65-specificatie:
+
+    Het snelle seriële protocol gebruikt CIA\_1 (6526 op \$DC00) en een speciaal drivercircuit dat gedeeltelijk door het FSDIR-register wordt aangestuurd. SPINP en SPOUT zijn routines die het systeem gebruikt om het CIA- en het drivercircuit voor de snelle seriële verbinding in te stellen voor invoer of uitvoer. SPINP stelt CRA in (CIA\_1-register 14) en wist de FSDIR-bit voor invoer. SPOUT stelt CRA, ICR (CIA\_1-register 13) en timer A (CIA\_l-registers 4 \& 5) in en zet de FSDIR-bit voor uitvoer. Merk op dat de toestand van de TOD\_IN-bit van CRA altijd behouden blijft. Deze routines zijn alleen nodig voor toepassingen die de snelle seriële bus zelf vanaf het laagste niveau aansturen.    \item [Voorbeeld:]
+        \begin{asmcode}
+spin_spout = $ff4d
+
+    clc
+    jsr $ff4d
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% STA\_FAR
+% ****
+
+\newpage
+\subsection{STA{\_}FAR}
+\index{KERNAL-sprongtabel!STA\_FAR}
+\label{KERNAL Jump Table!STA_FAR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF77    \item [Omschrijving:] Schrijft een byte naar een adres in een willekeurige bank    \item [Invoer:]        \textbf{A} De op te slaan gegevens \\        \textbf{X} Basispagina-aanwijzer \\        \textbf{Y} Index vanaf het aangewezen adres \\        \textbf{Z} Bank    \item [Opmerkingen:]        In wezen is dit het equivalent van \texttt{sta (X),y} in bank Z.
+
+        Deze routine heeft toegang tot elk adres in de eerste 1 MB van het geheugen. In tegenstelling tot JMPFAR wijzigt zij de geheugenindeling niet. Zij gebruikt een DMA-taak om het lange adres te benaderen.
+
+        Op de MEGA65 ondersteunt de 45GS02 een instructie die dit kan doen met een 32-bits adres dat op de basispagina is opgeslagen, zonder dat een KERNAL-routine nodig is: \texttt{sta [zp4],z}    \item [Voorbeeld:]
+            \begin{asmcode}
+sta_far = $ff77
+
+    ; Bewaar de waarde op adres 4.4502
+    lda #$00
+    sta $fe
+    lda #$45
+    sta $ff
+    ldx #$fe  ; basispagina-aanwijzer -> $4500
+    ldy #$02  ; Y-index
+    ldz #$04  ; bank
+    lda #$99  ; de op te slaan waarde
+    jsr sta_far
+            \end{asmcode}
+
+\end{description}
+
+
+% ****
+% STOP
+% ****
+
+\newpage
+\subsection{STOP}
+\index{KERNAL-sprongtabel!STOP}
+\label{KERNAL Jump Table!STOP}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFE1    \item [Omschrijving:] Rapporteert de Stop-toets en zet I/O terug indien de toets is ingedrukt    \item [Uitvoer:]        \textbf{Z-vlag} Gezet indien de Stop-toets is ingedrukt    \item [Opmerkingen:]        Indien de Stop-toets (Shift + Run/Stop) bij de meest recente aanroep van ScanStopKey is ingedrukt, zet STOP de Zero-vlag (Z), sluit alle actieve kanalen en legt de toetsenbordwachtrij leeg. De KERNAL roept ScanStopKey routinematig aan, of het programma kan de routine expliciet aanroepen indien de KERNAL is uitgeschakeld.
+
+        Een programma kan dit gedrag met de ISTOP-vector overschrijven of uitbreiden.
+
+        Om de Stop-toets zonder neveneffecten te testen, raadpleegt u ScanStopKey.    \item [Voorbeeld:]
+        \begin{asmcode}
+stop = $ffe1
+
+    ; Wacht op de Stop-toets
+-   jsr stop
+    bne -
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SWAPPER
+% ****
+
+\newpage
+\subsection{SWAPPER}
+\index{KERNAL-sprongtabel!SWAPPER}
+\label{KERNAL Jump Table!SWAPPER}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF65    \item [Omschrijving:] Wisselt tussen de tekstmodi 40x25 en 80x25    \item [Opmerkingen:]        Deze routine ondersteunt de tekstmodus 80x50 nog niet.    \item [Voorbeeld:]
+        \begin{asmcode}
+swapper = \$ff65
+
+    jsr swapper
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% SYSFLAGS
+% ****
+
+\newpage
+\subsection{SYSFLAGS}
+\index{KERNAL-sprongtabel!SYSFLAGS}
+\label{KERNAL Jump Table!SYSFLAGS}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF47    \item [Omschrijving:] Leest/zet systeemvlaggen    \item [Invoer:]        Om te zetten: \\        \textbf{C-vlag} = 0 \\        \textbf{A} De nieuwe vlagwaarde
+
+        Om te lezen: \\        \textbf{C-vlag} = 1    \item [Uitvoer:]        Bij het lezen:        \textbf{A} De vlagwaarde    \item [Opmerkingen:]        Vergrendelt bits: \\        \textbf{Bit 4:} GO64-modus (0=ontgrendeld, 1=vergrendeld) \\        \textbf{Bit 5:} Functietoetsen (0=macro's, 1=ruwe toetsen) \\        \textbf{Bit 6:} No Scroll vergrendeld (0=ontgrendeld, 1=vergrendeld) \\        \textbf{Bit 7:} Mega+Shift vergrendeld (0=ontgrendeld, 1=vergrendeld)
+
+        De bits 0--3 zijn gereserveerd voor toekomstig gebruik. Om compatibiliteit met de toekomst te waarborgen, leest u altijd de vlagwaarde en behoudt u de waarden van deze bits.
+
+        Voorheen bekend als ``KEYLOCKS''.
+
+    \item [Voorbeeld:]
+        \begin{asmcode}
+sysflags = $ff47
+
+    sec
+    jsr sysflags
+    ora #%00100000  ; functietoetsmacro's uit
+    clc
+    jsr sysflags
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% TALK
+% ****
+
+\newpage
+\subsection{TALK}
+\index{KERNAL-sprongtabel!TALK}
+\label{KERNAL Jump Table!TALK}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFB4    \item [Omschrijving:] Stuurt een ``talk''-commando naar een apparaat    \item [Invoer:]        \textbf{A} Het apparaatnummer (FA, 0-31)    \item [Opmerkingen:]        Dit is een routine op laag niveau voor de seriële bus. De meeste programma's geven de voorkeur aan de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        Volgens het seriële protocol op laag niveau wordt van de computer verwacht dat hij alle apparaatcommunicatie op de seriële bus coördineert. Elk apparaat heeft een vastgeprogrammeerd apparaatnummer; sommige apparaten, zoals schijfstations, hebben schakelaars waarmee het herkende apparaatnummer te wijzigen is. Alle apparaten zien al het verkeer op de bus en van elk apparaat wordt verwacht dat het van modus wisselt wanneer het een commando met zijn apparaatnummer ziet.
+
+        Wanneer de computer gegevens van een apparaat wil lezen, zendt hij het ``talk''-commando naar dat apparaat. Telkens heeft slechts één apparaat toestemming om als ``talker'' op de seriële bus op te treden. Om een andere talker aan te wijzen, zendt de computer een ``untalk''-commando uit naar alle apparaten en stuurt hij vervolgens een nieuw ``talk''-commando met een ander apparaatnummer.
+
+        Gebruik UNTLK om alle apparaten te laten weten dat zij de talk-modus moeten beëindigen.
+
+        Een programma kan dit gedrag met de ITALK-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+talk = $ffb4
+
+    lda #8
+    jsr talk
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% TKSA
+% ****
+
+\newpage
+\subsection{TKSA}
+\index{KERNAL-sprongtabel!TKSA}
+\label{KERNAL Jump Table!TKSA}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF96    \item [Omschrijving:] Stuurt een secundair adres naar de talker    \item [Invoer:]        \textbf{A} Secundair adres (SA)    \item [Opmerkingen:]        Dit is een routine op laag niveau voor de seriële bus. De meeste programma's geven de voorkeur aan de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        Nadat een programma het TALK-commando naar een randapparaat op de seriële bus heeft gezonden, om het apparaat uitvoer te laten leveren, stuurt TKSA een secundair adres naar het apparaat. Dit wordt doorgaans gebruikt om het apparaat te configureren voordat het programma er gegevens uit leest. Het gedrag hangt af van het apparaat.
+
+        Om een secundair adres te sturen naar een apparaat waaraan LISTN is gezonden, gebruikt u SECND.
+
+        Een programma kan dit gedrag met de ITALKSA-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+talk = $ffb4
+tksa = $ff96
+
+    lda #8
+    jsr talk
+    lda #15
+    jsr tksa
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% UNLSN
+% ****
+
+\newpage
+\subsection{UNLSN}
+\index{KERNAL-sprongtabel!UNLSN}
+\label{KERNAL Jump Table!UNLSN}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFAE    \item [Omschrijving:] Stuurt het ``unlisten''-commando    \item [Opmerkingen:]        Dit is een routine op laag niveau voor de seriële bus. De meeste programma's geven de voorkeur aan de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        UNLSN stuurt het ``unlisten''-commando naar alle randapparaten op de seriële bus. Zie LISTN.
+
+        Een programma kan dit gedrag met de IUNLISTEN-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+unlsn = $ffae
+
+    jsr unlsn
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% UNTLK
+% ****
+
+\newpage
+\subsection{UNTLK}
+\index{KERNAL-sprongtabel!UNTLK}
+\label{KERNAL Jump Table!UNTLK}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FFAB    \item [Omschrijving:] Stuurt het ``untalk''-commando    \item [Opmerkingen:]        Dit is een routine op laag niveau voor de seriële bus. De meeste programma's geven de voorkeur aan de I/O-routines op hoger niveau (OPEN en dergelijke).
+
+        UNTLK stuurt het ``untalk''-commando naar alle randapparaten op de seriële bus. Zie TALK.
+
+        Een programma kan dit gedrag met de IUNTALK-vector overschrijven of uitbreiden.    \item [Voorbeeld:]
+        \begin{asmcode}
+untlk = $ffab
+
+    jsr untlk
+        \end{asmcode}
+\end{description}
+
+
+% ****
+% VECTOR
+% ****
+
+\newpage
+\subsection{VECTOR}
+\index{KERNAL-sprongtabel!VECTOR}
+\label{KERNAL Jump Table!VECTOR}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF8D    \item [Omschrijving:] Leest/stelt de KERNAL-vectortabel in    \item [Invoer:]        Om te lezen: \\        \textbf{C-vlag} = 1 \\        \textbf{X} Doeladres, lage byte \\        \textbf{Y} Doeladres, hoge byte
+
+        Om in te stellen: \\        \textbf{C-vlag} = 0 \\        \textbf{X} Bronadres, lage byte \\        \textbf{Y} Bronadres, hoge byte
+
+    \item [Opmerkingen:]        Een programma kan een aantal gedragingen van de KERNAL, de schermeditor en BASIC overschrijven of uitbreiden door eigen routines te installeren. De KERNAL heeft een vaste reeks uitbreidingspunten, bekend als \emph{vectoren}, waar de KERNAL onder bepaalde omstandigheden naar het bijbehorende vectoradres springt. De standaardwaarden van deze vectoren verwijzen naar routines in de KERNAL-ROM. Een programma installeert een routine door het oorspronkelijke vectoradres te vervangen door het adres van een eigen routine en de eigen routine doorgaans (maar optioneel) zodanig te herschrijven dat deze het oorspronkelijke KERNAL-vectoradres aanroept.
+
+        Om nieuwe vectoren te installeren:
+
+        \begin{enumerate}
+            \item Gebruik VECTOR om de vectortabel naar een locatie in het geheugen van het programma te kopiëren.            \item Kopieer indien nodig het oorspronkelijke vectoradres in de code van de eigen routine, bijvoorbeeld om na het uitvoeren van een eigen actie de besturing terug te geven aan de oorspronkelijke KERNAL-routine.            \item Schrijf het adres van de eigen routine in de vectortabel in het geheugen.            \item Gebruik VECTOR om de bijgewerkte vectoradressen te installeren.
+        \end{enumerate}
+
+        Sommige Commodore-programmeurs zijn gewend om eigen vectoradressen rechtstreeks uit het interne KERNAL-geheugen te lezen en erheen te schrijven, zonder de VECTOR-routine te gebruiken. Voor de MEGA65 is het belangrijk dat programma's de VECTOR-toegangsroutine gebruiken en niet van de interne KERNAL-geheugenlocatie afhankelijk zijn, om de compatibiliteit met toekomstige versies van de ROM te waarborgen.
+
+        \underline{OPMERKING}: De KERNAL gebruikt een geheugenindeling voor BASIC, welke het grootste deel van het programmageheugen voor de CPU verbergt. Eigen routines moeten in het bereik \$1600 -- \$1EFF staan om zichtbaar te zijn terwijl BASIC en de schermeditor actief zijn. Dit geldt alleen in gevallen waarin het programma de besturing teruggeeft aan BASIC of de schermeditor, een veelvoorkomend gebruik van vectoren. Voor langere eigen routines kunt u een kleine tussenroutine gebruiken die interrupts uitschakelt, de geheugenindeling van de CPU wijzigt en vervolgens een routine ergens anders in het geheugen aanroept. Wanneer die routine terugkeert, herstelt de tussenroutine de KERNAL-geheugenindeling, schakelt de interrupts weer in en springt vervolgens naar de oorspronkelijke vector van de KERNAL.
+
+        Wanneer u vectoren bijwerkt die betrekking hebben op interruptafhandeling, schakelt u de interrupts uit voordat u VECTOR aanroept.
+
+        Wanneer u vectoren installeert die de besturing teruggeven aan de oorspronkelijke KERNAL-routines, is het verstandig om RESTOR aan te roepen voordat u de tabel met VECTOR leest. Zo ziet de installatieroutine de oorspronkelijke KERNAL-adressen en niet de adressen van een eerdere installatie.
+
+        Gebruik RESTOR om de vectortabel terug te zetten op de KERNAL-standaardwaarden.
+
+    \item [Vectortabel:]        De vectortabel is 56 bytes groot, twee bytes voor elk 16-bits vectoradres.
+
+        Vrijwel alle vectoren horen bij KERNAL-sprongtabelroutines. Wanneer een programma één van deze vectoren vervangt, gaan alle aanroepen van het bijbehorende KERNAL-sprongtabeladres voortaan naar de eigen routine. Van de eigen routine wordt verwacht dat hij voldoet aan de gedocumenteerde randvoorwaarden van de KERNAL-routine (zoals CPU-registerargumenten). Indien hij vervolgens de KERNAL-routine aanroept, moet hij bij terugkeer ook aan die randvoorwaarden voldoen. Indien hij de KERNAL-routine niet aanroept, moet hij bij terugkeer voldoen aan de eindvoorwaarden van de routine (zoals de CPU-registerwaarden die als retourwaarden worden teruggegeven).
+
+        De vectoren IIRQ, IBRK en INMI verwijzen naar de interrupt-handlers van de KERNAL. De KERNAL gebruikt éénmaal per frame een raster-IRQ. De interrupt-handlers van de KERNAL bewaren alle CPU-registers op de stack, in deze volgorde gepusht: A, X, Y, Z, B. Bij een IRQ toetst de handler vervolgens of de IRQ door het rasterframe of door een BRK-instructie wordt veroorzaakt en springt hij dienovereenkomstig naar de IIRQ- of de IBRK-handler. Bij een NMI schakelt de handler de IRQ's uit en roept hij vervolgens de INMI-handler aan. Indien een eigen routine aan het einde de oorspronkelijke KERNAL-vector aanroept, herstelt de KERNAL de CPU-registers en verlaat hij de interrupt-handler op nette wijze. Indien de eigen routine ervoor kiest om de oorspronkelijke KERNAL-vector niet aan te roepen, moet hij de vijf bytes op de stack zelf afhandelen.
+
+        CTLVEC, SHFVEC en ESCVEC geven een eigen routine de mogelijkheid om afgedrukte en getypte tekens, welke met de Control-, Shift- of Escape-toets te maken hebben, af te vangen. Het accumulatorregister bevat de ongewijzigde PETSCII-code. Een eigen routine kan verdere verwerking annuleren door met RTS terug te keren, of kan de besturing teruggeven aan de KERNAL door de oorspronkelijke KERNAL-vector aan te roepen. Hoewel dit in de eerste plaats bedoeld is om interactief gedrag aan de schermeditor toe te voegen wanneer deze tekens worden getypt, kunnen programma's al deze codes ook afdrukken om dezelfde effecten te bereiken.
+
+        KEYSCAN geeft een eigen routine de mogelijkheid om typegebeurtenissen af te vangen terwijl ze van het toetsenbord worden gelezen. Deze vector wordt aangeroepen tijdens de uitvoering van GETIN door de KERNAL, wanneer het invoerapparaat het toetsenbord is. Het accumulatorregister bevat de ongewijzigde PETSCII-code, of \$FF om aan te geven dat er geen toets is ingedrukt. Y bevat een bitmasker van de modificatietoetsen; zie de beschrijving van MODKEY in \bookref{cha:keyboard}. Indien de C-vlag gewist is, komt de typegebeurtenis in aanmerking om een functietoetsmacro te activeren; indien de vlag gezet is, activeert de gebeurtenis geen macro. De vectorroutine kan elk van deze attributen lezen of wijzigen. Hij moet de besturing teruggeven aan het oorspronkelijke KERNAL-adres in de vector.
+
+        \begin{longtable}{|L{2cm}|p{2cm}|p{4cm}|}
+        \hline
+        \textbf{Offset} & \textbf{Naam} & \textbf{Beschrijving} \\
+        \hline
+        \endfirsthead
+        \multicolumn{3}{l@{}}{\ldots vervolg}\\
+        \hline
+        \textbf{Offset} & \textbf{Naam} & \textbf{Beschrijving} \\
+        \hline
+        \endhead
+        \multicolumn{3}{l@{}}{vervolg \ldots}\\
+        \endfoot
+        \hline
+        \endlastfoot
+        \hline
+        0 & IIRQ & Raster-IRQ-handler \\
+        \hline
+        2 & IBRK & BRK-handler \\
+        \hline
+        4 & INMI & NMI-handler \\
+        \hline
+        6 & IOPEN & OPEN \\
+        \hline
+        8 & ICLOSE & CLOSE \\
+        \hline
+        10 & ICHKIN & CHKIN \\
+        \hline
+        12 & ICKOUT & CKOUT \\
+        \hline
+        14 & ICLRCH & CLRCH \\
+        \hline
+        16 & IBASIN & BASIN \\
+        \hline
+        18 & IBSOUT & BSOUT \\
+        \hline
+        20 & ISTOP & STOP \\
+        \hline
+        22 & IGETIN & GETIN \\
+        \hline
+        24 & ICLALL & CLALL \\
+        \hline
+        26 & EXMON & Gereserveerd, niet wijzigen \\
+        \hline
+        28 & ILOAD & LOAD \\
+        \hline
+        30 & ISAVE & SAVE \\
+        \hline
+        32 & ITALK & TALK \\
+        \hline
+        34 & ILISTEN & LISTN \\
+        \hline
+        36 & ITALKSA & TKSA \\
+        \hline
+        38 & ISECOND & SECND \\
+        \hline
+        40 & IACPTR & ACPTR \\
+        \hline
+        42 & ICIOUT & CIOUT \\
+        \hline
+        44 & IUNTALK & UNTLK \\
+        \hline
+        46 & IUNLISTEN & UNLSN \\
+        \hline
+        48 & CTLVEC & Controlcode \\
+        \hline
+        50 & SHFVEC & Shiftcode \\
+        \hline
+        52 & ESCVEC & Escapecode \\
+        \hline
+        54 & KEYSCAN & Afhandeling van toetsenbordinvoer \\
+        \hline
+        \end{longtable}
+
+    \item [Voorbeelden:]        Het volgende voorbeeld installeert een korte routine op adres \$1600, die de schermcode in de linkerbovenhoek van het scherm verhoogt en stelt vervolgens de IIRQ-vector zodanig in dat de KERNAL deze routine één keer per rasterframe aanroept. Nadat dit programma naar BASIC is teruggekeerd, wordt de schermcode continu bijgewerkt, terwijl BASIC en de schermeditor operationeel blijven.
+
+        \begin{asmcode}
+vector = $ff8d
+
+    ; Installeer de custom_irq-routine op $1600,
+    ; zodat het zichtbaar is wanneer BASIC
+    ; actief is.
+    ldx #verlegde_irq_eind-verlegde_irq+1
+-   lda custom_irq-1,x
+    sta $1600-1,x
+    dex
+    bne -
+
+    ; Lees de vectortabel in het geheugen in
+    sei
+    jsr restor
+    cli
+    sec
+    ldx #<vectabel
+    ldy #>vectabel
+    jsr vector
+
+    ; kopieer de iirq-vector naar custom_irq's
+    ; jmp-instructie
+    lda vectabel
+    sta $1600+verlegde_irq_return-verlegde_irq+1
+    lda vectable+1
+    sta $1600+verlegde_irq_return-verlegde_irq+2
+
+    ; verlegde_irq-adres naar iirq (tabelregel 1)
+    lda #$00
+    sta vectabel
+    lda #$16
+    sta vectabel+1
+
+    ; Installeer de bijgewerkte vectortabel
+    clc
+    ldx #<vectabel
+    ldy #>vectabel
+    sei
+    jsr vector
+    cli
+
+    ; Terug naar BASIC
+    rts
+
+verlegde_irq:
+    ; Roteer het teken linksboven
+    inc $0800
+verlegde_irq_return:
+    jmp $0000
+verlegde_irq_eind:
+
+vectabel:
+    !fill $38
+        \end{asmcode}
+
+        Het volgende voorbeeld gebruikt de KEYSCAN-vector om de Help-toets te onderscheppen. In plaats van de macro van de functietoets F15 aan te roepen, wijzigt het indrukken van de Help-toets de randkleur. De PHP- en PLP-instructies zorgen ervoor dat de C-vlag bewaard blijft. Alleen de vectorroutine wordt getoond; de installatiecode lijkt op die van het vorige voorbeeld, waarbij \texttt{vectabel+54} als adres van de KEYSCAN-vermelding in de vectortabel dient.
+
+        \begin{asmcode}
+verlegde_keyscan:
+    php
+    cmp #132  ; Help-toets
+    bne +
+    lda #$ff  ; "Help" annuleren
+    inc $d020
++   plp
+verlegde_keyscan_return:
+    jmp $0000
+verlegde_keyscan_eind:
+        \end{asmcode}
+
+\end{description}
+
+
+% ****
+% VERSIONQ
+% ****
+
+\newpage
+\subsection{VERSIONQ}
+\index{KERNAL-sprongtabel!VERSIONQ}
+\label{KERNAL Jump Table!VERSIONQ}
+\begin{description}[leftmargin=2cm,style=nextline]
+    \item [Adres:] JSR \$FF2F    \item [Omschrijving:] Laadt het ROM-versienummer in Q.    \item [Opmerkingen:]        Deze routine laadt het ROM-versienummer in het Q-register (A, X, Y, Z), als 32-bits geheel getal in little-endian-volgorde.    \item [Voorbeeld:]
+        \begin{asmcode}
+versionq = $ff2f
+
+    jsr versionq
+    stq $1700
+        \end{asmcode}
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The local heading restyle above is meant for this chapter only.
+% \titleformat* is document-wide; restore the class default so that it
+% does not leak into the chapters that follow.
+\titleformat*{\subsection}{\normalfont\large\bfseries}

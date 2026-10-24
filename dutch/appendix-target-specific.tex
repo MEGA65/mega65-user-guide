@@ -1,0 +1,115 @@
+\chapter{Modelspecifieke kenmerken}
+
+\section{MEGA65-modellen detecteren}
+
+Hoewel we verwachten dat de productieversie van de MEGA65 een stabiel platform is, kunnen er zich nog situaties voordoen waarin het nodig is vast te stellen op welke hardware uw programma draait. Dit is met name belangrijk voor de systeemsoftware van de MEGA65, welke mogelijk verschillende hardwareonderdelen op de verschillende modellen moet initialiseren. Omdat er al een handheld-versie van de MEGA65 in ontwikkeling is, welke een scherm met een iets andere resolutie gebruikt (800x480 in plaats van 720x576) en wel een touchscreen heeft, maar geen hardwaretoetsenbord. wilt u wellicht programma's maken die zich op een soepelere manier aan deze handheld-apparaten aanpassen. U kunt bijvoorbeeld touchscreeninvoer inschakelen en de keuzemogelijkheden op het scherm zo herindelen dat ze groot genoeg zijn om gemakkelijk met een vinger te activeren.
+
+De eenvoudige manier om vast te stellen op welk model MEGA65 uw programma draait, is het controleren van het register \$D629 (schakel echter eerst de MEGA65-I/O-persoonlijkheid in, via \$D02F). Dit register bevat een 8-bits hardware-identificatie. De volgende waarden zijn momenteel gedefinieerd:
+
+\begin{description}[align=left,labelwidth=0.2cm]
+\item[\$01 (1)] MEGA65 R1\item[\$02 (2)] MEGA65 R2\item[\$03 (3)] MEGA65 R3\item[\$04 (4)] MEGA65 R4\item[\$05 -- \$0F (5 -- 15)] MEGA65 R5 -- MEGA65 R15\item[\$21 (33)] MEGAphone (handheld) R1\item[\$40 (64)] Nexys4 PSRAM\item[\$41 (65)] Nexys4DDR\item[\$42 (66)] Nexys4DDR met widget-bord\item[\$FD (253)] QMTECH Wukong A100T-bord\item[\$FE (254)] VHDL-simulatierun
+\end{description}
+
+
+\section{MEGA65-desktopcomputer, revisies 5 en 6}
+
+De desktop-PCB's van R5 en R6 vormen betrekkelijk bescheiden herzieningen van de desktop-PCB van R4, die oorspronkelijk werd uitgevoerd om problemen met de toeleveringsketen voor enkele voedingsregelaarcomponenten op te lossen. Hierbij hebben de ontwerpers tevens de gelegenheid aangegrepen om enkele verbeteringen door te voeren:
+
+\begin{itemize}
+\item Enkele signalen op de uitbreidingspoort die voorheen alleen uitvoer of alleen invoer waren, zijn nu bidirectioneel, zodat de C64-core naar verwachting alle bekende cartridges kan ondersteunen en de cartridgecompatibiliteit van de MEGA65-core verder kan worden verbeterd.\item Op het moederbord zijn vier extra DIP-schakelaars toegevoegd. Alle acht DIP-schakelaars zijn nu aangesloten via een I2C-I/O-expander, in plaats van dat zij rechtstreeks FPGA-pinnen in beslag nemen.\item Deze nieuwe I/O-expander biedt tevens informatie over de major- en minorrevisie van het moederbord. De hoofdrevisie is ingesteld op 5 en de subrevisie aanvankelijk op 0. De minorrevisie kan veranderen wanneer er wijzigingen aan het bord worden doorgevoerd die de compatibiliteit niet aantasten, zoals het vervangen van de QSPI-flashchip, de HyperRAM- en/of SDRAM-chips. Zo kan software, met name de Hypervisor van de MEGA65, deze situatie vaststellen en daarnaar handelen.\item De microfooninterface op de 3.5 mm-audiojack kan nu voorspanning leveren, zodat bepaalde typen microfoons kunnen worden gebruikt die voorheen niet werkten. De MEGA65-core ondersteunt het gebruik van de microfoonpoort momenteel nog niet, al kan dat in de toekomst veranderen.
+
+\end{itemize}
+
+R6 is elektrisch identiek aan R5 en is het model dat is meegeleverd met de MEGA65-productie-exemplaren die in het jaar 2024 zijn verscheept.
+
+\section{MEGA65-desktopcomputer, revisie 4}
+
+De desktop-PCB van R4 is een aanzienlijke herziening van de desktop-PCB van R3, met enkele belangrijke wijzigingen:
+
+\begin{itemize}
+\item De ondersteunende Intel\texttrademark{} MAX10\texttrademark{}-FPGA is volledig van het bord verwijderd, wat het ontwerp vereenvoudigt en helpt om een deel van de kostenstijgingen op te vangen die zich hebben voorgedaan sinds het R3-bord werd ontworpen. Dit elimineert tevens enkele lastige foutmodi die zouden kunnen optreden als de MAX10-FPGA per ongeluk zijn configuratie zou verliezen.\item De MEGA65 kan de joystickpoorten nu ook laag trekken. Dat zou het gebruik van apparaten zoals de protopad\texttrademark{} met de MEGA65 mogelijk moeten maken.\item De aansluitingen voor de interne luidspreker op het bord zijn verwijderd: zij werden weinig gebruikt, brachten kosten met zich mee en konden door het gebruikte type DAC's problemen met oververhittende luidsprekers geven.\item De real-time klok (RTC) is vervangen door een RV-3032-C7. Dit neemt de problemen weg die zich bij de R3-borden voordeden door RTC-chips van het oude type met wisselende kwaliteit, die in veel gevallen vervangen moesten worden.\item Op de digitale video-uitvoer is een driver-IC toegevoegd om problemen door terugvoeding te voorkomen.\item Er is een nieuwe 16-polige header, J21, toegevoegd, met directe toegang tot de uitvoerlijnen van de joystick, alsmede twee extra FPGA-pinnen. Deze is bedoeld om bepaalde ontwikkeltaken op laag niveau te vergemakkelijken en om eventueel verdere verbeteringen mogelijk te maken door de toevoeging van een gespecialiseerd dochterbord.\item Naast de 8MiB HyperRAM is een 64MiB SDRAM toegevoegd. Dat maakt het overzetten van meer MiSTer-cores mogelijk en biedt de MEGA65-core bovendien een grotere en snellere Attic RAM. Waarschijnlijk wordt de HyperRAM op productie-exemplaren van het R4-bord niet gemonteerd, zodra de MEGA65-core de SDRAM ondersteunt, want de SDRAM is op alle punten beter dan de HyperRAM: hij is sneller, heeft een lagere latency en heeft een 8$\times$ grotere capaciteit.  \item Aanzienlijk verbeterde geluidskwaliteit op de externe 3.5 mm-audiojack door de toevoeging van een hoogwaardige audio-DAC-chip.
+\end{itemize}
+
+\section{MEGA65-desktopcomputer, revisie 3 \& revisie 3A}
+
+De desktop-PCB van R3 lijkt sterk op de desktop-PCB van R2, met twee belangrijke wijzigingen:
+
+\begin{itemize}
+\item Ten eerste heeft de R3-PCB geen ADV7511-driverchip voor digitale video, zodat het I2C-registerblok voor dat apparaat ontbreekt.\item Ten tweede gebruikt de R3-PCB een andere versterker op het bord voor de pc-luidsprekers, die nu in stereo aanwezig zijn in plaats van in mono zoals op de R2-PCB. De versterker op de R3-PCB is dezelfde als die op de PCB's van de MEGAphone R1 -- R2. De I2C-registers bevinden zich echter op een ander adres. Op de R3-PCB van de MEGA65 liggen de registers op \$FFD71DC -- \$FFD71EF.
+\end{itemize}
+
+Het enige verschil tussen de R3 en de R3A is de QSPI-flashchip die op het bord is gemonteerd. De PCB zelf is ongewijzigd. De QSPI-flashchip van de R3 biedt slechts ruimte voor vier coreslots (0 -- 3), met inbegrip van de fabriekscore in slot 0. De R3A gebruikt een QSPI-flashchip met een grotere capaciteit, die ruimte biedt voor acht coreslots (0 -- 7), eveneens met inbegrip van de fabriekscore in slot 0.
+
+R3-borden werden gebruikt voor de MEGA65 DevKit-modellen die in het jaar 2020 werden geleverd. R3A-borden werden gebruikt voor de MEGA65-productie-exemplaren die in 2022 en 2023 werden geleverd.
+
+%\DONTinput{regtable_TARGETM65R3.MEGA65.tex}
+
+
+\section{MEGA65-desktopcomputer, revisie 2}
+
+De desktopversie van de MEGA65 bevat een real-time klok (RTC), waarin tevens een kleine hoeveelheid niet-vluchtig geheugen (NVRAM) is opgenomen dat zijn waarde behoudt, zelfs als de computer is uitgeschakeld en van de voeding is losgekoppeld. De NVRAM bewaart zijn waarden zolang de interne batterij over voldoende lading beschikt. Deze batterij voedt tevens de real-time klok zelf, welke een eeuwkalender voor de jaren 2000 -- 2099 bevat.
+
+De voornaamste kunstgreep om de RTC vanuit BASIC te benaderen is dat we een Enhanced-DMA-bewerking van de MEGA65 nodig hebben om de RTC-registers op te halen, omdat de RTC-registers boven de 1MB-grens liggen, de bovengrens van de normale DMA-bewerkingen van de C65. De eenvoudigste manier om dat te doen is om ergens in het geheugen een klein DMA-lijstje op te bouwen en een routine in assembleertaal te schrijven die deze lijst gebruikt. Iets als het onderstaande (met BASIC 65 in de C65-modus):
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+10 RESTORE 110:FORI=0TO43:READA$:POKE1024+I,DEC(A$):NEXT:BANK 128:SYS1042
+20 S=PEEK(1056):M=PEEK(1057):H=PEEK(1058)
+30 D=PEEK(1059):MM=PEEK(1060):Y=PEEK(1061)+DEC("2000")
+40 IF H AND 128 GOTO 80
+50 PRINT "THE TIME IS ";RIGHT$(HEX$(H AND 63),2);":";RIGHT$(HEX$(M),2);".";RIGHT$(HEX$(S),2)
+60 IF H AND 32 THEN PRINT "PM": ELSE PRINT "AM"
+70 GOTO 90
+80 PRINT "THE TIME IS ";RIGHT$(HEX$(H AND 63),1);":";RIGHT$(HEX$(M),2);".";RIGHT$(HEX$(S),2)
+90 PRINT "THE DATE IS ";RIGHT$(HEX$(D),2);".";RIGHT$(HEX$(MM),2);".";HEX$(Y)
+100 END
+110 DATA 0B,80,FF,81,00,00,00,08,00,10,71,0D,20,04,00,00,00,00
+120 DATA A9,47,8D,2F,D0,A9,53,8D,2F,D0,A9,00,8D,02,D7,A9
+130 DATA 04,8D,01,D7,A9,00,8D,05,D7,60
+\end{verbatim}
+\end{tcolorbox}
+
+
+Dit programma werkt doordat het eerst een DMA-lijst opbouwt in het geheugen op 1024 (\$0400), wat op de C65 normaal gesproken ongebruikt is, gevolgd door een routine op 1042 (\$0412) die ervoor zorgt dat de MEGA65-registers niet langer verborgen zijn, daarna de registers van de DMA-controller passend instelt om de DMA-taak in gang te zetten en vervolgens terugkeert. De rest van de BASIC-code leest met PEEK de RTC-registers uit die de DMA-taak naar 1024 - 1032 (\$0400 -- \$0407) heeft gekopieerd en interpreteert die op de juiste wijze om de tijd weer te geven.
+
+Wie nieuwsgierig is, kan het commando MONITOR gebruiken en daarna D1012 intypen om de routine te bekijken.
+
+Wilt u een klok die doorloopt, dan kunt u regel 100 vervangen door GOTO 10. U krijgt dan zoiets als het volgende:
+
+\begin{tcolorbox}[colback=black,coltext=white]
+\verbatimfont{\codefont}
+\begin{verbatim}
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+THE TIME IS 10:05:36 PM
+THE DATE IS 20.02.2020
+...
+\end{verbatim}
+\end{tcolorbox}
+
+
+Als u eerst POKE0,65 gebruikt om de CPU op volledige snelheid in te stellen, kan het gehele programma vele malen per seconde draaien. Er kan zich af en toe een hapering voordoen als de RTC-registers worden gelezen terwijl de computer ze bijwerkt. We zouden de waarden daarom eigenlijk moeten ontdenderen door de tijd een paar keer achter elkaar te lezen en, indien de waarden niet beide keren gelijk zijn, het proces te herhalen totdat dat wel het geval is. Dit laten wij over als een oefening voor de lezer.
+
+OPMERKING: Deze registers zijn nog niet volledig gedocumenteerd.
+
+%\DONTinput{regtable_TARGETM65R2.MEGA65.tex}
+
+\section{MEGAphone-handheld, revisies 1 en 2}
+
+De MEGAphone-revisies 1 en 2 bevatten weliswaar een real-time klok (RTC), maar deze RTC heeft geen gebied met niet-vluchtig geheugen (NVRAM). Tot de overige specifieke kenmerken van de MEGAphone-revisies 1 en 2 behoren een drie-assige accelerometer met analoog-naar-digitaalomzetters (ADC's), een besturingseenheid voor de luidsprekerversterker en diverse I2C-I/O-expanders, die worden gebruikt om de joypad en andere randapparaten aan te sluiten. De I/O-expanders vormen een volledig geïntegreerd onderdeel van het MEGAphone-ontwerp, zodat u deze registers normaal gesproken niet rechtstreeks hoeft uit te lezen. De I/O-expanders verzorgen echter ook de voedingsregeling van de verschillende subsystemen van de MEGAphone.
+
+OPMERKING: Deze registers zijn nog niet volledig gedocumenteerd.
+
+%\DONTinput{regtable_TARGETMEGAPHONER1.MEGA65.tex}
+
+\section{Nexys4 DDR FPGA-bord}
+
+OPMERKING: Deze registers zijn nog niet volledig gedocumenteerd.
+
+%\DONTinput{regtable_TARGETN4DDR.MEGA65.tex}
+

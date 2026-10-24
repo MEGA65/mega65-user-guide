@@ -45,6 +45,18 @@
    {  }
 
 \lstdefinestyle{megalisting}{basicstyle=\codefont\normalsize,breaklines=false,fontadjust=true,basewidth=1.5mm}
+
+% The heart glyph lives at U+01B3 in the code fonts.  listings only knows
+% ASCII (32--127) and Latin-1 (extendedchars), so it does not recognize
+% U+01B3: the character is typeset immediately while surrounding characters
+% are still buffered, and it therefore jumps in front of them ("Ƴ" comes
+% out as Ƴ"").  Register it in the character table exactly like listings
+% registers ASCII letters, and make it active whenever listings selects
+% its character table (the catcode change is scoped to the listing group).
+\makeatletter
+\lst@CCPut \lst@ProcessLetter {"01B3}\z@
+\lst@AddToHook{SelectCharTable}{\catcode"01B3\active}
+\makeatother
 \makeatletter
 \newtcblisting{screencode}{%
 listing only,

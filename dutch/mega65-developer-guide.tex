@@ -1,0 +1,144 @@
+% Bronbestand (bevroren 2026-09-20). Eerder gegenereerd door
+% dutch/tools/make-book-master.py (nu gearchiveerd in dutch/attic/);
+% bewerken gebeurt direct in dit bestand en de dutch/*.tex-hoofdstukken.
+\input{dutch/common-header-dutch}
+\input{dutch/frontcover}
+\input{dutch/regulatory}
+\input{dutch/updates}
+
+\megabookstart{ONTWIKKELEN VOOR DE MEGA65}{IN AANBOUW}
+
+\input{dutch/introduction}
+
+\cleardoublepage
+
+\part{INLEIDING}
+
+\chapter{Welkom en bedankt!}
+
+Wij willen u bedanken voor uw interesse in de MEGA65
+en voor het ontwikkelen van software die erop draait. Het succes van de MEGA65 als
+leuk retro-computingplatform is afhankelijk van de beschikbaarheid van
+interessante software die mensen kunnen draaien. Dit vereist het
+vrijwillige werk van ontwikkelaars zoals u. Dus nogmaals, bedankt!
+
+Ontwikkelen voor de MEGA65 is echter niet slechts een kwestie van geven ten
+bate van anderen. We hebben hard gewerkt aan een machine die net zo
+leuk is om op te programmeren als de Commodore 64, maar waarin enkele barrières
+en frustraties enigszins zijn weggewerkt. Dat wil zeggen, het is onze bedoeling
+dat mensen op de MEGA65 ontwikkelen omdat het leuk is, en dan genieten van
+het proces. De reis moet dus het doel op zichzelf zijn.
+
+Dat gezegd hebbende, de MEGA65 is vrij nieuw en we zijn druk geweest met
+het maken van de machine. Dit betekent dat sommige ontwikkeltools nog
+niet zo gereed, eenvoudig of geïntegreerd zijn als we zouden willen. Het verbeteren
+van de tools is ook een gebied waarop we hopen dat velen van u met plezier
+zullen bijdragen, zodat ontwikkelen voor de MEGA65 toegankelijk kan worden
+voor zoveel mogelijk mensen.
+
+Indien u problemen ondervindt bij het
+ontwikkelen voor de MEGA65, laat het ons dan weten en
+overweeg oplossingen te creëren die met anderen kunnen worden gedeeld. Dit zal
+iedereen helpen om te genieten van een actief onderdeel van het MEGA65-ecosysteem.
+
+Tot slot onze excuses aan iedereen die hulpprogramma's of utilities
+voor de MEGA65 heeft ontwikkeld die aan onze herinnering zijn ontsnapt bij het schrijven van dit
+document. Indien dit het geval is, stuur ons dan een e-mail en wij zullen
+dit document bijwerken om ze op te nemen.
+
+\chapter{Andere bronnen}
+
+Dit boek richt zich op het proces van ontwikkelen voor de MEGA65. Om
+te voorkomen dat het duizend bladzijden lang wordt, beschrijft het niet de innerlijke
+werking van de MEGA65, behalve waar u dat moet weten om
+deel te kunnen nemen aan het ontwikkelingsproces. Indien u bijvoorbeeld
+wilt weten welke mogelijkheden de diverse custom chips in de
+MEGA65 hebben en welke registers welke taken uitvoeren, verwijzen we naar {\em het
+grote Mega65-boek} online
+op \url{https://github.com/mega65/mega65-user-guide}, of overweegt u
+een of meer van de naslagwerken voor de MEGA65 aan te schaffen, waaruit
+het Mega65-boek is samengesteld. Bijvoorbeeld de {\em Mega65-chipset naslaggids} of de {\em Mega65-assembleertaal naslaggids}.
+
+We hopen ook dat u, de ontwikkelaarsgemeenschap, zal bijdragen aan
+die boeken, of uw eigen materiaal schrijft dat anderen kan helpen bij hun
+reis van het ontwikkelen voor de MEGA65.
+
+\part{PLATFORMONAFHANKELIJKE ONTWIKKELHULPMIDDELEN}
+
+\input{dutch/emulators}
+\input{dutch/transferanddebugging}
+\input{dutch/assemblers}
+\input{dutch/ccompilers}
+\input{dutch/libc}
+\input{dutch/basictokenisers}
+
+\part{PROGRAMMEERGEREEDSCHAP OP DE MEGA65 ZELF}
+
+\chapter{C65-geheugenmonitor}
+
+\chapter{MEGA65 Matrix Mode}
+
+\chapter{Turbo Assembler}
+
+\chapter{Omgaan met de C65- en C64-modus}
+
+De MEGA65 start normaal in C65-modus en het is aantrekkelijk om
+programma's te maken die direct vanuit C65-modus kunnen starten. De
+verschillende versies van de C65-ROM maken dit echter moeilijk, omdat er
+verschillen zijn in de geheugenlocatie van diverse systeemvariabelen en ROM-
+routines. Indien u een programma in assembleertaal of
+C ontwikkelt, is het doorgaans eenvoudiger om het voor C64-modus te ontwikkelen.
+
+Dat zadelt u evenwel op met het probleem hoe u het programma vanuit C65-modus kunt laten starten.
+Onze oplossing hiervoor is het programma \stw{c65toc65wrapper.asm}. Dit
+korte programma staat in de map \stw{src/utilities} van
+het \url{https://github.com/mega65/mega65-tools}-repository. Wanneer
+het gecompileerd wordt, produceert het een kort programma dat u voor uw
+C64-modus-georiënteerde MEGA65-programma kunt plaatsen, zodat het automatisch
+C64- of C65-modus detecteert, indien nodig naar C64-modus schakelt en uw
+programma laat draaien. Het schakelt ook de CPU naar 40 MHz. De enige
+aanname is dat uw programma gestart moet worden met
+\stw{SYS 2061}.
+
+Dit programma is bijzonder handig bij het gebruik van exomizer, omdat het
+instellen van de CPU op 40 MHz vóór het uitpakken ervoor zorgt dat het uitpakken
+bijna onmiddellijk gebeurt. Dit is belangrijk op de MEGA65, omdat het laden van een
+programma doorgaans slechts een fractie van een seconde duurt, maar het uitpakken van een
+geëxomized programma op 1 MHz enkele seconden kan duren.
+
+Tot slot kunt u deze benadering gebruiken om opstartbare schijven te maken voor de
+MEGA65, door het bestand op de schijf te plaatsen met de
+naam \stw{AUTOBOOT.C65}. Hiermee kunt u programma's voor de C64-modus
+laten autobooten op de MEGA65, wat op zichzelf zeer handig is.
+
+\part{MEGA65 BESTURINGSSYSTEEM}
+
+\input{dutch/developing-system-programs}
+
+{\input{dutch/appendix-hypervisor-calls}}
+
+\part{MULTIMEDIA EN GEGEVENSCONVERSIE}
+
+\part{GEOS-ONTWIKKELING}
+
+\part{HARDWARE}
+
+\input{dutch/nexys4ddr-setup}
+
+\part{BIJLAGEN}
+
+\appendix
+  \input{dutch/appendix-mega65r2-flashing}
+  \input{dutch/appendix-troubleshooting}
+  \input{dutch/appendix-schematics}
+  \input{dutch/appendix-donors}
+
+
+\nocite{*}
+\bibliographystyle{IEEEtran-nl}
+\bibliography{references}
+
+\printindex
+
+\input{common-footer}
+

@@ -1,0 +1,233 @@
+
+\chapter{Het toetsenbord van de MEGA65}
+\label{cha:keyboard}
+
+De MEGA65 heeft een volledig mechanisch toetsenbord, dat compatibel is met de toetsenborden van de C65 en de C64 en dat vier afzonderlijke cursortoetsen heeft, welke zowel in de C64- als in de C65-modus werken, evenals elf nieuwe C65-toetsen die normaal gesproken uitsluitend in de C65-modus werken.
+
+Er zijn verschillende manieren om het toetsenbord vanuit programma's te lezen. BASIC-programma's kunnen de commando's {\bf GET} of {\bf GETKEY} gebruiken, die een PETSCII-toetscode in een variabele lezen, al dan niet wachtend op een typgebeurtenis. Programma's in machinetaal die de KERNAL actief houden, kunnen de {\tt getin}-routine van de KERNAL op \$FFE4 gebruiken, welke een PETSCII-code in de accumulator laadt. Deze routines hebben als voordeel dat zij ook andere voorzieningen van de invoerstroom van de KERNAL ondersteunen, zoals functietoetsmacro's en invoeromleiding.
+
+Voor een machinetaalprogramma dat de KERNAL niet gebruikt en het toetsenbord wil inzetten voor standaardtoepassingen voor tekstinvoer (zoals een tekstverwerker), biedt de MEGA65 een {\em typgebeurteniswachtrij} die rechtstreeks in de hardware is geïmplementeerd. Een {\em typgebeurtenis} ontstaat wanneer de gebruiker een toets indrukt die zelf geen modificatietoets is, terwijl daarbij nul of meer modificatietoetsen ingedrukt gehouden worden. De typgebeurteniswachtrij onthoudt de ingedrukte toets en de vastgehouden modificatietoetsen, tot een bepaald maximum aantal gebeurtenissen. Van het programma wordt verwacht dat het elke gebeurtenis uit de wachtrij haalt zodra deze is verwerkt, zodat er in het hardwaregeheugen weer ruimte voor nieuwe gebeurtenissen vrijkomt. Een programma kan typgebeurtenissen rechtstreeks uit hardwareregisters lezen, als PETSCII- of als ASCII-waarde. De modificatietoetsen die bij de gebeurtenis werden vastgehouden, zijn eveneens uit een register te lezen.
+
+De KERNAL van de MEGA65 gebruikt de typgebeurteniswachtrij als onderliggend mechanisme voor {\tt getin} en de BASIC-commando's {\bf GET} en {\bf GETKEY}. Het lezen van een toets met een van deze methoden haalt een typgebeurtenis uit de wachtrij.
+
+De MEGA65 biedt daarnaast rechtstreekse hardwaretoegang tot de toetsenbordmatrix via speciale registers, zodat MEGA65-programma's elke combinatie van gelijktijdig ingedrukte toetsen kunnen vaststellen. Dit is nuttig voor spellen die het toetsenbord als spelbesturing gebruiken.
+
+Oudere C64- en C65-programma's, waaronder de oorspronkelijke C65-ROM, gebruiken de CIA-chips als hardware-interface voor het toetsenbord. Het toetsenbord van de MEGA65 implementeert de C65-toetsenbordmatrix voor de CIA-chip. Deze interface kent de inherente beperkingen die ook bij Commodore-computers voorkomen, waaronder een tragere toetsrespons en ``spooktoetsen'' bij bepaalde toetscombinaties. MEGA65-programma's behalen betere resultaten met de methoden via de KERNAL, de typgebeurteniswachtrij of de toetsenbordmatrixregisters.
+
+\section{De typgebeurteniswachtrij gebruiken}
+
+De status van de typgebeurteniswachtrij is af te lezen uit de volgende registers:
+
+\begin{center}
+\begin{tabular}{|p{5.5em}|p{6em}|p{22em}|}
+\hline
+\bf{Naam} & \bf{I/O-adres} & \bf{Omschrijving} \\
+\hline
+ASCIIKEY & \$D610 & De bovenste gebeurtenis als ASCII, \$FF indien er geen interpretatie is, of \$00 indien de wachtrij leeg is \\
+\hline
+PETSCIIKEY & \$D619 & De bovenste gebeurtenis als PETSCII, of \$FF indien er geen interpretatie is \\
+\hline
+MODKEY & \$D60A[0:6] & Modificatietoetsen die tijdens de gebeurtenis werden vastgehouden \\
+\hline
+KEYQUEUE & \$D60A[7] & 1 indien de wachtrij niet leeg is \\
+\hline
+\end{tabular}
+\end{center}
+
+De bits van MODKEY \$D60A komen overeen met de volgende modificatietoetsen. Is een bit gezet, dan werd de bijbehorende toets tijdens de gebeurtenis ingedrukt gehouden:
+\nopagebreak
+\begin{center}
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{|*{7}{>{\centering\arraybackslash}p{3em}|}}
+\hline
+\bf{Bit 6} & \bf{Bit 5} & \bf{Bit 4} & \bf{Bit 3} & \bf{Bit 2} & \bf{Bit 1} & \bf{Bit 0} \\
+\hline
+\specialkey{CAPS\\LOCK} & \specialkey{NO\\SCROLL} & \specialkey{ALT} & \megasymbolkey & \specialkey{CTRL} & \specialkey{SHIFT\\right} & \specialkey{SHIFT\\left} \\
+\hline
+\end{tabular}}
+\end{center}
+
+Leest ASCIIKEY (\$D610) de waarde \$00, dan is de typgebeurteniswachtrij leeg. Een programma moet ASCIIKEY op \$00 testen, of KEYQUEUE (bit 7 van \$D60A) raadplegen, om te bepalen of de wachtrij leeg is. Het PETSCIIKEY-register heeft geen waarde die voor de lege wachtrij staat.
+
+Een gegeven typgebeurtenis heeft al dan niet een ASCII- of PETSCII-interpretatie. Een typgebeurtenis zonder beide wordt niet aan de wachtrij toegevoegd. Heeft een gebeurtenis wel een ASCII-interpretatie maar geen PETSCII-interpretatie, dan bevat ASCIIKEY de ASCII-waarde en bevat PETSCIIKEY \$FF. Evenzo bevat ASCIIKEY \$FF voor typgebeurtenissen zonder ASCII-interpretatie. Van het programma wordt verwacht dat het met behulp van de overige registers bepaalt of de wachtrij leeg is en dat het typgebeurtenissen overslaat waarvan de interpretatie voor het programma niet nuttig is.
+
+\underline{OPMERKING}: ASCII gebruikt \$FF eveneens voor het ``umlaut-y''-teken (Alt+Y). In dit geval (en uitsluitend in dit geval) is PETSCIIKEY \$59 (de gewone Y). Indien uw programma onderscheid moet kunnen maken tussen een typgebeurtenis zonder ASCII-interpretatie en Alt+Y, test dan of PETSCIIKEY \$59 is wanneer ASCIIKEY \$FF is.
+
+Om de bovenste typgebeurtenis uit de wachtrij te halen, schrijft u een willekeurige waarde naar ASCIIKEY (\$D610) of naar PETSCIIKEY (\$D619). Bevat de wachtrij nog een gebeurtenis, dan wordt deze zichtbaar in de registers. Anders gaan de registers over naar de toestand van een lege wachtrij.
+
+\subsection{ASCII-typgebeurtenissen interpreteren}
+
+Met het ASCIIKEY-register kunt u de ASCII-symbolen invoeren die in PETSCII niet beschikbaar zijn, waaronder \{, \_ en |, welke op een gewoon C64- of C128-toetsenbord niet te typen zijn. Het toetsenbord en de ASCII-interpretatie ondersteunen de meeste tekens van de Latin-1-codepagina, waardoor veel geaccentueerde tekens kunnen worden ingevoerd. Deze toetsen voert u in door \megasymbolkey ingedrukt te houden en daarbij andere toetsen of toetscombinaties in te drukken. Voor het gebruik van ASCII- of Unicode-basic-Latin-symbolen die niet in de PETSCII-tekenset voorkomen, is een lettertype nodig dat deze symbolen bevat, evenals software die ze ondersteunt.
+
+De volgende tabellen tonen de hexadecimale waarde en het Unicode-teken die elke toetscombinatie in het ASCIIKEY-register oplevert. Er is één tabel voor het indrukken van een toets op zichzelf en één tabel voor elk van de toetsen \specialkey{SHIFT}, \specialkey{CTRL}, \megasymbolkey en \specialkey{ALT}.
+
+\begin{minipage}{\textwidth}
+\bf{Toetsen alleen ingedrukt:}
+\input{keymap_table_1}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Toetsen met \specialkey{SHIFT} ingedrukt}
+\input{keymap_table_2}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Toetsen met \specialkey{CTRL} ingedrukt}
+\input{keymap_table_3}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Toetsen met \megasymbolkey ingedrukt}
+\input{keymap_table_4}
+\end{minipage}
+
+\begin{minipage}{\textwidth}
+\bf{Toetsen met \specialkey{ALT} ingedrukt}
+\input{keymap_table_5}
+\end{minipage}
+
+\subsection{De keymap voor Unicode Basic-Latin}
+
+De volgende tabellen zijn een handig naslagwerk om een toetscombinatie te vinden die de gewenste ASCII/Unicode-basic-Latin-tekencode oplevert. Let op: enkele codes zijn in de praktijk moeilijk in te typen, omdat zij aan toetscombinaties zijn toegewezen die andere functies uitvoeren. Met name de combinatie \megasymbol + \specialkey{TAB} wordt normaal gesproken buiten werking gesteld door de hardware-debugfunctie Matrix Mode.
+
+\input{unicode_mapping}
+
+
+\newpage
+\section{Werking van het toetsenbord}
+
+Het toetsenbord van de MEGA65 is een volledig mechanisch toetsenbord, opgebouwd als een matrix. Elke toetsschakelaar is voorzien van een diode, waardoor de toetsenbordhardware kan detecteren wanneer er tegelijk een willekeurige combinatie van toetsen wordt ingedrukt. Deze matrix wordt door de firmware in de CPLD-chip op de printplaat van het toetsenbord vele duizenden keren per seconde gescand.
+
+De matrixindeling van het MEGA65-toetsenbord maakt geen gebruik van de matrixindeling van de C65. In plaats daarvan zet de CPLD de natuurlijke matrix van het toetsenbord om naar de volgorde van de C65-toetsenbordmatrix en verzendt de C65-matrixcoördinaten vervolgens serieel via de toetsenbordkabel naar het moederbord van de MEGA65. De MEGA65-core leest deze seriële gegevens en gebruikt die om in de FPGA een virtueel toetsenbord te reconstrueren dat compatibel is met de C65. Afhankelijk van het MEGA65-model kan dit virtueel toetsenbord ook invoer aanvaarden van het schermtoetsenbord, van het mechanisme voor het injecteren van synthetische toetsaanslagen en van andere bronnen van toetsenbordinvoer.
+
+Van begin tot eind bedraagt de latentie van het toetsenbord minder dan één milliseconde.
+
+\section{C65-toetsenbordmatrix}
+
+Het MEGA65-toetsenbord is ontworpen om de toetsenbordmatrix van de Commodore 65 na te bootsen, welke uit negen kolommen en acht rijen bestaat. Oudere C65-software (zoals de C65-ROM) gebruikt de CIA-chip om de eerste acht kolommen van de matrix te scannen, in dezelfde indeling als waarin de toetsen op een Commodore 64 voorkomen. De toetsen die uitsluitend op de C65 voorkomen (No Scroll, Tab, Alt, enz.) maken gebruik van een extra kolom die niet via de CIA toegankelijk is. Een dergelijk ouder programma kan toegang krijgen tot de negende kolom met behulp van bit 1 van I/O-poort E, waarbij het gegevensregister op \$D607 en het gegevensrichtingsregister op \$D608 liggen.
+
+Programma's die voor de MEGA65 zijn geschreven, kunnen een speciaal daarvoor bedoelde set registers gebruiken, waarmee elke combinatie van gelijktijdig ingedrukte toetsen te detecteren is:
+
+\begin{itemize}
+\item \$D614: kolomkeuze voor de C65-toetsenbordmatrix; schrijf een geheel getal in het bereik 0 -- 8\item \$D613: kolomgegevens van de C65-toetsenbordmatrix; de bit voor de rij is gewist indien de toets ingedrukt is\item \$D611[0:6]: gegevens van de modificatietoetsen; de bit is gezet indien de modificatietoets ingedrukt is\item \$D60F[0:1]: bits voor het onderscheiden van cursor links en cursor omhoog; de bit is gezet indien de toets ingedrukt is
+\end{itemize}
+
+In de onderstaande C65-toetsenbordmatrix komt elke fysieke toets die geen modificatietoets is precies één keer voor: in één van de negen kolommen, genummerd van 0 tot 8, en in één van de acht rijen, genummerd van 0 tot 7.
+
+\index{Toetsenbord!matrix}
+{\ttfamily
+{
+\setlength{\def\arraystretch{1.5}\tabcolsep}{1mm}
+\begin{center}
+\begin{tabular}{|c*{9}{|C{1.02cm}}|}
+\hline
+& \bf{0} & \bf{1} & \bf{2} & \bf{3} & \bf{4} & \bf{5} & \bf{6} & \bf{7} & \bf{8} \\
+\hline
+\small  \bf{0} & \specialkey{INST\\DEL} & 3 & 5 & 7 & 9 & + & \pounds & 1 & \specialkey{NO\\SCROLL} \\
+\hline
+\small  \bf{1} & \specialkey{RETURN} & W & R & Y & I & P  & * & \megakeywhite{$\leftarrow$} & \specialkey{TAB} \\
+\hline
+\small  \bf{2} & \megakey{$\rightarrow$} & A & D & G & J & L & ; & \specialkey{CTRL} & \specialkey{ALT}  \\
+\hline
+\small  \bf{3} & \megakey{F7} & 4 & 6 & 8 & 0 & - & \specialkey{CLR\\HOME} & 2 & \specialkey{HELP} \\
+\hline
+\small  \bf{4} & \megakey{F1} & Z & C & B & M & . & \specialkey{SHIFT\\right} & \megakey{SPC} & \megakey{F9} \\
+\hline
+\small  \bf{5} & \megakey{F3} & S & F & H & K & : & = & \megasymbolkey & \megakey{F11} \\
+\hline
+\small  \bf{6} & \megakey{F5} & E & T & U & O & @ & \megakeywhite{$\uparrow$} & Q & \megakey{F13} \\
+\hline
+\small  \bf{7} & \megakey{$\downarrow$} & \specialkey{SHIFT\\left} & X & V & N & , & / & \specialkey{RUN\\STOP} & \specialkey{ESC} \\
+\hline
+\end{tabular}
+\end{center}
+}}
+
+Om te testen of een toets wordt ingedrukt, schrijft u het kolomnummer als binair gecodeerd geheel getal naar register \$D614 (54804 decimaal) en leest u daarna uit register \$D613 (54803 decimaal) de bit die bij de rij hoort. Als de bit nul is, is de toets ingedrukt. (Een bitwaarde van één betekent dat de toets \emph{niet} wordt ingedrukt.)
+
+Om bijvoorbeeld te testen of de Help-toets wordt ingedrukt:
+
+\begin{asmcode}
+LDA #$08             ; column 8
+STA $D614
+LDA $D613
+AND #%00001000       ; row 3
+BEQ help_key_is_pressed  ; unset = pressed
+\end{asmcode}
+
+Register \$D611 beschrijft de huidige toestand van de modificatietoetsen. Als een bit gezet is, is de bijbehorende toets ingedrukt.
+
+\begin{center}
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{|*{7}{>{\centering\arraybackslash}p{3em}|}}
+\hline
+\bf{Bit 6} & \bf{Bit 5} & \bf{Bit 4} & \bf{Bit 3} & \bf{Bit 2} & \bf{Bit 1} & \bf{Bit 0} \\
+\hline
+\specialkey{CAPS\\LOCK} & \specialkey{NO\\SCROLL} & \specialkey{ALT} & \megasymbolkey & \specialkey{CTRL} & \specialkey{SHIFT\\right} & \specialkey{SHIFT\\left} \\
+\hline
+\end{tabular}}
+\end{center}
+
+Het oorspronkelijke toetsenbord van de Commodore 64 had slechts twee cursortoetsen: één voor omlaag/omhoog en één voor rechts/links, waarbij de gebruiker SHIFT ingedrukt hield om de tegengestelde richting op de toets te kiezen. Het toetsenbord van de Commodore 65 heeft afzonderlijke cursortoetsen voor alle vier de richtingen. Voor de compatibiliteit handhaaft de C65 in de toetsenbordmatrix de weergave met ingedrukte SHIFT voor cursor omhoog en cursor links: cursor omhoog komt overeen met de rechter SHIFT-toets samen met cursor omlaag en cursor links met de rechter SHIFT-toets samen met cursor rechts.
+
+Om te kunnen onderscheiden wanneer twee cursortoetsen tegelijk worden ingedrukt om diagonalen te vormen (zoals omhoog en links tegenover omhoog en rechts), beschikt de MEGA65 over nog een register: \$D60F, bits 0 en 1. Bit 0 is gezet indien cursor links wordt ingedrukt en bit 1 indien cursor omhoog wordt ingedrukt.
+
+Al met al maken deze registers het voor een programma mogelijk om vrijwel elke combinatie van gelijktijdig ingedrukte toetsen vast te stellen.
+
+\section{Synthetische toetsgebeurtenissen}
+
+De logica van de toetsenbordinterface van de MEGA65 staat het gebruik toe van uiteenlopende toetsenbordtypen en alternatieven. Dit dient deels om de vroege ontwikkeling op FPGA-borden voor algemeen gebruik te ondersteunen, aan de MEGAphone met zijn aanraakinterface en aan de desktopversies van de MEGA65-architectuur.
+
+Eén mogelijke vorm van toetsenbordinvoer, beschikbaar op alle modellen, is de wachtrij voor virtuele toetsaanslagen. Een programma of de seriële debugger kan maximaal drie fysieke toetsen als ingedrukt laten lijken door de scancode van elke toets te schrijven naar de registers \$D615 -- \$D617.
+
+De scancode van een fysieke toets kan vanuit de C65-toetsenbordmatrix worden berekend. Voor de eerste acht kolommen is de scancode het kolomnummer vermenigvuldigd met acht, plus het rijnummer. De Home-toets bevindt zich bijvoorbeeld in kolom 6 en rij 3, zodat de scancode $6 \times 8 + 3 = 51$ is. De scancodes voor de negende kolom zijn 64 -- 71, toegekend van boven naar beneden. De Tab-toets heeft bijvoorbeeld scancode 65.
+
+Een virtuele toets geldt als ingedrukt totdat het register opnieuw wordt bijgewerkt. Om een toets weer los te laten, schrijft u \$7F naar het register.
+
+\widekey{RESTORE} staat, evenals op de C64, buiten de toetsenbordmatrix. Om het ingedrukt houden van \widekey{RESTORE} te simuleren, schrijft u \$52 (de ASCII-code voor een hoofdletter R). Om een kort tikje op \widekey{RESTORE} te simuleren, schrijft u \$72 (de ASCII-code voor een kleine letter r). Nadat u de waarde \$72 heeft weggeschreven, moet u nog een andere waarde wegschrijven indien u \widekey{RESTORE} meerdere keren wilt indrukken.
+
+Het volgende voorbeeld laat zien hoe u het register voor virtuele toetsen vanuit BASIC kunt gebruiken om te simuleren dat de \texttt{*}-toets kort wordt ingedrukt:
+
+\begin{basiccode}
+POKE $D615, 6*8+1:FOR I = 1 TO 100:NEXT:POKE $D615, 127
+\end{basiccode}
+
+De FOR-lus zorgt voor een geschikte vertraging om te simuleren dat de toets korte tijd ingedrukt gehouden wordt. Alle statements moeten, indien u ze rechtstreeks in de BASIC-interpreter intikt, op één regel staan zoals hier, omdat de MEGA65 anders blijft doen alsof de \texttt{*}-toets nog steeds ingedrukt gehouden wordt, waardoor het behoorlijk lastig wordt om de overige commando's in te voeren!
+
+\section{Besturing van de toetsenbord-LED's}
+
+Het systeem bestuurt de lampjes op het toetsenbord van de MEGA65 normaal gesproken automatisch, bijvoorbeeld om de stroomstatus (het linker lampje) of de schijfactiviteit (het rechter lampje) weer te geven. U kunt ze echter ook vanuit een programma besturen. Elk van de twee lampjes bestaat uit twee RGB-LED's. De intensiteit van de rode, groene en blauwe componenten van elk lampje kunt u afzonderlijk instellen.
+
+U kunt de LED-kleurwaarden instellen met twee registers: het stuurregister \$D61D (decimaal 54813) en het register voor het bijwerken van waarden \$D61E.
+
+Bit 7 van het stuurregister \$D61D bepaalt of de lampjes door het systeem worden bestuurd (gewist) of door een programma (gezet). De lagere bits selecteren één van de twaalf RGB-kanalen (vier LED's, elk met een rode, groene en blauwe) die moet worden bijgewerkt.
+
+\begin{adjustwidth}{}{-2cm}
+\begin{description}[align=left,labelwidth=0.2cm]
+\item[ 0] linkerhelft van de DRIVE-LED, ROOD\item[ 1] linkerhelft van de DRIVE-LED, GROEN\item[ 2] linkerhelft van de DRIVE-LED, BLAUW\item[ 3] rechterhelft van de DRIVE-LED, ROOD\item[ 4] rechterhelft van de DRIVE-LED, GROEN\item[ 5] rechterhelft van de DRIVE-LED, BLAUW\item[ 6] linkerhelft van de POWER-LED, ROOD\item[ 7] linkerhelft van de POWER-LED, GROEN\item[ 8] linkerhelft van de POWER-LED, BLAUW\item[ 9] rechterhelft van de POWER-LED, ROOD\item[10] rechterhelft van de POWER-LED, GROEN\item[11] rechterhelft van de POWER-LED, BLAUW
+\end{description}
+\end{adjustwidth}
+
+Om de intensiteit van een LED-kleurcomponent in te stellen, schrijft u het componentnummer en bit 7 hoog (+ 128) naar \$D61D en vervolgens de intensiteitswaarde naar \$D61E. De intensiteit is een waarde tussen 0 en 255.
+
+De toetsenbordlogica heeft na het schrijven ongeveer één milliseconde nodig om bij te werken. Een goede gewoonte is om \$FF (decimaal 255) naar \$D61D te schrijven voordat u het componentnummer instelt.
+
+Om de toetsenbord-LED's weer onder systeembesturing te brengen, wist u bit 7 van \$D61D.
+
+Het volgende voorbeeld laat de toetsenbord-LED's afwisselend rood en blauw oplichten:
+
+\input{dutch/examples/ledcycle}
+
+\newpage
+\section{Native toetsenbordmatrix}
+
+De native toetsenbordmatrix is uitsluitend vanuit de CPLD op het toetsenbord van de MEGA65 toegankelijk. Indien u de MEGA65-computer programmeert, hoeft u deze normaliter niet te gebruiken. Dit staat hier vermeld voor het gemak van de platformontwikkelaars.
+
+\begin{adjustwidth}{}{-2cm}
+\begin{multicols}{2}
+\begin{description}[align=left,labelwidth=0.2cm]
+    \item [0] \megakey{F5}    \item [1] 9    \item [2] I    \item [3] K    \item [4] <    \item [5] \specialkey{INST\\DEL}    \item [6] \specialkey{CLR\\HOME}    \item [7] O    \item [8] \megakey{F3}    \item [9] 8    \item [10] U    \item [11] J    \item [12] M    \item [13] \megakey{$\rightarrow$}    \item [14] \pounds    \item [15] =    \item [16] \megakey{F1}    \item [17] 7    \item [18] Y    \item [19] H    \item [20] N    \item [21] \megakey{$\downarrow$}    \item [22] -    \item [23] ;    \item [24] Gereserveerd    \item [25] 6    \item [26] T    \item [27] G    \item [28] B    \item [29] \megakey{$\leftarrow$} (cursor links)    \item [30] +    \item [31] :    \item [32] \specialkey{NO\\SCROLL}    \item [33] 5    \item [34] R    \item [35] F    \item [36] V    \item [37] \megakey{SPACE}    \item [38] 0    \item [39] L    \item [40] \specialkey{CAPS\\LOCK}    \item [41] 4    \item [42] E    \item [43] D    \item [44] C    \item [45] Gereserveerd    \item [46] \specialkey{HELP}    \item [47] \specialkey{RETURN}    \item [48] \specialkey{ALT}    \item [49] 3    \item [50] W    \item [51] S    \item [52] X    \item [53] \megakey{$\uparrow$} (cursor omhoog)    \item [54] \megakey{F13}    \item [55] \megakeywhite{$\uparrow$} (naast \widekey{RESTORE})    \item [56] \specialkey{ESC}    \item [57] 2    \item [58] Q    \item [59] A    \item [60] Z    \item [61] rechter \specialkey{SHIFT}    \item [62] \megakey{F11}    \item [63] *    \item [64] Gereserveerd    \item [65] 1    \item [66] Gereserveerd    \item [67] Gereserveerd    \item [68] linker \specialkey{SHIFT} en \specialkey{SHIFT\\LOCK}    \item [69] /    \item [70] \megakey{F9}    \item [71] @    \item [72] \specialkey{RUN\\STOP}    \item [73] \megakeywhite{$\leftarrow$} (naast 1)    \item [74] \specialkey{TAB}    \item [75] \specialkey{CTRL}    \item [76] \megasymbolkey    \item [77] >    \item [78] \megakey{F7}    \item [79] P
+\end{description}
+\end{multicols}
+\end{adjustwidth}
+

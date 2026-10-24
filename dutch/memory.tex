@@ -1,0 +1,1373 @@
+% TODO: index terms
+
+\chapter{Programmeren met het geheugen}
+\label{cha:programming-with-memory}
+
+Als u programma's in assembleertaal schrijft, is het van cruciaal belang dat u begrijpt hoe het geheugen werkt. Vrijwel elke bewerking heeft op de een of andere manier met het geheugen te maken. Gegevensverwerking vindt in het geheugen plaats en programma's worden in het geheugen opgeslagen en vanuit het geheugen uitgevoerd. Bij een hardware-registerarchitectuur in Commodore-stijl loopt alle in- en uitvoer van de computer via het manipuleren van waarden in het geheugensysteem.
+
+Als u programma's in MEGA65 BASIC schrijft, hoeft u zich nauwelijks met het geheugen bezig te houden. Het BASIC-systeem en de meeste van zijn commando's vertegenwoordigen gegevens als getallen, arrays en strings die in variabelen met een naam zijn opgeslagen. U hoeft nooit te weten hoe die gegevens als enen en nullen worden weergegeven, of welke adressen bij welke gegevens horen. Toch kan inzicht in de werking van het geheugen uw BASIC-programma's naar een hoger niveau tillen. U kunt nieuwe manieren bedenken om de gegevens van uw programma te beheren en u kunt rechtstreeks contact leggen met de MEGA65-hardware. Sommige geavanceerde mogelijkheden van de MEGA65 zijn uitsluitend via geheugenregisters toegankelijk.
+
+Net als verschillende andere systemen in de MEGA65 is het geheugensysteem geavanceerder dan u wellicht verwacht, met meerdere bedrijfsmodi. Wanneer u uw MEGA65 voor het eerst inschakelt, begint deze met een geheugenconfiguratie die bedoeld is om de BASIC 65-omgeving te ondersteunen. Een programma kan het geheugen opnieuw configureren om de mogelijkheden van de MEGA65 volledig te benutten, of om de geheugenomgeving compatibel te maken met een Commodore 64 (zoals \textbf{GO64} doet) of een Commodore 65.
+
+In dit hoofdstuk leert u alles over het geheugensysteem van de MEGA65, met de nadruk op het schrijven van programma's voor de MEGA65 in BASIC en assembleertaal. Volledige beschrijvingen van de geheugenvoorzieningen, inclusief de functies voor achterwaartse compatibiliteit met de C64 en C65, vindt u in de bijlagen.
+
+\newpage
+\section{Geheugenbegrippen}
+\label{sec:programming-with-memory-concepts}
+
+Een computer voert taken uit door gegevens te manipuleren die in zijn {\em geheugen} zijn opgeslagen. Het computergeheugen bestaat uit vele duizenden cellen, waarvan elke cel één {\em byte} aan gegevens bevat die 256 mogelijke waarden kan vertegenwoordigen. Elke cel heeft een numeriek {\em adres}. Het programma dat het geheugen gebruikt, bepaalt wat voor soort gegevens op elk adres staat. Het programma zelf staat als bytes in het geheugen, als machinetaalinstructies die de CPU uitvoert.
+
+\subsection{Bits, bytes en nibbles}
+
+Een {\em bit} is één enkel digitaal signaal met twee mogelijke waarden: uit of aan. Vaak worden bits met andere bits gecombineerd om meer mogelijke waarden te kunnen vertegenwoordigen. Een byte bestaat uit 8 bits en heeft 256 mogelijke waarden.
+
+Bits en bytes worden vaak gebruikt om getallen weer te geven. Hun waarden worden daarbij vaak beschreven als positieve gehele getallen, ook wanneer zij andere soorten gegevens vertegenwoordigen. Als we het over de bits van een byte hebben, staan die van rechts naar links in oplopende plaatswaarde. Bit 0 is de meest rechtse bit, ook bekend als de ``minst significante'' bit. Bit 7 is de meest linkse bit, ook bekend als de ``meest significante'' bit.\footnote{Zie \bookvref{cha:decimal-binary-and-hexadecimal} voor een volledige uitleg van de binaire en hexadecimale notatie.}
+
+\begin{center}
+\begin{tabular}{ccccccccl}
+{\bf b\textsubscript{7}} &{\bf b\textsubscript{6}} &{\bf b\textsubscript{5}} &{\bf b\textsubscript{4}} &{\bf b\textsubscript{3}} &{\bf b\textsubscript{2}} &{\bf b\textsubscript{1}} &{\bf b\textsubscript{0}} & \\\huge\texttt{0} &\huge\texttt{1} &\huge\texttt{1} &\huge\texttt{0} &\huge\texttt{1} &\huge\texttt{0} &\huge\texttt{1} &\huge\texttt{1} & = 107 \\\small{}128 &\small{}64 &\small{}32 &\small{}16 &\small{}8 &\small{}4 &\small{}2 &\small{}1 & \\
+\end{tabular}
+\end{center}
+
+Een {\em nibble} is 4 bits. In de computerarchitectuur verwijst de term ``nibble'' naar één van de twee helften van een byte. De {\em hoge nibble} bestaat uit bits 7 -- 4 en de {\em lage nibble} uit bits 3 -- 0.
+
+\subsection{Hexadecimale notatie}
+
+Hexadecimaal is een talstelsel waarin elk cijfer zestien mogelijke waarden kan aannemen, geschreven met de cijfers 0 -- 9 gevolgd door de letters A -- F. Het is bijzonder handig voor het beschrijven van waarden in het computergeheugen, omdat elk hexadecimaal cijfer een nibble (4 bits) aan gegevens vertegenwoordigt. De 8-bits binaire waarde \texttt{\%01101011} kunt u lezen als de twee nibbles \texttt{0110 1011}, ofwel \$6B in hexadecimale notatie.
+
+Geheugenadressen worden doorgaans in hexadecimale notatie weergegeven. Het computergeheugen is gewoonlijk zo ingedeeld dat de groottes als ronde hexadecimale getallen uit te drukken zijn, zoals \$C000.
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c}
+\cline{1-3}\cline{5-8}
+\$0000 & \$0001 & \$0002 & $\cdots$ & \$0FFE & \$0FFF & \$1000 & \$1001 & $\cdots$ \\
+\cline{1-3}\cline{5-8}
+\end{tabular}
+\end{center}
+
+Ronde hexadecimale getallen komen overeen met veelvoorkomende geheugengroottes:
+
+\begin{center}
+\begin{tabular}{rl}
+\$0001 & 1 byte \\\$0010 & 16 bytes \\\$0100 & 256 bytes \\\$0400 & 1 kilobyte (1KB = 1024 bytes) \\\$1000 & 4 kilobytes (4KB = 4096 bytes) \\\$4000 & 16KB \\\$10000 & 64KB \\\$100000 & 1 megabyte (1MB = 1024KB) \\
+\end{tabular}
+\end{center}
+
+De adressering begint bij 0, dus gebieden van deze gebruikelijke groottes beginnen aan de rechterkant doorgaans met ``0''-cijfers en stoppen vlak vóór het begin van het volgende gebied. Het bereik \$2000 -- \$2FFF is bijvoorbeeld 4KB groot.
+
+In BASIC kunt u getallen hexadecimaal invoeren door het dollarteken als voorvoegsel te gebruiken (\$). Om bijvoorbeeld de decimale waarde van een hexadecimaal getal in BASIC weer te geven:
+
+\begin{basiccode}
+PRINT $C000
+\end{basiccode}
+
+Om een getal in hexadecimale notatie in BASIC weer te geven, gebruikt u de functie {\bf HEX\$()}\index{BASIC 65-functies!HEX\$}:
+
+\begin{basiccode}
+PRINT HEX$(127)
+\end{basiccode}
+
+Als u in assembleertaal programmeert of een machinetaalmonitor gebruikt, worden adressen en waarden standaard in hexadecimale notatie weergegeven.
+
+Dit boek gebruikt soms een punt (.) om groepen van vier hexadecimale cijfers van elkaar te scheiden, zodat ze gemakkelijker te lezen zijn: FFF.FFFF. Als u een lang adres in een programma of commando invoert, tikt u de punt niet mee. Om FFF.FFFF in BASIC in te voeren, tikt u: \texttt{\$FFFFFFF}
+
+Elk hexadecimaal cijfer vertegenwoordigt een nibble van een waarde. De waarde FFF.FFFF kan met zeven nibbles (28 bits) worden weergegeven.
+
+\subsection{Geheugen met willekeurige toegang}
+
+{\em Random Access Memory} (RAM) is geheugen dat gegevens tijdelijk bevat. Een programma kan deze gegevens lezen en ernaar schrijven. Wanneer de computer wordt uitgeschakeld, gaan deze gegevens verloren. Een programma dat deze gegevens wil bewaren, moet ze opslaan op een apparaat voor langetermijnopslag, zoals een diskette (of de SD-kaart van de MEGA65), voordat de computer wordt uitgeschakeld.
+
+Probeer dit. Typ het volgende commando in bij de \screentext{READY.}-prompt:
+
+\begin{basiccode}
+POKE $1800,127
+\end{basiccode}
+
+Dit {\bf POKE}\index{BASIC 65-commando's!POKE}-commando slaat de bytewaarde 127 op geheugenadres \$1800 op. Typ nu dit commando in:
+
+\begin{basiccode}
+PRINT PEEK($1800)
+\end{basiccode}
+
+De {\bf PEEK()}\index{BASIC 65-commando's!PEEK}-functie levert de bytewaarde op die op geheugenadres \$1800 is opgeslagen, in dit geval 127. Het {\bf PRINT}\index{BASIC 65-commando's!PRINT}-commando geeft deze waarde weer.
+
+Schakel uw MEGA65 uit, schakel hem weer in en voer \texttt{PRINT PEEK(\$1800)} opnieuw uit. De waarde in het RAM-geheugen is teruggezet.
+
+\subsection{Alleen-lezen geheugen}
+
+{\em Read-Only Memory} (ROM) bevat gegevens die in de fabriek permanent zijn weggeschreven. Net als andere vintage-microcomputers heeft de Commodore 65 een ROM-chip met de programmacode van het besturingssysteem: BASIC, de KERNAL, routines voor het benaderen van randapparaten en voor het uitvoeren van gangbare berekeningen. ROM-gegevens kunnen niet rechtstreeks door een programma worden overschreven en blijven in de computer staan wanneer de computer wordt uitgeschakeld.
+
+De MEGA65 bevat geen traditionele ROM-chip. In plaats daarvan laadt de MEGA65-Hypervisor (het besturingssysteem dat de voorzieningen van de MEGA65 beheert) de programmagegevens van de ``ROM'' uit een bestand op de SD-kaart naar een gebied in RAM. De Hypervisor beveiligt dat RAM standaard als ``alleen lezen'', waarmee de ROM-chip van een Commodore 65 wordt nagebootst. U kunt het ROM-bestand op de SD-kaart vervangen om te upgraden naar nieuwere versies van de MEGA65-ROM.
+
+Probeer dit. Typ deze commando's in en probeer te voorspellen wat het tweede commando zal weergeven. Wijzig 63 in een ander getal en probeer het daarna opnieuw.
+
+\begin{basiccode}
+POKE $2100,63
+PRINT PEEK($2100)
+\end{basiccode}
+
+Het adres \$2100 weigert een nieuwe waarde te aanvaarden. Een volledige uitleg waarom dit zo is, vergt verschillende begrippen die in dit hoofdstuk worden beschreven. Voorlopig volstaat de opmerking dat het geheugen op adres \$2100 zo is ingesteld dat het zich als ROM gedraagt wanneer het op deze manier wordt benaderd.
+
+\subsection{I/O-registers}
+
+Sommige adressen verwijzen naar speciale geheugencellen die de hardware van de computer gebruikt. Deze staan bekend als {\em I/O-registers}. U kunt met de hardware communiceren door gegevens naar deze adressen te schrijven en eruit te lezen. Op deze manier geven BASIC-commando's grafische beelden weer, spelen ze geluiden en lezen ze joysticks uit: ze lezen waarden uit de I/O-registers en zetten er nieuwe in. (``I/O'' verwijst naar de gegevens die als \emph{invoer} naar en \emph{uitvoer} vanuit deze apparaten gaan.)
+
+Probeer dit commando uit. Vervang 7 door een ander getal tussen 0 en 31.
+
+\begin{basiccode}
+POKE $D020,7
+\end{basiccode}
+
+De VIC-videochip gebruikt het adres \$D020 om de kleur van de schermrand op te slaan. Het {\bf BORDER}-commando stelt dit register in om hetzelfde effect te bereiken.
+
+\begin{basiccode}
+BORDER 7
+\end{basiccode}
+
+\subsection{Adressen}
+
+De voorbeelden tot nu toe gebruikten adressen die uit vier hexadecimale cijfers bestaan, zoals \$1800. Elk hexadecimaal cijfer stelt vier bits voor (één nibble), dus een hexadecimaal getal van vier cijfers stelt een 16-bits adres voor. Een dergelijk adres ligt in het bereik \$0000 -- \$FFFF, met 65536 mogelijke adressen. De CPU van de Commodore 64 gebruikt 16-bits adressen om maximaal 64 kilobyte (64KB) geheugen te benaderen. Met andere woorden: de Commodore 64 heeft een \emph{adresruimte} van 16 bits, in het bereik \$0000 -- \$FFFF.
+
+De MEGA65 heeft een adresruimte van 28 bits, in het bereik 000.0000 -- FFF.FFFF. Zulke adressen kunnen als 32-bits waarde worden opgeslagen, waarbij de hoogste nibble op 0 wordt gezet. In hexadecimale notatie zou dat een getal van acht cijfers zijn waarvan het meest linkse cijfer 0 is. (Dit cijfer wordt in de notatie doorgaans weggelaten.)
+
+Het BASIC-commando {\bf POKE} en de functie {\bf PEEK()} kunnen 28-bits adressen gebruiken. Bijvoorbeeld, om eerst een waarde in het RAM op adres 800.0000 op te slaan en deze daarna weer op te halen:
+
+\begin{basiccode}
+POKE $8000000,63
+PRINT PEEK($8000000)
+\end{basiccode}
+
+Dit voorbeeld werkt op de MEGA65 en de DevKit. Het Nexys-bord heeft op dat adres geen RAM en negeert pogingen om er gegevens naartoe te schrijven.
+
+\subsection{16-bits adresvertaling}
+
+Het geheugensysteem van de MEGA65 maakt het programma's mogelijk om met 16-bits adressen naar geheugen te verwijzen. Om het volledige 28-bits adres te bepalen, vertaalt het geheugensysteem het adres volgens regels die het programma zelf kan instellen. Deze vertaling staat ook bekend als {\em hermapping} of, in sommige contexten, als {\em banking}.
+
+16-bits adresvertaling biedt verschillende voordelen. De 45GS02-CPU verwerkt 16-bits adressen sneller dan 32-bits adressen. 16-bits adressen nemen bij het opslaan minder ruimte in het geheugen in. De meeste taken van een programma werken binnen één enkel 64KB-gebied van het geheugen, dus het is vaak handig voor een programma om de geheugenconfiguratie aan het begin van een taak in te stellen en dat gebied vervolgens met 16-bits adressen te benaderen.
+
+Adresvertaling is een veelvoorkomende voorziening in de meeste microcomputers. De Commodore 64 gebruikt geheugenbanking om programma's met uitsluitend 16-bits adressen 64KB RAM {\em en} daarnaast ROM en I/O-registers te laten benaderen. De Commodore 65 was zo ontworpen dat het geheugensysteem via 16-bits adresvertaling op de geheugenindeling van de Commodore 64 kon worden ingesteld en bovendien banking in C64-stijl van ROM en I/O-registers ondersteunde.
+
+De MEGA65 biedt meerdere mechanismen voor adresvertaling. De configuratie van het geheugensysteem is één van de complexere onderwerpen binnen de MEGA65-programmering. Dit hoofdstuk behandelt dit onderwerp in detail.
+
+\subsection{Banken en pagina's}
+
+De adressen van de MEGA65 zijn onder te verdelen in gebieden van 64KB, bekend als {\em banken}. Wanneer een adres in hexadecimale notatie is gegeven, is de bijbehorende bank gemakkelijk te bepalen: de meest linkse cijfers van het adres vormen het banknummer en de vier meest rechtse cijfers wijzen een plaats binnen die bank aan.
+
+\medskip
+\begin{center}
+\begin{tabular}{m{0.4cm}m{0.4cm}m{0.05cm}m{0.4cm}m{0.4cm}m{0.4cm}m{0.4cm}}
+\multicolumn{1}{c}{\huge\texttt{\$}} &\multicolumn{1}{c}{\huge\texttt{3}} &\multicolumn{1}{c}{ } &\multicolumn{1}{c}{\huge\texttt{F}} &\multicolumn{1}{c}{\huge\texttt{D}} &\multicolumn{1}{c}{\huge\texttt{A}} &\multicolumn{1}{c}{\huge\texttt{8}} \\
+\cline{2-2}\cline{4-5}
+& \multicolumn{1}{c}{\small Bank} & & \multicolumn{2}{c}{\small Pagina} &\multicolumn{2}{c}{ } \\
+\end{tabular}
+\end{center}
+\medskip
+
+Bijvoorbeeld: het adres 3.FDA8 (\$003FDA8) is een adres in bank \$3. Het adres 0.1800 (\$0001800) is een adres in bank \$0. Het adres 880.12AB (\$88012AB) ligt in bank \$880.\footnote{In enkele gevallen is dit beter te begrijpen als ``megabyte \$88, bank \$0, offset \$12AB''.}
+
+Het is belangrijk te onthouden dat, wanneer u een 16-bits adres ziet zoals \$2100, de bank waarnaar dit werkelijk verwijst niet noodzakelijk bank 0 is. Het volledige adres hangt af van de configuratie van het geheugensysteem en van de manier waarop het geheugen wordt benaderd.
+
+Een bank is verder onder te verdelen in gebieden van 256 bytes, bekend als {\em pagina's}. Zoals bij banken is ook de pagina gemakkelijk uit een hexadecimaal adres af te leiden: de pagina wordt gevormd door het vierde en derde cijfer van rechts. Pagina \$1C bestaat bijvoorbeeld uit \$1C00 -- \$1CFF. Het adres \$1CB2 ligt in pagina \$1C.
+
+\subsection{Hoe adressen in het geheugen worden opgeslagen}
+
+Computers verwerken geheugenadressen vaak als gegevens, bijvoorbeeld door adressen op te slaan in RAM of in registers. Een 16-bits adres wordt opgeslagen als twee bytes en een 28-bits adres als vier bytes (waarbij de meest linkse nibble op nul wordt gezet).
+
+Om de bytes van een adres te bepalen, deelt u de hexadecimale cijfers in paren, beginnend bij het {\em meest rechtse} paar. Elk paar cijfers vormt een bytewaarde. Het adres \$853FDA8 kan bijvoorbeeld worden weergegeven door de bytes \$A8, \$FD, \$53 en \$08.
+
+Deze volgorde van de bytes van rechts naar links staat bekend als {\em little-endian-volgorde}. De MEGA65 slaat waarden van meerdere bytes volgens conventie op in little-endian-volgorde. De 45GS02-CPU, de I/O-registers en andere routines verwachten dat adressen op deze manier zijn opgeslagen.\footnote{Er bestaan computers die de tegenovergestelde volgordeconventie hanteren, bekend als {\em big-endian} bytevolgorde. De meeste microcomputers gebruiken de little-endian-conventie.}
+
+Om bijvoorbeeld het 28-bits adres 853.FDA8 op te slaan, heeft u vier bytes geheugen nodig. Om dit op te slaan op geheugenplaatsen 0.1800 -- 0.1803, begint u met het opslaan van de meest rechtse byte (\$A8) op plaats 0.1800. De rest gaat als volgt:
+
+\begin{center}
+\begin{tabular}{cccc}
+\hline
+\multicolumn{1}{|c}{\huge\texttt{A8}} &\multicolumn{1}{|c}{\huge\texttt{FD}} &\multicolumn{1}{|c}{\huge\texttt{53}} &\multicolumn{1}{|c|}{\huge\texttt{08}} \\
+\hline
+\rotatebox{90}{0.1800 } &\rotatebox{90}{0.1801 } &\rotatebox{90}{0.1802 } &\rotatebox{90}{0.1803 } \\
+\end{tabular}
+\end{center}
+
+Wanneer een 28-bits adres als vier bytes wordt opgeslagen, blijven de bovenste vier bits ongebruikt. In enkele gevallen gebeurt het dat een 28-bits adres zodanig wordt opgeslagen dat die bits iets anders bevatten. U moet er bij het schrijven van zulke adressen zorg voor dragen dat de bovenste bits de juiste waarden behouden. Dat gebeurt doorgaans met booleaanse logica, waarbij de bovenste bits worden ``gemaskeerd''.
+
+Het volgende BASIC-voorbeeld stelt de variabele \texttt{B} in op \$A9 en werkt die daarna zodanig bij dat de bovenste nibble behouden blijft en de onderste nibble op \$3 wordt gezet. Probeer, voordat u het uitvoert, te raden wat het zal tonen.
+
+\begin{basiccode}
+10 B = $A9
+20 B = B AND $F0 OR $03
+30 PRINT HEX$(B)
+\end{basiccode}
+
+De Commodore 65 gebruikt een 20-bits adresruimte en gebruikt daarom soms slechts vijf nibbles (vijf hexadecimale cijfers) om een adres te coderen. In enkele gevallen breidt de MEGA65 dit uit naar 28 bits, door naast een ``bank-nibble'' en twee bytes voor het onderste deel van het adres nog een aparte ``megabyte-byte'' op te slaan. Later in dit hoofdstuk wordt een voorbeeld hiervan uitgelegd.
+
+BASIC 65 bevat commando's om 16-bits waarden als bytes te lezen en te schrijven, zonder dat u zelf expliciet naar de little-endian-volgorde hoeft te converteren. {\bf WPOKE addr,val} stelt {\bf addr} in op de lage byte van {\bf val} en {\bf addr+1} op de hoge byte van {\bf val}. Evenzo leest {\bf WPEEK(addr)} de bytes op {\bf addr} en {\bf addr+1} en levert als resultaat het 16-bits getal op.
+
+\begin{basiccode}
+WPOKE $1900,$FFD2
+\end{basiccode}
+
+BASIC heeft geen specifieke commando's voor het lezen of schrijven van 32-bits waarden, maar u kunt de 16-bits commando's gebruiken om telkens twee bytes tegelijk te verwerken. Let erop dat u voor elke helft de little-endian-volgorde aanhoudt:
+
+\begin{basiccode}
+WPOKE $1802, $0853
+WPOKE $1800, $FDA8
+\end{basiccode}
+
+
+\newpage
+\section{De 28-bits adresruimte}
+\label{sec:programming-with-memory-address-space}
+
+De 28-bits adressen vormen een {\em adresruimte} in het bereik 000.0000 -- FFF.FFFF. Slechts een deel van de adressen is toegewezen aan geheugencellen. Andere adressen zijn toegewezen aan I/O-registers en andere bijzondere apparaten. De overige adressen zijn niet toegewezen; die zijn gereserveerd voor toekomstig gebruik door uitbreidingshardware en toekomstige versies van de computer.
+
+De MEGA65 en de DevKit hebben drie grote gebieden met toegewezen adresruimte:
+
+\begin{itemize}
+\item {\bf chip-RAM}, 384KB, in het bereik 000.0000 -- 005.FFFF\item {\bf zolder-RAM}, 8MB, in het bereik 800.0000 -- 87F.FFFF\item {\bf I/O-registers en speciaal RAM}, in het bereik F00.0000 -- FFF.FFFF
+\end{itemize}
+
+De overige gebieden van de adresruimte zijn gereserveerd voor toekomstige uitbreidingen en toekomstige modellen. Nexys-borden hebben geen zolder-RAM. Zie \bookvref{cha:memory-map} voor details over de gereserveerde gebieden.
+
+Chip-RAM is de belangrijkste werkruimte van de MEGA65. Het bevat programmacode, de ROM-code van de MEGA65 en ruimte voor variabelen en andere gegevens. Het heet ``chip-RAM'' omdat de CPU het met volledige snelheid kan benaderen. BASIC- en KERNAL-functies maken gebruik van delen van het chip-RAM en ook uw BASIC- en machinetaalprogramma's zullen er uitgebreid gebruik van maken.
+
+Zolder-RAM biedt extra geheugen voor algemeen gebruik, met enkele beperkingen. Doorgaans gebruikt een programma het zolder-RAM via de Direct Memory Access (DMA)-voorziening van de MEGA65 om gegevens tussen het zolder-RAM en het chip-RAM te kopiëren (later beschreven). Het zolder-RAM kan niet rechtstreeks door de VIC-chip worden gebruikt voor grafische gegevens, evenmin kan het rechtstreeks worden gebruikt voor het afspelen van audiosamples (``audio DMA''). De CPU kan code die in het zolder-RAM staat wel uitvoeren, maar die code draait langzamer dan code in het chip-RAM. In het algemeen is het benaderen van zolder-RAM ongeveer tien keer zo langzaam als het benaderen van chip-RAM.
+
+\underline{OPMERKING}: Het Freezer-hulpprogramma van de MEGA65 slaat het zolder-RAM niet op en herstelt het ook niet. In theorie kan een gebruiker een programma starten, de Freezer activeren, een freeze-toestand opslaan en op een later tijdstip een nieuwe sessie starten vanuit die freeze-toestand, met een gewist zolder-RAM als gevolg. In de praktijk zou het onredelijk zijn om programma's zo te schrijven dat zij ervan uitgaan dat het zolder-RAM elk moment kan verdwijnen. De beste tussenoplossing is gebruikers erop te wijzen wanneer een programma het zolder-RAM gebruikt en het gebruik van freeze-toestanden onder bepaalde omstandigheden af te raden. (Het louter activeren van de Freezer verandert het zolder-RAM niet. Alleen het herstellen van een freeze-toestand nadat de computer is uit- en weer ingeschakeld, kan problemen veroorzaken.)
+
+De bovenste I/O-registerruimte is de plaats waar de apparaatregisters en het geheugen voor de Hypervisor-functies permanent thuishoren. De meeste programma's benaderen deze voorzieningen indirect, via de geheugenconfiguratievoorzieningen die later in dit hoofdstuk worden beschreven, met name het kleurengeheugen (colour-RAM) van de VIC, de character-ROM en de I/O-registers van de VIC en de SID. Zie \bookvref{cha:memory-map} voor een gedetailleerde lijst van de bovenste I/O-gebieden.
+
+
+\newpage
+\section{De geheugenindeling van het chip-RAM}
+
+De volgende tabel vat samen hoe KERNAL en BASIC van de MEGA65 het chip-RAM gebruiken.
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{1.5cm}|L{1.5cm}|p{6cm}|}
+\hline
+{\bf{Start}} & {\bf{Einde}} & {\bf{Omschrijving}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots Vervolgd}\\
+\hline
+{\bf{Start}} & {\bf{Einde}} & {\bf{Omschrijving}} \\
+\endhead
+\multicolumn{3}{l@{}}{Vervolgd \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+\small 0.0000 & \small 0.0000 & \multicolumn{1}{p{6cm}|}{Gegevensrichting van de CPU-I/O-poort}\\
+\hline
+\small 0.0001 & \small 0.0001 & \multicolumn{1}{p{6cm}|}{CPU-I/O-poortgegevens}\\
+\hline
+\small 0.0002 & \small 0.15FF & \multicolumn{1}{p{6cm}|}{KERNAL-variabelen en -gegevens}\\
+\hline
+\small 0.1600 & \small 0.1EFF & \multicolumn{1}{p{6cm}|}{Vrij voor gebruik door programma's}\\
+\hline
+\small 0.1F00 & \small 0.1FFF & \multicolumn{1}{p{6cm}|}{Basispagina voor de bitmapgrafiek van BASIC}\\
+\hline
+\small 0.2000 & \small 0.F6FF & \multicolumn{1}{p{6cm}|}{BASIC: programmatekst}\\
+\hline
+\small 0.F700 & \small 0.FEFF & \multicolumn{1}{p{6cm}|}{BASIC: scalare variabelen}\\
+\hline
+\small 0.FF00 & \small 0.FFFF & \multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\hline
+\small 1.0000 & \small 1.1FFF & \multicolumn{1}{p{6cm}|}{DOS-buffers en -variabelen}\\
+\hline
+\small 1.2000 & \small 1.F6FF & \multicolumn{1}{p{6cm}|}{BASIC: arrays en strings}\\
+\hline
+\small 1.F700 & \small 1.F7FF & \multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\small 1.F800 & \small 1.FFFF & \multicolumn{1}{p{6cm}|}{Venster op het kleurengeheugen}\\
+\hline
+\hline
+\small 2.0000 & \small 2.FFFF & \multicolumn{1}{p{6cm}|}{ROM}\\
+\hline
+\small 3.0000 & \small 3.FFFF & \multicolumn{1}{p{6cm}|}{ROM}\\
+\hline
+\hline
+\small 4.0000 & \small 4.FFFF & \multicolumn{1}{p{6cm}|}{BASIC-bitmapgrafiek, hulpprogramma's}\\
+\hline
+\small 5.0000 & \small 5.FFFF & \multicolumn{1}{p{6cm}|}{BASIC-bitmapgrafiek, hulpprogramma's}\\
+\hline
+\end{longtable}
+
+De ROM-banken zijn in gebieden ingedeeld. De meeste programma's hoeven deze adressen niet rechtstreeks te benaderen.
+
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{|L{1.5cm}|L{1.5cm}|p{6cm}|}
+\hline
+{\bf{Start}} & {\bf{Einde}} & {\bf{Omschrijving}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots Vervolgd}\\
+\hline
+{\bf{Start}} & {\bf{Einde}} & {\bf{Omschrijving}} \\
+\endhead
+\multicolumn{3}{l@{}}{Vervolgd \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+\small 2.0000 & \small 2.3FFF & \multicolumn{1}{p{6cm}|}{DOS}\\
+\hline
+\small 2.4000 & \small 2.8FFF & \multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\small 2.9000 & \small 2.9FFF & \multicolumn{1}{p{6cm}|}{Tekenset A}\\
+\hline
+\small 2.A000 & \small 2.BFFF & \multicolumn{1}{p{6cm}|}{C64 BASIC}\\
+\hline
+\small 2.C000 & \small 2.CFFF & \multicolumn{1}{p{6cm}|}{Interface}\\
+\hline
+\small 2.D000 & \small 2.DFFF & \multicolumn{1}{p{6cm}|}{C64-tekenset (C)}\\
+\hline
+\small 2.E000 & \small 2.FFFF & \multicolumn{1}{p{6cm}|}{C64 BASIC en KERNAL}\\
+\hline
+\hline
+\small 3.0000 & \small 3.1FFF & \multicolumn{1}{p{6cm}|}{Monitor}\\
+\hline
+\small 3.2000 & \small 3.7FFF & \multicolumn{1}{p{6cm}|}{C65 BASIC}\\
+\hline
+\small 3.8000 & \small 3.BFFF & \multicolumn{1}{p{6cm}|}{C65-BASIC-grafische routines}\\
+\hline
+\small 3.C000 & \small 3.CFFF & \multicolumn{1}{p{6cm}|}{Gereserveerd}\\
+\hline
+\small 3.D000 & \small 3.DFFF & \multicolumn{1}{p{6cm}|}{Tekenset B}\\
+\hline
+\small 3.E000 & \small 3.FFFF & \multicolumn{1}{p{6cm}|}{C65 KERNAL}\\
+\hline
+\end{longtable}
+
+\subsection{Hoe programma's het chip-RAM gebruiken}
+
+De twee meest voorkomende soorten MEGA65-programma's zijn programma's die geheel in BASIC zijn geschreven en programma's die geheel in machinetaal zijn geschreven (via assembleertaal of een gecompileerde taal zoals C of Rust).
+
+Een typisch BASIC 65-programma benadert het geheugen nooit rechtstreeks.\footnote{Commodore 64 BASIC-programmeurs zijn gewend om met {\bf POKE} en {\bf PEEK} het geheugen en de I/O-registers te benaderen voor de meeste functies, zoals beeldweergave, geluid en invoerapparaten. BASIC 65 biedt voor deze functies speciale commando's.} Het programma gebruikt BASIC-commando's en taalonderdelen om variabelen, arrays, strings, geluid, sprites en bitmapgrafiek te bewerken. Het BASIC-systeem gebruikt het volledige chip-RAM om deze voorzieningen te ondersteunen en beheert de geheugenconfiguratie om namens het programma registers te benaderen. Dit vereist dat de ROM, welke door de Hypervisor geladen en beschermd wordt, op zijn plaats blijft.
+
+Een BASIC-programma dat het bitmapgrafieksysteem niet gebruikt, kan de geheugengebieden die aan die voorziening zijn toegewezen, voor andere doelen gebruiken. Dit omvat de gebied 0.1F00 -- 0.1FFF en de volledige banken 4 en 5. Indien u van plan bent bitmapgrafiek te gebruiken, maar toch wat extra chip-RAM voor een ander doel nodig heeft, dan kunt u met het commando {\bf MEM}\index{BASIC Commands!MEM} blokken in bank 4 en 5 reserveren. Het grafieksysteem houdt de gebieden die met {\bf MEM} zijn gereserveerd automatisch vrij, ten koste van minder geheugen voor meer schermen, een hogere resolutie of een grotere kleurdiepte. Voor een beschrijving van het commando {\bf MEM} zie \bookref{BASIC 65 Commands!MEM}.
+
+Sommige BASIC-hulpmiddelen in de directe modus, zoals {\bf RENUMBER}, maken tijdelijk gebruik van geheugen in bank 4 en 5. Een programma dat zijn geheugen bij de start initialiseert, heeft daar geen last van. Interactieve taken bij de \screentext{READY.}-prompt die dat geheugen onaangetast nodig hebben, kunnen erdoor wel verstoord worden.
+
+Een gangbare techniek om vanuit een BASIC-programma geheugen te benutten, is gebruikmaken van het ongebruikte geheugen voor ``programmatekst'' na het einde van de programmagegevens van BASIC in 0.2000 -- 0.F6FF. Indien uw programma dit nodig heeft, houd er dan rekening mee dat sommige grafische commando's van BASIC 65 het geheugen direct na het einde van het programma als tijdelijke opslag gebruiken. Afhankelijk van de lengte van uw programma kunt u doorgaans veilig een hoog adresbereik kiezen voor gebruik door het programma, zoals 0.C000-0.F6FF.
+
+\begin{center}
+\begin{tabular}{m{0.14cm}m{0.06cm}m{1.45cm}m{0.21cm}m{1.4cm}m{0.1cm}m{0.1cm}m{3.3cm}m{3.3cm}l}
+\cline{1-1}\cline{3-9}
+\multicolumn{1}{|l|}{\rotatebox{90}{KERNAL}} & \multicolumn{1}{l}{\ldots} &\multicolumn{1}{|l}{\rotatebox{90}{BASIC}} & \multicolumn{1}{|l}{\rotatebox{90}{DOS}} &\multicolumn{1}{|l}{\rotatebox{90}{BASIC}} & \multicolumn{1}{|l}{\rotatebox{90}{Geres.}} &\multicolumn{1}{|l}{\rotatebox{90}{Kleur}} & \multicolumn{1}{|l}{\rotatebox{90}{ROM}} &\multicolumn{1}{|l|}{\rotatebox{90}{BASIC Graf. }} & \\
+\cline{1-1}\cline{3-9}
+\rotatebox{90}{\small 0.0000} & \rotatebox{90}{\small 0.1600} &\rotatebox{90}{\small 0.2000} & \rotatebox{90}{\small 1.0000} &\rotatebox{90}{\small 1.2000} & \rotatebox{90}{\small 1.F700} &\rotatebox{90}{\small 1.F800} & \rotatebox{90}{\small 2.0000} &\rotatebox{90}{\small 4.0000} & \rotatebox{90}{\small 5.FFFF} \\
+\end{tabular}
+\end{center}
+
+Een typisch programma in machinetaal gebruikt het BASIC-systeem helemaal niet en beheert in plaats daarvan zijn eigen geheugen. Het kan een klein BASIC-programmaatje gebruiken om het programma op te starten, maar keert nadat het programma is gestart nooit meer terug naar het systeem. Zo'n programma mag elke regio van het chip-RAM gebruiken die BASIC anders in beslag zou nemen.
+
+Indien het programma de KERNAL aanroept, bijvoorbeeld voor schijffuncties, dan moet het de gebieden van het chip-RAM vermijden die voor gebruik door de KERNAL zijn gereserveerd. Met de rest kan het doen wat het wil.
+
+\begin{center}
+\begin{tabular}{m{0.14cm}m{0.06cm}m{1.45cm}m{0.21cm}m{1.4cm}m{0.1cm}m{0.1cm}m{3.3cm}m{3.3cm}l}
+\cline{1-1}\cline{4-4}\cline{6-8}
+\multicolumn{1}{|l|}{\rotatebox{90}{KERNAL}} & \multicolumn{1}{l}{\ldots} &\multicolumn{1}{l}{\ldots} & \multicolumn{1}{|l|}{\rotatebox{90}{DOS}} &\multicolumn{1}{l}{\ldots} & \multicolumn{1}{|l}{\rotatebox{90}{Geres.}} &\multicolumn{1}{|l}{\rotatebox{90}{Kleur }} & \multicolumn{1}{|l|}{\rotatebox{90}{ROM}} &\multicolumn{1}{l}{\ldots} & \\
+\cline{1-1}\cline{4-4}\cline{6-8}
+\rotatebox{90}{\small 0.0000} & \rotatebox{90}{\small 0.1600} &\rotatebox{90}{\small 0.2000} & \rotatebox{90}{\small 1.0000} &\rotatebox{90}{\small 1.2000} & \rotatebox{90}{\small 1.F700} &\rotatebox{90}{\small 1.F800} & \rotatebox{90}{\small 2.0000} &\rotatebox{90}{\small 4.0000} & \rotatebox{90}{\small 5.FFFF} \\
+\end{tabular}
+\end{center}
+
+Als het programma de KERNAL nooit hoeft aan te roepen, kan het de ROM volledig ontgrendelen en verwijderen en zo elke byte van de 384KB chip-RAM voor eigen doeleinden opeisen. Met een techniek die verderop wordt besproken, kunt u, als u niet alle 32KB van het kleurengeheugen van de MEGA65 nodig heeft, het ``venster op het kleurengeheugen'' op 1.F800 herbestemmen als gewoon chip-RAM.
+
+\subsection{De geheugenindeling als contract}
+
+Het MEGA65-project heeft de ROM-code overgenomen uit het onafgemaakte ontwerp van Commodore voor de C65 en heeft tijd en moeite gestoken in het afmaken van onvoltooide voorzieningen en het verhelpen van fouten. Dit project loopt nog door en het MEGA65-team verwacht in de toekomst nieuwe versies van de ROM uit te geven.
+
+Het schrijven van programma's met de MEGA65-ROM verschilt daardoor wezenlijk van het schrijven van programma's met de ROM van de Commodore 64, welke in silicium is geëtst en niet langer wordt doorontwikkeld. Het is belangrijk om code te schrijven die zich houdt aan het gedocumenteerde gedrag dat in deze handleidingen staat beschreven---en niet te vertrouwen op ongedocumenteerd gedrag dat in een toekomstige versie zou kunnen veranderen.
+
+Het is een doel van het project om de geheugenindeling van het chip-RAM in toekomstige versies van de MEGA65-ROM consistent te houden met de tabel hierboven. Om de compatibiliteit met toekomstige versies te waarborgen, doen programma's er verstandig aan ``gereserveerde'' gebieden niet als vrije ruimte te behandelen. Indien een nieuwe modus of voorziening wordt ingevoerd die de geheugenindeling wijzigt, zal het programma die voorziening expliciet moeten aanvragen, zodat oudere programma's die geen gebruikmaken van de nieuwe voorziening op de oorspronkelijke geheugenindeling kunnen rekenen.
+
+Binnen elk blok van de geheugenindeling is slechts van een deel van de adressen gegarandeerd dat het tussen ROM-versies gelijk blijft. Een machinetaalprogramma kan bijvoorbeeld KERNAL-routines aanroepen via adressen in een ``jump table'' (sprongtabel), een reeks vaste adressen in de ROM die gegarandeerd ook in toekomstige versies gelijk blijft.\footnote{De jump table wordt in dit boek nog niet beschreven. De C65 gebruikte dezelfde jump table als de C128, met enkele kleine wijzigingen en tot nu toe heeft de MEGA65-ROM deze niet uitgebreid. Indien een ROM-revisie deze tabel uitbreidt, blijven de bestaande vermeldingen onveranderd. Zie de MEGA65 Wiki voor een lijst: \url{https://mega65.atlassian.net/}}
+
+Behalve waar expliciet gedocumenteerd, is het niet de bedoeling dat programma's KERNAL-variabelen rechtstreeks lezen of wijzigen. Sommige geheugenlocaties, zoals de locatie van het schermgeheugen, kunnen uit registers worden afgeleid (en via registers worden aangepast). (Zie \bookvref{cha:viciv}.)
+
+Het gebied van chip-RAM in 0.1600 -- 0.1EFF wordt gegarandeerd niet gebruikt door de KERNAL en BASIC van de MEGA65. Het gebied 0.1F00 -- 0.1FFF is eveneens beschikbaar indien u het bitmapgrafieksysteem van BASIC niet gebruikt. In de standaardgeheugenconfiguratie is dit gebied als RAM toegankelijk, zodat het geschikt is voor het opslaan van machinetaal en gegevens die vanuit een BASIC-programma benaderd kunnen worden.
+
+
+\newpage
+\section{Geheugen gebruiken vanuit BASIC}
+
+BASIC 65 bevat verschillende commando's voor het benaderen en bewerken van geheugen en voor het aanroepen van machinetaalsubroutines:
+
+\begin{itemize}
+\item {\bf POKE adres, waarde} : slaat een waarde op een adres weg\item {\bf WPOKE adres, waarde} : slaat een 16-bits waarde weg beginnend bij een adres\item {\bf PEEK(adres)} : leest een waarde van een adres\item {\bf WPEEK(adres)} : leest een 16-bits waarde beginnend bij een adres\item {\bf BLOAD bestandsnaam [,argumenten...]} : laadt gegevens van een bestand in het geheugen\item {\bf BSAVE bestandsnaam, P begin TO P eind [,argumenten...]} : slaat een geheugengebied op in een bestand\item {\bf SYS adres [,registers...]} : roept een machinetaalsubroutine aan die op een adres is opgeslagen\item {\bf EDMA ...} : transformeert of kopieert grote geheugengebieden snel met behulp van hardwareversnelling
+\end{itemize}
+
+Ook de commando's {\bf BOOT} en {\bf WAIT} werken op een of andere manier op het geheugen. Zie de BASIC 65-commandoreferentie voor meer informatie over deze commando's.
+
+\subsection{Hermapping van adressen door BASIC}
+
+U is het wellicht opgevallen dat de adressen uit de BASIC-commando's {\bf POKE} die aan het begin van dit hoofdstuk zijn beschreven, allemaal verwijzen naar gebieden van chip-RAM die in de geheugenindeling staan aangeduid als ``Vrij voor gebruik door programma's'' of ``BASIC: programmatekst''. Toch lijken ze zich anders te gedragen:
+
+\begin{itemize}
+\item \texttt{POKE \$1800,127} gedraagt zich als RAM: het stelt het geheugen op het adres in en het geheugen kan worden gelezen met \texttt{PRINT PEEK(\$1800)}.\item \texttt{POKE \$2010,63} gedraagt zich als ROM: een poging om het geheugen in te stellen blijft zonder gevolg en het lezen van het geheugen met \texttt{PRINT PEEK(\$2010)} geeft de oorspronkelijke ROM-waarde terug.\item \texttt{POKE \$D020,7} gedraagt zich als een I/O-register: het verandert onmiddellijk de kleur van de rand. Deze waarde kan weliswaar worden gelezen met \texttt{PRINT PEEK(\$D020)}, maar als geheugen is die niet bruikbaar, omdat de randkleur met de waarde meeverandert.
+\end{itemize}
+
+\newpage
+
+De commando's en functies van BASIC 65 behandelen adressen in het bereik \$0000 -- \$FFFF volgens bijzondere hermappingregels, ook wel {\em banking} genoemd. In de standaardmodus hermapt BASIC 65 deze adressen als volgt:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+{\bf 16-bits adresblok} & {\bf Gemapt adresblok} & {\bf Type} \\
+\hline
+\$0000 -- \$1FFF & 0.0000 -- 0.1FFF & chip-RAM \\
+\hline
+\$2000 -- \$3FFF & 3.2000 -- 3.3FFF & ROM \\
+\hline
+\$4000 -- \$5FFF & 3.4000 -- 3.5FFF & ROM \\
+\hline
+\$6000 -- \$7FFF & 3.6000 -- 3.7FFF & ROM \\
+\hline
+\$8000 -- \$9FFF & 3.8000 -- 3.9FFF & ROM \\
+\hline
+\$A000 -- \$BFFF & 3.A000 -- 3.BFFF & ROM \\
+\hline
+\$C000 -- \$CFFF & 2.C000 -- 2.CFFF & ROM \\
+\hline
+\$D000 -- \$DFFF & FFD.3000 -- FFD.3FFF & MEGA65-I/O\\
+\hline
+\$E000 -- \$FFFF & 3.E000 -- 3.FFFF & ROM \\
+\hline
+\end{tabular}
+\end{center}
+
+Benadert u bijvoorbeeld de I/O-registers via \$D000 -- \$DFFF, dan benadert u in feite de I/O-registers in het bovenste gebied van de adresruimte. Deze twee BASIC-commando's zijn gelijkwaardig:
+
+\begin{basiccode}
+POKE $D020,7
+
+POKE $FFD2020,7
+\end{basiccode}
+
+Het BASIC-systeem zelf gebruikt chip-RAM rechtstreeks, volgens de geheugenindeling van het chip-RAM. BASIC slaat programmatekst bijvoorbeeld op vanaf 0.2000 in het chip-RAM, hoewel de BASIC-functie \texttt{PEEK(\$2000)} in de standaardmappingmodus vanaf 3.2000 leest.
+
+De hermapping van adressen door BASIC 65 geldt alleen voor adressen in het bereik \$0000 -- \$FFFF. Gebruikt u een adres van \$10000 of hoger met {\bf POKE} of {\bf PEEK()}, dan benadert het commando dat chip-RAM-adres rechtstreeks. {\bf SYS} ondersteunt ook lange adressen, zij het met beperkingen (later besproken).
+
+U kunt de adreshermapping van BASIC sturen met het commando {\bf BANK}\index{BASIC 65-opdrachten!BANK}. Dit commando accepteert een banknummer als argument, in het bereik 0 -- 5. Adressen in het bereik \$0000 -- \$FFFF die u daarna gebruikt, worden geïnterpreteerd als offsets binnen die bank. Om bijvoorbeeld de waarde 63 naar adres 0.2010 in het chip-RAM te schrijven:
+
+\begin{basiccode}
+BANK 0
+POKE $2010,63
+\end{basiccode}
+
+Het {\bf BANK}-mechanisme kan alleen met de banken 0 -- 5 worden gebruikt. Het zolder-RAM en de bovenste I/O-registers zijn ermee niet te bereiken.
+
+Om de adreshermapping van BASIC weer in te schakelen, voert u {\bf BANK} uit met het argument 128. Dit getal verwijst niet naar een bank in het geheugen. In plaats daarvan houdt het in dat het commando {\bf BANK} de adresvertaling weer volgens de tabel hierboven activeert.
+
+\begin{basiccode}
+BANK 128
+POKE $D020,9
+\end{basiccode}
+
+{\bf BANK} beïnvloedt elk BASIC-commando en elke BASIC-functie die een adres als parameter accepteert. Dit omvat {\bf PEEK}\index{BASIC 65-functies!PEEK}, {\bf POKE}\index{BASIC 65-commando's!POKE}, {\bf WAIT}\index{BASIC 65-commando's!WAIT}, {\bf BOOT}\index{BASIC 65-commando's!BOOT}, {\bf BSAVE}\index{BASIC 65-commando's!BSAVE} en {\bf BLOAD}\index{BASIC 65-commando's!BLOAD}. {\bf SYS} gaat ook op een bijzondere manier met {\bf BANK} om.
+
+\subsection{BANK en SYS}
+
+Het commando {\bf SYS}\index{BASIC 65-commando's!SYS} voert een machinetaalsubroutine op een opgegeven adres uit. Het behandelt het adres anders dan andere BASIC-commando's en kent enkele beperkingen. Omdat {\bf SYS} de besturing overdraagt aan een eigen routine, moet het extra voorzorgsmaatregelen nemen om te voorkomen dat het systeem de toegang verliest tot het geheugen dat BASIC nodig heeft.
+
+Concreet gebruikt {\bf SYS} de {\bf BANK}-instelling alleen voor adressen in het bereik \$2000 -- \$7FFF. Andere adressen gaan altijd naar het RAM van bank 0, naar KERNAL ROM of naar de I/O-registers, als volgt:
+
+\begin{tabular}{|l|l|}
+\hline
+{\bf Adresbereik} & {\bf SYS-bestemming} \\
+\hline
+\$0000 -- \$1FFF & RAM in bank 0 \\
+\hline
+\$2000 -- \$7FFF & Adres volgens de {\bf BANK}-instelling \\
+\hline
+\$8000 -- \$BFFF & RAM in bank 0 \\
+\hline
+\$C000 -- \$CFFF & Character ROM, of bank 0 (ROMC-bit van \$D030) \\
+\hline
+\$D000 -- \$DFFF & I/O-registers, of bank 0 (bankingregister \$01 in C64-stijl) \\
+\hline
+\$E000 -- \$FFFF & KERNAL ROM in bank 3 \\
+\hline
+\end{tabular}
+
+{\bf SYS} negeert bit 7 van de {\bf BANK}-instelling. \texttt{BANK 128} is gelijkwaardig aan \texttt{BANK 0} in het geval van {\bf SYS}. Dit verschilt van {\bf PEEK}, {\bf POKE} en dergelijke, welke op \$2000 -- \$BFFF met \texttt{BANK 128} ROM-code te zien krijgen.
+
+\begin{basiccodesmall}
+BANK 128
+SYS $1800     : rem Roept de subroutine op 0.1800 aan
+SYS $7000     : rem Roept de subroutine op 0.7000 aan
+SYS $FFD2,65  : rem Roept de KERNAL-ROM-routine aan
+              : rem (met een argument)
+
+BANK 1
+SYS $1800     : rem Roept de subroutine in bank 0 op 0.1800 aan
+SYS $7000     : rem Roept de subroutine in bank 1 op 1.7000 aan
+SYS $FFD2,65  : rem Roept de KERNAL-ROM-routine op 3.FFD2 aan
+              : rem (met een argument)
+\end{basiccodesmall}
+
+{\bf SYS} kan ook een adres groter dan \$FFFF aanvaarden dat naar een locatie in de banken 1 -- 5 verwijst. Deze adressen hebben echter dezelfde beperkingen als bij het gebruik van {\bf BANK}. Alleen de offsets \$2000 -- \$7FFF binnen de bank verwijzen werkelijk naar het geheugen van die bank, zoals adres \$47000 in bank 4. Voor andere offsets gedraagt het commando {\bf SYS} zich volgens de tabel (RAM in bank 0, ROM of I/O-registers).
+
+Deze beperking levert het tegenintuïtieve gedrag op dat een lang adres voor {\bf SYS} niet noodzakelijk naar het geheugen op dat adres verwijst en dat meerdere adressen naar dezelfde locatie in het geheugen kunnen verwijzen. \texttt{SYS \$11800} en \texttt{SYS \$41800} gedragen zich beide als \texttt{SYS \$1800}, hetwelk een subroutine op adres 0.1800 in bank 0 aanroept.
+
+\begin{basiccodesmall}
+SYS $11800    : rem Roept de subroutine in bank 0 op 0.1800 aan
+SYS $41800    : rem Roept de subroutine in bank 0 op 0.1800 aan
+SYS $51800    : rem Roept de subroutine in bank 0 op 0.1800 aan
+
+SYS $17000    : rem Roept de subroutine in bank 1 op 1.7000 aan
+SYS $47000    : rem Roept de subroutine in bank 4 op 4.7000 aan
+SYS $57000    : rem Roept de subroutine in bank 5 op 5.7000 aan
+
+SYS $1FFD2,65 : rem Roept de KERNAL-ROM-routine op 3.FFD2 aan
+              : rem (met een argument)
+\end{basiccodesmall}
+
+Het commando {\bf SYS} kan niet elk adres benaderen. ROM en I/O-registers verbergen de adresoffsets \$C000 -- \$FFFF in elke bank. De adresoffsets \$0000 -- \$1FFF en \$8000 -- \$BFFF bereiken uitsluitend bank 0 en blijven in de banken 1 -- 5 verborgen.
+
+{\bf SYS} is beperkt tot de banken 0 -- 5. Het kan het zolder-RAM en de hogere geheugenadressen niet benaderen, zelfs niet met lange adressen.
+
+Ondanks deze beperkingen is {\bf SYS} tamelijk krachtig. Het komt vaak voor dat een machinetaalprogramma begint met een kort BASIC-programmaatje, zodat de gebruiker na het laden {\bf RUN} kan typen. Dit programmaatje roept {\bf SYS} aan om de machinetaal te starten die in het geheugen staat na het einde van de BASIC-tekst.
+
+\begin{basiccode}
+10 SYS $200F
+\end{basiccode}
+
+In vroege versies van de MEGA65-ROM moest u {\bf BANK} eerst op 0 instellen voordat u {\bf SYS} op deze manier aanriep. Dat blijft sowieso een goede gewoonte, zodat het programma kan starten, zelfs als de gebruiker de {\bf BANK}-instelling heeft gewijzigd:
+
+\begin{basiccode}
+10 BANK 0:SYS $2014
+\end{basiccode}
+
+U kunt {\bf SYS} ook gebruiken om een BASIC-programma uit te breiden met subroutines in machinetaal. Een geschikte locatie voor deze subroutines is het bereik \$1600 -- \$1EFF van bank 0. {\bf SYS} kan deze locatie benaderen, ongeacht de huidige {\bf BANK}-instelling.
+
+\subsection{SYS TO}
+
+Als aanvulling op de beperkingen van de geheugentoegang van het {\bf SYS}-commando kent BASIC 65 een variant, {\bf SYS TO}, met extra mogelijkheden. Deze variant verschilt op de volgende punten van {\bf SYS}:
+
+\begin{itemize}
+    \item Zowel {\bf SYS} als {\bf SYS TO} verwachten een adres als eerste argument. {\bf SYS} aanvaardt daaropvolgende positionele argumenten voor het instellen van registers. {\bf SYS TO} aanvaardt benoemde argumenten voor het instellen van registers en voor het benaderen van andere voorzieningen.    \item Een programma kan {\bf SYS TO} gebruiken om een pagina-offset toe te passen op adressen \$2000 tot \$7FFF, zodat een subroutineadres in dat bereik kan verwijzen naar een fysiek adres buiten dat bereik, in een bank.    \item Een programma kan {\bf SYS TO} gebruiken om routines aan te roepen terwijl BASIC actief blijft, bijvoorbeeld om {\bf PLAY}-muziek of {\bf MOVSPR}-spritebeweging soepel te laten doorlopen terwijl de machinetaal wordt uitgevoerd.
+\end{itemize}
+
+Om een pagina-offset in te stellen, geeft u het argument \texttt{O} op aan {\bf SYS TO}. De waarde bestaat uit drie nibbles, die met 256 worden vermenigvuldigd (twee nibbles naar links geschoven) om de offset te bepalen. Een offset van \$520 heeft bijvoorbeeld tot gevolg dat bij elk adres in het bereik \$2000 tot \$7FFF een offset van \$52000 wordt opgeteld.
+
+\begin{basiccodesmall}
+REM : MAP $2000-$7FFF NAAR $54000-$59FFF,
+REM : DAARNA AANROEP $6100 + $52000 = $58100
+
+SYS TO $6100,O($520)
+\end{basiccodesmall}
+
+Om een routine aan te roepen terwijl BASIC actief blijft, geeft u het argument \texttt{I} op met de waarde 1. U kunt deze modus gebruiken of een pagina-offset instellen, maar niet beide. Indien u deze modus inschakelt, wisselt de KERNAL-IRQ-handler tussen de MAP van uw programma en de MAP van KERNAL om de BASIC-functies op basis van IRQ's uit te voeren.
+
+\begin{basiccode}
+SYS TO $1600,I1
+\end{basiccode}
+
+
+\newpage
+\section{Geheugen gebruiken vanuit machinetaal}
+
+Machinetaalprogramma's benaderen geheugen en registers, verrichten berekeningen en beslissen welke code daarna moet worden uitgevoerd. Meer doen ze niet! Een programma verricht invoer/uitvoerbewerkingen, zoals het weergeven van een afbeelding, het afspelen van een geluid of het uitlezen van een joystick, louter door met geheugen en registers te werken.
+
+Elke 45GS02-machinetaalinstructie die met geheugen werkt, ondersteunt één of meer {\em adresseermethoden}, waarin staat hoe de instructie het geheugen benadert. Eén van deze adresseermethoden werkt met volledige 28-bits adressen en leest het volledige adres uit vier opeenvolgende bytes in het geheugen, in little-endian-volgorde. Deze methode is bruikbaar, maar in veel gevallen niet de efficiëntste manier om het geheugen te benaderen: de CPU moet tijd besteden aan het lezen van het 28-bits adres en aan het vinden van de geheugenplaats voor de bewerking.
+
+Adresseermethoden die met 16-bits adressen werken, zijn sneller en ruimtezuiniger dan 28-bits indirecte adressering. Bovendien gebruikt de CPU 16-bits adressen om te verwijzen naar de plaatsen van machinetaalinstructies: de CPU slaat het adres van de volgende instructie (de {\em programmateller}) op als een 16-bits waarde en de instructies \texttt{jmp} en \texttt{jsr} gebruiken 16-bits adressen.
+
+Om het mogelijk te maken elke geheugenplaats met een 16-bits adres te benaderen, houdt de 45GS02-CPU een {\em geheugenindeling} bij, welke 16-bits adressen aan 28-bits adressen koppelt. Uw programma kan de geheugenindeling wijzigen met behulp van een register met een speciale functie, bekend als {\em het MAP-register}. Het instellen van het MAP-register vereist het uitvoeren van een reeks speciale CPU-instructies.
+
+Bij de MEGA65 beïnvloeden drie andere mechanismen eveneens de adresvertaling van 16-bits geheugenadressen:
+
+\begin{itemize}
+\item ROM- en I/O-banking van de Commodore 64, bestuurd door de CPU-registers op de adressen \$0000 en \$0001\item ROM-banking van de Commodore 65, met behulp van een register op adres \$D030\item Cartridgegeheugen: indien er een cartridge in de uitbreidingspoort is geplaatst, maken aanvullende regels de datalijnen van de cartridge beschikbaar op specifieke 16-bits adresbanken
+\end{itemize}
+
+Machinetaalprogramma's die voor de MEGA65 zijn geschreven, kunnen voor de geheugentoegang volledig op het MAP-register vertrouwen en kunnen de geheugenconfiguratieregisters van de C64 en C65 op hun standaardinstellingen laten. Wanneer de betrokken gebieden van 16-bits adressen voor andere doeleinden nodig zijn, heeft MAP voorrang op de andere mechanismen.
+
+Deze sectie beschrijft de geheugentoegang met 45GS02-adresseermethoden en het MAP-register. De overige mechanismen voor het mappen van geheugen komen verderop in dit hoofdstuk kort aan de orde. Zie \bookvref{sec:addressing-modes} voor een volledige beschrijving van de adresseermethoden en \bookvref{cha:45gs02} voor een gedetailleerde uitleg van de bankingmechanismen.
+
+\subsection{Het MAP-register}
+
+Het MAP-register koppelt 16-bits adressen aan 28-bits adressen met behulp van een {\em offset}, een waarde die bij het 16-bits adres wordt opgeteld om het uiteindelijke adres te berekenen.
+
+Stel bijvoorbeeld dat uw programma met een 16-bits adresseermethode geheugen op adres \$4855F moet benaderen. Een mogelijke geheugenindeling is dan om aan het adresgebied \$2000 -- \$3FFF een offset van \$45200 toe te wijzen. Met deze configuratie benadert het 16-bits adres \$335F het werkelijke adres \$4855F in bank 4.
+
+\begin{center}
+\begin{tabular}{ccccc}
+\$335F & + & \$45200 & = & \$4855F \\\vtop{\hbox{16-bits}\hbox{adres}} & & offset & &
+\vtop{\hbox{werkelijk}\hbox{adres}} \\
+\end{tabular}
+\end{center}
+
+Het MAP-register hermapt telkens blokken van 8KB (\$2000) uit de 16-bits adresruimte. Het MAP-register kan twee offsets opslaan: één voor blokken in het bereik \$0000 -- \$7FFF (``MAPLO'') en één voor blokken in het bereik \$8000 -- \$FFFF (``MAPHI''). Ook slaat het voor elk blok van 8KB een selectievlag op, welke aangeeft of de offset op dat blok moet worden toegepast.
+
+Elk adresblok van 8KB is ofwel ``ongemapt'' of gebruikt de MAP-offset voor zijn helft (MAPLO of MAPHI). Alle gemapte adresblokken in dezelfde helft moeten dezelfde offset delen.
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c|l}
+MAPLO: & \$6000 -- \$7FFF & \$4000 -- \$5FFF & \$2000 -- \$3FFF & \$0000 -- \$1FFF & \\& 0 & 0 & {\bf 1} & 0 & = \$2 \\
+\hline
+MAPHI: & \$E000 -- \$FFFF & \$C000 -- \$DFFF & \$A000 -- \$BFFF & \$8000 -- \$9FFF & \\& {\bf 1} & 0 & {\bf 1} & {\bf 1} & = \$B \\
+\end{tabular}
+\end{center}
+
+De selectievlaggen en de offset voor MAPLO en MAPHI worden tezamen gecodeerd als vier bytes: twee voor MAPLO en twee voor MAPHI. De eerste nibble bevat de selectievlaggen voor de vier blokken van het gebied. Let op de volgorde van de vlagbits: de hogere bits horen bij de hogere adresblokken.
+
+Om bijvoorbeeld uitsluitend het blok \$2000 -- \$3FFF te selecteren, stelt u de MAPLO-selectievlag in op het binaire getal ``0 0 1 0'', dat gelijk is aan het hexadecimale cijfer \$2.
+
+De overige drie nibbles vormen de bovenste drie hexadecimale cijfers van de offset. Om de offset \$45200 voor de geselecteerde MAPLO-blokken te gebruiken, stelt u de overige bits van MAPLO in op \$452. Voor dit voorbeeld is de volledige MAPLO-waarde \$2452.
+
+\begin{center}
+\begin{tabular}{cc|cc}
+\multicolumn{2}{c}{MAPLO} & \multicolumn{2}{c}{MAPHI} \\X & A & Z & Y \\
+\hline
+\$s\textsubscript{lo} o\textsubscript{1} &\$o\textsubscript{2} o\textsubscript{3} &\$s\textsubscript{hi} o\textsubscript{1} &\$o\textsubscript{2} o\textsubscript{3} \\
+\hline
+\$24 & \$52 & \$B3 & \$00 \\
+\end{tabular}
+\end{center}
+
+De offset moet een veelvoud van 256 bytes (\$100) zijn. De 4510-CPU uit de Commodore 65, waarop de 45GS02 van de MEGA65 is gebaseerd, ondersteunt offsets tot \$FFF00. Hierdoor kan elk 8KB-blok overal in het chip-RAM op een grens van 256 bytes worden hermapd, inclusief mogelijke toekomstige RAM-uitbreidingen tot 1MB. (De 45GS02 biedt ook een manier om grotere offsets in te stellen; die wordt verderop besproken.)
+
+Om het MAP-register in te stellen, laadt u de gecodeerde bytes voor MAPLO en MAPHI in de vier CPU-registers X, A, Z en Y en roept u daarna de instructies {\bf MAP} en {\bf EOM} (``end of MAP'') aan. Let op de volgorde waarin de registers hun waarden toegewezen krijgen. Om MAPLO in te stellen, laadt u X met de selectievlaggen en de bovenste nibble van de offset en laadt u A met de onderste nibbles van de offset. Om MAPHI in te stellen, laadt u Z en Y overeenkomstig.
+
+\begin{asmcode}
+LDA #$52   ; MAPLO = selecteer $2 offset $45200
+LDX #$24
+LDY #$00   ; MAPHI = selecteer $B offset $30000
+LDZ #$B3
+MAP
+EOM
+\end{asmcode}
+
+Sommige assemblers kennen de EOM-instructie niet. U kunt in plaats van EOM de NOP-instructie gebruiken, welke dezelfde codering gebruikt. Assemblers die 65CE02-instructies ondersteunen, gebruiken voor MAP de AUG-instructie.
+
+De MAP-instelling blijft actief totdat deze wordt gewijzigd. Houd er rekening mee dat KERNAL-routines afhankelijk zijn van de standaard-MAP-instelling. Herstel daarom de oorspronkelijke geheugenindeling voordat u de KERNAL aanroept.
+
+Als het optellen van de offset bij het 16-bits adres een waarde oplevert die groter is dan het grootste 20-bits adres (\$FFFFF), kapt de optelling de overloopbit af, waardoor het 20-bits adres ``omslaat''. Dit maakt het mogelijk om een negatieve offset toe te passen, opgegeven als tweecomplement. Om bijvoorbeeld het 16-bits adres \$8000 te mappen op het 20-bits adres \$02000, stelt u de offset in op \$FA000 (negatief \$06000).
+
+\subsection{Het MAP-register bekijken}
+
+U kunt de waarde van het MAP-register bekijken met de Matrix Mode-debugger, een seriële console die de Hypervisor van de MEGA65 aanbiedt. Om de Matrix Mode-debugger op de MEGA65 te openen, houdt u \megasymbolkey ingedrukt en drukt u op \specialkey{TAB}. (Druk nogmaals op \megasymbolkey + \specialkey{TAB} om af te sluiten.) Met de juiste hardware kunt u deze console ook bereiken via een seriële UART- of JTAG-verbinding. Gebruik in Matrix Mode het commando {\bf R}, of druk gewoon op \specialkey{RETURN}, om alle registers te bekijken, waaronder MAPHI en MAPLO.\footnote{Zie \bookvref{sec:matrix-mode} voor meer informatie over de Matrix Mode-debugger.}
+
+Om dit in werking te zien, doet u het volgende:
+
+\begin{enumerate}
+\item Start de MEGA65-monitor met het commando {\bf MONITOR}.\item Assembleer het volgende machinetaalprogramma op adres \$1800 door de eerste regel als volgt in te typen: \texttt{A1800 LDA \#\$52} De monitor berekent voor elke regel de daaropvolgende adressen. Druk na de laatste regel op \specialkey{RETURN} zonder er een instructie achter te typen.
+
+\begin{asmcode}
+LDA #$52
+LDX #$24
+LDY #$00
+LDZ #$B3
+MAP
+EOM
+JMP $180A
+\end{asmcode}
+
+\item Roep deze routine aan met de ``jump''-commando van de monitor: \texttt{J1800} De MEGA65 komt in een oneindige lus terecht en keert niet uit de aanroep terug, zodat deze schijnbaar vastloopt.\item Open de Matrix Mode-debugger: houd \megasymbolkey ingedrukt en druk op \specialkey{TAB}.\item Druk op \specialkey{RETURN} om een nieuwe set registers te tonen. Let op de waarden van \texttt{MAPH} en \texttt{MAPL}.
+\end{enumerate}
+
+\underline{OPMERKING}: De MAP-instructie wijzigt de waarde van het MAP-register onmiddellijk. Zorg ervoor dat u de geheugenindeling niet wijzigt voor het geheugen waarin de code staat die de geheugenindeling wijzigt! Als de geheugenindeling verandert voor het adres van de code zelf, bereikt de uitvoering de EOM-instructie nooit.
+
+\subsection{MAP en interrupts}
+
+Wanneer een CPU-interrupt optreedt, onderbreekt de CPU de uitvoering van het programma en roept daarna een interrupt-handlerroutine aan. De adressen van de interrupt-handlerroutines (de interrupt-{\em vectoren}) staan op de 16-bits adressen \$FFFA -- \$FFFF en zijn zelf eveneens 16-bits adressen.
+
+De geheugenindeling beïnvloedt zowel de plaats van de vectoren als de adressen van de handlers. Om uw code de kans te geven de geheugenindeling te herstellen zonder onderbroken te worden, schakelt de MAP-instructie interrupts uit (vergelijkbaar met SEI) en schakelt de EOM-instructie interrupts weer in (vergelijkbaar met CLI). Dit geldt ook wanneer interrupts al zijn uitgeschakeld op het moment dat MAP wordt aangeroepen: EOM schakelt interrupts weer in. Indien nodig kan uw programma tussen MAP en EOM nog extra instructies uitvoeren.
+
+De standaardgeheugenindeling houdt de KERNAL-ROM van de MEGA65 gemapt op \$E000 -- \$FFFF. Dit omvat de KERNAL-interrupt-handlerroutines en hun vectoradressen. Als uw programma de KERNAL-interrupt-handlerroutines actief houdt, moet het ervoor zorgen dat \$E000 -- \$FFFF gemapt is op 3.E000 -- 3.FFFF (met een MAPHI-offset van \$30000), zolang interrupts zijn ingeschakeld.
+
+\subsection{28-bits adressen in machinetaal gebruiken}
+
+De 45GS02-CPU bevat een adresseermethode waarmee 28-bits adressen rechtstreeks benaderd kunnen worden, zonder 16-bits adresvertaling. Hoewel deze modus technisch gezien meer CPU-cycli vergt om uit te voeren, weegt het gemak die kosten vaak op bij het benaderen van losse adressen in het bovenste geheugen of van geheugen via pointers, in vergelijking met het gebruik van het MAP-register. Deze modus omzeilt bovendien banking en hermapping, waardoor een programma een MAP-registerwaarde kan behouden die mogelijk door andere code wordt gebruikt.
+
+De Base-Page Quad Indirect Z-Indexed-adresseermethode benadert een 28-bits adres dat als vier bytes op de Base-Page is opgeslagen. Deze methode is een uitbreiding van de Base-Page Indirect Z-Indexed-modus, welke een 16-bits adres benadert dat als twee bytes is opgeslagen.
+
+In een assembler die 45GS02-uitbreidingen ondersteunt, zoals de ACME-assembler, gebruikt u voor de Quad Indirect-modus vierkante haken rond het eerste Base-Page-adres waarop het adres is opgeslagen:
+
+\begin{asmcode}
+; Selecteer Base-Page $1600.
+; (Dit behoudt de compatibiliteit met de KERNAL, die
+; Base-Page $0000 reserveert.)
+LDA #$16
+TAB
+
+; Bewaar adres 810.4AB0 op Base-Page-adres $40-$43.
+; (Vergeet niet de little-endian-volgorde te gebruiken.)
+LDA #$B0
+STA $40
+LDA #$4A
+STA $41
+LDA #$10
+STA $42
+LDA #$08  ; (Het meest linkse cijfer is nul.)
+STA $43
+
+; Laad de accumulator met de byte op 810.4AB0 (met
+; een Z-index van nul).
+LDZ #$0
+LDA [$40],Z
+\end{asmcode}
+
+Deze modus wordt gecodeerd als een gewone Base-Page Indirect-modus, voorafgegaan door een NOP-instructie. Als uw assembler de notatie met vierkante haken niet ondersteunt, kunt u het op deze manier schrijven, met ronde haakjes in plaats van vierkante haken:
+
+\begin{asmcode}
+LDZ #$0
+NOP
+LDA ($40),Z
+\end{asmcode}
+
+Zie \bookvref{cha:45gs02} voor meer informatie over adresseermethoden.
+
+Dit is in essentie de manier waarop het BANK-systeem van BASIC werkt. Indien BANK op 0 -- 5 is ingesteld, of een programma een adres benadert dat groter is dan \$FFFF, gebruiken commando's zoals POKE en PEEK de Base-Page Quad indirect Z-geïndexeerde adresseermethode, waarbij het volledige adres wordt weggeschreven naar een locatie die in de Base-Page van de KERNAL is gereserveerd. Dit omzeilt de adresvertaling zonder dat de geheugenconfiguratie gewijzigd hoeft te worden. (Het commando SYS doet iets complexers en daardoor kent het ongewone beperkingen.)
+
+
+\newpage
+\section{Videogeheugen van de VIC-IV}
+
+De videocontroller van de VIC-IV leest geheugen om te bepalen wat er op het scherm moet worden weergegeven, zoals tekens, bitmapgrafiek, sprites en kleurgegevens. Een programma wijzigt de weergave door deze geheugengebieden bij te werken. De geheugenlocaties die voor deze doeleinden worden gebruikt, kan het programma met behulp van I/O-registers aanpassen.
+
+De VIC-IV kan uitsluitend chip-RAM benaderen. Technisch gezien kan de VIC-IV de eerste 16MB van de adresruimte benaderen. De bestaande modellen van de MEGA65 bieden 384KB chip-RAM, met ruimte voor toekomstige uitbreiding.
+
+Deze sectie beschrijft enkele VIC-IV-voorzieningen die met het geheugensysteem te maken hebben. De volgende beschrijvingen gelden niet voor de VIC-II-compatibiliteitsmodus. Zie \bookvref{cha:viciv} voor een volledige beschrijving van de VIC-IV.
+
+\subsection{Schermgeheugen vinden}
+
+De VIC-IV leest de inhoud van het scherm (tekens of pixels) uit een aaneengesloten gebied van het geheugen. Registers bepalen de beginlocatie van dit geheugen. De inhoud en de grootte van het schermgeheugen hangen af van de weergavemodus.
+
+Het startadres van het schermgeheugen neemt 28 bits in beslag, hoewel er slechts 20 bits nodig zijn om een chip-RAM-adres op te slaan. Het 28-bits adres wordt verspreid over de vier bytes \$D060 -- \$D063. De hoogste nibble van het adres staat in de lagere nibble van \$D063, welke voor adressen tot 005.FFFF altijd nul is.
+
+Om het schermgeheugen bijvoorbeeld te laten beginnen op 4.26F0 in bank 4 van het chip-RAM:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+SCRNPTRLSB & SCRNPTRMSB & SCRNPTRBNK & SCRNPTRMB \\\$D060 & \$D061 & \$D062 & \$D063 (laagste 4 bits) \\
+\hline
+\$F0 & \$26 & \$04 & \$0 \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{asmcode}
+LDA #$F0
+STA $D060
+LDA #$26
+STA $D061
+LDA #$04
+STA $D062
+
+; Voor de volledigheid: wis bits 0-3 van SCRNPTRMB. De
+; MEGA65 heeft geen door de VIC benaderbaar geheugen boven
+; 005.FFFF, dus dit is niet nodig indien de vorige
+; waarde naar een geldig adres wees.
+LDA $D063
+AND #$F0   ; wis bits 0-3
+STA $D063
+\end{asmcode}
+
+Indien u hiermee experimenteert in de MEGA65-monitor, houd er dan rekening mee dat de BASIC-editor de nieuwe schermlocatie niet automatisch gebruikt nadat u deze heeft gewijzigd. U kunt blind typen om het geheugen in te stellen en zo zien dat de nieuwe locatie in gebruik is. Druk op \specialkey{RUN\\STOP} + \widekey{RESTORE} om terug te zetten.
+
+Indien uw programma naar het schermgeheugen schrijft zonder dit register te initialiseren, lees dan de locatie van het schermgeheugen uit het register. Ga niet uit van de oorspronkelijke waarde. De 80x50-weergavemodus, welke de gebruiker kan selecteren door op \specialkey{ESC} \specialkey{5} te drukken, gebruikt een andere locatie voor het schermgeheugen dan de standaard 80x25-weergavemodus.
+
+\subsection{Tekengegevens vinden}
+
+Bij gebruik van een tekensweergavemodus interpreteert de VIC de schermgegevens als schermcodes van tekens. De pixelgegevens voor elk teken worden gelezen uit een tekenset die in het geheugen staat. Registers bepalen het startadres van de geselecteerde tekenset.
+
+De grootte en de indeling van de tekengegevens hangen af van de tekensweergavemodus. De standaardtekstmodus leest tekengegevens als acht bytes per teken, één regel monochrome pixels per byte, voor in totaal 512 mogelijke schermcodes (4KB).
+
+Het startadres van de tekenset wordt als drie bytes opgeslagen in \$D068 -- \$D06A. Om bijvoorbeeld de tekenset op 3.D000 te selecteren:
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+CHARPTRLSB & CHARPTRMSB & CHARPTRBNK \\\$D068 & \$D069 & \$D06A \\
+\hline
+\$00 & \$D0 & \$03 \\
+\hline
+\end{tabular}
+\end{center}
+
+De ROM-gegevens bevatten drie monochrome tekensets (gebruikt door het BASIC-commando {\bf FONT}):
+
+\begin{itemize}
+\item 2.9000: Tekenset A, de C64-tekenset met kleine ASCII-letters\item 3.D000: Tekenset B, een gestileerde set die op een ASCII-terminal lijkt\item 2.D000: Tekenset C, de C64-PETSCII-tekenset (de standaard)
+\end{itemize}
+
+Uw programma kan elk van de ingebouwde tekensets naar eigen wens aanpassen door het 4KB-gebied naar RAM te kopiëren en de CHARPTR-registers dienovereenkomstig in te stellen.
+
+De tekengenerator van de VIC-IV kent nog een andere manier om tekengliefen intern op te slaan. Stelt u CHARPTR in op de speciale waarde \$001000, dan gebruikt de VIC-IV 4KB aan intern tekengeheugen waarin de standaard-PETSCII-tekenset is opgeslagen. Zo kunt u alle drie de ROM-regio's voor tekensets een andere bestemming geven zonder de toegang tot de PETSCII-tekenset te verliezen.
+
+\subsection{Spritegeheugen vinden}
+
+De VIC-IV ondersteunt acht hardwaresprites. Naar de afbeeldingsgegevens van deze sprites wordt verwezen door een reeks spritepointers. Anders dan de VIC-II van de Commodore 64 ondersteunt de VIC-IV het verplaatsen van de spritepointers en de afbeeldingsgegevens naar een willekeurige plaats in chip-RAM. De VIC-IV is standaard voor een deel compatibel met de VIC-II, waardoor extra registerbits nodig zijn om de verplaatsing volledig in te schakelen.
+
+Bij de VIC-IV kunnen ook de spritepointers zelf overal in het chip-RAM staan. De locatie van de spritepointers wordt opgeslagen in de registers op \$D06C -- \$D06E. Dit adres moet uitgelijnd zijn op een grens van 16 bytes: wanneer u het adres in hexadecimale notatie uitschrijft, moet het meest rechtse cijfer een 0 zijn. Het adres \$2C60 is bijvoorbeeld uitgelijnd op een grens van 16 bytes.
+
+Bit 7 van \$D06E vertelt de VIC-IV dat de spritepointers 16 bits (twee bytes) breed zijn. Indien de bit niet is gezet, gaat de VIC-IV uit van waarden van 8 bits (één byte) voor de pointers, net zoals de VIC-II.
+
+De waarde van een spritepointer is het adres van de beeldgegevens van de sprite, gedeeld door 64. Deze ongewone eigenschap stelde de VIC-II oorspronkelijk in staat om spritegegevens binnen een bereik van 16KB te lokaliseren aan de hand van een waarde van één byte. De VIC-IV houdt deze eigenschap vanwege de compatibiliteit in stand en staat bovendien toe dat deze waarde 16 bits breed is. Eén gevolg van dit ontwerp is dat het adres van een sprite-afbeelding moet zijn uitgelijnd op een gebied van 64 bytes binnen een pagina: de twee meest rechtse hexadecimale cijfers van een spriteadres moeten \$00, \$40, \$80 of \$C0 zijn.
+
+Om bijvoorbeeld de spritepointers te verplaatsen naar 0.3200 en 16-bits pointerwaarden in te schakelen:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+SPRPTRADRLSB & SPRPTRADRMSB & SPRPTRBNK & SPRPTR16 \\\$D06C & \$D06D & \$D06E (0-6) & \$D06E (7) \\
+\hline
+\$00 & \$32 & \$00 & +\$80 \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{asmcode}
+LDA #$00
+STA $D06C
+LDA #$32
+STA $D06D
+LDA #$80
+STA $D06E
+\end{asmcode}
+
+Om de eerste sprite beeldgegevens op adres 4.3100 te laten gebruiken, stelt u de 16-bits pointer in op 4.3100 / 64 = \$10C4 (in little-endian-volgorde):
+
+\begin{asmcode}
+LDA #$C4
+STA $3200
+LDA #$10
+STA $3201
+\end{asmcode}
+
+\subsection{Kleurengeheugen}
+
+De VIC-IV stelt een volledig schermbeeld samen uit één set teken- of pixelgegevens in het schermgeheugen en een aparte set kleurgegevens in het kleurengeheugen. In de 80x25-tekstmodus bevatten de eerste 2000 bytes van het schermgeheugen bijvoorbeeld de schermcodes van de tekens en zijn de eerste 2000 bytes van het kleurengeheugen de kleuren van die tekens.
+
+De VIC-IV heeft 32KB geheugen dat speciaal voor kleurgegevens is gereserveerd en dat alle mogelijke schermmodi kan ondersteunen. U kunt dit geheugen rechtstreeks benaderen via de hogere geheugenadressen FF8.0000 -- FF8.7FFF.
+
+Voor het gemak zijn de eerste 2KB van het kleurengeheugen ook zichtbaar op de adressen 1.F800 -- 1.FFFF. Dit adresvenster in bank 1 laat zich niet via de geheugenconfiguratie uitschakelen: het benadert altijd de eerste 2KB van het kleurengeheugen.
+
+Vanwege achterwaartse compatibiliteit is de eerste 1KB van dit venster, samen met de I/O-registers, ook opgenomen in de banking op \$D800 -- \$DBFF. Bit 0 van het bankingregister van de VIC-III op \$D030 (signaalnaam ``CRAM2K'') breidt dit uit tot de volledige 2KB, als \$D800 -- \$DFFF.
+
+Het startadres van het kleurengeheugen van de VIC-IV is met een register in te stellen, als offset binnen de gebied FF8.0000 -- FF8.7FFF van het kleurengeheugen. Indien u niet alle 32KB van het kleurengeheugen voor uw schermweergave nodig heeft, kunt u het startadres verschuiven en het begin van het kleurengeheugen voor andere doelen gebruiken.
+
+Om bijvoorbeeld het begin van het kleurengeheugen met 2KB te verschuiven, stelt u het register in op \$0800 (in little-endian-volgorde):
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+COLPTRLSB & COLPTRMSB \\\$D064 & \$D065 \\
+\hline
+\$00 & \$08 \\
+\hline
+\end{tabular}
+\end{center}
+
+Het verschuiven van het startadres verschuift {\em noch} het venster op het kleurengeheugen op 1.F800, {\em noch} de banking van het kleurengeheugen op \$D800. Verschuift u het begin van het kleurengeheugen met 2KB, dan gebruiken zowel het venster als de I/O-bank de 2KB-gebied die voor de VIC-IV onzichtbaar blijft. Zo kunt u het venster op het kleurengeheugen herbestemmen als RAM voor algemeen gebruik.
+
+Dit BASIC-programmaatje stelt de kleurengeheugen-offset in op 2KB (\$0800) en laat vervolgens zien dat de waarde op \$FF80000 ook zichtbaar is op \$1F800 en \$D800. Ten slotte verandert het de kleur van het eerste teken door \$FF80800 in te stellen.
+
+\begin{basiccode}
+10 POKE $D064,0:POKE $D065,8
+20 PRINT CHR$(5);CHR$(147);"HALLO DAAR."
+30 POKE $FF80000,$BB
+40 PRINT HEX$(PEEK($FF80000))
+50 PRINT HEX$(PEEK($1F800))
+60 PRINT HEX$(PEEK($D800))
+70 POKE $FF80800,4
+\end{basiccode}
+
+
+\newpage
+\section{Grote geheugenbewerkingen met Direct Memory Access}
+
+In vroege microcomputers voert de CPU alle geheugenbewerkingen uit. Grote geheugenbewerkingen, zoals het kopiëren van een blok geheugen van de ene plaats naar de andere, zijn tijdrovend en leggen de interactie met het programma veelal even stil. Dit beperkt programma's tot kleine geheugenbewerkingen tijdens interactieve taken, zoals spellen en sommige toepassingen.
+
+De Commodore 65 beschikt over specifieke hardware voor het kopiëren en verwerken van grote hoeveelheden geheugen, een systeem dat bekend staat als {\em Direct Memory Access} (DMA). De DMA-hardware voert geheugentaken uit, bekend als {\em taken}. De MEGA65 breidt deze mogelijkheden uit met hogere snelheden en voorzieningen die gespecialiseerd zijn in grafische en audiogegevens.
+
+De DMA van de MEGA65 verschilt op één belangrijk punt van de DMA van de C65 (en van de DMA in andere microcomputers): bij de MEGA65 zit de DMA in de CPU ingebouwd en DMA-taken pauzeren de uitvoering van CPU-instructies. Dat lijkt het doel van specifieke DMA-hardware tegen te werken, ware het niet dat de MEGA65 de DMA-taken in vergelijking met de C65 zeer snel uitvoert, dankzij de hogere maximale CPU-snelheid. Het kopiëren van een grote grafische afbeelding naar het scherm gaat snel genoeg om een vast onderdeel te vormen van de code in de hoofdlus van een spel.
+
+Dit vereenvoudigt ook het programmeermodel: een programma kan een DMA-taak behandelen als een bijzondere soort CPU-instructie, zonder extra logica om te wachten tot de taken klaar zijn. Er bestaat zelfs een methode om de DMA aan te roepen waarbij u de takenlijst voor de DMA rechtstreeks in uw code opneemt, zonder daarvoor extra geheugen te hoeven reserveren. In het algemeen geldt: als de DMA de bewerking ondersteunt die u wilt uitvoeren en de bewerking meer dan acht bytes geheugen omvat, dan is een DMA-taak sneller dan gelijkwaardige CPU-instructies.
+
+Deze sectie introduceert DMA in het kort, als onderdeel van dit overzicht van het geheugen. Voor een volledige beschrijving van de DMA-controller en de uitgebreide voorzieningen van de MEGA65, waaronder grafische en audio-DMA, zie \bookvref{cha:dmagic}.
+
+\subsection{DMA-taken}
+
+Om een DMA-taak uit te voeren, beschrijft u de taak in het geheugen en roept u daarna de DMA aan door het adres van de taakbeschrijving naar de registers te schrijven. De DMA voert de taak uit zodra u de laatste adreswaarde van de taak naar het register schrijft. De CPU onderbreekt zijn werk om de taak uit te voeren en gaat daarna verder met de volgende programmainstructie.
+
+Conceptueel bestaat een taakbeschrijving uit de volgende velden:
+
+\begin{enumerate}
+\item Een opdracht: kopiëren of vullen\item Een aantal te verwerken bytes, tot 64KB\item Bij kopiëren: het bronstartadres\item Bij vullen: een vulbyte\item Het bestemmingsstartadres\item De instelling van de wijze waarop de bron- en bestemmingsgebieden moeten worden doorlopen (``adressering'')
+\end{enumerate}
+
+Meerdere taken kunnen in één enkele aanroep van de DMA worden beschreven, in de vorm van een ``taaklijst''. De taken worden uitgevoerd in de volgorde waarin ze in de lijst voorkomen.
+
+De MEGA65 breidt het formaat van het C65-DMA-taakrecord uit met een lijst van taakoptietokens. Veel van de uitgebreide voorzieningen van de MEGA65, zoals het kopiëren van afbeeldingsgegevens met transparantie, maken gebruik van taakoptietokens.
+
+\subsection{DMA gebruiken vanuit BASIC}
+
+In BASIC 65 voert het {\bf EDMA}-commando één DMA-taak uit, met beperkte opties. Het {\bf DMA}-commando van de Commodore 65 wordt eveneens ondersteund, maar EDMA verdient de voorkeur voor alle nieuwe programma's die niet op een C65 hoeven te draaien.
+
+Het \textbf{EDMA}-commando aanvaardt vier door komma's gescheiden argumenten: de opdracht (0=kopiëren, 3=vullen), het aantal bytes, ofwel een vulbyte (bij vullen) ofwel een bronstartadres (bij kopiëren) en het bestemmingsstartadres.
+
+\begin{basiccode}
+10 SC=WPEEK($D060)+PEEK($D062)*$10000
+20 FOR X=32 TO 40
+30 EDMA 3,80*25,X,SC
+40 GETKEY A$
+50 NEXT
+\end{basiccode}
+
+De overige DMA-voorzieningen zijn vanuit het \textbf{EDMA}-commando niet eenvoudig te benaderen. Om geavanceerdere DMA-taken uit te voeren, kan een BASIC-programma de taakgegevens met \textbf{POKE} in het geheugen zetten en de taak via de registers aanroepen, zoals hieronder beschreven.
+
+\subsection{DMA gebruiken vanuit machinetaal}
+
+Er zijn verschillende manieren om DMA-taken te beschrijven en te starten, waaronder manieren om programma's te schrijven die compatibel zijn met de Commodore 65. Deze sectie beschrijft twee methoden: het aanroepen van een Enhanced-DMA-taaklijst van de MEGA65 vanuit een gegevensstructuur die op een geheugenadres staat en het aanroepen van een Enhanced-taaklijst die inline in de machinetaal staat. Voor een volledige beschrijving van de opties, inclusief de lijst met de mogelijke MEGA65-taakoptietokens, zie \bookvref{cha:dmagic}.
+
+\subsection{Een Enhanced-taaklijst in het geheugen aanroepen}
+
+Een Enhanced-DMA-taaklijst kan overal in het geheugen staan en kan zowel met een fysiek 28-bits adres worden benaderd als met een 16-bits adres dat via MAP opnieuw is toegewezen.
+
+Om een Enhanced-DMA-taaklijst aan te roepen vanuit een record dat binnen de eerste megabyte van het geheugen staat, schrijft u het adres naar de volgende registers, in deze volgorde:
+
+\begin{enumerate}
+\item \$D702: de \emph{bank}-adresbyte, bits 16-22; de hoogste bit wordt genegeerd\item \$D701: de \emph{pagina}-adresbyte, bits 8-15\item \$D705: de laagste adresbyte, bits 0-7
+\end{enumerate}
+
+Door de laagste adresbyte naar \$D705 te schrijven, start de uitvoering van de taaklijst, waarbij het adres als een fysiek (niet-gemapt) adres wordt geïnterpreteerd.
+
+Om bijvoorbeeld een Enhanced-DMA-taaklijst aan te roepen die op adres \$42A80 staat:
+
+\begin{asmcodesmall}
+LDA #$04
+STA $D702
+LDA #$2A
+STA $D701
+LDA #$80
+STA $D705    ; De DMA-taaklijst begint met uitvoeren...
+\end{asmcodesmall}
+
+De MEGA65 heeft de mogelijkheid om een Enhanced-DMA-taaklijst op een willekeurig 28-bits adres op te slaan. Om een Enhanced-DMA-taaklijst aan te roepen vanuit een record dat op een 28-bits adres staat (zoals een adres in het zolder-RAM), schrijft u het adres naar de volgende registers, in deze volgorde:
+
+\begin{enumerate}
+\item \$D702: de \emph{bank}-adresbyte, bits 16-22; de hoogste bit wordt genegeerd\item \$D704: de \emph{megabyte}-adresbyte, bits 20-27; overlapt de bank\item \$D701: de \emph{pagina}-adresbyte, bits 8-15\item \$D705: de laagste adresbyte, bits 0-7
+\end{enumerate}
+
+In dit geval liggen de registeradressen \emph{niet} naast elkaar. Vóór de MEGA65 deze voorziening kreeg, bestond er geen ``megabyte''-adresbyte en stelden programma's de ``bank''-adresbyte in zonder de ``megabyte''-adresbyte in te stellen. Om compatibel te blijven met deze programma's, zet het schrijven van de adresbank naar \$D702 de adresmegabyte automatisch weer op nul. Om alle vier de adresbytes te gebruiken, moet u de bank schrijven vóórdat u de megabyte schrijft.
+
+Om de DMA het adres van de taaklijst te laten interpreteren vanuit het gezichtspunt van de CPU op de 16-bits adresruimte, met inachtneming van het MAP-register, schrijft u het laatste lage byte in plaats daarvan naar \$D706.\footnote{De MEGA65 ondersteunt een C65-compatibel DMA-taaklijstformaat, dat een programma kan aanvragen door het lage adresbyte naar \$D700 te schrijven in plaats van naar \$D705 / \$D706. U gebruikt dit uitsluitend als u wilt dat uw programma draait op compatibele C65-prototypehardware. Let op: sommige C65-prototypen hebben een onvolledige DMA-implementatie.} De adressen in de taaklijst zelf zijn nooit gemapte adressen: DMA-taken werken altijd op fysieke adressen. Het gebruik van \$D706 verandert alleen de manier waarop het adres van de taaklijst wordt geïnterpreteerd, namelijk als gemapt 16-bits adres.
+
+Het volgende voorbeeld roept een Enhanced-DMA-taaklijst aan die is opgeslagen onder het label {\tt dmajob}. Voor de volledigheid gebruikt het voorbeeld alle vier de registers, zodat de taaklijst ook naar een hogere megabyte van het geheugen geassembleerd zou kunnen zijn. In de praktijk wordt de meeste programmacode naar de eerste 384KB van het geheugen geassembleerd, zodat het megabyteregister \$D704 kan worden weggelaten.
+
+\begin{asmcodesmall}
+LDA #^dmajob
+STA $D702
+LDA #(dmajob >>> 20)
+STA $D704
+LDA #>dmajob
+STA $D701
+LDA #<dmajob
+STA $D705  ; De DMA voert direct uit
+
+; Het programma gaat verder...
+RTS
+
+dmajob:
+!byte $0B, $00       ; tokenlijst
+!byte $03, $00, $08  ; vul ($03) $0800 bytes
+!byte $BB, $00, $00  ; met waarde $BB
+!byte $00, $30, $04  ; beginnend op 4.3000
+!byte $00, $00, $00  ; geen rare trucs
+\end{asmcodesmall}
+
+Het {\tt \^{}dmajob} hierboven (een dakje gevolgd door een symboolnaam) is de syntaxis van de ACME-assembler voor de bankbyte van het 24-bits adres van het symbool {\tt dmajob}. Pas dit aan naar de syntaxis van uw assembler, of codeer deze waarde vast als u weet in welke bank het {\tt dmajob}-geheugen komt te liggen.
+
+\subsection{Een Enhanced-taaklijst inline in de code aanroepen}
+
+In plaats van eerst een taaklijst in het geheugen op te zetten, kunt u de taaklijst ook inline in uw machinetaal opnemen. Dit is een handige manier om een DMA-taak te schrijven alsof het een CPU-instructie met vooraf vastgestelde waarden is. Gebruik daartoe de instructie \texttt{STA \$D707} (met een willekeurige accumulatorwaarde), gevolgd door assembler-directieven waarmee de gegevensstructuur van de Enhanced-taaklijst wordt geassembleerd. De 45GS02-CPU weet dan dat hij de besturing aan de DMA moet geven en de programmateller voorbij het einde van de DMA-taakgegevens moet zetten.
+
+\begin{asmcodesmall}
+STA $D707  ; De DMA voert direct uit
+!byte $0B, $00       ; tokenlijst
+!byte $03, $00, $08  ; vul ($03) $0800 bytes
+!byte $BB, $00, $00  ; met waarde $BB
+!byte $00, $30, $04  ; beginnend op 4.3000
+!byte $00, $00, $00  ; geen rare trucs
+
+; Het programma gaat verder...
+RTS
+\end{asmcodesmall}
+
+\subsection{Het formaat van de Enhanced-taaklijst}
+
+Deze sectie presenteert een vereenvoudigde versie van het formaat van de Enhanced-taaklijst. Voor een volledige beschrijving, inclusief de velden die de 45GS02-DMA nog niet ondersteunt en de volledige lijst met taakoptietokens, zie \bookvref{cha:dmagic}.
+
+De {\em taaklijst} is een binair formaat waarin de waarden in bytes zijn verpakt. De lijst bestaat uit één of meer taakrecords, waarbij de ``chain''-bit voor elke taak is gezet, behalve voor de laatste taak in de lijst.
+
+Een Enhanced-{\em taakrecord} bestaat uit een lijst van één of meer taakoptietokens die altijd eindigt met het token ``end of job option list'' (\$00), gevolgd door een gegevensstructuur van 12 bytes. Elk taakoptietoken is een bytewaarde en bij sommige tokens hoort nog een argumentwaarde van één byte. Tenzij u een programma schrijft dat bedoeld is voor een Commodore 65, gebruikt uw tokenlijst doorgaans het token \$0B (zonder argumenten) om het taakrecordformaat van 12 bytes te kiezen.
+
+De structuur van 12 bytes ziet er als volgt uit:
+
+\begin{center}
+\begin{tabular}{|c|p{8cm}|}
+\hline
+{\bf Bytes} & {\bf Inhoud} \\
+\hline
+
+\$00 & Opdracht \\& {\bf 1 -- 0}: 00 voor kopiëren, 11 voor vullen \newline{\bf 2}: 0 indien dit de laatste taak in de lijst is, 1 indien de lijst doorloopt \newline{\bf 3}: Interrupts toelaten \\
+\hline
+
+\$01 -- \$02 & Aantal (16 bits) \\
+\hline
+
+\$03 -- \$05 & Bronadres of vulbyte \\& Vulbyte in \$03 \newline Bronadres (20 bits) in \$03 -- \$05 \newline Hoge bits van \$05: \newline{\bf 6}: Richting: 0 om vanaf de start op te tellen, 1 om vanaf de start af te tellen \newline{\bf 7}: I/O: 1 om tijdens de DMA de I/O-registers op \$D000 -- \$DFFF te benaderen \\
+\hline
+
+\$06 -- \$08 & Bestemmingsadres (20 bits) \\& Gebruikt hetzelfde formaat als het bronadres \\
+\hline
+
+\$09 & Adresseeropties \\& {\bf 1 -- 0}: Adresseermethode van de bron \newline{\bf 3 -- 2}: Adresseermethode van de bestemming \newline Adresseermethoden: \newline00: Lineair: schuift voor alle bytes vooruit in de aangegeven richting \newline10: Vasthouden: schuift niet op, maar herhaalt alleen het startadres \\
+\hline
+
+\$0A -- \$0B & Gereserveerd, altijd ingesteld op \$00 \$00 \\
+\hline
+
+\end{tabular}
+\end{center}
+
+Bron- en bestemmingsadressen worden in het taakrecord opgeslagen als 20-bits adressen, in little-endian-volgorde. Om de volledige 28-bits adresruimte te kunnen benaderen, gebruikt u de taakoptietokens waarmee de hoogste byte van het startadres (\$80 \$xx) en het bestemmingsadres (\$81 \$xx) wordt ingesteld. Het token geldt voor alle taken in de taaklijst.
+
+Bij het uitvoeren van een keten van meerdere Enhanced-taken heeft elk taakrecord zijn eigen taaktokenlijst. Taaktokens van eerder in de keten gelden voor alle latere taken in dezelfde keten. Om de tokens voor een volgende taak ongewijzigd te laten, gebruikt u één enkele \$00 als taaktokenlijst.
+
+Voorbeeld: het geheugen met de BASIC-programmatekst in zijn geheel kopiëren naar het zolder-RAM.
+
+\begin{asmcodesmall}
+dmajob:
+!byte $80, $00       ; Hoogste byte van de bron: $00
+!byte $81, $80       ; Hoogste byte van de bestemming: $80
+!byte $0B            ; Gebruik het taakrecordformaat van 12 bytes
+!byte $00            ; Einde van de tokenlijst
+!byte $00, $00, $d7  ; kopieer ($00) $d700 bytes
+!byte $00, $20, $00  ; vanaf (00)0.2000
+!byte $00, $00, $00  ; naar (80)0.0000
+!byte $00, $00, $00  ;
+\end{asmcodesmall}
+
+Voorbeeld: een keten van drie taken, waarin elke taak een vulbewerking uitvoert.
+
+\begin{asmcodesmall}
+dmajob:
+!byte $0B, $00       ; tokenlijst
+!byte $07, $00, $01  ; vul ($03) $0100 bytes
+                     ; ga verder met de taakketen (+$04)
+!byte $BB, $00, $00  ; met waarde $BB
+!byte $00, $30, $04  ; beginnend op 4.3000
+!byte $00, $00, $00  ;
+
+!byte $00            ; tokenlijst (ongewijzigd)
+!byte $07, $00, $01  ; vul ($03) $0100 bytes
+                     ; ga verder met de taakketen (+$04)
+!byte $CC, $00, $00  ; met waarde $CC
+!byte $00, $31, $04  ; beginnend op 4.3100
+!byte $00, $00, $00  ;
+
+!byte $00            ; tokenlijst (ongewijzigd)
+!byte $03, $00, $01  ; vul ($03) $0100 bytes
+                     ; einde van de taakketen
+!byte $DD, $00, $00  ; met waarde $DD
+!byte $00, $32, $04  ; beginnend op 4.3200
+!byte $00, $00, $00  ;
+\end{asmcodesmall}
+
+DMA-taken negeren alle mapping- en banking-instellingen. U kunt aangeven dat een bron- of bestemmingsadres het gebied \$D000 -- \$DFFF als I/O-registers moet behandelen, door bit 23 van het adresrecord in te stellen.
+
+U kunt een DMA-taak voorstellen als een proces met twee cursors: één voor de bron (bij kopiëren) en één voor de bestemming. De DMA schuift elke cursor volgens de taakbeschrijving vooruit, gedurende evenveel stappen als het aantal aangeeft en kopieert of vult bij elke stap de bestemming.
+
+Adresseermethoden bieden één manier om invloed uit te oefenen op de beweging van de cursors:
+
+\begin{itemize}
+\item De {\em lineaire} adresseermethode schuift de cursor bij elke stap één adres op.\item De {\em vasthoudende} adresseermethode schuift de cursor niet op. Deze blijft bij elke stap op het startadres staan.\item De {\em doorlooprichting} geeft aan of er bij elke stap tijdens lineaire adressering wordt opgeteld of afgeteld.
+\end{itemize}
+
+Voorbeeld: een kopieerbewerking waarbij de broncursor wordt vastgehouden en de bestemmingscursor lineair opschuift, lijkt op het uitvoeren van een vulbewerking met de byte op het bronadres.
+
+\begin{asmcodesmall}
+dmajob:
+!byte $0B, $00       ; tokenlijst
+!byte $00, $80, $00  ; kopieer ($00) $0080 bytes
+!byte $00, $19, $00  ; vanaf 0.1900
+!byte $40, $31, $04  ; naar 4.3140
+!byte $02, $00, $00  ; houd de bron vast
+\end{asmcodesmall}
+
+De uitgebreide DMA van de MEGA65 ondersteunt nog veel geavanceerdere doorlooppatronen, die met taakoptietokens worden aangestuurd. Met de DMA kunt u lijnen en patronen in het scherm- en kleurengeheugen tekenen.
+
+Commodore heeft de implementatie van de DMA van de Commodore 65 beschreven, maar deze nooit voltooid. Omwille van de historie reserveert de MEGA65 bits in het DMA-taakrecord voor deze onvoltooide voorzieningen, ook al kan een implementatie nooit werkelijk compatibel zijn met het prototype van de Commodore 65.
+
+
+\newpage
+\section{Gevorderde geheugenonderwerpen}
+
+\subsection{De geheugenmapping testen met de Matrix Mode-debugger}
+
+In de Matrix Mode-debugger,\footnote{Ter herinnering: om de Matrix Mode-debugger te activeren, houdt u \megasymbolkey ingedrukt en drukt u op \specialkey{TAB}. Zie \bookvref{sec:matrix-mode} voor meer informatie over de Matrix Mode-debugger.} geeft het \texttt{m}-commando de gegevens weer op een opgegeven geheugenlocatie. Om bijvoorbeeld de inhoud van het RAM vanaf adres 0.2000 weer te geven:
+
+\begin{basiccode}
+m2000
+\end{basiccode}
+
+De debugger leest {\em altijd} vanuit 32-bits adressen en houdt geen rekening met MAP of andere voorzieningen voor geheugenbanking, ook niet wanneer er een adres van vier hexadecimale cijfers wordt opgegeven. Om het gemakkelijker te maken te zien hoe de CPU de 16-bits adressen ziet, plaatst de MEGA65 het gezichtspunt van de CPU op de hogere adressen 777.0000 -- 777.FFFF. Om bijvoorbeeld weer te geven wat de CPU ziet op het 16-bits adres \$2000:
+
+\begin{basiccode}
+m7772000
+\end{basiccode}
+
+De bank 777 houdt rekening met het MAP-register, evenals met de mechanismen voor het mappen van geheugen die in de volgende secties worden beschreven.
+
+\subsection{Geheugenbanking in C64-stijl}
+
+De 16-bits adressen \$0000 en \$0001 verwijzen naar registers. Deze registers functioneren precies hetzelfde als de CPU-registers die op deze adressen in een Commodore 64 te vinden zijn. Zij regelen het mappen van de C64-ROM in de 16-bits adresruimte, precies zoals dat op een C64 gebeurt.
+
+In een MEGA65 dienen deze registers twee doelen: ze nemen de I/O-registers op \$D000 -- \$DFFF op in de 16-bits adresruimte, zodat deze het chip-RAM overlappen en ze verschaffen in de C64-modus (\textbf{GO64}) toegang tot de C64-versies van BASIC en KERNAL.
+
+Om in de MEGA65-modus de I/O-registers uit de 16-bits adresruimte te halen, zodat de 16-bits adressen \$D000 -- \$DFFF het onderliggende chip-RAM op 0.D000 -- 0.DFFF benaderen, schrijft u \$84 naar locatie \$0001. Om de I/O-registers te herstellen, schrijft u \$85 naar locatie \$0001.
+
+\underline{OPMERKING}: De registers \$0000 en \$0001 zijn uitsluitend schrijfbaar. Ze werken niet met de machinetaalinstructies TRB en TSB.
+
+Dit BASIC-voorbeeld demonstreert hoe u locatie \$D020 eerst als I/O-register (de randkleur) benadert en vervolgens als RAM-adres. Probeer te raden wat het zal tonen voordat u het uitvoert.
+
+\begin{basiccode}
+10 POKE $D020,3
+20 POKE 1,$84
+30 POKE $D020,4
+40 X=PEEK($D020)
+50 POKE 1,$85
+60 PRINT X
+70 PRINT PEEK($D020)
+\end{basiccode}
+
+Banking in C64-stijl geldt alleen voor adresblokken van 8KB die niet door het MAP-register zijn geselecteerd (``ongemapte'' blokken). Als de banking in C64-stijl bijvoorbeeld de I/O-registers op \$D000 -- \$DFFF heeft liggen en de regio \$C000 -- \$DFFF met een offset van 0 is gemapt, dan benadert het programma het RAM op die locatie en {\em niet} de I/O-registers. De regio \$C000 -- \$DFFF moet ongemapt zijn, wil de CPU toegang tot de I/O-registers hebben.
+
+Op vergelijkbare wijze kunt u het MAP-register gebruiken om het RAM op de adressen 0.0000 en 0.0001 te benaderen, dat gewoonlijk door de bankingregisters in C64-stijl wordt verborgen. Als het MAP-register het adresblok \$0000 -- \$1FFF voor mapping selecteert en een offset van 0 toepast, benaderen de 16-bits adressen \$0000 en \$0001 het RAM op 0.0000 en 0.0001 en niet de bankingregisters in C64-stijl. De bankingregisters in C64-stijl zijn uitsluitend te benaderen wanneer de regio \$0000 -- \$1FFF ongemapt is.
+
+Het is gebruikelijk dat een MEGA65-programma de I/O-registers op \$D000 in de banking laat en het MAP-register gebruikt wanneer het het onderliggende RAM moet benaderen. Zo'n programma hoeft het bankingregister in C64-stijl niet te wijzigen.
+
+\subsection{Het bankingregister \$D030 van de VIC-III}
+
+De Commodore 65 biedt een bankingmechanisme om aanvullende ROM-gegevens met 16-bits adressen toegankelijk te maken. Deze banking wordt bestuurd door het I/O-register \$D030.\footnote{Om het bankingregister van de VIC-III op \$D030 te benaderen, moet de computer de VIC-III/IV-``I/O-persoonlijkheid'' gebruiken, die verderop wordt beschreven. Dit is de standaard in de MEGA65-modus.}
+
+De bits 3, 4, 5 en 7 mappen gebieden van ROM-gegevens in de 16-bits adresruimte volgens deze tabel. (Ter herinnering: bits worden van rechts naar links genummerd vanaf 0, zodat bit 7 de hoogste bit is.)
+
+\begin{center}
+\begin{longtable}{|L{1.5cm}|L{1.5cm}|L{1.5cm}|L{1.5cm}|}
+\hline
+{\bf \$D030-bit} & {\bf Signaalnaam} & {\bf 20-bits adres} & {\bf 16-bits adres} \\
+\hline
+\endfirsthead
+\multicolumn{4}{l@{}}{\ldots Vervolgd}\\
+\hline
+{\bf \$D030-bit} & {\bf Signaalnaam} & {\bf 20-bits adres} & {\bf 16-bits adres} \\
+\endhead
+\multicolumn{4}{l@{}}{Vervolgd \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\hline
+3 & ROM8 & \$28000 -- \$29FFF & \$8000 -- \$9FFF \\
+\hline
+4 & ROMA & \$2A000 -- \$2BFFF & \$A000 -- \$BFFF \\
+\hline
+5 & ROMC & \$2C000 -- \$2CFFF & \$C000 -- \$CFFF \\
+\hline
+7 & ROME & \$2E000 -- \$2FFFF & \$E000 -- \$FFFF \\
+\end{longtable}
+\end{center}
+
+Als \$D030 bijvoorbeeld is ingesteld op \$64 = \%01100100, dan is bankingbit 5 gezet en zijn de bits 3, 4 en 7 gewist. Dit betekent dat ROMC is ingeschakeld en dat de 16-bits adressen \$C000 -- \$CFFF 2.C000 -- 2.CFFF benaderen. Dit is de standaardtoestand van \$D030 wanneer u de computer inschakelt.
+
+Net als bij banking in C64-stijl geldt de \$D030-banking alleen voor adresblokken van 8KB die het MAP-register niet voor het toepassen van een offset heeft geselecteerd. Voor ongemapte regio's geldt: indien voor een regio of de ROM-banking in C64-stijl of de \$D030-ROM-banking is ingeschakeld, verwijzen die adressen naar de ROM in bank 2. Elk van deze ROM-bankingmechanismen gebruikt de ROM in bank 2, dus er is geen conflict wanneer beide tegelijk zijn ingeschakeld.
+
+Houd er rekening mee dat \$D030 geen enkele MEGA65-KERNAL-ROM uit bank 3 inmapt. De KERNAL gebruikt zelf het MAP-register om zijn eigen code te benaderen en gebruikt de \$D030-banking uitsluitend om ROM-code op 2.C000 te benaderen met ROMC ingeschakeld. Zoals bij het bankingregister in C64-stijl kan een typisch MEGA65-programma de bankingbits van \$D030 ongemoeid laten en MAP gebruiken om indien nodig RAM of ROM op deze adressen te benaderen.
+
+\subsection{Cartridge-ROM}
+
+Indien er een Commodore 64-cartridge in de uitbreidingspoort is geplaatst, leidt het geheugensysteem de toegang tot delen van de 16-bits adresruimte om naar de lijnen van de poort, welke doorgaans verbonden zijn met de ROM-chips in de cartridge. De cartridge bestuurt twee extra lijnen waarmee zij via de CPU-registers op de adressen \$0000 en \$0001, bekend als EXROM en GAME, verschillende geheugenconfiguraties kan opvragen. Deze configuraties zijn identiek aan die van een Commodore 64. Zie voor meer informatie een naslagwerk over de Commodore 64.
+
+De Commodore 64 herkent dat er een C64-cartridge is geïnstalleerd wanneer één of beide lijnen EXROM en GAME laag (0) zijn. Een typische cartridge in C64-stijl maakt op basis van de waarden van EXROM en GAME één of twee gebieden van 8KB voor het systeem toegankelijk. Als beide lijnen hoog zijn, wordt er geen cartridge-ROM op 16-bits adressen gemapt.
+
+De cartridge-hardware is verbonden met de volledige 16-bits adresbus en kan in beginsel voor alle 65536 adressen waarden teruggeven. Op de MEGA65 is de volledige 64KB aan cartridgeadressen beschikbaar op de daartoe bestemde bovenste adressen 400.0000 -- 400.FFFF.\footnote{De MEGA65 ondersteunt een protocol voor MEGA65-cartridges die automatisch in de MEGA65-modus opstarten. Dit wordt in een latere versie van deze handleiding gedocumenteerd.}
+
+De adresvertaling door het MAP-register heeft voorrang op de geheugenconfiguratie van de C64-cartridge. De mapping van cartridge-ROM overschrijft de geheugenmapping in \$D030-stijl.
+
+\subsection{I/O-persoonlijkheden}
+
+De I/O-registers vormen de belangrijkste manier waarop de KERNAL, de BASIC-interpreter of een machinetaalprogramma met de MEGA65-hardware omgaat. Deze registers gedragen zich als geheugenlocaties waarmee u waarden in de hardware instelt, zoals voor het weergeven van grafische beelden of het voortbrengen van geluid, of waarden uit de hardware leest, zoals gebruikersinvoer op het toetsenbord of de joystick. In BASIC geschreven programma's benaderen deze registers doorgaans indirect via commando's, hoewel zij dit ook rechtstreeks via geheugentoegang kunnen doen.
+
+De MEGA65 start in een configuratie waarmee de meeste van zijn voorzieningen via registers op 16-bits adressen in \$D000 -- \$DFFF beschikbaar zijn. Voor deze registers bestaan er vier verschillende configuraties, bekend als {\em I/O-persoonlijkheden:}
+
+\begin{itemize}
+\item {\bf MEGA65}. Schakelt alle voorzieningen van de MEGA65 VIC-IV en de Commodore 65 VIC-III in. Dit is de standaard.\item {\bf Commodore 65}. De VIC-III zonder de VIC-IV-uitbreidingen. Voor C65-compatibiliteit.\item {\bf Commodore 64}. De VIC-II. Wordt gebruikt door de C64-modus (\textbf{GO64}).\item {\bf MEGA65 Ethernet}. Een persoonlijkheid voor een speciaal doel, voor het benaderen van de Ethernet-poort van de MEGA65.
+\end{itemize}
+
+De registers van alle vier de persoonlijkheden zijn beschikbaar in de 28-bits adresruimte, in elk 4KB-blok van het bereik FFD.0000 -- FFD.3FFF. Wanneer een bepaalde persoonlijkheid is ingesteld, wordt \$D000 -- \$DFFF gemapt op het overeenkomstige blok van bovenste adressen. De standaard-MEGA65-persoonlijkheid mapt deze adressen bijvoorbeeld op FFD.3000 -- FFD.3FFF. Met 28-bits adressen kunt u alle vier de persoonlijkheden tegelijk benaderen, hoewel u rekening moet houden met wisselwerking tussen deze persoonlijkheden (zoals ``hete registers'' van de VIC).
+
+Let op dat het bankingregister \$D030 niet beschikbaar is in de C64-I/O-persoonlijkheid. Als uw programma in de C64-modus start of op een andere manier naar die I/O-persoonlijkheid omschakelt, moet het eerst omschakelen naar de C65- of MEGA65-persoonlijkheid voordat het dit register benadert.
+
+Een typisch voor de MEGA65 geschreven programma gebruikt de MEGA65-persoonlijkheid en gaat ervan uit dat deze al ingesteld is wanneer het programma start. Zie \bookvref{cha:memory-map} voor informatie over hoe u kunt wisselen van gebruikte persoonlijkheid, bijvoorbeeld om bij het starten van uw programma uit voorzorg de gewenste persoonlijkheid in te stellen.
+
+\subsection{ROM omzetten in RAM}
+
+De MEGA65 bewaart de code voor de KERNAL en de BASIC-interpreter in de banken 2 en 3. Om deze code te beschermen tegen overschrijving door andere programma's, dwingt de MEGA65 af dat deze banken alleen-lezen zijn, waarmee wordt gesimuleerd dat er ROM-chips in Commodore-stijl op die adressen zijn aangesloten. De MEGA65-Hypervisor laadt de ROM-gegevens tijdens het opstarten en beheert de schrijfbeveiliging.
+
+Een programma kan de schrijfbeveiliging van de banken 2 en 3 opheffen om die gebieden als chip-RAM te gebruiken. De meeste programma's hebben niet de hele ROM in het geheugen nodig. Een programma dat in de C65-modus draait, heeft bijvoorbeeld naar alle waarschijnlijkheid geen C64-BASIC-ROM-code nodig. De geheugenindeling van het chip-RAM eerder in dit hoofdstuk beschrijft welke ROM-gebieden voor welk doel worden gebruikt.
+
+Een zorgvuldig geschreven programma dat de ingebouwde routines geheel niet nodig heeft, kan het volledige gebied van 128KB een andere bestemming geven. Zorg er bij het overschrijven van de KERNAL voor dat u interrupts uitschakelt en de vectoren van de interrupt-handlers vervangt.
+
+Om de schrijfbeveiliging van de banken 2 en 3 uit te schakelen, roept u de Hypervisor-trap ROM Write-enable aan ({\tt hyppo\_rom\_writeenable}), als volgt:
+
+\begin{asmcodesmall}
+LDA #$02
+STA $D641
+CLV
+\end{asmcodesmall}
+
+Om deze weer in te schakelen gebruikt u op dezelfde manier de trap ROM Write-protect ({\tt hyppo\_rom\_writeprotect}) met {\tt LDA \#\$00}. De instructie na de {\tt STA} moet een instructie met één cyclus zijn, doorgaans {\tt CLV}: de CPU voert die bij het terugkeren uit de Hypervisor al dan niet uit. {\tt NOP} wordt niet aanbevolen, omdat deze op de 45GS02 als prefix voor de volgende instructie kan werken.
+
+Om naar RAM in de banken 2 en 3 te schrijven, moet u het MAP-register, 32-bits instructies of DMA gebruiken. Wanneer banking in C64-stijl of \$D030-banking actief is (en de betreffende 16-bits adressen niet-gemapt zijn), benadert het lezen van die adressen bank 2, terwijl het schrijven naar die adressen in RAM van bank 0 terechtkomt. Dit lijkt op wat er gebeurt wanneer u op een Commodore 64 naar een adres met ROM-banking schrijft.
+
+Om na te gaan of het gebied schrijfbeveiligd is, kunt u eenvoudig proberen er een waarde naar te schrijven. De MEGA65 start op met ingeschakelde schrijfbeveiliging.
+
+Het register \$D640 is alleen beschikbaar in de MEGA65-I/O-persoonlijkheid.
+
+Houd er rekening mee dat dit {\em geen} bankingmechanisme is, zoals dat op een Commodore 64 wel het geval is. Als uw programma de oorspronkelijke ROM-code nodig heeft nadat u die heeft overschreven (bijvoorbeeld om deze te herstellen), kopieert u eerst met DMA de oorspronkelijke ROM naar het zolder-RAM.
+
+\subsection{MAP gebruiken om geheugen op hogere adressen te benaderen}
+
+Zoals eerder besproken, kan het MAP-register elk blok van 8KB hermapen naar een andere locatie in de eerste 1MB van de adresruimte. Dit is handig voor het benaderen van de 384KB chip-RAM, inclusief eventuele toekomstige uitbreidingen. De MAP-instructie komt oorspronkelijk van de 4510-CPU van de Commodore 65, welke ontworpen was voor een adresruimte van 1MB.
+
+De 45GS02-CPU van de MEGA65 breidt het MAP-register uit met de mogelijkheid om elk blok van 256 bytes in de 28-bits adresruimte te benaderen. Dit gebeurt in de vorm van een extra hoge byte (twee nibbles) voor elk van MAPLO en MAPHI. Deze hoge byte dient als bits 20-27 van het uiteindelijke adres.
+
+\begin{center}
+\begin{tabular}{ccccc}
+\$335F & + & \$45200 & = & \$4855F \\\vtop{\hbox{16-bits}\hbox{adres}} & & offset & &
+\vtop{\hbox{gemapt}\hbox{adres}} \\
+\\
+& & \$80 & $\to$ & \$804855F \\
+& & \vtop{\hbox{hoge}\hbox{byte}} & & \vtop{\hbox{uiteindelijk}\hbox{adres}}
+\end{tabular}
+\end{center}
+
+Merk op dat de hoge MAP-byte de bits 20-27 van het eindadres instelt. Levert de optelling van de offset bij het 16-bits adres een waarde op die groter is dan 20 bits, dan ``rolt'' de optelling over binnen het 20-bits gedeelte van het adres en heeft zij geen invloed op de hoge byte van het eindadres.
+
+U stelt een hoge MAP-byte in door de instructie {\bf MAP} twee keer aan te roepen voordat u {\bf EOM} aanroept. De eerste aanroep stelt de hoge byte in en de tweede aanroep stelt, zoals eerder, de selectievlaggen en de resterende 12 bits van de offset in. De computer schakelt de interrupts automatisch uit tussen de eerste {\bf MAP}-aanroep en de {\bf EOM}-aanroep.
+
+Om de hoge byte in te stellen, laadt u de hoge byte in het A-register voor MAPLO of in het Y-register voor MAPHI. Laadt daarna de speciale waarde \$0F in het X-register voor MAPLO of in het Z-register voor MAPHI. Roep {\bf MAP} aan om de hoge byte in te stellen. Laadt vervolgens de selectievlaggen en de overige offsetwaarden in, roep {\bf MAP} aan en roep tot slot {\bf EOM} aan.
+
+Om bijvoorbeeld \$A000 -- \$BFFF in het zolder-RAM te mappen naar \$8000000 -- \$8001FFF, gebruikt u een offset van \$F6000 en een hoge byte van \$80. Stelt u MAPHI in op deze offset met de selectievlag \$2, dan past de computer de offset op het gewenste blok toe.
+
+\begin{asmcodesmall}
+LDA #$00
+LDX #$00
+LDY #$80  ; MAPHI hoge byte van $80
+LDZ #$0F  ; (Bijzondere waarde om de hoge byte in te stellen)
+MAP
+
+LDA #$00
+LDX #$00
+LDY #$60  ; MAPHI-offset: $F60
+LDZ #$2F  ; MAPHI-selectievlag: $2 = A000 - BFFF
+MAP
+EOM
+\end{asmcodesmall}
+
+Let op: wijzig de hoge byte van het 32KB-adresgebied waarin de code staat die het mappen uitvoert, niet! De instelling van de hoge byte wordt actief bij de eerste MAP-instructie en als de code per ongeluk wordt weggemapt, kan de programmateller de overige instructies niet meer bereiken, zelfs niet als de uiteindelijke mapping compatibel is.
+
+\underline{OPMERKING}: De hoge MAP-bytes behouden hun waarde totdat ze opnieuw worden bijgewerkt met deze procedure van twee MAP-instructies. Door de procedure van één MAP-instructie worden ze \emph{niet} op nul gezet. De hoge MAP-bytes hebben bij een herstart van de CPU de beginwaarde nul en de KERNAL zet deze bytes niet op een waarde ongelijk aan nul, zodat een programma er in de meeste gevallen vanuit kan gaan dat ze aan het begin van het programma nul zijn. Het volgende voorbeeld zet alle MAP-offsetbytes op nul.
+
+\begin{asmcodesmall}
+LDA #$00
+LDX #$0F
+LDY #$00
+LDZ #$0F
+MAP        ; MAPHI- en MAPLO-megabyte-offsets zijn nu nul
+           ; Schakel interrupts uit
+
+LDA #$00
+LDX #$00
+LDY #$00
+LDZ #$00
+MAP        ; MAPHI- en MAPLO-bankoffsets zijn nu nul
+EOM        ; Einde MAP, schakel interrupts in
+\end{asmcodesmall}
+
+In de meeste gevallen is het voor programma's eenvoudiger om het geheugen op hogere adressen te benaderen via 28-bits adresseermethoden of via DMA. Deze uitgebreide MAP-voorziening is opgenomen voor de volledigheid.
+
+\subsection{Het MAP-register lezen}
+
+De 45GS02-CPU kan het MAP-register instellen met een combinatie van CPU-instructies, maar er is geen manier om het register op dezelfde wijze te lezen als andere CPU-registers. Een programma kan hiervoor echter een Hypervisor-trap gebruiken. De hypervisor-trap {\tt hyppo\_get\_mapping} schrijft de registerwaarden van MAPHI en MAPLO, inclusief de megabyte-offsets, naar zes bytes op een opgegeven plaats in het geheugen.
+
+De geheugenplaats waarnaar de hypervisor-trap deze waarden schrijft, moet op een paginagrens tussen 0.0000 en 0.7E00 liggen. U stelt het Y-register in op de meest significante byte van het beginadres wanneer u de trap aanroept. Om bijvoorbeeld het MAP-register naar het RAM op de adressen 0.6200 -- 0.6205 te kopiëren:
+
+\begin{asmcode}
+LDY #$62
+
+LDA #$74
+STA $D640
+CLV
+\end{asmcode}
+
+\subsection{Al het chip-RAM beschikbaar maken}
+
+Met de technieken die in dit hoofdstuk worden beschreven, kunt u het geheugensysteem zodanig configureren dat al het chip-RAM beschikbaar komt op de adressen 0.0000 -- 5.FFFF. Een zorgvuldig geschreven programma kan de volledige machine overnemen, I/O-registers op hogere adressen benaderen en al het chip- en zolder-RAM gebruiken.
+
+Een overzicht van de procedure:
+
+\begin{enumerate}
+\item Schakel de interrupts uit.\item Wis alle bits van \$D030.\item Zet het MAP-register volledig op nul.\item Wis de bits 0, 1 en 2 van \$0001 om de I/O-registers uit het bereik \$D000 -- \$DFFF te verwijderen.\item Verschuif het begin van het kleurengeheugen met ten minste \$0800 (2KB) vooruit, zodat het venster op het kleurengeheugen als RAM voor algemeen gebruik kan dienen.\item Hef de ROM-schrijfbeveiliging voor de banken 2 en 3 op met de trap ROM Write-enable ({\tt LDA \#\$02 : STA \$D641 : CLV}).\item Laad aangepaste interrupt-handlercode in bank 0, stel de interruptvectoren in en schakel de interrupts daarna weer in.
+\end{enumerate}
+
+Om de eerste 2KB als geheugen voor algemeen gebruik te kunnen benutten, mag het programma alleen weergavemodi gebruiken die ten hoogste 30KB aan kleurgegevens vereisen. Een programma dat alle 32KB van het kleurengeheugen gebruikt, moet de eerste 2KB zichtbaar laten in het venster op het kleurengeheugen op 1.F800 -- 1.FFFF. (Het is niet vereist om dit geheugen in te mappen op \$D800 -- \$DFFF.)
+
+Het programma moet MAP gebruiken om het RAM op 0.0000 en 0.0001 te benaderen, door MAP in te schakelen voor \$0000 -- \$1FFF met een offset van 0.
+
+\subsection{Waarom het SYS-commando slechts bepaalde adressen kan gebruiken}
+
+Eerder in dit hoofdstuk is uitgelegd dat het BASIC-commando {\bf SYS} tegenintuïtieve beperkingen kent op de adressen die het kan benaderen. Dat kunnen we nu volledig verklaren, met behulp van de geavanceerdere begrippen uit dit hoofdstuk.
+
+Voor BASIC-functies en -commando's zoals {\bf PEEK} en {\bf POKE} gebruikt de KERNAL de voorziening voor 32-bits indirecte adressering van de 45GS02 om grote adressen te benaderen. Bij een adres van \$10000 of hoger laadt het commando het volledige adres in een variabele op de Base-Page en roept het vervolgens de 32-bits indirecte adressering aan om het geheugen te benaderen. Bij een adres van \$0000 -- \$FFFF met een {\bf BANK}-instelling van 0 -- 5 gebruikt het commando de {\bf BANK}-instelling als het bovenste deel van het adres. De 32-bits indirecte adressering negeert het MAP-register en de voorzieningen voor geheugenbanking en kan elk adres in de computer benaderen.
+
+Is het adres \$0000 -- \$FFFF en is de {\bf BANK}-instelling 128, dan gebruikt BASIC de 16-bits adresseermethode van de CPU, welke de MAP-registerinstelling van de KERNAL respecteert, evenals de D030-instelling en de instellingen voor geheugenbanking in C64-stijl. Zo benaderen die commando's de ROM en de I/O-registers met \texttt{BANK 128}.
+
+{\bf SYS} draagt de CPU op om code op een plaats in het geheugen uit te voeren. De programmateller van de CPU is een 16-bits register en kan niet, zoals de 32-bits indirecte adressering dat kan, los van het MAP-register en andere voorzieningen voor geheugenmapping grotere adressen benaderen. Als onderdeel van de KERNAL moet de KERNAL-ROM in het geheugen beschikbaar blijven op de 16-bits adressen \$E000 -- \$FFFF, zodat interrupts afgehandeld kunnen worden. Ook moeten de KERNAL-variabelen benaderbaar blijven op de adressen \$0000 -- \$1FFF, zodat de interrupt-handlercode ze kan gebruiken. Code die door {\bf SYS} wordt aangeroepen, kan zelf beslissen of de KERNAL functioneel blijft, maar {\bf SYS} houdt de KERNAL actief voor het gebruikelijke geval waarin de machinetaal de besturing wil teruggeven aan een actief BASIC-programma of aan de \screentext{READY.}-prompt.
+
+De KERNAL gebruikt het MAP-register om de ROM in bank 3 te benaderen. Om de ROM op \$E000 -- \$FFFF te houden, stelt hij de MAPH-offset in op 3 en markeert dat geheugengebied als ``gemapt''. Er is slechts één offset die MAP voor alle 8KB-gebieden in \$8000 -- \$FFFF kan gebruiken, zodat bij de aanvang van een {\bf SYS}-aanroep de overige gebieden in dat bereik ofwel ongemapt moeten zijn en naar bank 0 verwijzen (of de D030/\$01-banking gebruiken), ofwel naar bank 3 gemapt moeten zijn. De meest bruikbare keuze voor {\bf SYS} is om de overige hogere gebieden ongemapt te laten.
+
+Evenzo moet het gebied, om te zorgen dat adressen in het bereik \$0000 -- \$1FFF blijven verwijzen naar het KERNAL-variabelengeheugen in bank 0, ofwel ongemapt zijn ofwel met een offset van nul gemapt zijn. Het ligt voor de hand dat {\bf SYS} dat gebied ongemapt laat, zodat het voor de adressen \$2000 -- \$7FFF andere banken kan benaderen en dat is dan ook wat het doet. {\bf SYS} gebruikt het MAP-register om voor een adres waarvan het onderste woord \$2000 -- \$7FFF is, hogere banken te benaderen, zowel bij gebruik van {\bf BANK} als wanneer een groot adres wordt opgegeven.
+
+Het MAP-register is veel flexibeler dan dit: het maakt het mogelijk om bijna elk adres te bereiken via de 16-bits adressen \$2000 -- \$7FFF, met behulp van een breed scala aan mogelijke offsets. De machinetaal die door {\bf SYS} wordt aangeroepen, moet dan wel zodanig geschreven zijn dat zij weet welke offset er wordt gebruikt. De programmateller zou daarbij relatief zijn ten opzichte van de offset en een {\tt JMP}-instructie in de code zou een adres moeten gebruiken dat op dezelfde offset is gebaseerd. Het is wel mogelijk om machinetaal te schrijven met uitsluitend relatieve spronginstructies (zoals {\tt BRA}), maar historisch gezien heeft het commando {\bf SYS} dat nooit vereist. In plaats daarvan beperkt {\bf SYS} zich tot offsets van 64KB, om het programmeermodel eenvoudig te houden.
+
+\subsection{Hoe SYS TO werkt}
+
+Het commando {\bf SYS TO} kan een pagina-offset toepassen op een adres in het bereik \$2000 -- \$7FFF, om zo meer geheugenplaatsen te benaderen. Nu we weten dat MAP hierbij betrokken is, is dit eenvoudig uit te leggen: het argument \texttt{O} stelt de MAP-offset in voor de onderste helft van de 16-bits adresruimte, waarbij \$2000 -- \$7FFF als te mappen gebied is geselecteerd. Met de pagina-offset kunt u code overal in de eerste 384KB van het geheugen benaderen, zolang de routine zodanig is geschreven dat deze rekening houdt met deze MAP-instelling.
+
+\begin{basiccode}
+REM : MAP $2000-$7FFF NAAR $54000-$59FFF,
+REM : DAARNA AANROEP $6100 + $52000 = $58100
+
+SYS TO $6100,O($520)
+\end{basiccode}
+
+Standaard schakelen {\bf SYS} en {\bf SYS TO} BASIC uit terwijl de machinetaalsubroutine wordt uitgevoerd. Dit omvat het wijzigen van MAP, zodat de KERNAL-ROM niet langer op \$2000 -- \$7FFF en \$8000 -- \$BFFF is gemapt, alsmede het instellen van een interne vlag voor de KERNAL-IRQ-handler, zodat deze geen BASIC-IRQ-voorzieningen meer bedient, zoals {\bf PLAY} en {\bf MOVSPR}. Wanneer de machinetaal terugkeert, herstelt {\bf SYS} de MAP-instelling van KERNAL en schakelt de BASIC-IRQ-voorzieningen weer in.
+
+Het tijdelijk uitschakelen van de BASIC-IRQ-voorzieningen kan voor een BASIC-programma dat van deze voorzieningen afhankelijk is een kortstondige onderbreking veroorzaken, zoals muziekweergave die hapert. Om dit te voorkomen, biedt het commando {\bf SYS TO} een bedrijfsmodus waarin BASIC tijdens de subroutine actief blijft. Het argument \texttt{I1} schakelt deze modus in. Wanneer deze modus is ingeschakeld, geeft {\bf SYS TO} de KERNAL-IRQ-handler opdracht om voor het uitvoeren van de BASIC-functies over te schakelen naar de MAP van KERNAL en daarna terug te schakelen naar de MAP van uw programma.
+
+\begin{basiccode}
+SYS TO $1600,I1
+\end{basiccode}
+
+{\bf SYS TO} kan niet tegelijkertijd een pagina-offset gebruiken en BASIC actief houden, omdat deze voorzieningen het MAP-register op verschillende manieren gebruiken.

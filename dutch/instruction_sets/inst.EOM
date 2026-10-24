@@ -1,0 +1,15 @@
+End of Mapping Sequence / No-Operation
+Speciaal
+
+Anders dan op de 6502 vervult de NOP-instructie op de 45GS02 twee extra rollen wanneer de processor in de 4502-modus draait.
+
+Ten eerste geeft de instructie het einde aan van een geheugenmappingreeks die door een MAP-instructie is veroorzaakt, waardoor interrupts opnieuw kunnen optreden.
+
+Ten tweede instrueert hij de processor om een 32-bits pointer te gebruiken in plaats van een 16-bits pointer in 6502-stijl, indien de volgende instructie de adresseermethode Base-Page Indirect Z Indexed gebruikt. Dergelijke 32-bits adressen worden niet beïnvloed door de geheugenbanken van de C64, C65 of MEGA65. Dit maakt snelle en eenvoudige toegang tot de volledige adresruimte van de MEGA65 mogelijk, zonder dat u enige vorm van banking hoeft uit te voeren, daarvan bewust hoeft te zijn of de DMA-controller hoeft te gebruiken. Deze adresseermethode brengt twee extra cycli met zich mee, vanwege de tijd die nodig is om de twee extra bytes van de pointer te lezen.
+
+OPMERKING: wees voorzichtig wanneer u EOM/NOP na een Hypervisor Call gebruikt voor een vertraging, omdat dit uw volgende instructie zou kunnen wijzigen. CLV kan als alternatief worden gebruikt.
+
+\subsubsection*{Neveneffecten}
+\begin{itemize}
+\item Heft het door de MAP-instructie opgelegde verbod op alle interrupts op, waardoor niet-maskeerbare interrupts weer kunnen optreden en tevens IRQ-interrupts, indien de interruptblokkeervlag niet gezet is.
+\end{itemize}

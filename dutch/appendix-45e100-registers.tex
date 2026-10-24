@@ -1,0 +1,161 @@
+\chapter{45E100 Fast Ethernet-controller}
+
+\section{Overzicht}
+
+De 45E100 is een eenvoudige Fast Ethernet-controller die speciaal voor de MEGA65 en voor 8-bit computers in het algemeen is ontworpen. Naast het ondersteunen van 100 Mbit Fast Ethernet verschilt hij radicaal van andere Ethernet-controllers, zoals de RR-NET.
+
+De 45E100 heeft 32 ontvangstbuffers op MEGA65 R3- en latere borden (andere borden kunnen er minder hebben, bijvoorbeeld vier op de Nexys4 DDR), waardoor tot 31 frames ontvangen kunnen worden terwijl een ander wordt verwerkt, of waardoor interrupts minder frequent verwerkt hoeven te worden. Deze ontvangstbuffers kunnen in het geheugen gemapt worden en ook direct benaderd worden via de DMA-controller van de MEGA65. Samen met automatische CRC32-controle bij ontvangst en automatische CRC32-generatie bij verzending, verlagen deze mogelijkheden de belasting van de processor aanzienlijk en maken ze het schrijven van programma's met Ethernet-ondersteuning veel eenvoudiger.
+
+De 45E100 ondersteunt tevens echte full-duplex-werking met 100 Mbit per seconde, waardoor de totale bidirectionele doorvoer de 100 Mbit per seconde kan overschrijden. Het MAC-adres is softwarematig configureerbaar en promiscue modus wordt ondersteund, evenals het individueel aansturen van de ontvangst van broadcast- en multicast Ethernet-frames.
+
+De 45E100 ondersteunt tevens zowel verzend- als ontvangstinterrupts, wat de prestaties in de praktijk aanzienlijk verbetert. Indien bijzonder lage latentie vereist is, kan de verzending van het huidige Ethernet-frame ook onmiddellijk afgebroken worden, zodat een frame met een hogere prioriteit onmiddellijk verstuurd kan worden. Deze mogelijkheden samen maken roundtriplatenties van minder dan een milliseconde mogelijk, wat vooral waardevol is voor interactieve toepassingen, zoals netwerkspellen voor meerdere spelers.
+
+\subsection{Verschillen met de RR-NET en vergelijkbare oplossingen}
+
+De RR-NET en andere Ethernet-controllers voor de serie 8-bit-homecomputers van de Commodore\texttrademark{} \ gebruiken doorgaans een Ethernet-controller die voor 16-bit pc's is ontworpen maar ook een zogenaamde ``8-bit-modus'' ondersteunt, die kampt met een aantal nadelen. Deze nadelen omvatten het ontbreken van werkende interrupts evenals processorintensieve toegang tot de Ethernet-framebuffers. Het gebrek aan interrupts dwingt programma's ertoe te pollen om de aankomst van nieuwe Ethernet-frames te controleren. Dit, gecombineerd met de complexiteit van het benaderen van de buffers, resulteert in een Ethernet-interface die zeer traag is en waarvan de praktijkdoorvoer aanzienlijk lager is dan de theoretische 10 Mbit per seconde. Zelfs een Commodore 64 met REU haalt geen snelheden boven enkele tientallen kilobytes per seconde.
+
+Daarentegen ondersteunt de 45E100 zowel RX- (Ethernet-frame ontvangen) als TX- (klaar om te verzenden) interrupts, waarbij de processor het apparaat niet langer hoeft te pollen. Omdat de 45E100 RX-interrupts ondersteunt, is er geen behoefte aan grote aantallen ontvangstbuffers, en daarom heeft de 45E100 slechts een klein aantal RX-buffers nodig om zeer hoge prestatieniveaus te bereiken.
+
+Bovendien ondersteunt de 45E100 directe geheugentoegang tot de Ethernet-framebuffers, wat aanzienlijk efficiënter benaderen mogelijk maakt, ook via DMA. Met de geïntegreerde DMA-controller van de MEGA65 is het heel goed mogelijk transfersnelheden van enkele megabytes per seconde te bereiken -- ongeveer 100 keer sneller dan de RR-NET.
+
+\subsection{Werking: het ontvangen van frames}
+
+De 45E100 is eenvoudig te bedienen: om het ontvangen van Ethernet-frames te beginnen, hoeft de programmeur alleen de RST- en TXRST-bits (bit 0 van register \$D6E0) te wissen om de Ethernet-controller te resetten en vervolgens deze bits op 1 te zetten om de controller uit de resettoestand te bevrijden. De controller onderhandelt vervolgens automatisch een verbinding op de hoogst beschikbare snelheid, doorgaans 100 Mbit, full-duplex.
+
+Indien u eenvoudig door pollen wilt controleren of er Ethernet-frames zijn aangekomen, controleer dan de RXQ-bit (bit 5 van \$D6E1). Indien deze gezet is, is er ten minste één frame ontvangen. Om het volgende ontvangen frame te benaderen, schrijf \$01 naar \$D6E1 en vervolgens \$03 naar \$D6E1. Hiermee draait u de ring van ontvangstbuffers, zodat het volgende ontvangen frame door de processor benaderd kan worden. De ontvangstbuffer die voorheen door de processor benaderd kon worden, wordt als vrij gemarkeerd, en de 45E100 zal deze gebruiken om een volgend Ethernet-frame te ontvangen wanneer dat nodig is.
+
+Omdat de 45E100 meerdere ontvangstbuffers heeft, is het mogelijk om meerdere frames achter elkaar te verwerken door deze procedure te volgen. Indien alle ontvangstbuffers ontvangen frames bevatten en de processor deze niet heeft aanvaard, dan wordt het RXBLKD-signaal geactiveerd, zodat de processor weet dat verdere ontvangen frames verloren zullen gaan. Programmeurs moeten voorzichtig zijn om deze situatie te vermijden. Omdat de 45E100 ontvangstinterrupts ondersteunt, is dit doorgaans eenvoudig te beheren -- onderschat echter niet hoe vaak Ethernet-frames op een 100 Mbit Fast Ethernet-verbinding kunnen binnenkomen: wanneer een zender een continue stroom van frames van minimale lengte stuurt, kunnen deze elke 6 microseconden aankomen! Hoewel het onwaarschijnlijk is dat u met zo'n hoge ontvangstfrequentie te maken krijgt, moet u er rekening mee houden dat pakketten ten minste elke milliseconde verwerkt moeten worden. Met name een CIA- of raster-IRQ die eenmaal per frame optreedt, kan ertoe leiden dat enkele pakketten verloren gaan wanneer er meer dan drie in een videoframe van 16--20 ms aankomen. Het RXBLKD-signaal kan gebruikt worden om te bepalen of deze situatie zich waarschijnlijk heeft voorgedaan. Let er echter op dat het alleen aangeeft wanneer alle ontvangstbuffers bezet zijn, en niet of er nog extra frames arriveerden terwijl er geen vrije ontvangstbuffers beschikbaar waren.
+
+De ontvangstbuffers zijn elk 2 KB groot en kunnen slechts één ontvangen Ethernet-frame tegelijk bevatten. Dit verschilt van enkele Ethernet-controllers die hun totale ontvangstbuffergeheugen als één simpele ringbuffer gebruiken. De reden hiervoor is het mechanisme voor programmeurs zo eenvoudig mogelijk te houden. Door de vaste buffers kan de controller de ontvangen Ethernet-frames elke keer op exact dezelfde locatie in het geheugen mappen, waardoor het mogelijk is veel eenvoudigere ontvangstprogramma's te schrijven, omdat de locatie van de ontvangen Ethernet-frames constant verondersteld kan worden.
+
+De structuur van een ontvangstbuffer met een Ethernet-frame is vrij eenvoudig: de eerste twee bytes geven de lengte van het ontvangen frame aan. Het frame volgt dan onmiddellijk. De effectieve Maximum Transport Unit (MTU)-lengte is 2042 bytes, aangezien de laatste vier bytes bezet zijn door de CRC32-controlesom van het ontvangen Ethernet-frame. De indeling van de ontvangstbuffers is als volgt:
+
+\begin{longtable}{|L{1.0cm}|L{1.1cm}|C{1.3cm}|L{6.9cm}|}
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Lengte}} & {\bf{Omschrijving}} \\
+\hline
+\endfirsthead
+\multicolumn{3}{l@{}}{\ldots wordt vervolgd}\\
+\hline
+{\bf{HEX}} & {\bf{DEC}} & {\bf{Lengte}} & {\bf{Omschrijving}} \\
+\hline
+\endhead
+\multicolumn{3}{l@{}}{vervolgd \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+\small  0000 & \small 0 & 1 & Het lage byte van de lengte van het ontvangen Ethernet-frame. \\
+\hline
+\small  0001 & \small 1 & 1 & Bits 0--2 bevatten de bovenste drie bits van de lengte van het ontvangen Ethernet-frame. Bit 3 is altijd 0.  Bit 4 is gezet wanneer het ontvangen Ethernet-frame een multicast-frame is. Bit 5 is gezet wanneer het een broadcast-frame betreft. Bit 6 is gezet wanneer het bestemmingsadres van het frame overeenkomt met het geprogrammeerde MAC-adres van de 45E100. Bit 7 is gezet wanneer de CRC32-controle voor het ontvangen frame is mislukt, d.w.z. dat het frame of is afgekapt of tijdens de verzending beschadigd is geraakt. \\
+\hline
+\small  0002 -- 07FB & \small 2 -- 2,043 & 2,042 & Het ontvangen frame. Frames korter dan 2042 bytes beginnen op offset 2. \\
+\hline
+\small  07FC -- 07FF & \small 2,044 -- 2,047 & 4 & Gereserveerde ruimte voor het bewaren van de CRC32-code tijdens het ontvangen.  De CRC32-code bevindt zich echter altijd direct na het ontvangen frame en neemt deze ruimte dus alleen in wanneer het ontvangen frame langer is dan 2038 bytes. \\
+\hline
+\end{longtable}
+
+Vanwege het zeer hoge tempo waarin Fast Ethernet-frames kunnen worden ontvangen, dient een programmeur gebruik te maken van de ontvangstinterrupt-voorziening, die wordt ingeschakeld door RXQEN (bit 7 van \$D6E1) te zetten.  Polling is als alternatief mogelijk, maar wordt bij de 45E100 niet aangeraden, omdat bij de 100 Mbit-snelheid van Fast Ethernet pakketten om de 5 microseconden kunnen aankomen.  Gelukkig is het mogelijk om dergelijke hoge gegevenssnelheden bij te houden in de volledige snelheidsmodus van 40 MHz van de MEGA65 en met behulp van de DMA-kopieerfunctie van 20 MB per seconde.
+
+\subsection{Toegang tot de Ethernet-framebuffers}
+
+Anders dan bij de RR-NET kunnen de Ethernet-framebuffers van de 45E100 in het geheugen worden gemapt, waardoor snelle toegang via DMA of via assembleertaalprogramma's mogelijk is.  Het is eveneens mogelijk de buffers met enige voorzichtigheid vanuit BASIC te benaderen.
+
+De frame-buffers kunnen ofwel worden benaderd vanaf hun natuurlijke locatie in de uitgebreide adresruimte van de MEGA65 op adres \$FFDE800 -- \$FFDEFFF, ofwel kunnen ze worden gemapt in de normale C64/C65-I/O-adresruimte op \$D800 -- \$DFFF.  Hierbij is voorzichtigheid geboden, aangezien het mappen van de Ethernet-framebuffers in de I/O-adresruimte ertoe leidt dat alle andere I/O-apparaten gedurende die tijd niet beschikbaar zijn.  Om die reden dienen CIA-gebaseerde interrupts te worden uitgeschakeld voordat u dit doet, of u nu BASIC of machinetaal gebruikt.  Voor het programmeren in assembleertaal of machinetaal wordt daarentegen aangeraden de natuurlijke locatie te gebruiken en dit geheugengebied te benaderen via één van de drie mechanismen voor toegang tot de uitgebreide adresruimte, welke worden beschreven in \bookvref{sec:extended-memory}.
+
+De methode om interrupts uit te schakelen verschilt al naar gelang de context waarin een programma wordt geschreven.  Voor programma's die worden geschreven met BASIC 2 van de C64-modus werkt het volgende:
+
+\begin{screencode}
+  POKE56333,127: REM SCHAKEL TIMER-IRQS VAN CIA UIT
+\end{screencode}
+
+Terwijl voor BASIC 65 van de MEGA65 in plaats daarvan het volgende moet worden gebruikt, omdat een VIC-III-rasterinterrupt wordt gebruikt in plaats van een op CIA gebaseerde timer-interrupt:
+
+\begin{screencode}
+POKE53274,0: REM SCHAKEL RASTER-IRQS VAN VIC-II/III/IV UIT
+\end{screencode}
+
+Wanneer dit eenmaal is gebeurd, kan de I/O-context voor de Ethernet-controller worden geactiveerd door \$45 (69 in decimaal, gelijk aan het teken 'E' in PETSCII) en \$54 (84 in decimaal, gelijk aan het teken 'T' in PETSCII) in het KEY-register van de VIC-IV (\$D02F, 53295 in decimaal) te schrijven, bijvoorbeeld:
+
+\begin{screencode}
+POKE53295,ASC("E"):POKE53295,ASC("T")
+\end{screencode}
+
+Op dit punt kan de Ethernet-RX-buffer worden gelezen vanaf locatie \$D800 (55296 in decimaal) en kan in de TX-buffer op hetzelfde adres worden geschreven.  Raadpleeg ``Werking: het ontvangen van frames'' hierboven voor nadere uitleg hierover.
+
+Wanneer u klaar bent met het benaderen van de Ethernet-framebuffer, kunt u de normale C64-, C65- of MEGA65-I/O-context herstellen door in het KEY-register van de VIC-III/IV te schrijven.  In de meeste gevallen is het het meest zinvol om terug te keren naar de I/O-context van de MEGA65 door eerst \$47 (71 in decimaal) en vervolgens \$53 (83 in decimaal) in het KEY-register te schrijven, bijvoorbeeld:
+
+\begin{screencode}
+POKE53295,ASC("G"):POKE53295,ASC("S")
+\end{screencode}
+
+Tot slot dient u vervolgens de interrupts weer in te schakelen, hetgeen opnieuw afhangt van de vraag of u programmeert vanuit de C64- of de C65-modus.  Voor de C64-modus:
+
+\begin{screencode}
+POKE56333,129
+\end{screencode}
+
+Voor de C65-modus zou dit zijn:
+
+\begin{screencode}
+POKE53274,129
+\end{screencode}
+
+
+
+\subsection{Werking: het verzenden van frames}
+
+Het verzenden van frames is eveneens eenvoudig: het programma moet het te verzenden frame eenvoudigweg in de zendbuffer laden, de lengte ervan in de TXSZLSB- en TXSZMSB-registers schrijven en vervolgens \$01 in het COMMAND-register schrijven.  Het frame begint daarna met verzenden, zodra de zender inactief is.  Het is niet nodig een Ethernet-CRC32-veld te berekenen en toe te voegen, aangezien de 45E100 dit automatisch doet.
+
+In tegenstelling tot bij de ontvanger is er voor de zender slechts één frame-buffer (dit kan in een toekomstige revisie worden gewijzigd).  Dit betekent dat u het volgende frame niet kunt voorbereiden totdat het vorige frame reeds is verzonden.  Dit vermindert de maximale gegevensdoorvoer enigszins, in ruil voor een zeer eenvoudige architectuur.
+
+Houd er tevens rekening mee dat de zendbuffer vanuit de processorbusinterface uitsluitend schrijfbaar is.  Dit betekent dat u de inhoud van de zendbuffer niet direct kunt lezen, maar dat u de waarden ``blind'' moet laden.  Tot slot stelt de 45E100 u in staat om Ethernet-frames te verzenden.
+
+\subsection{Geavanceerde functies}
+
+Naast het functioneren als een eenvoudige en efficiënte Ethernet-framezender en -ontvanger, beschikt de 45E100 over een aantal geavanceerde functies die hier worden beschreven.
+
+\subsubsection{Broadcast- en multicast-verkeer en promiscue modus}
+
+De 45E100 ondersteunt filtering op basis van het Ethernet-bestemmingsadres, d.w.z. het MAC-adres. Standaard worden alleen frames ontvangen waarvan het Ethernet-bestemmingsadres overeenkomt met het Ethernet-adres dat in de registers MACADDR1 -- MACADDR6 is geprogrammeerd. Indien de MCST-bit is gezet, worden echter ook multicast-Ethernet-frames ontvangen. Evenzo staat het instellen van de BCST-bit alle broadcast-frames toe, d.w.z. frames met het MAC-adres ff:ff:ff:ff:ff:ff. Tenslotte wordt het filter volledig uitgeschakeld indien de NOPROM-bit is gewist; de 45E100 ontvangt dan alle geldige Ethernet-frames.
+
+\subsubsection{Foutopsporings- en diagnosemogelijkheden}
+
+De 45E100 ondersteunt tevens een aantal functies om bij te dragen aan het opsporen van Ethernet-problemen. Indien de NOCRC-bit is gezet, worden ook Ethernetframes met ongeldige CRC32-waarden ontvangen. Dit kan helpen bij het opsporen van defecte Ethernet-apparaten in een netwerk.
+
+Indien de STRM-bit is gezet, verzendt de Ethernet-zender een continue stroom van foutopsporingsframes via een speciale logging-interface met hoge bandbreedte. Standaard genereert de 45E100 een stroom van Ethernet-frames van ongeveer 2200 bytes, die gecomprimeerde video bevatten die wordt aangeboden door een VIC-IV of compatibele videocontroller die de video-over-Ethernet-interface van de MEGA65 ondersteunt. Door een aangepaste decoder voor deze stroom van Ethernet-frames te schrijven, is het mogelijk een extern beeldscherm van de MEGA65 via Ethernet te realiseren. Zo'n extern beeldscherm kan bijvoorbeeld worden gebruikt om de weergave van een MEGA65 digitaal vast te leggen.
+
+De grootte en inhoud van de foutopsporingsframes kunnen worden beheerd door specifieke waarden in het COMMAND-register te schrijven. Het schrijven van \$F1 staat de selectie toe van frames met een lengte van ongeveer 1200 bytes. Hoewel dit de prestaties van de foutopsporings- en streamingmogelijkheden vermindert, maakt het de ontvangst van deze frames mogelijk op systemen waarvan de Ethernet-controllers niet kunnen worden geconfigureerd om frames van ongeveer 2200 bytes te ontvangen.
+
+Indien de STRM-bit is gezet en bit 2 van \$D6E1 ook is gezet, wordt in plaats daarvan een gecomprimeerd logboek van de door de 45GS02-processor uitgevoerde instructies gestreamd, mits een compatibele processor op deze interface is aangesloten. Dit mechanisme oefent tegendruk uit en vertraagt de 45GS02-processor zodat de instructiegegevens kunnen worden uitgezonden. Doorgaans beperkt dit de snelheid van de aangesloten 45GS02-processor tot ongeveer 5 MHz, afhankelijk van de specifieke instructiemix.
+
+Opmerking: de status van bit 2 van \$D6E1 kan momenteel niet direct worden uitgelezen. Dit wordt mogelijk in een toekomstige revisie gecorrigeerd.
+
+Tenslotte maakt het inschakelen van de videofunctionaliteit ook de ontvangst van synthetische toetsenbordgebeurtenissen via Ethernet mogelijk. Deze worden aangeboden aan de Keyboard Complex Interface Adapter (KCIA) van de MEGA65, waardoor volledige interactie op afstand met een MEGA65 via de Ethernet-interface mogelijk is. Deze functie is primair bedoeld voor ontwikkelingsdoeleinden.
+
+\section{In het geheugen gemapte registers}
+
+De 45E100 Fast Ethernet-controller is een MEGA65-specifieke voorziening. Hij is daarom alleen beschikbaar in de MEGA65 I/O-context. Deze wordt ingeschakeld door \$47 en vervolgens \$53 te schrijven naar het VIC-IV-register \$D02F. Bij het programmeren in BASIC kan dit als volgt worden gedaan:
+
+\begin{screencode}
+POKE53295,ASC("G"):POKE53295,ASC("S")
+\end{screencode}
+
+De 45E100 Fast Ethernet-controller heeft de volgende registers
+
+\input{dutch/regtable_ETH.MEGA65}
+
+\subsection{Waarden van het COMMAND-register}
+
+De volgende waarden kunnen in het COMMAND-register worden geschreven om de beschreven functies uit te voeren. In normaal gebruik is alleen het STARTTX-commando nodig, bijvoorbeeld door de volgende {\bf POKE} uit te voeren:
+
+\begin{screencode}
+POKE55012,1
+\end{screencode}
+
+\input{dutch/regtable_ETHCOMMAND.MEGA65}
+
+\section{Voorbeeldprogramma's}
+
+Voorbeeldprogramma's voor de Ethernet-controller bevinden zich in de MEGA65 Core-repository op GitHub in de mappen src/tests en src/examples, in wisselende staat van voltooiing.
+
+Indien u de Ethernet-controller wilt gebruiken voor TCP/IP-verkeer, kunt u de port van WeeIP naar de MEGA65 bekijken op \url{https://github.com/mega65/mega65-weeip}. De code die de Ethernet-controller aanstuurt, bevindt zich in {\tt eth.c}.

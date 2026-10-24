@@ -1,0 +1,1740 @@
+\newenvironment{hyppotrap}[3]
+{
+  \newcommand{\availablefrom}[1]{Beschikbaar vanaf Hyppo ##1}  \newcommand{\deprecatedfrom}[1]{
+    \textcolor{Orange}{
+      \textbf{VEROUDERD} sinds Hyppo ##1.      Deze dienst kan in een toekomstige versie worden verwijderd. Nieuwe programma's moeten      deze dienst niet meer gebruiken.
+    }
+  }
+  \newcommand{\deprecatedfrominstead}[2]{
+    \textcolor{Orange}{
+      \textbf{VEROUDERD} sinds Hyppo ##1.      Deze dienst kan in een toekomstige versie worden verwijderd. Nieuwe programma's moeten      in plaats daarvan ##2 gebruiken.
+    }
+  }
+  \newcommand{\errordesc}[3]{
+    \index{Hyppo-foutcodes!\$##1}
+    \textbf{\$##1 ##2} ##3\par
+  }
+  \newcommand{\hypporef}[1]{%
+\StrDel{hyppo:##1}{\_}[\reflbl]%
+\nameref{\reflbl}%
+  }
+  \newcommand{\notimplemented}{\item[Opmerkingen:]\textbf{NIET GEÏMPLEMENTEERD}\par}  \newcommand{\register}[2]{\textbf{##1} ##2\par}  \newcommand{\TODO}{\textbf{\color{red}TODO}}
+  \titleformat*{\subsection}{\normalfont\huge\bfseries\color{blue}}
+  \subsection{hyppo\_#1}  { \StrDel{hyppo:#1}{\_}[\reflbl] \label{\reflbl} }
+  \index{Hyppo-diensten!\$#2 \$#3}
+  \begin{description}[leftmargin=2.7cm,style=nextline]
+  \normalcolor
+  \item [Trap:] LDA \#\$#3 : STA \$#2 : CLV
+}
+{
+  \end{description}
+}
+
+\DeclareTCBInputListing{\acmelisting}{ m }{
+  bottom=0mm,
+  breakable,
+  colback=black,
+  coltext=lightgray,
+  enhanced,
+  frame empty,
+  fontupper=\codefont,
+  listing engine=listings,
+  listing file={#1},
+  listing only,
+  listing options={
+    basewidth=0.3em,
+    breakatwhitespace,
+    breakindent=0pt,
+    breaklines,
+    columns=fullflexible,
+    commentstyle=\sffamily\footnotesize\color{Dandelion},
+    includerangemarker=false,
+    inputpath="dutch/examples/appendix-hypervisor-calls",
+    keywordstyle={*\color{white}},
+    keywordstyle={[2]\color{GreenYellow}},
+    language={[acme]Assembler},
+    linerange=EXAMPLE\ BEGINS-EXAMPLE\ ENDS,
+    postbreak={;\space},
+    rangeprefix=;\ >>>\ ,
+    showstringspaces=false,
+  },
+  top=0mm,
+  underlay first and middle={
+    \node at ([yshift=-3mm]frame.south)
+      {\ldots{} gaat verder op de volgende bladzijde \ldots} ;
+  }
+}
+
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}\chapter{MEGA65 Hyppo-diensten}
+\index{Hyppo-diensten}
+\index{Registers!\$D640}
+\index{Registers!\$D641}
+\index{Registers!\$D642}
+\index{Registers!\$D643}
+\index{Registers!\$D644}
+\index{Registers!\$D645}
+\index{Registers!\$D646}
+\index{Registers!\$D647}
+\index{Registers!\$D648}
+\index{Registers!\$D649}
+\index{Registers!\$D64A}
+\index{Registers!\$D64B}
+\index{Registers!\$D64C}
+\index{Registers!\$D64D}
+\index{Registers!\$D64E}
+\index{Registers!\$D64F}
+\index{Registers!\$D650}
+\index{Registers!\$D651}
+\index{Registers!\$D652}
+\index{Registers!\$D653}
+\index{Registers!\$D654}
+\index{Registers!\$D655}
+\index{Registers!\$D656}
+\index{Registers!\$D657}
+\index{Registers!\$D658}
+\index{Registers!\$D659}
+\index{Registers!\$D65A}
+\index{Registers!\$D65B}
+\index{Registers!\$D65C}
+\index{Registers!\$D65D}
+\index{Registers!\$D65E}
+\index{Registers!\$D65F}
+\index{Registers!\$D660}
+\index{Registers!\$D661}
+\index{Registers!\$D662}
+\index{Registers!\$D663}
+\index{Registers!\$D664}
+\index{Registers!\$D665}
+\index{Registers!\$D666}
+\index{Registers!\$D667}
+\index{Registers!\$D668}
+\index{Registers!\$D669}
+\index{Registers!\$D66A}
+\index{Registers!\$D66B}
+\index{Registers!\$D66C}
+\index{Registers!\$D66D}
+\index{Registers!\$D66E}
+\index{Registers!\$D66F}
+\index{Registers!\$D670}
+\index{Registers!\$D671}
+\index{Registers!\$D672}
+\index{Registers!\$D673}
+\index{Registers!\$D674}
+\index{Registers!\$D675}
+\index{Registers!\$D676}
+\index{Registers!\$D677}
+\index{Registers!\$D678}
+\index{Registers!\$D679}
+\index{Registers!\$D67A}
+\index{Registers!\$D67B}
+\index{Registers!\$D67C}
+\index{Registers!\$D67D}
+\index{Registers!\$D67E}
+\index{Registers!\$D67F}
+
+\section{Inleiding}Een onderdeel van de MEGA65 is het systeemprogramma Hyppo dat:
+\begin{itemize}
+  
+\item De MEGA65 opstart.
+\item De ROM's en andere bestanden van de SD-kaart laadt.
+\item Geheugenbanken 2 en 3 ROM-achtig maakt door ze tegen schrijven te beschermen.  
+\item De diskettestationcontroller virtualiseert zodat u schijfimages kunt gebruiken.  
+\item Diverse hulpprogramma's start zoals de Freezer en de Matrix Mode Debugger.  
+\item Diensten biedt die specifiek zijn voor de MEGA65 en die u in uw programma's kunt gebruiken.
+\end{itemize}
+
+Wanneer u bekend bent met hypervisors en virtuele machines, is Hyppo een zeer beperkte hypervisor. Verwacht niet dat u meerdere virtuele machines tegelijkertijd met volledige isolatie kunt uitvoeren. Hyppo voert taken uit die meer doen denken aan de taken en processen van een modern besturingssysteem dan aan de virtuele machines van een hypervisor zoals u die wellicht kent.
+
+Hyppo biedt drie bedrijfsmodi.
+
+\begin{itemize}
+  
+\item \textbf{De C64-achtige bedrijfsmodus} voert C64-programma's en MEGA65-programma's uit die draaien in de C64-modus van de MEGA65. Wanneer u opstart met de \megasymbolkey ingedrukt of het \textbf{GO64}-commando gebruikt, start Hyppo een proces in de C64-achtige bedrijfsmodus om BASIC 2 of het MEGA65-programma uit te voeren.  
+\item \textbf{De C65-achtige bedrijfsmodus} is de normale bedrijfsmodus van de MEGA65. Hier worden de reguliere MEGA65-programma's uitgevoerd, waaronder BASIC 65-programma's.  
+\item \textbf{De MEGA65-bedrijfsmodus} voert de systeemprogramma's van de MEGA65 uit, zoals de Freezer, het configuratiehulpprogramma en de Matrix Mode Debugger. Wellicht verrassend draaien reguliere MEGA65-programma's niet in de MEGA65-bedrijfsmodus. Zij draaien in de C65-achtige bedrijfsmodus. De MEGA65-bedrijfsmodus is uitsluitend ontworpen voor de MEGA65 en probeert niet compatibel te zijn met of zelfs maar te lijken op eerdere systemen.
+\end{itemize}
+
+In tegenstelling tot de C128 kan een programma de bedrijfsmodus effectief wijzigen terwijl het draait, door eenvoudigweg de verschillende hardwarefuncties in of uit te schakelen.
+
+\filbreak
+Hyppo biedt zeer beperkte virtualisatie van de hardware van de MEGA65. Het kan de diskettestationcontroller virtualiseren. Er bestaan plannen om de seriële bus te virtualiseren zodat de MEGA65 schijfimages kan gebruiken voor apparaten zoals de 1541.
+
+Er zijn delen van de hardware die alleen Hyppo kan benaderen. Het is het enige onderdeel dat directe toegang heeft tot de interne en externe SD-kaarten. U dient de diensten van Hyppo te gebruiken als u vanuit uw programma's de bestanden en directories op de SD-kaarten wilt benaderen.
+
+\subsection{Terminologie}
+
+Wanneer u kennismaakt met Hyppo, kunt u in aanraking komen met termen die verwarrend kunnen zijn als u al bekend bent met andere onderdelen van de MEGA65.
+
+Op de SD-kaart bevindt zich waarschijnlijk een bestand met de naam HICKUP.M65. Dit bestand werkt Hyppo bij naar nieuwe versies zonder dat een bijgewerkte core geïnstalleerd hoeft te worden. Het zou kunnen voorkomen dat u Hyppo soms Hickup hoort noemen vanwege deze sterke associatie.
+
+Er zijn drie verschillende disk-besturingssystemen in de MEGA65.
+
+\begin{itemize}
+  
+\item Binnen Hyppo bevindt zich Hyppo DOS, of kortweg HDOS. HDOS is bedoeld voor toegang tot het FAT32-bestandssysteem op de SD-kaarten. HDOS weet niets van Commodore-bestandssystemen. Het kan een image van een Commodore-bestandssysteem koppelen, maar het begrijpt niet wat er in de image staat.  
+\item Binnen de KERNAL bevindt zich CBDOS. CBDOS is bedoeld voor toegang tot 1581-achtige bestandssystemen. CBDOS gebruikt de 45IO27 multifunctionele I/O-controller om de sectoren van een fysieke schijf te benaderen. CBDOS weet niets van SD-kaarten en het FAT32-bestandssysteem daarop. Hyppo virtualiseert een deel van de 45IO27 zodat CBDOS schijfimages kan benaderen alsof het fysieke schijven zijn.  
+\item De externe schijfstations die op de seriële bus zijn aangesloten, hebben elk hun eigen DOS. Deze worden gebruikt voor toegang tot de bestandssystemen op hun respectievelijke fysieke schijven.
+\end{itemize}
+
+Het woord drive heeft voor elk van deze DOS's een andere betekenis.
+
+\begin{itemize}
+  
+\item De drives in Hyppo zijn de partities van de interne en externe SD-kaarten. Wanneer de MEGA65 opstart, wijst Hyppo nummers toe aan de partities die het kan lezen.  
+\item De drives in CBDOS zijn de fysieke schijfstations die op de 45IO27 multifunctionele I/O-controller zijn aangesloten --- zoals het interne schijfstation --- of de schijfimages die op de gevirtualiseerde 45IO27 zijn gekoppeld. De CBDOS-drives zijn doorgaans zichtbaar als stations 8 en 9.  
+\item De drives in een extern station dat op de seriële bus is aangesloten, zijn de schijfstations binnen dat station.
+\end{itemize}
+
+\filbreak
+\subsection{Versies}
+
+Dit hoofdstuk beschrijft de diensten die beschikbaar zijn in Hyppo 1.2.
+
+Er kunnen nieuwe Hyppo-diensten beschikbaar komen en bestaande Hyppo-diensten kunnen wijzigen of komen te vervallen. Een robuust programma gebruikt de \nameref{hyppo:getversion}-dienst om te controleren of het compatibel is met de Hyppo in de MEGA65 waarop het wordt uitgevoerd.
+
+% Jimbo - Do we commit to semantic versioning? Do we have a deprecation policy?
+
+\subsection{Gebruik}Wanneer u een Hyppo-dienst wilt gebruiken, gebruikt u geen JSR. Hyppo bevindt zich namelijk in een afzonderlijke ruimte ten opzichte van gewone code. Om er toegang toe te krijgen, moet de CPU overschakelen naar zijn hypervisor-modus.
+
+Op de adressen \$D640 -- \$D67F staat een reeks hypervisor-traps. Het schrijven naar deze adressen werkt niet zoals het schrijven naar andere adressen. In plaats van naar geheugen of I/O te schrijven, schakelt de CPU over naar de hypervisor-modus en start een Hyppo-dienst. Hoe de CPU dit doet, wordt beschreven in \bookvref{cha:cpu}.
+
+Welke Hyppo-dienst wordt gestart, hangt af van welke waarde u uit het A-register schrijft en welke trap u aanspreekt. Elke dienst die in dit hoofdstuk wordt beschreven, vermeldt welke waarde u moet schrijven en welke trap u moet gebruiken. U moet het A-register gebruiken wanneer u een trap activeert. Het schrijven van dezelfde waarde vanuit een ander register werkt niet.
+
+Wanneer de Hyppo-dienst is afgerond, schakelt de CPU terug naar uw programma. Met uitzondering van de registers die een dienst gebruikt om waarden terug te geven, blijven de registers ongewijzigd.
+
+\textbf{Belangrijk} De CPU kan het volgende byte in uw programma uitvoeren nadat de Hyppo-dienst is afgerond, maar dit is niet gegarandeerd. Plaats een CLV-instructie na de STA. Of de CPU de CLV nu wel of niet uitvoert, mag geen invloed hebben op uw programma. Indien uw programma afhankelijk is van de V-vlag, kunt u in plaats daarvan de NOP-instructie gebruiken. Wanneer u NOP gebruikt, moet u erop letten wanneer de CPU de NOP interpreteert als een prefix voor de volgende instructie. Om die reden verdient het de voorkeur om CLV boven NOP te gebruiken.
+
+\subsection{Foutcodes:}
+\index{Hyppo-foutcodes}
+
+Indien de dienst succesvol was, wordt de C-vlag gezet.
+
+Indien de dienst niet succesvol was, wordt de C-vlag gewist en komt een foutcode in het A-register. Er staat een tabel met foutcodes in de beschrijving van \nameref{hyppo:geterrorcode}.
+
+\subsection{Voorbeelden}De voorbeelden gebruiken de ACME-assembler. De ACME-assembler is niet verplicht. De Hyppo-diensten kunnen met elke assembler worden gebruikt.
+
+De voorbeelden zijn doorgaans niet volledig. Ze gaan ervan uit dat ergens een foutverwerker met de naam error is gedefinieerd. Ze gaan er eveneens van uit dat ergens een overdrachtsgebied is gedefinieerd. \nameref{hyppo:setuptransferarea} en \nameref{hyppo:setname} laten zien hoe u een overdrachtsgebied definieert.
+
+
+\newpage
+\section{Hyppo-diensten: Beknopt overzicht}
+
+Hieronder volgt een beknopt overzicht van de Hyppo-diensten. Raadpleeg de volledige naslag voor details en voorbeelden.
+
+\begin{longtable}{|L{4cm}|p{2cm}|L{1.5cm}|L{1.2cm}|L{4.3cm}|}
+\hline
+\textbf{Hyppo-naam} & \textbf{Categorie} & \textbf{Invoer} & \textbf{STA} & \textbf{Beschrijving} \\
+\hline
+\endfirsthead
+\multicolumn{5}{l@{}}{\ldots vervolg}\\
+\hline
+\textbf{Hyppo-naam} & \textbf{Categorie} & \textbf{Invoer} & \textbf{STA} & \textbf{Beschrijving} \\
+\hline
+\endhead
+\multicolumn{5}{l@{}}{vervolg \ldots}\\
+\endfoot
+\hline
+\endlastfoot
+
+geterrorcode & Algemeen & A=\$38 & \$D640 & Huidige foutcode van Hyppo \\
+\hline
+getversion & Algemeen & A=\$00 & \$D640 & Versie van Hyppo, HDOS \\
+\hline
+setup\_transfer\_area & Algemeen & A=\$3A, Y & \$D640 & Stelt het gebied in dat Hyppo gebruikt om gegevens over te dragen \\
+\hline
+chdir & SD-kaart & A=\$0C & \$D640 & Wijzigt de huidige werkmap \\
+\hline
+cdrootdir & SD-kaart & A=\$3C, X & \$D640 & Voert selectdrive uit en stelt de huidige werkmap in op de root \\
+\hline
+closeall & SD-kaart & A=\$22 & \$D640 & Sluit alle bestandsdescriptoren \\
+\hline
+closedir & SD-kaart & A=\$16, X & \$D640 & Sluit een bestandsdescriptor voor een directory \\
+\hline
+closefile & SD-kaart & A=\$20, X & \$D640 & Sluit een bestandsdescriptor voor een bestand \\
+\hline
+filedate & SD-kaart & A=\$2C & \$D640 & Niet geïmplementeerd \\
+\hline
+findfile & SD-kaart & A=\$34 & \$D640 & Zoekt het eerste bestand waarvan de bestandsnaam overeenkomt met de huidige Hyppo-bestandsnaam \\
+\hline
+findfirst & SD-kaart & A=\$30 & \$D640 & Zoekt het eerste bestand waarvan de bestandsnaam overeenkomt met de huidige Hyppo-bestandsnaam \\
+\hline
+findnext & SD-kaart & A=\$32 & \$D640 & Zoekt een volgend bestand waarvan de bestandsnaam overeenkomt met de huidige Hyppo-bestandsnaam \\
+\hline
+fstat & SD-kaart & A=\$28 & \$D640 & Niet geïmplementeerd \\
+\hline
+getcurrentdrive & SD-kaart & A=\$04 & \$D640 & Het nummer van de momenteel geselecteerde SD-kaartpartitie \\
+\hline
+getcwd & SD-kaart & A=\$0A & \$D640 & Niet geïmplementeerd \\
+\hline
+getdefaultdrive & SD-kaart & A=\$02 & \$D640 & De SD-kaartpartitie die Hyppo heeft geselecteerd tijdens het opstarten \\
+\hline
+getdrivesize & SD-kaart & A=\$08 & \$D640 & Niet geïmplementeerd \\
+\hline
+loadfile & SD-kaart & A=\$36, XYZ & \$D640 & Laadt een bestand in chipgeheugen \\
+\hline
+loadfile\_attic & SD-kaart & A=\$3E, XYZ & \$D640 & Laadt een bestand in hypergeheugen \\
+\hline
+mkdir & SD-kaart & A=\$0E & \$D640 & Niet geïmplementeerd \\
+\hline
+mkfile & SD-kaart & A=\$1E & \$D640 & Niet geïmplementeerd \\
+\hline
+opendir & SD-kaart & A=\$12 & \$D640 & Opent de huidige werkmap om de bestandsvermeldingen daarin te lezen \\
+\hline
+openfile & SD-kaart & A=\$18 & \$D640 & Opent een bestand op een station \\
+\hline
+readdir & SD-kaart & A=\$14, XY & \$D640 & Leest de volgende FAT-maprecord in een doelgebied \\
+\hline
+readfile & SD-kaart & A=\$1A & \$D640 & Leest de volgende sector van het huidige bestand in de sectorbuffer \\
+\hline
+rename & SD-kaart & A=\$2A & \$D640 & Niet geïmplementeerd \\
+\hline
+rmdir & SD-kaart & A=\$10 & \$D640 & Niet geïmplementeerd \\
+\hline
+rmfile & SD-kaart & A=\$26 & \$D640 & Verwijdert een bestand \\
+\hline
+seekfile & SD-kaart & A=\$24 & \$D640 & Niet geïmplementeerd \\
+\hline
+selectdrive & SD-kaart & A=\$06, X & \$D640 & Stelt de huidig geselecteerde SD-kaartpartitie in \\
+\hline
+setname & SD-kaart & A=\$2E, Y & \$D640 & Stelt de huidige Hyppo-bestandsnaam in \\
+\hline
+writefile & SD-kaart & A=\$1C & \$D640 & Schrijft de sectorbuffer naar het huidige bestand \\
+\hline
+attach & Schijfimage & A=\$4A, X & \$D640 & Koppelt een schijfimage aan of los van het gevirtualiseerde F011-station \\
+\hline
+d81attach0 & Schijfimage & A=\$40 & \$D640 & Verouderd \\
+\hline
+d81attach1 & Schijfimage & A=\$46 & \$D640 & Verouderd \\
+\hline
+d81detach & Schijfimage & A=\$42 & \$D640 & Verouderd \\
+\hline
+d81write\_en & Schijfimage & A=\$44 & \$D640 & Maakt schrijven naar alle schijfimages die aan de gevirtualiseerde F011-stations 0 en 1 zijn gekoppeld, mogelijk \\
+\hline
+create\_task\_c64 & Taak & A=\$66 & \$D640 & Niet geïmplementeerd \\
+\hline
+create\_task\_c65 & Taak & A=\$68 & \$D640 & Niet geïmplementeerd \\
+\hline
+create\_task\_native & Taak & A=\$62 & \$D640 & Niet geïmplementeerd \\
+\hline
+exit\_and\_switch\_to\_task & Taak & A=\$6A & \$D640 & Niet geïmplementeerd \\
+\hline
+exit\_task & Taak & A=\$6E & \$D640 & Niet geïmplementeerd \\
+\hline
+get\_mapping & Taak & A=\$74 & \$D640 & Kopieert de huidige 45GS02-geheugenindeling naar een doelgebied \\
+\hline
+get\_proc\_desc & Taak & A=\$58 & \$D640 & Kopieert het huidige taakblok naar een doelgebied \\
+\hline
+gettasklist & Taak & A=\$50 & \$D640 & Niet geïmplementeerd \\
+\hline
+load\_into\_task & Taak & A=\$64 & \$D640 & Niet geïmplementeerd \\
+\hline
+readoutoftask & Taak & A=\$58 & \$D640 & Niet geïmplementeerd \\
+\hline
+receivemessage & Taak & A=\$54 & \$D640 & Niet geïmplementeerd \\
+\hline
+reset & Taak & A=\$7E & \$D640 & Voert een warme herstart van de MEGA65 uit \\
+\hline
+rom\_writeenable & Taak & A=\$02 & \$D641 & Maakt schrijven naar bank 2 en 3 mogelijk \\
+\hline
+rom\_writeprotect & Taak & A=\$00 & \$D641 & Schakelt schrijven naar bank 2 en 3 uit \\
+\hline
+sendmessage & Taak & A=\$52 & \$D640 & Niet geïmplementeerd \\
+\hline
+\makecell[l]{serial\_monitor\_wait \\ \_and\_write} & Taak & A=byte & \$D643 & Wacht tot de seriële debugger gereed is en schrijft een teken naar deze debugger \\
+\hline
+serial\_monitor\_write & Taak & A=\$7C, Y=byte & \$D640 & Schrijft een teken naar de seriële debugger, zonder te wachten \\
+\hline
+set\_mapping & Taak & A=\$76, Y & \$D640 & Kopieert het brongebied naar de huidige 45GS02-geheugenindeling \\
+\hline
+switch\_to\_task & Taak & A=\$6C & \$D640 & Niet geïmplementeerd \\
+\hline
+terminateothertask & Taak & A=\$60 & \$D640 & Niet geïmplementeerd \\
+\hline
+toggle\_force\_4502 & Taak & A=\$72 & \$D640 & Wisselt de CPU tussen de 45GS02- en 6502-modus \\
+\hline
+toggle\_rom\_writeprotect & Taak & A=\$70 & \$D640 & Schakelt de schrijfbeveiliging van bank 2 en 3 om \\
+\hline
+writeintotask & Taak & A=\$56 & \$D640 & Niet geïmplementeerd \\
+\hline
+configsector\_apply & Configuratie & A=\$04 & \$D642 & Past het systeemconfiguratiesector toe dat momenteel in het geheugen is geladen \\
+\hline
+configsector\_read & Configuratie  & A=\$00 & \$D642 & Leest het systeemconfiguratiesector in het geheugen \\
+\hline
+configsector\_write & Configuratie & A=\$02 & \$D642 & Schrijft het systeemconfiguratiesector vanuit het geheugen \\
+\hline
+dmagic\_autoset & Configuratie & A=\$06 & \$D642 & Stelt de DMAgic-revisie in op basis van de geladen ROM \\
+\hline
+freeze\_self & Freezer & A=lukraak & \$D67F & Start de Freezer \\
+\hline
+get\_slot\_count & Freezer & A=\$16 & \$D642 & Vraagt het aantal freeze-slots op \\
+\hline
+locate\_freeze\_slot & Freezer & A=\$10 & \$D642 & Zoekt de eerste sector van een freeze-slot \\
+\hline
+read\_freeze\_region\_list & Freezer & A=\$14 & \$D642 & Leest de lijst met freezeregio's \\
+\hline
+unfreeze\_from\_slot & Freezer & A=\$12 & \$D642 & Herstelt vanuit een freeze-slot \\
+\hline
+\end{longtable}
+
+
+% ==============================================================================
+% General Services
+% ==============================================================================
+\newpage
+\section{Algemene diensten}
+
+
+% ******************************************************************************
+% geterrorcode
+% ******************************************************************************
+\begin{hyppotrap}{geterrorcode}{D640}{38}
+\index{Hyppo-foutcodes}
+
+\item [Dienst:]  Geeft de huidige foutcode van Hyppo terug.
+\item [Voorbeding:]  De C-vlag was gewist door de vorige dienst.
+\item [Resultaat:]  \register{A}{De foutcode van de voorgaande mislukte dienst.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  De foutcode is alleen geldig als de vorige Hyppo-dienst de C-vlag heeft gewist.  Indien de C-vlag was gezet, is er geen fout opgetreden en is de Hyppo-foutcode  ongedefinieerd.
+
+  De betekenissen hier zijn algemeen. Zie de secties van de diensten voor meer  specifieke betekenissen.\item [Error codes:] Dit is mogelijk geen volledige lijst.
+{
+  \setlength{\def\arraystretch{1.5}\tabcolsep}{3pt}
+  \begin{longtable}{|c|r|l|p{8cm}|}
+    \hline
+    \textbf{Hex} & \textbf{Dec} & \textbf{Naam} & \textbf{Algemene betekenis}\\
+    \hline
+    \endhead
+    \index{Hyppo-foutcodes!\$01}
+    \$01 & 1 & \makecell[tl]{partition not \\ interesting} &    De partitie heeft geen ondersteund type.
+    \\\hline
+    \index{Hyppo-foutcodes!\$02}
+    \$02 & 2 & bad signature &    De handtekeningsbytes aan het einde van een partitietabel of van de eerste sector    van een partitie ontbraken of waren onjuist.
+    \\\hline
+    \index{Hyppo-foutcodes!\$03}
+    \$03 & 3 & is small FAT &    Dit is een FAT12- of FAT16-partitie. Er wordt alleen FAT32 ondersteund.
+    \\\hline
+    \index{Hyppo-foutcodes!\$04}
+    \$04 & 4 & \makecell[tl]{too many reserved\\clusters} &    De partitie heeft meer dan 65.535 gereserveerde sectoren.
+    \\\hline
+    \index{Hyppo-foutcodes!\$05}
+    \$05 & 5 & not two FATs &    De partitie heeft niet precies twee kopieën van de FAT-structuur.
+    \\\hline
+    \index{Hyppo-foutcodes!\$06}
+    \$06 & 6 & too few clusters &    De partitie bevat te weinig clusters.
+    % Jimbo - What is the minimum?
+    \\\hline
+    \index{Hyppo-foutcodes!\$07}
+    \$07 & 7 & read timeout &    Het duurde te lang om van de SD-kaart te lezen.
+    % Jimbo - Is there a write timeout error code?
+    \\\hline
+    \index{Hyppo-foutcodes!\$08}
+    \$08 & 8 & partition error &    Er is een ongespecificeerde fout opgetreden bij het verwerken van een partitie.
+    \\\hline
+    \index{Hyppo-foutcodes!\$10}
+    \$10 & 16 & invalid address &    Er is een ongeldig adres opgegeven in een parameter.
+    \\\hline
+    \index{Hyppo-foutcodes!\$11}
+    \$11 & 17 & illegal value &    Er is een ongeldige waarde opgegeven in een parameter.
+    \\\hline
+    \index{Hyppo-foutcodes!\$20}
+    \$20 & 32 & read error &    Er is een ongespecificeerde fout opgetreden bij het lezen.
+    \\\hline
+    \index{Hyppo-foutcodes!\$21}
+    \$21 & 33 & write error &    Er is een ongespecificeerde fout opgetreden bij het schrijven.
+    \\\hline
+    \index{Hyppo-foutcodes!\$80}
+    \$80 & 128 & no such drive &    Het opgegeven Hyppo-stationnummer bestaat niet.
+    \\\hline
+    \index{Hyppo-foutcodes!\$81}
+    \$81 & 129 & {name too long} &    De opgegeven bestandsnaam was te lang.
+    \\\hline
+    \index{Hyppo-foutcodes!\$82}
+    \$82 & 130 & not implemented &    De Hyppo-service is niet geïmplementeerd.
+    \\\hline
+    \index{Hyppo-foutcodes!\$83}
+    \$83 & 131 & file too long &    Het bestand is groter dan 16 MB.
+    \\\hline
+    \index{Hyppo-foutcodes!\$84}
+    \$84 & 132 & \makecell[tl]{too many\\open files} &    Alle bestandsdescriptoren zijn in gebruik.
+    \\\hline
+    \index{Hyppo-foutcodes!\$85}
+    \$85 & 133 & invalid cluster &    Het opgegeven clusternummer is ongeldig.
+    \\\hline
+    \index{Hyppo-foutcodes!\$86}
+    \$86 & 134 & is a directory &    Er is geprobeerd een handeling uit te voeren op een directory, terwijl een normaal bestand werd verwacht.
+    \\\hline
+    \index{Hyppo-foutcodes!\$87}
+    \$87 & 135 & not a directory &    Er is geprobeerd een handeling uit te voeren op een normaal bestand, terwijl een directory werd verwacht.
+    \\\hline
+    \index{Hyppo-foutcodes!\$88}
+    \$88 & 136 & file not found &    Het bestand kon niet worden gevonden in de huidige directory van het huidige station.
+    \\\hline
+    \index{Hyppo-foutcodes!\$89}
+    \$89 & 137 & \makecell[tl]{invalid file\\descriptor} &    Er is een ongeldige of gesloten bestandsdescriptor opgegeven.
+    \\\hline
+    \index{Hyppo-foutcodes!\$8A}
+    \$8A & 138 & \makecell[tl]{image wrong\\length} &    Het schijfimage-bestand heeft een onjuiste lengte.
+    \\\hline
+    \index{Hyppo-foutcodes!\$8B}
+    \$8B & 139 & image fragmented &    Het schijfimage is niet aaneengesloten opgeslagen op de SD-kaart.
+    \\\hline
+    \index{Hyppo-foutcodes!\$8C}
+    \$8C & 140 & no space &    De SD-kaart heeft geen vrije ruimte voor de gevraagde bewerking.
+    \\\hline
+    \index{Hyppo-foutcodes!\$8D}
+    \$8D & 141 & file exists &    Er bestaat al een bestand met de opgegeven naam.
+    \\\hline
+    \index{Hyppo-foutcodes!\$8E}
+    \$8E & 142 & directory full &    De directory kan geen extra vermeldingen bevatten.
+    \\\hline
+    \index{Hyppo-foutcodes!\$8F}
+    \$8F & 143 & double attach &    Het image is al gekoppeld aan het andere station.
+    \\\hline
+    \index{Hyppo-foutcodes!\$FF}
+    \$FF & 255 & eof &    Het einde van een bestand of directory werd bereikt.
+    \\\hline
+    \index{Hyppo-foutcodes!\$FF}
+    \$FF & 255 & no such trap &    Er is geen Hyppo-service beschikbaar voor de trap. Het programma is mogelijk onverenigbaar met deze versie van Hyppo.
+    \\\hline
+  \end{longtable}
+}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getversion
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getversion}{D640}{00}
+
+\item [Dienst:]  Geeft de versie van Hyppo \textbf{A.X} en HDOS \textbf{Y.Z} weer.
+
+\item [Resultaat:]
+  \register{A}{Het hoofdversienummer van Hyppo}
+  \register{X}{Het subversienummer van Hyppo}
+  \register{Y}{Het hoofdversienummer van HDOS}
+  \register{Z}{Het subversienummer van HDOS}
+
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+
+\item [Opmerkingen:]  De HDOS in Hyppo staat los van de CBDOS binnen de KERNAL of de
+  DOS in de schijfstations die op de seriële poort zijn aangesloten.
+
+\item [Voorbeeld:]  Test of de versie van Hyppo $\geq$ 1.2 is en $<$ 2.0.
+  \acmelisting{getversion.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% setup_transfer_area
+%
+% Jimbo - What are the post-conditions for this? What services are affected by
+%         this?
+%       - Is this now redundant? So far everything I've used has the transfer
+%         area as a parameter.
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{setup\_transfer\_area}{D640}{3A}
+
+\item [Dienst:]  Stelt het gebied in dat Hyppo gebruikt om gegevens naar uw programma over te dragen en ervan te ontvangen.
+
+\item [Invoer:]
+  \register{Y}{Het hoogste byte van het adres van het overdrachtsgebied}
+
+\item [Foutcodes:]
+  \errordesc{10}{invalid address}{Het adres van het overdrachtsgebied in Y $>$ \$7E}
+
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Het overdrachtsgebied moet tussen \$0000 en \$7E00 liggen. Het moet ook op een paginagrens beginnen. Het laagste byte van het adres moet \$00 zijn.
+
+  Het overdrachtsgebied is 256 bytes lang voor de meeste services.
+
+  Het overdrachtsgebied wordt aangeduid met het huidige geheugenindeling van de CPU op het moment dat een service wordt uitgevoerd. Het is echter goed gebruik om het altijd in de onderste 32 KB van bank 0 te plaatsen.
+\item [Voorbeeld:]  Reserveert 256 bytes op een paginagrens en stelt deze in als het overdrachtsgebied.
+  \acmelisting{setup_transfer_area.asm}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Disk/storage services
+% ==============================================================================
+\newpage
+\section{Station-/opslagservices}
+
+% Jimbo - These should be named as what they are, partitions.
+%         This would resolve potential confusion when we do start referring
+%         to the virtual F011's drive 0 and 1 around mounting disk images.
+
+In Hyppo zijn stations de partities van de interne en externe SD-kaarten. Het zijn niet de station 0 en station 1 van de F011-floppycontroller. Het zijn ook niet de station 0 en station 1 van dual-drive-units die op de seriële bus zijn aangesloten.
+
+
+% ******************************************************************************
+% chdir
+% ******************************************************************************
+\begin{hyppotrap}{chdir}{D640}{0C}
+
+\item [Dienst:]  Wijzigt de huidige werkmap.
+
+\item [Voorbeding:]  De FAT-dir-vermelding van de directory waarnaar u wilt overschakelen, is gevonden. \hypporef{findfile} wordt doorgaans gebruikt om een FAT-dir-vermelding te vinden.
+  \hypporef{findfirst}, \hypporef{findnext} en \hypporef{readdir} kunnen ook worden gebruikt.
+
+\item [Foutcodes:]
+  \errordesc{87}{not a directory}{De laatst gevonden FAT-dir-vermelding is geen directory. Bit 4 van het attribuutbyte van de FAT-dir-vermelding is gezet voor directories.}
+
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  U kunt naar de bovenliggende directory navigeren door de FAT-dir-vermelding .. te vinden.
+
+  U kunt niet meer dan één directory tegelijk omhoog of omlaag navigeren.
+
+  Gebruik \hypporef{cdrootdir} om direct terug te keren naar de hoofdmap.\item [Voorbeeld:]  Wijzigt het pad naar een willekeurig pad op het huidige station. Roep aan met Y:X als het adres van het pad. Het laatste teken van elk onderdeel in het pad moet bit 7 ingesteld hebben. Het gehele pad wordt afgesloten met een \$00. Om bijvoorbeeld naar DIR1 en vervolgens DIR2 te wisselen, is het pad {\codefont !text "DIR", '1'+\$80, "DIR" '2'+\$80, 0}.
+
+  Bij succes wordt de C-vlag ingesteld. Als een deel van het pad niet bestaat, wordt de C-vlag gewist en is de huidige werkmap de map die het laatst succesvol is bereikt.
+  \acmelisting{chdir.asm}
+\end{hyppotrap}
+
+% ******************************************************************************
+% cdrootdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{cdrootdir}{D640}{3C}
+\index{Hyppo: verplaatsen naar hoofdmap}
+\index{Hoofdmap}
+
+\item [Dienst:]  Wisselt het station door \hypporef{selectdrive} aan te roepen en stelt de huidige map in op de hoofdmap.
+\item [Invoer:]  \register{X}{Het stationnummer dat het nieuwe huidige station wordt}
+\item [Voorbeding:]  Geen.
+\item [Resultaat:]  \register{A}{Een foutmelding die door \hypporef{selectdrive} kan worden geretourneerd}
+\item [Geschiedenis:]
+  \availablefrom{1.16}
+\end{hyppotrap}
+
+% ******************************************************************************
+% closeall
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closeall}{D640}{22}
+
+\item [Dienst:]  Sluit alle bestandsdescriptors.
+\item [Nawerking:]  Het gebruik van een willekeurige bestandsbestandsdescriptor met \hypporef{closedir} of \hypporef{closefile} slaagt.
+
+  Het gebruik van een willekeurige bestandsdescriptor met \hypporef{readdir} of \hypporef{readfile} mislukt.
+
+  \hypporef{opendir} en \hypporef{openfile} hergebruiken de bestandsdescriptor.\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  U kunt ook afzonderlijke bestandsdescriptors sluiten met \hypporef{closedir} of \hypporef{closefile}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closedir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closedir}{D640}{16}
+
+\item [Dienst:]  Sluit een bestandsdescriptor voor een map.
+\item [Voorbeding:]  De bestandsdescriptor die is opgegeven in het X-register is geopend met \hypporef{opendir}.
+\item [Invoer:]  \register{X}{De bestandsdescriptor voor de map}
+\item [Nawerking:]  Het opnieuw gebruiken van de bestandsdescriptor met \hypporef{closedir} slaagt.
+
+  Het opnieuw gebruiken van de bestandsdescriptor met \hypporef{readdir} mislukt.
+
+  \hypporef{opendir} en \hypporef{openfile} hergebruiken de bestandsdescriptor.\item [Geschiedenis:]
+  \availablefrom{1.2}
+
+\item [Opmerkingen:]  U kunt ook alle geopende bestandsdescriptors sluiten met \hypporef{closeall}.
+\item [Voorbeeld:]  Zie het voorbeeld in \hypporef{opendir}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% closefile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{closefile}{D640}{20}
+
+\item [Dienst:]  Sluit een bestandsdescriptor voor een bestand.
+\item [Voorbeding:]  De bestandsdescriptor die is opgegeven in het X-register is geopend met \hypporef{openfile}.
+\item [Invoer:]  \register{X}{De bestandsdescriptor voor het bestand}
+\item [Nawerking:]  Het opnieuw gebruiken van de bestandsdescriptor met \hypporef{closefile} slaagt.
+
+  Het opnieuw gebruiken van de bestandsdescriptor met \hypporef{readfile} mislukt.
+
+  \hypporef{opendir} en \hypporef{openfile} hergebruiken de bestandsdescriptor.\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  U kunt ook alle geopende bestandsdescriptors sluiten met \hypporef{closeall}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% filedate
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{filedate}{D640}{2C}
+\item [Dienst:]  Stelt de tijdstempel van een bestand in.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findfile
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findfile}{D640}{34}
+
+\item [Dienst:]  Zoekt het eerste bestand waarvan de bestandsnaam overeenkomt met de huidige Hyppo-bestandsnaam.
+\item [Voorbeding:]  De huidige Hyppo-bestandsnaam is ingesteld met \hypporef{setname}.
+\item [Nawerking:]  Er zijn geen extra bestandsdescriptors geopend.
+\item [Foutcodes:]  \errordesc{88}{file not found}{Er is geen overeenkomstig bestand gevonden in de huidige map van het huidige station.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]
+  % Jimbo - Why does Hyppo do this and create this restriction?
+  Hyppo vindt alleen bestanden waarvan de lange bestandsnaam geheel in hoofdletters staat. Hyppo converteert de huidige bestandsnaam naar ASCII-hoofdletters voordat het een overeenkomst probeert te vinden. Bytes \$61 -- \$7B worden \$41 -- \$5A.
+
+  Hyppo ondersteunt nog niet de jokertekens * en ?. Ondersteuning daarvoor is gepland in een toekomstige versie.
+
+  Dit vindt alleen het eerste overeenkomende bestand. U kunt meerdere overeenkomsten vinden met \hypporef{findfirst} en \hypporef{findnext}.\item [Voorbeeld:]  Zie het voorbeeld in \hypporef{openfile}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findfirst
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findfirst}{D640}{30}
+
+\item [Dienst:]  Zoekt het eerste bestand waarvan de bestandsnaam overeenkomt met de huidige Hyppo-bestandsnaam.
+\item [Voorbeding:]  De huidige Hyppo-bestandsnaam is ingesteld met \hypporef{setname}.
+\item [Resultaat:]  \register{A}{De bestandsdescriptor voor het lezen van de huidige werkmap.  U bent mogelijk verantwoordelijk voor het sluiten van deze bestandsdescriptor met \hypporef{closedir}. Zie de opmerkingen.}
+\item [Nawerking:]  \hypporef{findnext} vindt het volgende overeenkomende bestand of mislukt met een foutmelding dat het bestand niet is gevonden.
+\item [Neveneffect:]  Stelt de huidige bestandsdescriptor in.
+\item [Foutcodes:]  \errordesc{88}{file not found}{Er is geen overeenkomstig bestand gevonden in de huidige map van het huidige station.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Als Hyppo een eerste overeenkomend bestand vindt, stelt het de C-vlag in en retourneert het een bestandsdescriptor in het A-register. Dit is een bestandsdescriptor voor het lezen van de huidige werkmap. U bent verantwoordelijk voor het sluiten ervan met \hypporef{closedir}. Het is een standaard mapbestandsdescriptor. U kunt \hypporef{readdir} gebruiken om de FAT-mapitems na het gevonden bestand te lezen.
+
+  Als Hyppo geen overeenkomende bestanden vindt, mislukt het met een foutmelding dat het bestand niet is gevonden. In dat geval heeft Hyppo de bestandsdescriptor al gesloten en hoeft u die niet te sluiten.
+
+  % Jimbo - Why does Hyppo do this and create this restriction?
+  Hyppo vindt alleen bestanden waarvan de lange bestandsnaam geheel in hoofdletters staat. Hyppo converteert de huidige bestandsnaam naar ASCII-hoofdletters voordat het een overeenkomst probeert te vinden. Bytes \$61 -- \$7B worden \$41 -- \$5A.
+
+  Hyppo ondersteunt nog niet de jokertekens * en ?. Ondersteuning daarvoor is gepland in een toekomstige versie.
+
+  Als u alleen de eerste overeenkomst zoekt, kunt u \hypporef{findfile} gebruiken. \hypporef{findfile} sluit de bestandsdescriptor altijd voor u. U kunt het echter niet gebruiken om meerdere overeenkomende bestanden te vinden.\item [Voorbeeld:]  Zie het voorbeeld in \hypporef{findnext}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% findnext
+%
+% Jimbo - Does this service work for files that don't have an LFN?
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{findnext}{D640}{32}
+
+\item [Dienst:]  Zoekt een volgend bestand waarvan de bestandsnaam overeenkomt met de huidige Hyppo-bestandsnaam.
+\item [Voorbeding:]  De huidige Hyppo-bestandsnaam is ingesteld met \hypporef{setname}.
+
+  Het eerste overeenkomende bestand is reeds succesvol gevonden met \hypporef{findfirst}.
+\item [Nawerking:]  Het opnieuw gebruiken van \hypporef{findnext} vindt het volgende overeenkomende bestand of mislukt met een foutmelding dat het bestand niet is gevonden.
+\item [Foutcodes:]  \errordesc{88}{file not found}{Er is geen volgend overeenkomend bestand gevonden in de huidige map van het huidige station.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Als Hyppo geen volgend overeenkomend bestand vindt, mislukt de aanroep met een file not found-fout. Hyppo sluit tevens de bestandsdescriptor die in \hypporef{findfirst} is uitgegeven.
+
+  Indien u de zoekopdracht niet uitput door \hypporef{findnext} te blijven aanroepen totdat deze met een file not found-fout mislukt, bent u verplicht de bestandsdescriptor zelf te sluiten via \hypporef{closedir}.\item [Voorbeeld:]  Geeft het X-register terug met het aantal bestanden dat overeenkomt met de huidige Hyppo-bestandsnaam in de huidige werkmap van het huidige station. Hoewel een directory in theorie meerdere bestanden met een identieke naam kan bevatten, wordt dit voorbeeld nuttiger zodra Hyppo jokertekens met * en ? ondersteunt.
+  \acmelisting{findnext.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% fstat
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{fstat}{D640}{28}
+\item [Dienst:]  Geeft informatie over een bestand.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getcurrentdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getcurrentdrive}{D640}{04}
+
+\item [Dienst:]  Geeft het nummer van het huidige geselecteerde station (SD-kaartpartitie) terug.
+\item [Resultaten:]  \register{A}{Het huidige stationsnummer}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+
+\item [Opmerkingen:]  \hypporef{selectdrive} wijzigt het huidige stationsnummer. \hypporef{cdrootdir}  kan het eveneens wijzigen.
+\item [Voorbeeld:]  Drukt het nummer van het huidige geselecteerde station in de linkerbovenhoek van het scherm. Dit voorbeeld gaat ervan uit dat er niet meer dan 10 stations (stations 0 tot en met 9) zijn. Het gaat er tevens vanuit dat het schermgeheugen niet is verplaatst vanaf \$800.
+  \acmelisting{getcurrentdrive.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getcwd
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getcwd}{D640}{0A}
+\item [Dienst:]  Geeft informatie over de huidige geselecteerde directory of subdirectory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getdefaultdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getdefaultdrive}{D640}{02}
+
+\item [Dienst:]  Geeft het stationsnummer (SD-kaartpartitie) terug dat Hyppo tijdens het opstarten heeft geselecteerd.
+\item [Resultaten:]  \register{A}{Het standaard stationsnummer}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Voorbeeld:]  Selecteert het standaardstation.
+  \acmelisting{getdefaultdrive.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% getdrivesize
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{getdrivesize}{D640}{08}
+\item [Dienst:]  Geeft informatie over de grootte van het huidige geselecteerde station (SD-kaartpartitie).
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% loadfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{loadfile}{D640}{36}
+
+\item [Dienst:]  Laadt een bestand in chip memory.
+\item [Voorwaarden:]  De naam van het te laden bestand is ingesteld met \hypporef{setname}.
+\item [Invoer:]  \register{X}{Het LSB van het adres waarmee het laden begint}  \register{Y}{Het middelste byte van het adres waarmee het laden begint}  \register{Z}{Het MSB van het adres waarmee het laden begint}
+\item [Nawerkingen:]  Er zijn geen extra bestandsdescriptors geopend.
+\item [Foutcodes:]  \errordesc{84}{too many open files}{\hypporef{loadfile} maakt intern gebruik van één  bestandsdescriptor, maar alle bestandsdescriptors zijn in gebruik. Sluit enkele of  alle bestandsdescriptors met \hypporef{closedir}, \hypporef{closefile}  of \hypporef{closeall}.}  \errordesc{88}{file not found}{Het bestand is niet gevonden in de huidige directory  van het huidige station.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Deze dienst kan bestanden tot 16 MB groot laden in de eerste 16 MB van chip memory. Chip memory is het geheugen van 384 KB of meer in de CPU-module.
+
+  Het laden begint op het 28-bit-adres \$00ZZYYXX. Indien het laden voorbij \$00FFFFFF probeert te gaan, slaat het om en gaat verder op \$00000000.
+
+  U kunt \hypporef{loadfile\_attic} gebruiken om een bestand in hyper memory te laden. Hyper memory is het geheugen van 8 MB of meer in de externe RAM-chips.\item [Voorbeeld:]  Laadt een bestand in het geheugen vanaf \$48000.
+  \acmelisting{loadfile.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% loadfile_attic
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{loadfile\_attic}{D640}{3E}
+
+\item [Dienst:]  Laadt een bestand in hyper memory.
+\item [Voorwaarden:]  De naam van het te laden bestand is ingesteld met \hypporef{setname}.
+\item [Invoer:]  \register{X}{Het LSB van het adres waarmee het laden begint}  \register{Y}{Het middelste byte van het adres waarmee het laden begint}  \register{Z}{Het MSB van het adres waarmee het laden begint}
+\item [Nawerkingen:]  Er zijn geen extra bestandsdescriptors geopend.
+\item [Foutcodes:]  \errordesc{84}{too many open files}{hos\_loadfile\_attic maakt intern gebruik van één  bestandsdescriptor, maar alle bestandsdescriptors zijn in gebruik. Sluit enkele of  alle bestandsdescriptors met \hypporef{closedir}, \hypporef{closefile}  of \hypporef{closeall}.}  \errordesc{88}{file not found}{Het bestand is niet gevonden in de huidige directory  van het huidige station.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Deze dienst kan bestanden tot 16 MB groot laden in de eerste 16 MB van hyper memory. Hyper memory is het geheugen van 8 MB of meer in de externe RAM-chips.
+
+  Het laden begint op het 28-bit-adres \$08ZZYYXX. Indien het laden voorbij \$08FFFFFF probeert te gaan, slaat het om en gaat verder op \$08000000.
+
+  U kunt \hypporef{loadfile} gebruiken om een bestand in chip memory te laden. Chip memory is het geheugen van 384 KB of meer in de CPU-module.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% mkdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{mkdir}{D640}{0E}
+
+\item [Dienst:]  Maakt een subdirectory aan.
+\item [Foutcodes:]  \errordesc{8D}{file exists}{Er bestaat al een subdirectory of bestand met de  huidige Hyppo-bestandsnaam in de huidige werkmap van het huidige  station.}
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% mkfile
+% ******************************************************************************
+\begin{hyppotrap}{mkfile}{D640}{1E}
+
+\item [Dienst:]  Maakt een bestand aan.
+\item [Foutcodes:]  \errordesc{8D}{file exists}{Er bestaat al een subdirectory of bestand met de  huidige Hyppo-bestandsnaam in de huidige werkmap van het huidige  station.}
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% opendir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{opendir}{D640}{12}
+
+\item [Dienst:]  Opent de huidige werkmap om de bestandsvermeldingen erin te lezen.
+\item [Voorwaarden:]  Het station en de directory die u wilt lezen, zijn indien nodig al ingesteld met  \hypporef{selectdrive} en \hypporef{chdir}.
+\item [Resultaten:]  \register{A}{De bestandsdescriptor voor het lezen van de directory. U bent zelf  verantwoordelijk voor het sluiten van deze bestandsdescriptor met  \hypporef{closedir}.}
+\item [Nawerkingen:]  \hypporef{readdir} leest de eerste FAT-dir-entry in de directory.
+\item [Foutcodes:]  \errordesc{84}{too many open files}{Alle bestandsdescriptors zijn in gebruik.  \hypporef{opendir} en \hypporef{openfile} maken gezamenlijk gebruik van dezelfde kleine  voorraad bestandsdescriptors. Sluit enkele of alle bestandsdescriptors met  \hypporef{closedir}, \hypporef{closefile} of \hypporef{closeall}.}  \errordesc{87}{not a directory}{De laatst gevonden FAT-dir-entry is van een  bestand. Gebruik \hypporef{openfile} voor bestanden.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Voorbeeld:]  Roept processdirentry aan voor elke FAT-dir-entry in de huidige werkmap.  processdirentry wordt elders gedefinieerd verondersteld.
+  \acmelisting{opendir.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% openfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{openfile}{D640}{18}
+
+\item [Dienst:]  Opent een bestand op een station.
+\item [Voorwaarden:]  Het bestand is al gevonden. Bestanden kunnen worden gevonden met \hypporef{findfile},  \hypporef{findfirst} en \hypporef{findnext}. \hypporef{readdir} kan ook worden  gebruikt om een bestand te vinden.
+\item [Resultaten:]  \register{A}{Het bestandsdescriptor voor toegang tot het bestand. U bent zelf  verantwoordelijk voor het sluiten van deze bestandsdescriptor met  \hypporef{closefile}.}
+\item [Nawerkingen:]  Het gebruik van \hypporef{readfile} met deze bestandsdescriptor leest de eerste sector van het bestand.
+\item [Neveneffecten:]  Stelt het huidige bestand in op het nieuw geopende bestand. \hypporef{readfile} leest  vanuit het huidige bestand.
+\item [Foutcodes:]  \errordesc{84}{too many open files}{Alle bestandsdescriptors zijn in gebruik.  \hypporef{opendir} en \hypporef{openfile} maken gezamenlijk gebruik van dezelfde kleine  voorraad bestandsdescriptors. Sluit enkele of alle bestandsdescriptors met  \hypporef{closedir}, \hypporef{closefile} of \hypporef{closeall}.}  \errordesc{86}{is a directory}{De laatst gevonden FAT-dir-entry is van een  directory. Gebruik \hypporef{opendir} voor directories.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+
+\item [Opmerkingen:]  U kunt dit niet gebruiken om een bestand binnen een schijfimage te openen. Gebruik in plaats daarvan \hypporef{attach} om de schijfimage te koppelen en gebruik vervolgens de KERNAL om het bestand te lezen of programmeer de virtuele F011-floppycontroller.
+\item [Voorbeeld:]  Zoekt en opent een bestand.
+  \acmelisting{openfile.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readdir
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{readdir}{D640}{14}
+
+\item [Dienst:]  Leest de volgende FAT-dir-entry in een bestemmingsgebied.
+\item [Voorwaarden:]  De bestandsdescriptor die in het X-register is opgegeven, is geopend met \hypporef{opendir} en \hypporef{closedir} is sindsdien niet gebruikt om deze te sluiten.
+
+  Het bestemmingsgebied bevindt zich op een paginagrens tussen \$0000 en \$7E00 en is  ten minste 87 bytes groot.
+\item [Invoer:]  \register{X}{De bestandsdescriptor voor de directory.}  \register{Y}{Het MSB van het bestemmingsgebied.}
+\item [Resultaten:]
+  \raggedright Vanaf \$YY00 heeft de FAT-dir-entry de volgende structuur.  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Omschrijving}
+  \\\hline
+  \$00 & asciiz & De lange bestandsnaam
+  \\
+  \$40 & byte & De lengte van de lange bestandsnaam
+  \\
+  \$41 & ascii & De ``8.3''-bestandsnaam. Het naamgedeelte wordt aangevuld met spaties zodat  het precies 8 bytes is. De 3 bytes van de extensie volgen. Er staat  geen punt tussen de naam en de extensie. Er is geen NULL-byte.
+  \\
+  \$4E & dword & Het clusternummer waar het bestand begint. Voor sub-directories  is dit de plaats waar de FAT-dir-entries voor die subdirectory beginnen.
+  \\
+  \$52 & dword & De lengte van het bestand in bytes.
+  \\
+  \$56 & byte  & Het type- en attribuutbyte.
+  \\\hline
+  \end{tabular}
+  }
+
+  Dit is de betekenis van de bits in het laatste byte. Bits 6 en 7 zijn ongedefinieerd.  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|l|}
+  \hline
+  \textbf{Bit} & \textbf{Betekenis indien bit ingesteld} \\
+  \hline
+  0 & Alleen lezen         \\  1 & Verborgen            \\  2 & Systeem            \\  3 & Volumelabel      \\  4 & Sub-directory     \\  5 & Archief           \\
+  \hline
+  \end{tabular}
+  }
+
+\item [Nawerkingen:]  Het opnieuw gebruiken van \hypporef{readdir} leest de volgende FAT-dir-entry in de directory.
+\item [Foutcodes:]  \errordesc{08}{partition error}{Er is een ongespecificeerde fout opgetreden bij het verwerken  van de huidig geselecteerde partitie.}  \errordesc{10}{invalid address}{Het Y-register is $>$ \$7E.}  \errordesc{85}{invalid cluster}{Er is geprobeerd voorbij het einde van  de directory te lezen.}
+\item [Opmerkingen:]  Indien de lange bestandsnaam in de FAT-dir-entry te lang is om in het  bestemmingsgebied te kopiëren, slaat Hyppo de entry geheel over.
+
+  De bestandsnamen in FAT zijn gecodeerd als UTF-16. Hyppo leest alleen het LSB  van elk 16-bit teken. Hyppo converteert bestandsnamen niet naar  PETSCII.
+
+  Zie \hypporef{setup\_transfer\_area} voor meer details over de waarde van het  Y-register.\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Voorbeeld:]  Zie het voorbeeld bij \hypporef{opendir}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readfile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{readfile}{D640}{1A}
+
+\item [Dienst:]  Leest het volgende sector van het huidige bestand in de sectorbuffer.
+\item [Voorwaarden:]  Er is een huidig bestand geopend. Bestanden kunnen worden geopend met \hypporef{openfile}.
+\item [Resultaten:]  \register{X}{Het LSB van het aantal gelezen bytes}  \register{Y}{Het MSB van het aantal gelezen bytes}
+\item [Nawerkingen:]  De volgende aanroep van \hypporef{readfile} leest het volgende sector van het huidige  bestand of geeft het einde van het bestand aan.
+\item [Foutcodes:]  \errordesc{89}{invalid file descriptor}{Er is geen huidig bestand.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Om de gegevens te benaderen, moet u het volgende doen:
+  \begin{itemize}
+    
+\item de sectorbuffer in de 16-bit adresruimte te plaatsen;    
+\item een verbeterde DMA-overdracht te gebruiken om de sectorbuffer op          \$FFD6E00 -- \$FFD6FFF naar een buffer te kopiëren die al in de 16-bit          adresruimte is geplaatst; of    
+\item 32-bit laadinstructies te gebruiken om de sectorbuffer direct te  benaderen.
+  \end{itemize}
+
+  Indien een volledig sector is gelezen, is Y:X gelijk aan \$0200. Voor het laatste sector van het  bestand kan Y:X kleiner zijn. Bytes in de sectorbuffer na Y:X zijn  ongedefinieerd en niet noodzakelijk nul.
+
+  Indien u voorbij het einde van het laatste sector leest, is Y:X gelijk aan \$0000, is het  A-register gelijk aan \$FF en is de C-vlag ingesteld.
+
+  Hoewel meerdere bestanden tegelijkertijd kunnen worden geopend, kan alleen het huidige bestand worden  gelezen. Het huidige bestand is meestal het laatst geopende bestand, maar niet altijd.\item [Voorbeeld:]  Plaatst de sectorbuffer op \$DE00 en leest vervolgens elk sector van het bestand  door voor elk gelezen sector een aanroep te doen naar proccesssector. proccesssector wordt elders  gedefinieerd verondersteld.
+  \acmelisting{readfile.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rename
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rename}{D640}{2A}
+
+\item [Dienst:]  Hernoemt een bestand of subdirectory.
+\item [Foutcodes:]  \errordesc{8D}{file exists}{Er bestaat al een subdirectory of bestand met de  huidige Hyppo-bestandsnaam in de huidige werkmap van het huidige  station.}
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rmdir
+% ******************************************************************************
+\begin{hyppotrap}{rmdir}{D640}{10}
+\item [Dienst:]  Verwijdert een subdirectory.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rmfile
+% ******************************************************************************
+\begin{hyppotrap}{rmfile}{D640}{26}
+
+\item [Dienst:]  Verwijdert een bestand.
+\item [Voorbeding:]  Het bestand is reeds gevonden. Bestanden kunnen worden gevonden met \hypporef{findfile},  \hypporef{findfirst} en \hypporef{findnext}. \hypporef{readdir} kan ook worden gebruikt om een bestand te vinden.
+\item [Nawerking:]  Het bestand is verwijderd en de sectoren zijn vrijgegeven.
+\item [Geschiedenis:]
+  \availablefrom{1.3}
+\item [Opmerkingen:]  Deze documentatie is onvolledig en in opbouw!
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% seekfile
+% ******************************************************************************
+\begin{hyppotrap}{seekfile}{D640}{24}
+\item [Dienst:]  Zoekt naar een bepaalde sector in een bestand.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% selectdrive
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{selectdrive}{D640}{06}
+
+\item [Dienst:]  Stelt het momenteel geselecteerde station (SD-kaartpartitie) in.
+\item [Voorbeding:]  Hyppo heeft een stationsnummer toegewezen aan de SD-kaartpartitie.
+\item [Invoer:]  \register{X}{Het stationsnummer dat het nieuwe huidige station wordt}
+\item [Nawerking:]  \hypporef{getcurrentdrive} geeft de waarde terug die in het X-register stond.
+
+  Hyppo-services werken op het nieuw geselecteerde station.
+\item [Foutcodes:]  \errordesc{80}{no such drive}{Het station in het X-register bestaat niet.  Hyppo wijst alleen stationsnummers toe aan SD-kaartpartities die het kan lezen.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Voorbeeld:]  Test of station 2 bestaat door het te selecteren. Keert terug met de C-vlag ingesteld als  station 2 bestaat.
+  \acmelisting{selectdrive.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% setname
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{setname}{D640}{2E}
+
+\item [Dienst:]  Stelt de huidige Hyppo-bestandsnaam in.
+\item [Voorbeding:]  De bestandsnaam is opgeslagen in ASCII en eindigt op een \$00-byte.
+
+  De bestandsnaam begint op een paginagrens tussen \$0000 en \$7E00 en is korter  dan 63 tekens, exclusief de \$00-byte.
+\item [Invoer:]  \register{Y}{Het MSB van het bestandsnaamadres.}
+\item [Nawerking:]  Hyppo heeft de bestandsnaam gekopieerd naar het eigen gegevensgebied.
+
+  De hyppo\_find*- en hyppo\_load*-services gebruiken deze bestandsnaam.
+\item [Neveneffect:]  Stelt het overdrachtsgebied in op \$YY00.
+\item [Foutcodes:]  \errordesc{10}{invalid address}{Het Y-register is $>$ \$7E.}  \errordesc{81}{name too long}{De bestandsnaam is langer dan 63 tekens.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  De bestandsnaam moet tussen \$0000 en \$7E00 liggen. Deze moet ook op een paginagrens beginnen. Het adres moet dus eindigen op \$00. De huidige geheugenindeling wordt gebruikt. Het is echter aan te raden om de bestandsnaam in de onderste 32KB van bank 0 te plaatsen.
+
+  De bestandsnamen in FAT worden gecodeerd in UTF-16. Hyppo leest alleen het LSB  van elk 16-bit teken. Hyppo voert geen conversie uit tussen ASCII en  PETSCII.
+
+  Hyppo geeft toegang tot de bestanden in het FAT-bestandssysteem op de interne  en externe SD-kaarten. Het geeft geen toegang tot bestanden op schijven in floppy-stations of in  schijfimages.\item [Voorbeeld:]  Stel de huidige Hyppo-bestandsnaam in op GAME.MAP.
+  \acmelisting{setname.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% writefile
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{writefile}{D640}{1C}
+
+\item [Dienst:]  Schrijft de sectorbuffer naar het huidige bestand.
+\item [Voorbeding:]  Er is een huidig bestand geopend. Bestanden kunnen worden geopend met \hypporef{openfile}.
+\item [Nawerking:]  De volgende aanroep van \hypporef{writefile} schrijft de volgende sector van het huidige  bestand.
+\item [Foutcodes:]  \errordesc{89}{invalid file descriptor}{Er is geen huidig bestand.}
+\item [Geschiedenis:]
+  \availablefrom{1.3}
+\item [Opmerkingen:]  Deze documentatie is onvolledig en in opbouw!
+
+  Om de gegevens aan te leveren, heeft u een van de volgende mogelijkheden:
+  \begin{itemize}
+    
+\item plaats de sectorbuffer in de 16-bit adresruimte;    
+\item gebruik een verbeterde DMA-overdracht om de sectorbuffer van          \$FFD6E00 -- \$FFD6FFF te kopiëren naar een buffer die reeds in de 16-bit          adresruimte is geladen; of    
+\item gebruik 32-bit laadinstructies om direct toegang tot de sectorbuffer te krijgen.
+  \end{itemize}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Disk Image Services
+% ==============================================================================
+\newpage
+\section{Schijfimage-services}
+
+De 45IO27 multifunctionele I/O-controller bevat een F011-compatibele floppycontroller. Het interne floppy-station is hierop aangesloten als station 0.
+
+Hyppo kan de F011 floppy-controller virtualiseren zodat schijfimages  kunnen worden gekoppeld in plaats van floppy-stations. Zodra een schijfimage is gekoppeld, vangt Hyppo de I/O-registers van de F011 af en emuleert de commando's op de schijfimage.
+
+U kunt BASIC, de KERNAL en de F011 I/O-registers gebruiken om een schijfimage  net als een fysieke schijf te bewerken. De virtualisatie gedraagt zich niet  in alle gevallen hetzelfde als een floppy-station. Indien u wilt dat uw programma  met zowel schijfimages als fysieke schijven werkt, test het dan met beide.
+
+% ******************************************************************************
+% attach
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{attach}{D640}{4A}
+
+\item [Dienst:]  Koppelt of ontkoppelt een schijfimage aan het virtuele F011-station.
+\item [Voorbeding:]  (koppelen) De huidige Hyppo-bestandsnaam is ingesteld met \hypporef{setname}.
+\item [Invoer:]  \register{X.0}{Selecteer station 0 of 1.}  \register{X.1}{Bij X.0=1, selecteer beide stations (alleen ontkoppelen).}  \register{X.6}{Herkoppel geen fysieke stations (alleen ontkoppelen).}  \register{X.7}{Werkingsmodus: 0=koppelen, 1=ontkoppelen.}
+\item [Foutcodes:]  \errordesc{81}{name to long}{De naam van de schijfimage is te lang voor de  procesdescriptor (max. 31 tekens).}  \errordesc{88}{file not found}{De schijfimage is niet gevonden in de  huidige map van het huidige station.}  \errordesc{8A}{image wrong length}{De lengte van de image komt niet overeen met een  van de ondersteunde imagetypen.}  \errordesc{8B}{image fragmented}{De gegevens van de image bevinden zich niet in één  aaneengesloten reeks van sectoren; dit wordt niet ondersteund.}  \errordesc{8F}{double attach}{De gevraagde image is al gekoppeld aan het  andere station.}
+\item [Geschiedenis:]
+  \availablefrom{1.3}
+
+\item [Opmerkingen:]  Tenzij dit is gewijzigd, is station 0 van de virtuele F011 floppy-controller  apparaat 8 en station 1 apparaat 9.
+\item [Voorbeeld:]  Koppelt en ontkoppelt de schijfimage DISK2.D81 aan virtueel F011 station 0.
+  \acmelisting{attach.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81attach0
+% ******************************************************************************
+\begin{hyppotrap}{d81attach0}{D640}{40}
+
+\item [Dienst:]  Koppelt een D81-schijfimage aan virtueel F011 station 0.
+\item [Voorbeding:]  De huidige Hyppo-bestandsnaam is ingesteld met \hypporef{setname}.
+\item [Geschiedenis:]
+  \availablefrom{1.2}\\
+  \deprecatedfrominstead{1.3}{attach}\item [Opmerkingen:]  Deze service aanroept eigenlijk \hypporef{attach} met \register{X}{= \$00}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81attach1
+% ******************************************************************************
+\begin{hyppotrap}{d81attach1}{D640}{46}
+
+\item [Dienst:]  Koppelt een D81-schijfimage aan virtueel F011 station 1.
+\item [Voorbeding:]  De huidige Hyppo-bestandsnaam is ingesteld met \hypporef{setname}.
+\item [Geschiedenis:]
+  \availablefrom{1.2}\\
+
+  \deprecatedfrominstead{1.3}{attach}\item [Opmerkingen:]  Deze dienst roept eigenlijk \hypporef{attach} aan met \register{X}{= \$01}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81detach
+% ******************************************************************************
+\begin{hyppotrap}{d81detach}{D640}{42}
+
+\item [Dienst:]  Koppelt alle schijfimages los van de virtuele F011-stations 0 en 1.
+\item [Geschiedenis:]
+  \availablefrom{1.2}\\
+
+  \deprecatedfrominstead{1.3}{attach}\item [Opmerkingen:]  Deze dienst roept eigenlijk \hypporef{attach} aan met \register{X}{= \$C2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% d81write_en
+%
+% Jimbo - hyppo_d81attach* already write-enables the images.
+%         See https://github.com/MEGA65/mega65-core/issues/494
+% ******************************************************************************
+\begin{hyppotrap}{d81write\_en}{D640}{44}
+
+\item [Dienst:]  Schakelt schrijven in voor alle schijfimages die gekoppeld zijn aan virtuele F011-stations 0 en 1.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Images worden standaard gekoppeld met schrijven ingeschakeld, zodat deze aanroep niet nodig is.
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Task and Process Services
+% ==============================================================================
+\newpage
+\section{Taak- en procesdiensten}
+
+
+% ******************************************************************************
+% create_task_c64
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_c64}{D640}{66}
+\item [Dienst:]  Maakt een Hyppo-taak aan in de C64-achtige werking.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% create_task_c65
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_c65}{D640}{68}
+\item [Dienst:]  Maakt een Hyppo-taak aan in de C65-achtige werking.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% create_task_native
+% ******************************************************************************
+\begin{hyppotrap}{create\_task\_native}{D640}{62}
+\item [Dienst:]  Maakt een Hyppo-taak aan in de MEGA65-werking.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% exit_and_switch_to_task
+% ******************************************************************************
+\begin{hyppotrap}{exit\_and\_switch\_to\_task}{D640}{6A}
+\item [Dienst:]  Sluit de huidige Hyppo-taak en schakelt de context over naar een andere Hyppo-taak.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% exit_task
+% ******************************************************************************
+\begin{hyppotrap}{exit\_task}{D640}{6E}
+\item [Dienst:]  Sluit de huidige Hyppo-taak. % Jimbo - And then what?
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_mapping
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{get\_mapping}{D640}{74}
+
+\item [Dienst:]  Kopieert de huidige 45GS02-geheugenindeling naar een bestemmingsgebied.
+\item [Voorwaarden:]  Het bestemmingsgebied begint op een paginagrens tussen \$0000 en \$7E00 en is minstens 6 bytes lang.
+\item [Invoer:]  \register{Y}{Het hoogste byte van het bestemmingsgebied.}
+\item [Uitvoer:]
+  \raggedright Beginnend op \$YY00 heeft de huidige indelingsinformatie de volgende structuur.  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+
+  \textbf{Offset} & \textbf{Type} & \textbf{Omschrijving} \\
+  \hline
+
+  0 & word & MAPLO (big-endian) \\  2 & word & MAPHI (big-endian) \\  4 & byte & Het megabyte-offset voor MAPLO \\  5 & byte & Het megabyte-offset voor MAPHI \\
+  \hline
+  \end{tabular}
+  }
+
+\item [Foutcodes:]  \errordesc{10}{invalid address}{Het Y-register is $>$ \$7E.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  MAPLO is de indeling voor \$0000 - \$7FFF.
+
+
+  MAPHI is de indeling voor \$8000 - \$FFFF.
+
+
+  Zie \bookvref{cha:cpu} voor meer informatie over geheugenindeling en banken van de MEGA65.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_proc_desc
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{get\_proc\_desc}{D640}{48}
+
+\item [Dienst:]  Kopieert het huidige taakblok naar een bestemmingsgebied.
+\item [Voorwaarden:]  Het bestemmingsgebied begint op een paginagrens tussen \$0000 en \$7E00 en is minstens 256 bytes lang.
+\item [Invoer:]  \register{Y}{Het hoogste byte van het bestemmingsgebied.}
+\item [Uitvoer:]
+  \raggedright Beginnend op \$YY00 heeft het huidige taakblok de volgende structuur.  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+
+  \textbf{Offset} & \textbf{Type} & \textbf{Omschrijving}
+  \\\hline
+
+  \$00 & byte & Het ID van de huidige taak.
+  \\
+
+  \$01 & text & De naam van de huidige taak. Maximaal 16 tekens.                Opgevuld met \$00-bytes.                Bij 16 tekens staan er geen afsluitende \$00-bytes.
+  \\
+
+  \$11 & byte & Vlaggen voor de D81-schijfimage die gekoppeld is aan station 0 van de                virtuele F011-floppycontroller.
+  \\
+
+  \$12 & byte & Idem maar voor station 1.
+  \\
+
+  \$13 & byte & De lengte van de bestandsnaam van de D81-schijfimage die gekoppeld is aan station 0.
+  \\
+
+  \$14 & byte & Idem maar voor station 1.
+  \\
+
+  \$15 & text & De bestandsnaam van de D81-schijfimage die gekoppeld is aan station 0.                Maximaal 32 tekens. Opgevuld met \$20-bytes.                Er staan geen afsluitende \$00-bytes.
+  \\
+
+  \$35 & text & Idem maar voor station 1.
+  \\
+
+  \$55 & & De betekenis van deze bytes is ongedefinieerd en kan veranderen.
+  \\
+
+  \$80 & & Bestandsdescriptor 0.
+  \\
+
+  \$A0 & & Bestandsdescriptor 1.
+  \\
+
+  \$C0 & & Bestandsdescriptor 2.
+  \\
+
+  \$E0 & & Bestandsdescriptor 3.
+  \\\hline
+  \end{tabular}
+  }
+
+
+  Elke bestandsdescriptor heeft de volgende structuur.  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+
+  \textbf{Offset} & \textbf{Type} & \textbf{Omschrijving}
+  \\\hline
+
+  \$00 & byte  & Het nummer van de SD-kaartpartitie waarin het bestand staat.                 \$FF betekent dat de bestandsdescriptor gesloten is.
+  \\\hline
+
+  \$01 & dword & Het cluster waar het bestand begint
+  \\\hline
+
+  \$05 & dword & Het huidige cluster
+  \\\hline
+
+  \$09 & byte  & De huidige sector binnen het huidige cluster
+  \\\hline
+
+  \$0A & dword & De lengte van het bestand
+  \\\hline
+
+  \$0E & dword & De huidige positie binnen de buffer van het bestand
+  \\\hline
+
+  \$12 & dword & Het cluster van de directory waarin het bestand staat
+  \\\hline
+
+  \$16 & word  & De index van het bestand binnen zijn directory
+  \\\hline
+
+  \$18 & dword & Het absolute 32-bits adres van de buffer van het bestand
+  \\\hline
+
+  \$1C & word  & Het aantal bytes dat in de buffer van het bestand wordt gebruikt
+  \\\hline
+
+  \$1E & word  & De huidige offset binnen de buffer van het bestand
+  \\\hline
+  \end{tabular}
+  }
+
+\item [Foutcodes:]  \errordesc{10}{invalid address}{Het Y-register is $>$ \$7E.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% gettasklist
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{gettasklist}{D640}{50}
+\item [Dienst:]  Haalt de lijst met taken op uit Hyppo.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% load_into_task
+% ******************************************************************************
+\begin{hyppotrap}{load\_into\_task}{D640}{64}
+\item [Dienst:]  Laadt een bestand vanaf een SD-kaartpartitie in het geheugen van een Hyppo-taak.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% readoutoftask
+% ******************************************************************************
+\begin{hyppotrap}{readoutoftask}{D640}{58}
+\item [Dienst:]  Leest uit het geheugen van een andere Hyppo-taak.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% receivemessage
+% ******************************************************************************
+\begin{hyppotrap}{receivemessage}{D640}{54}
+\item [Dienst:]  Ontvangt berichten die door andere Hyppo-taken zijn verzonden.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% reset
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{reset}{D640}{7E}
+
+\item [Dienst:]  Voert een warme start van de MEGA65 uit.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rom_writeenable
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rom\_writeenable}{D641}{02}
+
+\item [Dienst:]  Verandert \$20000 -- \$3FFFF zodat ze zich als RAM gedragen door de  schrijfbeveiliging uit te schakelen.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  \$20000 -- \$3FFFF bevat normaal de KERNAL-, BASIC-, CBDOS- en lettertype-ROM's.
+
+
+  \hypporef{rom\_writeprotect} schakelt de schrijfbeveiliging in en blokkeert schrijfbewerkingen.  \hypporef{toggle\_rom\_writeprotect} wisselt de schrijfbeveiliging om.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% rom_writeprotect
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{rom\_writeprotect}{D641}{00}
+
+\item [Dienst:]  Verandert \$20000 -- \$3FFFF zodat ze zich als ROM gedragen door de  schrijfbeveiliging in te schakelen.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  \$20000 -- \$3FFFF bevat normaal de KERNAL-, BASIC-, CBDOS- en lettertype-ROM's.
+
+
+  \hypporef{rom\_writeenable} schakelt de schrijfbeveiliging uit en staat schrijfbewerkingen toe.  \hypporef{toggle\_rom\_writeprotect} wisselt de schrijfbeveiliging om.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% sendmessage
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{sendmessage}{D640}{52}
+\item [Dienst:]  Verstuurt een bericht naar een andere Hyppo-taak.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% serial_monitor_wait_and_write
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{serial\_monitor\_wait\_and\_write}{D643}{xx}
+
+\item [Dienst:]  Wacht totdat de seriële monitor of de Matrix Mode Debugger gereed is om te ontvangen en schrijft vervolgens een teken naar het apparaat.
+\item [Invoer:]  \register{A}{Het ASCII-teken dat geschreven moet worden.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  De service wacht tot de seriële monitor gereed is om te ontvangen. Dit kan uw programma vertragen of vast laten lopen. Indien u dat niet wilt en het geen bezwaar vindt dat het teken verloren gaat wanneer de seriële monitor niet gereed is, gebruik dan \hypporef{serial\_monitor\_write}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% serial_monitor_write
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{serial\_monitor\_write}{D640}{7C}
+
+\item [Dienst:]  Schrijft een teken naar de seriële monitor of de Matrix Mode Debugger.
+\item [Voorwaarden:]  De seriële monitor is gereed om te ontvangen.
+\item [Invoer:]  \register{Y}{Het ASCII-teken dat geschreven moet worden.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Het teken gaat verloren indien de seriële monitor niet gereed is om te ontvangen. Indien u niet wilt dat het teken verloren gaat, gebruik dan \hypporef{serial\_monitor\_wait\_and\_write}.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% set_mapping
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{set\_mapping}{D640}{76}
+
+\item [Dienst:]  Kopieert het brongebied naar de huidige 45GS02-geheugenindeling.
+\item [Voorwaarden:]  Het brongebied begint op een paginagrens tussen \$0000 en \$7E00 en is minimaal 6 bytes.
+\item [Invoer:]  \register{Y}{Het meest significante byte van het brongebied.}
+
+  \raggedright Vanaf \$YY00 heeft de huidige mappingsinformatie de volgende structuur.  {\setlength{\tabcolsep}{2mm}
+  \begin{tabular}{|c|c|p{6.9cm}|}
+  \hline
+  \textbf{Offset} & \textbf{Type} & \textbf{Omschrijving} \\
+  \hline
+  0 & word & MAPLO (big-endian) \\  2 & word & MAPHI (big-endian) \\  4 & byte & Het megabyte-offset voor MAPLO \\  5 & byte & Het megabyte-offset voor MAPHI \\
+  \hline
+  \end{tabular}
+  }
+
+\item [Nawerkingen:]  De CPU gaat verder met de nieuwe geheugenindeling.
+\item [Foutcodes:]  \errordesc{10}{invalid address}{Het Y-register is $>$ \$7E.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  Wees voorzichtig bij het wijzigen van de geheugenindeling. Hyppo zal geen maatregelen nemen om te garanderen dat de instructies na de STA worden uitgevoerd ongeacht de indeling. Indien u de indeling van het blok waar het programmateller naar wijzigt, zal de CPU hervatten met de instructies in het nieuw toegewezen blok.
+
+  MAPLO is de mapping voor \$0000 - \$7FFF.
+
+  MAPHI is de mapping voor \$8000 - \$FFFF.
+
+  Zie \bookvref{cha:cpu} voor meer informatie over de geheugenindeling en bankindeling van de MEGA65.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% switch_to_task
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{switch\_to\_task}{D640}{6C}
+\item [Dienst:]  Schakelt de context over naar een andere Hyppo-taak.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% terminateothertask
+% ******************************************************************************
+\begin{hyppotrap}{terminateothertask}{D640}{60}
+\item [Dienst:]  Beëindigt een andere Hyppo-taak.
+\notimplemented
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% toggle_force_4502
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{toggle\_force\_4502}{D640}{72}
+
+\item [Dienst:]  Schakelt de CPU-persoonlijkheid om tussen 45GS02 en 6502.
+\item [Uitvoer:]  \register{A}{Indien bit 5 is gezet, bevindt de CPU zich in de 45GS02-persoonlijkheid. Indien bit 5 is gewist, bevindt de CPU zich in de 6502-persoonlijkheid.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  De overige bits van het A-register zijn ongedefinieerd. Verwacht niet dat ze nul zijn.
+
+  In de 6502-persoonlijkheid zijn geen van de nieuwe opcodes van de 65C02, 65CE02, 4510 of 45GS02 beschikbaar. Deze worden vervangen door het oorspronkelijke --- en vaak vreemde --- gedrag van de ongedefinieerde opcodes van de 6502.
+
+  \textbf{Waarschuwing} Deze functie is onvolledig en niet getest. De meeste ongedocumenteerde 6502-opcodes werken niet correct wanneer de 6502-persoonlijkheid is ingeschakeld.\item [Voorbeeld:]  Schakelt de 45GS02-persoonlijkheid in ongeacht de huidige persoonlijkheid van de CPU.
+  \acmelisting{toggle_force_4502.asm}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% toggle_rom_writeprotect
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{toggle\_rom\_writeprotect}{D640}{70}
+
+\item [Dienst:]  Schakelt de schrijfbescherming voor \$20000 -- \$3FFFF om.
+\item [Uitvoer:]  \register{A}{Indien bit 2 is gezet, kan naar \$20000 -- \$3FFFF niet worden geschreven.}
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\item [Opmerkingen:]  De overige bits van het A-register zijn ongedefinieerd. Verwacht niet dat ze nul zijn.
+
+  Indien u de bescherming eenvoudig wilt uitschakelen of inschakelen, kunt u \hypporef{rom\_writeenable} en \hypporef{rom\_writeprotect} gebruiken.
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% writeintotask
+% ******************************************************************************
+\newpage
+\begin{hyppotrap}{writeintotask}{D640}{56}
+\item [Dienst:]  Schrijft in het geheugen van een andere Hyppo-taak.
+\notimplemented
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% System Partition
+% ==============================================================================
+\newpage
+\section{Systempartitieservices}
+
+
+% ******************************************************************************
+% configsector_apply
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_apply}{D642}{04}
+
+\item [Dienst:]  Past de systeemconfiguratie-sector toe die momenteel in het geheugen is geladen.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% configsector_read
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_read}{D642}{00}
+
+\item [Dienst:]  Leest de systeemconfiguratie-sector in het geheugen.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% configsector_write
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_write}{D642}{02}
+
+\item [Dienst:]  Schrijft de systeemconfiguratie-sector vanuit het geheugen.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% dmagic_autoset
+% ******************************************************************************
+\begin{hyppotrap}{dmagic\_autoset}{D642}{06}
+
+\item [Dienst:]  Stelt de DMAgic-revisie in op basis van de geladen ROM.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+
+% ==============================================================================
+% Freezer
+% ==============================================================================
+\newpage
+\section{Freezerservices}
+
+
+% ******************************************************************************
+% freeze_self
+% ******************************************************************************
+\begin{hyppotrap}{freeze\_self}{D67F}{xx}
+
+\item [Dienst:]  Start de Freezer.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% get_slot_count
+% ******************************************************************************
+\begin{hyppotrap}{get\_slot\_count}{D642}{16}
+
+\item [Dienst:]  Geeft het aantal freeze-slots op.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% locate_freeze_slot
+% ******************************************************************************
+\begin{hyppotrap}{locate\_freeze\_slot}{D642}{10}
+
+\item [Dienst:]  Zoekt de eerste sector van een freeze-slot.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% read_freeze_region_list
+% ******************************************************************************
+\begin{hyppotrap}{read\_freeze\_region\_list}{D642}{14}
+
+\item [Dienst:]  Leest de freeze-regiolijst.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+
+% ******************************************************************************
+% unfreeze_from_slot
+% ******************************************************************************
+\begin{hyppotrap}{unfreeze\_from\_slot}{D642}{12}
+
+\item [Dienst:]  Maakt een freeze-slot ongedaan.
+\item [Geschiedenis:]
+  \availablefrom{1.2}
+\end{hyppotrap}
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{5}}

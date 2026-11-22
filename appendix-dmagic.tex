@@ -165,7 +165,7 @@ The addressing mode fields take the following four values:
   \%10 (2) & Hold (constant address) \\
   \%11 (3) & XY MOD (bitmap rectangular) addressing \\
   \hline
-  \multicolumn{2}{p{9.5cm}}{* Only Linear, Modulo and Hold are implemented at the time of writing.}
+  \multicolumn{2}{p{9.5cm}}{* Only Linear and Hold are implemented at the time of writing. The Modulo bits are accepted but have no effect.}
 \end{tabular}
 \end{center}
 
@@ -619,7 +619,9 @@ sample. This is a 24-bit address, and must be in the main chip memory
 of the MEGA65. This is done by writing the address into \$D72A --
 \$D72C.  This is the address of the first sample value that will be played.
 You must then provide the end address of the sample in \$D727 --
-\$D728.  But note that this is is only 16 bits. This is because the
+\$D728. This is the address one past the last sample value: the channel
+stops (or loops) when its current address reaches it, without playing
+the value stored there.  But note that this is is only 16 bits. This is because the
 MEGA65 compares only the bottom 16 bits of the address when checking
 if it has reached the end of a sample.  In practice, this means that
 samples cannot be more than 64KB in size.  If the sample contains a
@@ -672,7 +674,7 @@ higher frequencies,
 there is a special mode to support this. By setting the CH0SINE
 signal, the audio channel will play a 32 byte 16-bit sine wave
 pattern.  The sample addresses still need to be set, as though the
-sine wave table were located in the bottom 64 bytes of memory, as the
+sine wave table were located in the bottom 32 bytes of memory, as the
 normal address generation logic is used in this mode. However, no
 audio DMA fetches are performed when a channel is in this mode, thus
 avoiding all sources of distortion due to irregular spacing of idle
@@ -688,8 +690,15 @@ speaker arrangement.
 To begin a channel playing a sample, set the CH0EN signal (\$D720 bit
 7). The sample will play until its completion, unless the CH0LOOP
 signal has also been set. When a sample completes playing, the CH0STP
-flag will be set.  The audio DMA subsystem cannot presently generate
-interrupts.
+flag will be set.  Each channel can also raise an IRQ as it nears
+the end of its sample, using the enable bits and flags in \$D713 and
+the offsets in \$D714 -- \$D717. The IRQ comes when the channel's
+current address reaches (top address high byte $-$ offset) $\times$
+256. It happens once: the channel's flag is set and its enable bit is
+cleared. The IRQ is raised inside the CPU, so the CIA and VIC-IV
+interrupt registers do not show it; a handler must check \$D713, and
+write 0 to the flag to clear it. An IRQ that arrives while the I flag
+is set is lost; only the flag remains.
 
 Unlike on the Amiga\texttrademark{}, the MEGA65 audio DMA system supports both
 8 and 16-bit samples.  It also supports packed 4-bit samples, playing

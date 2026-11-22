@@ -439,7 +439,9 @@ configsector\_read & Config  & A=\$00 & \$D642 & Reads the system configuration 
 \hline
 configsector\_write & Config & A=\$02 & \$D642 & Writes the system configuration sector from memory \\
 \hline
-dmagic\_autoset & Config & A=\$06 & \$D642 & Sets the DMAgic revision based on the loaded ROM \\
+configsector\_set & Config & A=\$06 & \$D642 & Sets the SD card sector number to the system configuration sector \\
+\hline
+dmagic\_autoset & Config & A=\$08 & \$D642 & Sets the DMAgic revision based on the loaded ROM \\
 \hline
 freeze\_self & Freezer & A=any & \$D67F & Launches the freezer \\
 \hline
@@ -554,7 +556,8 @@ unfreeze\_from\_slot & Freezer & A=\$12 & \$D642 & Unfreezes from a freeze slot 
     \\\hline
     \index{Hyppo Error Codes!\$83}
     \$83 & 131 & file too long &
-    The file is larger than 16MB.
+    The file is longer than 65,535 sectors (32MB). A file loaded into memory
+    wraps around within a 16MB region before reaching this limit.
     \\\hline
     \index{Hyppo Error Codes!\$84}
     \$84 & 132 & \makecell[tl]{too many\\open files} &
@@ -1428,8 +1431,8 @@ bus.
 \item [Preconditions:]
   The filename is stored in ASCII and ends with a \$00 byte.
 
-  The filename starts on a page boundary between \$0000 and \$7E00 and is less
-  than 63 characters, excluding the \$00 byte.
+  The filename starts on a page boundary between \$0000 and \$7E00 and is at
+  most 63 characters long, excluding the \$00 byte.
 \item [Inputs:]
   \register{Y}{The MSB of the filename address.}
 \item [Postconditions:]
@@ -2110,9 +2113,19 @@ with both disk images and physical disks, be sure to test it with both.
 
 
 % ******************************************************************************
+% configsector_set
+% ******************************************************************************
+\begin{hyppotrap}{configsector\_set}{D642}{06}
+\item [Service:]
+  Sets the SD card sector number (\$D681--\$D684) to the system configuration
+  sector, sector 1.
+\end{hyppotrap}
+
+
+% ******************************************************************************
 % dmagic_autoset
 % ******************************************************************************
-\begin{hyppotrap}{dmagic\_autoset}{D642}{06}
+\begin{hyppotrap}{dmagic\_autoset}{D642}{08}
 \item [Service:]
   Sets the DMAgic revision based on the loaded ROM.
 \item [History:]
